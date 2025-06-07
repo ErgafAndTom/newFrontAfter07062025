@@ -1,9 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import axios from "../../../api/axiosInstance";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {Form, Spinner} from "react-bootstrap";
 
-function AddContrAgentInProfile({ showAddPay, setShowAddPay, formData, setFormData, data, setData, showAddPayView, setShowAddPayView, showAddPayWriteId, setShowAddPayWriteId, user }) {
+function AddContrAgentInProfile({
+                                    showAddPay,
+                                    setShowAddPay,
+                                    formData,
+                                    setFormData,
+                                    data,
+                                    setData,
+                                    showAddPayView,
+                                    setShowAddPayView,
+                                    showAddPayWriteId,
+                                    setShowAddPayWriteId,
+                                    user
+                                }) {
     const [load, setLoad] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -24,7 +36,7 @@ function AddContrAgentInProfile({ showAddPay, setShowAddPay, formData, setFormDa
     // };
 
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
+        const {name, value, type, checked} = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: type === 'checkbox'
@@ -158,7 +170,8 @@ function AddContrAgentInProfile({ showAddPay, setShowAddPay, formData, setFormDa
 
                     <div style={{padding: "1vw"}}>
                         {load && (
-                            <div className="d-flex justify-content-center align-items-center" style={{height: "100%"}}><Spinner animation="border" className="mainLoader" variant="dark" /></div>
+                            <div className="d-flex justify-content-center align-items-center" style={{height: "100%"}}>
+                                <Spinner animation="border" className="mainLoader" variant="dark"/></div>
                         )}
                         {!load && (
 
@@ -175,7 +188,9 @@ function AddContrAgentInProfile({ showAddPay, setShowAddPay, formData, setFormDa
                                 <div className="AddContractorInOrderFieldGroup">
                                     <div className="AddContractorInOrderFieldRow">
                                         <label className="adminFontTable">Найменування</label>
-                                        <input required value={formData.name} name="name" type="text" placeholder="Найменування ФОП або ТОВ" className="AddContractorInOrderInput" onChange={handleChange} />
+                                        <input required value={formData.name} name="name" type="text"
+                                               placeholder="Найменування ФОП або ТОВ"
+                                               className="AddContractorInOrderInput" onChange={handleChange}/>
                                     </div>
                                     {/*<div className="AddContractorInOrderFieldRow">*/}
                                     {/*    <label className="adminFontTable">Тип</label>*/}
@@ -186,19 +201,25 @@ function AddContrAgentInProfile({ showAddPay, setShowAddPay, formData, setFormDa
                                     {/*</div>*/}
                                     <div className="AddContractorInOrderFieldRow">
                                         <label className="adminFontTable">Адреса</label>
-                                        <input value={formData.address} name="address" type="text" placeholder="Адреса" className="AddContractorInOrderInput" onChange={handleChange} />
+                                        <input value={formData.address} name="address" type="text" placeholder="Адреса"
+                                               className="AddContractorInOrderInput" onChange={handleChange}/>
                                     </div>
                                     <div className="AddContractorInOrderFieldRow">
                                         <label className="adminFontTable">Назва банку</label>
-                                        <input value={formData.bankName} name="bankName" type="text" placeholder="Назва банку" className="AddContractorInOrderInput" onChange={handleChange} />
+                                        <input value={formData.bankName} name="bankName" type="text"
+                                               placeholder="Назва банку" className="AddContractorInOrderInput"
+                                               onChange={handleChange}/>
                                     </div>
                                     <div className="AddContractorInOrderFieldRow">
                                         <label className="adminFontTable">IBAN</label>
-                                        <input value={formData.iban} name="iban" type="text" placeholder="UA 123456789 123456789123456" className="AddContractorInOrderInput" onChange={handleChange} />
+                                        <input value={formData.iban} name="iban" type="text"
+                                               placeholder="UA 123456789 123456789123456"
+                                               className="AddContractorInOrderInput" onChange={handleChange}/>
                                     </div>
                                     <div className="AddContractorInOrderFieldRow">
                                         <label className="adminFontTable">ЄДРПОУ</label>
-                                        <input value={formData.edrpou} name="edrpou" type="text" placeholder="123456789" className="AddContractorInOrderInput" onChange={handleChange} />
+                                        <input value={formData.edrpou} name="edrpou" type="text" placeholder="123456789"
+                                               className="AddContractorInOrderInput" onChange={handleChange}/>
                                     </div>
                                 </div>
 
@@ -207,11 +228,15 @@ function AddContrAgentInProfile({ showAddPay, setShowAddPay, formData, setFormDa
                                 <div className="AddContractorInOrderFieldGroup">
                                     <div className="AddContractorInOrderFieldRow">
                                         <label className="adminFontTable">E-mail</label>
-                                        <input value={formData.email} name="email" type="email" placeholder="example@mail.com" className="AddContractorInOrderInput" onChange={handleChange} />
+                                        <input value={formData.email} name="email" type="email"
+                                               placeholder="example@mail.com" className="AddContractorInOrderInput"
+                                               onChange={handleChange}/>
                                     </div>
                                     <div className="AddContractorInOrderFieldRow">
                                         <label className="adminFontTable">Номер телефону:</label>
-                                        <input value={formData.phone} name="phone" type="text" placeholder="+380 111 111 111" className="AddContractorInOrderInput" onChange={handleChange} />
+                                        <input value={formData.phone} name="phone" type="text"
+                                               placeholder="+380 111 111 111" className="AddContractorInOrderInput"
+                                               onChange={handleChange}/>
                                     </div>
                                 </div>
 
@@ -220,8 +245,9 @@ function AddContrAgentInProfile({ showAddPay, setShowAddPay, formData, setFormDa
                                 <div className="AddContractorInOrderFieldGroup">
                                     <div className="AddContractorInOrderFieldRow">
                                         <label className="adminFontTable">Система оподаткування</label>
-                                        <select value={formData.taxSystem} name="taxSystem" onChange={handleChange} className="AddContractorInOrderSelect">
-                                            <option value="">Оберіть систему оподаткування</option>
+                                        <select value={formData.taxSystem} name="taxSystem" onChange={handleChange}
+                                                required className="AddContractorInOrderSelect">
+                                            {/*<option value="">Оберіть систему оподаткування</option>*/}
                                             <option value="ФОП">ФОП</option>
                                             {/*<option value="ФОП 2 група">2 група</option>*/}
                                             {/*<option value="ФОП 3 група">3 група</option>*/}
@@ -257,18 +283,23 @@ function AddContrAgentInProfile({ showAddPay, setShowAddPay, formData, setFormDa
                                     </div>
                                     <div className="AddContractorInOrderFieldRow">
                                         <label className="adminFontTable">Коментар</label>
-                                        <textarea name="comment" placeholder="Залиште коментар" onChange={handleChange} className="AddContractorInOrderTextarea" />
+                                        <textarea name="comment" placeholder="Залиште коментар" onChange={handleChange}
+                                                  className="AddContractorInOrderTextarea"/>
                                     </div>
                                 </div>
 
                                 {showAddPayView &&
                                     <div className="AddContractorInOrderSubmitBlock">
-                                        <button className="AddContractorInOrderSubmitBtn" onClick={handleSubmitUpdate}>Редагувати</button>
+                                        <button className="AddContractorInOrderSubmitBtn"
+                                                onClick={handleSubmitUpdate}>Редагувати
+                                        </button>
                                     </div>
                                 }
                                 {!showAddPayView &&
                                     <div className="AddContractorInOrderSubmitBlock">
-                                        <button type="submit" className="AddContractorInOrderSubmitBtn" onClick={handleSubmitAdd}>Додати</button>
+                                        <button type="submit" className="AddContractorInOrderSubmitBtn"
+                                                onClick={handleSubmitAdd}>Додати
+                                        </button>
                                     </div>
                                 }
 

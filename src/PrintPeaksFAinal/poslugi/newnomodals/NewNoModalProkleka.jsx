@@ -3,18 +3,12 @@ import React, {useEffect, useState} from "react";
 const NewNoModalProkleka = ({prokleka, setProkleka, prices, buttonsArr, selectArr}) => {
 
     let handleSelectChange = (e) => {
-        // Перетворюємо значення на число, якщо це можливо
-        const value = e.target.value;
-        if (value !== "" && !isNaN(value)) {
-            setProkleka(Number(value));
-        } else {
-            setProkleka(value);
-        }
+        setProkleka(e.target.value)
     }
 
     let handleToggle = (e) => {
         if (prokleka === "Не потрібно") {
-            setProkleka(1)
+            setProkleka("1")
         } else {
             setProkleka("Не потрібно")
         }

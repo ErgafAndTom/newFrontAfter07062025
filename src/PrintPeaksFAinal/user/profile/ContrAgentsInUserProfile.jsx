@@ -37,7 +37,7 @@ function ContrAgentsInUserProfile({user}) {
         edrpou: "",
         email: "",
         phone: "",
-        taxSystem: "",
+        taxSystem: "ФОП",
         pdv: "",
         comment: "",
     });
@@ -76,7 +76,7 @@ function ContrAgentsInUserProfile({user}) {
             edrpou: "",
             email: "",
             phone: "",
-            taxSystem: "",
+            taxSystem: "ФОП",
             pdv: "",
             comment: "",
         });

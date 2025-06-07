@@ -319,6 +319,13 @@ const NewUIArtem = () => {
                                 <img src={MUG} className="card-img-top anim" alt="Продукти"/>
                                 <div className="buttonLabel">MUG</div>
                             </div>
+                            <div
+                                onClick={() => setShowNewCup(true)}
+                                className="colorButtonNote colorButton bg-green  cursorPointer">
+                                <img src={MUG} className="card-img-top noanim" alt="Продукти"/>
+                                <img src={MUG} className="card-img-top anim" alt="Продукти"/>
+                                <div className="buttonLabel">MUG</div>
+                            </div>
                         </div>
                         <div className="containerNewUI" style={{height: "15vh"}}>
                             <CommentsInOrder thisOrder={thisOrder}/>
@@ -562,18 +569,23 @@ const NewUIArtem = () => {
                                                                         right: "0.5vw"
                                                                     }}
                                                                 >
-                                                                        <span
-                                                                            className="label booooold"
-                                                                            style={{
-                                                                                color: "#008249",
-                                                                                marginRight: "1vw",
-                                                                                marginLeft: "0.2vw",
-                                                                            }}>Зі знижкою {thisOrder.prepayment}</span>
-                                                                    <span className="value">
-                                                                                       {thing.amount}<small> шт</small> × {thing.priceForOneThisDiscount}<small> грн</small> =&nbsp; </span>
-                                                                    <span
-                                                                        className="price booooold"
-                                                                        style={{color: "#008249"}}> {thing.priceForThisDiscount}<small> грн</small></span>
+                                                                    <div
+                                                                        className="label booooold"
+                                                                        style={{
+                                                                            color: "#008249",
+                                                                            marginRight: "1vw",
+                                                                            marginLeft: "0.2vw",
+                                                                        }}>Зі знижкою {thisOrder.prepayment}
+                                                                    </div>
+                                                                    <div className="">
+                                                                        <div className="value">
+                                                                            {thing.amount}<small> шт</small> × {thing.priceForOneThisDiscount}<small> грн</small> =&nbsp;
+                                                                        </div>
+                                                                        <div
+                                                                            className="price booooold"
+                                                                            style={{color: "#008249"}}> {thing.priceForThisDiscount}<small> грн</small>
+                                                                        </div>
+                                                                    </div>
 
                                                                 </div>
 
