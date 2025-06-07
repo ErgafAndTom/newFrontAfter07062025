@@ -1,0 +1,54 @@
+
+.FilesButton-icons {
+
+    cursor: pointer;
+
+}
+.files-button:hover {
+    background-color: #FAB416;
+    border-top-right-radius: 0vw;
+    border-bottom-right-radius: 0vw;
+    border-top-left-radius: 0vw;
+    border-bottom-left-radius: 0vw;
+
+}
+
+
+.addclient:hover {
+    background-color: #FAB416;
+   border-radius: 0.7vw;
+
+}
+
+/* Tooltip container */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip text - see examples below! */
+    position: absolute;
+    z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
+
+.ChangeClient:hover {
+    background-color: #FAB416;
+    border-radius: 0.7vw;
+
+}

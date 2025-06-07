@@ -1,0 +1,86 @@
+.modal-backdrop-custom {
+    position: fixed;
+    top: -100vh;
+    left: -100vw;
+    width: 2000vw;
+    height: 1111vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 100;
+}
+
+.modal-slide-container {
+    position: fixed;
+    top: -0.5vh;
+
+    width: 31.2vw;
+    right: 0.5vw;
+    border-radius: 1vw;
+    height: 92vh;
+    background-color: #f2f0e7;
+    display: flex;
+    flex-direction: column;
+    z-index: 101;
+    animation: slideInRight 0.3s ease-out;
+
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0%);
+    }
+}
+
+.modal-slide-header {
+    border-radius: 1vw;
+    /*padding: 2vh 2vw;*/
+    font-size: 2vmin;
+    padding: 1vh 1vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f9fa;
+    /*border-bottom: 1px solid #ccc;*/
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 2vmin;
+    cursor: pointer;
+}
+
+.modal-slide-body {
+    font-size: 1.5vmin;
+    flex: 4;
+    padding: 2vh 2vw;
+    overflow-y: hidden;
+}
+
+.modal-slide-footer {
+    padding: 1.5vh 2vw;
+    border-top: 1px solid #ccc;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1vw;
+}
+
+.modal-footer-btn {
+    font-size: 1.5vmin;
+    padding: 0.8vh 2vw;
+    border-radius: 0.8vw;
+    border: none;
+    cursor: pointer;
+}
+
+.modal-footer-btn.cancel {
+    background-color: #ccc;
+    color: white;
+}
+
+.modal-footer-btn.confirm {
+    background-color: #3c60a6;
+    color: white;
+}

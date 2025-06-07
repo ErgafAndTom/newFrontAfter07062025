@@ -1,0 +1,111 @@
+.iconButton {
+    width: 18vw;
+    height: 14vw;
+    border-radius: 1.5vw;
+    border: rgba(0, 0, 0, 0) 0.1vw solid;
+    margin: 0.5vw;
+    padding: 0.5vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.iconButton:hover {
+    border: #c0c0c0 0.1vw solid;
+}
+.activeChose {
+    border: #000000 0.1vw solid;
+}
+.activeChose:hover {
+    border: #000000 0.1vw solid;
+}
+.iconButtonSvg {
+    width: 7vw;
+    margin: auto;
+    /*width: 10vw;*/
+}
+.iconButtonText {
+    font-family: var(--font-inter)
+, sans-serif;
+    font-size: 0.9vw;
+}
+.dopOptionButton.collapsed {
+    background: #F2F0E7;
+    /*border: black solid 0.1vw;*/
+    border-radius: 10vw;
+}
+.dopOptionButton:focus {
+    border: black solid 0.1vw;
+}
+.dopOptionButton {
+    margin-top: 0.3vw;
+    width: 50vw;
+    height: 2.7vw;
+    text-align: left;
+    border: black solid 0.1vw;
+    border-radius: 7vw;
+    background: #F2F0E7;
+}
+.dopOptionsContainer {
+    width: 50vw;
+}
+
+@media (max-width: 1000px){
+    .dopOptionsContainer {
+        width: 95vw;
+    }
+    .moreOptionsIn {
+        width: 88vw;
+    }
+    .InAccordion {
+        width: 83vw;
+        max-width: 83vw;
+        overflow: hidden;
+    }
+    .dopOptionButton {
+        width: 94vw;
+        text-align: left;
+        border-radius: 10vw;
+        border: #000000 solid 0.3vw;
+        background: #F2F0E7;
+    }
+    .dopOptionButton:focus {
+        border: black solid 0.3vw;
+    }
+    .iconButton {
+        width: 26vw;
+        height: 25vw;
+        border-radius: 3vw;
+        border: rgba(0, 0, 0, 0) 0.3vw solid;
+        margin: 0.5vw;
+        padding: 0.5vw;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .iconButtonSvg {
+        width: 15vw;
+        margin: auto;
+    }
+    .iconButton:hover {
+        border: #c0c0c0 0.3vw solid;
+    }
+    .activeChose {
+        border: #000000 0.3vw solid;
+    }
+    .activeChose:hover {
+        border: #000000 0.3vw solid;
+    }
+    .iconButtonText {
+        font-family: var(--font-inter)
+, sans-serif;
+        font-size: 1.5vw;
+    }
+    .dopdop {
+        display: none;
+    }
+    .menuInPhone {
+        width: 90vw;
+    }
+}

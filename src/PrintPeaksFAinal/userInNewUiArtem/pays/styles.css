@@ -1,0 +1,142 @@
+
+.AddContractorInOrderTitle {
+    font-size: 1.5vw;
+    margin-bottom: 0.1vh;
+    font-weight: bold;
+}
+
+.AddContractorInOrderTabs {
+    display: flex;
+    margin-bottom: 1vh;
+}
+
+.AddContractorInOrderTab {
+    flex: 1;
+    padding: 1vh 0;
+    font-size: 1vw;
+    border: 0.1vw solid #ccc;
+    background-color: #f2f2f2;
+    cursor: pointer;
+}
+
+.AddContractorInOrderTabActive {
+    background-color: #bde0fe;
+    font-weight: bold;
+    border-color: #bde0fe;
+}
+
+.AddContractorInOrderSubtitle {
+    font-size: 1vw;
+    font-weight: bold;
+    margin: 2vh 0 1vh 0;
+}
+
+.AddContractorInOrderFieldGroup {
+    display: flex;
+    flex-direction: column;
+    /*gap: 1.5vh;*/
+    /*margin-bottom: 2vh;*/
+}
+
+.AddContractorInOrderInput,
+.AddContractorInOrderSelect,
+.AddContractorInOrderTextarea {
+    font-size: 0.7vw;
+    padding: 1.2vh 1vw;
+    border-radius: 0.4vw;
+    border: 0.1vw solid #ccc;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.AddContractorInOrderTextarea {
+    resize: vertical;
+    min-height: 10vh;
+}
+
+.AddContractorInOrderSubmitBlock {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.AddContractorInOrderSubmitBtn {
+    background-color: black;
+    color: white;
+    padding: 1.2vh 2vw;
+    border: none;
+    border-radius: 0.4vw;
+    font-size: 1vw;
+    cursor: pointer;
+}
+
+.ContractorRow {
+    background-color: #faf8f3;
+    border-bottom: 1px solid #e1e1e1;
+    font-size: 0.6vw;
+}
+
+.ContractorCell {
+    padding: 1.2vh 1vw;
+    vertical-align: middle;
+    white-space: nowrap;
+    border-right: 1px solid #e1e1e1;
+}
+
+.ContractorName {
+    font-weight: bold;
+}
+
+.ContractorActions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5vw;
+}
+
+.ContractorViewBtn {
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 0.4vw;
+    padding: 0.8vh 1.5vw;
+    font-size: 0.6vw;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.ContractorViewBtn:hover {
+    background-color: #333;
+}
+
+.ContractorMoreBtn {
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 0.4vw;
+    padding: 0.8vh 1vw;
+    font-size: 1vw;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+.ContractorTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-inter)
+, sans-serif;
+    border-radius: 0.5vw;
+    overflow: hidden;
+    background-color: #faf8f3;
+}
+
+.AddContractorInOrderFieldRow {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.AddContractorInOrderFieldRow label {
+    min-width: 250px;
+    font-weight: 500;
+}

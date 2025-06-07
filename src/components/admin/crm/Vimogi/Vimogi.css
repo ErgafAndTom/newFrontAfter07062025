@@ -1,0 +1,158 @@
+/* Контейнер вкладок */
+.vimogiclas {
+    width: 98.3% !important; /* Зменшено розмір на 5% */
+    margin: auto;
+    border-radius: 0.5vw !important; /* Скруглення кутів у самого Tabs */
+    background: #FBFAF6;
+    height: 5vh;
+}
+/*.vimogiclas:hover {*/
+
+/*    background: #FAB416 ;*/
+/*}*/
+/* Базовий стиль для вкладок */
+.nav-tabs {
+    border-bottom: none !important;
+    display: flex;
+    align-items: stretch;
+    border-radius: 0.5vw !important; /* Скруглення у самого Tabs */
+
+    background: #FBFAF6;
+}
+
+/* Всі вкладки мають однакову висоту */
+.nav-tabs .nav-item {
+    flex: 1; /* Рівномірний розподіл ширини вкладок */
+    display: flex;
+}
+
+/* Всі посилання (вкладки) */
+.nav-tabs .nav-link {
+    color: black !important; /* Чорний текст */
+    background-color: transparent !important;
+    border: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 5vh;
+    transition: background-color 0.3s ease-in-out;
+    font-size: 0.95em; /* Зменшено розмір шрифту трохи */
+}
+
+/* Активна вкладка */
+.nav-tabs .nav-link.active {
+    background-color: #FAB416 !important; /* Фон активної вкладки */
+    color: black !important;
+}
+.nav-link:hover {
+    background: #FAB416 !important; /* Фон активної вкладки */
+    color: black !important;
+}
+/* Видаляємо загальне скруглення */
+.nav-tabs .nav-link {
+    border-radius: 0 !important;
+}
+
+/* Ліве скруглення для першої вкладки */
+.nav-tabs .nav-item:first-child .nav-link {
+    border-top-left-radius: 0.5vw !important;
+    border-bottom-left-radius: 0.5vw !important;
+}
+
+/* Праве скруглення для останньої вкладки */
+.nav-tabs .nav-item:last-child .nav-link {
+    border-top-right-radius: 0.5vw !important;
+    border-bottom-right-radius: 0.5vw !important;
+}
+
+/* Зміщення кнопок нижче */
+.nav-pills {
+    margin-top: 1.35vh;
+    /*display: flex;*/
+    justify-content: center;
+    flex-wrap: nowrap;
+    height: 100%;
+    /* Опустити кнопки вниз */
+}
+
+/* Зменшення ширини кнопок у 2 рази */
+.nav-pills .nav-link {
+    margin-left: 1vw !important;
+    width: 100% !important; /* Половина попередньої ширини */
+    color: black !important; /* Чорний текст */
+    transition: background-color 0.3s ease-in-out;
+    background-color: #FBFAF6 !important; /* Фон неактивної вкладки */
+    border-radius: 0 !important; /* Видаляємо загальне скруглення */
+    text-align: center;
+    height: 100%;
+    padding: 10px 15px;
+    /*height: 7vh;*/
+
+}
+
+/* Активна кнопка */
+.nav-pills .nav-link.active,
+.nav-pills .nav-link:focus,
+.nav-pills .nav-link:hover {
+    background-color: #FAB416 !important; /* Фон активної кнопки */
+    color: black !important; /* Чорний текст */
+
+}
+/* Активна кнопка */
+.nav-pills .nav-link.active {
+    background-color: #FAB416 !important; /* Фон активної вкладки */
+    color: black !important;
+
+
+}
+
+/* Скруглення для першої вкладки (зверху) */
+.nav-pills .nav-item:first-child .nav-link {
+    border-top-left-radius: 0.5vw !important;
+    border-bottom-left-radius: 0.5vw !important;
+}
+
+/* Скруглення для останньої вкладки (знизу) */
+.nav-pills .nav-item:last-child .nav-link {
+    border-top-right-radius: 0.5vw !important;
+    border-bottom-right-radius: 0.5vw !important;
+}
+.custom-nav .nav-item {
+    margin: 0vw !important;
+    /*display: flex;*/
+    flex-direction: column;
+    width: 100%;
+    flex-grow: 1; /* Робить всі вкладки однакової висоти */
+
+
+}
+.requirements-container {
+    padding: 1vw;
+    margin-top: 1vh;
+    margin-left: 1vw;
+}
+.requirements-container p {
+    margin-bottom: 5px; /* Зменшений відступ між абзацами */
+    line-height: 1.2; /* Зменшена висота рядка */
+    /*color: #555;*/
+}
+.component-2022-21 {
+    margin-top: 2vh;
+    margin-left: 2vw;
+    margin-bottom: 2px; /* Зменшений відступ між абзацами */
+    line-height: 1; /* Зменшена висота рядка */
+    /*color: #555;*/
+}
+.Bukletvimogi{
+    margin-top: 15vh;
+}
+.text-container {
+   margin-top: 1vh;
+    margin-left: 2vh;
+}
+.button-container {
+    height: 2vw;
+    }
+.tverd-text18 {
+    margin-top: 1vw;
+}

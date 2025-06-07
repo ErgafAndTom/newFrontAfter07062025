@@ -1,0 +1,92 @@
+
+.inputLogin {
+    width: 20vw;
+    height: 4vw;
+    margin: auto;
+    font-size: 1.1vw;
+    text-align: left;
+
+}
+.titleLogin {
+    margin: auto;
+    margin-top: 4vw;
+    margin-bottom: 1.5vw;
+
+}
+.buttonLogin {
+    margin: auto;
+    width: 19.5vw;
+    height: 3.4vw;
+    margin-top: 1.5vw;
+    font-size: 1.1vw;
+
+}
+
+
+.logo h1 {
+    margin: 0.3vw;
+    text-align: left;
+    flex-direction: column;
+    display: flex;
+    font-size: 1vw;
+    font-weight: bold;
+    line-height: 0.9vw;
+    width: 4vw;
+}
+
+.ButtonClients {
+    border: transparent;
+    border-radius: 0;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius:  10px;
+}
+.ButtonSetting {
+    border: transparent;
+    border-radius: 0;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+.top-menu {
+    /*align-items: left;*/
+    margin-top: 0.1vw;
+    background-color: #F2F0E7;
+    display: flex;
+    height: 1vh;
+    margin-left: 0.9vw;
+}
+
+.top-menu button {
+    display: flex;
+    margin:auto;
+    background-color: #FBFAF6;
+    padding: 1vw;
+    cursor: pointer;
+    font-size: 0.8vw;
+}
+.top-menu button:hover {
+    background-color: #FAB416;
+}
+.ButtonVimogi {
+    border: transparent;
+    /*border-radius: 0;*/
+}
+.ButtonVimogia {
+    background-color: #e1a313;
+    border: #FAB416;
+}
+
+.Search
+{
+    background-color: #FBFAF6;
+    /*display: flex;*/
+    height: 4vh;
+    width: 14vw;
+    margin-left: vw;
+    cursor: pointer;
+    font-size: 0.8vw;
+    border-radius: 0.5vw;
+    /*margin: auto;*/
+    text-align: left;
+
+
+}

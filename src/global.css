@@ -1,0 +1,118 @@
+@import url("https://fonts.googleapis.com/css2?family=inter:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Ink+Free:wght@400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Adobe+Clean:wght@400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+@import url("https://use.typekit.net/iro7gjn.css");
+
+@font-face {
+  font-family: "Inter";
+  src: url('./fonts/Inter_18pt-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.fontSize0-7VW{
+  font-size: 0.7vw;
+}
+.fontSize1VW{
+  font-size: 1vw;
+}
+.fontSize1-3VW{
+  font-size: 1.3vw;
+}
+.fontSize1-5VW{
+  font-size: 1.5vw;
+}
+.fontSize0-7VH{
+  font-size: 0.7vh;
+}
+.fontSize1VH{
+  font-size: 1vh;
+}
+.fontSize1-3VH{
+  font-size: 1.3vh;
+}
+.fontSize1-5VH{
+  font-size: 1.5vh;
+}
+.fontSize1-7VH{
+  font-size: 1.7vh;
+}
+.fontSize2VH{
+  font-size: 2vh;
+}
+.fontSize2-5VH{
+  font-size: 2.5vh;
+}
+
+/*@font-face {*/
+/*    */
+/*  font-weight: 700;*/
+/*  font-style: normal;*/
+/*  font-display: swap;*/
+/*}*/
+
+body {
+  margin: 0;
+  line-height: normal;
+
+}
+
+.popup-overlay {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  inset: 0;
+}
+:root {
+  /* fonts */
+  --font-inter: 'Inter';
+  --font-ink-free: 'Ink Free';
+  /* font sizes */
+  --font-size-3xs: 1vmin;
+  --font-size-sm: 1.5vmin;
+  --font-size-26xl: 45px;
+  --font-size-base: 1.9vmin;
+  --font-size-5xl: 24px;
+  --font-size-xl: 20px;
+  --font-size-6xs: 7px;
+  --font-size-mid: 17px;
+  --font-size-5xs: 8px;
+  --font-size-3xl: 22px;
+  --font-size-6xl: 25px;
+  --font-size-xs: 12px;
+  --font-size-smi-1: 12.1px;
+  --font-size-sm-2: 13.2px;
+
+  /* Colors */
+  --color-fon: #f2f0e7;
+  --color-act: #f8f9fa;
+  --color-black: #000;
+  --color-linen-100: #FBFAF6;
+  --color-linen-200: #edeae0;
+  --color-linen-300: #f6f4e7;
+  --color-linen-400: rgba(233, 230, 218, 0.34);
+  --color-linen-500: rgba(233, 230, 218, 0.3);
+  --color-darkslategray: #323232;
+  --color-orange: #fab416;
+  --color-gray-100: #292929;
+  --color-gray-200: #212529;
+  --color-dimgray: #707070;
+  --color-gainsboro: #e4e2da;
+  --color-darkred: #a10000;
+  --color-gold-100: #ffcc00;
+  --color-gold-200: #ffc107;
+  --color-lightgray-100: #d3d3d3;
+  --color-lightgray-200: #cacaca;
+
+  /* Border radiuses */
+  --br-xs: 12px;
+  --br-21xl: 40px;
+  --br-8xs: 5px;
+  --br-9xs: 4px;
+  --br-11xl: 30px;
+  --br-81xl: 100px;
+}

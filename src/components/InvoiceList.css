@@ -1,0 +1,73 @@
+.invoice-list {
+    padding: 20px;
+}
+
+.invoice-list h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.table th,
+.table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.status-badge.pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.paid {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-badge.cancelled {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.error {
+    text-align: center;
+    padding: 20px;
+    color: #dc3545;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+} 

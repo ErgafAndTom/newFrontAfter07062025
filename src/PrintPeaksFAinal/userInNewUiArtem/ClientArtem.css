@@ -1,0 +1,387 @@
+.div108 {
+    position: absolute;
+    top: calc(50% + 265px);
+    left: 1250px;
+    width: 662px;
+    height: 88px;
+    text-align: center;
+    font-size: 20px;
+    color: #323232;
+}
+
+.user-form-container {
+    scrollbar-width: thin; /* Для Firefox */
+    scrollbar-color: #c8c8c8 transparent;
+    scrollbar-gutter: stable;
+
+    /*border-radius: 1vw 1vw ;!* thumb | track *!*/
+}
+
+/* Chrome, Edge, Safari */
+.user-form-container::-webkit-scrollbar {
+
+    border: 2px solid #ffffff;
+    width: 10px;
+    background-color: #f5a400;
+    border-radius: 1px;
+}
+
+.user-form-container::-webkit-scrollbar-track {
+    background: #f5a400;
+    border-radius: 1px;
+
+    border: 2px solid #ffffff;
+}
+
+.user-form-container::-webkit-scrollbar-thumb {
+    background-color: #3c60a6;
+    border-radius: 1vh;
+    border: 2px solid #ffffff;
+
+}
+
+.user-form-container::-webkit-scrollbar-thumb:hover {
+    background-color: #5a81bc;
+}
+
+
+@keyframes slideInRight {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0%);
+        opacity: 1;
+    }
+}
+
+.Modal-Header {
+    background-color: transparent;
+}
+
+.modal-content {
+    position: fixed;
+    top: 1.7vmin;
+    right: 1vmin;
+    opacity: 0;
+    transform: translateX(100%);
+    border-radius: 1vw;
+    max-width: 32.5vw;
+    max-height: 84vh;
+    min-height: 84vh;
+    background: transparent;
+    animation: slideInRight 0.5s ease-out forwards;
+}
+
+
+.clienta {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    /*top: 0%;*/
+    /*right: 0%;*/
+    /*bottom: 0%;*/
+    /*left: 0%;*/
+    border-radius: 12px;
+    background-color: #F2F0E7;
+    border: 1px solid #707070;
+    box-sizing: border-box;
+}
+
+.clientb {
+    position: absolute;
+    top: calc(50% - 39px);
+    left: 59px;
+    width: 330px;
+    height: 47px;
+}
+
+.field-button {
+    position: absolute;
+    height: calc(100% - 1px);
+    width: calc(100% - 6px);
+    top: 1px;
+    right: 3px;
+    bottom: 0px;
+    left: 3px;
+    border-radius: 12px;
+    background-color: #e4e2da;
+    border: 1px solid #d3d3d3;
+    box-sizing: border-box;
+}
+
+.div109 {
+    position: absolute;
+    top: calc(50% - 23.5px);
+    left: calc(50% - 165px);
+    line-height: 20px;
+    display: inline-block;
+    width: 331px;
+}
+
+
+.clientc {
+    position: absolute;
+    top: calc(50% + 12.6px);
+    left: 9.59px;
+    width: 324.4px;
+    height: 27.6px;
+}
+
+.field-button1 {
+    position: absolute;
+    height: calc(100% - 0.6px);
+    width: calc(100% - 90.4px);
+    top: 0.4px;
+    right: -0.01px;
+    bottom: 0.2px;
+    left: 90.41px;
+    border-radius: 12px;
+    background-color: #e4e2da;
+    border: 1px solid #d3d3d3;
+    box-sizing: border-box;
+}
+
+.div110 {
+    position: absolute;
+    width: calc(100% - 119.4px);
+    top: calc(50% - 10.4px);
+    left: 105.41px;
+    display: inline-block;
+    height: 22px;
+}
+
+.icon30 {
+    position: absolute;
+    height: 96.38%;
+    width: 8.2%;
+    top: 0%;
+    right: 82.81%;
+    bottom: 3.62%;
+    left: 9%;
+    max-width: 100%;
+    overflow: hidden;
+    max-height: 100%;
+}
+
+.viber-icon {
+    position: absolute;
+    height: 96.38%;
+    width: 7.8%;
+    top: 3.54%;
+    right: 92.2%;
+    bottom: 0.08%;
+    left: 0%;
+    max-width: 100%;
+    overflow: hidden;
+    max-height: 100%;
+}
+
+.whatsapp-icon {
+    position: absolute;
+    height: 96.38%;
+    width: 8.14%;
+    top: 3.54%;
+    right: 73.4%;
+    bottom: 0.08%;
+    left: 18.46%;
+    max-width: 100%;
+    overflow: hidden;
+    max-height: 100%;
+}
+
+.clientd {
+    margin-left: 100vw;
+    height: 27.7px;
+}
+
+.field-button2 {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    border-radius: 12px;
+    background-color: #e4e2da;
+    border: 1px solid #d3d3d3;
+    box-sizing: border-box;
+}
+
+.aiatomas {
+    position: absolute;
+    width: calc(100% - 66.7px);
+    top: calc(50% - 12.45px);
+    left: 33.31px;
+    display: inline-block;
+}
+
+.cliente-icon {
+    position: absolute;
+    top: calc(50% - 39px);
+    left: 392px;
+    width: 101px;
+    height: 43px;
+}
+
+.clientf-icon {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 51.4px;
+    height: 47px;
+    object-fit: cover;
+}
+
+.div111 {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    border-radius: 12px;
+    background-color: #e4e2da;
+    border: 1px solid #707070;
+    box-sizing: border-box;
+}
+
+.i10 {
+    position: absolute;
+    top: 0px;
+    left: 13px;
+}
+
+.clientg {
+    position: absolute;
+    top: calc(50% + 13px);
+    left: 577px;
+    width: 81px;
+    height: 27px;
+    font-size: 22px;
+    color: #a10000;
+}
+
+.div112 {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0%;
+    right: 0%;
+    bottom: 0%;
+    left: 0%;
+    background-color: #F2F0E7;
+    border: 1px solid #707070;
+    box-sizing: border-box;
+}
+
+.icon31 {
+    position: absolute;
+    height: 46.09%;
+    width: 47.74%;
+    top: 27.45%;
+    right: 25.85%;
+    bottom: 26.46%;
+    left: 26.42%;
+    max-width: 100%;
+    overflow: hidden;
+    max-height: 100%;
+}
+
+.button1 {
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    background-color: transparent;
+    position: absolute;
+    height: 79.31%;
+    top: 0%;
+    bottom: 20.69%;
+    left: 52px;
+    width: 53px;
+}
+
+.div113 {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    border-radius: 12px 0px 0px 12px;
+    background-color: #F2F0E7;
+    border: 1px solid #707070;
+    box-sizing: border-box;
+}
+
+.icon32 {
+    position: absolute;
+    height: 51.09%;
+    width: 67.17%;
+    top: 23.53%;
+    right: 15.85%;
+    bottom: 25.38%;
+    left: 16.98%;
+    max-width: 100%;
+    overflow: hidden;
+    max-height: 100%;
+}
+
+.cart {
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    background-color: transparent;
+    position: absolute;
+    height: 79.31%;
+    top: 0%;
+    bottom: 20.69%;
+    left: 0px;
+    width: 53px;
+}
+
+.div114 {
+    position: absolute;
+    top: calc(50% - 1px);
+    right: 11.46px;
+    border-top: 1px solid #000;
+    box-sizing: border-box;
+    width: 31.1px;
+    height: 2px;
+}
+
+.div115 {
+    position: absolute;
+    top: calc(50% - 1px);
+    right: 12.13px;
+    border-right: 1px solid #000;
+    box-sizing: border-box;
+    width: 29.7px;
+    height: 29.7px;
+    transform: rotate(90deg);
+}
+
+.button2 {
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    background-color: transparent;
+    position: absolute;
+    height: 100%;
+    top: 0px;
+    bottom: 0px;
+    left: 104px;
+    width: 53px;
+}
+
+.clienth {
+    position: absolute;
+    top: calc(50% - 40px);
+    left: 501px;
+    width: 157px;
+    height: 58px;
+}

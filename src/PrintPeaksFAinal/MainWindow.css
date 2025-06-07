@@ -1,0 +1,123 @@
+div.gif .noanim {
+    visibility: visible;
+    display: flex;
+}
+div.gif .anim {
+    visibility: hidden;
+    display: none;
+}
+
+div.gif:hover {
+    background: none;
+}
+
+div.gif:hover .noanim {
+    visibility: hidden;
+    display: none;
+}
+div.gif:hover .anim {
+    visibility: visible;
+    display: flex;
+}
+
+.digitalPrintContainer {
+    position: absolute;
+    width: 33vw;
+    left: 2vw;
+    top: 21vw;
+    z-index: 1;
+}
+.digitalPrintContainer .noanim {
+    width: 33vw;
+}
+.widePrintContainer {
+    position: absolute;
+    width: 44vw;
+    left: 24vw;
+    top: 6vw;
+}
+.widePrintContainer .noanim {
+    width: 44vw;
+}
+.photoPrintContainer {
+    position: absolute;
+    width: 20.5vw;
+    left: 70vw;
+    top: 8vw;
+}
+.photoPrintContainer .noanim {
+    width: 20.5vw;
+}
+.cupPrintContainer {
+    position: absolute;
+    width: 20vw;
+    left: 36vw;
+    top: 28vw;
+    z-index: 1;
+}
+.cupPrintContainer .noanim {
+    width: 20vw;
+}
+.postPrintContainer {
+    position: absolute;
+    width: 20vw;
+    left: 64vw;
+    top: 32vw;
+}
+.postPrintContainer .noanim {
+    width: 20vw;
+    z-index: 1;
+}
+.cursorPointer {
+    cursor: pointer;
+}
+
+@media (max-width: 767.98px) {
+    .digitalPrintContainer {
+        position: absolute;
+        width: 60vw;
+        left: 25vw;
+        top: 60vw;
+        /*z-index: 2;*/
+    }
+    .digitalPrintContainer .noanim {
+        width: 60vw;
+        /*z-index: 2;*/
+    }
+    .widePrintContainer {
+        position: absolute;
+        width: 65vw;
+        left: 2vw;
+        top: 17vw;
+    }
+    .widePrintContainer .noanim {
+        width: 65vw;
+    }
+    .photoPrintContainer {
+        position: absolute;
+        width: 40vw;
+        left: 55vw;
+        top: 115vw;
+    }
+    .photoPrintContainer .noanim {
+        width: 40vw;
+    }
+    .cupPrintContainer {
+        position: absolute;
+        width: 30vw;
+        left: 5vw;
+        top: 113vw;
+    }
+    .cupPrintContainer .noanim {
+        width: 30vw;
+    }
+    .postPrintContainer {
+        position: absolute;
+        width: 40vw;
+        left: 20vw;
+        top: 150vw;
+    }
+    .postPrintContainer .noanim {
+        width: 40vw;
+    }
+}

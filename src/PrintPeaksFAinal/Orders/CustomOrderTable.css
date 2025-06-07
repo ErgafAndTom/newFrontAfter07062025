@@ -1,0 +1,489 @@
+/* CustomOrderTable.css */
+/* Базові стилі для таблиць */
+.CustomOrderTable-order-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    border-radius: 1rem;
+    align-items: stretch;
+    background-color: #FBFAF6;
+}
+
+.table-row-container {
+    width: 100%;
+    /*margin: 0.2rem 0;*/
+    transition: background-color 0.3s ease;
+}
+
+.table-row-container:hover {
+    background-color: rgba(250, 180, 22, 0.05);
+}
+
+.CustomOrderTable-left-rounded {
+    height: 1vw;
+}
+
+.CustomOrderTable-right-rounded {
+    height: 1vw;
+}
+
+/* Стилі для контролів */
+.controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 0.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.right-group {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+body {
+    display: flex;
+    font-family: var(--font-inter)
+, inter, sans-serif;
+    /*margin: 10px;*/
+    /*background-color: rgba(233, 230, 218, 0.5); !* Прозорість 50% *!*/
+}
+
+.right-group {
+    display: flex;
+    align-items: center;
+    margin-right: 0.3vw;
+    gap: 0.8rem;
+}
+
+.table-row-container {
+    transition: background-color 0.5s ease;
+    width: 100%;
+    margin: 0.2rem 0;
+}
+.table-row-container:hover {
+    background-color: rgba(250, 180, 22, 0.05);
+}
+
+.CustomOrderTable-cell1 {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.CustomOrderTable-cell1:hover {
+    background-color: #FAB416;
+    cursor: pointer;
+    color: white;
+    transition: all 0.2s ease;
+
+}
+.price-cell {
+    color: #008249;
+    font-weight: 600;
+}
+
+.CustomOrderTable-containerOfTable {
+    width: 100%;
+}
+
+.CustomOrderTable-preHeader{
+    width: 100%;
+    height: 2vh;
+    background-color: #FBFAF6;
+}
+
+.CustomOrderTable-cellCan:hover {
+    background-color: #FAB416;
+    cursor: pointer;
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.CustomOrderTable-order-details {
+    padding: 0.1vw;
+    background-color: #FBFAF6;
+    border-top: 1px solid #eee;
+    border-radius: 12px;
+    margin: 1vw;
+}
+
+.CustomOrderTable-user-details {
+    margin-bottom: 1px;
+    font-size: 12px; /* Текст вирівнюється по розміру з іншими елементами */
+    text-align: left; /* Вирівнювання тексту по лівому краю */
+}
+
+.CustomOrderTable-order-units {
+    display: flex;
+}
+
+.CustomOrderTable-order-unit {
+    background-color: #FBFAF6;
+    /*padding: 10px;*/
+    padding: 0.3vw;
+    border-radius: 8px;
+
+}
+
+.CustomOrderTable-order-unit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #F2F0E7;
+    padding: 0.3vw;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.CustomOrderTable-order-unit-header div {
+    flex: 1;
+    text-align: left;
+    font-size: 11px;
+}
+
+.CustomOrderTable-toggle-unit-btn {
+    background-color: #FAB416;
+    color: white;
+    border: none;
+    padding: 0.3vw;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.CustomOrderTable-toggle-unit-btn:hover {
+    background-color: #e0a40e;
+}
+
+.CustomOrderTable-order-unit-units {
+    margin-top: 10px;
+    padding-left: 20px;
+    border-left: 1px solid #ddd;
+}
+
+.CustomOrderTable-order-unit-unit {
+    background-color: #F9F9F9;
+    padding: 8px;
+    border-radius: 6px;
+    margin-bottom: 5px;
+}
+
+.CustomOrderTable-order-unit-unit p {
+    margin: 3px 0;
+    font-size: 11px; /* Шрифт для основних елементів */
+    text-align: left;
+}
+
+.CustomOrderTable-no-unit-units {
+    padding: 8px;
+    color: #777;
+    font-style: italic;
+    font-size: 11px;
+}
+
+.CustomOrderTable-no-order-units {
+    padding: 10px;
+    color: #777;
+    font-style: italic;
+    font-size: 11px;
+}
+
+.CustomOrderTable-photo {
+    width: 50px;
+    height: auto;
+    border-radius: 4px;
+}
+
+.CustomOrderTable-telegram-link {
+    color: #3C60A6;
+    text-decoration: none;
+}
+
+.CustomOrderTable-telegram-link:hover {
+    text-decoration: underline;
+}
+
+.CustomOrderTable-pay-btn {
+    padding: 5px 10px;
+    border-radius: 8px;
+    color: white;
+    display: inline-block;
+    /*font-size: 11px;*/
+}
+
+.CustomOrderTable-pay-paid {
+    background-color: #008249;
+    color: white;
+    /*height: 1vw;*/
+    padding: 0.2vw;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.3vw;
+}
+
+.CustomOrderTable-pay-pending {
+    background-color: #EE3C23;
+    padding: 0.2vw;
+    /*height: 1.2vw;*/
+    border-radius: 0.3vw;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.table-row-container {
+    width: 100%;
+    transition: background-color 0.5s ease;
+    margin: 0.2rem 0;
+}
+
+.table-row-container:hover {
+    background-color: rgba(250, 180, 22, 0.05);
+}
+
+.right-group {
+    display: flex;
+    align-items: center;
+    margin-right: 0.3vw;
+    gap: 0.8rem;
+}
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    background: #FBFAF6;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.CustomOrderTable-pay-btn {
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.3rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.CustomOrderTable-pay-paid {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.CustomOrderTable-pay-pending {
+    background-color: #ff9800;
+    color: white;
+}
+
+.CustomOrderTable-pay-btn {
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.3rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.CustomOrderTable-pay-paid {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.CustomOrderTable-pay-pending {
+    background-color: #ff9800;
+    color: white;
+}
+.CustomOrderTable-invoice-btn {
+    background-color: #FAB416;
+    color: white;
+    padding: 0.3vw;
+    border-radius: 6px;
+}
+
+.CustomOrderTable-invoice-btn:hover {
+    background-color: #e0a40e;
+}
+
+.CustomOrderTable-kassa-btn {
+    background-color: #FAB416;
+    color: white;
+    padding: 0.3vw;
+    border-radius: 6px;
+}
+
+.CustomOrderTable-kassa-btn:hover {
+    background-color: #e0a40e;
+}
+
+.CustomOrderTable-delete-btn {
+    background-color: #EE3C23;
+    color: white;
+    padding: 0.3vw;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.CustomOrderTable-delete-btn:hover {
+    background-color: #c72e19;
+}
+.statusEnabled:hover{
+    background: #FAB416;
+}
+.statusDisabled{
+    background: linear-gradient(27deg, #575757 40%, red 45%, red 55%, #575757 60%);
+}
+.statusDisabled:hover{
+    background: linear-gradient(27deg, #FAB416 40%, red 45%, red 55%, #FAB416 60%);
+}
+
+.CustomOrderTable2-header-cell {
+    background: #F2F0E7;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    min-height: 1vh;
+    box-sizing: border-box;
+    text-align: center;
+    border-right: 0.1vw solid rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    white-space: pre-line; /* підтримка переносів */
+    line-height: 1.7;      /* краща читабельність */
+    border-radius: 0rem;
+}
+
+.disabled-CustomOrderTable2-header-cell {
+    color: #878787;
+    cursor: default;
+}
+
+.CustomOrderTable-cell {
+    word-break: normal;
+    overflow-wrap: normal;
+    white-space: normal;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.6rem;
+    border-right: 0.1vw solid rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background-color: #FBFAF6;
+    border-bottom: 0.1vw solid #ddd;
+    border-radius: 0;
+}
+
+.CustomOrderTable-cell:hover {
+    /*background-color: #FAB416;*/
+    cursor: pointer;
+    /*color: white;*/
+    transition: all 0.2s ease;
+}
+
+.CustomOrderTable-header-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    min-height: 2vh;
+    box-sizing: border-box;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre-line;
+    line-height: 1.7;
+    background-color: #FBFAF6;
+    border-radius: 0;
+    border-right: 0.1vw solid rgba(0, 0, 0, 0.05);
+}
+
+.CustomOrderTable-header-cell:last-child {
+    border-right: none;
+    background-color: #FAB416;
+}
+
+.CustomOrderTable-toggle-btn {
+    background-color: #FAB416;
+    color: white;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.5rem;
+}
+
+.CustomOrderTable-toggle-btn:hover {
+    background-color: #e0a40e;
+}
+
+.CustomOrderTable-row {
+    display: flex;
+    flex-direction: row;
+    /*width: 100%;*/
+    min-height: 3vh;
+    border-bottom: 0.1vw solid #eaeaea;
+    transition: background-color 0.2s ease;
+    margin: 0.1rem 0;
+    border-radius: 0;
+    padding: 0;
+    /*box-sizing: border-box;*/
+    background-color: transparent;
+}
+
+.CustomOrderTable-row:hover {
+    background-color: #f5f5f5;
+    align-items: stretch;
+}
+
+.CustomOrderTable-header {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 4vh;
+    background-color: #FBFAF6;
+    border: 0.1vw solid white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    overflow-x: auto;
+    border-radius: 0.5rem 0.5rem 0 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    table-layout: fixed;
+    word-break: normal;
+    overflow-wrap: normal;
+    white-space: normal;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.CustomOrderTable-body {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: auto;
+    width: 100%;
+    height: 80vh;
+    max-height: 76vh;
+    border: 0.1vw solid white;
+    background-color: transparent;
+    cursor: pointer;
+    border-radius: 0 0 0.5rem 0.5rem;
+}

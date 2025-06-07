@@ -1,0 +1,247 @@
+.rdrCalendarWrapper {
+  box-sizing: border-box;
+  background: #ffffff;
+    justify-content: center;
+    border-radius: 0.5vw;
+    /*height: 20vh;*/
+
+  /*!*display: inline-flex;*!*/
+  /*flex-direction: column;*/
+  /*-webkit-user-select: none;*/
+  /*   -moz-user-select: none;*/
+  /*    -ms-user-select: none;*/
+  /*        user-select: none;*/
+}
+
+.rdrDateDisplay{
+  display: flex;
+  justify-content: space-between;
+}
+
+.rdrDateDisplayItem{
+  flex: 1 1;
+  width: 0;
+  text-align: center;
+  color: inherit;
+}
+
+.rdrDateDisplayItem + .rdrDateDisplayItem{
+    margin-left: 1vw;
+  }
+
+.rdrDateDisplayItem input{
+    text-align: inherit;
+
+  }
+
+.rdrDateDisplayItem input:disabled{
+      cursor: default;
+
+    }
+
+.rdrDateDisplayItemActive{
+
+}
+
+.rdrMonthAndYearWrapper {
+  box-sizing: inherit;
+  display: flex;
+  justify-content: space-between;
+}
+
+.rdrMonthAndYearPickers{
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.rdrMonthPicker{}
+
+.rdrYearPicker{}
+
+.rdrNextPrevButton {
+  box-sizing: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+.rdrPprevButton {}
+
+.rdrNextButton {}
+
+.rdrMonths{
+  display: flex;
+}
+
+.rdrMonthsVertical{
+  flex-direction: column;
+}
+
+.rdrMonthsHorizontal > div > div > div{
+  display: flex;
+  flex-direction: row;
+}
+
+.rdrMonth{
+  width: 27.667em;
+}
+
+.rdrWeekDays{
+  display: flex;
+
+}
+
+.rdrWeekDay {
+  flex-basis: calc(100% / 7);
+  box-sizing: inherit;
+  text-align: center;
+
+}
+
+.rdrDays{
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.rdrDateDisplayWrapper{}
+
+.rdrMonthName{}
+
+.rdrInfiniteMonths{
+  overflow: auto;
+}
+
+.rdrDateRangeWrapper{
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+
+.rdrDateInput {
+  position: relative;
+    display: none;
+}
+
+.rdrDateInput input {
+    outline: none;
+    /*display: none;*/
+  }
+
+.rdrDateInput .rdrWarning {
+    position: absolute;
+    font-size: 1.6em;
+    line-height: 1.6em;
+    top: 0;
+    right: .25em;
+    color: #FF0000;
+  }
+
+.rdrDay {
+  box-sizing: inherit;
+  width: calc(100% / 7);
+  position: relative;
+  font: inherit;
+  cursor: pointer;
+}
+
+.rdrDayNumber {
+  display: block;
+  position: relative;
+}
+
+.rdrDayNumber span{
+    color: #1d2429;
+  }
+
+.rdrDayDisabled {
+  cursor: not-allowed;
+}
+
+/*@supports (-ms-ime-align: auto) {*/
+/*  .rdrDay {*/
+/*    flex-basis: 14.285% !important;*/
+/*  }*/
+
+
+.rdrSelected, .rdrInRange, .rdrStartEdge, .rdrEndEdge{
+  pointer-events: none;
+}
+
+.rdrInRange{}
+
+.rdrDayStartPreview, .rdrDayInPreview, .rdrDayEndPreview{
+  pointer-events: none;
+
+}
+
+.rdrDayHovered{}
+
+.rdrDayActive{}
+
+.rdrDateRangePickerWrapper{
+  display: flex;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+
+}
+
+.rdrDefinedRangesWrapper{
+    height: 100%;
+}
+
+.rdrStaticRanges{
+  display: flex;
+  flex-direction: column;
+    background: #ffffff;
+
+
+}
+
+.rdrStaticRange{
+  font-size: 1vh;
+    height: 3.5vh;
+    background: #ffffff;
+    align-items: center;
+
+}
+
+.rdrStaticRangeLabel{
+    background-color: #FBFAF6;
+    width: 10vw;
+    height: 5vh;
+    align-items: center;
+    display: flex;
+    color: black;
+    justify-content: left;
+}
+
+.rdrInputRanges{
+    background: #FBFAF6;
+    width: 6vw;
+    height: 5vh;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    color: black;
+    justify-content: left;
+    /*display: none;*/
+
+}
+
+.rdrInputRange{
+  display: flex;
+    height: 8vh;
+    background: #FBFAF6;
+    margin-top: 0.5vh;
+    font-size: 1vh;
+}
+
+.rdrInputRangeInput{
+    color: #490000;
+    font-size: 1vh;
+}
+

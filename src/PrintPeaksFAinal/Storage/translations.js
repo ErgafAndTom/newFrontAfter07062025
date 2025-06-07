@@ -1,0 +1,67 @@
+// Словник перекладів назв колонок
+export const columnTranslations = {
+    // Загальні колонки
+    'id': 'ID',
+    'name': 'Назва',
+    'type': 'Тип',
+    'typeUse': 'Використання',
+    'createdAt': 'Створено',
+    'updatedAt': 'Оновлено',
+    'description': 'Опис',
+    'price': 'Ціна',
+    'count': 'в роботі',
+    'unit': 'О/в',
+    'weight': 'Вага',
+    'color': 'Колір',
+    'photo': 'Фото',
+    'code': 'Код',
+    'barcode': 'Штрихкод',
+    'supplier': 'Постачальник',
+    'minCount': 'Мін. кількість',
+    'status': 'Статус',
+    'password': 'Пароль',
+    'amount': 'Наявність',
+    'amountAll': 'Загальна кількість',
+    // Колонки для замовлень
+    'orderNumber': 'Номер замовлення',
+    'customer': 'Замовник',
+    'phone': 'Телефон',
+    'email': 'Електронна пошта',
+    'address': 'Адреса',
+    'deliveryType': 'Тип доставки',
+    'paymentType': 'Тип оплати',
+    'paymentStatus': 'Статус оплати',
+    'orderStatus': 'Статус замовлення',
+    'total': 'Загальна сума',
+    'comment': 'Коментар',
+    'date': 'Дата',
+    'quantity': 'Резерв',
+    'size': 'Розмір',
+    'material': 'Матеріал',
+    'thickness': 'Цупкість',
+    'cost': 'Ціна закупки',
+    'price1': "1 - 10 шт \n1-2 м2",
+    'price2': '11-50 шт \n3-5 м2',
+    'price3': '51-100 шт \n6-10 м2',
+    'price4': '101-500 шт \n 11-20 м2',
+    'price5': "501+ шт \n21+ м2",
+    'x': 'Ширина',
+    'y': 'Висота',
+    'created': 'копіювати',
+    'article': 'Артикул',
+    // Додаткові колонки
+    'category': 'Категорія',
+    'manufacturer': 'Виробник',
+    'warranty': 'Гарантія',
+    'availability': 'Наявність',
+    'location': 'Розташування',
+    'tags': 'Теги',
+    'notes': 'Примітки',
+    'responsible': 'Відповідальний',
+    'priority': 'Пріоритет'
+};
+
+// Функція для перекладу назв колонок
+export const translateColumnName = (columnName) => {
+    return columnTranslations[columnName] || columnName;
+};

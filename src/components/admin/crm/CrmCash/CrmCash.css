@@ -1,0 +1,15 @@
+/*.card {*/
+/*    background: white;*/
+/*    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);*/
+/*    margin: auto;*/
+/*    padding: 20px;*/
+/*    width: 45vw;*/
+/*}*/
+
+.thing {
+    margin-bottom: 10px;
+    border: #ffffff solid 1px;
+}
+.thing:hover {
+    border: #4d5154 solid 1px;
+}

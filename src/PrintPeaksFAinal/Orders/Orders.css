@@ -1,0 +1,95 @@
+/* OrderPanel.css */
+
+/* 1) затемнюємо фон та ловимо кліки по всьому екрану */
+.order-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+/* 2) сама панелька */
+.order-panel {
+    /*position: fixed;*/
+    margin-top: -0.5vh;
+    margin-right: 0.5vw;
+    width: 98%; /* статична ширина, щоб не “розпливалося” */
+    height: 59vh; /* щоб не виростало висотою більше за 60% екрану */
+    background: #f2f0e7;
+    /*padding: 1rem;*/
+    border: none;
+    border-radius: 1vh;
+
+
+    overflow-y: auto; /* внутрішня прокрутка, якщо занадто багато контенту */
+    /* вище за всі інші елементи на сторінці */
+}
+
+/* 3) кнопка-закриття всередині */
+.order-panel .close-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.order-panel .close-btn:hover {
+    color: #EE3C23;
+}
+
+/* 4) внутрішній список */
+.order-panel .order-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    /*margin-top: 1.5rem; !* щоб не заходило під кнопку-закриття *!*/
+}
+
+/* 5) один рядок замовлення */
+.order-panel .order-item {
+
+    align-items: center;
+
+    background: #f2f0e7;
+    border-radius: 1vh;
+
+}
+
+/* 6) скролбар всередині панелі */
+.order-panel::-webkit-scrollbar {
+    width: 0.3rem;
+}
+
+.order-panel::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 0.2rem;
+    cursor: pointer;
+}
+
+/* адаптив для дуже маленьких екранів */
+@media (max-width: 500px) {
+    .order-panel {
+        bottom: 1rem;
+        right: 1rem;
+        width: 90vw;
+        max-height: 70vh;
+        margin: 0vh;
+    }
+
+    .order-panel .order-item {
+        grid-template-columns: 1.5rem 1fr;
+        grid-template-rows: auto auto;
+    }
+
+    .order-panel .order-item > :last-child {
+        grid-column: 1 / -1;
+        margin-top: 0.5rem;
+    }
+}

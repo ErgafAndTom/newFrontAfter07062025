@@ -1,0 +1,76 @@
+body {
+  margin: 0;
+  font-family: 'inte    r';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.card-img-top-hover:hover {
+  transform: scale(1.1);
+  transition: transform 0.3s;
+}
+
+.transformInCash {
+  transform: scale(0.5);
+  position: absolute;
+  top: -3vw;
+  left: -20vw;
+}
+
+
+.AppStars {
+    text-align: center;
+    padding: 20px;
+}
+
+.StarsSvg {
+    margin: auto;
+    display: block;
+    background-color: #000814;
+}
+
+/* src/App.css */
+.App {
+    text-align: center;
+    padding: 20px;
+}
+
+
+/*form {*/
+/*  display: inline-block;*/
+/*  text-align: left;*/
+/*  background-color: #ffffff;*/
+/*  padding: 20px;*/
+/*  border-radius: 8px;*/
+/*}*/
+
+/*form div {*/
+/*  margin-bottom: 10px;*/
+/*}*/
+
+/*form label {*/
+/*  display: inline-block;*/
+/*  width: 100px;*/
+/*}*/
+
+/*form input {*/
+/*  padding: 5px;*/
+/*  margin-right: 10px;*/
+/*}*/
+
+/*form button {*/
+/*  padding: 5px 10px;*/
+/*  margin-top: 10px;*/
+/*}*/
+
+/*canvas {*/
+/*  display: block;*/
+/*  margin: auto;*/
+/*}*/
+
+

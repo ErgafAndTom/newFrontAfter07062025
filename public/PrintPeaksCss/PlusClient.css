@@ -1,0 +1,330 @@
+.div385 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16) inset,
+    17px 17px 13px rgba(0, 0, 0, 0.16);
+  border-radius: 12px;
+  background-color: #F2F0E7;
+}
+.div386 {
+  position: absolute;
+  height: calc(100% - 90px);
+  width: calc(100% - 29px);
+  top: 18px;
+  right: 13px;
+  bottom: 72px;
+  left: 16px;
+  border-radius: 12px;
+  border: 1px solid #707070;
+  box-sizing: border-box;
+}
+.name-icon2 {
+  position: absolute;
+  top: calc(50% - 249.43px);
+  left: 50.93px;
+  width: 31.6px;
+  height: 36.9px;
+}
+.phone-portrait-outline-icon2 {
+  position: absolute;
+  top: calc(50% - 60.71px);
+  left: 40.96px;
+  width: 50.4px;
+  height: 27.5px;
+}
+.email-icon2 {
+  position: absolute;
+  top: calc(50% - 123.85px);
+  left: 43.24px;
+  width: 44.5px;
+  height: 31.7px;
+}
+.signal-icon8 {
+  position: absolute;
+  height: 5.37%;
+  width: 6.48%;
+  top: 41.65%;
+  right: 12.77%;
+  bottom: 52.98%;
+  left: 80.75%;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+.viber-icon9 {
+  position: absolute;
+  height: 5.37%;
+  width: 6.15%;
+  top: 41.65%;
+  right: 19.71%;
+  bottom: 52.98%;
+  left: 74.14%;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+.whatsapp-icon9 {
+  position: absolute;
+  height: 5.37%;
+  width: 6.44%;
+  top: 41.65%;
+  right: 5.78%;
+  bottom: 52.98%;
+  left: 87.79%;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+.telegram-icon2 {
+  position: absolute;
+  top: calc(50% - 185.75px);
+  left: 45.76px;
+  width: 35.6px;
+  height: 31.4px;
+}
+.icon76 {
+  position: absolute;
+  top: 27px;
+  left: calc(50% - 56.5px);
+  width: 114px;
+  height: 105px;
+  object-fit: cover;
+}
+.div388 {
+  position: absolute;
+  height: calc(100% + 463.8px);
+  width: calc(100% - 463.8px);
+  top: -231.94px;
+  right: 231.86px;
+  bottom: -231.86px;
+  left: 231.94px;
+  border-radius: 12px;
+  border: 1px solid #292929;
+  box-sizing: border-box;
+  transform: rotate(90deg);
+}
+.i11 {
+  position: absolute;
+  top: calc(50% - 14.94px);
+  left: 24.34px;
+  opacity: 0.2;
+}
+.div387 {
+  position: absolute;
+  top: calc(50% - 255.62px);
+  right: 40.06px;
+  width: 511.9px;
+  height: 48.1px;
+}
+.telegram17 {
+  position: absolute;
+  top: calc(50% - 15.45px);
+  left: 25.34px;
+  opacity: 0.2;
+}
+.div389 {
+  position: absolute;
+  top: calc(50% - 194.18px);
+  right: 38.47px;
+  width: 511.9px;
+  height: 48.1px;
+}
+.e-mail3 {
+  position: absolute;
+  top: calc(50% - 14.51px);
+  left: 27.53px;
+  opacity: 0.2;
+}
+.div391 {
+  position: absolute;
+  top: calc(50% - 132.74px);
+  right: 40.06px;
+  width: 511.9px;
+  height: 48.1px;
+}
+.div394 {
+  position: absolute;
+  height: calc(100% + 318.7px);
+  width: calc(100% - 318.7px);
+  top: -159.38px;
+  right: 159.32px;
+  bottom: -159.32px;
+  left: 159.38px;
+  border-radius: 12px;
+  border: 1px solid #292929;
+  box-sizing: border-box;
+  transform: rotate(90deg);
+}
+.i12 {
+  position: absolute;
+  top: calc(50% - 14.05px);
+  left: 27.53px;
+  opacity: 0.2;
+}
+.div393 {
+  position: absolute;
+  top: calc(50% - 71.3px);
+  left: calc(50% - 219.46px);
+  width: 366.8px;
+  height: 48.1px;
+}
+.div396 {
+  position: absolute;
+  height: calc(100% + 163.7px);
+  width: calc(100% - 163.7px);
+  top: -81.89px;
+  right: 81.81px;
+  bottom: -81.81px;
+  left: 81.89px;
+  border-radius: 12px;
+  background-color: #ffcc00;
+  transform: rotate(90deg);
+}
+.div397 {
+  position: absolute;
+  top: calc(50% - 15.05px);
+  left: 12px;
+}
+.div395 {
+  position: absolute;
+  bottom: 81.9px;
+  left: 26.17px;
+  width: 211.8px;
+  height: 48.1px;
+}
+.div400 {
+  position: absolute;
+  top: calc(50% - 15.05px);
+  left: 7px;
+}
+.div398 {
+  position: absolute;
+  right: 21.35px;
+  bottom: 15.63px;
+  width: 211.8px;
+  height: 48.1px;
+}
+.i13 {
+  position: absolute;
+  top: calc(50% - 15.05px);
+  left: 13.2px;
+  opacity: 0.2;
+}
+.div401 {
+  position: absolute;
+  top: calc(50% - 10.49px);
+  right: 38.47px;
+  width: 511.9px;
+  height: 48.1px;
+  text-align: left;
+}
+.div404 {
+  position: absolute;
+  height: calc(100% + 238.2px);
+  width: calc(100% - 238.2px);
+  top: -119.14px;
+  right: 119.06px;
+  bottom: -119.06px;
+  left: 119.14px;
+  border-radius: 12px;
+  border: 1px solid #292929;
+  box-sizing: border-box;
+  transform: rotate(90deg);
+}
+.i14 {
+  position: absolute;
+  top: calc(50% - 15.02px);
+  left: 16px;
+  opacity: 0.2;
+}
+.div403 {
+  position: absolute;
+  top: calc(50% + 50.31px);
+  left: calc(50% - 157.73px);
+  width: 286.3px;
+  height: 48.1px;
+  text-align: left;
+}
+.div406 {
+  position: absolute;
+  height: calc(100% + 105.2px);
+  width: calc(100% - 105.2px);
+  top: -52.61px;
+  right: 52.59px;
+  bottom: -52.59px;
+  left: 52.61px;
+  border-radius: 12px;
+  border: 1px solid #292929;
+  box-sizing: border-box;
+  transform: rotate(90deg);
+}
+.i15 {
+  position: absolute;
+  top: calc(50% - 15.02px);
+  left: 5.67px;
+  opacity: 0.2;
+}
+.div405 {
+  position: absolute;
+  top: calc(50% + 50.94px);
+  right: 38.41px;
+  width: 153.3px;
+  height: 48.1px;
+  text-align: left;
+}
+.layer1-icon {
+  position: absolute;
+  height: 5.47%;
+  width: 18.47%;
+  top: 56.8%;
+  right: 75.37%;
+  bottom: 37.73%;
+  left: 6.16%;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+.vehicle-delivery-van-icon {
+  position: absolute;
+  height: 5.14%;
+  width: 9.4%;
+  top: 49.35%;
+  right: 84.63%;
+  bottom: 45.52%;
+  left: 5.98%;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+.new {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 665px;
+  height: 802px;
+}
+.div407 {
+  position: absolute;
+  top: 588.36px;
+  left: -766px;
+  border-radius: 12px;
+  border: 1px solid #707070;
+  box-sizing: border-box;
+  width: 869.9px;
+  height: 80.1px;
+  display: none;
+}
+.plus-client {
+  position: relative;
+  width: 100%;
+  height: 802px;
+  text-align: center;
+  font-size: 24px;
+  color: #000;
+
+}

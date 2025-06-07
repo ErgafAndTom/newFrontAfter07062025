@@ -1,0 +1,16 @@
+.mainLoader {
+    margin: auto;
+}
+.colorBlack{
+    color: black;
+}
+.colorBlack:hover{
+    color: #0077ff;
+}
+
+.modal-60w {
+    max-width: 55vw;
+}
+.modal-90w {
+    max-width: 84vw;
+}

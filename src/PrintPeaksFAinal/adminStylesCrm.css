@@ -1,0 +1,300 @@
+.adminFont {
+    font-size: 1vh;
+    font-weight: 500;
+}
+
+.adminBackGround {
+    background: #FBFAF6;
+    min-height: 86.5vh;
+}
+
+.adminNavBackGround {
+    background: #FBFAF6;
+
+}
+
+.adminFontTable {
+    font-size: 1.5vmin;
+    margin: 0.3vmin;
+    align-items: start;
+    justify-content: start;
+    transform: matrix(1, 0, 0, 1, 0, 0);
+
+    /* Вертикальне вирівнювання тексту */
+}
+
+
+.smalluah {
+    margin-top: 1vmin;
+    font-size: 1vmin
+}
+
+.adminPagination {
+    height: 3vh;
+    justify-content: center;
+}
+
+.paginationZakaz {
+    align-items: center;
+    width: 3.1vw;
+    margin: 0.4vw;
+    justify-content: center;
+    background: #FBFAF6;
+    font-size: var(--font-size-base);
+    border-radius: 1.5vw;
+    border: none;
+    display: flex;
+    /*padding: 0.3vw;*/
+    position: relative;
+}
+
+.paginationNamberZakaz {
+    align-items: center;
+    font-size: var(--font-size-base);
+    display: flex;
+    justify-content: center;
+    background: #FBFAF6;
+    width: 1.7vw;
+    height: 1.7vw;
+    border-radius: 1.5vw;
+    border: none;
+}
+
+.paginationNamberZakaz:hover {
+    background: #FAB416;
+    cursor: pointer;
+    color: white;
+    transform: translateY(-1px);
+
+}
+
+.activePag {
+    background: #FAB416;
+}
+
+.booooold {
+    font-weight: 600;
+}
+
+.modalForBorderRadius {
+    background: #F2F0E7;
+    display: none;
+}
+
+.adminButtonAdd-primary {
+    display: flex;
+    height: auto;
+    width: auto;
+    min-width: 10rem;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: var(--font-size-sm);
+    border-radius: 0.5rem;
+    color: #000000;
+    background: #dcd9ce;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    font-weight: 500;
+    opacity: 0.6;
+}
+
+.adminButtonAdd-primary:hover {
+    cursor: pointer;
+    background: #dcd9ce;
+    opacity: 1;
+    color: black;
+    transform: translateY(-2px);
+}
+
+.adminButtonAdd {
+    display: flex;
+    height: auto;
+    width: auto;
+    min-width: 10rem;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: var(--font-size-sm);
+    border-radius: 0.5rem;
+    color: #000000;
+    background: #FAB416;
+    /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.adminButtonAdd:hover {
+    cursor: pointer;
+    background: #f5a400;
+    color: white;
+    transform: translateY(-2px);
+    /*box-shadow: 0 3px 5px rgb(233, 157, 0);*/
+}
+
+.adminButtonAdd:active {
+    background: #FAB416;
+    transform: translateY(0);
+    /*box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);*/
+}
+
+.adminButtonAdd:active:focus {
+    background: #FAB416;
+}
+
+.adminButtonAdd:focus {
+    outline: none;
+    /*box-shadow: 0 0 0 3px rgba(250, 180, 22, 0.3);*/
+}
+
+.adminButtonAdd:disabled {
+    background: #F2F0E7;
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: none;
+    box-shadow: none;
+}
+
+.hoverOrange:hover {
+    background: #FAB416;
+}
+
+.adminTable {
+    min-height: 70vh;
+}
+
+.pagButton {
+    border-radius: 50%;
+}
+
+.whiteBG {
+    background: #FBFAF6;
+}
+
+.redStorageItem:hover {
+    color: #0a53be;
+    cursor: pointer;
+}
+
+.redIcon {
+    width: 1.2vh;
+    visibility: hidden;
+}
+
+.redStorageItem:hover .redIcon {
+    visibility: visible;
+}
+
+.modalProductAdd {
+    width: 90vw;
+}
+
+.borderR0 {
+    border-radius: 1.5vh;
+}
+
+
+::-webkit-scrollbar {
+    width: 5px; /* Задає ширину полоси прокрутки */
+    height: 5px; /* Задає висоту полоси прокрутки для горизонтальної прокрутки */
+}
+
+/* Стилізація доріжки полоси прокрутки */
+::-webkit-scrollbar-track {
+    background: #FBFAF6; /* Колір фону доріжки */
+}
+
+/* Стилізація ручки полоси прокрутки */
+::-webkit-scrollbar-thumb {
+    background: #888; /* Колір ручки полоси прокрутки */
+}
+
+/* Зміна кольору ручки полоси прокрутки при наведенні */
+::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Колір ручки при наведенні курсору */
+}
+
+.background-with-text {
+    /*background-image: url('шлях_до_вашого_зображення.jpg'); !* Встановлення фонового зображення *!*/
+    background-size: cover; /* Покривання всієї області елемента зображенням */
+    background-position: center; /* Центрування зображення */
+    color: white; /* Колір тексту */
+    font-size: 24px; /* Розмір шрифта */
+    text-align: center; /* Вирівнювання тексту по центру */
+    width: 100%; /* Ширина елемента */
+    height: 300px; /* Висота елемента */
+    display: flex; /* Використання flex для вирівнювання контенту */
+    /*align-items: center; !* Вертикальне вирівнювання тексту *!*/
+    /*justify-content: center; !* Горизонтальне вирівнювання тексту *!*/
+}
+
+.hoverBlack:hover {
+    background: black;
+    color: white;
+}
+
+.colorCards {
+    background: #FBFAF6;
+}
+
+.adminFont2 {
+    font-size: 1.5vmin;
+}
+
+.fontInfoForPricing1 {
+    font-size: 2vmin;
+    font-weight: bold;
+}
+
+.fontInfoForPricing {
+
+    font-size: var(--font-size-base);
+
+    /*font-size: clamp(10px, 1.5vmin, 14px);*/
+}
+
+.fontProductName {
+    font-size: 1vw;
+    padding-bottom: 0.6vw;
+    padding-top: 0.6vw;
+}
+
+.navbarMy {
+    border-radius: 12px;
+    /*align-items: left;*/
+    background: #F2F0E7;
+    height: 4vw;
+    order-top-left-radius: 12px;
+}
+
+/*@media (width: 10vw){*/
+/*    .adminFont {*/
+/*        font-size: 1vw;*/
+/*    }*/
+/*    .adminFont2 {*/
+/*        font-size: 4vw;*/
+/*    }*/
+/*    .fontInfoForPricing1 {*/
+/*        font-size: 4vw;*/
+/*    }*/
+/*    .fontProductName {*/
+/*        font-size: 1vw;*/
+/*        padding-bottom: 1.3vw;*/
+/*        padding-top: 1.3vw;*/
+/*    }*/
+/*    .navbarMy {*/
+/*        border: none;*/
+/*        height: 10vw;*/
+/*    }*/
+/*}*/
+.priceord {
+    flex-direction: row;
+    display: flex;
+    /*margin-left: 1vw;*/
+    white-space: nowrap;
+}
+
+
+

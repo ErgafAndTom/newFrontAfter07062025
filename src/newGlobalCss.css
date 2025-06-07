@@ -1,0 +1,38 @@
+.filesInOrder-addButton {
+    background-color: #FBFAF6;
+    padding: 1vh;
+    margin: 0.5vh;
+    border-radius: 1vh;
+    /*box-shadow: 0 0.1vw 0.2vw rgba(0, 0, 0, 0.2);*/
+    cursor: pointer;
+}
+
+.filesInOrder-addButton:hover {
+    background-color: rgb(227, 221, 203);
+}
+
+.commentInOrder-textComment {
+
+}
+
+.commentInOrder-textData {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    max-width: 60vw;
+    padding-left: 1vw;
+    width: 60vw;
+    height: 15vh;
+}
+
+.interFont {
+    font-family: 'Inter', serif;
+
+    font-weight: 400;
+
+
+}
+
+.allArtemElem, .inputsArtem, .inputsArtemx, .interFont, .selectArtem, .optionInSelectArtem {
+
+}

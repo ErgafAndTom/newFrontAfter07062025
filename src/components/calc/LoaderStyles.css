@@ -1,0 +1,37 @@
+.система {
+    position: relative;
+    width: 120px;
+    height: 33px;
+    transform: rotateX(10deg);
+}
+
+.шар {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #000000;
+    animation: обертання 10s infinite linear;
+}
+
+#шар1 { animation-duration: 8s; }
+#шар2 { animation-duration: 10s; }
+#шар3 { animation-duration: 12s; }
+
+@keyframes обертання {
+    0% {
+        transform: translateX(0) translateY(0) scale(1) rotate(0deg);
+    }
+    25% {
+        transform: translateX(50px) translateY(10px) scale(1.5) rotate(90deg);
+    }
+    50% {
+        transform: translateX(100px) translateY(0) scale(1) rotate(180deg);
+    }
+    75% {
+        transform: translateX(50px) translateY(-10px) scale(0.5) rotate(270deg);
+    }
+    100% {
+        transform: translateX(0) translateY(0) scale(1) rotate(360deg);
+    }
+}

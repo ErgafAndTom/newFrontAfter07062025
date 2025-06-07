@@ -1,0 +1,62 @@
+.profileContainer {
+    padding: 2vw;
+    max-width: 90vw;
+    margin: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+.profileAvatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+.profileActions button {
+    margin: 5px;
+}
+input, select {
+    margin: 5px 0;
+    padding: 5px;
+    width: 100%;
+}
+
+/* Стилі для вкладок */
+.profileTabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabButton {
+    padding: 10px 20px;
+    background-color: #f2f0e7;
+    border: none;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    margin-right: 5px;
+    font-family: var(--font-inter)
+, sans-serif;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.tabButton.active {
+    background-color: #FFC107;
+    color: black;
+    font-weight: bold;
+}
+
+.tabButton:hover:not(.active) {
+    background-color: #e9e7e0;
+}
+
+.profileContent, .counterpartiesContent {
+    padding: 15px 0;
+}
+
+/* Стилі для контрагентів */
+.counterpartiesContent {
+    margin-top: 20px;
+}

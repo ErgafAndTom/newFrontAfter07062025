@@ -1,0 +1,846 @@
+.settingclienta {
+  position: absolute;
+  top: 0px;
+  left: -0.29px;
+  backdrop-filter: blur(4px) brightness(100%);
+  background-color: rgba(233, 230, 218, 0.3);
+  border: 1px solid #707070;
+  box-sizing: border-box;
+  width: 1920px;
+  height: 1080px;
+}
+.settingclientb {
+  position: absolute;
+  top: 31px;
+  left: 29.71px;
+  border-radius: 40px;
+  background-color: #F2F0E7;
+  border: 1px solid #707070;
+  box-sizing: border-box;
+  width: 1861px;
+  height: 1018px;
+}
+.icon {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+  object-fit: cover;
+}
+.settingclientc {
+  position: absolute;
+  top: 40px;
+  left: 215.71px;
+  width: 114px;
+  height: 105px;
+}
+.icon1 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0%;
+  right: 0%;
+  bottom: 0%;
+  left: 0%;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+.settingclientd {
+  position: absolute;
+  top: 43.14px;
+  left: 652.8px;
+  width: 131.8px;
+  height: 98.9px;
+}
+.base {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  border: 0.5px solid #707070;
+  box-sizing: border-box;
+}
+.span {
+  text-transform: uppercase;
+}
+.div2 {
+  position: absolute;
+  top: calc(50% - 11px);
+  left: calc(50% - 13px);
+  -webkit-text-stroke: 1px #000;
+}
+.triangle-icon {
+  position: absolute;
+  bottom: 5.03px;
+  left: calc(50% - 5.5px);
+  width: 15.3px;
+  height: 4.7px;
+}
+.triangle-icon1 {
+  position: absolute;
+  top: calc(50% - 19px);
+  left: calc(50% - 7.17px);
+  width: 15.3px;
+  height: 4.7px;
+}
+.div1 {
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  bottom: 0px;
+  left: calc(50% - 0.5px);
+  width: 55px;
+}
+.icon2 {
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  bottom: 0px;
+  left: calc(50% + 54.5px);
+  max-height: 100%;
+  width: 55px;
+}
+.icon3 {
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  max-height: 100%;
+  width: 55px;
+}
+.icon4 {
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  bottom: 0px;
+  left: calc(50% - 110.5px);
+  max-height: 100%;
+  width: 55px;
+}
+.base1 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  background-color: #f3e7c9;
+  border: 0.5px solid #707070;
+  box-sizing: border-box;
+}
+.tileview-icon {
+  position: absolute;
+  width: calc(100% - 9.6px);
+  top: calc(50% - 18px);
+  right: 3.6px;
+  left: 6px;
+  max-width: 100%;
+  overflow: hidden;
+  height: 36.1px;
+}
+.div3 {
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  bottom: 0px;
+  left: calc(50% - 55.5px);
+  width: 55px;
+}
+.icon5 {
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  max-height: 100%;
+  width: 56px;
+}
+.div {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 329px;
+  height: 56px;
+}
+.icon6 {
+  position: absolute;
+  bottom: 34.5px;
+  left: 16px;
+  width: 32px;
+  height: 281px;
+}
+.div5 {
+  position: absolute;
+  height: calc(100% - 0.5px);
+  width: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0.5px;
+  left: 0px;
+  border-radius: 0px 0px 40px 40px;
+  border: 1px solid #707070;
+  box-sizing: border-box;
+}
+.div6 {
+  position: absolute;
+  height: calc(100% - 52.5px);
+  top: 52.5px;
+  bottom: 0px;
+  left: 72.5px;
+  border-right: 1px solid #707070;
+  box-sizing: border-box;
+  width: 2px;
+}
+.div4 {
+  position: absolute;
+  height: calc(100% - 55px);
+  width: 100%;
+  top: 55px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+}
+.icon7 {
+  position: absolute;
+  width: 87.14%;
+  top: calc(50% - 192.75px);
+  right: 12.81%;
+  left: 1px;
+  max-width: 100%;
+  overflow: hidden;
+  height: 102px;
+}
+.base2 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  border-radius: 0px 12px 0px 0px;
+  background-color: #F2F0E7;
+  border: 1px solid #707070;
+  box-sizing: border-box;
+}
+.i {
+  position: absolute;
+  top: calc(50% - 15px);
+  left: 6px;
+}
+.div8 {
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  width: 160px;
+}
+.base3 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  border-radius: 12px 0px 0px 0px;
+  background-color: #FBFAF6;
+  border: 1px solid #707070;
+  box-sizing: border-box;
+}
+.i1 {
+  position: absolute;
+  top: calc(50% - 15px);
+  left: 12px;
+}
+.div9 {
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  width: 108px;
+}
+.base4 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  background-color: #F2F0E7;
+  border: 1px solid #707070;
+  box-sizing: border-box;
+}
+.i2 {
+  position: absolute;
+  top: calc(50% - 15px);
+  left: 14px;
+}
+.div10 {
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  bottom: 0px;
+  left: calc(50% - 119px);
+  width: 186px;
+}
+.div7 {
+  position: absolute;
+  bottom: 394.5px;
+  left: 0px;
+  width: 454px;
+  height: 46px;
+  text-align: left;
+  font-size: 24px;
+}
+.settingcliente {
+  position: absolute;
+  bottom: 45.5px;
+  left: 46.71px;
+  width: 1827px;
+  height: 449.5px;
+  text-align: right;
+  font-size: 20px;
+}
+.div11 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  border-radius: 12px;
+  border: 1px solid #707070;
+  box-sizing: border-box;
+}
+.div13 {
+  position: absolute;
+  height: calc(100% + 343.9px);
+  width: calc(100% - 343.9px);
+  top: -171.97px;
+  right: 171.93px;
+  bottom: -171.93px;
+  left: 171.97px;
+  border-radius: 12px;
+  border: 1px solid #292929;
+  box-sizing: border-box;
+  transform: rotate(90deg);
+}
+.telegram {
+  position: absolute;
+  top: calc(50% - 15.05px);
+  left: 22.53px;
+  opacity: 0.2;
+}
+.div12 {
+  position: absolute;
+  width: calc(100% - 46px);
+  top: 17px;
+  right: 23px;
+  left: 23px;
+  height: 48.1px;
+  text-align: center;
+}
+.e-mail {
+  position: absolute;
+  top: calc(50% - 15.05px);
+  left: 27.53px;
+  opacity: 0.2;
+}
+.div14 {
+  position: absolute;
+  width: calc(100% - 46px);
+  top: calc(50% - 123.5px);
+  right: 23px;
+  left: 23px;
+  height: 48.1px;
+  text-align: center;
+}
+.div19 {
+  position: absolute;
+  top: calc(50% - 15.05px);
+  left: 20.53px;
+}
+.div17 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+}
+.div16 {
+  position: absolute;
+  width: calc(100% - 46px);
+  top: calc(50% - 58.5px);
+  right: 23px;
+  left: 23px;
+  height: 48.1px;
+}
+.div21 {
+  position: absolute;
+  height: calc(100% + 344px);
+  width: calc(100% - 344px);
+  top: -172px;
+  right: 172px;
+  bottom: -172px;
+  left: 172px;
+  border-radius: 12px;
+  border: 1px solid #292929;
+  box-sizing: border-box;
+  transform: rotate(90deg);
+}
+.div20 {
+  position: absolute;
+  width: calc(100% - 45.9px);
+  top: calc(50% + 7.5px);
+  right: 22.9px;
+  left: 23px;
+  height: 48.1px;
+}
+.div24 {
+  position: absolute;
+  height: calc(100% + 286.9px);
+  width: calc(100% - 286.9px);
+  top: -143.47px;
+  right: 143.43px;
+  bottom: -143.43px;
+  left: 143.47px;
+  border-radius: 12px;
+  border: 1px solid #292929;
+  box-sizing: border-box;
+  transform: rotate(90deg);
+}
+.div23 {
+  position: absolute;
+  height: 100%;
+  width: calc(100% - 57px);
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 57px;
+}
+.icon8 {
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  max-height: 100%;
+  width: 46.3px;
+}
+.div25 {
+  position: absolute;
+  top: calc(50% - 15.02px);
+  left: 76.53px;
+}
+.div22 {
+  position: absolute;
+  width: calc(100% - 46px);
+  top: calc(50% + 73.5px);
+  right: 23px;
+  left: 23px;
+  height: 48.1px;
+}
+.div29 {
+  position: absolute;
+  top: calc(50% - 15.02px);
+  left: 77.53px;
+}
+.div26 {
+  position: absolute;
+  width: calc(100% - 46px);
+  right: 23px;
+  bottom: 18.9px;
+  left: 23px;
+  height: 48.1px;
+}
+.settingclientf {
+  position: absolute;
+  top: 150px;
+  left: 508.71px;
+  width: 438px;
+  height: 413px;
+}
+.settingclientg-icon {
+  position: absolute;
+  top: 308.44px;
+  left: 882.71px;
+  width: 21.6px;
+  height: 27px;
+}
+.settingclienth-icon {
+  position: absolute;
+  top: 504.69px;
+  left: 882.71px;
+  width: 21.6px;
+  height: 27px;
+}
+.settingclienti-icon {
+  position: absolute;
+  top: 439.3px;
+  left: 882.71px;
+  width: 21.6px;
+  height: 27px;
+}
+.settingclientj-icon {
+  position: absolute;
+  top: 370px;
+  left: 873.71px;
+  width: 36px;
+  height: 36px;
+}
+.settingclientk-icon {
+  position: absolute;
+  top: 173px;
+  left: 873.71px;
+  width: 36px;
+  height: 36px;
+}
+.settingclientl-icon {
+  position: absolute;
+  top: 239px;
+  left: 873.71px;
+  width: 36px;
+  height: 36px;
+}
+.icon10 {
+  position: absolute;
+  width: calc(100% - 32.4px);
+  top: calc(50% + 73.5px);
+  right: 12.05px;
+  left: 20.35px;
+  max-width: 100%;
+  overflow: hidden;
+  height: 47.9px;
+}
+.icon11 {
+  position: absolute;
+  width: calc(100% - 32.4px);
+  right: 12.05px;
+  bottom: 20.2px;
+  left: 20.35px;
+  max-width: 100%;
+  overflow: hidden;
+  height: 46.8px;
+}
+.g10-icon {
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  max-height: 100%;
+  width: 47.9px;
+}
+.josepowellfbcom {
+  position: absolute;
+  top: calc(50% - 9.95px);
+  left: calc(50% - 129.29px);
+}
+.icon12 {
+  position: absolute;
+  right: -0.05px;
+  bottom: 3.9px;
+  width: 36px;
+  height: 36px;
+}
+.div32 {
+  position: absolute;
+  width: calc(100% - 32.4px);
+  top: calc(50% + 7.5px);
+  right: 12.05px;
+  left: 20.35px;
+  height: 47.9px;
+}
+.cf6383ce608a49e-icon {
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  max-height: 100%;
+  width: 38.2px;
+}
+.josepowellapplecom {
+  position: absolute;
+  top: calc(50% - 12.45px);
+  left: calc(50% - 129.29px);
+}
+.icon13 {
+  position: absolute;
+  height: calc(100% - 10.9px);
+  top: 5px;
+  right: -0.05px;
+  bottom: 5.9px;
+  max-height: 100%;
+  width: 36px;
+}
+.div33 {
+  position: absolute;
+  width: calc(100% - 32.4px);
+  top: 17px;
+  right: 12.05px;
+  left: 20.35px;
+  height: 46.9px;
+}
+.josepowellgmailcom {
+  position: absolute;
+  top: calc(50% - 12.3px);
+  left: calc(50% - 129.29px);
+}
+.google-icon-logo-svgrepo-com {
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  max-height: 100%;
+  width: 45.7px;
+}
+.icon14 {
+  position: absolute;
+  height: calc(100% - 10.6px);
+  top: 5px;
+  right: -0.05px;
+  bottom: 5.6px;
+  max-height: 100%;
+  width: 36px;
+}
+.div34 {
+  position: absolute;
+  width: calc(100% - 32.4px);
+  top: calc(50% - 123.5px);
+  right: 12.05px;
+  left: 20.35px;
+  height: 46.6px;
+}
+.f3b4691cb4d4-icon {
+  position: absolute;
+  height: 100%;
+  width: 11.81%;
+  top: 0%;
+  right: 88.19%;
+  bottom: 0%;
+  left: 0%;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+.josepowelloutlookcom {
+  position: absolute;
+  top: calc(50% - 12.95px);
+  left: calc(50% - 129.29px);
+}
+.icon15 {
+  position: absolute;
+  height: calc(100% - 11.9px);
+  top: 6px;
+  right: -0.05px;
+  bottom: 5.9px;
+  max-height: 100%;
+  width: 36px;
+}
+.div35 {
+  position: absolute;
+  width: calc(100% - 32.4px);
+  top: calc(50% - 58.5px);
+  right: 12.05px;
+  left: 20.35px;
+  height: 47.9px;
+}
+.settingclientm {
+  position: absolute;
+  top: 150px;
+  left: 970.71px;
+  width: 438px;
+  height: 413px;
+  text-align: right;
+  font-size: 20px;
+}
+.div39 {
+  position: absolute;
+  height: calc(100% + 346.3px);
+  width: calc(100% - 346.3px);
+  top: -173.16px;
+  right: 173.14px;
+  bottom: -173.14px;
+  left: 173.16px;
+  border-radius: 12px;
+  border: 1px solid #292929;
+  box-sizing: border-box;
+  transform: rotate(90deg);
+}
+.div40 {
+  position: absolute;
+  top: calc(50% - 15.05px);
+  left: 22.53px;
+}
+.bxs-edit-alt-icon {
+  position: absolute;
+  top: calc(50% - 13.51px);
+  right: 10.71px;
+  width: 21.6px;
+  height: 27px;
+}
+.div38 {
+  position: absolute;
+  width: calc(100% - 43.6px);
+  top: calc(50% + 6.88px);
+  right: 19.69px;
+  left: 23.91px;
+  height: 48.1px;
+}
+.div42 {
+  position: absolute;
+  height: calc(100% + 344.6px);
+  width: calc(100% - 344.6px);
+  top: -172.31px;
+  right: 172.29px;
+  bottom: -172.29px;
+  left: 172.31px;
+  border-radius: 12px;
+  border: 1px solid #292929;
+  box-sizing: border-box;
+  transform: rotate(90deg);
+}
+.bxs-edit-alt-icon1 {
+  position: absolute;
+  top: calc(50% - 13.51px);
+  right: 10.57px;
+  width: 21.6px;
+  height: 27px;
+}
+.maksik01 {
+  position: absolute;
+  top: calc(50% - 14.99px);
+  left: 15.98px;
+}
+.div41 {
+  position: absolute;
+  width: calc(100% - 45.3px);
+  top: calc(50% + 72.27px);
+  right: 19.83px;
+  left: 25.47px;
+  height: 48.1px;
+}
+.div45 {
+  position: absolute;
+  top: calc(50% - 16.48px);
+  left: 15.98px;
+}
+.div43 {
+  position: absolute;
+  width: calc(100% - 45.3px);
+  right: 19.83px;
+  bottom: 20.75px;
+  left: 25.47px;
+  height: 48.1px;
+}
+.icon16 {
+  position: absolute;
+  height: calc(100% - 12.1px);
+  top: 6px;
+  right: 5.17px;
+  bottom: 6.1px;
+  max-height: 100%;
+  width: 36px;
+}
+.div46 {
+  position: absolute;
+  width: calc(100% - 45.3px);
+  top: calc(50% - 58.5px);
+  right: 19.83px;
+  left: 25.47px;
+  height: 48.1px;
+}
+.icon17 {
+  position: absolute;
+  height: calc(100% - 12.1px);
+  top: 5.77px;
+  right: 5.17px;
+  bottom: 6.33px;
+  max-height: 100%;
+  width: 36px;
+}
+.div48 {
+  position: absolute;
+  width: calc(100% - 45.3px);
+  top: 17.23px;
+  right: 19.83px;
+  left: 25.47px;
+  height: 48.1px;
+  text-align: center;
+}
+.icon18 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+.icon19 {
+  position: absolute;
+  height: calc(100% - 12.1px);
+  top: 6.38px;
+  right: 5.17px;
+  bottom: 5.72px;
+  max-height: 100%;
+  width: 36px;
+}
+.div50 {
+  position: absolute;
+  width: calc(100% - 45.3px);
+  top: calc(50% - 123.88px);
+  right: 19.83px;
+  left: 25.47px;
+  height: 48.1px;
+}
+.settingclientn {
+  position: absolute;
+  top: 150px;
+  left: 1426.71px;
+  width: 438px;
+  height: 413px;
+}
+.settingcliento {
+  position: absolute;
+  top: 150px;
+  left: 46.71px;
+  width: 438px;
+  height: 413px;
+}
+.settingclient {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: auto;
+  text-align: left;
+  font-size: 24px;
+  color: #000;
+
+}

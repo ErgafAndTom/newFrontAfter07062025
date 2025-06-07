@@ -1,0 +1,783 @@
+<!--&lt;!&ndash;<!DOCTYPE html>&ndash;&gt;-->
+<!--&lt;!&ndash;<html>&ndash;&gt;-->
+<!--&lt;!&ndash;<head>&ndash;&gt;-->
+<!--&lt;!&ndash;    <meta charset="utf-8">&ndash;&gt;-->
+<!--&lt;!&ndash;    <title>My first three.js app</title>&ndash;&gt;-->
+<!--&lt;!&ndash;    <style>&ndash;&gt;-->
+<!--&lt;!&ndash;        body { margin: 0; }&ndash;&gt;-->
+<!--&lt;!&ndash;    </style>&ndash;&gt;-->
+<!--&lt;!&ndash;</head>&ndash;&gt;-->
+<!--&lt;!&ndash;<body>&ndash;&gt;-->
+<!--&lt;!&ndash;<script type="module">&ndash;&gt;-->
+<!--&lt;!&ndash;    import * as THREE from 'https://unpkg.com/three/build/three.module.js';&ndash;&gt;-->
+
+<!--&lt;!&ndash;    var scene = new THREE.Scene();&ndash;&gt;-->
+
+<!--&lt;!&ndash;    // Создаем камеру&ndash;&gt;-->
+<!--&lt;!&ndash;    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);&ndash;&gt;-->
+<!--&lt;!&ndash;    camera.position.z = 5;&ndash;&gt;-->
+
+<!--&lt;!&ndash;    // Создаем рендерер&ndash;&gt;-->
+<!--&lt;!&ndash;    var renderer = new THREE.WebGLRenderer();&ndash;&gt;-->
+<!--&lt;!&ndash;    renderer.setSize(window.innerWidth, window.innerHeight);&ndash;&gt;-->
+<!--&lt;!&ndash;    document.body.appendChild(renderer.domElement);&ndash;&gt;-->
+
+<!--&lt;!&ndash;    // Создаем геометрию чашки&ndash;&gt;-->
+<!--&lt;!&ndash;    var cupGeometry = new THREE.CylinderGeometry(1, 1, 2, 32);&ndash;&gt;-->
+<!--&lt;!&ndash;    var cupMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });&ndash;&gt;-->
+<!--&lt;!&ndash;    var cup = new THREE.Mesh(cupGeometry, cupMaterial);&ndash;&gt;-->
+
+<!--&lt;!&ndash;    // Создаем геометрию ручки&ndash;&gt;-->
+<!--&lt;!&ndash;    var handleGeometry = new THREE.TorusGeometry(0.3, 0.1, 16, 100);&ndash;&gt;-->
+<!--&lt;!&ndash;    var handleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });&ndash;&gt;-->
+<!--&lt;!&ndash;    var handle = new THREE.Mesh(handleGeometry, handleMaterial);&ndash;&gt;-->
+<!--&lt;!&ndash;    handle.position.set(0.6, 1, 1); // Позиция ручки относительно чашки&ndash;&gt;-->
+
+<!--&lt;!&ndash;    // Создаем группу для чашки и ручки&ndash;&gt;-->
+<!--&lt;!&ndash;    var cupGroup = new THREE.Group();&ndash;&gt;-->
+<!--&lt;!&ndash;    cupGroup.add(cup);&ndash;&gt;-->
+<!--&lt;!&ndash;    cupGroup.add(handle);&ndash;&gt;-->
+
+<!--&lt;!&ndash;    // Добавляем группу в сцену&ndash;&gt;-->
+<!--&lt;!&ndash;    scene.add(cupGroup);&ndash;&gt;-->
+
+<!--&lt;!&ndash;    // Создаем источник света&ndash;&gt;-->
+<!--&lt;!&ndash;    var light = new THREE.PointLight(0xffffff, 1, 100);&ndash;&gt;-->
+<!--&lt;!&ndash;    light.position.set(0, 0, 10);&ndash;&gt;-->
+<!--&lt;!&ndash;    scene.add(light);&ndash;&gt;-->
+
+<!--&lt;!&ndash;    // Анимация&ndash;&gt;-->
+<!--&lt;!&ndash;    function animate() {&ndash;&gt;-->
+<!--&lt;!&ndash;        requestAnimationFrame(animate);&ndash;&gt;-->
+<!--&lt;!&ndash;        document.addEventListener('keydown', function (event) {&ndash;&gt;-->
+<!--&lt;!&ndash;            // The key codes for the arrow keys are 37 (left), 38 (up), 39 (right), and 40 (down)&ndash;&gt;-->
+<!--&lt;!&ndash;            switch (event.keyCode) {&ndash;&gt;-->
+<!--&lt;!&ndash;                case 37: // left arrow&ndash;&gt;-->
+<!--&lt;!&ndash;                    cupGroup.rotation.y += 0.01;&ndash;&gt;-->
+<!--&lt;!&ndash;                    break;&ndash;&gt;-->
+<!--&lt;!&ndash;                case 38: // up arrow&ndash;&gt;-->
+<!--&lt;!&ndash;                    cupGroup.rotation.x -= 0.01;&ndash;&gt;-->
+<!--&lt;!&ndash;                    break;&ndash;&gt;-->
+<!--&lt;!&ndash;                case 39: // right arrow&ndash;&gt;-->
+<!--&lt;!&ndash;                    cupGroup.rotation.y -= 0.01;&ndash;&gt;-->
+<!--&lt;!&ndash;                    break;&ndash;&gt;-->
+<!--&lt;!&ndash;                case 40: // down arrow&ndash;&gt;-->
+<!--&lt;!&ndash;                    cupGroup.rotation.x += 0.01;&ndash;&gt;-->
+<!--&lt;!&ndash;                    break;&ndash;&gt;-->
+<!--&lt;!&ndash;            }&ndash;&gt;-->
+<!--&lt;!&ndash;        });&ndash;&gt;-->
+
+
+
+
+<!--&lt;!&ndash;        // Вращение чашки и ручки&ndash;&gt;-->
+<!--&lt;!&ndash;        cupGroup.rotation.x += 0.01;&ndash;&gt;-->
+<!--&lt;!&ndash;        cupGroup.rotation.y += 0.01;&ndash;&gt;-->
+
+<!--&lt;!&ndash;        renderer.render(scene, camera);&ndash;&gt;-->
+<!--&lt;!&ndash;    }&ndash;&gt;-->
+
+<!--&lt;!&ndash;    animate();&ndash;&gt;-->
+<!--&lt;!&ndash;</script>&ndash;&gt;-->
+<!--&lt;!&ndash;</body>&ndash;&gt;-->
+<!--&lt;!&ndash;</html>&ndash;&gt;-->
+
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <meta charset="utf-8">-->
+<!--    <title>My first three.js app</title>-->
+<!--    <style>-->
+<!--        body { margin: 0; }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--<script type="module">-->
+<!--    import * as THREE from 'https://unpkg.com/three/build/three.module.js';-->
+
+<!--    var scene = new THREE.Scene();-->
+
+<!--    // Создаем камеру-->
+<!--    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);-->
+<!--    camera.position.z = 5;-->
+
+<!--    // Создаем рендерер-->
+<!--    var renderer = new THREE.WebGLRenderer();-->
+<!--    renderer.setSize(window.innerWidth, window.innerHeight);-->
+<!--    document.body.appendChild(renderer.domElement);-->
+
+<!--    // Создаем геометрию чашки-->
+<!--    var cupGeometry = new THREE.CylinderGeometry(1, 1, 2, 32);-->
+<!--    var cupMaterial = new THREE.MeshPhongMaterial({ color: 0x808080 });-->
+<!--    var cup = new THREE.Mesh(cupGeometry, cupMaterial);-->
+
+<!--    // Создаем геометрию ручки-->
+<!--    var handleGeometry = new THREE.TorusGeometry(0.3, 0.1, 16, 100);-->
+<!--    var handleMaterial = new THREE.MeshPhongMaterial({ color: 0x808080 });-->
+<!--    var handle = new THREE.Mesh(handleGeometry, handleMaterial);-->
+<!--    handle.position.set(0.6, 1, 1); // Позиция ручки относительно чашки-->
+
+<!--    // Создаем группу для чашки и ручки-->
+<!--    var cupGroup = new THREE.Group();-->
+<!--    cupGroup.add(cup);-->
+<!--    cupGroup.add(handle);-->
+
+<!--    // Добавляем группу в сцену-->
+<!--    scene.add(cupGroup);-->
+
+<!--    // Создаем источник света сверху слева-->
+<!--    var light = new THREE.PointLight(0xffffff, 500, 11);-->
+<!--    light.position.set(-5, 5, 5);-->
+<!--    scene.add(light);-->
+
+<!--    // Добавляем атмосферу для рассеивания света-->
+<!--    var ambientLight = new THREE.AmbientLight(0x404040, 33, 1); // soft white light-->
+<!--    scene.add(ambientLight);-->
+
+<!--    // Анимация-->
+<!--    function animate() {-->
+<!--        requestAnimationFrame(animate);-->
+<!--        document.addEventListener('keydown', function (event) {-->
+<!--            // The key codes for the arrow keys are 37 (left), 38 (up), 39 (right), and 40 (down)-->
+<!--            switch (event.keyCode) {-->
+<!--                case 37: // left arrow-->
+<!--                    cupGroup.rotation.y += 0.001;-->
+<!--                    break;-->
+<!--                case 38: // up arrow-->
+<!--                    cupGroup.rotation.x -= 0.001;-->
+<!--                    break;-->
+<!--                case 39: // right arrow-->
+<!--                    cupGroup.rotation.y -= 0.001;-->
+<!--                    break;-->
+<!--                case 40: // down arrow-->
+<!--                    cupGroup.rotation.x += 0.001;-->
+<!--                    break;-->
+<!--            }-->
+<!--        });-->
+
+<!--        // Вращение чашки и ручки-->
+<!--        // cupGroup.rotation.x += 0.01;-->
+<!--        // cupGroup.rotation.y += 0.01;-->
+
+<!--        renderer.render(scene, camera);-->
+<!--    }-->
+
+<!--    animate();-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Карта українських виконавців</title>
+    <style>html, body {width: 100%; height: 100%; margin: 0; padding: 0;}</style>
+    <style>#map {position: absolute; top: 0; bottom: 0; left: 0; right: 0;}</style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+</head>
+<body>
+<div id="map"></div>
+
+<script>
+    // Ініціалізація карти з центром в Україні
+    var map = L.map('map').setView([48.3794, 31.1656], 6);
+
+    // Додавання шару карти OpenStreetMap
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // База даних виконавців
+    // Карта артистов с уникальными координатами для каждого
+
+
+    // ];
+    //
+    // var group = L.featureGroup();
+    //
+    // // Функция для создания меток и добавления их в группу
+    // // artists.forEach(artist => {
+    // //     var marker = L.marker(artist.coords).addTo(group);
+    // //     var popupContent = `<div>
+    // //         <strong>Исполнитель:</strong> ${artist.name}<br>
+    // //         <strong>Дата начала:</strong> ${artist.startDate}
+    // //     </div>`;
+    // //     marker.bindPopup(popupContent);
+    // // });
+    // // Функция для определения цвета на основе даты начала
+    // function getColorByDate(startDate) {
+    //     if (startDate === "Не указано") {
+    //         return "gray"; // Цвет для неизвестной даты
+    //     }
+    //     const date = new Date(startDate);
+    //     const timeDifference = Date.now() - date.getTime(); // Разница во времени
+    //     const threshold = 100 * 365 * 24 * 60 * 60 * 1000; // 100 лет в миллисекундах
+    //
+    //     // Определяем цвет от зеленого до красного
+    //     if (timeDifference < threshold / 2) {
+    //         return "green";
+    //     } else if (timeDifference < threshold) {
+    //         return "yellow";
+    //     } else {
+    //         return "red";
+    //     }
+    // }
+
+    var songs = [
+        {title: "Wild is the Wind", coords: [48.5132, 32.2623], releaseDate: "1957-01-01", artist: "Dimitri Tiomkin"},
+        {title: "Голос Сталі", coords: [50.4501, 30.5234], releaseDate: "2009-12-12", artist: "Nokturnal Mortum"},
+        {title: "Червона рута", coords: [48.9215, 24.7097], releaseDate: "1971-09-13", artist: "Софія Ротару"},
+        {title: "Вставай", coords: [49.5535, 25.5894], releaseDate: "1998-03-15", artist: "Океан Ельзи"},
+        {title: "Симфонія №1", coords: [47.0971, 37.5438], releaseDate: "1932-05-15", artist: "Igor Markevitch"},
+        {title: "Весна", coords: [49.8397, 24.0297], releaseDate: "1997-04-25", artist: "Скрябін"},
+        {
+            title: "Зроби мені хіп-хоп",
+            coords: [47.0905, 37.545],
+            releaseDate: "2001-06-20",
+            artist: "Танок на майдані Конґо"
+        },
+        {title: "Дым сигарет с ментолом", coords: [48.6225, 22.2879], releaseDate: "1994-08-15", artist: "Ненсі"},
+        {title: "Шопінг", coords: [46.4825, 30.7356], releaseDate: "2005-12-22", artist: "Flëur"},
+        {title: "Не оставляй меня, любимый!", coords: [48.5081, 35.0388], releaseDate: "2002-09-09", artist: "ВІА Гра"},
+        {title: "Hopeless", coords: [47.9105, 33.3918], releaseDate: "2014-11-25", artist: "r.roo"},
+        {title: "Lola звезда", coords: [50.4501, 30.5234], releaseDate: "2004-07-12", artist: "Верка Сердючка"},
+        {title: "Pisnechko", coords: [48.3794, 31.1656], releaseDate: "2012-01-01", artist: "Jinjer"},
+        {title: "Imagine", coords: [40.7128, -74.0060], releaseDate: "1971-10-11", artist: "John Lennon"},
+        {title: "Bohemian Rhapsody", coords: [51.5074, -0.1278], releaseDate: "1975-10-31", artist: "Queen"},
+        {title: "Like a Rolling Stone", coords: [44.9778, -93.2650], releaseDate: "1965-07-20", artist: "Bob Dylan"},
+        {title: "Billie Jean", coords: [34.0522, -118.2437], releaseDate: "1982-01-02", artist: "Michael Jackson"},
+        {title: "Smells Like Teen Spirit", coords: [47.6062, -122.3321], releaseDate: "1991-09-10", artist: "Nirvana"},
+        {title: "Hotel California", coords: [37.7749, -122.4194], releaseDate: "1977-02-22", artist: "Eagles"},
+        {title: "Hey Jude", coords: [51.4545, -2.5879], releaseDate: "1968-08-30", artist: "The Beatles"},
+        {title: "Hallelujah", coords: [45.5017, -73.5673], releaseDate: "1984-12-01", artist: "Leonard Cohen"},
+        {title: "Rolling in the Deep", coords: [51.5098, -0.1180], releaseDate: "2010-11-29", artist: "Adele"},
+        {title: "Africa", coords: [-26.2041, 28.0473], releaseDate: "1982-05-10", artist: "Toto"},
+        {title: "Let It Be", coords: [53.3498, -6.2603], releaseDate: "1970-03-06", artist: "The Beatles"},
+        {title: "Wonderwall", coords: [53.4808, -2.2426], releaseDate: "1995-10-30", artist: "Oasis"},
+        {title: "Time", coords: [42.3601, -71.0589], releaseDate: "1973-03-01", artist: "Pink Floyd"},
+        {title: "Over the Rainbow", coords: [21.3069, -157.8583], releaseDate: "1939-08-15", artist: "Judy Garland"},
+        {title: "Shape of You", coords: [52.3555, -1.1743], releaseDate: "2017-01-06", artist: "Ed Sheeran"},
+        {title: "Sweet Child o' Mine", coords: [40.7306, -73.9352], releaseDate: "1987-08-21", artist: "Guns N' Roses"},
+        {
+            title: "California Love",
+            coords: [34.0522, -118.2437],
+            releaseDate: "1995-12-03",
+            artist: "2Pac feat. Dr. Dre"
+        },
+        {
+            title: "Despacito",
+            coords: [18.4655, -66.1057],
+            releaseDate: "2017-01-13",
+            artist: "Luis Fonsi feat. Daddy Yankee"
+        },
+        {title: "Lose Yourself", coords: [42.3314, -83.0458], releaseDate: "2002-10-28", artist: "Eminem"},
+        {title: "Every Breath You Take", coords: [51.5098, -0.1180], releaseDate: "1983-05-20", artist: "The Police"},
+        {
+            title: "I Will Always Love You",
+            coords: [35.1495, -90.0490],
+            releaseDate: "1992-11-03",
+            artist: "Whitney Houston"
+        },
+        {title: "Heroes", coords: [52.5200, 13.4050], releaseDate: "1977-09-23", artist: "David Bowie"},
+        {title: "One", coords: [37.7749, -122.4194], releaseDate: "1991-03-01", artist: "U2"},
+        {title: "My Heart Will Go On", coords: [45.5017, -73.5673], releaseDate: "1997-11-18", artist: "Celine Dion"},
+        {title: "Yesterday", coords: [53.4808, -2.2426], releaseDate: "1965-09-13", artist: "The Beatles"},
+        {title: "Born to Run", coords: [40.2204, -74.0121], releaseDate: "1975-08-25", artist: "Bruce Springsteen"},
+        {title: "Let’s Dance", coords: [51.5074, -0.1278], releaseDate: "1983-03-14", artist: "David Bowie"},
+        {title: "Purple Rain", coords: [44.9778, -93.2650], releaseDate: "1984-06-25", artist: "Prince"},
+        {
+            title: "Uptown Funk",
+            coords: [51.2465, -0.6076],
+            releaseDate: "2014-11-10",
+            artist: "Mark Ronson feat. Bruno Mars"
+        },
+        {title: "Take On Me", coords: [59.9139, 10.7522], releaseDate: "1984-10-19", artist: "a-ha"},
+
+
+        {title: "Bad Guy", coords: [34.0522, -118.2437], releaseDate: "2019-03-29", artist: "Billie Eilish"},
+        {
+            title: "Shallow",
+            coords: [40.7128, -74.0060],
+            releaseDate: "2018-10-05",
+            artist: "Lady Gaga & Bradley Cooper"
+        },
+        {title: "Blinding Lights", coords: [43.6532, -79.3832], releaseDate: "2019-11-29", artist: "The Weeknd"},
+        {
+            title: "Old Town Road",
+            coords: [34.0522, -118.2437],
+            releaseDate: "2019-12-03",
+            artist: "Lil Nas X feat. Billy Ray Cyrus"
+        },
+        {title: "Dance Monkey", coords: [-37.8136, 144.9631], releaseDate: "2019-05-10", artist: "Tones and I"},
+        {
+            title: "Girls Like You",
+            coords: [40.7306, -73.9352],
+            releaseDate: "2018-05-30",
+            artist: "Maroon 5 feat. Cardi B"
+        },
+        {
+            title: "Havana",
+            coords: [25.7617, -80.1918],
+            releaseDate: "2017-08-03",
+            artist: "Camila Cabello feat. Young Thug"
+        },
+        {title: "Shape of My Heart", coords: [51.5098, -0.1180], releaseDate: "1993-10-26", artist: "Sting"},
+        {
+            title: "Boulevard of Broken Dreams",
+            coords: [37.7749, -122.4194],
+            releaseDate: "2004-11-29",
+            artist: "Green Day"
+        },
+        {title: "Viva La Vida", coords: [51.5074, -0.1278], releaseDate: "2008-05-25", artist: "Coldplay"},
+        {
+            title: "Dark Horse",
+            coords: [34.0522, -118.2437],
+            releaseDate: "2013-09-17",
+            artist: "Katy Perry feat. Juicy J"
+        },
+        {title: "Uptown Girl", coords: [40.7306, -73.9352], releaseDate: "1983-09-29", artist: "Billy Joel"},
+        {title: "Grenade", coords: [34.0522, -118.2437], releaseDate: "2010-09-28", artist: "Bruno Mars"},
+        {title: "Firework", coords: [34.0522, -118.2437], releaseDate: "2010-10-26", artist: "Katy Perry"},
+        {
+            title: "Yesterday Once More",
+            coords: [34.0522, -118.2437],
+            releaseDate: "1973-05-16",
+            artist: "The Carpenters"
+        },
+        {title: "Hymn For The Weekend", coords: [51.5098, -0.1180], releaseDate: "2016-01-25", artist: "Coldplay"},
+        {title: "Stay With Me", coords: [51.5074, -0.1278], releaseDate: "2014-04-14", artist: "Sam Smith"},
+        {title: "Someone Like You", coords: [51.5098, -0.1180], releaseDate: "2011-01-24", artist: "Adele"},
+        {title: "Hello", coords: [51.5098, -0.1180], releaseDate: "2015-10-23", artist: "Adele"},
+        {title: "Skyfall", coords: [51.5098, -0.1180], releaseDate: "2012-10-05", artist: "Adele"},
+        {title: "Rolling Stone", coords: [44.9778, -93.2650], releaseDate: "1965-07-20", artist: "Bob Dylan"},
+        {title: "We Will Rock You", coords: [51.5074, -0.1278], releaseDate: "1977-10-07", artist: "Queen"},
+        {title: "We Are the Champions", coords: [51.5074, -0.1278], releaseDate: "1977-10-07", artist: "Queen"},
+        {title: "Another One Bites The Dust", coords: [51.5074, -0.1278], releaseDate: "1980-08-22", artist: "Queen"},
+        {title: "All of Me", coords: [41.8781, -87.6298], releaseDate: "2013-08-12", artist: "John Legend"},
+        {title: "Watermelon Sugar", coords: [51.5098, -0.1180], releaseDate: "2019-11-16", artist: "Harry Styles"},
+        {title: "Perfect", coords: [51.5098, -0.1180], releaseDate: "2017-09-26", artist: "Ed Sheeran"},
+        {title: "Thinking Out Loud", coords: [51.5098, -0.1180], releaseDate: "2014-09-24", artist: "Ed Sheeran"},
+        {title: "Photograph", coords: [51.5098, -0.1180], releaseDate: "2015-05-11", artist: "Ed Sheeran"},
+        {title: "Castle on the Hill", coords: [52.3555, -1.1743], releaseDate: "2017-01-06", artist: "Ed Sheeran"},
+        {title: "Happier", coords: [52.3555, -1.1743], releaseDate: "2017-03-03", artist: "Ed Sheeran"},
+        {title: "Save Your Tears", coords: [43.6532, -79.3832], releaseDate: "2020-03-20", artist: "The Weeknd"},
+        {title: "Can't Feel My Face", coords: [43.6532, -79.3832], releaseDate: "2015-06-08", artist: "The Weeknd"},
+        {
+            title: "Starboy",
+            coords: [43.6532, -79.3832],
+            releaseDate: "2016-09-22",
+            artist: "The Weeknd feat. Daft Punk"
+        },
+        {title: "Waka Waka", coords: [0.3476, 32.5825], releaseDate: "2010-05-07", artist: "Shakira"},
+        {
+            title: "Hips Don't Lie",
+            coords: [4.7110, -74.0721],
+            releaseDate: "2006-03-28",
+            artist: "Shakira feat. Wyclef Jean"
+        },
+        {title: "Whenever, Wherever", coords: [4.7110, -74.0721], releaseDate: "2001-08-27", artist: "Shakira"},
+        {title: "Try Everything", coords: [34.0522, -118.2437], releaseDate: "2016-02-15", artist: "Shakira"},
+        {title: "Livin' on a Prayer", coords: [40.2204, -74.0121], releaseDate: "1986-10-31", artist: "Bon Jovi"},
+        {title: "Always", coords: [40.2204, -74.0121], releaseDate: "1994-08-17", artist: "Bon Jovi"},
+        {title: "It's My Life", coords: [40.2204, -74.0121], releaseDate: "2000-05-23", artist: "Bon Jovi"},
+        {title: "Bed of Roses", coords: [40.2204, -74.0121], releaseDate: "1993-01-20", artist: "Bon Jovi"},
+        {title: "Born This Way", coords: [34.0522, -118.2437], releaseDate: "2011-02-11", artist: "Lady Gaga"},
+        {title: "Poker Face", coords: [34.0522, -118.2437], releaseDate: "2008-09-26", artist: "Lady Gaga"},
+        {
+            title: "Just Dance",
+            coords: [34.0522, -118.2437],
+            releaseDate: "2008-04-08",
+            artist: "Lady Gaga feat. Colby O’Donis"
+        },
+        {title: "Bad Romance", coords: [34.0522, -118.2437], releaseDate: "2009-10-26", artist: "Lady Gaga"},
+        {title: "Telephone", coords: [34.0522, -118.2437], releaseDate: "2010-01-26", artist: "Lady Gaga feat. Beyoncé"},
+
+
+        {title: "Shape of You", coords: [51.5098, -0.1180], releaseDate: "2017-01-06", artist: "Ed Sheeran"},
+        {title: "Blinding Lights", coords: [43.6532, -79.3832], releaseDate: "2019-11-29", artist: "The Weeknd"},
+        {
+            title: "Uptown Funk",
+            coords: [34.0522, -118.2437],
+            releaseDate: "2014-11-10",
+            artist: "Mark Ronson feat. Bruno Mars"
+        },
+        {
+            title: "Shallow",
+            coords: [34.0522, -118.2437],
+            releaseDate: "2018-10-05",
+            artist: "Lady Gaga & Bradley Cooper"
+        },
+        {title: "Levitating", coords: [51.5098, -0.1180], releaseDate: "2020-03-27", artist: "Dua Lipa"},
+        {
+            title: "Senorita",
+            coords: [40.7128, -74.0060],
+            releaseDate: "2019-06-21",
+            artist: "Shawn Mendes & Camila Cabello"
+        },
+        {title: "Thinking Bout You", coords: [33.7490, -84.3880], releaseDate: "2012-07-10", artist: "Frank Ocean"},
+        {title: "Believer", coords: [40.7608, -111.8910], releaseDate: "2017-02-01", artist: "Imagine Dragons"},
+        {title: "Radioactive", coords: [40.7608, -111.8910], releaseDate: "2012-10-29", artist: "Imagine Dragons"},
+        {title: "Counting Stars", coords: [40.7128, -74.0060], releaseDate: "2013-06-14", artist: "OneRepublic"},
+        {title: "Apologize", coords: [40.7128, -74.0060], releaseDate: "2007-04-30", artist: "OneRepublic"},
+        {title: "Viva La Vida", coords: [51.5098, -0.1180], releaseDate: "2008-05-25", artist: "Coldplay"},
+        {title: "Paradise", coords: [51.5098, -0.1180], releaseDate: "2011-09-12", artist: "Coldplay"},
+        {
+            title: "Somebody That I Used to Know",
+            coords: [-37.8136, 144.9631],
+            releaseDate: "2011-07-05",
+            artist: "Gotye feat. Kimbra"
+        },
+        {
+            title: "Closer",
+            coords: [36.1699, -115.1398],
+            releaseDate: "2016-07-29",
+            artist: "The Chainsmokers feat. Halsey"
+        },
+        {title: "Don't Start Now", coords: [51.5098, -0.1180], releaseDate: "2019-11-01", artist: "Dua Lipa"},
+        {
+            title: "Rockabye",
+            coords: [51.5098, -0.1180],
+            releaseDate: "2016-10-21",
+            artist: "Clean Bandit feat. Sean Paul & Anne-Marie"
+        },
+        {
+            title: "Cheap Thrills",
+            coords: [34.0522, -118.2437],
+            releaseDate: "2016-02-11",
+            artist: "Sia feat. Sean Paul"
+        },
+        {
+            title: "Elastic Heart",
+            coords: [34.0522, -118.2437],
+            releaseDate: "2013-10-09",
+            artist: "Sia feat. The Weeknd & Diplo"
+        },
+        {title: "Call Me Maybe", coords: [49.2827, -123.1207], releaseDate: "2011-09-20", artist: "Carly Rae Jepsen"},
+        {
+            title: "Stay",
+            coords: [40.7128, -74.0060],
+            releaseDate: "2021-07-09",
+            artist: "The Kid LAROI & Justin Bieber"
+        },
+        {
+            title: "Peaches",
+            coords: [43.6532, -79.3832],
+            releaseDate: "2021-03-19",
+            artist: "Justin Bieber feat. Daniel Caesar & Giveon"
+        },
+        {title: "Love Yourself", coords: [43.6532, -79.3832], releaseDate: "2015-11-13", artist: "Justin Bieber"},
+        {title: "Sorry", coords: [43.6532, -79.3832], releaseDate: "2015-10-22", artist: "Justin Bieber"},
+        {title: "Shake It Off", coords: [36.1627, -86.7816], releaseDate: "2014-08-18", artist: "Taylor Swift"},
+        {title: "Blank Space", coords: [36.1627, -86.7816], releaseDate: "2014-11-10", artist: "Taylor Swift"},
+        {title: "You Belong With Me", coords: [36.1627, -86.7816], releaseDate: "2008-04-18", artist: "Taylor Swift"},
+        {
+            title: "Bad Blood",
+            coords: [36.1627, -86.7816],
+            releaseDate: "2015-05-17",
+            artist: "Taylor Swift feat. Kendrick Lamar"
+        },
+        {title: "Humble", coords: [34.0522, -118.2437], releaseDate: "2017-03-30", artist: "Kendrick Lamar"},
+        {title: "Alright", coords: [34.0522, -118.2437], releaseDate: "2015-06-30", artist: "Kendrick Lamar"},
+        {
+            title: "Swimming Pools (Drank)",
+            coords: [34.0522, -118.2437],
+            releaseDate: "2012-07-31",
+            artist: "Kendrick Lamar"
+        },
+        {title: "Sunflower", coords: [34.0522, -118.2437], releaseDate: "2018-10-19", artist: "Post Malone & Swae Lee"},
+        {title: "Circles", coords: [34.0522, -118.2437], releaseDate: "2019-08-30", artist: "Post Malone"},
+        {title: "Better Now", coords: [34.0522, -118.2437], releaseDate: "2018-05-08", artist: "Post Malone"},
+        {title: "Happier", coords: [51.5098, -0.1180], releaseDate: "2018-08-17", artist: "Marshmello & Bastille"},
+        {title: "Friends", coords: [51.5098, -0.1180], releaseDate: "2018-02-09", artist: "Marshmello & Anne-Marie"},
+        {title: "Alone", coords: [60.4720, 8.4689], releaseDate: "2016-12-02", artist: "Alan Walker"},
+        {title: "Faded", coords: [60.4720, 8.4689], releaseDate: "2015-12-03", artist: "Alan Walker"},
+        {title: "Dance Monkey", coords: [-37.8136, 144.9631], releaseDate: "2019-05-10", artist: "Tones and I"},
+        {title: "Heat Waves", coords: [51.5098, -0.1180], releaseDate: "2020-06-29", artist: "Glass Animals"},
+        {title: "Sweet But Psycho", coords: [51.5098, -0.1180], releaseDate: "2018-08-17", artist: "Ava Max"},
+        {title: "Kings & Queens", coords: [51.5098, -0.1180], releaseDate: "2020-03-12", artist: "Ava Max"},
+        {title: "Memories", coords: [34.0522, -118.2437], releaseDate: "2019-09-20", artist: "Maroon 5"},
+        {title: "Sugar", coords: [34.0522, -118.2437], releaseDate: "2015-01-13", artist: "Maroon 5"},
+        {title: "Animals", coords: [34.0522, -118.2437], releaseDate: "2014-08-25", artist: "Maroon 5"},
+        {title: "Maps", coords: [34.0522, -118.2437], releaseDate: "2014-06-16", artist: "Maroon 5"},
+        {title: "Happy", coords: [33.7490, -84.3880], releaseDate: "2013-11-21", artist: "Pharrell Williams"},
+        {
+            title: "Get Lucky",
+            coords: [48.8566, 2.3522],
+            releaseDate: "2013-04-19",
+            artist: "Daft Punk feat. Pharrell Williams"
+        },
+        
+
+        {title: "Blinding Lights", coords: [43.65107, -79.347015], releaseDate: "2019-11-29", artist: "The Weeknd"},
+        {title: "Save Your Tears", coords: [43.65107, -79.347015], releaseDate: "2020-08-09", artist: "The Weeknd"},
+        {title: "Levitating", coords: [51.5098, -0.1180], releaseDate: "2020-03-27", artist: "Dua Lipa feat. DaBaby"},
+        {title: "Don’t Start Now", coords: [51.5098, -0.1180], releaseDate: "2019-11-01", artist: "Dua Lipa"},
+        {title: "Cold Heart", coords: [51.5098, -0.1180], releaseDate: "2021-08-13", artist: "Elton John & Dua Lipa"},
+        {title: "Shape of You", coords: [52.2053, 0.1218], releaseDate: "2017-01-06", artist: "Ed Sheeran"},
+        {title: "Perfect", coords: [52.2053, 0.1218], releaseDate: "2017-03-03", artist: "Ed Sheeran"},
+        {title: "Bad Habits", coords: [52.2053, 0.1218], releaseDate: "2021-06-25", artist: "Ed Sheeran"},
+        {title: "Thinking Out Loud", coords: [52.2053, 0.1218], releaseDate: "2014-09-24", artist: "Ed Sheeran"},
+        {title: "Photograph", coords: [52.2053, 0.1218], releaseDate: "2014-05-20", artist: "Ed Sheeran"},
+        {title: "Watermelon Sugar", coords: [51.5098, -0.1180], releaseDate: "2019-11-16", artist: "Harry Styles"},
+        {title: "Adore You", coords: [51.5098, -0.1180], releaseDate: "2019-12-06", artist: "Harry Styles"},
+        {title: "As It Was", coords: [51.5098, -0.1180], releaseDate: "2022-04-01", artist: "Harry Styles"},
+        {title: "Sign of the Times", coords: [51.5098, -0.1180], releaseDate: "2017-04-07", artist: "Harry Styles"},
+        {title: "Late Night Talking", coords: [51.5098, -0.1180], releaseDate: "2022-07-13", artist: "Harry Styles"},
+        {title: "Stay With Me", coords: [51.5098, -0.1180], releaseDate: "2014-04-14", artist: "Sam Smith"},
+        {title: "Too Good at Goodbyes", coords: [51.5098, -0.1180], releaseDate: "2017-09-08", artist: "Sam Smith"},
+        {title: "I’m Not the Only One", coords: [51.5098, -0.1180], releaseDate: "2014-08-31", artist: "Sam Smith"},
+        {
+            title: "Dancing With a Stranger",
+            coords: [51.5098, -0.1180],
+            releaseDate: "2019-01-11",
+            artist: "Sam Smith & Normani"
+        },
+        {title: "Unholy", coords: [51.5098, -0.1180], releaseDate: "2022-09-22", artist: "Sam Smith & Kim Petras"},
+        {
+            title: "Havana",
+            coords: [25.7617, -80.1918],
+            releaseDate: "2017-08-03",
+            artist: "Camila Cabello feat. Young Thug"
+        },
+        {
+            title: "Señorita",
+            coords: [25.7617, -80.1918],
+            releaseDate: "2019-06-21",
+            artist: "Shawn Mendes & Camila Cabello"
+        },
+        {title: "Never Be the Same", coords: [25.7617, -80.1918], releaseDate: "2017-12-07", artist: "Camila Cabello"},
+        {
+            title: "My Oh My",
+            coords: [25.7617, -80.1918],
+            releaseDate: "2019-11-15",
+            artist: "Camila Cabello feat. DaBaby"
+        },
+        {
+            title: "Bam Bam",
+            coords: [25.7617, -80.1918],
+            releaseDate: "2022-03-04",
+            artist: "Camila Cabello & Ed Sheeran"
+        },
+        {title: "Someone Like You", coords: [51.5098, -0.1180], releaseDate: "2011-01-24", artist: "Adele"},
+        {title: "Rolling in the Deep", coords: [51.5098, -0.1180], releaseDate: "2010-11-29", artist: "Adele"},
+        {title: "Hello", coords: [51.5098, -0.1180], releaseDate: "2015-10-23", artist: "Adele"},
+        {title: "Easy on Me", coords: [51.5098, -0.1180], releaseDate: "2021-10-15", artist: "Adele"},
+        {title: "Set Fire to the Rain", coords: [51.5098, -0.1180], releaseDate: "2011-07-04", artist: "Adele"},
+        {title: "Bones", coords: [55.7558, 37.6173], releaseDate: "2022-03-25", artist: "Imagine Dragons"},
+        {title: "Radioactive", coords: [55.7558, 37.6173], releaseDate: "2012-10-29", artist: "Imagine Dragons"},
+        {title: "Believer", coords: [55.7558, 37.6173], releaseDate: "2017-02-01", artist: "Imagine Dragons"},
+        {title: "Thunder", coords: [55.7558, 37.6173], releaseDate: "2017-04-27", artist: "Imagine Dragons"},
+        {title: "Demons", coords: [55.7558, 37.6173], releaseDate: "2013-01-28", artist: "Imagine Dragons"},
+        {
+            title: "Boulevard of Broken Dreams",
+            coords: [37.7749, -122.4194],
+            releaseDate: "2004-11-29",
+            artist: "Green Day"
+        },
+        {title: "21 Guns", coords: [37.7749, -122.4194], releaseDate: "2009-05-25", artist: "Green Day"},
+        {
+            title: "Wake Me Up When September Ends",
+            coords: [37.7749, -122.4194],
+            releaseDate: "2005-06-13",
+            artist: "Green Day"
+        },
+        {title: "Holiday", coords: [37.7749, -122.4194], releaseDate: "2005-03-14", artist: "Green Day"},
+        {title: "American Idiot", coords: [37.7749, -122.4194], releaseDate: "2004-09-20", artist: "Green Day"},
+        {title: "Poker Face", coords: [40.7128, -74.0060], releaseDate: "2008-09-26", artist: "Lady Gaga"},
+        {title: "Bad Romance", coords: [40.7128, -74.0060], releaseDate: "2009-10-26", artist: "Lady Gaga"},
+        {
+            title: "Shallow",
+            coords: [40.7128, -74.0060],
+            releaseDate: "2018-09-21",
+            artist: "Lady Gaga & Bradley Cooper"
+        },
+        {
+            title: "Just Dance",
+            coords: [40.7128, -74.0060],
+            releaseDate: "2008-04-08",
+            artist: "Lady Gaga feat. Colby O'Donis"
+        },
+        {
+            title: "Rain on Me",
+            coords: [40.7128, -74.0060],
+            releaseDate: "2020-05-22",
+            artist: "Lady Gaga & Ariana Grande"
+        },
+
+
+        {
+            title: "I Gotta Feeling",
+            coords: [34.0522, -118.2437],
+            releaseDate: "2009-06-15",
+            artist: "The Black Eyed Peas"
+        },
+        {
+            title: "Uptown Funk",
+            coords: [51.5098, -0.1188],
+            releaseDate: "2014-11-10",
+            artist: "Mark Ronson feat. Bruno Mars"
+        },
+        {
+            title: "Stay",
+            coords: [40.7127, -75.1310],
+            releaseDate: "2021-07-09",
+            artist: "The Kid LAROI & Justin Bieber"
+        },
+        {title: "Old Town Road", coords: [32.7767, -96.7970], releaseDate: "2018-12-03", artist: "Lil Nas X"},
+        {title: "Blinding Lights", coords: [51.0447, -114.0719], releaseDate: "2019-11-29", artist: "The Weeknd"},
+        {title: "Shape of You", coords: [52.2053, 0.1218], releaseDate: "2017-01-06", artist: "Ed Sheeran"},
+        {
+            title: "Despacito",
+            coords: [18.2208, -66.5901],
+            releaseDate: "2017-01-13",
+            artist: "Luis Fonsi feat. Daddy Yankee"
+        },
+        {title: "Waka Waka", coords: [-33.9189, 18.4233], releaseDate: "2010-05-07", artist: "Shakira"},
+        {title: "Perfect", coords: [53.6947, -2.4679], releaseDate: "2017-03-03", artist: "Ed Sheeran"},
+        {title: "Levitating", coords: [34.0523, -118.2436], releaseDate: "2020-10-01", artist: "Dua Lipa feat. DaBaby"},
+        {title: "Happy", coords: [48.8566, 2.3522], releaseDate: "2013-11-21", artist: "Pharrell Williams"},
+        {title: "All of Me", coords: [41.8781, -87.6298], releaseDate: "2013-08-12", artist: "John Legend"},
+        {title: "Counting Stars", coords: [39.7392, -104.9903], releaseDate: "2013-06-14", artist: "OneRepublic"},
+        {
+            title: "Havana",
+            coords: [23.1136, -82.3666],
+            releaseDate: "2017-08-03",
+            artist: "Camila Cabello feat. Young Thug"
+        },
+        {title: "Rolling in the Deep", coords: [41.3851, 2.1734], releaseDate: "2010-11-29", artist: "Adele"},
+        {title: "Thinking Out Loud", coords: [55.9533, -3.1883], releaseDate: "2014-09-24", artist: "Ed Sheeran"},
+        {
+            title: "Can't Stop the Feeling!",
+            coords: [45.5017, -73.5673],
+            releaseDate: "2016-05-06",
+            artist: "Justin Timberlake"
+        },
+        {title: "Thunder", coords: [33.7756, -84.3963], releaseDate: "2017-04-27", artist: "Imagine Dragons"},
+        {
+            title: "We Are Young",
+            coords: [40.7306, -73.9867],
+            releaseDate: "2011-09-20",
+            artist: "fun. feat. Janelle Monáe"
+        },
+        {title: "Happy", coords: [49.2827, -123.1207], releaseDate: "2013-11-21", artist: "Pharrell Williams"},
+        {title: "Someone You Loved", coords: [55.9532, -3.1883], releaseDate: "2018-11-08", artist: "Lewis Capaldi"},
+        {title: "Hey, Soul Sister", coords: [37.7748, -122.4193], releaseDate: "2009-08-11", artist: "Train"},
+        {title: "Call Me Maybe", coords: [43.6532, -79.3832], releaseDate: "2011-09-20", artist: "Carly Rae Jepsen"},
+        {title: "Dynamite", coords: [37.5665, 126.9780], releaseDate: "2020-08-21", artist: "BTS"},
+        {
+            title: "We Found Love",
+            coords: [35.6895, 139.6917],
+            releaseDate: "2011-09-22",
+            artist: "Rihanna feat. Calvin Harris"
+        },
+        {title: "Just the Way You Are", coords: [21.3069, -157.8583], releaseDate: "2010-07-20", artist: "Bruno Mars"},
+        {title: "Sorry", coords: [19.4326, -99.1332], releaseDate: "2015-10-22", artist: "Justin Bieber"},
+        {
+            title: "Closer",
+            coords: [51.1657, 10.4515],
+            releaseDate: "2016-07-29",
+            artist: "The Chainsmokers feat. Halsey"
+        },
+        {
+            title: "Señorita",
+            coords: [48.2082, 16.3738],
+            releaseDate: "2019-06-21",
+            artist: "Shawn Mendes & Camila Cabello"
+        },
+        {title: "Watermelon Sugar", coords: [37.9838, 23.7275], releaseDate: "2020-05-15", artist: "Harry Styles"},
+        {title: "Take Me to Church", coords: [53.3498, -6.2603], releaseDate: "2013-09-13", artist: "Hozier"},
+        {title: "Viva La Vida", coords: [51.5074, -0.1278], releaseDate: "2008-05-25", artist: "Coldplay"},
+        {title: "Euphoria", coords: [59.3293, 18.0686], releaseDate: "2012-05-26", artist: "Loreen"},
+        {title: "Kings & Queens", coords: [47.4979, 19.0402], releaseDate: "2020-04-13", artist: "Ava Max"},
+        {title: "Faded", coords: [60.4720, 8.4689], releaseDate: "2015-12-03", artist: "Alan Walker"},
+        {title: "Let Her Go", coords: [-33.8688, 151.2093], releaseDate: "2012-07-24", artist: "Passenger"},
+        {title: "Bad Guy", coords: [34.0522, -118.2437], releaseDate: "2019-03-29", artist: "Billie Eilish"},
+        {title: "Dance Monkey", coords: [-37.8136, 144.9631], releaseDate: "2019-05-10", artist: "Tones and I"},
+        {title: "Halo", coords: [29.7604, -95.3698], releaseDate: "2009-01-20", artist: "Beyoncé"},
+        {title: "Counting Stars", coords: [39.9042, 116.4074], releaseDate: "2013-06-14", artist: "OneRepublic"},
+        {title: "Let It Go", coords: [64.1355, -21.8954], releaseDate: "2013-11-25", artist: "Idina Menzel"},
+        {title: "Shivers", coords: [50.8503, 4.3517], releaseDate: "2021-09-10", artist: "Ed Sheeran"},
+        {
+            title: "Dark Horse",
+            coords: [36.1627, -86.7816],
+            releaseDate: "2013-09-17",
+            artist: "Katy Perry feat. Juicy J"
+        },
+        {title: "Stay With Me", coords: [51.5072, -0.1276], releaseDate: "2014-04-25", artist: "Sam Smith"},
+        {title: "Believer", coords: [36.1699, -115.1398], releaseDate: "2017-02-01", artist: "Imagine Dragons"},
+        {title: "Wrecking Ball", coords: [34.0522, -118.2437], releaseDate: "2013-08-25", artist: "Miley Cyrus"},
+    ];
+
+    var group = L.featureGroup();
+
+    // Function to apply color based on releaseDate
+    function getColorByReleaseDate(releaseDate) {
+        const date = new Date(releaseDate);
+        const timeDifference = Date.now() - date.getTime(); // Time difference in ms
+        const threshold = 45 * 365 * 24 * 60 * 60 * 1000; // 50 years in milliseconds
+
+        // Define color: newer songs are green, older are red
+        if (timeDifference < threshold / 2) {
+            return "green";
+        } else if (timeDifference < threshold) {
+            return "yellow";
+        } else {
+            return "red";
+        }
+    }
+
+    // Loop through songs to create markers with popups
+    songs.forEach(song => {
+        var marker = L.circleMarker(song.coords, {
+            color: getColorByReleaseDate(song.releaseDate),
+            radius: 5,
+            fillOpacity: 0.8,
+            xlabel: song.title,
+        }).addTo(group);
+        var popupContent = `<div>
+        <strong>Песня:</strong> ${song.title}<br>
+        <strong>Исполнитель:</strong> ${song.artist}<br>
+        <strong>Дата выпуска:</strong> ${song.releaseDate}
+    </div>`;
+        marker.bindPopup(popupContent);
+    });
+
+    // Add the group to the map
+    group.addTo(map);
+
+    // Adjust the map to fit all song markers
+    map.fitBounds(group.getBounds());
+
+    // // Применение цвета к маркеру
+    // artists.forEach(artist => {
+    //     var marker = L.circleMarker(artist.coords, {
+    //         color: getColorByDate(artist.startDate),
+    //         radius: 7
+    //     }).addTo(group);
+    //     var popupContent = `<div>
+    //     <strong>Исполнитель:</strong> ${artist.name}<br>
+    //     <strong>Дата начала:</strong> ${artist.startDate}
+    // </div>`;
+    //     marker.bindPopup(popupContent);
+    // });
+    //
+    // // Добавление группы на карту
+    // group.addTo(map);
+    //
+    // // Автоматическое масштабирование карты, чтобы все метки были видны
+    // map.fitBounds(group.getBounds());
+    //
+    //
+    // // Функція для створення маркера з попапом
+    // artists.forEach(artist => {
+    //     var marker = L.marker(artist.coords).addTo(map);
+    //     var popupContent = `<div>
+    //             <strong>Исполнитель:</strong> ${artist.name}<br>
+    //             <strong>Дата начала:</strong> ${artist.startDate}
+    //         </div>`;
+    //     marker.bindPopup(popupContent);
+    // });
+</script>
+</body>
+</html>

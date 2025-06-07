@@ -1,0 +1,163 @@
+.mainLogo {
+    width: 5vw;
+}
+.logoImg {
+    width: 5vw;
+}
+/* Контейнер для центрирования */
+.container {
+    /*display: flex;*/
+    /*flex-direction: column;*/
+    /*justify-content: center;*/
+    /*align-items: center;*/
+    /*!*height: 100vh;*!*/
+    /*!*background-color: #1a1a1a;*!*/
+    /*color: white;*/
+    position: absolute;
+    top: 41px;
+    left: 58.17px;
+    width: 77px;
+    height: 67px;
+    font-size: var(--font-size-3xl);
+
+}
+
+/* Анимация градиентного текста */
+.gradient-text {
+    font-size: 1vw;
+    font-weight: 1000;
+    background: linear-gradient(42deg, #000000, #000000,
+    #333333, #ffffff,
+    #272727, #000000,
+    #000000, #000000);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient 6s infinite;
+    /*glitch 1s infinite;*/
+}
+
+/* Анимация плавного появления текста */
+.fade-text {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    animation: fade 2s infinite;
+}
+
+/* Ключевые кадры для градиента */
+@keyframes gradient {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+/* Ключевые кадры для появления/исчезания */
+@keyframes fade {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes glitch {
+    0%, 100% {
+        transform: translate(0, 0);
+    }
+    10% {
+        transform: translate(-4px, 4px);
+    }
+    20% {
+        transform: translate(4px, -4px);
+    }
+    30% {
+        transform: translate(-6px, -6px);
+    }
+    40% {
+        transform: translate(6px, 6px);
+    }
+    50% {
+        transform: translate(-8px, -8px);
+    }
+    60% {
+        transform: translate(8px, 8px);
+    }
+    70% {
+        transform: translate(-10px, -10px);
+    }
+    80% {
+        transform: translate(10px, 10px);
+    }
+    90% {
+        transform: translate(-12px, 12px);
+    }
+}
+
+
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /*height: 100vh;*/
+    /*background-color: #1a1a1a;*/
+    color: white;
+    font-family: 'inter', sans-serif;
+    font-size: 1vw;
+    text-transform: uppercase;
+}
+
+/* Контейнер для каждого символа */
+.character-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    animation: fadeIn 1s ease forwards;
+}
+
+/* Анимация появления символов */
+.character {
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards;
+    animation-delay: inherit;
+}
+
+/* Линия под символом */
+.line {
+    width: 0;
+    height: 1vw;
+    background: #00ff00;
+    margin-top: 5px;
+    animation: lineGrow 0.5s ease forwards;
+    animation-delay: inherit;
+}
+
+/* Анимация появления символов */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Анимация линии */
+@keyframes lineGrow {
+    0% {
+        width: 100%;
+    }
+    80% {
+        width: 20%;
+    }
+    100% {
+        width: 0%;
+    }
+}

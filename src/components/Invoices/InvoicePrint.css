@@ -1,0 +1,544 @@
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    
+    .invoice-document,
+    .invoice-document * {
+        visibility: visible;
+    }
+    
+    .invoice-document {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px;
+    }
+    
+    .print-controls {
+        display: none !important;
+    }
+}
+
+.invoice-print-wrapper {
+    background: #f8f9fa;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.invoice-print-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
+.invoice-header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 20px;
+}
+
+.invoice-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.invoice-number {
+    font-size: 18px;
+}
+
+.invoice-parties {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.invoice-party {
+    width: 48%;
+}
+
+.party-label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.party-name {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.party-details {
+    font-size: 14px;
+    color: #555;
+}
+
+.invoice-items {
+    margin-bottom: 30px;
+}
+
+.invoice-items-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.invoice-items-table th,
+.invoice-items-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+.invoice-items-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    text-align: center;
+}
+
+.invoice-items-table .text-center {
+    text-align: center;
+}
+
+.invoice-items-table .text-end {
+    text-align: right;
+}
+
+.invoice-total-words {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.invoice-signatures {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 50px;
+}
+
+.signature-block {
+    width: 45%;
+}
+
+.signature-title {
+    margin-bottom: 40px;
+}
+
+.signature-line {
+    border-top: 1px solid #000;
+}
+/* Стилі для друку рахунка */
+.invoice-print-wrapper {
+    background: #fff;
+    padding: 0;
+}
+
+.invoice-print-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.invoice-document {
+    font-family: 'Inter', sans-serif;
+    color: #333;
+}
+
+.invoice-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.invoice-title {
+    font-size: 24px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.invoice-number {
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.invoice-parties {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.invoice-party {
+    width: 48%;
+}
+
+.party-label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.party-name {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.party-details {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.invoice-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.invoice-items-table th,
+.invoice-items-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.invoice-items-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    text-align: center;
+}
+
+.text-end {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.invoice-print-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.invoice-document {
+    font-family: 'Inter', sans-serif;
+    color: #333;
+}
+
+.invoice-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.invoice-title {
+    font-size: 24px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.invoice-number {
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.invoice-parties {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.invoice-party {
+    width: 48%;
+}
+
+.party-label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.party-name {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.party-details {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.invoice-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.invoice-items-table th,
+.invoice-items-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.invoice-items-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    text-align: center;
+}
+
+.text-end {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.total-label {
+    font-weight: bold;
+}
+
+.total-sum {
+    font-weight: bold;
+}
+
+.total-sum-vat {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.invoice-total-words {
+    font-size: 16px;
+    margin-bottom: 30px;
+    font-style: italic;
+}
+
+.invoice-signatures {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+.signature-block {
+    width: 45%;
+}
+
+.signature-title {
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+.signature-line {
+    border-bottom: 1px solid #333;
+}
+
+/* Модальне вікно для друку */
+.invoice-print-modal .modal-content {
+    border-radius: 0;
+}
+
+.invoice-print-modal .modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.invoice-print-modal .modal-body {
+    padding: 0;
+}
+
+/* Стилі для друку */
+@media print {
+    .print-controls, 
+    .modal-header, 
+    .d-print-none {
+        display: none !important;
+    }
+    
+    .invoice-print-wrapper {
+        padding: 0;
+        margin: 0;
+    }
+    
+    .invoice-print-container {
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .invoice-document {
+        padding: 15px;
+    }
+    
+    body {
+        background: white;
+    }
+    
+    .modal-content {
+        border: none !important;
+    }
+    
+    .modal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        margin: 0;
+        padding: 0;
+        overflow: visible !important;
+    }
+}
+.total-label {
+    font-weight: bold;
+}
+
+.total-sum {
+    font-weight: bold;
+}
+
+.total-sum-vat {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.invoice-total-words {
+    font-size: 16px;
+    margin-bottom: 30px;
+    font-style: italic;
+}
+
+.invoice-signatures {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+.signature-block {
+    width: 45%;
+}
+
+.signature-title {
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+.signature-line {
+    border-bottom: 1px solid #333;
+}
+
+/* Модальне вікно для друку */
+.invoice-print-modal .modal-content {
+    border-radius: 0;
+}
+
+.invoice-print-modal .modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.invoice-print-modal .modal-body {
+    padding: 0;
+}
+
+/* Стилі для друку */
+@media print {
+    .print-controls, 
+    .modal-header, 
+    .d-print-none {
+        display: none !important;
+    }
+    
+    .invoice-print-wrapper {
+        padding: 0;
+        margin: 0;
+    }
+    
+    .invoice-print-container {
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .invoice-document {
+        padding: 15px;
+    }
+    
+    body {
+        background: white;
+    }
+    
+    .modal-content {
+        border: none !important;
+    }
+    
+    .modal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        margin: 0;
+        padding: 0;
+        overflow: visible !important;
+    }
+}
+.total-label {
+    font-weight: bold;
+}
+
+.total-sum {
+    font-weight: bold;
+}
+
+.total-sum-vat {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.a4-sheet {
+    width: 210mm;
+    height: 297mm;
+    padding: 20mm;
+    background: white;
+    font-family: Arial, sans-serif;
+    font-size: 12pt;
+    color: black;
+    box-sizing: border-box;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.section {
+    margin-bottom: 15px;
+}
+
+.invoice-title {
+    color: red;
+    font-weight: bold;
+}
+
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.invoice-table th,
+.invoice-table td {
+    border: 1px solid black;
+    padding: 5px;
+    text-align: left;
+}
+
+.total-row td {
+    font-weight: bold;
+}
+
+.approval {
+    margin-top: 30px;
+}
+

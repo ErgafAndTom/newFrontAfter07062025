@@ -1,0 +1,44 @@
+.fonColor{
+    color: #F2F0E7;
+}
+.knopkaColor {
+    color: #FAB416;
+}
+.finishColor {
+    color: #3C60A6;
+}
+.oplataColor {
+    color: #008249;
+}
+.stopColor {
+  color:  #EE3C23
+}
+.grayFonColor {
+    color: #FBFAF6;
+}
+.roseColor {
+    color: #F075AA;
+}
+
+.fonColorBackground {
+    background-color: #F2F0E7;
+}
+.knopkaColorBackground {
+    background-color: #FAB416;
+}
+.finishColorBackground {
+    background-color: #3C60A6;
+}
+.oplataColorBackground {
+    background-color: #008249;
+}
+.stopColorBackground {
+    background-color: #EE3C23;
+}
+.grayFonColorBackground {
+    background-color: #FBFAF6;
+}
+.roseColorBackground {
+    background-color: #F075AA;
+    background-color: #000000;
+}

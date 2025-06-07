@@ -1,0 +1,63 @@
+/*@font-face {*/
+/*   */
+/*  !*src: url('../data/inter_bold.otf');*!*/
+/*  font-weight: normal;*/
+/*  font-style: normal;*/
+/*}*/
+@font-face {
+
+  src: url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/*@font-face {*/
+/*   */
+/*  !*src: url('../data/inter_book.otf');*!*/
+/*  font-weight: normal;*/
+/*  font-style: normal;*/
+/*}*/
+/*@font-face {*/
+/*  font-family: 'GTWalsheimPro';*/
+/*  !*src: url('../data/fontGTWalsheimPro/GTWalsheimPro-Regular.woff2');*!*/
+/*  font-weight: normal;*/
+/*  font-style: normal;*/
+/*}*/
+* {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* Non-prefixed version, currently*/
+  /*font-family: 'GTWalsheimPro', Regular;*/
+  /*font-style: normal;*/
+  /*font-family: var(--font-inter)
+, sans-serif;*/
+  /*font-weight: 700;*/
+  /*font-size: 1.1vw;*/
+  /*!*background: rgba(245, 245, 245, 0.96);*!*/
+  /*!* Друк *!*/
+}
+
+body {
+  background: #F2F0E7;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.textInButtonsInMenuMain {
+  font-size: 1.96vh;
+  border: transparent solid 0.1vh;
+  border-radius: 2vh;
+  /*margin: 2vh;*/
+  padding: 1vh;
+  /*font-weight: 500;*/
+}

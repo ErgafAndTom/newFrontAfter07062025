@@ -1,0 +1,62 @@
+.slider-container {
+    width: 93vw;
+    /*height:600px;*/
+    position: relative;
+    overflow: hidden;
+}
+/* Лента с фото, имеет неограниченную ширину и тип flex, чтобы картинки не переносились */
+.slider-track {
+    /*height:600px;*/
+    display: flex;
+    /*transition-duration: .5s;*/
+}
+/* Стили для оформления кнопок prev/next */
+.arrow {
+    width:7px;
+    height:7px;
+    border-top:#cacaca 3px solid;
+    border-right:#cacaca 3px solid;
+    position: absolute;
+}
+.arrow-bg {
+    width:30px;
+    height:30px;
+    background: #fff;
+    box-shadow: 0 0 4px 2px rgba(0,0,0,.2);
+    border-radius: 50%;
+    position: relative;
+    opacity: .8;
+    cursor: pointer;
+}
+.arrow-left .arrow {
+    transform: rotate(-135deg);
+    top:10px;
+    left:12px;
+}
+.arrow-right .arrow {
+    transform: rotate(45deg);
+    top:10px;
+    left:8px;
+}
+.arrow-left {
+    position: absolute;
+    top:50%;
+    left:10px;
+    transform: translateY(-50%);
+    z-index: 1111;
+}
+.arrow-right {
+    position: absolute;
+    top:50%;
+    right:10px;
+    transform: translateY(-50%);
+    z-index: 1111;
+}
+.slider-item {
+    height: 2.1rem;
+}
+.FilesContainerRelative {
+    height: 2.1rem;
+    /*background: #eeeeee;*/
+    background: #ece9e0;
+}

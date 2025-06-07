@@ -1,0 +1,50 @@
+/*.btnFile {*/
+/*    display: flex;*/
+/*}*/
+/*.name {*/
+
+/*}*/
+/*.btnm {*/
+/*    !*border: #F2F0E7 solid 0.1vw;*!*/
+/*    !*color: #000000;*!*/
+/*    !*!*padding: 0.5vw;*!*!*/
+/*    !*font-weight: 600;*!*/
+/*    !*z-index: 33;*!*/
+/*    !*border-radius: 7vw;*!*/
+/*    !*transition: 0s;*!*/
+/*    !*font-family: var(--font-inter)
+, sans-serif;*!*/
+/*    !*cursor: pointer;*!*/
+/*    !*white-space: nowrap;*!*/
+/*    border: #F2F0E7 solid 0.1vw;*/
+/*    color: #000000;*/
+/*    font-weight: 600;*/
+/*    z-index: 33;*/
+/*    border-radius: 7vw;*/
+/*    transition: 0s;*/
+/*    font-family: var(--font-inter)
+, sans-serif;*/
+/*}*/
+/*.fileActive {*/
+/*    !*border: #000000 solid 0.1vw;*!*/
+/*    !*background: black;*!*/
+/*    !*color: #ffffff;*!*/
+/*    background: #2a2a2a;*/
+/*    color: #ffffff;*/
+/*    border: #2a2a2a solid 0.1vw;*/
+/*}*/
+/*.btnm:hover {*/
+/*    !*background: #efede6;*!*/
+/*    !*border: black solid  0.1vw;*!*/
+/*    !*cursor: pointer;*!*/
+/*    background: #efede6;*/
+/*    border: black solid  0.1vw;*/
+/*}*/
+/*.fileActive:hover {*/
+/*    !*border: #000000 solid 0.1vw;*!*/
+/*    !*background: #1c1c1c;*!*/
+/*    !*color: #ffffff;*!*/
+/*    background: #2a2a2a;*/
+/*    color: #ffffff;*/
+/*    border: #2a2a2a solid 0.1vw;*/
+/*}*/

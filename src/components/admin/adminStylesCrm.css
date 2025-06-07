@@ -1,0 +1,185 @@
+.adminFont {
+    font-size: 1vh;
+    font-weight: 500;
+}
+
+.adminBackGround {
+    background: #FBFAF6;
+    min-height: 86.5vh;
+}
+
+.adminNavBackGround {
+    background: #FBFAF6;
+}
+
+/*.adminFontTable {*/
+/*    font-size: 2vh;*/
+/*    font-weight: 400;*/
+/*    margin: 0.1vw;*/
+/*    !*margin-left: 0.5vw;*!*/
+/*    align-items: flex-start !* Вертикальне вирівнювання тексту *!*/
+/*}*/
+
+.paginationNamberZakaz {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin: 0.3vw;
+    background: #FBFAF6;
+    /*width: 1.5vw;*/
+    border-radius: 1.5vw;
+}
+
+.activePag {
+    background: #FAB416;
+}
+
+.booooold {
+    font-weight: 600;
+}
+
+.modalForBorderRadius {
+    background: #F2F0E7;
+    display: none;
+}
+
+.hoverOrange:hover {
+    background: #FAB416;
+}
+
+.adminTable {
+    min-height: 70vh;
+}
+
+.pagButton {
+    border-radius: 50%;
+}
+
+.whiteBG {
+    background: #FBFAF6;
+}
+
+.redStorageItem:hover {
+    color: #0a53be;
+    cursor: pointer;
+}
+
+.redIcon {
+    width: 1.2vh;
+    visibility: hidden;
+}
+
+.redStorageItem:hover .redIcon {
+    visibility: visible;
+}
+
+.modalProductAdd {
+    width: 90vw;
+}
+
+.borderR0 {
+    border-radius: 1.5vh;
+}
+
+
+::-webkit-scrollbar {
+    width: 5px; /* Задає ширину полоси прокрутки */
+    height: 5px; /* Задає висоту полоси прокрутки для горизонтальної прокрутки */
+}
+
+/* Стилізація доріжки полоси прокрутки */
+::-webkit-scrollbar-track {
+    background: #FBFAF6; /* Колір фону доріжки */
+}
+
+/* Стилізація ручки полоси прокрутки */
+::-webkit-scrollbar-thumb {
+    background: #888; /* Колір ручки полоси прокрутки */
+}
+
+/* Зміна кольору ручки полоси прокрутки при наведенні */
+::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Колір ручки при наведенні курсору */
+}
+
+.background-with-text {
+    /*background-image: url('шлях_до_вашого_зображення.jpg'); !* Встановлення фонового зображення *!*/
+    background-size: cover; /* Покривання всієї області елемента зображенням */
+    background-position: center; /* Центрування зображення */
+    color: white; /* Колір тексту */
+    font-size: 24px; /* Розмір шрифта */
+    text-align: center; /* Вирівнювання тексту по центру */
+    width: 100%; /* Ширина елемента */
+    height: 300px; /* Висота елемента */
+    display: flex; /* Використання flex для вирівнювання контенту */
+    /*align-items: center; !* Вертикальне вирівнювання тексту *!*/
+    /*justify-content: center; !* Горизонтальне вирівнювання тексту *!*/
+}
+
+.hoverBlack:hover {
+    background: black;
+    color: white;
+}
+
+.colorCards {
+    background: #FBFAF6;
+}
+
+.adminFont2 {
+    font-size: 1.5vw;
+}
+
+.fontInfoForPricing1 {
+    font-size: 1.5vw;
+}
+
+.fontInfoForPricing11 {
+    font-size: 1vw;
+    margin: 0.5vw;
+}
+
+.fontProductName {
+    font-style: var(--font-inter);
+    font-size: var(--font-size-base);
+    padding-bottom: 0.6vw;
+    padding-top: 0.6vw;
+}
+
+.navbarMy {
+    border-radius: 12px;
+    align-items: left;
+    background: #F2F0E7;
+    height: 1vw;
+    order-top-left-radius: 12px;
+}
+
+/*@media (width: 10vw){*/
+/*    .adminFont {*/
+/*        font-size: 1vw;*/
+/*    }*/
+/*    .adminFont2 {*/
+/*        font-size: 4vw;*/
+/*    }*/
+/*    .fontInfoForPricing1 {*/
+/*        font-size: 4vw;*/
+/*    }*/
+/*    .fontProductName {*/
+/*        font-size: 4vw;*/
+/*        padding-bottom: 1.3vw;*/
+/*        padding-top: 1.3vw;*/
+/*    }*/
+/*    .navbarMy {*/
+/*        border: none;*/
+/*        height: 10vw;*/
+/*    }*/
+/*}*/
+/*.priceord {*/
+/*    flex-direction: row;*/
+/*    display: flex;*/
+/*    margin-left: 1vw;*/
+/*}*/
+/*.priceord {*/
+/*    flex-direction: row;*/
+/*    display: flex;*/
+/*    margin-left: 1vw;*/
+/*}*/

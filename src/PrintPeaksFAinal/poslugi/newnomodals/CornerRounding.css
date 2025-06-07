@@ -1,0 +1,51 @@
+/* CornerRounding.css */
+
+.toggle-button {
+
+    width: 1.9vw;
+    height: 1.9vw;
+    background-color: white;
+    border-radius: 0.95vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+.toggleContainer {
+    /*border: 0.133vw solid black;*/
+    border-radius: 3.167vw;
+    padding: 0.633vh 1.273vw;
+    margin-right: 0.633vw;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 4.5vw;
+    height: 2.65vw;
+}
+
+.enabledd {
+    transform: translateX(0.95vw);
+    background: #1a1e21;
+}
+.enabledCont {
+    background-color: orange;
+}
+
+.disabled {
+    transform: translateX(-0.95vw);
+    background: #1a1e21;
+}
+.disabledCont {
+    background-color: #FBFAF6;
+}
+
+.toggle-button::before {
+    content: '';
+    position: absolute;
+    width: 1.9vw;
+    height: 1.9vw;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+

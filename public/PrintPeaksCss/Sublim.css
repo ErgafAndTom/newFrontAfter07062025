@@ -1,0 +1,482 @@
+.fon12 {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  backdrop-filter: blur(5px) brightness(115%);
+  background-color: rgba(233, 230, 218, 0.34);
+  border: 1px solid #707070;
+  box-sizing: border-box;
+  width: 1920px;
+  height: 1080px;
+}
+.div442 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  border-radius: 30px;
+  background-color: #F2F0E7;
+  border: 1px solid #707070;
+  box-sizing: border-box;
+}
+.fon2 {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  width: 1872px;
+  height: 1032px;
+}
+.print6 {
+  margin: 0;
+}
+.span67 {
+  font-size: 12.1px;
+  vertical-align: sub;
+}
+.print-peaks-erp2244 {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  line-height: 18px;
+}
+.widea {
+  position: absolute;
+  top: 48px;
+  left: 48px;
+  width: 77px;
+  height: 67px;
+  font-size: 22px;
+
+}
+.div443 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  border-radius: 12px;
+  background-color: #ffc107;
+  border: 1px solid #707070;
+  box-sizing: border-box;
+}
+.plus-zam-text2 {
+  position: absolute;
+  top: calc(50% - 15px);
+  left: 26.67px;
+}
+.widec1 {
+  position: absolute;
+  top: 688px;
+  left: 48px;
+  width: 354px;
+  height: 38px;
+  text-align: center;
+}
+.wideb2 {
+  position: absolute;
+  bottom: 48px;
+  left: 48px;
+  border-radius: 30px;
+  border: 1px solid #707070;
+  box-sizing: border-box;
+  width: 1824px;
+  height: 282px;
+}
+.plus-prod-text2 {
+  position: absolute;
+  top: 4px;
+  left: 50px;
+  font-size: 24px;
+
+  color: #000;
+  text-align: center;
+}
+.widej1 {
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  background-color: transparent;
+  position: absolute;
+  bottom: 354px;
+  left: 1519px;
+  width: 354px;
+  height: 38px;
+}
+.image-icon {
+  position: absolute;
+  top: 808px;
+  right: 105px;
+  width: 291px;
+  height: 170px;
+  object-fit: cover;
+}
+.image-icon:hover {
+  animation: 1s ease 0s infinite normal none wobble-hor-bottom;
+  opacity: 1;
+}
+
+@keyframes wobble-hor-bottom {
+  0%,
+  100% {
+    transform: translateX(0%);
+    transform-origin: 50% 50%;
+  }
+  15% {
+    transform: translateX(-30px) rotate(-6deg);
+  }
+  30% {
+    transform: translateX(15px) rotate(6deg);
+  }
+  45% {
+    transform: translateX(-15px) rotate(-3.6deg);
+  }
+  60% {
+    transform: translateX(9px) rotate(2.4deg);
+  }
+  75% {
+    transform: translateX(-6px) rotate(-1.2deg);
+  }
+}
+.cpmas1 {
+  position: absolute;
+  bottom: 15.5px;
+  left: 69px;
+  font-weight: 700;
+}
+.base204 {
+  position: absolute;
+  width: 100%;
+  top: 0px;
+  right: 0%;
+  left: 0px;
+  border-radius: 100px;
+  background-color: #ffc107;
+  height: 24px;
+}
+.control-icon1 {
+  position: absolute;
+  height: calc(100% - 6px);
+  top: 3px;
+  right: 3px;
+  bottom: 3px;
+  border-radius: 50%;
+  max-height: 100%;
+  width: 18px;
+}
+.form-switches1 {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+}
+.krugr-button {
+  position: absolute;
+  top: calc(50% - 17.75px);
+  left: calc(50% - 429.5px);
+  width: 39px;
+  height: 24px;
+}
+.input-text18 {
+  position: absolute;
+  top: 2.95px;
+  left: 0px;
+  letter-spacing: 0.23px;
+  line-height: 24px;
+}
+.input4 {
+  border: 1px solid #707070;
+  outline: none;
+  background-color: #FBFAF6;
+  position: absolute;
+  height: calc(100% - 8.5px);
+  width: 100%;
+  top: 0px;
+  right: 0px;
+  bottom: 8.5px;
+  left: 0px;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size: 24;
+  text-align: center;
+
+}
+.frame9 {
+  position: absolute;
+  height: 15.31%;
+  width: 8.25%;
+  top: 63.78%;
+  right: 12.42%;
+  bottom: 20.91%;
+  left: 79.33%;
+  background-color: #323232;
+  opacity: 0;
+}
+.div446 {
+  position: absolute;
+  right: 11.98px;
+  bottom: 8.5px;
+  background-color: #FBFAF6;
+  width: 23.5px;
+  height: 3px;
+}
+.label20 {
+  position: absolute;
+  right: 8.48px;
+  bottom: 0px;
+  font-size: 16px;
+  letter-spacing: 0.53px;
+  line-height: 16px;
+
+  text-align: center;
+}
+.quantity3 {
+  position: absolute;
+  right: 373.2px;
+  bottom: 0px;
+  width: 95.8px;
+  height: 40.5px;
+  color: #707070;
+
+}
+.select {
+  position: absolute;
+  top: calc(50% - 17.75px);
+  left: calc(50% + 146.5px);
+  border-radius: 5px;
+  background-color: #FBFAF6;
+  border: 1px solid #707070;
+  box-sizing: border-box;
+  width: 283px;
+  height: 32px;
+
+  font-size: 24px;
+  color: #000;
+}
+.div445 {
+  position: absolute;
+  top: 140px;
+  left: 49px;
+  width: 859px;
+  height: 45.5px;
+}
+.cpmas2 {
+  position: absolute;
+  top: calc(50% - 23.25px);
+  left: 70px;
+  font-weight: 700;
+}
+.krugr-button1 {
+  position: absolute;
+  top: calc(50% - 17.25px);
+  left: calc(50% - 571.65px);
+  width: 39px;
+  height: 24px;
+}
+.quantity4 {
+  position: absolute;
+  right: 657.5px;
+  bottom: 0px;
+  width: 95.8px;
+  height: 40.5px;
+  color: #707070;
+
+}
+.sizes5 {
+  position: absolute;
+  height: 100%;
+  top: 0px;
+  right: -0.03px;
+  bottom: 0px;
+  border-radius: 5px;
+  background-color: #FBFAF6;
+  border: 1px solid #707070;
+  box-sizing: border-box;
+  width: 283px;
+
+  font-size: 23;
+  color: #000;
+}
+.size-wide2 {
+  border: 1px solid #707070;
+  outline: none;
+  background-color: #FBFAF6;
+  position: absolute;
+  height: calc(100% - 0.1px);
+  top: 0px;
+  bottom: 0.1px;
+  left: 0px;
+  border-radius: 5px;
+  box-sizing: border-box;
+  width: 115.7px;
+
+  font-size: 23;
+  color: #000;
+  cursor: text;
+  text-align: center;
+}
+.size-wide2:hover {
+  font-size: 24;
+  text-align: center;
+}
+.size-wide2:active {
+  font-size: 24;
+  text-align: center;
+  content: vv;
+}
+.size-hight2 {
+  border: 1px solid #707070;
+  outline: none;
+  background-color: #FBFAF6;
+  position: absolute;
+  height: calc(100% - 0.1px);
+  top: 0px;
+  bottom: 0.1px;
+  left: calc(50% - 127.37px);
+  border-radius: 5px;
+  box-sizing: border-box;
+  width: 114.8px;
+
+  font-size: 23;
+  color: #000;
+  cursor: text;
+  text-align: center;
+}
+.div449 {
+  position: absolute;
+  top: 1px;
+  left: calc(50% - 154.65px);
+}
+.sizes4 {
+  position: absolute;
+  right: 0px;
+  bottom: 8.5px;
+  width: 567.3px;
+  height: 32px;
+  text-align: center;
+}
+.div447 {
+  position: absolute;
+  top: 247px;
+  left: 49px;
+  width: 1143.3px;
+  height: 46.5px;
+}
+.cpmas3 {
+  position: absolute;
+  top: calc(50% - 21.25px);
+  left: 70px;
+  font-weight: 700;
+}
+.krugr-button2 {
+  position: absolute;
+  top: calc(50% - 19.25px);
+  left: calc(50% - 326.5px);
+  width: 39px;
+  height: 24px;
+}
+.div452 {
+  position: absolute;
+  top: calc(50% - 15px);
+  left: 21px;
+}
+.div451 {
+  position: absolute;
+  top: calc(50% - 19.25px);
+  right: 0px;
+  border-radius: 12px;
+  background-color: #ffc107;
+  border: 1px solid #707070;
+  box-sizing: border-box;
+  width: 77px;
+  height: 30px;
+}
+.quantity5 {
+  position: absolute;
+  top: calc(50% - 19.25px);
+  right: 167.2px;
+  width: 95.8px;
+  height: 40.5px;
+  color: #707070;
+
+}
+.div450 {
+  position: absolute;
+  top: 359px;
+  left: 49px;
+  width: 653px;
+  height: 42.5px;
+}
+.span68 {
+  font-size: 13.2px;
+  vertical-align: sub;
+}
+.text19 {
+  position: absolute;
+  top: calc(50% - 121px);
+  left: 2px;
+}
+.text20 {
+  position: absolute;
+  top: calc(50% - 86px);
+  left: 2px;
+}
+.text21 {
+  position: absolute;
+  top: calc(50% - 51px);
+  left: 2px;
+}
+.text22 {
+  position: absolute;
+  top: calc(50% - 118px);
+  left: 333px;
+  font-family: "Ink Free";
+}
+.text23 {
+  position: absolute;
+  top: calc(50% - 83px);
+  left: 334px;
+  font-family: "Ink Free";
+}
+.text24 {
+  position: absolute;
+  top: calc(50% - 48px);
+  left: 332px;
+  font-family: "Ink Free";
+}
+.sum-text2 {
+  position: absolute;
+  bottom: 3px;
+  left: 0px;
+}
+.text25 {
+  position: absolute;
+  bottom: 0px;
+  left: calc(50% - 15px);
+}
+.sum2 {
+  position: absolute;
+  bottom: 66px;
+  left: 79px;
+  width: 540px;
+  height: 242px;
+}
+.sublim {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: auto;
+  text-align: left;
+  font-size: 24px;
+  color: #000;
+
+}
