@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchUser, logout, updateUser } from '../../../actions/authActions';
+import React, {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {fetchUser, logout, updateUser} from '../../../actions/authActions';
 import {Link} from "react-router-dom";
 import Counterparty from '../../../components/usersettings/Counterparty';
-import { buttonStyles, containerStyles, formStyles, avatarStyles, tabStyles } from './styles';
+import {buttonStyles, containerStyles, formStyles, avatarStyles, tabStyles} from './styles';
 import ContrAgentsInUserProfile from "./ContrAgentsInUserProfile";
 import PaysInOrderRestoredForAdmin from "../../userInNewUiArtem/pays/PaysInOrderRestoredForAdmin";
 
@@ -49,7 +49,7 @@ function Profile() {
             <h2 style={containerStyles.header}>Профіль користувача {user.username}</h2>
 
             <div style={containerStyles.tabsContainer}>
-                <button 
+                <button
                     style={{
                         ...tabStyles.tabButton,
                         ...(activeTab === 'profile' ? tabStyles.activeTab : {})
@@ -58,7 +58,7 @@ function Profile() {
                 >
                     Основна інформація
                 </button>
-                <button 
+                <button
                     style={{
                         ...tabStyles.tabButton,
                         ...(activeTab === 'counterparties' ? tabStyles.activeTab : {})
@@ -114,13 +114,13 @@ function Profile() {
                                     <option value="paywpal">PayPal</option>
                                 </select>
                             </div>
-                            <button 
+                            <button
                                 onClick={handleSave}
                                 style={{...buttonStyles.base, ...buttonStyles.success, margin: '5px'}}
                             >
                                 Зберегти
                             </button>
-                            <button 
+                            <button
                                 onClick={() => setEditMode(false)}
                                 style={{...buttonStyles.base, ...buttonStyles.secondary, margin: '5px'}}
                             >
@@ -132,11 +132,22 @@ function Profile() {
                             <li>Ім'я користувача: {user.username}</li>
                             <li>Роль: {user.role}</li>
                             <li>Спосіб оплати: {user.paymentMethod || 'Не вказано'}</li>
+                            <li>telegram: {user.telegram || 'Не вказано'}</li>
+                            <li>email: {user.email || 'Не вказано'}</li>
+                            <li>phoneNumber: {user.phoneNumber || 'Не вказано'}</li>
+                            <li>signal: {user.signal || 'Не вказано'}</li>
+                            <li>viber: {user.viber || 'Не вказано'}</li>
+                            <li>whatsapp: {user.whatsapp || 'Не вказано'}</li>
+                            <li>discount: {user.discount || 'Не вказано'}</li>
+                            <li>photoLink: {user.photoLink || 'Не вказано'}</li>
+                            <li>viber: {user.viber || 'Не вказано'}</li>
+                            <li>viber: {user.viber || 'Не вказано'}</li>
+                            <li>viber: {user.viber || 'Не вказано'}</li>
                             {/*<button onClick={() => setEditMode(true)}>Редактировать профиль</button>*/}
                         </>
                     )}
 
-                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: '20px' }}>
+                    <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: '20px'}}>
                         <Link style={{textDecoration: 'none'}} to="/myFiles">
                             <button className="adminButtonAdd"
                                     style={{
@@ -166,7 +177,7 @@ function Profile() {
                         {/*        Мої способи оплати*/}
                         {/*    </button>*/}
                         {/*</Link>*/}
-                        <button 
+                        <button
                             onClick={handleLogout}
                             className="adminButtonAdd"
                             style={{

@@ -13,7 +13,7 @@ const CompactAddUserForm = ({onClose, onUserAdded, handleCloseAddUser}) => {
         familyName: '',
         phoneNumber: '',
         email: '',
-        telegramlogin: '',
+        telegram: '',
         address: '',
         notes: '',
         discount: 0
@@ -79,7 +79,7 @@ const CompactAddUserForm = ({onClose, onUserAdded, handleCloseAddUser}) => {
                     {label: "Прізвище", name: 'familyName', icon: <BsPerson/>},
                     {label: "Телефон", name: 'phoneNumber', icon: <BsTelephone/>, onChange: handlePhoneChange},
                     {label: "E-mail", name: 'email', icon: <BsEnvelope/>},
-                    {label: "Telegram", name: 'telegramlogin', icon: <BsTelegram/>},
+                    {label: "Telegram", name: 'telegram', icon: <BsTelegram/>},
                     {label: "Адреса", name: 'address', icon: <BsGeoAlt/>},
                     {label: "Знижка", name: 'discount', icon: <BsPercent/>},
 

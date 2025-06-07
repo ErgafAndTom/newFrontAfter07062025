@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchUser, logout, updateUser } from '../../../actions/authActions';
+import React, {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {fetchUser, logout, updateUser} from '../../../actions/authActions';
 import {Link, useParams} from "react-router-dom";
 import Counterparty from '../../../components/usersettings/Counterparty';
-import { buttonStyles, containerStyles, formStyles, avatarStyles, tabStyles } from '../profile/styles';
+import {buttonStyles, containerStyles, formStyles, avatarStyles, tabStyles} from '../profile/styles';
 import axios from "../../../api/axiosInstance";
 import ContrAgentsInUserProfile from "../profile/ContrAgentsInUserProfile";
 
@@ -132,15 +132,22 @@ function ClientUserProfile() {
                         </>
                     ) : (
                         <>
-                            <li>ID: {thisUser.id}</li>
-                            <li>Ім'я користувача: {thisUser.firstName} {thisUser.lastName} {thisUser.familyName} ({thisUser.phoneNumber})</li>
+                            <li>Ім'я користувача: {thisUser.username}</li>
                             <li>Роль: {thisUser.role}</li>
                             <li>Спосіб оплати: {thisUser.paymentMethod || 'Не вказано'}</li>
+                            <li>telegram: {thisUser.telegram || 'Не вказано'}</li>
+                            <li>email: {thisUser.email || 'Не вказано'}</li>
+                            <li>phoneNumber: {thisUser.phoneNumber || 'Не вказано'}</li>
+                            <li>signal: {thisUser.signal || 'Не вказано'}</li>
+                            <li>viber: {thisUser.viber || 'Не вказано'}</li>
+                            <li>whatsapp: {thisUser.whatsapp || 'Не вказано'}</li>
+                            <li>discount: {thisUser.discount || 'Не вказано'}</li>
+                            <li>photoLink: {thisUser.photoLink || 'Не вказано'}</li>
                             {/*<button onClick={() => setEditMode(true)}>Редактировать профиль</button>*/}
                         </>
                     )}
 
-                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: '20px' }}>
+                    <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: '20px'}}>
                         <Link style={{textDecoration: 'none'}} to="/client/1/files">
                             <button className="adminButtonAdd"
                                     style={{
