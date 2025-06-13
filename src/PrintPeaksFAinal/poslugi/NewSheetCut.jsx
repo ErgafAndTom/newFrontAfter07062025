@@ -15,6 +15,7 @@ import PhotoPosluga from "./newnomodals/photo/PhotoPosluga";
 import Porizka from "./newnomodals/Porizka";
 import "../global.css"
 import PerepletPereplet from "./newnomodals/PerepletPereplet";
+import NewNoModalProkleka from "./newnomodals/NewNoModalProkleka";
 
 const NewSheetCut = ({
                          thisOrder,
@@ -90,6 +91,7 @@ const NewSheetCut = ({
         radius: "",
     });
     const [holes, setHoles] = useState("Не потрібно");
+    const [prokleka, setProkleka] = useState("Не потрібно");
     const [holesR, setHolesR] = useState("");
     const [count, setCount] = useState(1);
     const [prices, setPrices] = useState([]);
@@ -109,6 +111,7 @@ const NewSheetCut = ({
                 big: big,
                 cute: cute,
                 cuteLocal: cuteLocal,
+                prokleka: prokleka,
                 holes: holes,
                 holesR: holesR,
                 count: count,
@@ -157,6 +160,7 @@ const NewSheetCut = ({
             lamination: lamination,
             big: big,
             cute: cute,
+            prokleka: prokleka,
             cuteLocal: cuteLocal,
             holes: holes,
             holesR: holesR,
@@ -175,7 +179,7 @@ const NewSheetCut = ({
                 }
                 console.log(error.response);
             })
-    }, [size, material, color, lamination.materialId, big, cute, cuteLocal, holes, holesR, count, porizka]);
+    }, [size, material, color, lamination.materialId, big, cute, cuteLocal, holes, holesR, count, porizka, prokleka]);
 
     useEffect(() => {
         if (showNewSheetCut) {
@@ -340,6 +344,15 @@ const NewSheetCut = ({
                                             selectArr={["", "3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
                                         />
 
+                                        <NewNoModalProkleka
+                                            prokleka={prokleka}
+                                            setProkleka={setProkleka}
+                                            prices={prices}
+                                            type={"SheetCut"}
+                                            buttonsArr={[]}
+                                            selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+                                        />
+
                                         <Porizka
                                             porizka={porizka}
                                             setPorizka={setPorizka}
@@ -442,6 +455,11 @@ const NewSheetCut = ({
                                                 Свердління отворів: {pricesThis.holes.pricePerUnit.toFixed(2)} грн
                                                 * {pricesThis.holes.count} шт
                                                 = {pricesThis.holes.totalPrice.toFixed(2)} грн
+                                            </div>
+                                            <div className="fontInfoForPricing">
+                                                Проклейка: {pricesThis.prokleyka.pricePerUnit} грн
+                                                * {pricesThis.prokleyka.count} шт
+                                                = {pricesThis.prokleyka.totalPrice} грн
                                             </div>
 
                                             {/* Додаткова послуга "Порізка" */}
