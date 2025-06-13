@@ -12,7 +12,7 @@ import p8svg from "../components/newUIArtem/printers/p8.png";
 import p800 from "../components/newUIArtem/printers/p800.png";
 import creo from "../components/newUIArtem/printers/creo.png";
 import MUG from "../components/newUIArtem/printers/mug.png";
-import OrderItem from "./Orders/OrderItem.jsx";
+import magnets from "./magnetsIcon.png";
 
 // Usage of ClientsMenu
 import img1 from '../components/newUIArtem/printers/46.png';
@@ -60,6 +60,7 @@ import NovaPoshtaButton from "./userInNewUiArtem/novaPoshta/NovaPoshtaButton";
 import FilesInOrder from "./filesInOrder/FilesInOrder";
 import CommentsInOrder from "./commentsInOrders/CommentsInOrder";
 import NewBooklet from "./poslugi/NewBooklet";
+import NewMagnets from "./poslugi/NewMagnets";
 
 const NewUIArtem = () => {
     const navigate = useNavigate();
@@ -95,6 +96,7 @@ const NewUIArtem = () => {
     const [showBigOvshik, setShowBigOvshik] = useState(false);
     const [showPerepletMet, setShowPerepletMet] = useState(false);
     const [showNewCup, setShowNewCup] = useState(false);
+    const [showNewMagnets, setShowNewMagnets] = useState(false);
     const [showLaminator, setShowLaminator] = useState(false);
     const [showVishichka, setShowVishichka] = useState(false);
 
@@ -320,11 +322,11 @@ const NewUIArtem = () => {
                                 <div className="buttonLabel">MUG</div>
                             </div>
                             <div
-                                onClick={() => setShowNewCup(true)}
-                                className="colorButtonNote colorButton bg-green  cursorPointer">
-                                <img src={MUG} className="card-img-top noanim" alt="Продукти"/>
-                                <img src={MUG} className="card-img-top anim" alt="Продукти"/>
-                                <div className="buttonLabel">MUG</div>
+                                onClick={() => setShowNewMagnets(true)}
+                                className="colorButtonNote colorButton bg-pink  cursorPointer">
+                                <img src={magnets} className="card-img-top noanim" alt="Продукти"/>
+                                <img src={magnets} className="card-img-top anim" alt="Продукти"/>
+                                <div className="buttonLabel">Magnets</div>
                             </div>
                         </div>
                         <div className="containerNewUI" style={{height: "15vh"}}>
@@ -733,6 +735,19 @@ const NewUIArtem = () => {
                         setThisOrder={setThisOrder}
                         setSelectedThings2={setSelectedThings2}
                         showNewCup={showNewCup}
+                    />
+                }
+                {showNewMagnets &&
+                    <NewMagnets
+                        productName={productName}
+                        thisOrder={thisOrder}
+                        newThisOrder={newThisOrder}
+                        selectedThings2={selectedThings2}
+                        setNewThisOrder={setNewThisOrder}
+                        setShowNewMagnets={setShowNewMagnets}
+                        setThisOrder={setThisOrder}
+                        setSelectedThings2={setSelectedThings2}
+                        showNewMagnets={showNewMagnets}
                     />
                 }
                 {showNewPhoto &&
