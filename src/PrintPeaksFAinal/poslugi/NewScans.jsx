@@ -3,21 +3,21 @@ import {Row} from "react-bootstrap";
 import React, {useCallback, useEffect, useState} from "react";
 import axios from '../../api/axiosInstance';
 import Loader from "../../components/calc/Loader";
-import versantIcon from "../../components/newUIArtem/printers/p5.svg";
+import versantIcon from "../scan.png";
 import {useNavigate} from "react-router-dom";
 import NewNoModalSizeCup from "./newnomodals/cup/NewNoModalSizeCup";
 import Materials2Cup from "./newnomodals/cup/Materials2Cup";
 
-const NewCup = ({
-                    thisOrder,
-                    newThisOrder,
-                    setNewThisOrder,
-                    selectedThings2,
-                    setShowNewCup,
-                    setThisOrder,
-                    setSelectedThings2,
-                    showNewCup
-                }) => {
+const NewScans = ({
+                      thisOrder,
+                      newThisOrder,
+                      setNewThisOrder,
+                      selectedThings2,
+                      setShowNewScans,
+                      setThisOrder,
+                      setSelectedThings2,
+                      showNewScans
+                  }) => {
     let handleChange = (e) => {
         setCount(e)
     }
@@ -30,11 +30,11 @@ const NewCup = ({
         setIsAnimating(false); // Начинаем анимацию закрытия
         setTimeout(() => {
             setIsVisible(false)
-            setShowNewCup(false);
+            setShowNewScans(false);
         }, 300); // После завершения анимации скрываем модальное окно
     }
     const handleShow = useCallback((event) => {
-        setShowNewCup(true);
+        setShowNewScans(true);
     }, []);
 
 
@@ -82,7 +82,7 @@ const NewCup = ({
             orderId: thisOrder.id,
             toCalc: {
                 nameOrderUnit: "Кружка",
-                type: "Cup",
+                type: "Scans",
                 size: size,
                 material: material,
                 color: color,
@@ -103,7 +103,7 @@ const NewCup = ({
                 setThisOrder(response.data);
                 // setSelectedThings2(response.data.order.OrderUnits || []);
                 setSelectedThings2(response.data.OrderUnits);
-                setShowNewCup(false)
+                setShowNewScans(false)
             })
             .catch(error => {
                 if (error.response.status === 403) {
@@ -158,14 +158,14 @@ const NewCup = ({
     }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, porizka]);
 
     useEffect(() => {
-        if (showNewCup) {
+        if (showNewScans) {
             setIsVisible(true); // Сначала показываем модальное окно
             setTimeout(() => setIsAnimating(true), 100); // После короткой задержки запускаем анимацию появления
         } else {
             setIsAnimating(false); // Начинаем анимацию закрытия
             setTimeout(() => setIsVisible(false), 300); // После завершения анимации скрываем модальное окно
         }
-    }, [showNewCup]);
+    }, [showNewScans]);
 
     return (
         <>
@@ -259,7 +259,7 @@ const NewCup = ({
                                         />
                                         {/*<NewNoModalMaterial*/}
                                         <Materials2Cup
-                                            typeForMaterialsFetch={"Чашки"}
+                                            typeForMaterialsFetch={"Scans"}
                                             material={material}
                                             setMaterial={setMaterial}
                                             count={count}
@@ -369,4 +369,4 @@ const NewCup = ({
     )
 };
 
-export default NewCup;
+export default NewScans;

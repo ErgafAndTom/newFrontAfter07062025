@@ -3,7 +3,20 @@ import axios from '../../../../api/axiosInstance';
 import {useNavigate} from "react-router-dom";
 import {Spinner} from "react-bootstrap";
 
-const Materials2Cup = ({material, setMaterial, count, setCount, prices, type, name, buttonsArr, selectArr, typeUse, size}) => {
+const Materials2Cup = ({
+                           material,
+                           setMaterial,
+                           count,
+                           setCount,
+                           prices,
+                           type,
+                           name,
+                           buttonsArr,
+                           selectArr,
+                           typeUse,
+                           size,
+                           typeForMaterialsFetch
+                       }) => {
     const [paper, setPaper] = useState([]);
     const [error, setError] = useState(null);
     const [load, setLoad] = useState(true);
@@ -28,7 +41,7 @@ const Materials2Cup = ({material, setMaterial, count, setCount, prices, type, na
     }
 
     let handleClick = (e) => {
-        if(e === "Самоклеючі"){
+        if (e === "Самоклеючі") {
             setMaterial({
                 type: "Плівка",
                 thickness: e,
@@ -60,7 +73,7 @@ const Materials2Cup = ({material, setMaterial, count, setCount, prices, type, na
             size: size,
             material: {
                 ...material,
-                type: "Чашки"
+                type: typeForMaterialsFetch
             }
         }
         // console.log(data);
@@ -71,7 +84,7 @@ const Materials2Cup = ({material, setMaterial, count, setCount, prices, type, na
                 // console.log(response.data);
                 setPaper(response.data.rows)
                 setLoad(false)
-                if(response.data && response.data.rows && response.data.rows[0]){
+                if (response.data && response.data.rows && response.data.rows[0]) {
                     setMaterial({
                         ...material,
                         material: response.data.rows[0].name,
@@ -88,7 +101,7 @@ const Materials2Cup = ({material, setMaterial, count, setCount, prices, type, na
             .catch(error => {
                 setLoad(false)
                 setError(error.message)
-                if(error.response.status === 403){
+                if (error.response.status === 403) {
                     navigate('/login');
                 }
                 console.log(error.message);
@@ -119,7 +132,8 @@ const Materials2Cup = ({material, setMaterial, count, setCount, prices, type, na
                 {/*        </div>*/}
                 {/*    ))}*/}
                 {/*</div>*/}
-                <div className="ArtemNewSelectContainer" style={{marginTop: "1vw",  justifyContent: 'center', alignItems: 'center', marginLeft: "-1.3vw"}}>
+                <div className="ArtemNewSelectContainer"
+                     style={{marginTop: "1vw", justifyContent: 'center', alignItems: 'center', marginLeft: "-1.3vw"}}>
                     <select
                         name="materialSelect"
                         value={material.material || ""}
@@ -155,7 +169,7 @@ const Materials2Cup = ({material, setMaterial, count, setCount, prices, type, na
                         ))}
                     </select>
                     {load && (
-                        <Spinner animation="border" variant="danger" size="sm" />
+                        <Spinner animation="border" variant="danger" size="sm"/>
                     )}
                     {error && (
                         <div>{error}</div>
