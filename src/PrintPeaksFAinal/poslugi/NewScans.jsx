@@ -130,7 +130,7 @@ const NewScans = ({
 
     useEffect(() => {
         let dataToSend = {
-            type: "Cup",
+            type: "Scans",
             size: size,
             material: material,
             color: color,
