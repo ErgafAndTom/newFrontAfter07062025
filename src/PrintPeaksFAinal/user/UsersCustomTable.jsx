@@ -141,6 +141,8 @@ const UsersCustomTable = ({name}) => {
                 return '2.8vw';
             case 'discount':
                 return '3.2vw';
+                case 'address':
+                    return '10vw';
 
             // За замовчуванням
             default:

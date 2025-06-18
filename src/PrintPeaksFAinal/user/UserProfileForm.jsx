@@ -8,6 +8,7 @@ const UserProfileForm = () => {
         middleName: '',
         username: '',
         password: '',
+        telegram: ''
     });
 
     const handleChange = (e) => {

@@ -9,6 +9,7 @@ import {Form} from "react-bootstrap";
 import './logo/Logo.css';
 import Logo from "./logo/Logo";
 import AddNewOrder from "../../PrintPeaksFAinal/Orders/AddNewOrder";
+import SlideInModal from "../../PrintPeaksFAinal/userInNewUiArtem/SlideInModal.jsx";
 // import Logo from "./logo/Logo";
 
 const Nav = () => {
@@ -20,6 +21,11 @@ const Nav = () => {
     const [search, setSearch] = useState({search: ""});
     const [showNav, setShowNav] = useState(false);
     const [basicActive, setBasicActive] = useState('/');
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const handleCloseAddUser = () => {
+        setModalVisible(false);
+    };
     useEffect(() => {
         dispatch(fetchUser())
     }, [])
@@ -53,7 +59,9 @@ const Nav = () => {
     };
 
     return (
-        <MDBNavbar expand='lg' light bgColor='' className="navbarMy">
+<div>
+
+    <MDBNavbar expand='lg' light bgColor='' className="navbarMy">
             <MDBContainer fluid>
                 <div className="d-flex">
                     <div className="logo">
@@ -222,31 +230,52 @@ const Nav = () => {
                     </div>
                 </div>
                 <AddNewOrder/>
-                <div style={{position: 'relative', marginTop: '-1vw', display: 'inline-block'}}>
-                    <Form.Control
-                        className="Search"
-                        name="search"
-                        type="text"
-                        // onChange={handleChange}
-                        placeholder="Пошук"
-                        defaultValue={""}
-                        value={search.search}
-                        onChange={() => handleSearch()}
-                        required
-                    />
-                    <img style={{
-                        opacity: '0.5',
-                        position: 'absolute',
-                        left: '85%',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        pointerEvents: 'none',
-                        width: "1.5vw", height: "1.5vw", marginLeft: "auto"
-                    }} src={find} alt="Search Icon" className="Seaechicon"/>
+                <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
+                    <button
+                        className="adminButtonAdd"
+                        style={{marginTop: '-1vw',}}
+                        onClick={() => setModalVisible(true)}
+                    >
+                        Створити клієнта
+                    </button>
+                    <div style={{position: 'relative', marginTop: '-1vw', display: 'inline-block'}}>
+                        <Form.Control
+                            className="Search"
+                            name="search"
+                            type="text"
+                            placeholder="Пошук"
+                            value={search.search}
+                            onChange={(e) => handleSearch(e.target.value)}
+                        />
+                        <img style={{
+                            opacity: '0.5',
+                            position: 'absolute',
+                            left: '85%',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            pointerEvents: 'none',
+                            width: "1.5vw",
+                            height: "1.5vw",
+                            marginLeft: "auto"
+                        }}
+                        src={find}
+                        alt="Search Icon"
+                        className="Seaechicon"/>
+                    </div>
                 </div>
             </MDBContainer>
         </MDBNavbar>
-    )
+
+        {/* Модальне вікно для додавання клієнта */}
+        <SlideInModal
+            show={modalVisible}
+            handleCloseAddUser={handleCloseAddUser}
+            title="Додавання клієнта"
+        />
+</div>
+
+)
+
 };
 
 export default Nav;

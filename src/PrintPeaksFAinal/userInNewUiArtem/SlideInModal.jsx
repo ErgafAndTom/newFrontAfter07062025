@@ -7,10 +7,9 @@ const SlideInModal = ({show, onClose, children, title, handleCloseAddUser}) => {
 
     return (
         <>
-            <div className="modal-backdrop-custom" onClick={handleCloseAddUser}>
-
-            </div>
-            <div className="modal-slide-container">
+            <div className="modal-backdrop-custom" onClick={handleCloseAddUser}></div>
+            <div className="modal-slide-container"
+            style={{marginTop: "8vh", }}>
                 <div className="modal-slide-header">
                     {title}
                     <button onClick={onClose} className="modal-close-btn">×</button>
