@@ -1,30 +1,47 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import AddUserWindow from './AddUserWindow';
 
 const styles = {
     addButton: {
         display: 'flex',
-        padding: '0.8vh 1.5vw',
-        backgroundColor: '#f1c40f',
-        borderRadius: '0.8vw',
+        padding: '0 15px',
+        marginTop: '-3.5vh',
+        background: '#3C60A6',
+        borderRadius: '0.5vw',
         fontSize: '0.8vw',
+        height: '4vh',
         border: 'none',
         cursor: 'pointer',
         justifyContent: 'center',
         alignItems: 'center',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-        transition: 'all 0.3s ease',
+        transition: 'background-color 0.3s ease',
+    },
+    navButton: { // Додатковий стиль для кнопок у навігаційній панелі
+        height: '4vh',
+        padding: '0 15px',
+        fontSize: '0.8vw',
+        background: '#3C60A6',
+        borderRadius: '0vh 1vh 1vh 0vh ',
+        border: 'none',
+        whiteSpace: 'nowrap',
+        alignItems: 'center',
+        flexShrink: 0
     },
     buttonContainer: {
-        margin: '1vh 0',
         display: 'flex',
-        justifyContent: 'flex-end',
+        justifyContent: 'center',
+        alignItems: 'center',
+        margin: 0,
     },
     buttonText: {
         marginLeft: '0.5vw',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: '0.8vw',
     },
     userIcon: {
-        fontSize: '1vw',
+        fontSize: '0.9vw',
     }
 };
 
@@ -45,14 +62,16 @@ function AddUserButton({ fetchUsers }) {
     return (
         <div>
             <div style={styles.buttonContainer}>
-                <button 
-                    style={styles.addButton} 
+                <button
+                    className="adminButtonAdd"
+                    style={{  ...styles.navButton, backgroundColor: '#3C60A6', marginTop: '-3.8vh', marginRight: '0.5vw'}}
                     onClick={handleAddUser}
-                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#e5b70b'}
-                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f1c40f'}
+
                 >
-                    <span style={styles.userIcon}>👤</span>
-                    <span style={styles.buttonText}>Додати нового користувача</span>
+
+                    <span style={{alignItems: 'center', justifyContent: 'center', fontSize: '0.8vw'}}
+
+                    >Створити клієнта</span>
                 </button>
             </div>
             
@@ -60,7 +79,7 @@ function AddUserButton({ fetchUsers }) {
                 <AddUserWindow
                     show={showAddUser}
                     onHide={() => setShowAddUser(false)}
-                    onUserAdded={(user) => {
+                    onUserAdded={() => {
                         handleUserAdded();
                     }}
                 />
@@ -68,5 +87,9 @@ function AddUserButton({ fetchUsers }) {
         </div>
     );
 }
+
+AddUserButton.propTypes = {
+    fetchUsers: PropTypes.func
+};
 
 export default AddUserButton;

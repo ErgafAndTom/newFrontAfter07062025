@@ -87,6 +87,44 @@
     border-radius: 0.5vw;
     /*margin: auto;*/
     text-align: left;
+}
 
+/* Анімація для появи кнопки логін */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
+.login-button-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-button-container button:hover {
+    background-color: #FAB416 !important;
+}
+
+/* Стилі для всіх адміністративних кнопок */
+.adminButtonAdd {
+    background-color: #FBFAF6;
+    border: transparent;
+    border-radius: 0.5vw;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    flex-shrink: 0;
+}
+
+.adminButtonAdd:hover {
+    background-color: #FAB416;
+}
+
+/* Забезпечення правильного розташування елементів у верхньому правому куті */
+@media screen and (max-width: 1400px) {
+    .Search {
+        width: 120px !important;
+    }
 }

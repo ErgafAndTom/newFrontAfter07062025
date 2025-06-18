@@ -15,6 +15,7 @@ const CompactAddUserForm = ({onClose, onUserAdded, handleCloseAddUser}) => {
         email: '',
         telegram: '',
         address: '',
+        company: '',
         notes: '',
         discount: 0
     });
@@ -81,6 +82,7 @@ const CompactAddUserForm = ({onClose, onUserAdded, handleCloseAddUser}) => {
                     {label: "E-mail", name: 'email', icon: <BsEnvelope/>},
                     {label: "Telegram", name: 'telegram', icon: <BsTelegram/>},
                     {label: "Адреса", name: 'address', icon: <BsGeoAlt/>},
+                    {label: "Компанія", name: 'company', icon: <BsGeoAlt/>},
                     {label: "Знижка", name: 'discount', icon: <BsPercent/>},
 
                 ].map(({label, name, icon, onChange}) => (

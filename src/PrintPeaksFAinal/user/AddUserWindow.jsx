@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import axios from "../../api/axiosInstance";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import { Modal, Form, Button, Row, Col, InputGroup, Spinner, Alert } from "react-bootstrap";
-import { BsPerson, BsEnvelope, BsTelephone, BsTelegram, BsGeoAlt } from "react-icons/bs";
+import {BsPerson, BsEnvelope, BsTelephone, BsTelegram, BsGeoAlt, BsPercent} from "react-icons/bs";
 
 function AddUserWindow({ show, onHide, onUserAdded }) {
     const navigate = useNavigate();
@@ -15,7 +16,8 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
         familyName: '',
         phoneNumber: '',
         email: '',
-        telegramlogin: '',
+            company: '',
+        telegram: '',
         address: '',
         notes: '',
         discount: 0
@@ -59,23 +61,27 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
         
         setLoading(true);
         setError(null);
-        console.log(user);
+        // console.log(user);
 
-        axios.post('/user/create', user)
+        axios.post('/orders/createUser', user)
             .then(response => {
+                console.log(response.data);
                 setLoading(false);
                 if (onUserAdded) {
                     onUserAdded(response.data);
                 }
+                // navigate(`/Orders/${response.data.id}`);
+                document.location(`/Orders/${response.data.id}`);
                 onHide();
             })
             .catch(error => {
                 setLoading(false);
                 if (error.response && error.response.status === 403) {
                     navigate('/login');
+
                 }
                 setError(error.response?.data?.message || 'Помилка при додаванні клієнта');
-                console.error('Помилка додавання клієнта:', error);
+                // console.error('Помилка додавання клієнта:', error);
             });
     };
 
@@ -86,12 +92,17 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
             size="lg"
             centered
             backdrop="static"
+
         >
-            <Modal.Header closeButton>
+            <Modal.Header closeButton
+                          style={{ background: '#f2f0e7' }}
+            >
                 <Modal.Title>Додавання нового клієнта</Modal.Title>
             </Modal.Header>
             
-            <Modal.Body>
+            <Modal.Body
+                style={{ background: '#f2f0e7' }}
+            >
                 {error && (
                     <Alert variant="danger" onClose={() => setError(null)} dismissible>
                         {error}
@@ -102,25 +113,25 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                     <Row className="mb-3">
                         <Col md={6}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Ім'я <span className="text-danger">*</span></Form.Label>
+
                                 <InputGroup>
                                     <InputGroup.Text><BsPerson /></InputGroup.Text>
                                     <Form.Control
-                                        required
+
                                         type="text"
                                         name="firstName"
                                         value={user.firstName}
                                         onChange={handleChange}
-                                        placeholder="Введіть ім'я"
+                                        placeholder="Ім&apos;я"
                                     />
                                     <Form.Control.Feedback type="invalid">
-                                        Будь ласка, введіть ім'я клієнта
+                                        Будь ласка, введіть ім&apos;я клієнта
                                     </Form.Control.Feedback>
                                 </InputGroup>
                             </Form.Group>
                             
                             <Form.Group className="mb-3">
-                                <Form.Label>По батькові</Form.Label>
+
                                 <InputGroup>
                                     <InputGroup.Text><BsPerson /></InputGroup.Text>
                                     <Form.Control
@@ -128,13 +139,13 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                                         name="lastName"
                                         value={user.lastName}
                                         onChange={handleChange}
-                                        placeholder="Введіть по батькові"
+                                        placeholder="По-батькові"
                                     />
                                 </InputGroup>
                             </Form.Group>
                             
                             <Form.Group className="mb-3">
-                                <Form.Label>Прізвище <span className="text-danger">*</span></Form.Label>
+
                                 <InputGroup>
                                     <InputGroup.Text><BsPerson /></InputGroup.Text>
                                     <Form.Control
@@ -143,18 +154,37 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                                         name="familyName"
                                         value={user.familyName}
                                         onChange={handleChange}
-                                        placeholder="Введіть прізвище"
+                                        placeholder="Прізвище"
                                     />
                                     <Form.Control.Feedback type="invalid">
                                         Будь ласка, введіть прізвище клієнта
                                     </Form.Control.Feedback>
                                 </InputGroup>
                             </Form.Group>
+
+                            <Form.Group className="mb-3">
+
+                                <InputGroup>
+                                    <InputGroup.Text><BsPercent /></InputGroup.Text>
+                                    <Form.Control
+                                        required
+                                        type="text"
+                                        name="discount"
+                                        value={user.discount}
+                                        onChange={handleChange}
+                                        placeholder="Знижка (%)"
+                                     />
+                                    <Form.Control.Feedback type="invalid">
+                                        Будь ласка, введіть знижку клієнта
+                                    </Form.Control.Feedback>
+                                </InputGroup>
+                            </Form.Group>
+
                         </Col>
-                        
+
                         <Col md={6}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Номер телефону <span className="text-danger">*</span></Form.Label>
+
                                 <InputGroup>
                                     <InputGroup.Text><BsTelephone /></InputGroup.Text>
                                     <Form.Control
@@ -171,9 +201,23 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                                     </Form.Control.Feedback>
                                 </InputGroup>
                             </Form.Group>
+
+                            <Form.Group className="mb-3">
+
+                                <InputGroup>
+                                    <InputGroup.Text><BsGeoAlt /></InputGroup.Text>
+                                    <Form.Control
+                                        type="text"
+                                        name="address"
+                                        value={user.address || ''}
+                                        onChange={handleChange}
+                                        placeholder="Введіть адресу"
+                                    />
+                                </InputGroup>
+                            </Form.Group>
                             
                             <Form.Group className="mb-3">
-                                <Form.Label>Email</Form.Label>
+
                                 <InputGroup>
                                     <InputGroup.Text><BsEnvelope /></InputGroup.Text>
                                     <Form.Control
@@ -181,16 +225,30 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                                         name="email"
                                         value={user.email}
                                         onChange={handleChange}
-                                        placeholder="email@example.com"
+                                        placeholder="E-mail"
                                     />
                                     <Form.Control.Feedback type="invalid">
                                         Будь ласка, введіть коректний email
                                     </Form.Control.Feedback>
                                 </InputGroup>
                             </Form.Group>
+
+                            <Form.Group className="mb-3">
+
+                                <InputGroup>
+                                    <InputGroup.Text><BsGeoAlt /></InputGroup.Text>
+                                    <Form.Control
+                                        type="text"
+                                        name="company"
+                                        value={user.company || ''}
+                                        onChange={handleChange}
+                                        placeholder="Назва компанії"
+                                    />
+                                </InputGroup>
+                            </Form.Group>
                             
                             <Form.Group className="mb-3">
-                                <Form.Label>Telegram</Form.Label>
+
                                 <InputGroup>
                                     <InputGroup.Text><BsTelegram /></InputGroup.Text>
                                     <Form.Control
@@ -198,94 +256,71 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                                         name="telegramlogin"
                                         value={user.telegramlogin}
                                         onChange={handleChange}
-                                        placeholder="username (без @)"
+                                        placeholder="@telegram"
                                     />
                                 </InputGroup>
                             </Form.Group>
                         </Col>
                     </Row>
                     
-                    <Row>
-                        <Col md={12}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Адреса</Form.Label>
-                                <InputGroup>
-                                    <InputGroup.Text><BsGeoAlt /></InputGroup.Text>
-                                    <Form.Control
-                                        type="text"
-                                        name="address"
-                                        value={user.address}
-                                        onChange={handleChange}
-                                        placeholder="Введіть адресу"
-                                    />
-                                </InputGroup>
-                            </Form.Group>
-                        </Col>
-                    </Row>
                     
                     <Row>
                         <Col md={8}>
                             <Form.Group className="mb-3">
-                                <Form.Label>Примітки</Form.Label>
+
                                 <Form.Control
                                     as="textarea"
                                     name="notes"
                                     value={user.notes}
                                     onChange={handleChange}
                                     placeholder="Додаткова інформація про клієнта"
-                                    style={{ height: '80px' }}
+                                    style={{ height: '10vh',  width: '31vw' }}
                                 />
                             </Form.Group>
                         </Col>
                         
-                        <Col md={4}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Знижка (%)</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    name="discount"
-                                    value={user.discount}
-                                    onChange={handleChange}
-                                    min="0"
-                                    max="100"
-                                />
-                            </Form.Group>
-                        </Col>
+
                     </Row>
+                    <Modal.Footer>
+
+                        <Button
+                            variant="success"
+                            onClick={handleSubmit}
+                            className="adminButtonAdd"
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <>
+                                    <Spinner
+                                        as="span"
+                                        animation="border"
+                                        size="sm"
+                                        role="status"
+                                        aria-hidden="true"
+                                        className="me-2"
+                                    />
+                                    Зберігаємо...
+                                </>
+                            ) : (
+                                <>
+                                    <i className="bi adbi-plus-circle me-1"></i>
+                                    Додати клієнта
+                                </>
+                            )}
+                        </Button>
+                    </Modal.Footer>
                 </Form>
             </Modal.Body>
-            
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>
-                    Скасувати
-                </Button>
-                <Button 
-                    variant="success" 
-                    onClick={handleSubmit}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <>
-                            <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                role="status"
-                                aria-hidden="true"
-                                className="me-2"
-                            />
-                            Зберігаємо...
-                        </>
-                    ) : (
-                        <>
-                            <i className="bi bi-plus-circle me-1"></i>
-                            Додати клієнта
-                        </>
-                    )}
-                </Button>
-            </Modal.Footer>
+
+
         </Modal>
     );
 }
+
+AddUserWindow.propTypes = {
+    show: PropTypes.bool.isRequired,
+    onHide: PropTypes.func.isRequired,
+    onUserAdded: PropTypes.func.isRequired
+};
 
 export default AddUserWindow;

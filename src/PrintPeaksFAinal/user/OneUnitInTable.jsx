@@ -1,10 +1,12 @@
 import React from 'react';
 import {translateColumnName} from './translations';
+import PropTypes from 'prop-types';
 
 const OneUnitInTable = ({itemData, tablPosition, item, metaItem, handleItemClickRed}) => {
     // Функція для визначення ширини стовпця - має бути ідентичним в усіх таблицях
     const getColumnWidth = (columnName) => {
         switch (columnName) {
+            // Спільні колонки
             case 'id':
                 return '2vw';
             case 'createdAt':
@@ -22,9 +24,13 @@ const OneUnitInTable = ({itemData, tablPosition, item, metaItem, handleItemClick
             case 'familyName':
                 return '6vw';
             case 'email':
+                return '6vw';
+            case 'company':
                 return '8vw';
             case 'phoneNumber':
                 return '8vw';
+            case 'address':
+                return '10vw';
             case 'role':
                 return '4vw';
             case 'password':
@@ -36,8 +42,7 @@ const OneUnitInTable = ({itemData, tablPosition, item, metaItem, handleItemClick
 
             // За замовчуванням
             default:
-                return '3.948vw';
-
+                return '3.955vw';
         }
     };
 
@@ -58,7 +63,9 @@ const OneUnitInTable = ({itemData, tablPosition, item, metaItem, handleItemClick
         boxSizing: "border-box",
         textAlign: "center",
         background: "#FBFAF6",
-        boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+        boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+        borderBottom: "0.1vw solid #eaeaea",
+        padding: "0.1vw 0.2vw"
     };
 
     if (tablPosition === "id") {
@@ -120,6 +127,14 @@ const OneUnitInTable = ({itemData, tablPosition, item, metaItem, handleItemClick
             </div>
         </div>
     );
+};
+
+OneUnitInTable.propTypes = {
+    itemData: PropTypes.any,
+    tablPosition: PropTypes.string,
+    item: PropTypes.object,
+    metaItem: PropTypes.string,
+    handleItemClickRed: PropTypes.func
 };
 
 export default OneUnitInTable;

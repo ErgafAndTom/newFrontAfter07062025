@@ -8,6 +8,7 @@ const instance = axios.create({
 // Добавляем интерсептор для добавления токена к каждому запросу
 instance.interceptors.request.use(
     (config) => {
+        // eslint-disable-next-line no-undef
         const token = localStorage.getItem('token');
         // console.log(token);
         if (token) {
@@ -17,6 +18,7 @@ instance.interceptors.request.use(
         return config;
     },
     (error) => {
+        // eslint-disable-next-line no-undef
         return Promise.reject(error);
     }
 );

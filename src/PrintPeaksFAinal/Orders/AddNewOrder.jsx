@@ -7,6 +7,28 @@ import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/calc/Loader";
 
+// Створюємо глобальний об'єкт для зберігання подій
+if (!window.orderEvents) {
+    window.orderEvents = new EventTarget();
+}
+
+// Створюємо глобальну функцію для доступу ззовні
+export const triggerNewOrder = () => {
+    // Створюємо новий запит для створення замовлення
+    axios.post(`/orders/create`)
+        .then(response => {
+            // Сповіщаємо всіх про створення замовлення
+            const event = new CustomEvent('orderCreated', { detail: response.data });
+            event.log = 'orderCreated';
+            window.orderEvents.dispatchEvent(event);
+
+            window.location.href = `/Orders/${response.data.id}`;
+        })
+        .catch(error => {
+            console.log(error.message);
+        });
+};
+
 function AddNewOrder({namem, data, setData, inPageCount, setInPageCount, currentPage, setCurrentPage, pageCount, setPageCount}) {
     // const [show, setShow] = useState(false);
     // const [filteredMetadata, setFilteredMetadata] = useState([]);
@@ -18,32 +40,9 @@ function AddNewOrder({namem, data, setData, inPageCount, setInPageCount, current
     //     setShow(false);
     // }
 
+    // Ця функція точно така ж, як і triggerNewOrder, але для внутрішнього використання
     const handleShow = () => {
-        // let forData = formValues
-        // let postData = {
-        //     tableName: namem,
-        //     inPageCount: inPageCount,
-        //     currentPage: currentPage,
-        //     formValues: forData
-        // }
-        // console.log(postData);
-        axios.post(`/orders/create`,
-            // postData
-        )
-            .then(response => {
-                // console.log(response.data);
-                navigate(`/Orders/${response.data.id}`, { replace: true });
-                // setData(prevData => ({
-                //     ...prevData,
-                //     count: prevData.count + 1, // Увеличиваем общий счетчик заказов
-                //     rows: [...prevData.rows, response.data] // Добавляем новый заказ в массив rows
-                // }));
-                // setPageCount(Math.ceil(response.data.count / inPageCount));
-                // handleClose(); // Закрываем Offcanvas после успешного сохранения
-            })
-            .catch(error => {
-                console.log(error.message);
-            })
+        triggerNewOrder(); // Використовуємо ту саму функцію
     };
 
     // useEffect(() => {
@@ -104,7 +103,23 @@ function AddNewOrder({namem, data, setData, inPageCount, setInPageCount, current
             {/*<Button className="adminButtonAdd" variant="danger" onClick={handleShow}>*/}
             {/*    +*/}
             {/*</Button>*/}
-            <div className="adminButtonAdd" onClick={handleShow} style={{marginTop: "-2.2vmin"}} >
+            <div
+                className="adminButtonAdd"
+                onClick={handleShow}
+                style={{
+                    height: '4vh',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0 15px',
+                    fontSize: '0.8vw',
+                    marginTop: '-3.8vh',
+                    whiteSpace: 'nowrap',
+                    borderRadius: '1vh 0vh 0vh 1vh',
+                    background: '#FAB416',
+                }} 
+                data-testid="new-order-button"
+                id="new-order-button"
+            >
                 Нове замовлення
             </div>
 

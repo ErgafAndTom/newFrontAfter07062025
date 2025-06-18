@@ -4,16 +4,13 @@ import axios from "../../api/axiosInstance";
 import {Link, useNavigate} from "react-router-dom";
 import PaginationMy from "../../components/admin/pagination/PaginationMy";
 import Loader from "../../components/calc/Loader";
-import OneItemInTable from "../Storage/OneUnitInTable";
 import ModalStorageRed from "../Storage/ModalStorageRed";
 import ModalDeleteInStorage from "../Storage/ModalDeleteInStorage";
-import UserForm from "./UserForm";
-import {useDispatch} from "react-redux";
 import Button from "react-bootstrap/Button";
 import {translateColumnName} from "./translations";
 import OneUnitInTable from "./OneUnitInTable";
-import {buttonStyles, formStyles} from "./profile/styles";
 import SlideInModal from "../userInNewUiArtem/SlideInModal";
+import PropTypes from 'prop-types';
 
 // Основний компонент таблиці користувачів
 const UsersCustomTable = ({name}) => {
@@ -24,21 +21,19 @@ const UsersCustomTable = ({name}) => {
     const [showDeleteItemModal, setShowDeleteItemModal] = useState(false);
     const [event, setEvent] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const [inPageCount, setInPageCount] = useState(500);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageCount, setPageCount] = useState(null);
-    const dispatch = useDispatch();
-    const [typeSelect, setTypeSelect] = useState("");
+    const [typeSelect] = useState("");
     const [thisColumn, setThisColumn] = useState({
         column: "id",
         reverse: false
     });
-    const [expandedOrders, setExpandedOrders] = useState([]);
+    const [expandedOrders] = useState([]);
     const [showRed, setShowRed] = useState(false);
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [show, setShow] = useState(false);
+    const [selectedUser] = useState(null);
+    const [show] = useState(false);
 
     const handleCloseAddUser = () => {
         setModalVisible(false);
@@ -67,13 +62,6 @@ const UsersCustomTable = ({name}) => {
         setThisMetaItemForModal(metaItem);
     };
 
-    // Функція для обробки кліку видалення
-    const handleItemClickDelete2 = (item, event) => {
-        setShowDeleteItemModal(true);
-        setEvent(event);
-        setThisItemForModal(item);
-    };
-
     // Завантаження даних користувачів
     useEffect(() => {
         let requestData = {
@@ -82,13 +70,11 @@ const UsersCustomTable = ({name}) => {
             search: typeSelect,
             columnName: thisColumn
         };
-        setLoading(true);
         axios.post(`/user/All`, requestData)
             .then(response => {
                 console.log(response.data);
                 setData(response.data);
                 setError(null);
-                setLoading(false);
                 setPageCount(Math.ceil(response.data.count / inPageCount));
             })
             .catch(error => {
@@ -97,17 +83,8 @@ const UsersCustomTable = ({name}) => {
                 }
                 setError(error.message);
                 console.log(error.message);
-                setLoading(false);
             });
     }, [typeSelect, thisColumn, inPageCount, currentPage, navigate, show, showRed, modalVisible]);
-
-    const toggleOrder = (orderId) => {
-        if (expandedOrders.includes(orderId)) {
-            setExpandedOrders(expandedOrders.filter(id => id !== orderId));
-        } else {
-            setExpandedOrders([...expandedOrders, orderId]);
-        }
-    };
 
     // Функція для визначення ширини колонок - ОБОВ'ЯЗКОВО повинна бути така сама, як у OneUnitInTable.jsx
     const getColumnWidth = (columnName) => {
@@ -130,9 +107,13 @@ const UsersCustomTable = ({name}) => {
             case 'familyName':
                 return '6vw';
             case 'email':
+                return '6vw';
+            case 'company':
                 return '8vw';
             case 'phoneNumber':
                 return '8vw';
+            case 'address':
+                return '10vw';
             case 'role':
                 return '4vw';
             case 'password':
@@ -141,8 +122,7 @@ const UsersCustomTable = ({name}) => {
                 return '2.8vw';
             case 'discount':
                 return '3.2vw';
-                case 'address':
-                    return '10vw';
+
 
             // За замовчуванням
             default:
@@ -218,14 +198,13 @@ const UsersCustomTable = ({name}) => {
                          display: "flex",
                          flexDirection: "column",
                          width: "100%",
-
-
+                         tableLayout: "fixed"
                      }}>
                     {data.rows.map((item, iter) => (
                         <div key={item.id} className="table-row-container">
-                            <div className="CustomOrderTable-row" style={{}}>
+                            <div className="CustomOrderTable-row" style={{width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'stretch'}}>
                                 {data.metadata.map((metaItem, iter2) => (
-                                    <>
+                                    <React.Fragment key={`${item.id}-${metaItem}-${iter2}`}>
                                         {metaItem === "lastLoginAt" ? (
                                             <Link className="CustomOrderTable-cell statusEnabled"
                                                   style={{
@@ -266,7 +245,7 @@ const UsersCustomTable = ({name}) => {
                                                 handleItemClickRed={handleItemClickRed}
                                             />
                                         )}
-                                    </>
+                                    </React.Fragment>
                                 ))}
                             </div>
                         </div>
@@ -368,6 +347,10 @@ const UsersCustomTable = ({name}) => {
             <Loader/>
         </h1>
     );
+};
+
+UsersCustomTable.propTypes = {
+    name: PropTypes.string.isRequired
 };
 
 export default UsersCustomTable;
