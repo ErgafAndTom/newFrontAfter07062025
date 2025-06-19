@@ -16,7 +16,7 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
         familyName: '',
         phoneNumber: '',
         email: '',
-            company: '',
+        company: '',
         telegram: '',
         address: '',
         notes: '',
@@ -70,7 +70,7 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                 if (onUserAdded) {
                     onUserAdded(response.data);
                 }
-                // navigate(`/Orders/${response.data.id}`);
+                navigate(`/Orders/${response.data.id}`);
                 document.location(`/Orders/${response.data.id}`);
                 onHide();
             })
@@ -168,7 +168,7 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                                     <InputGroup.Text><BsPercent /></InputGroup.Text>
                                     <Form.Control
                                         required
-                                        type="text"
+
                                         name="discount"
                                         value={user.discount}
                                         onChange={handleChange}
