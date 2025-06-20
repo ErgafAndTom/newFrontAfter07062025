@@ -1,44 +1,41 @@
 import {MDBContainer} from "mdb-react-ui-kit";
 import {Row} from "react-bootstrap";
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import axios from '../../api/axiosInstance';
-import Loader from "../../components/calc/Loader";
 import NewNoModalSize from "./newnomodals/NewNoModalSize";
 import NewNoModalLamination from "./newnomodals/NewNoModalLamination";
-import NewNoModalHoles from "./newnomodals/NewNoModalHoles";
-import versantIcon from "../public/BW_C@2x.png";
 import Materials2 from "./newnomodals/Materials2";
 import {useNavigate} from "react-router-dom";
-import "../global.css"
+import "../global.css";
+import PropTypes from "prop-types";
+// import Loader from "../../components/calc/Loader";
+import versantIcon from "../../components/newUIArtem/printers/group-1468.svg";
 
 const NewSheetCutBw = ({
                            thisOrder,
-                           newThisOrder,
-                           setNewThisOrder,
-                           selectedThings2,
                            setShowNewSheetCutBw,
                            showNewSheetCutBw,
                            setThisOrder,
                            setSelectedThings2
                        }) => {
-    let handleChange = (e) => {
-        setCount(e)
+    let handleChange = (value) => {
+        setCount(value)
     }
-    const [load, setLoad] = useState(false);
     const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
     const [error, setError] = useState(null);
     const handleClose = () => {
-        setIsAnimating(false); // Начинаем анимацию закрытия
-        setTimeout(() => {
-            setIsVisible(false)
-            setShowNewSheetCutBw(false);
-        }, 300); // После завершения анимации скрываем модальное окно
-    }
-    const handleShow = useCallback((event) => {
-        setShowNewSheetCutBw(true);
-    }, []);
+    setIsAnimating(true); // Виправлено: починаємо анімацію
+    
+    const timeoutId = setTimeout(() => {
+        setIsVisible(false);
+        setShowNewSheetCutBw(false);
+    }, 300);
+    
+    // Зберігайте timeoutId в ref для можливості очищення
+    return () => clearTimeout(timeoutId);
+};
 
 
     const [size, setSize] = useState({
@@ -64,28 +61,28 @@ const NewSheetCutBw = ({
         materialId: "",
         size: ""
     });
-    const [big, setBig] = useState("Не потрібно");
-    const [cute, setCute] = useState("Не потрібно");
-    const [cuteLocal, setCuteLocal] = useState({
+    const [big] = useState("Не потрібно");
+    const [cute] = useState("Не потрібно");
+    const [cuteLocal] = useState({
         leftTop: false,
         rightTop: false,
         rightBottom: false,
         leftBottom: false,
     });
-    const [holes, setHoles] = useState("Не потрібно");
-    const [holesR, setHolesR] = useState("");
+    const [holes] = useState("Не потрібно");
+    const [holesR] = useState("");
     const [count, setCount] = useState(1);
-    const [prices, setPrices] = useState(null);
+    const [prices] = useState(null);
     const [pricesThis, setPricesThis] = useState(null);
     const [selectedService, setSelectedService] = useState("Документа");
 
-    const addNewOrderUnit = e => {
+    const addNewOrderUnit = () => {
         let dataToSend = {
-            orderId: thisOrder.id,
+            orderId: thisOrder?.id,
             toCalc: {
                 nameOrderUnit: `Друк ${selectedService ? selectedService + " " : ""}`,
                 type: "SheetCutBW",
-                size: size,
+                size: size || { x: 210, y: 297 },
                 material: material,
                 color: color,
                 lamination: lamination,
@@ -130,6 +127,8 @@ const NewSheetCutBw = ({
     // }, []);
 
     useEffect(() => {
+        if (!size) return; // Не виконуємо запит, якщо size є null
+
         let dataToSend = {
             type: "SheetCutBW",
             size: size,
@@ -142,7 +141,6 @@ const NewSheetCutBw = ({
             holes: holes,
             count: count,
         }
-        setLoad(true)
         axios.post(`/calc/pricing`, dataToSend)
             .then(response => {
                 // console.log(response.data);
@@ -261,7 +259,7 @@ const NewSheetCutBw = ({
                                             </div>
                                         </div>
                                         <NewNoModalSize
-                                            size={size}
+                                            size={size || { x: 210, y: 297 }}
                                             setSize={setSize}
                                             prices={prices}
                                             type={"SheetCutBw"}
@@ -279,7 +277,7 @@ const NewSheetCutBw = ({
                                                 count={count}
                                                 setCount={setCount}
                                                 prices={prices}
-                                                size={size}
+                                                size={size || { x: 210, y: 297 }}
                                                 selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
                                                 name={"Чорно-білий друк на монохромному принтері:"}
                                                 buttonsArr={["Офісний"]}
@@ -317,7 +315,9 @@ const NewSheetCutBw = ({
                                                 marginLeft: "2vw",
                                             }}
                                         >
-                                            <button className="adminButtonAdd" variant="danger"
+                                            <button className="adminButtonAdd"
+
+                                                    // variant="danger"
                                                     onClick={addNewOrderUnit}
                                             >
                                                 Додати до замовлення
@@ -338,57 +338,57 @@ const NewSheetCutBw = ({
                                         <div className="">
                                             {/* Друк (рахується за sheetCount) */}
                                             <div className="fontInfoForPricing">
-                                                Друк: {pricesThis.priceDrukPerSheet.toFixed(2)} грн
-                                                * {pricesThis.sheetCount} шт
-                                                = {(pricesThis.priceDrukPerSheet * pricesThis.sheetCount).toFixed(2)} грн
+                                                Друк: {(pricesThis?.priceDrukPerSheet || 0).toFixed(2)} грн
+                                                * {pricesThis?.sheetCount || 0} шт
+                                                = {((pricesThis?.priceDrukPerSheet || 0) * (pricesThis?.sheetCount || 0)).toFixed(2)} грн
                                             </div>
 
                                             {/* Матеріали (папір, рахуються за sheetCount) */}
                                             <div className="fontInfoForPricing">
-                                                Матеріали: {pricesThis.pricePaperPerSheet.toFixed(2)} грн
-                                                * {pricesThis.sheetCount} шт
-                                                = {(pricesThis.pricePaperPerSheet * pricesThis.sheetCount).toFixed(2)} грн
+                                                Матеріали: {(pricesThis?.pricePaperPerSheet || 0).toFixed(2)} грн
+                                                * {pricesThis?.sheetCount || 0} шт
+                                                = {((pricesThis?.pricePaperPerSheet || 0) * (pricesThis?.sheetCount || 0)).toFixed(2)} грн
                                             </div>
 
                                             {/* Ламінація (рахується за sheetCount) */}
                                             <div className="fontInfoForPricing">
-                                                Ламінація: {pricesThis.priceLaminationPerSheet.toFixed(2)} грн
-                                                * {pricesThis.sheetCount} шт
-                                                = {(pricesThis.priceLaminationPerSheet * pricesThis.sheetCount).toFixed(2)} грн
+                                                Ламінація: {(pricesThis?.priceLaminationPerSheet || 0).toFixed(2)} грн
+                                                * {pricesThis?.sheetCount || 0} шт
+                                                = {((pricesThis?.priceLaminationPerSheet || 0) * (pricesThis?.sheetCount || 0)).toFixed(2)} грн
                                             </div>
 
                                             {/* Підсумкова вартість замовлення */}
                                             <div className="fontInfoForPricing1">
-                                                Загалом: {pricesThis.price} грн
+                                                Загалом: {pricesThis?.price || 0} грн
                                             </div>
 
                                             {/* Інформація про кількість аркушів */}
                                             <div className="fontInfoForPricing">
-                                                - З одного аркуша {pricesThis.listsFromBd} можливо
-                                                зробити {pricesThis.sheetsPerUnit} виробів
+                                                - З одного аркуша {pricesThis?.listsFromBd || 'невідомо'} можливо
+                                                зробити {pricesThis?.sheetsPerUnit || 0} виробів
                                             </div>
                                             <div className="fontInfoForPricing">
-                                                - Затрачено {pricesThis.sheetCount} аркушів {pricesThis.listsFromBd}
+                                                - Затрачено {pricesThis?.sheetCount || 0} аркушів {pricesThis?.listsFromBd || 'невідомо'}
                                             </div>
                                             <div className="fontInfoForPricing">
                                                 Вартість 1
-                                                аркуша {pricesThis.listsFromBd}: {pricesThis.unitSheetPrice.toFixed(2)} грн
+                                                аркуша {pricesThis?.listsFromBd || 'невідомо'}: {(pricesThis?.unitSheetPrice || 0).toFixed(2)} грн
                                             </div>
 
                                             {/* Розрахунок ціни за виріб (зі всіма допами) */}
                                             <div className="fontInfoForPricing1">
                                                 {/*Загалом: {(pricesThis.priceForItemWithExtras * count).toFixed(2)} грн*/}
-                                                Ціна за виріб: {pricesThis.priceForItemWithExtras.toFixed(2)} грн
+                                                Ціна за виріб: {(pricesThis?.priceForItemWithExtras || 0).toFixed(2)} грн
                                             </div>
 
                                             {/* Додатковий розрахунок ціни за лист */}
                                             <div className="fontInfoForPricing">
                                                 Ціна за аркуш (зі всіма
-                                                допами): {pricesThis.priceForSheetWithExtras.toFixed(2)} грн
+                                                допами): {(pricesThis?.priceForSheetWithExtras || 0).toFixed(2)} грн
                                             </div>
                                             <div className="fontInfoForPricing">
                                                 Ціна за аркуш (лише матеріал та
-                                                друк): {pricesThis.priceForSheetMaterialPrint.toFixed(2)} грн
+                                                друк): {(pricesThis?.priceForSheetMaterialPrint || 0).toFixed(2)} грн
                                             </div>
 
                                         </div>
@@ -418,12 +418,20 @@ const NewSheetCutBw = ({
             )}
         </>
     )
+    // return (
+    //     <div>
+    //         <Loader/>
+    //     </div>
+    // )
 
-    return (
-        <div>
-            <Loader/>
-        </div>
-    )
+};
+
+NewSheetCutBw.propTypes = {
+    thisOrder: PropTypes.object,
+    setShowNewSheetCutBw: PropTypes.func.isRequired,
+    showNewSheetCutBw: PropTypes.bool.isRequired,
+    setThisOrder: PropTypes.func.isRequired,
+    setSelectedThings2: PropTypes.func.isRequired
 };
 
 export default NewSheetCutBw;

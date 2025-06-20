@@ -5,7 +5,7 @@ import './global.css';
 import './adminStylesCrm.css';
 import './Wide.css';
 import './MainWindow.css';
-import {Link, useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import axios from '../api/axiosInstance';
 import {Modal} from "react-bootstrap";
 import p8svg from "../components/newUIArtem/printers/p8.png";
@@ -82,7 +82,6 @@ const NewUIArtem = () => {
         id: id
     });
     const [typeSelect, setTypeSelect] = useState("");
-    const [orders, setOrders] = useState(null);
     const [productName, setProductName] = useState('');
     const [showDeleteOrderUnitModal, setShowDeleteOrderUnitModal] = useState(false);
     const [thisOrderUnit, setThisOrderUnit] = useState(null);

@@ -682,12 +682,12 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                             background: "#f8f9fa",
                             borderRadius: '1vw',
                             padding: '1vh 0.8vw',
-                            Height: '74vh',
+                            Height: '71vh',
                             marginTop: '0.5vh',
                             overflow: 'hidden',              // ← додано
                             paddingRight: "0.5vw",
                         }}>
-                            <div className="user-list user-form-container" style={{
+                            <div className="" style={{
                                 background: "transparent",
                                 border: "none",
                                 width: '31vw',
@@ -696,6 +696,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                                 borderRadius: '1vw',
                                 maxHeight: "75vh",
                                 paddingRight: "0.5vw",
+                                overflow: "auto"
 
                             }}>
                                 {users.rows && users.rows.length > 0 ? (

@@ -1,4 +1,4 @@
-import LifeHacksBoard from "./PrintPeaksFAinal/lifeHacksBoard/LifeHacksBoard";
+
 import './bootstrap.css';
 import './bootstrap.css.map';
 import './App.css';
@@ -20,10 +20,13 @@ const globalStyles = css`
 
 function App() {
     useEffect(() => {
+        // eslint-disable-next-line no-undef
         document.fonts.ready.then(() => {
+            // eslint-disable-next-line no-undef
             if (document.fonts.check('1.3vh "Inter"')) {
                 console.log('✅ Шрифт inter завантажено та готовий до використання!');
             } else {
+                // eslint-disable-line no-undef
                 console.warn('❌ Шрифт inter не завантажено або недоступний.');
                 // Спробуємо примусово завантажити шрифти
                 // Використовуємо відносні шляхи до шрифтів
