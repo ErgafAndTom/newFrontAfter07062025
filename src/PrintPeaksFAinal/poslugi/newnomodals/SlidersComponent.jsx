@@ -19,13 +19,13 @@ function SliderComponent({size, setSize}) {
         setY(parseInt(event.target.value, 10));
     };
 
-    const handleMouseUp1 = (event) => {
+    const handleMouseUp1 = () => {
         setSize({
             x: x,
             y: size.y
         })
     };
-    const handleMouseUp2 = (event) => {
+    const handleMouseUp2 = () => {
         setSize({
             x: size.x,
             y: y

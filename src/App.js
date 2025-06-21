@@ -20,16 +20,11 @@ const globalStyles = css`
 
 function App() {
     useEffect(() => {
-        // eslint-disable-next-line no-undef
         document.fonts.ready.then(() => {
-            // eslint-disable-next-line no-undef
             if (document.fonts.check('1.3vh "Inter"')) {
                 console.log('✅ Шрифт inter завантажено та готовий до використання!');
             } else {
-                // eslint-disable-line no-undef
                 console.warn('❌ Шрифт inter не завантажено або недоступний.');
-                // Спробуємо примусово завантажити шрифти
-                // Використовуємо відносні шляхи до шрифтів
                 const regularFont = new FontFace('Inter', 'url(./fonts/Inter_18pt-Regular.ttf)', { weight: '400' });
                 
                 Promise.all([regularFont.load() ])
