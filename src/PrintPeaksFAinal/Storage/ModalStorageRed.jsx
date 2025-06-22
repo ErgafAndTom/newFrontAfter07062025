@@ -151,7 +151,6 @@ const ModalStorageRed = ({
         )
     }
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
         if (showRed) {
             setIsVisible(true); // Сначала показываем модальное окно

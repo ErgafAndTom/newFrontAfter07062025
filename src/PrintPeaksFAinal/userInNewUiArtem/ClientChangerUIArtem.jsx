@@ -555,22 +555,22 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                             <>
 
 
-                                <div style={{display: 'flex', justifyContent: 'center'}}>
-                                    <button
-                                        onClick={() => setModalVisible(true)}
-                                        className="adminButtonAdd"
-                                        style={{
-                                            position: 'absolute',
-                                            bottom: '1vh',
-                                            right: '0.5vw',
-                                            display: 'flex',
-                                            alignItems: 'flex-end'
-                                        }}
-                                    >
-                                        Створити клієнта
-                                    </button>
+                                {/*<div style={{display: 'flex', justifyContent: 'center'}}>*/}
+                                {/*    <button*/}
+                                {/*        onClick={() => setModalVisible(true)}*/}
+                                {/*        className="adminButtonAdd"*/}
+                                {/*        style={{*/}
+                                {/*            position: 'absolute',*/}
+                                {/*            bottom: '1vh',*/}
+                                {/*            right: '0.5vw',*/}
+                                {/*            display: 'flex',*/}
+                                {/*            alignItems: 'flex-end'*/}
+                                {/*        }}*/}
+                                {/*    >*/}
+                                {/*        Створити клієнта*/}
+                                {/*    </button>*/}
 
-                                </div>
+                                {/*</div>*/}
 
                                 <SlideInModal
                                     show={modalVisible}

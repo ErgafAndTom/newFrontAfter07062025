@@ -26,18 +26,18 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
     // Форматування телефону при введенні
     const handlePhoneChange = (e) => {
         let value = e.target.value.replace(/[^+\d]/g, '');
-        
+
         if (!value.startsWith('+')) {
             value = '+38' + value;
         }
-        
+
         // Форматуємо номер телефону
         const formattedValue = value
             .replace(/^(\+\d{2})/, '$1 ')
             .replace(/(\d{3})(\d)/, '$1 $2')
             .replace(/(\d{3}) (\d{3})(\d)/, '$1 $2-$3')
             .replace(/-(\d{2})(\d{1,2})/, '-$1-$2');
-            
+
         setUser({ ...user, phoneNumber: formattedValue.trim() });
     };
 
@@ -51,14 +51,14 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
     const handleSubmit = (event) => {
         event.preventDefault();
         const form = event.currentTarget;
-        
+
         // Валідація форми
         if (form.checkValidity() === false) {
             event.stopPropagation();
             setValidated(true);
             return;
         }
-        
+
         setLoading(true);
         setError(null);
         // console.log(user);
@@ -86,12 +86,12 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
     };
 
     return (
-        <Modal 
-            show={show} 
+        <Modal
+            show={show}
             onHide={onHide}
-            size="lg"
-            centered
-            backdrop="static"
+            // size="lg"
+            // centered
+            // backdrop="static"
 
         >
             <Modal.Header closeButton
@@ -99,7 +99,7 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
             >
                 <Modal.Title>Додавання нового клієнта</Modal.Title>
             </Modal.Header>
-            
+
             <Modal.Body
                 style={{ background: '#f2f0e7' }}
             >
@@ -108,7 +108,7 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                         {error}
                     </Alert>
                 )}
-                
+
                 <Form noValidate validated={validated} onSubmit={handleSubmit}>
                     <Row className="mb-3">
                         <Col md={6}>
@@ -129,7 +129,7 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                                     </Form.Control.Feedback>
                                 </InputGroup>
                             </Form.Group>
-                            
+
                             <Form.Group className="mb-3">
 
                                 <InputGroup>
@@ -143,7 +143,7 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                                     />
                                 </InputGroup>
                             </Form.Group>
-                            
+
                             <Form.Group className="mb-3">
 
                                 <InputGroup>
@@ -215,7 +215,7 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                                     />
                                 </InputGroup>
                             </Form.Group>
-                            
+
                             <Form.Group className="mb-3">
 
                                 <InputGroup>
@@ -246,7 +246,7 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                                     />
                                 </InputGroup>
                             </Form.Group>
-                            
+
                             <Form.Group className="mb-3">
 
                                 <InputGroup>
@@ -262,8 +262,8 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                             </Form.Group>
                         </Col>
                     </Row>
-                    
-                    
+
+
                     <Row>
                         <Col md={8}>
                             <Form.Group className="mb-3">
@@ -278,7 +278,7 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                                 />
                             </Form.Group>
                         </Col>
-                        
+
 
                     </Row>
                     <Modal.Footer>

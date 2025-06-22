@@ -284,9 +284,9 @@ const UsersCustomTable = ({name}) => {
                             title="Додавання клієнта"
                         />
 
-                        <Button className="adminButtonAdd" variant="danger" onClick={() => setModalVisible(true)}>
-                            {selectedUser ? "Редагувати користувача" : "Додати користувача"}
-                        </Button>
+                        {/*<Button className="adminButtonAdd" variant="danger" onClick={() => setModalVisible(true)}>*/}
+                        {/*    {selectedUser ? "Редагувати користувача" : "Додати користувача"}*/}
+                        {/*</Button>*/}
 
 
                     </div>
