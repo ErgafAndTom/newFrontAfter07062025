@@ -95,7 +95,7 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
 
         >
             <Modal.Header closeButton
-                          style={{ background: '#f2f0e7' }}
+                          style={{ background: '#f2f0e7'}}
             >
                 <Modal.Title>Додавання нового клієнта</Modal.Title>
             </Modal.Header>

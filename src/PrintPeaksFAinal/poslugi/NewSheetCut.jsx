@@ -504,15 +504,15 @@ const NewSheetCut = ({
                                             {/*<div className="fontInfoForPricing">*/}
                                             {/*    Ціна за all(2спосіб) {pricesThis.totalSheetPrice} грн*/}
                                             {/*</div>*/}
-                                            <div className="fontInfoForPricing">
-                                                Ціна за 1 виріб {pricesThis.totalPriceForOne} грн
-                                            </div>
-                                            <div className="fontInfoForPricing">
-                                                Ціна за all(2спосіб) {pricesThis.totalPriceForAllInPriceForOne} грн
-                                            </div>
-                                            <div className="fontInfoForPricing">
-                                                priceForSheetWithExtras {pricesThis.priceForSheetWithExtras} грн
-                                            </div>
+                                            {/*<div className="fontInfoForPricing">*/}
+                                            {/*    Ціна за 1 виріб {pricesThis.totalPriceForOne} грн*/}
+                                            {/*</div>*/}
+                                            {/*<div className="fontInfoForPricing">*/}
+                                            {/*    Ціна за all(2спосіб) {pricesThis.totalPriceForAllInPriceForOne} грн*/}
+                                            {/*</div>*/}
+                                            {/*<div className="fontInfoForPricing">*/}
+                                            {/*    priceForSheetWithExtras {pricesThis.priceForSheetWithExtras} грн*/}
+                                            {/*</div>*/}
                                         </div>
 
 
