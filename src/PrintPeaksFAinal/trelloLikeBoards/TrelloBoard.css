@@ -6,11 +6,11 @@
     gap: 1vw;
     padding: 1.7vh;
     overflow-x: auto;
-    border-radius: 1vw;
+    border-radius: 0vw;
     }
 
 .trello-list {
-    background-color: #FBFAF6;
+    background-color: #fbfaf6;
     padding: 2vh;
     border-radius: 1vh;
     width: 21vw;
