@@ -430,39 +430,39 @@ const TrelloBoard = () => {
                     ))}
                   </div>
                 )}
-                {/*<div className="d-flex justify-content-between" style={{marginTop: '0.6vh'}}>*/}
+                <div className="d-flex justify-content-between" style={{marginTop: '0.6vh'}}>
 
-                {/*  <div>*/}
-                {/*    <div style={{*/}
-                {/*      fontSize: "0.9vh",*/}
-                {/*      opacity: "50%"*/}
-                {/*    }}>add: {card.createdBy.username}</div>*/}
-                {/*    <div style={{*/}
-                {/*      fontSize: "0.9vh",*/}
-                {/*      opacity: "50%"*/}
-                {/*    }}>up: {card.lastUpdatedBy.username}</div>*/}
-                {/*  </div>*/}
-                {/*  <div>*/}
-                {/*    <div style={{*/}
-                {/*      fontSize: "0.9vh",*/}
-                {/*      opacity: "50%"*/}
-                {/*    }}>id: {card.id}</div>*/}
-                {/*    <div style={{*/}
-                {/*      fontSize: "0.9vh",*/}
-                {/*      opacity: "50%"*/}
-                {/*    }}>index: {card.index}</div>*/}
-                {/*  </div>*/}
-                {/*  <div className="d-flex flex-column align-items-end">*/}
-                {/*    <div style={{*/}
-                {/*      fontSize: "0.9vh",*/}
-                {/*      opacity: "50%"*/}
-                {/*    }}>{`add: ${new Date(card.createdAt).toLocaleDateString()} ${new Date(card.createdAt).toLocaleTimeString()}`}</div>*/}
-                {/*    <div style={{*/}
-                {/*      fontSize: "0.9vh",*/}
-                {/*      opacity: "50%"*/}
-                {/*    }}>{`up: ${new Date(card.updatedAt).toLocaleDateString()} ${new Date(card.updatedAt).toLocaleTimeString()}`}</div>*/}
-                {/*  </div>*/}
-                {/*</div>*/}
+                  <div>
+                    <div style={{
+                      fontSize: "0.9vh",
+                      opacity: "50%"
+                    }}>add: {card.createdBy.username}</div>
+                    <div style={{
+                      fontSize: "0.9vh",
+                      opacity: "50%"
+                    }}>up: {card.lastUpdatedBy.username}</div>
+                  </div>
+                  <div>
+                    <div style={{
+                      fontSize: "0.9vh",
+                      opacity: "50%"
+                    }}>id: {card.id}</div>
+                    <div style={{
+                      fontSize: "0.9vh",
+                      opacity: "50%"
+                    }}>index: {card.index}</div>
+                  </div>
+                  <div className="d-flex flex-column align-items-end">
+                    <div style={{
+                      fontSize: "0.9vh",
+                      opacity: "50%"
+                    }}>{`add: ${new Date(card.createdAt).toLocaleDateString()} ${new Date(card.createdAt).toLocaleTimeString()}`}</div>
+                    <div style={{
+                      fontSize: "0.9vh",
+                      opacity: "50%"
+                    }}>{`up: ${new Date(card.updatedAt).toLocaleDateString()} ${new Date(card.updatedAt).toLocaleTimeString()}`}</div>
+                  </div>
+                </div>
               </div>
             ))}
             <div
