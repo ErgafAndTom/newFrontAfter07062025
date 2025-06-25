@@ -239,55 +239,6 @@ const TrelloBoard = () => {
     setHoveredCard({ listId: targetListId, index: targetCardIndex });
   };
 
-  const onDrop = async (e, targetListId) => {
-    e.preventDefault();
-    const cardId = e.dataTransfer.getData("cardId");
-    const sourceListId = e.dataTransfer.getData("sourceListId");
-    const sourceIndex = parseInt(e.dataTransfer.getData("sourceIndex"), 10);
-
-    let movedCard = null;
-
-    const updatedLists = lists.map(list => {
-      if (list.id.toString() === sourceListId.toString()) {
-        const filteredCards = list.Cards.filter(card => {
-          if (card.id.toString() === cardId.toString()) {
-            movedCard = card;
-            return false;
-          }
-          return true;
-        });
-        return {...list, Cards: filteredCards};
-      }
-      return list;
-    });
-
-    const finalLists = updatedLists.map(list => {
-      if (list.id.toString() === targetListId.toString() && movedCard) {
-        return {...list, Cards: [...list.Cards, movedCard]};
-      }
-      return list;
-    });
-
-    const dataToSend = {
-      cardId: movedCard ? movedCard.id : cardId,
-      fromListId: sourceListId,
-      toListId: targetListId,
-      fromIndex: sourceIndex,
-      toIndex: finalLists.find(list => list.id.toString() === targetListId.toString()).Cards.length - 1
-    };
-
-    try {
-      const response = await axios.put('/trello/drag', dataToSend);
-      if (response.status !== 200) throw new Error(response.data.message || 'Ошибка перемещения');
-      console.log(response.data);
-      setServerData(response.data);
-    } catch (error) {
-      console.error('Ошибка при перемещении:', error);
-      setServerData(lists);
-    }
-    setDragData(null);
-  };
-
   const onDropCard = async (e, targetListId, targetCardIndex) => {
     e.preventDefault();
     setHoveredCard(null);
@@ -308,6 +259,7 @@ const TrelloBoard = () => {
       const response = await axios.put('/trello/drag', dataToSend);
       if (response.status !== 200) throw new Error(response.data.message || 'Ошибка перемещения');
       setServerData(response.data);
+      console.log(response.data);
     } catch (error) {
       console.error('Ошибка при перемещении:', error);
     }
@@ -369,18 +321,18 @@ const TrelloBoard = () => {
                 key={card.id}
                 className="trello-card"
                 draggable
-                onDragStart={(e) => onDragStart(e, card, list.id, index)}
-                onDragOver={(e) => onDragOverCard(e, list.id, index)}
+                onDragStart={(e) => onDragStart(e, card, list.id, card.index)}
+                onDragOver={(e) => onDragOverCard(e, list.id, card.index)}
                 onDragLeave={() => setHoveredCard(null)}
-                onDrop={(e) => onDropCard(e, list.id, index)}
+                onDrop={(e) => onDropCard(e, list.id, card.index)}
                 style={{
                   padding: '0.5vh',
                   margin: '4px 0',
-                  background: hoveredCard && hoveredCard.listId === list.id && hoveredCard.index === index ? 'rgba(250,180,22,0.5)' : '#fff',
+                  background: hoveredCard && hoveredCard.listId === list.id && hoveredCard.index === card.index ? 'rgba(250,180,22,0.5)' : '#fff',
                   border: '0.2vh solid #ddd',
                   borderRadius: '4px',
                   cursor: 'grab',
-                  boxShadow: hoveredCard && hoveredCard.listId === list.id && hoveredCard.index === index ? '0 0.1vw 1vw rgba(250,180,22,0.4)' : 'none',
+                  boxShadow: hoveredCard && hoveredCard.listId === list.id && hoveredCard.index === card.index ? '0 0.1vw 1vw rgba(250,180,22,0.4)' : 'none',
                   transition: 'background 0.2s ease, box-shadow 0.2s ease'
                 }}
               >
@@ -446,10 +398,6 @@ const TrelloBoard = () => {
                     <div style={{
                       fontSize: "0.9vh",
                       opacity: "50%"
-                    }}>id: {card.id}</div>
-                    <div style={{
-                      fontSize: "0.9vh",
-                      opacity: "50%"
                     }}>index: {card.index}</div>
                   </div>
                   <div className="d-flex flex-column align-items-end">
@@ -463,6 +411,12 @@ const TrelloBoard = () => {
                     }}>{`up: ${new Date(card.updatedAt).toLocaleDateString()} ${new Date(card.updatedAt).toLocaleTimeString()}`}</div>
                   </div>
                 </div>
+                {card.assignedTo && (
+                  <div style={{
+                    fontSize: "0.9vh",
+                    opacity: "50%"
+                  }}>Кому: {card.assignedTo.username} {card.assignedTo.firstName} {card.assignedTo.lastName} {card.assignedTo.familyName} {card.assignedTo.email}</div>
+                )}
               </div>
             ))}
             <div

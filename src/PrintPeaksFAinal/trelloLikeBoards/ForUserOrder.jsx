@@ -34,7 +34,7 @@ function ForUserOrder({showAddPay, setShowAddPay, openCardData}) {
 
   // Обробники вибору контрагента зі списку
   const handleSelectContrAgents = (contractor) => {
-    setContrAgentSearch(contractor.name);
+    setContrAgentSearch(`${contractor.username} ${contractor.firstName} ${contractor.lastName} ${contractor.familyName} ${contractor.email}`);
     setFormData({
       ...formData,
       contractorId: contractor.id,

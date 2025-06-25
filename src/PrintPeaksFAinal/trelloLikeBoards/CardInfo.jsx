@@ -364,7 +364,12 @@ export default function CardInfo({
                         </div>
                         <div className="d-flex justify-content-between" style={{}}>
                           <button className="adminButtonAdd justify-content-start" onClick={openAddPay} style={{}}>
-                            for: {openCardData.assignedTo.username} {openCardData.assignedTo.firstName} {openCardData.assignedTo.lastName} {openCardData.assignedTo.familyName} {openCardData.assignedTo.email}
+                            {openCardData && openCardData.assignedTo && (
+                              <div style={{
+                                // fontSize: "0.9vh",
+                                // opacity: "50%"
+                              }}>Кому: {openCardData.assignedTo.username} {openCardData.assignedTo.firstName} {openCardData.assignedTo.lastName} {openCardData.assignedTo.familyName} {openCardData.assignedTo.email}</div>
+                            )}
                           </button>
                             <button
                                 className="border-0 btn btn-danger d-flex align-items-center justify-content-center"
