@@ -364,7 +364,7 @@ export default function CardInfo({
                         </div>
                         <div className="d-flex justify-content-between" style={{}}>
                           <button className="adminButtonAdd justify-content-start" onClick={openAddPay} style={{}}>
-                            for: {}
+                            for: {openCardData.assignedTo.username} {openCardData.assignedTo.firstName} {openCardData.assignedTo.lastName} {openCardData.assignedTo.familyName} {openCardData.assignedTo.email}
                           </button>
                             <button
                                 className="border-0 btn btn-danger d-flex align-items-center justify-content-center"
@@ -384,6 +384,7 @@ export default function CardInfo({
                     <ForUserOrder
                       showAddPay={showAddPay}
                       setShowAddPay={setShowAddPay}
+                      openCardData={openCardData}
                     />
                   )}
                 </div>

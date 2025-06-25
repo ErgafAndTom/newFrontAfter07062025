@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {Form, ListGroup, Spinner} from "react-bootstrap";
 import find from "../../components/find.svg";
 
-function ForUserOrder({showAddPay, setShowAddPay}) {
+function ForUserOrder({showAddPay, setShowAddPay, openCardData}) {
   const [load, setLoad] = useState(false);
   const [loadSearch, setLoadSearch] = useState(false);
   const [error, setError] = useState(null);
@@ -47,33 +47,35 @@ function ForUserOrder({showAddPay, setShowAddPay}) {
     setContrAgentSearch(e.target.value);
   };
 
-  // const handleSubmitUpdate = async (e) => {
-  //   e.preventDefault();
-  //   setLoad(true);
-  //   let dataToSend = {
-  //     formData: formData,
-  //   };
-  //   axios.post(`/api/contractorsN/updatePPContractor`, dataToSend)
-  //     .then(response => {
-  //       console.log(response.data);
-  //       setData(prevData =>
-  //         prevData.map(obj =>
-  //           obj.id === response.data.id ? response.data : obj
-  //         )
-  //       );
-  //       setError(null);
-  //       setLoad(false);
-  //       setShowAddPay(false)
-  //       // setPageCount(Math.ceil(response.data.count / inPageCount));
-  //     })
-  //     .catch(error => {
-  //       if (error.response.status === 403) {
-  //         navigate('/login');
-  //       }
-  //       setError(error.message);
-  //       setLoad(false);
-  //     });
-  // };
+  const handleSubmitUpdate = async (e) => {
+    e.preventDefault();
+    setLoad(true);
+    let dataToSend = {
+      formData: formData,
+      userId: formData.contractorId,
+      cardId: openCardData.id,
+    };
+    axios.post(`/trello/updateCardAssignetUser`, dataToSend)
+      .then(response => {
+        console.log(response.data);
+        setData(prevData =>
+          prevData.map(obj =>
+            obj.id === response.data.id ? response.data : obj
+          )
+        );
+        setError(null);
+        setLoad(false);
+        setShowAddPay(false)
+        // setPageCount(Math.ceil(response.data.count / inPageCount));
+      })
+      .catch(error => {
+        if (error.response.status === 403) {
+          navigate('/login');
+        }
+        setError(error.message);
+        setLoad(false);
+      });
+  };
 
   // const handleSubmitAdd = async (e) => {
   //   e.preventDefault();
@@ -282,6 +284,9 @@ function ForUserOrder({showAddPay, setShowAddPay}) {
                       )}
                     </div>
                   </Form.Group>
+                </div>
+                <div className="AddContractorInOrderSubmitBlock">
+                  <button className="AddContractorInOrderSubmitBtn" onClick={handleSubmitUpdate}>зв'язати</button>
                 </div>
 
                 {/*{showAddPayView &&*/}
