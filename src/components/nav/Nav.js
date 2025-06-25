@@ -11,6 +11,8 @@ import './logo/Logo.css';
 import AddNewOrder from "../../PrintPeaksFAinal/Orders/AddNewOrder";
 import AddUserButton from "../../PrintPeaksFAinal/user/AddUserButton.jsx";
 import { useNavigate } from "react-router-dom";
+import {FaAllergies} from "react-icons/fa";
+import NavMess from "./NavMess";
 // import Logo from "./logo/Logo";
 
 const Nav = () => {
@@ -176,7 +178,7 @@ const Nav = () => {
 
                     {/* Компонент для створення клієнта */}
                     <div style={{ flexShrink: 0 }}>
-                        <AddUserButton 
+                        <AddUserButton
                             fetchUsers={() => {
                                 // Додаткові дії після створення користувача, якщо потрібно
                                 dispatch(fetchUser())
@@ -243,8 +245,8 @@ const Nav = () => {
                                             <FiSettings style={{fontSize: '1.1rem'}} />: {currentUser.username}
                                         </button>
                                     </Link>
-                                    <button 
-                                        onClick={logoutt} 
+                                    <button
+                                        onClick={logoutt}
                                         className="adminButtonAdd"
                                         style={{
                                             height: '4vh',
@@ -282,8 +284,8 @@ const Nav = () => {
                                             <FiSettings style={{fontSize: '1.1rem'}} /> {currentUser.username}
                                         </button>
                                     </Link>
-                                    <button 
-                                        onClick={logoutt} 
+                                    <button
+                                        onClick={logoutt}
                                         className="adminButtonAdd"
                                         style={{
                                             height: '4vh',
@@ -299,6 +301,7 @@ const Nav = () => {
                                     </button>
                                 </>
                             )}
+                          <NavMess currentUser={currentUser}/>
                         </div>
                     ) : (
                         <div className="login-button-container" style={{animation: 'fadeIn 0.5s', }}>

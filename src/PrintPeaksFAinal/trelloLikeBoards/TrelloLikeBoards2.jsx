@@ -332,7 +332,7 @@ const TrelloBoard = () => {
                   border: '0.2vh solid #ddd',
                   borderRadius: '4px',
                   cursor: 'grab',
-                  boxShadow: hoveredCard && hoveredCard.listId === list.id && hoveredCard.index === card.index ? '0 0.1vw 1vw rgba(250,180,22,0.4)' : 'none',
+                  boxShadow: hoveredCard && hoveredCard.listId === list.id && hoveredCard.index === card.index ? '0 10vw 7vw rgba(250,180,22,0.6)' : 'none',
                   transition: 'background 0.2s ease, box-shadow 0.2s ease'
                 }}
               >
