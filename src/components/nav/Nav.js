@@ -11,7 +11,7 @@ import './logo/Logo.css';
 import AddNewOrder from "../../PrintPeaksFAinal/Orders/AddNewOrder";
 import AddUserButton from "../../PrintPeaksFAinal/user/AddUserButton.jsx";
 import { useNavigate } from "react-router-dom";
-import {FaAllergies} from "react-icons/fa";
+import {FaAllergies, FaArrowAltCircleLeft, FaArrowAltCircleRight} from "react-icons/fa";
 import NavMess from "./NavMess";
 // import Logo from "./logo/Logo";
 
@@ -128,6 +128,9 @@ const Nav = () => {
                                 className="adminButtonAdd"
                                 style={{minWidth:'3vw', borderRadius:"0px"}}
                             >Завдання
+                              {currentUser && (
+                                <NavMess currentUser={currentUser}/>
+                              )}
                             </button>
                         </Link>
 
@@ -301,7 +304,6 @@ const Nav = () => {
                                     </button>
                                 </>
                             )}
-                          <NavMess currentUser={currentUser}/>
                         </div>
                     ) : (
                         <div className="login-button-container" style={{animation: 'fadeIn 0.5s', }}>

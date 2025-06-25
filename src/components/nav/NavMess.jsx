@@ -1,4 +1,12 @@
-import {FaAllergies} from "react-icons/fa";
+import {
+  FaAdjust,
+  FaAllergies,
+  FaAngry, FaArrowAltCircleLeft,
+  FaArrowAltCircleRight,
+  FaArrowAltCircleUp,
+  FaFacebookSquare,
+  FaSmile
+} from "react-icons/fa";
 import React, {useEffect, useState} from "react";
 import axios from '../../api/axiosInstance';
 import {Fa0, FaAnchorCircleCheck, FaAnchorCircleExclamation, FaAnchorCircleXmark} from "react-icons/fa6";
@@ -29,22 +37,10 @@ const NavMess = ({currentUser, basicActive}) => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div
-      className="adminButtonAdd"
-      style={{
-        ...(basicActive === "/createOrder" ? {background: "#FAB416"} : {}),
-        height: '4vh',
-        padding: '0 15px',
-        fontSize: '0.8vw',
-        whiteSpace: 'nowrap',
-        display: 'flex',
-        alignItems: 'center',
-        background: 'cadetblue',
-        gap: '5px'
-      }}
-    >
-      <FaAnchorCircleCheck style={{fontSize: '1.1rem', background: 'cadetblue', color: "#FAB416"}}/>Задач: {data}
-    </div>
+    <>
+      <FaArrowAltCircleRight style={{fontSize: '1.1rem'}}/>{" "}{data}{" "}{" "}
+      <FaArrowAltCircleLeft style={{fontSize: '1.1rem'}}/>
+    </>
   );
 };
 
