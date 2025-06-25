@@ -11,8 +11,6 @@ function AddContrAgentInProfileAdmin({ showAddPay, setShowAddPay, formData, setF
     const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
-    const [typeSelect, setTypeSelect] = useState("");
-    const [data2, setData2] = useState(null);
     const [contrAgentSearch, setContrAgentSearch] = useState('');
     const [showContrAgentDropdown, setShowContrAgentDropdown] = useState(false);
     const contrAgentRef = useRef(null);
@@ -25,11 +23,6 @@ function AddContrAgentInProfileAdmin({ showAddPay, setShowAddPay, formData, setF
             setShowAddPay(false);
         }, 300); // После завершения анимации скрываем модальное окно
     }
-
-    // const handleChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setFormData(prev => ({ ...prev, [name]: value }));
-    // };
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -217,57 +210,13 @@ function AddContrAgentInProfileAdmin({ showAddPay, setShowAddPay, formData, setF
                         {!load && (
 
                             <form className="AddContractorInOrderContainer" onSubmit={handleSubmit}>
-                                {/*<h2 className="AddContractorInOrderTitle">Додати контрагента</h2>*/}
-
-                                {/*<div className="AddContractorInOrderTabs">*/}
-                                {/*    <button className="AddContractorInOrderTab AddContractorInOrderTabActive">Українська Компанія</button>*/}
-                                {/*    <button className="AddContractorInOrderTab">Іноземна Компанія</button>*/}
-                                {/*</div>*/}
-
-                                {/*<div className="AddContractorInOrderSubtitle">Банківські реквізити:</div>*/}
 
                                 <div className="AddContractorInOrderFieldGroup">
                                     <div className="AddContractorInOrderFieldRow">
                                         <label className="adminFontTable">Найменування</label>
                                         <input required value={formData.name} name="name" type="text" placeholder="Найменування ФОП або ТОВ" className="AddContractorInOrderInput" onChange={handleChange} />
                                     </div>
-                                    {/*<div className="AddContractorInOrderFieldRow">*/}
-                                    {/*    <label className="adminFontTable">Тип</label>*/}
-                                    {/*    <select value={formData.type} name="type" onChange={handleChange} className="AddContractorInOrderSelect">*/}
-                                    {/*        <option value="Фізична особа">Фізична особа</option>*/}
-                                    {/*        <option value="Юридична особа">Юридична особа</option>*/}
-                                    {/*    </select>*/}
-                                    {/*</div>*/}
-                                    {/*<div className="AddContractorInOrderFieldRow">*/}
-                                    {/*    <label className="adminFontTable">Адреса</label>*/}
-                                    {/*    <input value={formData.address} name="address" type="text" placeholder="Адреса" className="AddContractorInOrderInput" onChange={handleChange} />*/}
-                                    {/*</div>*/}
-                                    {/*<div className="AddContractorInOrderFieldRow">*/}
-                                    {/*    <label className="adminFontTable">Назва банку</label>*/}
-                                    {/*    <input value={formData.bankName} name="bankName" type="text" placeholder="Назва банку" className="AddContractorInOrderInput" onChange={handleChange} />*/}
-                                    {/*</div>*/}
-                                    {/*<div className="AddContractorInOrderFieldRow">*/}
-                                    {/*    <label className="adminFontTable">IBAN</label>*/}
-                                    {/*    <input value={formData.iban} name="iban" type="text" placeholder="UA 123456789 123456789123456" className="AddContractorInOrderInput" onChange={handleChange} />*/}
-                                    {/*</div>*/}
-                                    {/*<div className="AddContractorInOrderFieldRow">*/}
-                                    {/*    <label className="adminFontTable">ЄДРПОУ</label>*/}
-                                    {/*    <input value={formData.edrpou} name="edrpou" type="text" placeholder="123456789" className="AddContractorInOrderInput" onChange={handleChange} />*/}
-                                    {/*</div>*/}
                                 </div>
-
-                                {/*<h3 className="AddContractorInOrderSubtitle">Контакти:</h3>*/}
-
-                                {/*<div className="AddContractorInOrderFieldGroup">*/}
-                                {/*    <div className="AddContractorInOrderFieldRow">*/}
-                                {/*        <label className="adminFontTable">E-mail</label>*/}
-                                {/*        <input value={formData.email} name="email" type="email" placeholder="example@mail.com" className="AddContractorInOrderInput" onChange={handleChange} />*/}
-                                {/*    </div>*/}
-                                {/*    <div className="AddContractorInOrderFieldRow">*/}
-                                {/*        <label className="adminFontTable">Номер телефону:</label>*/}
-                                {/*        <input value={formData.phone} name="phone" type="text" placeholder="+380 111 111 111" className="AddContractorInOrderInput" onChange={handleChange} />*/}
-                                {/*    </div>*/}
-                                {/*</div>*/}
 
                                 <h3 className="AddContractorInOrderSubtitle">Звьязанний контрагент</h3>
 
@@ -346,19 +295,6 @@ function AddContrAgentInProfileAdmin({ showAddPay, setShowAddPay, formData, setF
                                             )}
                                         </div>
                                     </Form.Group>
-                                    {/*<div className="AddContractorInOrderFieldRow">*/}
-                                    {/*    <label className="adminFontTable">ПДВ</label>*/}
-                                    {/*    <input*/}
-                                    {/*        name="pdv"*/}
-                                    {/*        type="checkbox"*/}
-                                    {/*        checked={formData.pdv === "true"}*/}
-                                    {/*        onChange={handleChange}*/}
-                                    {/*    />*/}
-                                    {/*</div>*/}
-                                    {/*<div className="AddContractorInOrderFieldRow">*/}
-                                    {/*    <label className="adminFontTable">Коментар</label>*/}
-                                    {/*    <textarea name="comment" placeholder="Залиште коментар" onChange={handleChange} className="AddContractorInOrderTextarea" />*/}
-                                    {/*</div>*/}
                                 </div>
 
                                 {showAddPayView &&

@@ -3,6 +3,8 @@ import {useNavigate} from "react-router-dom";
 import axios from "../../api/axiosInstance";
 import NewSheetCut from "../poslugi/NewSheetCut";
 import {Spinner} from "react-bootstrap";
+import ForUserOrder from "./ForUserOrder";
+import AddContrAgentInProfileAdmin from "../userInNewUiArtem/pays/AddContrAgentInProfileAdmin";
 
 // Компонент для списка загруженных изображений
 function ImageList({images, onRemove}) {
@@ -91,6 +93,7 @@ export default function CardInfo({
     const [isAnimating, setIsAnimating] = useState(false);
     const [error, setError] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
+  const [showAddPay, setShowAddPay] = useState(false);
     const handleClose = () => {
         if (saving) {
             setShouldCloseAfterSave(true); // попросити закрити після завершення збереження
@@ -102,6 +105,10 @@ export default function CardInfo({
             }, 300);
         }
     };
+
+  const openAddPay = () => {
+    setShowAddPay(!showAddPay);
+  };
 
     useEffect(() => {
         if (!saving && shouldCloseAfterSave) {
@@ -355,7 +362,10 @@ export default function CardInfo({
                                 {selectedImage ? "Завантажити" : "Очікую img.."}
                             </button>
                         </div>
-                        <div className="d-flex justify-content-end" style={{}}>
+                        <div className="d-flex justify-content-between" style={{}}>
+                          <button className="adminButtonAdd" onClick={openAddPay} style={{}}>
+                            Додати контрагента для Доков
+                          </button>
                             <button
                                 className="border-0 btn btn-danger d-flex align-items-center justify-content-center"
                                 style={{
@@ -370,6 +380,12 @@ export default function CardInfo({
                             </button>
                         </div>
                     </div>
+                  {showAddPay && (
+                    <ForUserOrder
+                      showAddPay={showAddPay}
+                      setShowAddPay={setShowAddPay}
+                    />
+                  )}
                 </div>
             ) : (
                 <div
