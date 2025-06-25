@@ -39,10 +39,11 @@ const NavMess = ({currentUser, basicActive}) => {
         whiteSpace: 'nowrap',
         display: 'flex',
         alignItems: 'center',
+        background: 'cadetblue',
         gap: '5px'
       }}
     >
-      <FaAnchorCircleCheck style={{fontSize: '1.1rem'}}/>Задач: {data}
+      <FaAnchorCircleCheck style={{fontSize: '1.1rem', background: 'cadetblue', color: "#FAB416"}}/>Задач: {data}
     </div>
   );
 };
