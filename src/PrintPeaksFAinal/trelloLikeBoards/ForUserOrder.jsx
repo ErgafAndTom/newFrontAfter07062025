@@ -179,7 +179,7 @@ function ForUserOrder({showAddPay, setShowAddPay}) {
       }}>
         <div className="d-flex">
           <div className="m-auto text-center fontProductName ">
-            <h2 className="AddContractorInOrderTitle">Додати контрагента PrintPeaks (для Доков)</h2>
+            <h2 className="AddContractorInOrderTitle">USERS</h2>
           </div>
           <div
             className="btn btn-close btn-lg"
@@ -205,11 +205,11 @@ function ForUserOrder({showAddPay, setShowAddPay}) {
 
               <form className="AddContractorInOrderContainer" onSubmit={handleSubmit}>
 
-                <h3 className="AddContractorInOrderSubtitle">Звьязанний контрагент</h3>
+                <h3 className="AddContractorInOrderSubtitle">Зaвьязанний USER</h3>
 
                 <div className="AddContractorInOrderFieldGroup">
                   <Form.Group className="mb-3">
-                    <Form.Label>Постачальник</Form.Label>
+                    {/*<Form.Label>Постачальник</Form.Label>*/}
                     <div ref={contrAgentRef} className="position-relative" style={{ position: 'relative' }}>
                       <Form.Control
                         type="text"

@@ -363,8 +363,8 @@ export default function CardInfo({
                             </button>
                         </div>
                         <div className="d-flex justify-content-between" style={{}}>
-                          <button className="adminButtonAdd" onClick={openAddPay} style={{}}>
-                            Додати контрагента для Доков
+                          <button className="adminButtonAdd justify-content-start" onClick={openAddPay} style={{}}>
+                            for: {}
                           </button>
                             <button
                                 className="border-0 btn btn-danger d-flex align-items-center justify-content-center"
