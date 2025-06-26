@@ -13,6 +13,7 @@ import AddUserButton from "../../PrintPeaksFAinal/user/AddUserButton.jsx";
 import { useNavigate } from "react-router-dom";
 import {FaAllergies, FaArrowAltCircleLeft, FaArrowAltCircleRight} from "react-icons/fa";
 import NavMess from "./NavMess";
+import PopupLeftNotification from "./PopupLeftNotification";
 // import Logo from "./logo/Logo";
 
 const Nav = () => {
@@ -223,6 +224,7 @@ const Nav = () => {
                     {/* Кнопки "Налаштування" та "Вийти" */}
                     {currentUser ? (
                         <div style={{display: 'flex', gap: '0px', alignItems: 'center', justifyContent: 'center',  transform: 'translateY(-50%)', marginRight: '-1vw'}}>
+                          <PopupLeftNotification placement={'end'} name={'end'}/>
                             {currentUser.role === "admin" ? (
                                 <>
                                     <Link onClick={() => handleBasicClick('/currentUser')} to="/currentUser"

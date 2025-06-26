@@ -4,10 +4,12 @@ import axios from '../../api/axiosInstance';
 import {Spinner} from 'react-bootstrap';
 import './TrelloBoard.css';
 import CardInfo from "./CardInfo";
-import ModalDeleteList from './ModalDeleteList'; // Импортируем модалку
+import ModalDeleteList from './ModalDeleteList';
+import {useSelector} from "react-redux"; // Импортируем модалку
 
 const TrelloBoard = () => {
   const [lists, setLists] = useState([]);
+  const currentUser = useSelector((state) => state.auth.user);
   const [serverData, setServerData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -414,7 +416,8 @@ const TrelloBoard = () => {
                 {card.assignedTo && (
                   <div style={{
                     fontSize: "0.9vh",
-                    opacity: "50%"
+                    opacity: "50%",
+                    background: currentUser && currentUser.id === card.assignedTo.id ? 'rgba(250,180,22,0.5)' : 'transparent',
                   }}>Кому: {card.assignedTo.username} {card.assignedTo.firstName} {card.assignedTo.lastName} {card.assignedTo.familyName} {card.assignedTo.email}</div>
                 )}
               </div>

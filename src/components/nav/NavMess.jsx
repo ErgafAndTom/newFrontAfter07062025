@@ -38,8 +38,7 @@ const NavMess = ({currentUser, basicActive}) => {
 
   return (
     <>
-      <FaArrowAltCircleRight style={{fontSize: '1.1rem'}}/>{" "}{data}{" "}{" "}
-      <FaArrowAltCircleLeft style={{fontSize: '1.1rem'}}/>
+      {" ("}{data}{") "}
     </>
   );
 };
