@@ -280,8 +280,7 @@ const NewUIArtem = () => {
                                 onClick={() => setShowLaminator(true)}
                                 className="colorButton bg-peach skewed cursorPointer "
                             >
-                                <img src={p8svg} className="card-img-top noanim"
-                                     stalt="Ламінатор"/>
+                                <img src={p8svg} className="card-img-top noanim"/>
                                 <img src={img8} className="card-img-top anim" alt="Ламінатор"/>
                                 <div className="buttonLabel">LAMINATION</div>
                             </div>

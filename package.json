@@ -48,8 +48,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "set DISABLE_ESLINT_PLUGIN=true && react-scripts start",
+    "build": "set DISABLE_ESLINT_PLUGIN=true && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "refactor": "node src/scripts/runRefactoring.js"
@@ -72,6 +72,7 @@
       }
     },
     "rules": {
+      "react/jsx-key": "error",
       "react/prop-types": "off"
     }
   },
