@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import NavMess from "./NavMess";
 import PopupLeftNotification from "./PopupLeftNotification";
 import {fetchTrelloData} from "../../actions/trello_async_actions";
+import iii from './logo/logo.svg';
 
 const Nav = () => {
     const dispatch = useDispatch();
@@ -69,14 +70,13 @@ const Nav = () => {
                 <MDBNavbar expand='lg' light bgColor='' className="navbarMy" >
             <MDBContainer fluid>
                 <div className="d-flex">
-                    <div className="logo">
-                        <h1 className="Logo">
-                            <div className="gradient-text">PRINT PEAKS <span style={{fontSize: "0.7vw"}}>ERP 10.08</span>
-                            </div>
-                        </h1>
-                    </div>
+                  <div className="logo d-flex flex-column">
+                    <img src={iii}  style={{ height: "4vh", objectFit: "contain" }} />
+                    ERP 11.02
+                  </div>
 
-                    <div className="top-menu adminButtonAdd"  style={{
+
+                  <div className="top-menu adminButtonAdd"  style={{
                         height: '5vh',
                         marginTop: '-1.1vh',
                         justifyContent: 'center',

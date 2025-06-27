@@ -1,0 +1,19 @@
+.remove-image-button {
+  position: absolute;
+  top: 0.2vh;
+  right: 0.2vh;
+  background-color: transparent;
+  color: black;
+  border: none;
+  font-size: 0.8vh;
+  border-radius: 0.3vh;
+  cursor: pointer;
+  padding: 0.3vh 0.5vh;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.remove-image-button:hover {
+  color: #ee3c23;
+  font-size: 1vh;
+}

@@ -223,7 +223,7 @@ const TrelloBoard = () => {
                   onClick={() => seeInfoCard(list.id, card.id)}
                 >
                   {capitalizeFirstWord(card.content)}
-                  {card.content}
+
 
                   {card.inTrelloPhoto && (
                     <div

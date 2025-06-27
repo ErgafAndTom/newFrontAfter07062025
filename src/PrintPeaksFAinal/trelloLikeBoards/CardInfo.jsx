@@ -2,13 +2,19 @@ import React, {useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import axios from "../../api/axiosInstance";
 import NewSheetCut from "../poslugi/NewSheetCut";
-import {Spinner} from "react-bootstrap";
+import {Form, ListGroup, Spinner} from "react-bootstrap";
 import ForUserOrder from "./ForUserOrder";
+import { useDispatch, useSelector } from "react-redux";
 import AddContrAgentInProfileAdmin from "../userInNewUiArtem/pays/AddContrAgentInProfileAdmin";
+import find from "../Pays.png";
+import "./CardInfo.css";
+import CardInfoInputList from "./CardInfoInputList";
+
 
 // Компонент лайтбоксу для перегляду зображень
 function ImageLightbox({ images, currentIndex, onClose, onNext, onPrev }) {
     if (currentIndex === -1) return null;
+
 
     const currentImage = images[currentIndex];
 
@@ -40,23 +46,8 @@ function ImageLightbox({ images, currentIndex, onClose, onNext, onPrev }) {
             }}
             onClick={onClose}
         >
-            {/* Кнопка закриття */}
-            <button
-                onClick={onClose}
-                style={{
-                    position: 'absolute',
-                    top: '20px',
-                    right: '20px',
-                    backgroundColor: 'transparent',
-                    border: 'none',
-                    color: 'white',
-                    fontSize: '2rem',
-                    cursor: 'pointer',
-                    zIndex: 1001
-                }}
-            >
-                ✕
-            </button>
+
+
 
             {/* Кнопка попереднього зображення */}
             {images.length > 1 && (
@@ -116,7 +107,6 @@ function ImageLightbox({ images, currentIndex, onClose, onNext, onPrev }) {
                     cursor: 'default'
                 }}
             />
-
             {/* Лічильник зображень */}
             {images.length > 1 && (
                 <div
@@ -186,17 +176,8 @@ function ImageList({images, onRemove, onImageClick}) {
             />
             <button
               onClick={() => onRemove(img.id)}
-              style={{
-                position: "absolute",
-                top: "0",
-                right: "0",
-                backgroundColor: "transparent",
-                color: "#ff3333",
-                border: "none",
-                fontSize: "1.2rem",
-                cursor: "pointer",
-                padding: "0.2rem"
-              }}
+              className="remove-image-button"
+
             >
               ✖
             </button>
@@ -205,6 +186,8 @@ function ImageList({images, onRemove, onImageClick}) {
       </div>
     );
 }
+
+// Компонент для вибору користувача
 
 // Общий контейнер карточки
 export default function CardInfo({
@@ -222,6 +205,7 @@ export default function CardInfo({
                                  }) {
 
     const [cardName, setCardName] = useState(openCardData.name);
+  const currentUser = useSelector((state) => state.auth.user);
     const [textContent, setTextContent] = useState(openCardData.content);
     const [images, setImages] = useState(openCardData.inTrelloPhoto);
     const [load, setLoad] = useState(false);
@@ -376,6 +360,8 @@ export default function CardInfo({
     return (
         <>
             {/* Лайтбокс для перегляду зображень */}
+
+
             <ImageLightbox
                 images={images}
                 currentIndex={lightboxIndex}
@@ -418,6 +404,7 @@ export default function CardInfo({
                     >
                         <div className="d-flex justify-content-around">
                             <div>
+                              <CardInfoInputList openCardData={openCardData} setServerData={setServerData}/>
                                 <textarea
                                     onChange={(e) => handleLocalCardEdit(
                                         openCardData.listId,
@@ -432,8 +419,8 @@ export default function CardInfo({
                                     value={openCardData.content}
                                     style={{
                                         width: "36vw",
-                                        height: "20vh",
-                                        maxHeight: "20vh",
+
+                                        minHeight: "10vh",
                                         border: "none",
                                         borderRadius: "0.5vw",
                                         padding: "0.5vw",
@@ -469,71 +456,83 @@ export default function CardInfo({
                             </div>
                         }
 
+
                         <ImageList
                             images={images}
                             onRemove={handleRemoveImage}
                             onImageClick={openLightbox}
                         />
 
-                        <div className="d-flex align-items-center justify-content-between">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                ref={fileInputRef}
-                                onChange={(e) => {
-                                    const files = Array.from(e.target.files);
-                                    const validImages = files.filter(file => file.type.startsWith("image/"));
-                                    validImages.forEach((file) => uploadPhoto(openCardData.id, file));
-                                    e.target.value = null;
-                                }}
-                                style={{
-                                    width: "50%",
-                                    border: "none",
-                                }}
-                            />
-                        </div>
 
-                        <div className="d-flex justify-content-between" style={{}}>
-                            <button className="adminButtonAdd justify-content-start" onClick={openAddPay} style={{}}>
-                                {openCardData && openCardData.assignedTo && (
-                                    <div style={{}}>
-                                        Кому: {openCardData.assignedTo.username} {openCardData.assignedTo.firstName} {openCardData.assignedTo.lastName} {openCardData.assignedTo.familyName} {openCardData.assignedTo.email}
-                                    </div>
-                                )}
+
+                        {/* Замінюємо кнопку на інтегрований компонент вибору користувача */}
+                        {/*<UserSelector*/}
+                        {/*    openCardData={openCardData}*/}
+                        {/*    setServerData={setServerData}*/}
+                        {/*/>*/}
+
+                        <div className="d-flex justify-content-between align-items-center">
+
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              gap: "1vw",
+                              marginTop: "1vh",
+                              flexGrow: 1
+                            }}
+                          >
+                            {/* Схований input */}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              ref={fileInputRef}
+                              id="file-upload"
+                              style={{ display: "none" }}
+                              onChange={(e) => {
+                                const files = Array.from(e.target.files);
+                                const validImages = files.filter(file => file.type.startsWith("image/"));
+                                validImages.forEach((file) => uploadPhoto(openCardData.id, file));
+                                e.target.value = null;
+                              }}
+                            />
+
+                            {/* Кнопка-плейсхолдер */}
+                            <label
+                              htmlFor="file-upload"
+                              className="btn btn-danger adminButtonAdd"
+                              style={{
+                                backgroundColor: "#fab416",
+                                height: "3vh",
+                                borderRadius: "0.5vw",
+                                padding: "0 1vw",
+                                whiteSpace: "nowrap",
+                                cursor: "pointer",
+                              }}
+                            >
+                              Вибрати файли
+                            </label>
+
+                            {/* Кнопка видалити */}
+                            <button
+                              className="btn btn-danger adminButtonAdd"
+                              style={{
+                                backgroundColor: "#ee3c23",
+                                height: "3vh",
+                                borderRadius: "0.5vw",
+                                padding: "0 1vw",
+                                whiteSpace: "nowrap",
+                              }}
+                              onClick={() => deleteThisCard(openCardData.listId, openCardData.id)}
+                            >
+                              Видалити завдання
                             </button>
-                            <div className="d-flex justify-content-between align-items-center mt-2">
-                                <div className="d-flex justify-content-between align-items-center mt-2">
-                                    <div style={{ height: "3vh", width: "9vw" }}>
-                                        {load && (
-                                            <Spinner
-                                                animation="border"
-                                                variant="warning"
-                                                size="sm"
-                                                style={{
-                                                    height: "2.5vh",
-                                                    width: "2.5vh",
-                                                    marginLeft: "auto",
-                                                    marginRight: "auto",
-                                                    display: "block"
-                                                }}
-                                            />
-                                        )}
-                                    </div>
-                                </div>
-                                <button
-                                    className="border-0 btn btn-danger d-flex align-items-center justify-content-center adminButtonAdd"
-                                    style={{
-                                        marginTop: "1vh",
-                                        backgroundColor: "#ee3c23",
-                                        height: "3vh",
-                                        borderRadius: "0.5vw",
-                                    }}
-                                    onClick={() => deleteThisCard(openCardData.listId, openCardData.id)}
-                                >
-                                    Видалити завдання
-                                </button>
-                            </div>
+                          </div>
+
+
+
                         </div>
                     </div>
                     {showAddPay && (
