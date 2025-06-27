@@ -171,58 +171,29 @@ const TrelloBoard = () => {
 
   return (
     <div>
-      {/* Форма для додавання нового списку */}
-      <div className="d-flex align-items-center justify-content-center" style={{ marginBottom: '0.5vw' }}>
-        <input
-          className="InputInTrelloName"
-          type="text"
-          value={newListTitle}
-          onChange={(e) => setNewListTitle(e.target.value)}
-          placeholder="Назва колонки"
-        />
-        <button
-          className="d-flex align-items-center justify-content-center buttonRightOfInputInTrello"
-          onClick={handleAddList}
-          style={{ marginLeft: '0.5vh' }}
-        >
-          +
-        </button>
-      </div>
-
       {/* Основна область дошки */}
-      <div className="">
+
         <div
-          className="trello-board"
-          style={{
-            display: 'flex',
-            gap: '2vw',
-            padding: '0 2vw',
-            width: "99.7vw",
-            height: "84vh",
-            overflow: 'auto'
-          }}
+          className="d-flex flex-row flex-wrap-nowrap justify-content-center gap-3 align-items-start"
+          style={{marginLeft:"0.5vw", marginRight:"0.5vw", width: "99%"}}
         >
           {lists.map(list => (
             <div
               key={list.id}
               className="trello-list"
-              style={{
-                flex: '0 0 20vw',
-                padding: '0.7vh',
-                borderRadius: '0.7vh',
-              }}
+
             >
-              <h6 className="d-flex align-items-center justify-content-between">
+              <div className="trello-list-header" style={{ position: "relative", padding: "0.3vh 0.3vw", fontSize: "1.5vh" }}>
                 <span>{list.title}</span>
+
                 <span
-                  style={{ cursor: 'pointer' }}
+                  className="trello-delete-list-button"
                   onClick={() => handleDeleteListClick(list)}
                 >
-                  {deleting[list.id] ?
-                    <Spinner animation="border" variant="danger" size="sm" /> : '×'
-                  }
-                </span>
-              </h6>
+    {deleting[list.id] ? <Spinner animation="border" variant="danger" /> : '×'}
+  </span>
+              </div>
+
 
               {list.Cards.map((card, index) => (
                 <div
@@ -233,98 +204,80 @@ const TrelloBoard = () => {
                   onDragOver={(e) => onDragOverCard(e, list.id, card.index)}
                   onDragLeave={() => dispatch(setHoveredCard(null))}
                   onDrop={(e) => onDropCard(e, list.id, card.index)}
-                  style={{
-                    padding: '0.5vh',
-                    margin: '4px 0',
-                    background: hoveredCard && hoveredCard.listId === list.id && hoveredCard.index === card.index ? 'rgba(250,180,22,0.5)' : '#fff',
-                    border: '0.2vh solid #ddd',
-                    borderRadius: '4px',
-                    cursor: 'grab',
-                    boxShadow: hoveredCard && hoveredCard.listId === list.id && hoveredCard.index === card.index ? '0 10vw 7vw rgba(250,180,22,0.6)' : 'none',
-                    transition: 'background 0.2s ease, box-shadow 0.2s ease'
-                  }}
+                  onClick={() => seeInfoCard(list.id, card.id)}
                 >
-                  <div className="d-flex">
+                  {card.content}
+                  {card.inTrelloPhoto && (
                     <div
-                      className="trello-card-content"
-                      style={{ width: "100%", cursor: 'pointer', fontSize: '1.7vh', minHeight: '4vh' }}
-                      onClick={() => seeInfoCard(list.id, card.id)}
-                    >
-                      {card.content}
-                    </div>
-                    <button
+                      className="trello-card-photo"
                       style={{
-                        padding: "0.4vw",
-                        backgroundColor: "transparent",
-                        border: "none",
-                        cursor: 'pointer',
-                        fontSize: '1.6vh'
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: '0.5vw',
+                        padding: '0.3vh 0.3vw',
+                        justifyContent: 'flex-start',
+                        // backgroundColor: '#f2f0e7',
+                        borderBottom: '0.1vh solid #aeaeae',
+
                       }}
                     >
-                      {deleting[card.id] ?
-                        <Spinner animation="border" variant="danger" size="sm" /> : ''
-                      }
-                    </button>
-                  </div>
-
-                  {card.inTrelloPhoto && (
-                    <div style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: '0.5vw',
-                      marginTop: '0.5vh'
-                    }}>
                       {card.inTrelloPhoto.map((photo, index) => (
                         <img
                           key={index}
                           src={`/images/${photo.photoLink}`}
                           alt={`Card Photo ${index + 1}`}
                           style={{
-                            width: '9vw',
-                            objectFit: 'cover',
-                            cursor: "not-allowed",
-                            pointerEvents: "none",
-                            userSelect: "none",
+                            width: '3vw',
+                            height: '4vh',
+                            objectFit: 'contain', // 👈 вписує повністю, без обрізки
+                            borderRadius: '0.5vh',
+                            // щоб не було прозорого фону
+                            pointerEvents: 'none',
+                            userSelect: 'none',
+                            cursor: 'not-allowed',
+
                           }}
-                          onClick={() => window.open(`/images/${photo.photoLink}`, '_blank')}
                         />
                       ))}
                     </div>
-                  )}
 
-                  <div className="d-flex justify-content-between" style={{ marginTop: '0.6vh' }}>
+
+                  )}
+                    {/*<div*/}
+                    {/*  className="trello-card-content"*/}
+
+                    {/*>*/}
+
+
+                    {/*</div>*/}
+
+
+
+
+
+                  <div className="d-flex justify-content-between align-items-end" style={{ fontSize: "1.0vh", marginTop: '0.5vh', opacity: '0.6' }}>
+
                     <div>
-                      <div style={{ fontSize: "0.9vh", opacity: "50%" }}>
-                        add: {card.createdBy.username}
-                      </div>
-                      <div style={{ fontSize: "0.9vh", opacity: "50%" }}>
-                        up: {card.lastUpdatedBy.username}
-                      </div>
+                      {`Завдання від `}
+                      <b>{card?.createdBy?.firstName} {card?.createdBy?.familyName} {card?.createdBy?.username}</b>
+                      {` потрібно виконати `}
+                      <b>{card?.assignedTo?.firstName} {card?.assignedTo?.familyName}</b>
                     </div>
-                    <div>
-                      <div style={{ fontSize: "0.9vh", opacity: "50%" }}>
-                        index: {card.index}
-                      </div>
+
+                    <div style={{ fontSize: "0.9vh", textAlign: 'right' }}>
+                      {new Date(card.createdAt).toLocaleString('uk-UA', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      }).replace(' р.', '').replace(',', '')}
                     </div>
-                    <div className="d-flex flex-column align-items-end">
-                      <div style={{ fontSize: "0.9vh", opacity: "50%" }}>
-                        {`add: ${new Date(card.createdAt).toLocaleDateString()} ${new Date(card.createdAt).toLocaleTimeString()}`}
-                      </div>
-                      <div style={{ fontSize: "0.9vh", opacity: "50%" }}>
-                        {`up: ${new Date(card.updatedAt).toLocaleDateString()} ${new Date(card.updatedAt).toLocaleTimeString()}`}
-                      </div>
-                    </div>
+
                   </div>
 
-                  {card.assignedTo && (
-                    <div style={{
-                      fontSize: "0.9vh",
-                      opacity: "50%",
-                      background: currentUser && currentUser.id === card.assignedTo.id ? 'rgba(250,180,22,0.5)' : 'transparent',
-                    }}>
-                      Кому: {card.assignedTo.username} {card.assignedTo.firstName} {card.assignedTo.lastName} {card.assignedTo.familyName} {card.assignedTo.email}
-                    </div>
-                  )}
+
+
                 </div>
               ))}
 
@@ -334,9 +287,28 @@ const TrelloBoard = () => {
               >
                 +
               </div>
+
             </div>
+
           ))}
-        </div>
+          <div className="d-flex align-items-center justify-content-flex-start" style={{ }}>
+            <input
+              className="InputInTrelloName"
+              type="text"
+              value={newListTitle}
+              onChange={(e) => setNewListTitle(e.target.value)}
+              placeholder="Назва колонки"
+            />
+            <button
+              className="d-flex align-items-center justify-content-center adminButtonAdd"
+              onClick={handleAddList}
+              style={{  minWidth: '1vw', height: '4vh', marginLeft: '0.5vw', background:"#FAB416" }}
+            >
+              +
+            </button>
+          </div>
+
+
       </div>
 
       {/* Модальне вікно інформації про картку */}

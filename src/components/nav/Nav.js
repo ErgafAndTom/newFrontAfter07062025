@@ -194,34 +194,20 @@ const Nav = () => {
                     </div>
 
                     {/* Поле пошуку */}
-                    <div style={{
-
-                    }}>
+                    <div>
                         <Form.Control
                             className="Search"
-
                             name="search"
                             type="text"
                             placeholder="Пошук"
                             value={search.search}
-                            style={{fontSize: '0.8vw', width: '15vw', marginTop: '-3.35vh', marginRight: '0.5vw'}}
+                            style={{fontSize: '1.7vh', width: '15vw', marginTop: '-3.35vh', marginRight: '0.5vw'}}
                             onChange={(e) => {
                                 setSearch({ ...search, search: e.target.value });
                                 handleSearch(e.target.value);
                             }}
                         />
-                        {/*<img style={{*/}
-                        {/*    // opacity: '0.5',*/}
-                        {/*    // left: '80px',*/}
-                        {/*    // top: '50%',*/}
-                        {/*    transform: 'translateY(-50%)',*/}
-                        {/*    pointerEvents: 'none',*/}
-                        {/*    width: "15px",*/}
-                        {/*    height: "15px"*/}
-                        {/*}}*/}
-                        {/*src={find}*/}
-                        {/*alt="Search Icon"*/}
-                        {/*className="Seaechicon"/>*/}
+
                     </div>
 
                     {/* Кнопки "Налаштування" та "Вийти" */}
