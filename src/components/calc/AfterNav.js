@@ -38,6 +38,7 @@ import UserFiles from "../../PrintPeaksFAinal/user/UserFiles";
 import Payments from "../../PrintPeaksFAinal/user/Payments";
 import Invoices from "../../pages/Invoices";
 import ClientUserProfile from "../../PrintPeaksFAinal/user/client/ClientUserProfile";
+import TrelloBoardComponent from "../../PrintPeaksFAinal/trelloLikeBoards/TrelloBoardComponent";
 
 
 
@@ -82,7 +83,7 @@ const AfterNav = () => {
                 <Route path="/db2" element={<ExportImportComponent />} />
                 <Route path="/TG" element={<TelegramBot />} />
                 <Route path="/db3" element={<TableManager />} />
-                <Route path="/Trello" element={<TrelloLikeBoards2 />} />
+                <Route path="/Trello" element={<TrelloBoardComponent />} />
                 <Route path="/Trello2" element={<LifeHackLikeBoards2 />} />
                 <Route path="/Vimogi" element={<Vimogi />} />
                 <Route path="/files" element={<Files />} />

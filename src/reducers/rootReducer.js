@@ -7,6 +7,7 @@ import currentUserReducer from "./CurrentUserReducer";
 import authReducer from "./authReducer";
 import invoiceReducer from "./invoiceReducer";
 import search from "./search";
+import trelloReducer from "./trelloReducer";
 
 const rootReducer = combineReducers({
     prices: pricesReducer,
@@ -15,7 +16,9 @@ const rootReducer = combineReducers({
     currentUser: currentUserReducer,
     auth: authReducer,
     invoices: invoiceReducer,
-    // words: wordsSlice,
+    trello: trelloReducer,
+
+  // words: wordsSlice,
     search: search,
 })
 

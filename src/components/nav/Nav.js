@@ -11,10 +11,9 @@ import './logo/Logo.css';
 import AddNewOrder from "../../PrintPeaksFAinal/Orders/AddNewOrder";
 import AddUserButton from "../../PrintPeaksFAinal/user/AddUserButton.jsx";
 import { useNavigate } from "react-router-dom";
-import {FaAllergies, FaArrowAltCircleLeft, FaArrowAltCircleRight} from "react-icons/fa";
 import NavMess from "./NavMess";
 import PopupLeftNotification from "./PopupLeftNotification";
-// import Logo from "./logo/Logo";
+import {fetchTrelloData} from "../../actions/trello_async_actions";
 
 const Nav = () => {
     const dispatch = useDispatch();
@@ -23,6 +22,10 @@ const Nav = () => {
     const [search, setSearch] = useState({search: ""});
     const [basicActive, setBasicActive] = useState('/');
     const newOrderButtonRef = useRef(null);
+
+  useEffect(() => {
+    dispatch(fetchTrelloData());
+  }, [dispatch]);
 
 
     useEffect(() => {
@@ -224,7 +227,7 @@ const Nav = () => {
                     {/* Кнопки "Налаштування" та "Вийти" */}
                     {currentUser ? (
                         <div style={{display: 'flex', gap: '0px', alignItems: 'center', justifyContent: 'center',  transform: 'translateY(-50%)', marginRight: '-1vw'}}>
-                          <PopupLeftNotification placement={'end'} name={'end'}/>
+
                             {currentUser.role === "admin" ? (
                                 <>
                                     <Link onClick={() => handleBasicClick('/currentUser')} to="/currentUser"
@@ -250,6 +253,7 @@ const Nav = () => {
                                             <FiSettings style={{fontSize: '1.1rem'}} />: {currentUser.username}
                                         </button>
                                     </Link>
+                                  <PopupLeftNotification/>
                                     <button
                                         onClick={logoutt}
                                         className="adminButtonAdd"

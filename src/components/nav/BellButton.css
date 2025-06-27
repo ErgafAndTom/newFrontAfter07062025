@@ -1,0 +1,98 @@
+.bell-button {
+  height: 4vh;
+
+  z-index: 500;
+  background: #f075aa;
+  color: black;
+  border: none;
+  padding: 0.6em 1em;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+
+  font-size: 1.5vh;
+  cursor: pointer;
+  transition: background 0.5s ease;
+
+  justify-content: center
+}
+
+.bell-button:hover {
+
+  color: white;
+
+}
+.bell-symbol{
+  font-weight: bold;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+  0% { transform: rotate(0deg); }
+  20% { transform: rotate(-20deg); }
+  40% { transform: rotate(20deg); }
+  60% { transform: rotate(-6deg); }
+  80% { transform: rotate(6deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 50% 100%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  75% {
+    background-position: 50% 0%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.pulse {
+  animation: pulse 0.5s ease-in-out infinite, gradient 3s linear infinite;
+  height: 5vh;
+  border-radius: 0vh 0vh 0.5vh 0.5vh;
+  padding-top: 2vh;
+  margin-top: 1vh;
+
+  background: linear-gradient(
+    60deg,
+    #f075aa,
+    #f075aa,
+    #ea96b1,
+    #f075aa,
+    #db5f94
+
+  );
+  background-size: 300% 300%;}
+
+.shake {
+  display: inline-block;
+  animation: shake 1.2s infinite, gradient 3s linear infinite;
+  background: linear-gradient(42deg, #000000, #000000,
+  #333333, #ffffff,
+  #272727, #000000,
+  #000000, #000000);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 100% 400%;
+}
+.bell-button:hover {
+  animation-play-state: paused;
+}
+.bell-button:hover .bell-symbol {
+  color: white;
+  -webkit-text-fill-color: white;
+  background: none;
+  -webkit-background-clip: initial;
+}
