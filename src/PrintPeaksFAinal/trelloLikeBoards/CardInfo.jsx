@@ -6,8 +6,141 @@ import {Spinner} from "react-bootstrap";
 import ForUserOrder from "./ForUserOrder";
 import AddContrAgentInProfileAdmin from "../userInNewUiArtem/pays/AddContrAgentInProfileAdmin";
 
+// Компонент лайтбоксу для перегляду зображень
+function ImageLightbox({ images, currentIndex, onClose, onNext, onPrev }) {
+    if (currentIndex === -1) return null;
+
+    const currentImage = images[currentIndex];
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') onClose();
+            if (e.key === 'ArrowLeft') onPrev();
+            if (e.key === 'ArrowRight') onNext();
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose, onNext, onPrev]);
+
+    return (
+        <div
+            style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1000,
+                cursor: 'pointer'
+            }}
+            onClick={onClose}
+        >
+            {/* Кнопка закриття */}
+            <button
+                onClick={onClose}
+                style={{
+                    position: 'absolute',
+                    top: '20px',
+                    right: '20px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    color: 'white',
+                    fontSize: '2rem',
+                    cursor: 'pointer',
+                    zIndex: 1001
+                }}
+            >
+                ✕
+            </button>
+
+            {/* Кнопка попереднього зображення */}
+            {images.length > 1 && (
+                <button
+                    onClick={(e) => { e.stopPropagation(); onPrev(); }}
+                    style={{
+                        position: 'absolute',
+                        left: '20px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                        border: 'none',
+                        color: 'white',
+                        fontSize: '2rem',
+                        cursor: 'pointer',
+                        padding: '10px 15px',
+                        borderRadius: '50%',
+                        zIndex: 1001
+                    }}
+                >
+                    ‹
+                </button>
+            )}
+
+            {/* Кнопка наступного зображення */}
+            {images.length > 1 && (
+                <button
+                    onClick={(e) => { e.stopPropagation(); onNext(); }}
+                    style={{
+                        position: 'absolute',
+                        right: '20px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                        border: 'none',
+                        color: 'white',
+                        fontSize: '2rem',
+                        cursor: 'pointer',
+                        padding: '10px 15px',
+                        borderRadius: '50%',
+                        zIndex: 1001
+                    }}
+                >
+                    ›
+                </button>
+            )}
+
+            {/* Саме зображення */}
+            <img
+                src={`/images/${currentImage.photoLink}`}
+                alt="photo"
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                    maxWidth: '90vw',
+                    maxHeight: '90vh',
+                    objectFit: 'contain',
+                    cursor: 'default'
+                }}
+            />
+
+            {/* Лічильник зображень */}
+            {images.length > 1 && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        bottom: '20px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        color: 'white',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        padding: '5px 15px',
+                        borderRadius: '20px',
+                        fontSize: '1rem'
+                    }}
+                >
+                    {currentIndex + 1} з {images.length}
+                </div>
+            )}
+        </div>
+    );
+}
+
 // Компонент для списка загруженных изображений
-function ImageList({images, onRemove}) {
+function ImageList({images, onRemove, onImageClick}) {
     if (images.length === 0) {
         return ;
     }
@@ -16,15 +149,15 @@ function ImageList({images, onRemove}) {
       <div
         style={{
           display: "flex",
-          flexDirection: "row", // 👈 важливо: розташування в ряд
-          flexWrap: "wrap",     // 👈 дозволяє переноситись при нестачі місця
+          flexDirection: "row",
+          flexWrap: "wrap",
           gap: "0.5vw",
           maxHeight: "50vh",
           overflowY: "auto",
           paddingRight: "1vw",
         }}
       >
-        {images.map((img) => (
+        {images.map((img, index) => (
           <div
             key={img.id}
             style={{
@@ -47,8 +180,9 @@ function ImageList({images, onRemove}) {
                 height: "100%",
                 objectFit: "contain",
                 backgroundColor: "#fff",
+                cursor: "pointer"
               }}
-              onClick={() => window.open(`/images/${img.photoLink}`, '_blank')}
+              onClick={() => onImageClick(index)}
             />
             <button
               onClick={() => onRemove(img.id)}
@@ -68,12 +202,9 @@ function ImageList({images, onRemove}) {
             </button>
           </div>
         ))}
-
-
-</div>
+      </div>
     );
 }
-
 
 // Общий контейнер карточки
 export default function CardInfo({
@@ -100,12 +231,32 @@ export default function CardInfo({
     const [isAnimating, setIsAnimating] = useState(false);
     const [error, setError] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
-  const [showAddPay, setShowAddPay] = useState(false);
-  const [loadingImageIds, setLoadingImageIds] = useState(new Set());
+    const [showAddPay, setShowAddPay] = useState(false);
+    const [loadingImageIds, setLoadingImageIds] = useState(new Set());
 
-  const handleClose = () => {
+    // Стани для лайтбоксу
+    const [lightboxIndex, setLightboxIndex] = useState(-1);
+
+    // Функції для керування лайтбоксом
+    const openLightbox = (index) => {
+        setLightboxIndex(index);
+    };
+
+    const closeLightbox = () => {
+        setLightboxIndex(-1);
+    };
+
+    const nextImage = () => {
+        setLightboxIndex((prev) => (prev + 1) % images.length);
+    };
+
+    const prevImage = () => {
+        setLightboxIndex((prev) => (prev - 1 + images.length) % images.length);
+    };
+
+    const handleClose = () => {
         if (saving) {
-            setShouldCloseAfterSave(true); // попросити закрити після завершення збереження
+            setShouldCloseAfterSave(true);
         } else {
             setIsAnimating(false);
             setTimeout(() => {
@@ -115,9 +266,9 @@ export default function CardInfo({
         }
     };
 
-  const openAddPay = () => {
-    setShowAddPay(!showAddPay);
-  };
+    const openAddPay = () => {
+        setShowAddPay(!showAddPay);
+    };
 
     useEffect(() => {
         if (!saving && shouldCloseAfterSave) {
@@ -126,10 +277,9 @@ export default function CardInfo({
                 setIsVisible(false);
                 setOpenCardInfo(false);
             }, 300);
-            setShouldCloseAfterSave(false); // скидаємо флаг
+            setShouldCloseAfterSave(false);
         }
     }, [saving, setOpenCardInfo, setShouldCloseAfterSave, shouldCloseAfterSave]);
-
 
     // Удаляем изображение из массива по id
     const handleRemoveImage = (id) => {
@@ -165,44 +315,42 @@ export default function CardInfo({
         fetchData();
     };
 
-  const uploadPhoto = async (cardId, photo) => {
-    const tempId = `${cardId}-${Date.now()}-${photo.name}`;
-    setLoadingImageIds(prev => new Set(prev).add(tempId));
+    const uploadPhoto = async (cardId, photo) => {
+        const tempId = `${cardId}-${Date.now()}-${photo.name}`;
+        setLoadingImageIds(prev => new Set(prev).add(tempId));
 
-    const formData = new FormData();
-    formData.append("file", photo);
+        const formData = new FormData();
+        formData.append("file", photo);
 
-    try {
-      const res = await axios.post(`/trello/${cardId}/contentPhoto`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+        try {
+            const res = await axios.post(`/trello/${cardId}/contentPhoto`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
 
-      // оновлення глобального стану
-      setServerData(prevLists =>
-        prevLists.map(list => ({
-          ...list,
-          Cards: list.Cards.map(card =>
-            card.id === cardId
-              ? { ...card, inTrelloPhoto: [...card.inTrelloPhoto, res.data] }
-              : card
-          )
-        }))
-      );
-      setImages(prev => [...prev, res.data]);
-    } catch (error) {
-      console.error("Помилка завантаження фото:", error);
-      setError(error.message);
-    } finally {
-      setLoadingImageIds(prev => {
-        const updated = new Set(prev);
-        updated.delete(tempId);
-        return updated;
-      });
-    }
-  };
+            setServerData(prevLists =>
+                prevLists.map(list => ({
+                    ...list,
+                    Cards: list.Cards.map(card =>
+                        card.id === cardId
+                            ? { ...card, inTrelloPhoto: [...card.inTrelloPhoto, res.data] }
+                            : card
+                    )
+                }))
+            );
+            setImages(prev => [...prev, res.data]);
+        } catch (error) {
+            console.error("Помилка завантаження фото:", error);
+            setError(error.message);
+        } finally {
+            setLoadingImageIds(prev => {
+                const updated = new Set(prev);
+                updated.delete(tempId);
+                return updated;
+            });
+        }
+    };
 
-
-  const deleteThisCard = async (listId, cardId) => {
+    const deleteThisCard = async (listId, cardId) => {
         setLoad(true);
         try {
             await removeCard(listId, cardId);
@@ -215,22 +363,27 @@ export default function CardInfo({
         }
     };
 
-    // useEffect(() => {
-    //     setImages(openCardData.inTrelloPhoto)
-    // }, [serverData]);
-
     useEffect(() => {
         if (openCardData) {
-            setIsVisible(true); // Сначала показываем модальное окно
-            setTimeout(() => setIsAnimating(true), 100); // После короткой задержки запускаем анимацию появления
+            setIsVisible(true);
+            setTimeout(() => setIsAnimating(true), 100);
         } else {
-            setIsAnimating(false); // Начинаем анимацию закрытия
-            setTimeout(() => setIsVisible(false), 300); // После завершения анимации скрываем модальное окно
+            setIsAnimating(false);
+            setTimeout(() => setIsVisible(false), 300);
         }
     }, [openCardData]);
 
     return (
         <>
+            {/* Лайтбокс для перегляду зображень */}
+            <ImageLightbox
+                images={images}
+                currentIndex={lightboxIndex}
+                onClose={closeLightbox}
+                onNext={nextImage}
+                onPrev={prevImage}
+            />
+
             {isVisible === true ? (
                 <div>
                     <div
@@ -239,8 +392,8 @@ export default function CardInfo({
                             zIndex: "99",
                             height: "100vh",
                             background: "rgba(0, 0, 0, 0.5)",
-                            opacity: isAnimating ? 1 : 0, // для анимации прозрачности
-                            transition: "opacity 0.3s ease-in-out", // плавная анимация
+                            opacity: isAnimating ? 1 : 0,
+                            transition: "opacity 0.3s ease-in-out",
                             position: "fixed",
                             left: "0",
                             bottom: "0"
@@ -254,9 +407,9 @@ export default function CardInfo({
                         background: "#f2f0e7",
                         top: "50%",
                         left: "50%",
-                        transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)", // анимация масштаба
-                        opacity: isAnimating ? 1 : 0, // анимация прозрачности
-                        transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out", // плавная анимация
+                        transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)",
+                        opacity: isAnimating ? 1 : 0,
+                        transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
                         borderRadius: "1vh",
                         maxWidth: "60vw",
                         maxHeight: "80vh",
@@ -266,13 +419,6 @@ export default function CardInfo({
                         <div className="d-flex justify-content-around">
                             <div>
                                 <textarea
-                                    // onChange={(e) =>
-                                    //     handleCardContentChange(
-                                    //         openCardData.listId,
-                                    //         openCardData.id,
-                                    //         e.target.value
-                                    //     )
-                                    // }
                                     onChange={(e) => handleLocalCardEdit(
                                         openCardData.listId,
                                         openCardData.id,
@@ -296,30 +442,23 @@ export default function CardInfo({
                                     onPaste={async (e) => {
                                         const clipboardFiles = e.clipboardData.files;
                                         if (clipboardFiles && clipboardFiles.length > 0) {
-                                            // Если буфер содержит файлы
                                             const file = clipboardFiles[0];
                                             if (file && file.type.startsWith("image/")) {
-                                                // Предотвращаем стандартную вставку текста, чтобы не вставлялся маркер изображения
                                                 e.preventDefault();
                                                 try {
                                                     await uploadPhoto(openCardData.id, file);
-                                                    // Если нужно, можно обновить локальное состояние изображений, например:
-                                                    // handleUpload([res.data.photo]);
                                                     setSelectedImage(null);
                                                 } catch (err) {
                                                     console.error("Ошибка загрузки изображения из буфера обмена", err);
                                                 }
                                             }
                                         }
-                                        // Если файлы отсутствуют, стандартное поведение (вставка текста) остаётся
                                     }}
                                 />
                             </div>
-
                         </div>
 
-
-                      {saving &&
+                        {saving &&
                             <div>
                                 <Spinner animation="border" variant="danger" size="sm"/>
                             </div>
@@ -329,101 +468,84 @@ export default function CardInfo({
                                 {error}
                             </div>
                         }
-                        <ImageList images={images} onRemove={handleRemoveImage}/>
-                        <div
 
-                            className="d-flex align-items-center justify-content-between">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            ref={fileInputRef}
-                            onChange={(e) => {
-                              const files = Array.from(e.target.files);
-                              const validImages = files.filter(file => file.type.startsWith("image/"));
-                              validImages.forEach((file) => uploadPhoto(openCardData.id, file));
-                              e.target.value = null; // скидає input, щоб можна було вибрати ті ж самі файли ще раз
-                            }}
-                            style={{
-                              width: "50%",
-                              border: "none",
-                            }}
-                          />
+                        <ImageList
+                            images={images}
+                            onRemove={handleRemoveImage}
+                            onImageClick={openLightbox}
+                        />
 
-
-                          {/*<button*/}
-                          {/*      disabled={!selectedImage}*/}
-                          {/*      className="d-flex align-items-center justify-content-center adminButtonAdd"*/}
-                          {/*      style={{*/}
-                          {/*          // marginLeft: "2px",*/}
-                          {/*          // width: "9vw",*/}
-                          {/*          height: "3vh",*/}
-                          {/*          borderRadius: "0.5vw",*/}
-                          {/*      }}*/}
-                          {/*      onClick={() => uploadPhoto(openCardData.id, selectedImage)}*/}
-                          {/*  >*/}
-                          {/*      {selectedImage ? "Завантажити" : "Очікую img.."}*/}
-                          {/*  </button>*/}
+                        <div className="d-flex align-items-center justify-content-between">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                ref={fileInputRef}
+                                onChange={(e) => {
+                                    const files = Array.from(e.target.files);
+                                    const validImages = files.filter(file => file.type.startsWith("image/"));
+                                    validImages.forEach((file) => uploadPhoto(openCardData.id, file));
+                                    e.target.value = null;
+                                }}
+                                style={{
+                                    width: "50%",
+                                    border: "none",
+                                }}
+                            />
                         </div>
+
                         <div className="d-flex justify-content-between" style={{}}>
-                          <button className="adminButtonAdd justify-content-start" onClick={openAddPay} style={{}}>
-                            {openCardData && openCardData.assignedTo && (
-                              <div style={{
-                                // fontSize: "0.9vh",
-                                // opacity: "50%"
-                              }}>Кому: {openCardData.assignedTo.username} {openCardData.assignedTo.firstName} {openCardData.assignedTo.lastName} {openCardData.assignedTo.familyName} {openCardData.assignedTo.email}</div>
-                            )}
-                          </button>
-                          <div className="d-flex justify-content-between align-items-center mt-2">
-
-
-
-                            <div className="d-flex justify-content-between align-items-center mt-2">
-                              <div style={{ height: "3vh", width: "9vw" }}>
-                                {load && (
-                                  <Spinner
-                                    animation="border"
-                                    variant="warning"
-                                    size="sm"
-                                    style={{
-                                      height: "2.5vh",
-                                      width: "2.5vh",
-                                      marginLeft: "auto",
-                                      marginRight: "auto",
-                                      display: "block"
-                                    }}
-                                  />
+                            <button className="adminButtonAdd justify-content-start" onClick={openAddPay} style={{}}>
+                                {openCardData && openCardData.assignedTo && (
+                                    <div style={{}}>
+                                        Кому: {openCardData.assignedTo.username} {openCardData.assignedTo.firstName} {openCardData.assignedTo.lastName} {openCardData.assignedTo.familyName} {openCardData.assignedTo.email}
+                                    </div>
                                 )}
-                              </div>
-                            </div>
-                            <button
-                              className="border-0 btn btn-danger d-flex align-items-center justify-content-center adminButtonAdd"
-                              style={{
-                                marginTop: "1vh",
-                                backgroundColor: "#ee3c23",
-                                height: "3vh",
-                                borderRadius: "0.5vw",
-                              }}
-                              onClick={() => deleteThisCard(openCardData.listId, openCardData.id)}
-                            >
-                              Видалити завдання
                             </button>
-                          </div>
-
+                            <div className="d-flex justify-content-between align-items-center mt-2">
+                                <div className="d-flex justify-content-between align-items-center mt-2">
+                                    <div style={{ height: "3vh", width: "9vw" }}>
+                                        {load && (
+                                            <Spinner
+                                                animation="border"
+                                                variant="warning"
+                                                size="sm"
+                                                style={{
+                                                    height: "2.5vh",
+                                                    width: "2.5vh",
+                                                    marginLeft: "auto",
+                                                    marginRight: "auto",
+                                                    display: "block"
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                                <button
+                                    className="border-0 btn btn-danger d-flex align-items-center justify-content-center adminButtonAdd"
+                                    style={{
+                                        marginTop: "1vh",
+                                        backgroundColor: "#ee3c23",
+                                        height: "3vh",
+                                        borderRadius: "0.5vw",
+                                    }}
+                                    onClick={() => deleteThisCard(openCardData.listId, openCardData.id)}
+                                >
+                                    Видалити завдання
+                                </button>
+                            </div>
                         </div>
                     </div>
-                  {showAddPay && (
-                    <ForUserOrder
-                      showAddPay={showAddPay}
-                      setShowAddPay={setShowAddPay}
-                      openCardData={openCardData}
-                    />
-                  )}
+                    {showAddPay && (
+                        <ForUserOrder
+                            showAddPay={showAddPay}
+                            setShowAddPay={setShowAddPay}
+                            openCardData={openCardData}
+                        />
+                    )}
                 </div>
             ) : (
-                <div
-                    style={{display: "none"}}
-                ></div>
+                <div style={{display: "none"}}></div>
             )}
         </>
     )
