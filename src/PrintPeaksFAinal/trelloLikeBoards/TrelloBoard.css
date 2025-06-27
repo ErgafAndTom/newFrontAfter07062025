@@ -32,12 +32,13 @@
   border-radius: 1vh;
   overflow: hidden;
   background: #f2f0e7; /* важливо! фон задає .content */
-
+text-align: justify;
   cursor: pointer;
   z-index: 0;
-  padding: 0.4vh 0.6vw;
+  padding: 0.8vh 0.8vw;
   overflow: hidden;
   border: 0.1vh solid #aeaeae;
+
 }
 
 .trello-card::before {
@@ -154,12 +155,14 @@ background-color: #fbfaf6;
   display: block;        /* щоб елемент не був inline */
 }
 .trello-delete-list-button {
-  position: absolute;
-  top: -0.5vh;
-  right: 0.3vw;
   cursor: pointer;
   color: black;
   font-size: 1.7vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  padding: 0 0.3vw;
 }
 
 .trello-delete-list-button:hover {

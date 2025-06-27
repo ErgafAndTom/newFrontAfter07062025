@@ -156,6 +156,7 @@ const TrelloBoard = () => {
       dispatch(closeCardInfo());
     }
   };
+  const [serverData, setServerData] = useState([]);
 
   // Ефект для закриття після збереження
   useEffect(() => {
@@ -168,7 +169,10 @@ const TrelloBoard = () => {
   if (loading) {
     return <Spinner animation="border" variant="danger" size="sm" />;
   }
-
+  function capitalizeFirstWord(text) {
+    if (!text) return '';
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
   return (
     <div>
       {/* Основна область дошки */}
@@ -177,14 +181,24 @@ const TrelloBoard = () => {
           className="d-flex flex-row flex-wrap-nowrap justify-content-center gap-3 align-items-start"
           style={{marginLeft:"0.5vw", marginRight:"0.5vw", width: "99%"}}
         >
+
           {lists.map(list => (
             <div
               key={list.id}
               className="trello-list"
 
             >
-              <div className="trello-list-header" style={{ position: "relative", padding: "0.3vh 0.3vw", fontSize: "1.5vh" }}>
-                <span>{list.title}</span>
+              <div className="trello-list-header d-flex align-items-center" style={{ padding: "0.3vh 0.3vw", fontSize: "1.5vh" }}>
+                <div className="d-flex align-items-center" style={{ gap: '0.5vw' }}>
+                  <div>{list.title}</div>
+                  <div
+                    className="d-flex align-items-center justify-content-center adminButtonAdd"
+                    style={{ minWidth: '2vw', maxHeight: '2vh', background: "#FAB416", cursor: 'pointer' }}
+                    onClick={() => handleAddCard(list.id)}
+                  >
+                    +
+                  </div>
+                </div>
 
                 <span
                   className="trello-delete-list-button"
@@ -195,10 +209,12 @@ const TrelloBoard = () => {
               </div>
 
 
+
               {list.Cards.map((card, index) => (
                 <div
                   key={card.id}
                   className="trello-card"
+                  style={{ textAlign: 'justify' }}
                   draggable
                   onDragStart={(e) => onDragStart(e, card, list.id, card.index)}
                   onDragOver={(e) => onDragOverCard(e, list.id, card.index)}
@@ -206,15 +222,17 @@ const TrelloBoard = () => {
                   onDrop={(e) => onDropCard(e, list.id, card.index)}
                   onClick={() => seeInfoCard(list.id, card.id)}
                 >
+                  {capitalizeFirstWord(card.content)}
                   {card.content}
+
                   {card.inTrelloPhoto && (
                     <div
                       className="trello-card-photo"
                       style={{
                         display: 'flex',
                         flexWrap: 'wrap',
-                        gap: '0.5vw',
-                        padding: '0.3vh 0.3vw',
+                        gap: '0.3vw',
+                        // padding: '0.3vh 0.3vw',
                         justifyContent: 'flex-start',
                         // backgroundColor: '#f2f0e7',
                         borderBottom: '0.1vh solid #aeaeae',
@@ -227,8 +245,8 @@ const TrelloBoard = () => {
                           src={`/images/${photo.photoLink}`}
                           alt={`Card Photo ${index + 1}`}
                           style={{
-                            width: '3vw',
-                            height: '4vh',
+                            width: '2vw',
+                            height: '5vh',
                             objectFit: 'contain', // 👈 вписує повністю, без обрізки
                             borderRadius: '0.5vh',
                             // щоб не було прозорого фону
@@ -243,17 +261,6 @@ const TrelloBoard = () => {
 
 
                   )}
-                    {/*<div*/}
-                    {/*  className="trello-card-content"*/}
-
-                    {/*>*/}
-
-
-                    {/*</div>*/}
-
-
-
-
 
                   <div className="d-flex justify-content-between align-items-end" style={{ fontSize: "1.0vh", marginTop: '0.5vh', opacity: '0.6' }}>
 
@@ -281,12 +288,7 @@ const TrelloBoard = () => {
                 </div>
               ))}
 
-              <div
-                className="d-flex align-items-center justify-content-center trello-add adminButtonAdd"
-                onClick={() => handleAddCard(list.id)}
-              >
-                +
-              </div>
+
 
             </div>
 
@@ -323,6 +325,7 @@ const TrelloBoard = () => {
           setShouldCloseAfterSave={setShouldCloseAfterSave}
           shouldCloseAfterSave={shouldCloseAfterSave}
           handleBlurCardContentSave={handleBlurCardContentSave}
+          setServerData={setServerData}
         />
       )}
 

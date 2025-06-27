@@ -9,62 +9,68 @@ import AddContrAgentInProfileAdmin from "../userInNewUiArtem/pays/AddContrAgentI
 // Компонент для списка загруженных изображений
 function ImageList({images, onRemove}) {
     if (images.length === 0) {
-        return <li>Нет загруженных изображений</li>;
+        return ;
     }
 
     return (
-        <div style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.5rem",
-            maxHeight: "50vh",
-            overflowY: "auto",
-            position: "relative",
-            paddingRight: "2.5rem"
-        }}>
-            {images.map((img) => (
-                <div
-                    key={img.id}
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        width: "100%",
-                        padding: "0.5rem",
-                        borderBottom: "1px solid #ccc",
-                        position: "relative",
-                        cursor: "pointer"
-                    }}
-                >
-                    <img
-                        src={`/images/${img.photoLink}`}
-                        alt="photo"
-                        style={{
-                            width: "100%",
-                            maxHeight: "30vh",
-                            objectFit: "cover"
-                        }}
-                        onClick={() => window.open(`/images/${img.photoLink}`, '_blank')}
-                    />
-                    <button
-                        onClick={() => onRemove(img.id)}
-                        style={{
-                            position: "absolute",
-                            right: "-5%",
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                            backgroundColor: "transparent",
-                            color: "#ff3333",
-                            border: "none",
-                            fontSize: "1.5rem",
-                            cursor: "pointer",
-                            padding: "0.5rem"
-                        }}
-                    >
-                        ✖
-                    </button>
-                </div>
-            ))}
-        </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row", // 👈 важливо: розташування в ряд
+          flexWrap: "wrap",     // 👈 дозволяє переноситись при нестачі місця
+          gap: "0.5vw",
+          maxHeight: "50vh",
+          overflowY: "auto",
+          paddingRight: "1vw",
+        }}
+      >
+        {images.map((img) => (
+          <div
+            key={img.id}
+            style={{
+              position: "relative",
+              width: "5vw",
+              height: "10vh",
+              border: "1px solid #ccc",
+              borderRadius: "0.5vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              overflow: "hidden",
+            }}
+          >
+            <img
+              src={`/images/${img.photoLink}`}
+              alt="photo"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                backgroundColor: "#fff",
+              }}
+              onClick={() => window.open(`/images/${img.photoLink}`, '_blank')}
+            />
+            <button
+              onClick={() => onRemove(img.id)}
+              style={{
+                position: "absolute",
+                top: "0",
+                right: "0",
+                backgroundColor: "transparent",
+                color: "#ff3333",
+                border: "none",
+                fontSize: "1.2rem",
+                cursor: "pointer",
+                padding: "0.2rem"
+              }}
+            >
+              ✖
+            </button>
+          </div>
+        ))}
+
+
+</div>
     );
 }
 
@@ -83,6 +89,7 @@ export default function CardInfo({
                                      handleBlurCardContentSave,
                                      removeCard
                                  }) {
+
     const [cardName, setCardName] = useState(openCardData.name);
     const [textContent, setTextContent] = useState(openCardData.content);
     const [images, setImages] = useState(openCardData.inTrelloPhoto);
@@ -94,7 +101,9 @@ export default function CardInfo({
     const [error, setError] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
   const [showAddPay, setShowAddPay] = useState(false);
-    const handleClose = () => {
+  const [loadingImageIds, setLoadingImageIds] = useState(new Set());
+
+  const handleClose = () => {
         if (saving) {
             setShouldCloseAfterSave(true); // попросити закрити після завершення збереження
         } else {
@@ -156,42 +165,44 @@ export default function CardInfo({
         fetchData();
     };
 
-    const uploadPhoto = async (cardId, photo) => {
-        const formData = new FormData();
-        formData.append('file', photo);
+  const uploadPhoto = async (cardId, photo) => {
+    const tempId = `${cardId}-${Date.now()}-${photo.name}`;
+    setLoadingImageIds(prev => new Set(prev).add(tempId));
 
-        const fetchData = async () => {
-            try {
-                setLoad(true)
-                setError(null)
-                const res = await axios.post(`/trello/${cardId}/contentPhoto`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-                console.log(res.data);
+    const formData = new FormData();
+    formData.append("file", photo);
 
-                // Update the card with the new photo in the server data
-                setServerData(prevLists =>
-                    prevLists.map(list => ({
-                        ...list,
-                        Cards: list.Cards.map(card =>
-                            card.id === cardId ? {...card, inTrelloPhoto: [...card.inTrelloPhoto, res.data]} : card
-                        )
-                    }))
-                );
-                setImages((prev) => [...prev, res.data]);
-                setLoad(false)
-            } catch (error) {
-                console.error('Помилка завантаження фото:', error);
-                setLoad(false)
-                setError(error.message)
-            }
-        };
-        fetchData();
-    };
+    try {
+      const res = await axios.post(`/trello/${cardId}/contentPhoto`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-    const deleteThisCard = async (listId, cardId) => {
+      // оновлення глобального стану
+      setServerData(prevLists =>
+        prevLists.map(list => ({
+          ...list,
+          Cards: list.Cards.map(card =>
+            card.id === cardId
+              ? { ...card, inTrelloPhoto: [...card.inTrelloPhoto, res.data] }
+              : card
+          )
+        }))
+      );
+      setImages(prev => [...prev, res.data]);
+    } catch (error) {
+      console.error("Помилка завантаження фото:", error);
+      setError(error.message);
+    } finally {
+      setLoadingImageIds(prev => {
+        const updated = new Set(prev);
+        updated.delete(tempId);
+        return updated;
+      });
+    }
+  };
+
+
+  const deleteThisCard = async (listId, cardId) => {
         setLoad(true);
         try {
             await removeCard(listId, cardId);
@@ -240,13 +251,13 @@ export default function CardInfo({
                         className="d-flex flex-column" style={{
                         zIndex: "100",
                         position: "fixed",
-                        background: "#dcd9ce",
+                        background: "#f2f0e7",
                         top: "50%",
                         left: "50%",
                         transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)", // анимация масштаба
                         opacity: isAnimating ? 1 : 0, // анимация прозрачности
                         transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out", // плавная анимация
-                        borderRadius: "1vw",
+                        borderRadius: "1vh",
                         maxWidth: "60vw",
                         maxHeight: "80vh",
                         padding: "0.7vw"
@@ -280,6 +291,7 @@ export default function CardInfo({
                                         border: "none",
                                         borderRadius: "0.5vw",
                                         padding: "0.5vw",
+                                        background:'#fbfaf6'
                                     }}
                                     onPaste={async (e) => {
                                         const clipboardFiles = e.clipboardData.files;
@@ -303,21 +315,11 @@ export default function CardInfo({
                                     }}
                                 />
                             </div>
-                            <div
-                                className="btn btn-close btn-lg"
-                                style={{
-                                    marginLeft: "0.5vw",
-                                }}
-                                onClick={handleClose}
-                            >
-                            </div>
+
                         </div>
-                        {load &&
-                            <div>
-                                <Spinner animation="border" variant="danger" size="sm"/>
-                            </div>
-                        }
-                        {saving &&
+
+
+                      {saving &&
                             <div>
                                 <Spinner animation="border" variant="danger" size="sm"/>
                             </div>
@@ -330,37 +332,38 @@ export default function CardInfo({
                         <ImageList images={images} onRemove={handleRemoveImage}/>
                         <div
 
-                            className="d-flex align-items-center justify-content-between mt-2">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                ref={fileInputRef}
-                                onChange={(e) => {
-                                    const file = e.target.files[0];
-                                    if (file && file.type.startsWith('image/')) {
-                                        setSelectedImage(file);
-                                    } else {
-                                        setSelectedImage(null);
-                                    }
-                                }}
-                                style={{
-                                    width: "50%",
-                                    border: "none",
-                                }}
-                            />
-                            <button
-                                disabled={!selectedImage}
-                                className="border-0 btn btn-success d-flex align-items-center justify-content-center"
-                                style={{
-                                    // marginLeft: "2px",
-                                    // width: "9vw",
-                                    height: "3vh",
-                                    borderRadius: "0.5vw",
-                                }}
-                                onClick={() => uploadPhoto(openCardData.id, selectedImage)}
-                            >
-                                {selectedImage ? "Завантажити" : "Очікую img.."}
-                            </button>
+                            className="d-flex align-items-center justify-content-between">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            ref={fileInputRef}
+                            onChange={(e) => {
+                              const files = Array.from(e.target.files);
+                              const validImages = files.filter(file => file.type.startsWith("image/"));
+                              validImages.forEach((file) => uploadPhoto(openCardData.id, file));
+                              e.target.value = null; // скидає input, щоб можна було вибрати ті ж самі файли ще раз
+                            }}
+                            style={{
+                              width: "50%",
+                              border: "none",
+                            }}
+                          />
+
+
+                          {/*<button*/}
+                          {/*      disabled={!selectedImage}*/}
+                          {/*      className="d-flex align-items-center justify-content-center adminButtonAdd"*/}
+                          {/*      style={{*/}
+                          {/*          // marginLeft: "2px",*/}
+                          {/*          // width: "9vw",*/}
+                          {/*          height: "3vh",*/}
+                          {/*          borderRadius: "0.5vw",*/}
+                          {/*      }}*/}
+                          {/*      onClick={() => uploadPhoto(openCardData.id, selectedImage)}*/}
+                          {/*  >*/}
+                          {/*      {selectedImage ? "Завантажити" : "Очікую img.."}*/}
+                          {/*  </button>*/}
                         </div>
                         <div className="d-flex justify-content-between" style={{}}>
                           <button className="adminButtonAdd justify-content-start" onClick={openAddPay} style={{}}>
@@ -371,18 +374,42 @@ export default function CardInfo({
                               }}>Кому: {openCardData.assignedTo.username} {openCardData.assignedTo.firstName} {openCardData.assignedTo.lastName} {openCardData.assignedTo.familyName} {openCardData.assignedTo.email}</div>
                             )}
                           </button>
+                          <div className="d-flex justify-content-between align-items-center mt-2">
+
+
+
+                            <div className="d-flex justify-content-between align-items-center mt-2">
+                              <div style={{ height: "3vh", width: "9vw" }}>
+                                {load && (
+                                  <Spinner
+                                    animation="border"
+                                    variant="warning"
+                                    size="sm"
+                                    style={{
+                                      height: "2.5vh",
+                                      width: "2.5vh",
+                                      marginLeft: "auto",
+                                      marginRight: "auto",
+                                      display: "block"
+                                    }}
+                                  />
+                                )}
+                              </div>
+                            </div>
                             <button
-                                className="border-0 btn btn-danger d-flex align-items-center justify-content-center"
-                                style={{
-                                    marginTop: "1vh",
-                                    // width: "9vw",
-                                    height: "3vh",
-                                    borderRadius: "0.5vw",
-                                }}
-                                onClick={() => deleteThisCard(openCardData.listId, openCardData.id)}
+                              className="border-0 btn btn-danger d-flex align-items-center justify-content-center adminButtonAdd"
+                              style={{
+                                marginTop: "1vh",
+                                backgroundColor: "#ee3c23",
+                                height: "3vh",
+                                borderRadius: "0.5vw",
+                              }}
+                              onClick={() => deleteThisCard(openCardData.listId, openCardData.id)}
                             >
-                                Видалити карточку
+                              Видалити завдання
                             </button>
+                          </div>
+
                         </div>
                     </div>
                   {showAddPay && (
