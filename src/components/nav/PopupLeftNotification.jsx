@@ -20,13 +20,13 @@ const PopupLeftNotification = () => {
   }, [currentUser?.id]);
 
   useEffect(() => {
-    // const handleClickOutside = (e) => {
-    //   if (popupRef.current && !popupRef.current.contains(e.target)) {
-    //     setShow(false);
-    //   }
-    // };
-    // if (show) document.addEventListener('mousedown', handleClickOutside);
-    // return () => document.removeEventListener('mousedown', handleClickOutside);
+    const handleClickOutside = (e) => {
+      if (popupRef.current && !popupRef.current.contains(e.target)) {
+        setShow(false);
+      }
+    };
+    if (show) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [show]);
 
   const portalRoot = document.getElementById('notification-root');
