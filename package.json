@@ -9,6 +9,7 @@
     "@babel/types": "^7.22.5",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@fontsource/montserrat": "^5.2.6",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.0",
     "@mui/x-date-pickers": "^5.0.0",
@@ -58,7 +59,9 @@
     "extends": [
       "plugin:react/recommended"
     ],
-    "plugins": ["react"],
+    "plugins": [
+      "react"
+    ],
     "settings": {
       "react": {
         "version": "detect"

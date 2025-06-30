@@ -418,7 +418,7 @@ const NewUIArtem = () => {
 
 
                     <div className="d-flex flex-column" style={{width: "37.5vw"}}>
-                        <div className="order-panel" style={{width: "37.5vw"}}>
+                        <div className="order-panel" style={{width: "37.5vw", marginTop: "0.5vh"}}>
                             {selectedThings2 && selectedThings2.length !== 0 ? (
                                 <div className="order-list" style={{overflow: "auto", height: "60vh"}}>
                                     {selectedThings2.map((thing, index) => (

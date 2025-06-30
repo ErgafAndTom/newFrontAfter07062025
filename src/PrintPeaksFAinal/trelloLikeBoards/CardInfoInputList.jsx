@@ -198,18 +198,7 @@ function CardInfoInputList({ openCardData, setServerData }) {
         <div style={{ color: "red", fontSize: "0.8rem", marginTop: "0.5vh" }}>{error}</div>
       )}
 
-      {load && (
-        <div style={{ textAlign: 'center', marginTop: '0.5vh' }}>
-          <Spinner animation="border" variant="primary" size="sm"/>
-          <span style={{ marginLeft: '0.5rem', fontSize: '0.8rem' }}>Оновлення...</span>
-        </div>
-      )}
 
-      {error && (
-        <div style={{ color: 'red', fontSize: '0.8rem', marginTop: '0.5vh' }}>
-          {error}
-        </div>
-      )}
     </div>
   );
 }

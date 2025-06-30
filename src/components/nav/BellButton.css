@@ -1,6 +1,5 @@
 .bell-button {
-  height: 4vh;
-
+  height: 3.5vh;
   z-index: 500;
   background: #f075aa;
   color: black;
@@ -10,7 +9,6 @@
   display: flex;
   align-items: center;
   gap: 0.5em;
-
   font-size: 1.5vh;
   cursor: pointer;
   transition: background 0.5s ease;
@@ -60,9 +58,9 @@
 
 .pulse {
   animation: pulse 0.5s ease-in-out infinite, gradient 3s linear infinite;
-  height: 5vh;
+  height: 4vh;
   border-radius: 0vh 0vh 0.5vh 0.5vh;
-  padding-top: 2vh;
+  padding-top: 1vh;
 
 
   background: linear-gradient(

@@ -3,7 +3,7 @@
 /* 1) затемнюємо фон та ловимо кліки по всьому екрану */
 .order-overlay {
     position: fixed;
-    top: 0;
+    top: 1vw;
     left: 0;
     width: 100vw;
     height: 100vh;
@@ -15,8 +15,8 @@
 .order-panel {
     /*position: fixed;*/
     margin-top: -0.5vh;
-    margin-right: 0.5vw;
-    width: 98%; /* статична ширина, щоб не “розпливалося” */
+    /*margin-right: 0.5vw;*/
+    width: 99%; /* статична ширина, щоб не “розпливалося” */
     height: 59vh; /* щоб не виростало висотою більше за 60% екрану */
     background: #f2f0e7;
     /*padding: 1rem;*/
@@ -64,7 +64,7 @@
 
 /* 6) скролбар всередині панелі */
 .order-panel::-webkit-scrollbar {
-    width: 0.3rem;
+    /*width: 0.3rem;*/
 }
 
 .order-panel::-webkit-scrollbar-thumb {

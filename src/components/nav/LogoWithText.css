@@ -1,0 +1,72 @@
+.shinyComboWrapper {
+  position: relative;
+  background-color: transparent;
+  flex-direction: row;
+  align-items: center;
+  overflow: hidden;
+  padding: 0.5vh;
+  border-radius: 1vh;
+  width: 4.6vw;
+
+}
+
+.shinyOverlayUnified {
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 250%;
+  height: 100%;
+
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0.8) 45%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  animation: shineOverlay 3s infinite linear;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: lighten; /* ключова магія */
+}
+
+@keyframes shineOverlay {
+  0% {
+    left: -150%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.shinyImage{
+
+}
+
+.shinyTextCombo {
+  z-index: 1;
+}
+
+.shinyTextCombo {
+
+  /*transform-origin: bottom left;*/
+  /*display: flex;*/
+  /*flex-direction: column;*/
+  /*align-items: flex-start;*/
+  /*justify-content: center;*/
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bold;
+  /*background: transparent;*/
+  line-height: 2;
+  border-radius: 1vh;
+  color: #111; /* темна основа для хрому */
+}
+.logoContainerCentered {
+  position: absolute;
+  top: 0%;
+  left: 50%;
+  /*transform: translate(-50%, -50%);*/
+}
+.logoContainerCentered:hover {
+  transform: scale(1.15);
+
+}

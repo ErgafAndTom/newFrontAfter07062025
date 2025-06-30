@@ -15,6 +15,7 @@ import NavMess from "./NavMess";
 import PopupLeftNotification from "./PopupLeftNotification";
 import {fetchTrelloData} from "../../actions/trello_async_actions";
 import iii from './logo/logo.svg';
+import LogoWithText from './LogoWithText';
 
 const Nav = () => {
     const dispatch = useDispatch();
@@ -67,268 +68,111 @@ const Nav = () => {
     return (
 <div>
 
-                <MDBNavbar expand='lg' light bgColor='' className="navbarMy" >
-            <MDBContainer fluid>
-                <div className="d-flex">
-                  <div className="logo d-flex flex-column">
-                    <img src={iii}  style={{ height: "4vh", objectFit: "contain" }} />
-                    ERP 11.02
-                  </div>
+  <div className="d-flex justify-content-between align-items-center ">
+    {/* Ліва панель з кнопками */}
+    <div className="d-flex flex-row align-items-center " style={{ paddingLeft: '0.5vw' }}>
+      {[
+        { to: "/Desktop", label: "Головна" },
+        { to: "/Users", label: "Клієнти" },
+        { to: "/Orders", label: "Замовлення" },
+        { to: "/Storage", label: "Склад" },
+        { to: "/db2", label: "База" },
+        { to: "/Trello", label: "Завдання", hasMess: true },
+        { to: "/Vimogi", label: "Вимоги" }
+      ].map(({ to, label, hasMess }, index, arr) => (
+        <Link key={to} to={to} style={{ textDecoration: 'none' }}>
+          <button
+            onClick={() => handleBasicClick(to)}
+            className={`buttonSkewed
+        ${index === 0 ? 'first' : ''}
+        ${index === arr.length - 1 ? 'last' : ''}
+      `}
+          >
+            {label}
+            {hasMess && currentUser && <NavMess currentUser={currentUser} />}
+          </button>
+        </Link>
+      ))}
+
+    </div>
+
+    {/* Права частина */}
+    <div className="d-flex align-items-center" style={{ height: '4vh', gap: '0.5vw' }}>
+      <div >
+        <LogoWithText />
+        <AddNewOrder />
+      </div>
+
+      <div style={{ height: '4vh', display: 'flex', alignItems: 'center' }}>
+
+      </div>
 
 
-                  <div className="top-menu adminButtonAdd"  style={{
-                        height: '5vh',
-                        marginTop: '-1.1vh',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        padding: "0",
-                        boxShadow: "none"
-                    }}>
-                        <Link to="/Desktop" style={{textDecoration: 'none'}}>
-                            <button
-                                onClick={() => handleBasicClick('/Desktop')}
-                                className="adminButtonAdd"
-                                style={{minWidth:'3vw', borderRadius:"1vh 0vh 0vh 0vh"}}>Головна
-                            </button>
-                        </Link>
 
-                        {/*<button className="ButtonClients">Головна</button>*/}
-                        <Link to="/Users" style={{textDecoration: 'none'}}>
-                            <button
-                                onClick={() => handleBasicClick('/Users')}
-                                className="adminButtonAdd"
-                                style={{minWidth:'3vw', borderRadius:"0px"}}>Клієнти
-                            </button>
-                        </Link>
+      <Form.Control
+        className="buttonSkewedSearch buttonSkewedSearchLupa"
+        name="search"
+        type="text"
+        placeholder=""
+        value={search.search}
 
+        onChange={(e) => {
+          setSearch({ ...search, search: e.target.value });
+          handleSearch(e.target.value);
+        }}
+      />
+      <div style={{ height: '3.5vh', display: 'flex', alignItems: 'center' }}>
+        <AddUserButton fetchUsers={() => dispatch(fetchUser())} />
+      </div>
+      {currentUser ? (
+        <div className="d-flex align-items-center" style={{ height: '3.5vh' }}>
+          <Link to="/currentUser" style={{ textDecoration: 'none' }}>
+            <button
+              className="adminButtonAddNav"
+              style={{
+                background: '#008249',
+                borderRadius: '0 0 0 0',
+                height: '3.5vh',
+                marginTop: '-0.4vh'
+              }}
+            >
+              <FiSettings  />: {currentUser.username}
+            </button>
+          </Link>
 
-                        <Link to="/Orders" style={{textDecoration: 'none'}}>
-                            <button
-                                onClick={() => handleBasicClick('/Orders')}
-                                className="adminButtonAdd"
-                                style={{minWidth:'3vw', borderRadius:"0px"}}>Замовлення
-                            </button>
-                        </Link>
+          <PopupLeftNotification />
 
-                        <Link disabled onClick={() => handleBasicClick('/Storage')} to="/Storage" style={{textDecoration: 'none'}}>
-                            <button
-                                onClick={() => handleBasicClick('/Storage')}
-                                className="adminButtonAdd"
-                                style={{minWidth:'3vw', borderRadius:"0px"}}>Склад
-                            </button>
-                        </Link>
+          <button
+            onClick={logoutt}
+            className="adminButtonAddNav"
+            style={{
+              background: '#EE3C23',
+              borderRadius: '0 0 1vh 0',
+              marginTop: '-0.4vh',
+              height: '3.5vh'
+            }}
+          >
+            <FiLogOut />
+          </button>
+        </div>
+      ) : (
+        <Link to="/login" style={{ textDecoration: 'none' }}>
+          <button
+            className="adminButtonAddNav"
+            style={{
+              background: '#008249',
+              borderRadius: ' 0 0 1vh 0',
+              marginTop: '-0.4vh',
+              height: '3,5vh'
+            }}
+          >
+            Логін
+          </button>
+        </Link>
+      )}
+    </div>
+  </div>
 
-                        <Link disabled onClick={() => handleBasicClick('/db2')} to="/db2"
-                              style={{textDecoration: 'none', padding: '0', background: 'transparent'}}>
-                            <button
-                                className="adminButtonAdd"
-                                style={{minWidth:'3vw', borderRadius:"0px"}}
-                            >База
-                            </button>
-                        </Link>
-                        <Link disabled onClick={() => handleBasicClick('/Trello')} to="/Trello"
-                              style={{textDecoration: 'none', padding: '0', background: 'transparent'}}>
-                            <button
-                                className="adminButtonAdd"
-                                style={{minWidth:'3vw', borderRadius:"0px"}}
-                            >Завдання
-                              {currentUser && (
-                                <NavMess currentUser={currentUser}/>
-                              )}
-                            </button>
-                        </Link>
-
-                        {/*<Link disabled onClick={() => handleBasicClick('/myFiles')} to="/myFiles"*/}
-                        {/*      style={{textDecoration: 'none', padding: '0', background: 'transparent'}}>*/}
-                        {/*    <button disabled*/}
-                        {/*            className={basicActive === "/myFiles" ? 'ButtonVimogi ButtonVimogia' : 'ButtonVimogi'}*/}
-                        {/*            style={basicActive === "/myFiles" ? {background: "#FAB416"} : {}}*/}
-                        {/*    >Файли*/}
-                        {/*    </button>*/}
-                        {/*</Link>*/}
-
-
-                        <Link to="/Vimogi" style={{textDecoration: 'none'}}>
-                            <button
-                                onClick={() => handleBasicClick('/Vimogi')}
-                                className="adminButtonAdd"
-                                style={{minWidth:'3vw', borderRadius: '0vh 0vh 0vh 1vh'}}
-                            >Вимоги
-                            </button>
-                        </Link>
-                        {/*<Link to="/Invoices" style={{textDecoration: 'none',  padding: '0', background: 'transparent'}}>*/}
-                        {/*    <button*/}
-                        {/*        onClick={() => handleBasicClick('/Invoices')}*/}
-                        {/*        className={basicActive === "/Invoices" ? 'ButtonVimogi ButtonVimogia' : 'ButtonVimogi'}*/}
-                        {/*        style={basicActive === "/Invoices" ? {background: "#FAB416"} : {}}*/}
-                        {/*    >Рахунки*/}
-                        {/*    </button>*/}
-                        {/*</Link>*/}
-
-                        {/* Кнопки авторизації переміщені у верхній правий кут */}
-                    </div>
-                </div>
-                {/* Права верхня частина з кнопками */}
-                <div style={{
-                    // position: 'absolute',
-
-                    right: '0px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0vw',
-
-                }}>
-                    {/* Кнопка "Нове замовлення" */}
-                    <div ref={newOrderButtonRef} style={{flexShrink: 0}}>
-                        <AddNewOrder />
-                    </div>
-
-                    {/* Компонент для створення клієнта */}
-                    <div style={{ flexShrink: 0 }}>
-                        <AddUserButton
-                            fetchUsers={() => {
-                                // Додаткові дії після створення користувача, якщо потрібно
-                                dispatch(fetchUser())
-                            }}
-                        />
-                    </div>
-
-                    {/* Поле пошуку */}
-                    <div>
-                        <Form.Control
-                            className="Search"
-                            name="search"
-                            type="text"
-                            placeholder="Пошук"
-                            value={search.search}
-                            style={{fontSize: '1.7vh', width: '15vw', marginTop: '-3.35vh', marginRight: '0.5vw'}}
-                            onChange={(e) => {
-                                setSearch({ ...search, search: e.target.value });
-                                handleSearch(e.target.value);
-                            }}
-                        />
-
-                    </div>
-
-                    {/* Кнопки "Налаштування" та "Вийти" */}
-                    {currentUser ? (
-                        <div style={{display: 'flex', gap: '0px', alignItems: 'center', justifyContent: 'center',  transform: 'translateY(-50%)', marginRight: '-1vw'}}>
-
-                            {currentUser.role === "admin" ? (
-                                <>
-                                    <Link onClick={() => handleBasicClick('/currentUser')} to="/currentUser"
-                                          style={{textDecoration: 'none'
-                                          }}
-                                    >
-                                        <button
-                                            className="adminButtonAdd"
-                                            style={{
-                                                ...(basicActive === "/currentUser" ? {background: "#FAB416"} : {}),
-                                                height: '4vh',
-                                                minWidth: '3vw',
-                                                padding: '0 15px',
-                                                fontSize: '0.8vw',
-                                                whiteSpace: 'nowrap',
-                                                background: '#008249',
-                                                borderRadius: '1vh 0vh 0vh 1vh',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '5px'
-                                            }}
-                                        >
-                                            <FiSettings style={{fontSize: '1.1rem'}} />: {currentUser.username}
-                                        </button>
-                                    </Link>
-                                  <PopupLeftNotification/>
-                                    <button
-                                        onClick={logoutt}
-                                        className="adminButtonAdd"
-                                        style={{
-                                            height: '4vh',
-                                            padding: '0 15px',
-                                            minWidth: '3vw',
-                                            fontSize: '1.2rem',
-                                            width: '1vw',
-                                            background: '#EE3C23',
-                                            borderRadius: '0vh 1vh 1vh 0vh',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center'
-                                        }}
-                                    >
-                                        <FiLogOut />
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    <Link onClick={() => handleBasicClick('/currentUser')} to="/currentUser"
-                                          style={{textDecoration: 'none'}}>
-                                        <button
-                                            className="adminButtonAdd"
-                                            style={{
-                                                ...(basicActive === "/createOrder" ? {background: "#FAB416"} : {}),
-                                                height: '4vh',
-                                                padding: '0 15px',
-                                                fontSize: '0.8vw',
-                                                whiteSpace: 'nowrap',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '5px'
-                                            }}
-                                        >
-                                            <FiSettings style={{fontSize: '1.1rem'}} /> {currentUser.username}
-                                        </button>
-                                    </Link>
-                                    <button
-                                        onClick={logoutt}
-                                        className="adminButtonAdd"
-                                        style={{
-                                            height: '4vh',
-                                            maxWidth: '3vw',
-                                            padding: '0 10px',
-                                            fontSize: '1.2rem',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center'
-                                        }}
-                                    >
-                                        <FiLogOut />
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="login-button-container" style={{animation: 'fadeIn 0.5s', }}>
-                            <Link onClick={() => handleBasicClick('/login')} to="/login"
-                                  style={{textDecoration: 'none',
-
-                            }}>
-                                <button
-                                    className="adminButtonAdd"
-                                    style={{
-                                        ...(basicActive === "/login" ? {background: "#008249"} : {background: "#008249"}),
-                                        height: '4vh',
-                                        padding: '0 15px',
-                                        fontSize: '0.8vw',
-                                        whiteSpace: 'nowrap',
-                                        marginTop: '-3.7vh',
-                                        minWidth: '5vw',
-                                        background: '#008249',
-                                        borderRadius: '1vh 1vh 1vh 1vh',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '5px'
-                                        // background: 'red'
-                                    }}
-                                >
-                                    Логін
-                                </button>
-                            </Link>
-                        </div>
-                    )}
-                </div>
-            </MDBContainer>
-        </MDBNavbar>
 
 </div>
 

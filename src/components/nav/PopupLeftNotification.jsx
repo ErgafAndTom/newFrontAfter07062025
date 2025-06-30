@@ -20,13 +20,13 @@ const PopupLeftNotification = () => {
   }, [currentUser?.id]);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (popupRef.current && !popupRef.current.contains(e.target)) {
-        setShow(false);
-      }
-    };
-    if (show) document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    // const handleClickOutside = (e) => {
+    //   if (popupRef.current && !popupRef.current.contains(e.target)) {
+    //     setShow(false);
+    //   }
+    // };
+    // if (show) document.addEventListener('mousedown', handleClickOutside);
+    // return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [show]);
 
   const portalRoot = document.getElementById('notification-root');
@@ -62,7 +62,7 @@ const PopupLeftNotification = () => {
               borderRadius: '0.5vh',
               padding: '0.8vh 0.6vw',
               marginBottom: '1vh',
-              marginTop:'1vh',
+
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'flex-start',

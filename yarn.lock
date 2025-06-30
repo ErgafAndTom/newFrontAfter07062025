@@ -1424,6 +1424,11 @@
   resolved "https://registry.npmjs.org/@floating-ui/utils/-/utils-0.2.9.tgz"
   integrity sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==
 
+"@fontsource/montserrat@^5.2.6":
+  version "5.2.6"
+  resolved "https://registry.npmjs.org/@fontsource/montserrat/-/montserrat-5.2.6.tgz"
+  integrity sha512-AfFxq1q5tgkOsjQfMFsh95uMXh39VbGOuBLlHLFg16/txv93lqK7Sr6jev0neuJzZy1kqRG16SH6xpUYnk4cZg==
+
 "@humanwhocodes/config-array@^0.13.0":
   version "0.13.0"
   resolved "https://registry.npmjs.org/@humanwhocodes/config-array/-/config-array-0.13.0.tgz"

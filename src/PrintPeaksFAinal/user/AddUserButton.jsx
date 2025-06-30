@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import AddUserWindow from './AddUserWindow';
+import './AddUserButton.css';
 
 const styles = {
     addButton: {
         display: 'flex',
         padding: '0 15px',
-        marginTop: '-3.5vh',
+
+marginTop: '-0.4vh',
         background: '#3C60A6',
         borderRadius: '0.5vw',
-        fontSize: '0.8vw',
-        height: '4vh',
+        fontSize: '0.7vw',
+        height: '3.5vh',
         border: 'none',
         cursor: 'pointer',
         justifyContent: 'center',
@@ -20,7 +22,7 @@ const styles = {
     navButton: { // Додатковий стиль для кнопок у навігаційній панелі
         height: '4vh',
         padding: '0 15px',
-        fontSize: '0.8vw',
+        fontSize: '0.7vw',
         background: '#3C60A6',
         borderRadius: '0vh 1vh 1vh 0vh ',
         border: 'none',
@@ -38,7 +40,7 @@ const styles = {
         marginLeft: '0.5vw',
         justifyContent: 'center',
         alignItems: 'center',
-        fontSize: '0.8vw',
+        fontSize: '0.7vw',
     },
     userIcon: {
         fontSize: '0.9vw',
@@ -47,11 +49,11 @@ const styles = {
 
 function AddUserButton({ fetchUsers }) {
     const [showAddUser, setShowAddUser] = useState(false);
-    
+
     const handleAddUser = () => {
         setShowAddUser(true);
     };
-    
+
     const handleUserAdded = () => {
         setShowAddUser(false);
         if (fetchUsers) {
@@ -61,20 +63,18 @@ function AddUserButton({ fetchUsers }) {
 
     return (
         <div>
-            <div style={styles.buttonContainer}>
+            <div>
                 <button
-                    className="adminButtonAdd"
-                    style={{  ...styles.navButton, backgroundColor: '#3C60A6', marginTop: '-3.8vh', marginRight: '0.5vw'}}
+                    className="buttonSkewedUser storeButton"
                     onClick={handleAddUser}
+               >
 
-                >
+                    <span style={{alignItems: 'center', justifyContent: 'center', fontSize: '0.7vw'}}
 
-                    <span style={{alignItems: 'center', justifyContent: 'center', fontSize: '0.8vw'}}
-
-                    >Створити клієнта</span>
+                    >&nbsp;&nbsp;Створити клієнта</span>
                 </button>
             </div>
-            
+
             {showAddUser && (
                 <AddUserWindow
                     show={showAddUser}

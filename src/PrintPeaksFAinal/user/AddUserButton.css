@@ -1,0 +1,43 @@
+.buttonSkewedUser {
+  height: 3.5vh;
+  width: 7.5vw;
+  font-size: 0.7vw;
+  margin-top: -0.4vh;
+  background-color: #fab416;
+  color: black;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  clip-path: polygon(1.6vh 0, 100% 0, 100% 100%, 0 100%);
+  /*border-bottom-right-radius: 1vh;*/
+margin-right: -0.5vw;
+  position: relative;
+  z-index: 1;
+}
+
+.buttonSkewed.last {
+  clip-path: polygon(1.6vh 0, 100% 0, 100% 100%, 0 100%);
+  margin-right: 0;
+  border-bottom-right-radius: 1vh;
+}
+
+.buttonSkewed.first {
+  clip-path: polygon(0 0, 100% 0, calc(100% - 1.6vh) 100%, 0 100%);
+  border-bottom-left-radius: 1vh;
+}
+.buttonSkewedUser:hover {
+  background-color: #fab416;
+  color: white;
+  transform: scale(1.025);
+  font-size: 1.5vh;
+
+}
+.buttonSkewed:hover::after {
+  background: #0a5c38;
+}
+.buttonSkewed:active {
+  background-color: #0a5c38;
+}
+.buttonSkewed:active::after {}
