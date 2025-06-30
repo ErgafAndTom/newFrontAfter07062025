@@ -84,6 +84,11 @@ const TrelloBoard = () => {
     e.dataTransfer.setData("sourceListId", sourceListId);
     e.dataTransfer.setData("sourceIndex", index);
     dispatch(setDragData({ card, sourceListId, sourceIndex: index }));
+
+    // Убираем ghost-изображение
+    const img = new Image();
+    img.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
+    e.dataTransfer.setDragImage(img, 0, 0);
   };
 
   const onDragOverCard = (e, targetListId, targetCardIndex, el) => {
@@ -97,17 +102,18 @@ const TrelloBoard = () => {
 
   const onDragOverEmptyList = (e, listId) => {
     e.preventDefault();
-    dispatch(setHoveredCard({ listId, index: 0 }));
+    dispatch(setHoveredCard({ listId, index: 0, position: "before" }));
   };
 
   const onDropCard = async (e, fallbackListId) => {
     e.preventDefault();
-    const hovered = hoveredCard || { listId: fallbackListId, index: lists.find(l => l.id === fallbackListId).Cards.length };
+    const hovered = hoveredCard || { listId: fallbackListId, index: lists.find(l => l.id === fallbackListId).Cards.length, position: "after" };
+    let toIndex = hovered.position === "before" ? hovered.index : hovered.index + 1;
     dispatch(setHoveredCard(null));
     const cardId = e.dataTransfer.getData("cardId");
     const sourceListId = e.dataTransfer.getData("sourceListId");
     const sourceIndex = parseInt(e.dataTransfer.getData("sourceIndex"), 10);
-    await dispatch(dragCard(cardId, sourceListId, hovered.listId, sourceIndex, hovered.index));
+    await dispatch(dragCard(cardId, sourceListId, hovered.listId, sourceIndex, toIndex));
     dispatch(setDragData(null));
   };
 
@@ -154,44 +160,65 @@ const TrelloBoard = () => {
 
               return (
                 <React.Fragment key={card.id}>
-                  {showPlaceholderBefore && <div style={{ height: '0.2vh', background: 'yellow', opacity: 0.8, margin: '0', transition: 'all 0.2s' }} />}
-                  <div
-                    ref={setRef}
-                    className="trello-card"
-                    draggable
-                    onDragStart={(e) => onDragStart(e, card, list.id, card.index)}
-                    onDragOver={(e) => onDragOverCard(e, list.id, index, cardRefs.current[list.id][card.id])}
-                    onDragLeave={() => dispatch(setHoveredCard(null))}
-                    onDrop={(e) => onDropCard(e, list.id)}
-                    onClick={() => seeInfoCard(list.id, card.id)}
-                    style={{ textAlign: 'justify', margin: "0.1vh" }}
-                  >
-                    {capitalizeFirstWord(card.content)}
-                    {card.inTrelloPhoto && (
-                      <div className="trello-card-photo" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3vw', justifyContent: 'flex-start', borderBottom: '0.1vh solid #aeaeae' }}>
-                        {card.inTrelloPhoto.map((photo, i) => (
-                          <img key={i} src={`/images/${photo.photoLink}`} alt={`Card Photo ${i + 1}`} style={{ width: '2vw', height: '5vh', objectFit: 'contain', borderRadius: '0.5vh', pointerEvents: 'none', userSelect: 'none', cursor: 'not-allowed' }} />
-                        ))}
-                      </div>
-                    )}
-                    <div className="d-flex justify-content-between align-items-end" style={{ fontSize: "1.0vh", marginTop: '0.5vh', opacity: '0.6' }}>
-                      <div>
-                        {`Завдання від `}
-                        <b>{card?.createdBy?.firstName} {card?.createdBy?.familyName} {card?.createdBy?.username}</b>
-                        {` потрібно виконати `}
-                        <b>{card?.assignedTo?.firstName} {card?.assignedTo?.familyName}</b>
-                      </div>
-                      <div style={{ fontSize: "0.9vh", textAlign: 'right' }}>
-                        {new Date(card.createdAt).toLocaleString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(' р.', '').replace(',', '')}
+                  <div style={{ position: 'relative', margin: '0.2vh'}}>
+                    {showPlaceholderBefore &&
+                      <div style={{
+                        position: 'absolute',
+                        top: '-1px', left: '0', right: '0',
+                        height: '0.5vh', background: 'yellow',
+                        transform: 'scaleX(1)', transformOrigin: 'left',
+                        opacity: 0.8, transition: 'transform 0.2s ease', zIndex: "1000"
+                      }} />}
+                    <div
+                      ref={setRef}
+                      className="trello-card"
+                      draggable
+                      onDragStart={(e) => onDragStart(e, card, list.id, card.index)}
+                      onDragOver={(e) => onDragOverCard(e, list.id, index, cardRefs.current[list.id][card.id])}
+                      onDragLeave={() => dispatch(setHoveredCard(null))}
+                      onDrop={(e) => onDropCard(e, list.id)}
+                      onClick={() => seeInfoCard(list.id, card.id)}
+                      style={{ textAlign: 'justify' }}
+                    >
+                      {capitalizeFirstWord(card.content)}
+                      {card.inTrelloPhoto && (
+                        <div className="trello-card-photo" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3vw', justifyContent: 'flex-start', borderBottom: '0.1vh solid #aeaeae' }}>
+                          {card.inTrelloPhoto.map((photo, i) => (
+                            <img key={i} src={`/images/${photo.photoLink}`} alt={`Card Photo ${i + 1}`} style={{ width: '2vw', height: '5vh', objectFit: 'contain', borderRadius: '0.5vh', pointerEvents: 'none', userSelect: 'none', cursor: 'not-allowed' }} />
+                          ))}
+                        </div>
+                      )}
+                      <div className="d-flex justify-content-between align-items-end" style={{ fontSize: "1.0vh", marginTop: '0.5vh', opacity: '0.6' }}>
+                        <div>
+                          {`Завдання від `}
+                          <b>{card?.createdBy?.firstName} {card?.createdBy?.familyName} {card?.createdBy?.username}</b>
+                          {` потрібно виконати `}
+                          <b>{card?.assignedTo?.firstName} {card?.assignedTo?.familyName}</b>
+                        </div>
+                        <div style={{ fontSize: "0.9vh", textAlign: 'right' }}>
+                          {new Date(card.createdAt).toLocaleString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(' р.', '').replace(',', '')}
+                        </div>
                       </div>
                     </div>
+                    {showPlaceholderAfter &&
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '-1px', left: '0', right: '0',
+                        height: '0.5vh', background: 'yellow',
+                        transform: 'scaleX(1)', transformOrigin: 'left',
+                        opacity: 0.8, transition: 'transform 0.2s ease', zIndex: "1000"
+                      }} />}
                   </div>
-                  {showPlaceholderAfter && <div style={{ height: '0.2vh', background: 'yellow', opacity: 0.8, margin: '0', transition: 'all 0.2s' }} />}
                 </React.Fragment>
               );
             })}
+
             {hoveredCard && hoveredCard.listId === list.id && hoveredCard.index === list.Cards.length &&
-              <div style={{ height: '0.2vh', background: 'yellow', opacity: 0.8, margin: '0', transition: 'all 0.2s' }} />
+              <div style={{ position: 'absolute',
+                bottom: '-1px', left: '0', right: '0',
+                height: '0.5vh', background: 'yellow',
+                transform: 'scaleX(1)', transformOrigin: 'left',
+                opacity: 0.8, transition: 'transform 0.2s ease', zIndex: "1000" }} />
             }
           </div>
         ))}
