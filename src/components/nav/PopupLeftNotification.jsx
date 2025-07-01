@@ -8,11 +8,16 @@ import {addList, fetchTrelloData} from "../../actions/trello_async_actions";
 const PopupLeftNotification = () => {
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.auth.user);
+  const lists = useSelector((state) => state.trello.lists);
   const [data, setData] = useState([]);
   const [show, setShow] = useState(false);
   const popupRef = useRef(null);
 
-  const toggle = () => setShow((prev) => !prev);
+  const toggle = () => {
+    if (data.length < 0) {
+      setShow((prev) => !prev);
+    }
+  }
 
   const handleComplete = async (id) => {
     let dataToSend = {
