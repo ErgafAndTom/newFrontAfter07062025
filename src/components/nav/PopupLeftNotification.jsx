@@ -1,16 +1,31 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import axios from '../../api/axiosInstance';
-import { useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import BellButton from './BellButton';
+import {addList, fetchTrelloData} from "../../actions/trello_async_actions";
 
 const PopupLeftNotification = () => {
+  const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.auth.user);
   const [data, setData] = useState([]);
   const [show, setShow] = useState(false);
   const popupRef = useRef(null);
 
   const toggle = () => setShow((prev) => !prev);
+
+  const handleComplete = async (id) => {
+    let dataToSend = {
+      cardId: id,
+      userId: currentUser.id,
+    }
+    const response = await axios.put('/trello/updateCardCompleteZadacha', dataToSend);
+    if (response.status !== 200) {
+      throw new Error(response.data.message || 'Помилка переміщення');
+    }
+    setData(response.data)
+    dispatch(fetchTrelloData())
+  };
 
   useEffect(() => {
     if (!currentUser?.id) return;
@@ -95,7 +110,7 @@ const PopupLeftNotification = () => {
                 cursor: 'pointer'
               }}
 
-              onClick={() => {}}>
+              onClick={(e) => {handleComplete(card.id)}}>
                 ✓
               </button>
             </div>
