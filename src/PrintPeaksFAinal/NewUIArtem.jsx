@@ -55,7 +55,7 @@ import Vishichka from "./poslugi/Vishichka";
 import PerepletMet from "./poslugi/PerepletMet";
 import BigOvshik from "./poslugi/BigOvshik";
 import ProgressBar from "../ProgressBar";
-import {ExampleLoaderComponent} from "../dev/palette";
+// import {ExampleLoaderComponent} from "../dev/palette";
 import NewCup from "./poslugi/NewCup";
 import NovaPoshtaButton from "./userInNewUiArtem/novaPoshta/NovaPoshtaButton";
 import FilesInOrder from "./filesInOrder/FilesInOrder";

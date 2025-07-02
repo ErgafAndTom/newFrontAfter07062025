@@ -1,6 +1,6 @@
 .bell-button {
   height: 3.5vh;
-  z-index: 500;
+  /*z-index: 510;*/
   background: #f075aa;
   color: black;
   border: none;
@@ -12,6 +12,7 @@
   font-size: 1.5vh;
   cursor: pointer;
   transition: background 0.5s ease;
+  margin-top: -0.4vh;
 
   justify-content: center
 }

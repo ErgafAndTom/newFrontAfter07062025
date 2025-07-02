@@ -146,6 +146,7 @@ const UsersCustomTable = ({name}) => {
                                 justifyContent: "center",
                                 height: "auto",
                                 minHeight: "1vh",
+
                                 boxSizing: "border-box",
                                 textAlign: "center",
                                 width: getColumnWidth(item),
@@ -177,6 +178,7 @@ const UsersCustomTable = ({name}) => {
                                         position: 'relative',
                                         right: "-0.2rem",
                                         cursor: "pointer",
+
                                         whiteSpace: "pre-line"
                                     }}>
                                             {!thisColumn.reverse ? "↑" : "↓"}
@@ -192,7 +194,7 @@ const UsersCustomTable = ({name}) => {
                      style={{
                          maxWidth: '99vw',
                          overflow: 'auto',
-                         height: "82vh",
+                         height:'84vh',
                          background: "transparent",
                          borderRadius: "0.5rem",
                          display: "flex",
@@ -215,7 +217,7 @@ const UsersCustomTable = ({name}) => {
                                                       overflow: 'hidden',
                                                       textOverflow: 'ellipsis',
                                                       whiteSpace: 'nowrap',
-                                                      height: "auto",
+
                                                       minHeight: "2vh",
                                                       display: "flex",
                                                       alignItems: "center",

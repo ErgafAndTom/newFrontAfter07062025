@@ -36,7 +36,7 @@ function Vimogi() {
             >
                 <Tab className="nav-tabs" eventKey="colorprinthelp" title="Цифровий друк"></Tab>
                 <Tab eventKey="ofsethelp" title="Офсетний друк">
-                    <div class="component-2022-21">
+                    <div className="component-2022-21">
                         <p><strong>Загальні вимоги до файлів</strong></p>
                             <li>- Макети приймаються у форматах TIFF, PDF, PSD</li>
                             <li>- Якість для макетів - не менше 300 dpi (Якщо неякісним зображенням примусово призначити 300 dpi, їх якість не покращиться. В цьому випадку краще замінити зображення якіснішими).        </li>
@@ -54,19 +54,19 @@ function Vimogi() {
                         <p className="print" style={{textAlign: 'center', marginTop: '1vh'}}>
                             Виліти — 2 мм якщо аркушева продукція (3 мм якщо багатосторінкова).
                         </p>
-                        <li class="print" >
+                        <li className="print" >
                             - Усі шари в растрових макетах повинні бути злиті в один.
                         </li>
-                            <li class="print">- У PDF файлах не повинно бути OPI зв'язків.</li>
-                            <li class="print">- Макет не повинен містити жодних ICC-профілів.</li>
-                            <li class="print">
+                            <li className="print">- У PDF файлах не повинно бути OPI зв'язків.</li>
+                            <li className="print">- Макет не повинен містити жодних ICC-профілів.</li>
+                            <li className="print">
                                - У макетах не повинно бути прозоростей «Transparency».
                             </li>
-                            <li class="print">- Мінімальна товщина ліній 0,5 pt. (0,17 мм).</li>
+                            <li className="print">- Мінімальна товщина ліній 0,5 pt. (0,17 мм).</li>
 
 
 
-                        <div class="tverd-text17">
+                        <div className="tverd-text17">
                             <div className="viz"
                                  style={{display: 'flex', justifyContent: 'center', margin: "0.5vw", height: '17vh'}}>
                                 <img className="viz2" alt="" src={viz2} style={{marginRight: '1vw', borderTopLeftRadius: '1vw', borderBottomRightRadius: '1vw'}}/>
@@ -128,23 +128,23 @@ function Vimogi() {
                             </li>
                         </div>
 
-                        <div class="tverd-text18">
+                        <div className="tverd-text18">
                             <p><strong>Вимоги до шифтів</strong></p>
-                            <li class="print">
+                            <li className="print">
                                 Шрифти у векторних файлах необхідно конвертувати у криві.
                             </li>
-                            <li class="print">
+                            <li className="print">
                             Не допускається використання растрового тексту менше 8 пунктів,
                             інакше він може бути нечитабельним.
                         </li>
-                        <li class="print">
+                        <li className="print">
                             У шрифтах не допускається чорний композитний колір (що складається
                             із 4 компонентів кольору).
                         </li>
-                        <li class="print">
+                        <li className="print">
                             Чорний текст має відповідати формулі: С:0 М:0 Y:0 K:100.
                         </li>
-                        <li class="print">
+                        <li className="print">
                             Елементи чорного кольору (С:0 М:0 Y:0 K:100), розташовані на
                             однорідному тлі, а також текст повинні мати атрибут «overprint»
                             (накладання).

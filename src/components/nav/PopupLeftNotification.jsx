@@ -15,8 +15,8 @@ const PopupLeftNotification = () => {
 
   const toggle = () => {
     if (data.length < 0) {
-      setShow((prev) => !prev);
-    }
+
+    }setShow((prev) => !prev);
   }
 
   const handleComplete = async (id) => {

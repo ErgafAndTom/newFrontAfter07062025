@@ -384,7 +384,7 @@ const CustomOrderTable2 = () => {
                         style={{width: '5vw'}}>Видалити
                     </div>
                 </div>
-                <div className="CustomOrderTable-body">
+                <div className="CustomOrderTable-body" style={{height: "80vh"}}>
                     {error && (
                         <div>{error}</div>
                     )}
