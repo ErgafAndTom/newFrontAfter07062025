@@ -443,18 +443,18 @@ const NewSheetCut = ({
 
                                             {/* Постпресові операції (рахуються за body.count) */}
                                             <div className="fontInfoForPricing">
-                                                Згинання: {pricesThis.big.pricePerUnit.toFixed(2)} грн
-                                                * {pricesThis.big.count} шт = {pricesThis.big.totalPrice.toFixed(2)} грн
+                                                Згинання: {pricesThis.big.pricePerUnit} грн
+                                                * {pricesThis.big.count} шт = {pricesThis.big.totalPrice} грн
                                             </div>
                                             <div className="fontInfoForPricing">
-                                                Скруглення кутів: {pricesThis.cute.pricePerUnit.toFixed(2)} грн
+                                                Скруглення кутів: {pricesThis.cute.pricePerUnit} грн
                                                 * {pricesThis.cute.count} шт
-                                                = {pricesThis.cute.totalPrice.toFixed(2)} грн
+                                                = {pricesThis.cute.totalPrice} грн
                                             </div>
                                             <div className="fontInfoForPricing">
-                                                Свердління отворів: {pricesThis.holes.pricePerUnit.toFixed(2)} грн
+                                                Свердління отворів: {pricesThis.holes.pricePerUnit} грн
                                                 * {pricesThis.holes.count} шт
-                                                = {pricesThis.holes.totalPrice.toFixed(2)} грн
+                                                = {pricesThis.holes.totalPrice} грн
                                             </div>
                                             <div className="fontInfoForPricing">
                                                 Проклейка: {pricesThis.prokleyka.pricePerUnit} грн

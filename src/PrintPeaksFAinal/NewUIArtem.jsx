@@ -629,14 +629,14 @@ const NewUIArtem = () => {
                                                                     }}> {parseFloat(thing.priceForOneThis).toFixed(2)} </strong>
                                                                 &nbsp;грн
                                                             </div>
-                                                            {parseFloat(thing.priceForOneThis) !== parseFloat(thing.priceForOneThisDiscount) && (
+                                                            {parseFloat(thing.priceForOneThis).toFixed(2) !== thing.priceForOneThisDiscount && (
                                                                 <div className="d-flex adminFontTable">
                                                                     За 1 шт зі знижкою:&nbsp;
                                                                     <strong
                                                                         style={{
                                                                             fontSize: "1.5vmin",
                                                                             color: "#008249"
-                                                                        }}>  {parseFloat(thing.priceForOneThisDiscount).toFixed(2)} </strong>
+                                                                        }}> {thing.priceForOneThisDiscount} </strong>
                                                                     &nbsp;грн
                                                                 </div>
                                                             )}
