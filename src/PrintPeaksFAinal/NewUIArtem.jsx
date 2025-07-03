@@ -563,7 +563,7 @@ const NewUIArtem = () => {
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        {parseFloat(thing.priceForOneThis) !== parseFloat(thing.priceForOneThisDiscount) && (
+                                                        {parseFloat(thing.priceForOneThis).toFixed(2) !== parseFloat(thing.priceForOneThisDiscount).toFixed(2) && (
                                                             <div className="discount-container"
                                                                  style={{
                                                                      paddingLeft: "0.5vw",
