@@ -133,7 +133,8 @@ const UsersCustomTable = ({name}) => {
     if (data) {
         return (
             <div className="CustomOrderTable-order-list">
-                <div className="CustomOrderTable-header">
+                <div className="CustomOrderTable-header"
+                style={{zIndex:"0"}}>
                     {data.metadata.map((item, iter) => (
                         <div
                             style={{
@@ -201,6 +202,7 @@ const UsersCustomTable = ({name}) => {
                          flexDirection: "column",
                          width: "100%",
                          tableLayout: "fixed"
+
                      }}>
                     {data.rows.map((item, iter) => (
                         <div key={item.id} className="table-row-container">

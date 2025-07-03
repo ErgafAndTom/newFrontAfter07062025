@@ -6,7 +6,7 @@ import './AddUserButton.css';
 const styles = {
     addButton: {
         display: 'flex',
-        padding: '0 15px',
+        padding: '0',
 
 marginTop: '-0.4vh',
         background: '#3C60A6',
@@ -71,7 +71,7 @@ function AddUserButton({ fetchUsers }) {
 
                     <span style={{alignItems: 'center', justifyContent: 'center', fontSize: '0.7vw'}}
 
-                    >&nbsp;&nbsp;Створити клієнта</span>
+                    >&nbsp;&nbsp;&nbsp;Створити клієнта</span>
                 </button>
             </div>
 

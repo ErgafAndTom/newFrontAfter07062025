@@ -38,6 +38,7 @@ margin-right: -0.5vw;
   background: #0a5c38;
 }
 .buttonSkewed:active {
-  background-color: #0a5c38;
+  background-color: #fbbf36;
+  color: white;
 }
 .buttonSkewed:active::after {}

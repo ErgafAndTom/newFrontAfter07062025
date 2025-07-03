@@ -116,7 +116,7 @@
   white-space: nowrap;
   border: none;
   cursor: pointer;
-  background-color: #008249;
+  background-color: #FAB416 ;
   color: white;
   transition: background 0.3s ease;
 }
@@ -140,8 +140,9 @@
 
   color: white;
   background-color: #fab416;
-  transform: scale(1.025);
-  font-size: 1.5vh;
+  /*transform: scale(1.025);*/
+  /*font-size: 1.5vh;*/
+
 }
 .adminButtonAdd:hover {
 

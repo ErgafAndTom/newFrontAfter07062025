@@ -10,6 +10,7 @@
     border-radius: 1rem;
     align-items: stretch;
     background-color: #FBFAF6;
+
 }
 
 .table-row-container {
@@ -40,6 +41,7 @@
     padding: 0 0.5rem;
     flex-wrap: wrap;
     gap: 1rem;
+
 
 }
 
@@ -147,7 +149,7 @@ body {
     justify-content: space-between;
     align-items: center;
     background-color: #F2F0E7;
-    padding: 0.3vw;
+    padding: 0vw;
     border-radius: 12px;
     cursor: pointer;
 }
@@ -372,6 +374,7 @@ body {
     white-space: pre-line; /* підтримка переносів */
     line-height: 1.7;      /* краща читабельність */
     border-radius: 0rem;
+
 }
 
 .disabled-CustomOrderTable2-header-cell {
@@ -395,6 +398,7 @@ body {
     background-color: #FBFAF6;
     border-bottom: 0.1vw solid #ddd;
     border-radius: 0;
+
 
 }
 
@@ -422,6 +426,7 @@ body {
     background-color: #FBFAF6;
     border-radius: 0;
     border-right: 0.1vw solid rgba(0, 0, 0, 0.05);
+
 }
 
 .CustomOrderTable-header-cell:last-child {
@@ -473,7 +478,7 @@ body {
     border: 0.1vw solid white;
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 0;
     overflow-x: auto;
     border-radius: 0.5rem 0.5rem 0 0;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);

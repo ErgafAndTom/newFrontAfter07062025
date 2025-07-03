@@ -12,10 +12,12 @@ function SliderComponent({size, setSize}) {
     });
 
     const handleChange1 = (event) => {
-        setX(parseInt(event.target.value, 10));
+      console.log(event.target.value);
+      setX(parseInt(event.target.value, 10));
     };
 
     const handleChange2 = (event) => {
+      console.log(event.target.value);
         setY(parseInt(event.target.value, 10));
     };
 
@@ -67,8 +69,8 @@ function SliderComponent({size, setSize}) {
                 <span className="slider-label" style={{marginLeft: "40vw", width: "100%", opacity:"50%"}}>1000 мм</span>
                 <input
                     type="range"
-                    min="0"
-                    max="1000"
+                    min={45}
+                    max={1000}
                     value={x}
                     onChange={handleChange1}
                     onMouseUp={handleMouseUp1} // Встановлення остаточного значення при відпусканні миші
@@ -86,8 +88,8 @@ function SliderComponent({size, setSize}) {
                 <span className="slider-label" style={{marginLeft: "40vw", width: "100%", opacity:"50%"}}>3000 мм</span>
                 <input
                     type="range"
-                    min="0"
-                    max="3000"
+                    min={45}
+                    max={3000}
                     value={y}
                     onChange={handleChange2}
                     onMouseUp={handleMouseUp2} // Встановлення остаточного значення при відпусканні миші

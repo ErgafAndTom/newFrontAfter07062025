@@ -58,9 +58,9 @@ function AddNewOrder({namem, data, setData, inPageCount, setInPageCount, current
 
                 data-testid="new-order-button"
                 id="new-order-button"
-              style={{marginLeft:'0vw'}}
+              style={{marginLeft:'0vw', alignItems:'center', justifyContent:'center'}}
             >
-                Нове замовлення&nbsp;&nbsp;&nbsp;
+                Нове замовлення&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             </div>
 
 

@@ -74,7 +74,7 @@ const PopupLeftNotification = () => {
             padding: '1vh 1vw',
             maxHeight: '90vh',
             overflowY: 'auto',
-            zIndex: 2147483647
+
           }}
         >
 
@@ -85,7 +85,7 @@ const PopupLeftNotification = () => {
               borderRadius: '0.5vh',
               padding: '0.8vh 0.6vw',
               marginBottom: '1vh',
-
+              zIndex: '500',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'flex-start',

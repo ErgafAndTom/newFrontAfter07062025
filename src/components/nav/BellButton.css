@@ -26,9 +26,9 @@
   font-weight: bold;
 }
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-  100% { transform: scale(1); }
+  0% { transform: scale(1.05); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1.05); }
 }
 
 @keyframes shake {
@@ -59,9 +59,9 @@
 
 .pulse {
   animation: pulse 0.5s ease-in-out infinite, gradient 3s linear infinite;
-  height: 4vh;
+  height: 4.5vh;
   border-radius: 0vh 0vh 0.5vh 0.5vh;
-  padding-top: 1vh;
+  padding-top: 1.4vh;
 
 
   background: linear-gradient(

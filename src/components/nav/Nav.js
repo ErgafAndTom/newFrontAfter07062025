@@ -68,9 +68,9 @@ const Nav = () => {
     return (
 <div>
 
-  <div className="d-flex justify-content-between align-items-center ">
+  <div className="d-flex justify-content-between align-items-center " style={{borderRadius:'0vh',marginBottom:'1vh'}}>
     {/* Ліва панель з кнопками */}
-    <div className="d-flex flex-row align-items-center " style={{ paddingLeft: '0.5vw' }}>
+    <div className="d-flex flex-row align-items-center " style={{ paddingLeft: '0.5vw', zIndex: '0' }}>
       {[
         { to: "/Desktop", label: "Головна" },
         { to: "/Users", label: "Клієнти" },
@@ -97,17 +97,11 @@ const Nav = () => {
     </div>
 
     {/* Права частина */}
-    <div className="d-flex align-items-center" style={{ height: '4vh', gap: '0.5vw' }}>
+    <div className="d-flex align-items-center" style={{ height: '3.5vh', gap: '0.5vw',  marginRight:'0.5vw'}}>
       <div >
         <LogoWithText />
         <AddNewOrder />
       </div>
-
-      <div style={{ height: '4vh', display: 'flex', alignItems: 'center' }}>
-
-      </div>
-
-
 
       <Form.Control
         className="buttonSkewedSearch buttonSkewedSearchLupa"
@@ -115,23 +109,23 @@ const Nav = () => {
         type="text"
         placeholder=""
         value={search.search}
-
+        style={{borderRadius:'0'}}
         onChange={(e) => {
           setSearch({ ...search, search: e.target.value });
           handleSearch(e.target.value);
         }}
       />
-      <div style={{ height: '3.5vh', display: 'flex', alignItems: 'center' }}>
+      <div style={{ height: '3.5vh', display: 'flex', alignItems: 'center', borderRadius: '0vh', }}>
         <AddUserButton fetchUsers={() => dispatch(fetchUser())} />
       </div>
       {currentUser ? (
-        <div className="d-flex align-items-center" style={{ height: '3.5vh' }}>
-          <Link to="/currentUser" style={{ textDecoration: 'none' }}>
+        <div className="d-flex align-items-center" style={{ height: '3.5vh'}}>
+          <Link to="/currentUser" style={{ textDecoration: 'none', }}>
             <button
               className="adminButtonAddNav"
               style={{
                 background: '#008249',
-                borderRadius: '0 0 0 0',
+                borderRadius: '0vh',
                 height: '3.5vh',
                 marginTop: '-0.4vh'
               }}
@@ -149,7 +143,8 @@ const Nav = () => {
               background: '#EE3C23',
               borderRadius: '0 0 1vh 0',
               marginTop: '-0.4vh',
-              height: '3.5vh'
+              height: '3.5vh',
+
             }}
           >
             <FiLogOut />
@@ -161,7 +156,7 @@ const Nav = () => {
             className="adminButtonAddNav"
             style={{
               background: '#008249',
-              borderRadius: ' 0 0 1vh 0',
+              borderRadius: '0 0 1vh 0',
               marginTop: '-0.4vh',
               height: '3,5vh'
             }}
