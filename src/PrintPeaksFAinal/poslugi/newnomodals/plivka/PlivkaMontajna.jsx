@@ -123,10 +123,10 @@ const PlivkaMontajna = ({
             <option
               key="default"
               className="optionInSelectArtem"
-              value="Немає плівки"
+              value="Немає Монтажної плівки"
               data-id="0"
             >
-              <>{"Немає плівки"}</>
+              <>{"Немає Монтажної плівки"}</>
             </option>
             {paper.map((item, iter) => (
               <option

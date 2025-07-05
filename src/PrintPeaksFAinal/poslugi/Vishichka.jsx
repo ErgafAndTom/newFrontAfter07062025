@@ -74,8 +74,8 @@ const Vishichka = ({
   const [plivkaMontajna, setPlivkaMontajna] = useState({
     type: "plivka",
     thickness: "Тонкі",
-    material: "",
-    materialId: "",
+    material: "Немає Монтажної плівки",
+    materialId: "0",
     typeUse: null
   });
     const [big, setBig] = useState("Не потрібно");
