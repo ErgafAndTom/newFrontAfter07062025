@@ -25,9 +25,9 @@ const Nav = () => {
     const [basicActive, setBasicActive] = useState('/');
     const newOrderButtonRef = useRef(null);
 
-  useEffect(() => {
-    dispatch(fetchTrelloData());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(fetchTrelloData());
+  // }, [dispatch]);
 
 
     useEffect(() => {

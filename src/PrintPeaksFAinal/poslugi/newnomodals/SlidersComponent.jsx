@@ -12,12 +12,12 @@ function SliderComponent({size, setSize}) {
     });
 
     const handleChange1 = (event) => {
-      console.log(event.target.value);
+      // console.log(event.target.value);
       setX(parseInt(event.target.value, 10));
     };
 
     const handleChange2 = (event) => {
-      console.log(event.target.value);
+      // console.log(event.target.value);
         setY(parseInt(event.target.value, 10));
     };
 

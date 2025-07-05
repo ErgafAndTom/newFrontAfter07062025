@@ -9,6 +9,7 @@ import {useNavigate} from "react-router-dom";
 import Loader from "../../components/calc/Loader";
 import PerepletPereplet from "./newnomodals/PerepletPereplet";
 import VishichkaVibor from "./newnomodals/vishichka/VishichkaVibor";
+import PlivkaMontajna from "./newnomodals/plivka/PlivkaMontajna";
 
 const Vishichka = ({
                        thisOrder,
@@ -70,6 +71,13 @@ const Vishichka = ({
         materialId: "",
         typeUse: null
     });
+  const [plivkaMontajna, setPlivkaMontajna] = useState({
+    type: "plivka",
+    thickness: "Тонкі",
+    material: "",
+    materialId: "",
+    typeUse: null
+  });
     const [big, setBig] = useState("Не потрібно");
     const [cute, setCute] = useState("Не потрібно");
     const [cuteLocal, setCuteLocal] = useState({
@@ -170,6 +178,7 @@ const Vishichka = ({
             holesR: holesR,
             count: count,
             vishichka: vishichka,
+            plivkaMontajna: plivkaMontajna
         }
         console.log(dataToSend);
         axios.post(`/calc/pricing`, dataToSend)
@@ -183,7 +192,7 @@ const Vishichka = ({
                 }
                 console.log(error.message);
             })
-    }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, vishichka]);
+    }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, vishichka, plivkaMontajna]);
 
     useEffect(() => {
         if (showVishichka) {
@@ -232,8 +241,8 @@ const Vishichka = ({
                                 <div className="m-auto text-center fontProductName">
                                     <div className="d-flex flex-wrap justify-content-center">
                                         {["Наліпки", "Стікерів", "Стікерпака", "Стікерсета", "Бірки", "Листівки", "Коробочки", "Фішки", "Цінника", "Меню"].map((service, index) => (
-                                            <button 
-                                                key={index} 
+                                            <button
+                                                key={index}
                                                 className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}
                                                 style={{minWidth: "5vw"}}
                                                 onClick={() => setSelectedService(service)}
@@ -323,6 +332,18 @@ const Vishichka = ({
                                                 defaultt={"А3 (297 х 420 мм)"}
                                             />
 
+                                          <PlivkaMontajna
+                                            size={size}
+                                            plivkaMontajna={plivkaMontajna}
+                                            setPlivkaMontajna={setPlivkaMontajna}
+                                            vishichka={vishichka}
+                                            setVishichka={setVishichka}
+                                            prices={prices}
+                                            type={"SheetCut"}
+                                            buttonsArr={["З плотерною порізкою на надрукованих аркушах", "З плотерною порізкою стікерпаків", "З плотерною порізкою окремими виробами",]}
+                                            defaultt={"А3 (297 х 420 мм)"}
+                                          />
+
 
                                         </div>
                                     </Row>
@@ -394,6 +415,10 @@ const Vishichka = ({
                                                 <div className="fontInfoForPricing">
                                                     - Використано {pricesThis.sheetCount} аркушів (SR A3)
                                                 </div>
+
+                                              <div className="fontInfoForPricing1">
+                                                За 1 аркуш: {pricesThis.priceForItemWithExtras} грн
+                                              </div>
                                             </div>
 
 

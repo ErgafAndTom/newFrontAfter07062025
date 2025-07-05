@@ -34,7 +34,7 @@ const TrelloBoard = () => {
   const [newListTitle, setNewListTitle] = useState('');
   const [shouldCloseAfterSave, setShouldCloseAfterSave] = useState(false);
 
-  useEffect(() => { dispatch(fetchTrelloData()); }, [dispatch]);
+  useEffect(() => { dispatch(fetchTrelloData()); }, []);
 
   const cardRefs = useRef({});
 
