@@ -111,6 +111,7 @@ const Vishichka = ({
                 holesR: holesR,
                 count: count,
                 vishichka: vishichka,
+                plivkaMontajna: plivkaMontajna
             }
         };
 
