@@ -104,6 +104,7 @@ const Materials2 = ({
             })
     }, [
         material.thickness,
+        material.type,
         size
     ]);
 

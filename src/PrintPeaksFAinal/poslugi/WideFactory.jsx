@@ -9,6 +9,10 @@ import Materials2 from "./newnomodals/Materials2";
 import SliderComponent from "./newnomodals/SlidersComponent";
 import {useNavigate} from "react-router-dom";
 import Loader from "../../components/calc/Loader";
+import imgg3 from "../../components/newUIArtem/printers/p3.svg";
+import img2 from "../../components/newUIArtem/printers/ComponentTMP_0-image2.png";
+import Laminator from "./Laminator";
+import Luvarsi from "./newnomodals/wideFactory/Luvarsi";
 
 const WideFactory = ({
                    thisOrder,
@@ -28,6 +32,8 @@ const WideFactory = ({
   const [load, setLoad] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [selectWideFactory, setSelectWideFactory] = useState("Баннер FactoryWide");
+  const [arrOfTops, setArrOfTops] = useState(["БАННЕР F"]);
   const [error, setError] = useState(null);
   const handleClose = () => {
     setIsAnimating(false); // Начинаем анимацию закрытия
@@ -46,7 +52,7 @@ const WideFactory = ({
     y: 594
   });
   const [material, setMaterial] = useState({
-    type: "Папір Широкоформат",
+    type: "Папір FactoryWide",
     thickness: "",
     material: "",
     materialId: ""
@@ -70,12 +76,45 @@ const WideFactory = ({
     leftBottom: false,
     radius: "",
   });
+  const [luversi, setLuversi] = useState({
+    type: "Не потрібно",
+    thickness: "",
+    material: "",
+    materialId: ""
+  });
+  const [plotterCutting, setPlotterCutting] = useState({
+    type: "Не потрібно",
+    thickness: "",
+    material: "",
+    materialId: ""
+  });
   const [holes, setHoles] = useState("Не потрібно");
   const [holesR, setHolesR] = useState("Не потрібно");
   const [count, setCount] = useState(1);
   const [prices, setPrices] = useState(null);
   const [pricesThis, setPricesThis] = useState(null);
   const [selectedService, setSelectedService] = useState("Плаката");
+
+  let handleClickWideFactory = (e) => {
+    setMaterial({
+      ...material,
+      type: e,
+    })
+    setSelectWideFactory(e)
+    if(e === "Баннер FactoryWide"){
+      setArrOfTops(["Баннер F"])
+    } else if(e === "Плівка FactoryWide"){
+      setArrOfTops(["Плівка F"])
+    } else if(e === "Папір FactoryWide"){
+      setArrOfTops(["Папір F"])
+    } else if(e === "ПВХ FactoryWide"){
+      setArrOfTops(["ПВХ F"])
+    }
+  }
+
+  useEffect(() => {
+    setSelectedService(arrOfTops[0])
+  }, [arrOfTops]);
 
   const addNewOrderUnit = e => {
     let dataToSend = {
@@ -195,7 +234,7 @@ const WideFactory = ({
             <div className="d-flex">
               <div className="m-auto text-center fontProductName">
                 <div className="d-flex flex-wrap justify-content-center">
-                  {["Плаката", "Креслення", "Фотографії", "Афіши", "Лекала", "Холста"].map((service, index) => (
+                  {arrOfTops.map((service, index) => (
                     <button
                       key={index}
                       className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}
@@ -216,6 +255,43 @@ const WideFactory = ({
               >
               </div>
             </div>
+
+            <div className="buttonsRow" style={{width: "62vw", marginTop: "1vh"}}>
+              <div
+                onClick={() => handleClickWideFactory("Баннер FactoryWide")}
+                // className="colorButton bg-light cursorPointer "
+                className={`colorButton cursorPointer ${selectWideFactory === "Баннер FactoryWide" ? 'adminButtonAdd' : ''}`}
+              >
+                <img src={imgg3} className="card-img-top noanim" alt="Вишичка"/>
+                <img src={img2} className="card-img-top anim" alt="Вишичка"/>
+                <div className="buttonLabel">БАННЕР</div>
+              </div>
+              <div
+                onClick={() => handleClickWideFactory("Плівка FactoryWide")}
+                className={`colorButton cursorPointer ${selectWideFactory === "Плівка FactoryWide" ? 'adminButtonAdd' : ''}`}
+              >
+                <img src={imgg3} className="card-img-top noanim" alt="Вишичка"/>
+                <img src={img2} className="card-img-top anim" alt="Вишичка"/>
+                <div className="buttonLabel">ПЛІВКА</div>
+              </div>
+              <div
+                onClick={() => handleClickWideFactory("Папір FactoryWide")}
+                className={`colorButton cursorPointer ${selectWideFactory === "Папір FactoryWide" ? 'adminButtonAdd' : ''}`}
+              >
+                <img src={imgg3} className="card-img-top noanim" alt="Вишичка"/>
+                <img src={img2} className="card-img-top anim" alt="Вишичка"/>
+                <div className="buttonLabel">ПАПІР</div>
+              </div>
+              <div
+                onClick={() => handleClickWideFactory("ПВХ FactoryWide")}
+                className={`colorButton cursorPointer ${selectWideFactory === "ПВХ FactoryWide" ? 'adminButtonAdd' : ''}`}
+              >
+                <img src={imgg3} className="card-img-top noanim" alt="Вишичка"/>
+                <img src={img2} className="card-img-top anim" alt="Вишичка"/>
+                <div className="buttonLabel">ПВХ</div>
+              </div>
+            </div>
+
             <div className="d-flex flex-column  " style={{marginLeft: '-1vw'}}>
               <div className="d-flex flex-row inputsArtemkilk allArtemElem" style={{
                 marginLeft: "2.5vw",
@@ -285,6 +361,19 @@ const WideFactory = ({
                       name={"Широкоформатний фотодрук:"}
                       buttonsArr={[]}
                     />
+
+                    {selectWideFactory === "Баннер FactoryWide" &&
+                      <Luvarsi
+                        thisOrder={thisOrder} newThisOrder={newThisOrder}
+                        selectedThings2={selectedThings2}
+                        setNewThisOrder={setNewThisOrder}
+                        setShowLaminator={setShowLaminator}
+                        showLaminator={showLaminator}
+                        setThisOrder={setThisOrder}
+                        setSelectedThings2={setSelectedThings2}
+                      />
+                    }
+
                   </div>
                   {/*<NewSizesButtons*/}
                   {/*    size={size}*/}

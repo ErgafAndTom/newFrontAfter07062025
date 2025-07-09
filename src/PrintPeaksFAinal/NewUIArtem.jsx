@@ -308,7 +308,7 @@ const NewUIArtem = () => {
               >
                 <img src={imgg3} className="card-img-top noanim" alt="Вишичка"/>
                 <img src={img2} className="card-img-top anim" alt="Вишичка"/>
-                <div className="buttonLabel">CUTTING</div>
+                <div className="buttonLabel">WideFactory</div>
               </div>
             </div>
 
