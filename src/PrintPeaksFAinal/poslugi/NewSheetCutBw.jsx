@@ -27,12 +27,12 @@ const NewSheetCutBw = ({
     const [error, setError] = useState(null);
     const handleClose = () => {
     setIsAnimating(true); // Виправлено: починаємо анімацію
-    
+
     const timeoutId = setTimeout(() => {
         setIsVisible(false);
         setShowNewSheetCutBw(false);
     }, 300);
-    
+
     // Зберігайте timeoutId в ref для можливості очищення
     return () => clearTimeout(timeoutId);
 };

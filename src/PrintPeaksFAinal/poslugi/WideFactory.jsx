@@ -18,6 +18,15 @@ import MontajnaPlivkaWideFactory from "./newnomodals/wideFactory/MontajnaPlivkaW
 import LaminationWideFactory from "./newnomodals/wideFactory/LaminationWideFactory";
 import NewSheetCut from "./NewSheetCut";
 
+import bannerb from "../../components/newUIArtem/printers/banerb.png";
+import bannerw from "../../components/newUIArtem/printers/banerw.png";
+import citylightb from "../../components/newUIArtem/printers/citylightb.png";
+import citylightw from "../../components/newUIArtem/printers/citylightw.png";
+import label from "../../components/newUIArtem/printers/label.png";
+import Labelw from "../../components/newUIArtem/printers/Labelw.png";
+import PVCb from "../../components/newUIArtem/printers/PVCb.png";
+import PVCw from "../../components/newUIArtem/printers/PVCw.png";
+
 const WideFactory = ({
                    thisOrder,
                    newThisOrder,
@@ -57,7 +66,7 @@ const WideFactory = ({
     y: 594
   });
   const [material, setMaterial] = useState({
-    type: "Папір FactoryWide",
+    type: "Баннер FactoryWide",
     thickness: "",
     material: "",
     materialId: ""
@@ -286,33 +295,33 @@ const WideFactory = ({
                 // className="colorButton bg-light cursorPointer "
                 className={`colorButton cursorPointer ${selectWideFactory === "Баннер FactoryWide" ? 'adminButtonAdd' : ''}`}
               >
-                <img src={imgg3} className="card-img-top noanim" alt="Вишичка"/>
-                <img src={img2} className="card-img-top anim" alt="Вишичка"/>
-                <div className="buttonLabel">БАННЕР</div>
+                <img src={bannerb} className="card-img-top noanim" alt="Вишичка"/>
+                <img src={bannerw} className="card-img-top anim" alt="Вишичка"/>
+                <div className="buttonLabel"></div>
               </div>
               <div
                 onClick={() => handleClickWideFactory("Плівка FactoryWide")}
                 className={`colorButton cursorPointer ${selectWideFactory === "Плівка FactoryWide" ? 'adminButtonAdd' : ''}`}
               >
-                <img src={imgg3} className="card-img-top noanim" alt="Вишичка"/>
-                <img src={img2} className="card-img-top anim" alt="Вишичка"/>
-                <div className="buttonLabel">ПЛІВКА</div>
+                <img src={label} className="card-img-top noanim" alt="Вишичка"/>
+                <img src={Labelw} className="card-img-top anim" alt="Вишичка"/>
+                <div className="buttonLabel"></div>
               </div>
               <div
                 onClick={() => handleClickWideFactory("Папір FactoryWide")}
                 className={`colorButton cursorPointer ${selectWideFactory === "Папір FactoryWide" ? 'adminButtonAdd' : ''}`}
               >
-                <img src={imgg3} className="card-img-top noanim" alt="Вишичка"/>
-                <img src={img2} className="card-img-top anim" alt="Вишичка"/>
-                <div className="buttonLabel">ПАПІР</div>
+                <img src={citylightb} className="card-img-top noanim" alt="Вишичка"/>
+                <img src={citylightw} className="card-img-top anim" alt="Вишичка"/>
+                <div className="buttonLabel"></div>
               </div>
               <div
                 onClick={() => handleClickWideFactory("ПВХ FactoryWide")}
                 className={`colorButton cursorPointer ${selectWideFactory === "ПВХ FactoryWide" ? 'adminButtonAdd' : ''}`}
               >
-                <img src={imgg3} className="card-img-top noanim" alt="Вишичка"/>
-                <img src={img2} className="card-img-top anim" alt="Вишичка"/>
-                <div className="buttonLabel">ПВХ</div>
+                <img src={PVCw} className="card-img-top noanim" alt="Вишичка"/>
+                <img src={PVCb} className="card-img-top anim" alt="Вишичка"/>
+                <div className="buttonLabel"></div>
               </div>
             </div>
 
@@ -518,16 +527,16 @@ const WideFactory = ({
                     <div className="" style={{height: '19vmin'}}>
                       {/* Друк (рахується за sheetCount) */}
                       <div className="fontInfoForPricing">
-                        Друк: {parseFloat(pricesThis.priceDrukPerSheet).toFixed(2)} грн
-                        * {pricesThis.totalSizeInM2One} м2
-                        = {(parseFloat(pricesThis.totalDrukPrice)).toFixed(2)} грн
+                        Друк: ({parseFloat(pricesThis.priceDrukPerSheet).toFixed(2)}грн
+                        * {pricesThis.totalSizeInM2One}м2
+                        = {(parseFloat(pricesThis.oneItemWideDrukPrice)).toFixed(2)}грн) * {count} = {(parseFloat(pricesThis.priceDrukPerSheet)).toFixed(2)}грн
                       </div>
 
                       {/* Матеріали (папір, рахуються за sheetCount) */}
                       <div className="fontInfoForPricing">
-                        Матеріали: {parseFloat(pricesThis.pricePaperPerSheet).toFixed(2)} грн
+                        Матеріали: ({parseFloat(pricesThis.pricePaperPerSheet).toFixed(2)} грн
                         * {pricesThis.totalSizeInM2One} м2
-                        = {(parseFloat(pricesThis.totalWideMaterialPrice)).toFixed(2)} грн
+                        = {(parseFloat(pricesThis.oneItemWideMaterialPrice)).toFixed(2)}грн) * {count} = {(parseFloat(pricesThis.totalWideMaterialPrice)).toFixed(2)}грн
                       </div>
 
                       {/* Ламінація (рахується за sheetCount) */}
