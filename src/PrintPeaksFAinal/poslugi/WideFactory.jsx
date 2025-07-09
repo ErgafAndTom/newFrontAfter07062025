@@ -38,7 +38,7 @@ const WideFactory = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const [selectWideFactory, setSelectWideFactory] = useState("Баннер FactoryWide");
   const [arrOfTops, setArrOfTops] = useState(["БАННЕР F"]);
-  const [arrOfDruk, setArrOfDruk] = useState(["Салвент друк", "UV друк"]);
+  const [arrOfDruk, setArrOfDruk] = useState(["Екосольвентний друк", "УФ друк"]);
   const [error, setError] = useState(null);
   const handleClose = () => {
     setIsAnimating(false); // Начинаем анимацию закрытия
@@ -71,6 +71,7 @@ const WideFactory = ({
   const [lamination, setLamination] = useState({
     type: "Не потрібно",
     material: "",
+    materialId: "",
   });
   const [big, setBig] = useState("Не потрібно");
   const [cute, setCute] = useState("Не потрібно");
@@ -108,7 +109,7 @@ const WideFactory = ({
   const [prices, setPrices] = useState(null);
   const [pricesThis, setPricesThis] = useState(null);
   const [selectedService, setSelectedService] = useState("Плаката");
-  const [selectedDruk, setSelectedDruk] = useState("Салвент друк");
+  const [selectedDruk, setSelectedDruk] = useState("Екосольвентний друк");
 
   let handleClickWideFactory = (e) => {
     setMaterial({
@@ -147,6 +148,10 @@ const WideFactory = ({
         holes: holes,
         holesR: holesR,
         count: count,
+        selectedDruk: selectedDruk,
+        luversi: luversi,
+        plotterCutting: plotterCutting,
+        montajnaPlivka: montajnaPlivka,
       }
     };
 
@@ -180,7 +185,7 @@ const WideFactory = ({
 
   useEffect(() => {
     let dataToSend = {
-      type: "Wide",
+      type: "WideFactory",
       size: size,
       material: material,
       color: color,
@@ -191,6 +196,10 @@ const WideFactory = ({
       holes: holes,
       holesR: holesR,
       count: count,
+      selectedDruk: selectedDruk,
+      luversi: luversi,
+      plotterCutting: plotterCutting,
+      montajnaPlivka: montajnaPlivka,
     }
     axios.post(`/calc/pricing`, dataToSend)
       .then(response => {
@@ -202,7 +211,7 @@ const WideFactory = ({
         console.log(error.message);
         setError(error)
       })
-  }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count]);
+  }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, selectedDruk, luversi, plotterCutting, montajnaPlivka]);
 
   useEffect(() => {
     if (showWideFactory) {
@@ -402,7 +411,7 @@ const WideFactory = ({
 
                     {selectWideFactory === "Плівка FactoryWide" &&
                       <>
-                        {selectedDruk === "Салвент друк" &&
+                        {selectedDruk === "Екосольвентний друк" &&
                           <>
                             <LaminationWideFactory
                               lamination={lamination}
@@ -433,7 +442,7 @@ const WideFactory = ({
 
                     {selectWideFactory === "Папір FactoryWide" &&
                       <>
-                        {selectedDruk === "Салвент друк" &&
+                        {selectedDruk === "Екосольвентний друк" &&
                           <>
                             <LaminationWideFactory
                               lamination={lamination}
@@ -508,15 +517,15 @@ const WideFactory = ({
                       {/* Друк (рахується за sheetCount) */}
                       <div className="fontInfoForPricing">
                         Друк: {parseFloat(pricesThis.priceDrukPerSheet).toFixed(2)} грн
-                        * {pricesThis.sheetCount} м2
-                        = {(parseFloat(pricesThis.priceDrukPerSheet) * pricesThis.sheetCount).toFixed(2)} грн
+                        * {pricesThis.totalSizeInM2One} м2
+                        = {(parseFloat(pricesThis.totalDrukPrice)).toFixed(2)} грн
                       </div>
 
                       {/* Матеріали (папір, рахуються за sheetCount) */}
                       <div className="fontInfoForPricing">
                         Матеріали: {parseFloat(pricesThis.pricePaperPerSheet).toFixed(2)} грн
-                        * {pricesThis.sheetCount} м2
-                        = {(parseFloat(pricesThis.pricePaperPerSheet) * pricesThis.sheetCount).toFixed(2)} грн
+                        * {pricesThis.totalSizeInM2One} м2
+                        = {(parseFloat(pricesThis.totalWideMaterialPrice)).toFixed(2)} грн
                       </div>
 
                       {/* Ламінація (рахується за sheetCount) */}
@@ -557,7 +566,7 @@ const WideFactory = ({
 
                       {lamination.type !== "Не потрібно" &&
                         <div className="fontInfoForPricing1">
-                          Ламінація: {parseFloat(pricesThis.priceForItemWithExtras).toFixed(2)} грн
+                          Ламінація: {parseFloat(pricesThis.totalWideLaminationPrice).toFixed(2)} грн
                         </div>
                       }
 

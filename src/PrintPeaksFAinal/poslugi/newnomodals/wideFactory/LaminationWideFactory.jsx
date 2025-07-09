@@ -36,63 +36,65 @@ const LaminationWideFactory = ({lamination, setLamination, prices, buttonsArr, s
     console.log(e);
     setLamination({
       ...lamination,
-      material: e,
+      materialId: e,
     })
   }
 
-  // useEffect(() => {
-  //   let data = {
-  //     name: "MaterialsPrices",
-  //     inPageCount: 999999,
-  //     currentPage: 1,
-  //     search: "",
-  //     columnName: {
-  //       column: "id",
-  //       reverse: false
-  //     },
-  //     type: type,
-  //     material: {
-  //       type: "Люверси FactoryWide",
-  //       material: luversi.material,
-  //       materialId: luversi.materialId,
-  //       thickness: luversi.size,
-  //       typeUse: "А3"
-  //     },
-  //     size: size,
-  //   }
-  //   setLoad(true)
-  //   setError(null)
-  //   console.log(luversi);
-  //   axios.post(`/materials/NotAll`, data)
-  //     .then(response => {
-  //       console.log(response.data);
-  //       setLoad(false)
-  //       setThisLaminationSizes(response.data.rows)
-  //       if(response.data && response.data.rows && response.data.rows[0]){
-  //         setLuversi({
-  //           ...luversi,
-  //           // material: response.data.rows[0].name,
-  //           materialId: response.data.rows[0].id,
-  //           size: `${response.data.rows[0].thickness}`
-  //         })
-  //       } else {
-  //         setThisLaminationSizes([])
-  //         setLuversi({
-  //           ...luversi,
-  //           materialId: 0,
-  //         })
-  //       }
-  //     })
-  //     .catch(error => {
-  //       setLoad(false)
-  //       setError(error.message)
-  //       if(error.response.status === 403){
-  //         navigate('/login');
-  //       }
-  //       setThisLaminationSizes([])
-  //       console.log(error.message);
-  //     })
-  // }, [luversi.material, size]);
+  useEffect(() => {
+    if (lamination.type !== "Не потрібно") {
+      let data = {
+        name: "MaterialsPrices",
+        inPageCount: 999999,
+        currentPage: 1,
+        search: "",
+        columnName: {
+          column: "id",
+          reverse: false
+        },
+        type: type,
+        material: {
+          type: "Ламінація FactoryWide",
+          material: lamination.material,
+          materialId: lamination.materialId,
+          thickness: lamination.size,
+          typeUse: "А3"
+        },
+        size: size,
+      }
+      console.log(data);
+      setLoad(true)
+      setError(null)
+      axios.post(`/materials/NotAll`, data)
+        .then(response => {
+          console.log(response.data);
+          setLoad(false)
+          setThisLaminationSizes(response.data.rows)
+          if (response.data && response.data.rows && response.data.rows[0]) {
+            setLamination({
+              ...lamination,
+              // material: response.data.rows[0].name,
+              materialId: response.data.rows[0].id,
+              size: `${response.data.rows[0].thickness}`
+            })
+          } else {
+            setThisLaminationSizes([])
+            setLamination({
+              ...lamination,
+              materialId: 0,
+            })
+          }
+        })
+        .catch(error => {
+          setLoad(false)
+          setError(error.message)
+          if (error.response.status === 403) {
+            navigate('/login');
+          }
+          setThisLaminationSizes([])
+          console.log(error.message);
+        })
+    }
+  }, [lamination.type, size]);
 
   return (<div className="d-flex allArtemElem" >
     <div style={{display: 'flex', alignItems: 'center', marginTop: "1vw", marginLeft: "0vw"}}>
@@ -110,10 +112,10 @@ const LaminationWideFactory = ({lamination, setLamination, prices, buttonsArr, s
             <div style={{
               display: 'flex', justifyContent: 'center', alignItems: 'center'
             }}>
-              {buttonsArr.map((item, index) => (<button
-                className={item === lamination.material ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
+              {thisLaminationSizes.map((item, index) => (<button
+                className={item.id === lamination.materialId ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
                 key={index}
-                onClick={() => handleClick(item)}
+                onClick={() => handleClick(item.id)}
                 // style={{
                 //     backgroundColor: item === lamination.material ? 'orange' : 'transparent',
                 //     border: item === lamination.material ? '0.13vw solid transparent' : '0.13vw solid transparent',
@@ -121,31 +123,31 @@ const LaminationWideFactory = ({lamination, setLamination, prices, buttonsArr, s
               >
                 <div className="" style={{
                   fontSize: "var(--font-size-base)",
-                  opacity: item === lamination.material ? '100%' : '50%',
+                  opacity: item.id === lamination.materialId ? '100%' : '50%',
                   whiteSpace: "nowrap",
                   // width:"13vw"
-
-                }}>
-                  {item}
+                  }} data-id={item.id}
+                >
+                  {item.name}
                 </div>
               </button>))}
 
-              {lamination.material === "По периметру" &&
-                <div className="ArtemNewSelectContainer" style={{marginLeft: "1vw"}}>
-                  <select
-                    value={lamination.size}
-                    onChange={(event) => handleSelectChange(event)}
-                    className="selectArtem"
-                  >
-                    <option value={""}>{""}</option>
-                    {selectArr.map((item, iter2) => (
-                      // <option className="optionInSelectArtem" key={item.thickness}
-                      //         value={item.thickness} data-id={item.id} tosend={item.thickness}>{item.thickness} мкм</option>))}
-                      <option className="optionInSelectArtem" key={item}
-                              value={item}>{item} мм</option>))}
-                  </select>
-                </div>
-              }
+              {/*{lamination.material === "По периметру" &&*/}
+              {/*  <div className="ArtemNewSelectContainer" style={{marginLeft: "1vw"}}>*/}
+              {/*    <select*/}
+              {/*      value={lamination.size}*/}
+              {/*      onChange={(event) => handleSelectChange(event)}*/}
+              {/*      className="selectArtem"*/}
+              {/*    >*/}
+              {/*      <option value={""}>{""}</option>*/}
+              {/*      {selectArr.map((item, iter2) => (*/}
+              {/*        // <option className="optionInSelectArtem" key={item.thickness}*/}
+              {/*        //         value={item.thickness} data-id={item.id} tosend={item.thickness}>{item.thickness} мкм</option>))}*/}
+              {/*        <option className="optionInSelectArtem" key={item}*/}
+              {/*                value={item}>{item} мм</option>))}*/}
+              {/*    </select>*/}
+              {/*  </div>*/}
+              {/*}*/}
             </div>
           </div>) : (<div>
 
