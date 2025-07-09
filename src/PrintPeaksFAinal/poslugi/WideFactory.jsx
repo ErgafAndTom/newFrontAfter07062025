@@ -425,6 +425,7 @@ const WideFactory = ({
                         <PlotterCutting
                           plotterCutting={plotterCutting}
                           setPlotterCutting={setPlotterCutting}
+                          plivkaOrPVH={"Плотер плівка FactoryWide"}
                           selectArr={[100, 200, 300, 400, 500]}
                           type={"PlotterCuttingWideFactory"}
                           buttonsArr={['Простая', "Середня", "Складна"]}
@@ -461,6 +462,7 @@ const WideFactory = ({
                         <PlotterCutting
                           plotterCutting={plotterCutting}
                           setPlotterCutting={setPlotterCutting}
+                          plivkaOrPVH={"Плотер ПВХ FactoryWide"}
                           selectArr={[100, 200, 300, 400, 500]}
                           type={"PlotterCuttingWideFactory"}
                           buttonsArr={['Простая', "Середня", "Складна"]}
@@ -542,6 +544,22 @@ const WideFactory = ({
                         </div>
                       )}
 
+                      {lamination.type !== "Не потрібно" &&
+                        <div className="fontInfoForPricing">
+                          Ламінація: {parseFloat(pricesThis.totalWideLaminationPrice).toFixed(2)} грн
+                        </div>
+                      }
+                      {plotterCutting.type !== "Не потрібно" &&
+                        <div className="fontInfoForPricing">
+                          Плоттерна порізка: {parseFloat(pricesThis.totalWidePlotterCuttingPrice).toFixed(2)} грн
+                        </div>
+                      }
+                      {montajnaPlivka.type !== "Не потрібно" &&
+                        <div className="fontInfoForPricing">
+                          Монтажна плівка: {parseFloat(pricesThis.totalWideMontajnaPlivkaPrice).toFixed(2)} грн
+                        </div>
+                      }
+
                       {/* Підсумкова вартість замовлення */}
                       <div className="fontInfoForPricing1">
                         Загалом: {parseFloat(pricesThis.price).toFixed(2)} грн
@@ -563,12 +581,6 @@ const WideFactory = ({
                         Ціна за
                         виріб: {parseFloat(pricesThis.priceForItemWithExtras).toFixed(2)} грн
                       </div>
-
-                      {lamination.type !== "Не потрібно" &&
-                        <div className="fontInfoForPricing1">
-                          Ламінація: {parseFloat(pricesThis.totalWideLaminationPrice).toFixed(2)} грн
-                        </div>
-                      }
 
                       {/* Додатковий розрахунок ціни за лист */}
                       {/*<div className="fontInfoForPricing">*/}
