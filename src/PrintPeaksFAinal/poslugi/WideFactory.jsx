@@ -422,6 +422,7 @@ const WideFactory = ({
                         />
                         <MontajnaPlivkaWideFactory
                           montajnaPlivka={montajnaPlivka}
+                          plotterCutting={plotterCutting}
                           setMontajnaPlivka={setMontajnaPlivka}
                           selectArr={[100, 200, 300, 400, 500]}
                           type={"MontajnaPlivkaWideFactory"}
@@ -443,6 +444,18 @@ const WideFactory = ({
                             />
                           </>
                         }
+                      </>
+                    }
+
+                    {selectWideFactory === "ПВХ FactoryWide" &&
+                      <>
+                        <PlotterCutting
+                          plotterCutting={plotterCutting}
+                          setPlotterCutting={setPlotterCutting}
+                          selectArr={[100, 200, 300, 400, 500]}
+                          type={"PlotterCuttingWideFactory"}
+                          buttonsArr={['Простая', "Середня", "Складна"]}
+                        />
                       </>
                     }
 
