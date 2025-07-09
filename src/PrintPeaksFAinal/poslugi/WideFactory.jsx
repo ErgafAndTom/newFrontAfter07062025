@@ -16,6 +16,7 @@ import Luvarsi from "./newnomodals/wideFactory/Luvarsi";
 import PlotterCutting from "./newnomodals/wideFactory/PlotterCutting";
 import MontajnaPlivkaWideFactory from "./newnomodals/wideFactory/MontajnaPlivkaWideFactory";
 import LaminationWideFactory from "./newnomodals/wideFactory/LaminationWideFactory";
+import NewSheetCut from "./NewSheetCut";
 
 const WideFactory = ({
                    thisOrder,
@@ -107,7 +108,7 @@ const WideFactory = ({
   const [prices, setPrices] = useState(null);
   const [pricesThis, setPricesThis] = useState(null);
   const [selectedService, setSelectedService] = useState("Плаката");
-  const [selectedDruk, setSelectedDruk] = useState("Плаката");
+  const [selectedDruk, setSelectedDruk] = useState("Салвент друк");
 
   let handleClickWideFactory = (e) => {
     setMaterial({
@@ -401,18 +402,22 @@ const WideFactory = ({
 
                     {selectWideFactory === "Плівка FactoryWide" &&
                       <>
-                        <LaminationWideFactory
-                          lamination={lamination}
-                          setLamination={setLamination}
-                          selectArr={[100, 200, 300, 400, 500]}
-                          type={"PlotterCutting"}
-                          buttonsArr={['Глянцева', "Матова"]}
-                        />
+                        {selectedDruk === "Салвент друк" &&
+                          <>
+                            <LaminationWideFactory
+                              lamination={lamination}
+                              setLamination={setLamination}
+                              selectArr={[100, 200, 300, 400, 500]}
+                              type={"LaminationWideFactory"}
+                              buttonsArr={['Глянцева', "Матова"]}
+                            />
+                          </>
+                        }
                         <PlotterCutting
                           plotterCutting={plotterCutting}
                           setPlotterCutting={setPlotterCutting}
                           selectArr={[100, 200, 300, 400, 500]}
-                          type={"PlotterCutting"}
+                          type={"PlotterCuttingWideFactory"}
                           buttonsArr={['Простая', "Середня", "Складна"]}
                         />
                         <MontajnaPlivkaWideFactory
@@ -427,13 +432,17 @@ const WideFactory = ({
 
                     {selectWideFactory === "Папір FactoryWide" &&
                       <>
-                        <LaminationWideFactory
-                          lamination={lamination}
-                          setLamination={setLamination}
-                          selectArr={[100, 200, 300, 400, 500]}
-                          type={"PlotterCutting"}
-                          buttonsArr={['Глянцева', "Матова"]}
-                        />
+                        {selectedDruk === "Салвент друк" &&
+                          <>
+                            <LaminationWideFactory
+                              lamination={lamination}
+                              setLamination={setLamination}
+                              selectArr={[100, 200, 300, 400, 500]}
+                              type={"LaminationWideFactory"}
+                              buttonsArr={['Глянцева', "Матова"]}
+                            />
+                          </>
+                        }
                       </>
                     }
 
@@ -532,6 +541,12 @@ const WideFactory = ({
                         Ціна за
                         виріб: {parseFloat(pricesThis.priceForItemWithExtras).toFixed(2)} грн
                       </div>
+
+                      {lamination.type !== "Не потрібно" &&
+                        <div className="fontInfoForPricing1">
+                          Ламінація: {parseFloat(pricesThis.priceForItemWithExtras).toFixed(2)} грн
+                        </div>
+                      }
 
                       {/* Додатковий розрахунок ціни за лист */}
                       {/*<div className="fontInfoForPricing">*/}
