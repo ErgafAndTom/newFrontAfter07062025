@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import axios from '../../../../api/axiosInstance';
 import {Navigate, useNavigate} from "react-router-dom";
 
-const Luvarsi = ({luversi, setLuversi, prices, buttonsArr, selectArr, size, type}) => {
+const PlotterCutting = ({plotterCutting, setPlotterCutting, prices, buttonsArr, selectArr, size, type}) => {
   const [thisLaminationSizes, setThisLaminationSizes] = useState([]);
   const [error, setError] = useState(null);
   const [load, setLoad] = useState(true);
@@ -11,22 +11,22 @@ const Luvarsi = ({luversi, setLuversi, prices, buttonsArr, selectArr, size, type
   let handleSelectChange = (e) => {
     const selectedOption = e.target.options[e.target.selectedIndex];
     const selectedId = selectedOption.getAttribute('data-id') || 'default';
-    setLuversi({
-      ...luversi,
+    setPlotterCutting({
+      ...plotterCutting,
       materialId: selectedId,
       size: e.target.value
     })
   }
 
   let handleToggle = (e) => {
-    if (luversi.type === "Не потрібно") {
-      setLuversi({
-        ...luversi,
+    if (plotterCutting.type === "Не потрібно") {
+      setPlotterCutting({
+        ...plotterCutting,
         type: "",
       })
     } else {
-      setLuversi({
-        ...luversi,
+      setPlotterCutting({
+        ...plotterCutting,
         type: "Не потрібно",
       })
     }
@@ -34,8 +34,8 @@ const Luvarsi = ({luversi, setLuversi, prices, buttonsArr, selectArr, size, type
 
   let handleClick = (e) => {
     console.log(e);
-    setLuversi({
-      ...luversi,
+    setPlotterCutting({
+      ...plotterCutting,
       material: e,
     })
   }
@@ -96,22 +96,22 @@ const Luvarsi = ({luversi, setLuversi, prices, buttonsArr, selectArr, size, type
 
   return (<div className="d-flex allArtemElem" >
     <div style={{display: 'flex', alignItems: 'center', marginTop: "1vw", marginLeft: "0vw"}}>
-      <div className={`toggleContainer scale04ForButtonToggle ${luversi.type === "Не потрібно" ? 'disabledCont' : 'enabledCont'}`}
+      <div className={`toggleContainer scale04ForButtonToggle ${plotterCutting.type === "Не потрібно" ? 'disabledCont' : 'enabledCont'}`}
            onClick={handleToggle}>
-        <div className={`toggle-button ${luversi.type === "Не потрібно" ? 'disabled' : 'enabledd'}`}>
+        <div className={`toggle-button ${plotterCutting.type === "Не потрібно" ? 'disabled' : 'enabledd'}`}>
         </div>
       </div>
       <div className="d-flex flex-column">
             <span style={{
               marginRight: '0.633vw'
-            }}>{"Люверси:"}</span>
-        {luversi.type !== "Не потрібно" ? (
+            }}>{"Плоттерна порізка:"}</span>
+        {plotterCutting.type !== "Не потрібно" ? (
           <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center',}}>
             <div style={{
               display: 'flex', justifyContent: 'center', alignItems: 'center'
             }}>
               {buttonsArr.map((item, index) => (<button
-                className={item === luversi.material ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
+                className={item === plotterCutting.material ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
                 key={index}
                 onClick={() => handleClick(item)}
                 // style={{
@@ -121,7 +121,7 @@ const Luvarsi = ({luversi, setLuversi, prices, buttonsArr, selectArr, size, type
               >
                 <div className="" style={{
                   fontSize: "var(--font-size-base)",
-                  opacity: item === luversi.material ? '100%' : '50%',
+                  opacity: item === plotterCutting.material ? '100%' : '50%',
                   whiteSpace: "nowrap",
                   // width:"13vw"
 
@@ -130,10 +130,10 @@ const Luvarsi = ({luversi, setLuversi, prices, buttonsArr, selectArr, size, type
                 </div>
               </button>))}
 
-              {luversi.material === "По периметру" &&
+              {plotterCutting.material === "По периметру" &&
                 <div className="ArtemNewSelectContainer" style={{marginLeft: "1vw"}}>
                   <select
-                    value={luversi.size}
+                    value={plotterCutting.size}
                     onChange={(event) => handleSelectChange(event)}
                     className="selectArtem"
                   >
@@ -155,4 +155,4 @@ const Luvarsi = ({luversi, setLuversi, prices, buttonsArr, selectArr, size, type
   </div>)
 };
 
-export default Luvarsi;
+export default PlotterCutting;

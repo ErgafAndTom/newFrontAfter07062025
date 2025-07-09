@@ -13,6 +13,9 @@ import imgg3 from "../../components/newUIArtem/printers/p3.svg";
 import img2 from "../../components/newUIArtem/printers/ComponentTMP_0-image2.png";
 import Laminator from "./Laminator";
 import Luvarsi from "./newnomodals/wideFactory/Luvarsi";
+import PlotterCutting from "./newnomodals/wideFactory/PlotterCutting";
+import MontajnaPlivkaWideFactory from "./newnomodals/wideFactory/MontajnaPlivkaWideFactory";
+import LaminationWideFactory from "./newnomodals/wideFactory/LaminationWideFactory";
 
 const WideFactory = ({
                    thisOrder,
@@ -34,6 +37,7 @@ const WideFactory = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const [selectWideFactory, setSelectWideFactory] = useState("Баннер FactoryWide");
   const [arrOfTops, setArrOfTops] = useState(["БАННЕР F"]);
+  const [arrOfDruk, setArrOfDruk] = useState(["Салвент друк", "UV друк"]);
   const [error, setError] = useState(null);
   const handleClose = () => {
     setIsAnimating(false); // Начинаем анимацию закрытия
@@ -80,13 +84,22 @@ const WideFactory = ({
     type: "Не потрібно",
     thickness: "",
     material: "",
-    materialId: ""
+    materialId: "",
+    size: 100
   });
   const [plotterCutting, setPlotterCutting] = useState({
     type: "Не потрібно",
     thickness: "",
     material: "",
-    materialId: ""
+    materialId: "",
+    size: 100
+  });
+  const [montajnaPlivka, setMontajnaPlivka] = useState({
+    type: "Не потрібно",
+    thickness: "",
+    material: "",
+    materialId: "",
+    size: 100
   });
   const [holes, setHoles] = useState("Не потрібно");
   const [holesR, setHolesR] = useState("Не потрібно");
@@ -94,6 +107,7 @@ const WideFactory = ({
   const [prices, setPrices] = useState(null);
   const [pricesThis, setPricesThis] = useState(null);
   const [selectedService, setSelectedService] = useState("Плаката");
+  const [selectedDruk, setSelectedDruk] = useState("Плаката");
 
   let handleClickWideFactory = (e) => {
     setMaterial({
@@ -292,6 +306,19 @@ const WideFactory = ({
               </div>
             </div>
 
+            <div className="d-flex flex-wrap">
+              {arrOfDruk.map((service, index) => (
+                <button
+                  key={index}
+                  className={`btn ${selectedDruk === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}
+                  style={{minWidth: "5vw"}}
+                  onClick={() => setSelectedDruk(service)}
+                >
+                  {service}
+                </button>
+              ))}
+            </div>
+
             <div className="d-flex flex-column  " style={{marginLeft: '-1vw'}}>
               <div className="d-flex flex-row inputsArtemkilk allArtemElem" style={{
                 marginLeft: "2.5vw",
@@ -364,14 +391,50 @@ const WideFactory = ({
 
                     {selectWideFactory === "Баннер FactoryWide" &&
                       <Luvarsi
-                        thisOrder={thisOrder} newThisOrder={newThisOrder}
-                        selectedThings2={selectedThings2}
-                        setNewThisOrder={setNewThisOrder}
-                        setShowLaminator={setShowLaminator}
-                        showLaminator={showLaminator}
-                        setThisOrder={setThisOrder}
-                        setSelectedThings2={setSelectedThings2}
+                        luversi={luversi}
+                        setLuversi={setLuversi}
+                        selectArr={[100, 200, 300, 400, 500]}
+                        type={"Luversi"}
+                        buttonsArr={['По кутам (на "павук")', "По периметру"]}
                       />
+                    }
+
+                    {selectWideFactory === "Плівка FactoryWide" &&
+                      <>
+                        <LaminationWideFactory
+                          lamination={lamination}
+                          setLamination={setLamination}
+                          selectArr={[100, 200, 300, 400, 500]}
+                          type={"PlotterCutting"}
+                          buttonsArr={['Глянцева', "Матова"]}
+                        />
+                        <PlotterCutting
+                          plotterCutting={plotterCutting}
+                          setPlotterCutting={setPlotterCutting}
+                          selectArr={[100, 200, 300, 400, 500]}
+                          type={"PlotterCutting"}
+                          buttonsArr={['Простая', "Середня", "Складна"]}
+                        />
+                        <MontajnaPlivkaWideFactory
+                          montajnaPlivka={montajnaPlivka}
+                          setMontajnaPlivka={setMontajnaPlivka}
+                          selectArr={[100, 200, 300, 400, 500]}
+                          type={"MontajnaPlivkaWideFactory"}
+                          buttonsArr={[]}
+                        />
+                      </>
+                    }
+
+                    {selectWideFactory === "Папір FactoryWide" &&
+                      <>
+                        <LaminationWideFactory
+                          lamination={lamination}
+                          setLamination={setLamination}
+                          selectArr={[100, 200, 300, 400, 500]}
+                          type={"PlotterCutting"}
+                          buttonsArr={['Глянцева', "Матова"]}
+                        />
+                      </>
                     }
 
                   </div>
