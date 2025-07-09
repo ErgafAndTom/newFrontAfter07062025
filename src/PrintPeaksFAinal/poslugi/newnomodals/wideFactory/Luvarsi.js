@@ -13,7 +13,6 @@ const Luvarsi = ({luversi, setLuversi, prices, buttonsArr, selectArr, size, type
     const selectedId = selectedOption.getAttribute('data-id') || 'default';
     setLuversi({
       ...luversi,
-      materialId: selectedId,
       size: e.target.value
     })
   }
@@ -137,7 +136,7 @@ const Luvarsi = ({luversi, setLuversi, prices, buttonsArr, selectArr, size, type
                     onChange={(event) => handleSelectChange(event)}
                     className="selectArtem"
                   >
-                    <option value={""}>{""}</option>
+                    {/*<option value={""}>{""}</option>*/}
                     {selectArr.map((item, iter2) => (
                       // <option className="optionInSelectArtem" key={item.thickness}
                       //         value={item.thickness} data-id={item.id} tosend={item.thickness}>{item.thickness} мкм</option>))}

@@ -559,6 +559,13 @@ const WideFactory = ({
                           Монтажна плівка: {parseFloat(pricesThis.totalWideMontajnaPlivkaPrice).toFixed(2)} грн
                         </div>
                       }
+                      {luversi.type !== "Не потрібно" &&
+                        <div className="fontInfoForPricing">
+                          Люверси: {parseFloat(pricesThis.oneWideLuversiPrice).toFixed(2)} грн
+                          * {pricesThis.luversiOneItem} шт
+                          = {(parseFloat(pricesThis.totalOneItemWideLuversiPrice)).toFixed(2)} грн
+                        </div>
+                      }
 
                       {/* Підсумкова вартість замовлення */}
                       <div className="fontInfoForPricing1">
