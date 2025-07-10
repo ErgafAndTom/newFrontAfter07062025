@@ -119,7 +119,7 @@ const NewNote = ({
         drukSides: "односторонній",
         drukId: "Не потрібно",
         thickness: "",
-        material: "",
+        material: "Офісний папір А3",
         materialId: "",
         laminationType: "Не потрібно",
         laminationTypeUse: "З глянцевим ламінуванням",

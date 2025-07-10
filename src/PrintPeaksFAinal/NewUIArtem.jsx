@@ -66,7 +66,8 @@ import NewBooklet from "./poslugi/NewBooklet";
 import NewMagnets from "./poslugi/NewMagnets";
 import NewScans from "./poslugi/NewScans";
 import WideFactory from "./poslugi/WideFactory";
-
+import NewSheetSheet from "./poslugi/NewSheetSheet";
+import Delivery from "./poslugi/Delivery";
 const NewUIArtem = () => {
   const navigate = useNavigate();
   const [things, setThings] = useState([]);
@@ -92,6 +93,7 @@ const NewUIArtem = () => {
 
   const [showNewSheetCutBw, setShowNewSheetCutBw] = useState(false);
   const [showNewSheetCut, setShowNewSheetCut] = useState(false);
+  const [showNewSheetSheet, setShowNewSheetSheet] = useState(false);
   const [showNewWide, setShowNewWide] = useState(false);
   const [showWideFactory, setShowWideFactory] = useState(false);
   const [showNewNote, setShowNewNote] = useState(false);
@@ -105,6 +107,7 @@ const NewUIArtem = () => {
   const [showNewScans, setShowNewScans] = useState(false);
   const [showLaminator, setShowLaminator] = useState(false);
   const [showVishichka, setShowVishichka] = useState(false);
+  const [showDelivery, setShowDelivery] = useState(false);
 
 
   const setTypeSelect2 = (thing) => {
@@ -236,9 +239,16 @@ const NewUIArtem = () => {
               >
                 <img src={imgg2} className="noanimcgcolor noanim"></img>
                 <img src={img1} className="anim noanimcgcolor"></img>
-                <div className="buttonLabel">COLOR</div>
+                <div className="buttonLabel">COLOR PRODUCTS</div>
               </div>
-
+              <div
+                onClick={() => setShowNewSheetSheet(true)}
+                className="colorButton bg-lavender cursorPointer "
+              >
+                <img src={imgg2} className="noanimcgcolor noanim"></img>
+                <img src={img1} className="anim noanimcgcolor"></img>
+                <div className="buttonLabel">COLOR SHEETS</div>
+              </div>
               {/* 3 */}
               <div
                 onClick={() => setShowNewWide(true)}
@@ -280,14 +290,7 @@ const NewUIArtem = () => {
               </div>
 
               {/* 7 */}
-              <div
-                onClick={() => setShowLaminator(true)}
-                className="colorButton bg-peach skewed cursorPointer "
-              >
-                <img src={p8svg} className="card-img-top noanim"/>
-                <img src={img8} className="card-img-top anim" alt="Ламінатор"/>
-                <div className="buttonLabel">LAMINATION</div>
-              </div>
+
 
               {/* 8 */}
               <div
@@ -311,6 +314,14 @@ const NewUIArtem = () => {
                 <img src={Widefactory} className="card-img-top noanim" alt="Вишичка"/>
                 <img src={Widefactoryw} className="card-img-top anim" alt="Вишичка"/>
                 <div className="buttonLabel">WIDE FACTORY</div>
+              </div>
+              <div
+                onClick={() => setShowLaminator(true)}
+                className="colorButton bg-peach skewed cursorPointer "
+              >
+                <img src={p8svg} className="card-img-top noanim"/>
+                <img src={img8} className="card-img-top anim" alt="Ламінатор"/>
+                <div className="buttonLabel">LAMINATION</div>
               </div>
             </div>
 
@@ -350,6 +361,13 @@ const NewUIArtem = () => {
                 <img src={Scans} className="card-img-top noanim" alt="Продукти"/>
                 <img src={Scans} className="card-img-top anim" alt="Продукти"/>
                 <div className="buttonLabel">SCANS</div>
+              </div>
+              <div
+                onClick={() => setShowDelivery(true)}
+                className="colorButtonNote colorButton bg-light-cyan  cursorPointer">
+                <img src={Scans} className="card-img-top noanim" alt="Продукти"/>
+                <img src={Scans} className="card-img-top anim" alt="Продукти"/>
+                <div className="buttonLabel">DELIVERY</div>
               </div>
             </div>
             <div className="containerNewUI" style={{height: "15vh"}}>
@@ -734,6 +752,19 @@ const NewUIArtem = () => {
             showNewSheetCut={showNewSheetCut}
           />
         }
+        {showNewSheetSheet &&
+          <NewSheetSheet
+            productName={productName}
+            thisOrder={thisOrder}
+            newThisOrder={newThisOrder}
+            selectedThings2={selectedThings2}
+            setNewThisOrder={setNewThisOrder}
+            setShowNewSheetSheet={setShowNewSheetSheet}
+            setThisOrder={setThisOrder}
+            setSelectedThings2={setSelectedThings2}
+            showNewSheetSheet={showNewSheetSheet}
+          />
+        }
         {showNewWide &&
           <NewWide
             productName={productName}
@@ -784,6 +815,19 @@ const NewUIArtem = () => {
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
             showNewScans={showNewScans}
+          />
+        }
+        {showDelivery &&
+          <Delivery
+            productName={productName}
+            thisOrder={thisOrder}
+            newThisOrder={newThisOrder}
+            selectedThings2={selectedThings2}
+            setNewThisOrder={setNewThisOrder}
+            setShowDelivery={setShowDelivery}
+            setThisOrder={setThisOrder}
+            setSelectedThings2={setSelectedThings2}
+            showDelivery={showDelivery}
           />
         }
         {showNewMagnets &&

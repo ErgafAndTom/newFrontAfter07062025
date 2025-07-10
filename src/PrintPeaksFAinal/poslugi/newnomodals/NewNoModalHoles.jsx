@@ -64,8 +64,9 @@ const NewNoModalHoles = ({holes, setHoles, holesR, setHolesR, prices, buttonsArr
                                 >
                                     {/*<option disabled selected>Оберіть значення</option>*/}
                                     {/*<option>Задати свій розмір</option>*/}
-                                    {selectArr.map((item, iter) => (
-                                        <option
+                                  {(selectArr || []).map((item, iter) => (
+
+                                  <option
                                             className="optionInSelectArtem"
                                             key={item}
                                             value={item}

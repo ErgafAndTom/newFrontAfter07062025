@@ -38,7 +38,7 @@ const NewNoModalBig = ({big, setBig, prices, buttonsArr, selectArr}) => {
                                 onChange={(event) => handleSelectChange(event)}
                                 className="selectArtem"
                             >
-                                {selectArr.map((item, iter2) => (
+                              {(selectArr || []).map((item, iter) => (
                                     <option key={item} value={item}>{item} </option>
                                 ))}
                             </select>

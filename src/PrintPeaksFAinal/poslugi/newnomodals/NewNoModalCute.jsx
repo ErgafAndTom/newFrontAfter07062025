@@ -128,7 +128,7 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
                                     className="selectArtem"
                                 >
                                     <option value={""}>{""}</option>
-                                    {selectArr.map((item, iter2) => (
+                                  {(selectArr || []).map((item, iter) => (
                                         <option key={item} value={item}>{item} мм</option>))}
                                 </select>
                             </div>

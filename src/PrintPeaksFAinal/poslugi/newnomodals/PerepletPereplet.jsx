@@ -6,6 +6,7 @@ import plastick from './plastick.svg';
 import metall from './metall.svg';
 import diplom from './diplom.svg';
 import imgg101 from "../../evroscoba.png";
+import kalendarbinder from './kalendarbinder.png';
 import './CornerRounding.css';
 import './ArtemStyles.css';
 import './PerepletSize';
@@ -135,21 +136,24 @@ const PerepletPereplet = ({pereplet, setPereplet, prices, buttonsArr, selectArr,
                                         whiteSpace: "nowrap",
                                         marginTop: "2vw",
                                     }}>
-                                        {item.name === "На скобу" &&
-                                            <img src={skoba} alt="На скобу" style={{height: "5vw"}}/>
+                                        {item.name === "на скобу" &&
+                                            <img src={skoba} alt="на скобу" style={{height: "5vw"}}/>
                                         }
-                                        {item.name === "На пластик" &&
-                                            <img src={plastick} alt="На пластик" style={{height: "5vw"}}/>
+                                        {item.name === "на пластик" &&
+                                            <img src={plastick} alt="на пластик" style={{height: "5vw"}}/>
                                         }
-                                        {item.name === "На пружину" &&
-                                            <img src={metall} alt="На пружину" style={{height: "5vw"}}/>
+                                        {item.name === "на пружину" &&
+                                            <img src={metall} alt="на пружину" style={{height: "5vw"}}/>
                                         }
-                                        {item.name === "Твердим переплітом" &&
-                                            <img src={diplom} alt="Твердим переплітом" style={{height: "5vw"}}/>
+                                        {item.name === "твердим переплітом" &&
+                                            <img src={diplom} alt="твердим переплітом" style={{height: "5vw"}}/>
                                         }
-                                        {item.name === "На євроскобу" &&
-                                            <img src={imgg101} alt="На євроскобу" style={{height: "5vw"}}/>
+                                        {item.name === "на євроскобу" &&
+                                            <img src={imgg101} alt="на євроскобу" style={{height: "5vw"}}/>
                                         }
+                                      {item.name === "на календар" &&
+                                        <img src={kalendarbinder} alt="на календар" style={{height: "5vw"}}/>
+                                      }
                                         {item.name}
                                     </div>
                                 </button>))}

@@ -48,10 +48,26 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
             {name: "100x100 мм", x: 100, y: 100},
             {name: "120х120 мм", x: 120, y: 120},
         ]
-        minXYValue = 45
-        maxXYValue = 445
+        minXYValue = 40
+        maxXYValue = 440
         invalid = `Будь-ласка введіть розмір від ${minXYValue} до ${maxXYValue} (y до ${yMaxValue}).`
-    } else if (type === "SheetCutBw") {
+    }
+    else if (type === "SheetSheet") {
+      formats = [
+        {name: "A4 (210 x 297 мм)", x: 210, y: 297},
+        {name: "А3 (297 х 420 мм)", x: 297, y: 420},
+        {name: "SRА3 (320 х 450 мм)", x: 310, y: 440},
+        {name: "SRA3+ (330 х 488 мм)", x: 320, y: 478},
+        {name: "SRA3 XLS (330 х 660 мм)", x: 330, y: 660},
+      ]
+      minXYValue = 45
+      maxXYValue = 2000
+      maxXYValue = 2000
+      xMaxValue = 1000
+      yMaxValue = 1000
+      // invalid = `Будь-ласка введіть розмір від ${minXYValue} до ${maxXYValue} (y до ${yMaxValue}).`
+    }
+    else if (type === "SheetCutBw") {
         formats = [
             // {name: "А6 (105 х 148 мм)", x: 105, y: 148},
             // {name: "A5 (148 х 210 мм)", x: 148, y: 210},
@@ -106,12 +122,13 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
         {name: "A1 (594 x 841 мм)", x: 594, y: 841},
         {name: "A0 (841 x 1189 мм)", x: 841, y: 1189},
       ]
-      minXYValue = 45
+      minXYValue = 0
       maxXYValue = 10000
       xMaxValue = 10000
-      yMaxValue = 50000
+      yMaxValue = 10000
       invalid = `Будь-ласка введіть розмір від ${minXYValue} до ${maxXYValue} (y до ${yMaxValue}).`
-    } else if (type === "Plotter") {
+    }
+    else if (type === "Plotter") {
         formats = [
             {name: "Задати свій розмір", x: 1, y: 1},
             {name: "А6 (105 х 148 мм)", x: 105, y: 148},
@@ -275,7 +292,6 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
                         max={xMaxValue}
                         onChange={(event) => setX(event.target.value)}
                         isInvalid={xVal}
-                        style={{width: "6vw", marginRight:"0.5vw"}}
                     />
                 ) : (
                     <Form.Control
@@ -287,7 +303,6 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
                         disabled
                         // onChange={(event) => setX(event.target.value)}
                         isInvalid={xVal}
-
                     />
                 )}
                 <Form.Control.Feedback type="invalid">
@@ -305,7 +320,6 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
                         max={yMaxValue}
                         onChange={(event) => setY(event.target.value)}
                         isInvalid={yVal}
-                        style={{width: "6vw"}}
                     />
                 ) : (
                     <Form.Control
@@ -348,24 +362,24 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
                 </select>
             </div>
 
-            {/*<div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginLeft: "2vw"}}>*/}
-            {/*    {buttonsArr.map((item, index) => (*/}
-            {/*        <button*/}
-            {/*            className={item === color.sides ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}*/}
-            {/*            key={index}*/}
-            {/*            onClick={() => handleClick(item)}*/}
-            {/*             >*/}
-            {/*            <div className="" style={{*/}
+            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginLeft: "2vw"}}>
+                {buttonsArr.map((item, index) => (
+                    <button
+                        className={item === color.sides ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
+                        key={index}
+                        onClick={() => handleClick(item)}
+                         >
+                        <div className="" style={{
 
 
-            {/*                opacity: item === color.sides ? '100%' : '60%',*/}
+                            opacity: item === color.sides ? '100%' : '60%',
 
-            {/*            }}>*/}
-            {/*                {item}*/}
-            {/*            </div>*/}
-            {/*        </button>*/}
-            {/*    ))}*/}
-            {/*</div>*/}
+                        }}>
+                            {item}
+                        </div>
+                    </button>
+                ))}
+            </div>
 
 
         </div>

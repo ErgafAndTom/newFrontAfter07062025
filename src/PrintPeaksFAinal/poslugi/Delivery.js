@@ -2,27 +2,30 @@ import {MDBContainer} from "mdb-react-ui-kit";
 import {Row} from "react-bootstrap";
 import React, {useCallback, useEffect, useState} from "react";
 import axios from '../../api/axiosInstance';
-import Loader from "../../components/calc/Loader";
-import NewNoModalLamination from "./newnomodals/NewNoModalLamination";
-import versantIcon from '../../components/newUIArtem/printers/p8_.png';
+import './newnomodals/ArtemStyles.css';
+import versantIcon from "../public/wided@2x.png";
+import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
+import Materials2 from "./newnomodals/Materials2";
+import SliderComponent from "./newnomodals/SlidersComponent";
 import {useNavigate} from "react-router-dom";
-import LaminationSize from "./newnomodals/LaminationSize";
+import Loader from "../../components/calc/Loader";
 
-const Laminator = ({
-                       thisOrder,
-                       newThisOrder,
-                       setNewThisOrder,
-                       selectedThings2,
-                       setShowLaminator,
-                       setThisOrder,
-                       setSelectedThings2,
-                       showLaminator
-                   }) => {
+const Delivery= ({
+                     thisOrder,
+                     newThisOrder,
+                     setNewThisOrder,
+                     selectedThings2,
+                     setShowDelivery,
+                     showNDelivery,
+                     setThisOrder,
+                     setSelectedThings2
+                 }) => {
+    // const [show, setShow] = useState(false);
     let handleChange = (e) => {
         setCount(e)
     }
-    const [load, setLoad] = useState(false);
     const navigate = useNavigate();
+    const [load, setLoad] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
     const [error, setError] = useState(null);
@@ -30,27 +33,26 @@ const Laminator = ({
         setIsAnimating(false); // Начинаем анимацию закрытия
         setTimeout(() => {
             setIsVisible(false)
-            setShowLaminator(false);
+            setShowDelivery(false);
         }, 300); // После завершения анимации скрываем модальное окно
     }
     const handleShow = useCallback((event) => {
-        setShowLaminator(true);
+        setShowDelivery(true);
     }, []);
 
 
     const [size, setSize] = useState({
-        x: 210,
-        y: 297
+        x: 420,
+        y: 594
     });
     const [material, setMaterial] = useState({
-        type: "Не потрібно",
-        thickness: "Тонкі",
+        type: "Папір Широкоформат",
+        thickness: "",
         material: "",
-        materialId: "",
-        typeUse: null
+        materialId: ""
     });
     const [color, setColor] = useState({
-        sides: "Не потрібно",
+        sides: "односторонній",
         one: "",
         two: "",
         allSidesColor: "CMYK",
@@ -58,9 +60,6 @@ const Laminator = ({
     const [lamination, setLamination] = useState({
         type: "Не потрібно",
         material: "",
-        materialId: "",
-        size: "",
-        typeUse: "А3",
     });
     const [big, setBig] = useState("Не потрібно");
     const [cute, setCute] = useState("Не потрібно");
@@ -72,17 +71,18 @@ const Laminator = ({
         radius: "",
     });
     const [holes, setHoles] = useState("Не потрібно");
-    const [holesR, setHolesR] = useState("");
+    const [holesR, setHolesR] = useState("Не потрібно");
     const [count, setCount] = useState(1);
-    const [prices, setPrices] = useState([]);
+    const [prices, setPrices] = useState(null);
     const [pricesThis, setPricesThis] = useState(null);
+    const [selectedService, setSelectedService] = useState("Плаката");
 
     const addNewOrderUnit = e => {
         let dataToSend = {
             orderId: thisOrder.id,
             toCalc: {
-                nameOrderUnit: `Ламінація`,
-                type: "Laminator",
+                nameOrderUnit: `Друк ${selectedService ? selectedService + " " : ""}`,
+                type: "Wide",
                 size: size,
                 material: material,
                 color: color,
@@ -102,7 +102,7 @@ const Laminator = ({
                 setThisOrder(response.data);
                 // setSelectedThings2(response.data.order.OrderUnits || []);
                 setSelectedThings2(response.data.OrderUnits);
-                setShowLaminator(false)
+                setShowDelivery(false)
             })
             .catch(error => {
                 if (error.response.status === 403) {
@@ -120,16 +120,13 @@ const Laminator = ({
     //             setPrices(response.data)
     //         })
     //         .catch(error => {
-    //             if(error.response.status === 403){
-    //                 navigate('/login');
-    //             }
     //             console.log(error.message);
     //         })
     // }, []);
 
     useEffect(() => {
         let dataToSend = {
-            type: "Laminator",
+            type: "Wide",
             size: size,
             material: material,
             color: color,
@@ -143,32 +140,29 @@ const Laminator = ({
         }
         axios.post(`/calc/pricing`, dataToSend)
             .then(response => {
-                console.log(response.data.prices);
+                // console.log(response.data);
                 setPricesThis(response.data.prices)
                 setError(null)
             })
             .catch(error => {
-                setError(error)
-                if (error.response.status === 403) {
-                    navigate('/login');
-                }
                 console.log(error.message);
+                setError(error)
             })
-    }, [material, color, lamination.materialId, big, cute, cuteLocal, holes, holesR, count]);
+    }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count]);
 
     useEffect(() => {
-        if (showLaminator) {
+        if (showDelivery) {
             setIsVisible(true); // Сначала показываем модальное окно
             setTimeout(() => setIsAnimating(true), 100); // После короткой задержки запускаем анимацию появления
         } else {
             setIsAnimating(false); // Начинаем анимацию закрытия
             setTimeout(() => setIsVisible(false), 300); // После завершения анимации скрываем модальное окно
         }
-    }, [showLaminator]);
+    }, [showDelivery]);
 
     return (
         <>
-            {isVisible === true ? (
+            {isVisible ? (
                 <div>
                     <div
                         style={{
@@ -200,7 +194,18 @@ const Laminator = ({
                     }}>
                         <div className="d-flex">
                             <div className="m-auto text-center fontProductName">
-
+                                <div className="d-flex flex-wrap justify-content-center">
+                                    {["Плаката", "Креслення", "Фотографії", "Афіши", "Лекала", "Холста"].map((service, index) => (
+                                        <button
+                                            key={index}
+                                            className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}
+                                            style={{minWidth: "5vw"}}
+                                            onClick={() => setSelectedService(service)}
+                                        >
+                                            {service}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                             <div
                                 className="btn btn-close btn-lg"
@@ -211,9 +216,9 @@ const Laminator = ({
                             >
                             </div>
                         </div>
-                        <div className="d-flex flex-column">
+                        <div className="d-flex flex-column  " style={{marginLeft: '-1vw'}}>
                             <div className="d-flex flex-row inputsArtemkilk allArtemElem" style={{
-                                marginLeft: "1.7vw",
+                                marginLeft: "2.5vw",
                                 border: "transparent",
                                 justifyContent: "left",
                                 marginTop: "1vw"
@@ -222,7 +227,7 @@ const Laminator = ({
                                     className="d-flex inputsArtemNumber inputsArtem "
                                     style={{
                                         marginLeft: "1vw",
-                                        width: "5vw",
+
                                         alignItems: "center",
                                         justifyContent: "center",
                                         paddingLeft: "0.5vw",
@@ -238,51 +243,58 @@ const Laminator = ({
                                      style={{border: "transparent", marginTop: "-2vh"}}> шт
                                 </div>
                             </div>
-                            <MDBContainer fluid style={{width: '100%'}}>
-                                <Row xs={1} md={6} className="">
+                            <MDBContainer
+
+                                fluid
+                                style={{width: '100%', marginTop: '1vw'}}
+                            >
+                                <Row xs={1} md={6} className="d-flex">
                                     <div className="d-flex flex-column">
-                                        <LaminationSize
+                                        <NewNoModalSize
                                             size={size}
                                             setSize={setSize}
                                             prices={prices}
-                                            type={"SheetCut"}
-                                            buttonsArr={["односторонній", "двосторонній",]}
+                                            type={"Wide"}
+                                            buttonsArr={["односторонній"]}
                                             color={color}
                                             setColor={setColor}
                                             count={count}
                                             setCount={setCount}
-                                            defaultt={"А3 (297 х 420 мм)"}
-                                        />
-                                        {/*<NewNoModalMaterial*/}
-                                        {/*<Materials2*/}
-                                        {/*    material={material}*/}
-                                        {/*    setMaterial={setMaterial}*/}
-                                        {/*    count={count}*/}
-                                        {/*    setCount={setCount}*/}
-                                        {/*    prices={prices}*/}
-                                        {/*    selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}*/}
-                                        {/*    name={"Чорно-білий друк на монохромному принтері:"}*/}
-                                        {/*    buttonsArr={["Тонкі",*/}
-                                        {/*        "Середньої щільності",*/}
-                                        {/*        "Цупкі", "Самоклеючі"]}*/}
-                                        {/*    typeUse={null}*/}
-                                        {/*/>*/}
-                                        <div className="d-flex" style={{marginLeft: "-1.5vw"}}>
-                                            <NewNoModalLamination
-                                                lamination={lamination}
-                                                setLamination={setLamination}
-                                                prices={prices}
-                                                size={size}
-                                                type={"Lamination"}
-                                                buttonsArr={["з глянцевим ламінуванням",
-                                                    "з матовим ламінуванням",
-                                                    "з ламінуванням Soft Touch",]}
-                                                selectArr={["30", "80", "100", "125", "250"]}
-                                            />
-                                        </div>
 
+                                        />
+                                        <SliderComponent
+                                            size={size}
+                                            setSize={setSize}
+                                            prices={prices}
+                                            type={"Wide"}
+                                            buttonsArr={["односторонній"]}
+                                            color={color}
+                                            setColor={setColor}
+                                            count={count}
+                                            setCount={setCount}
+
+                                        />
+                                        <Materials2
+                                            material={material}
+                                            setMaterial={setMaterial}
+                                            count={count}
+                                            setCount={setCount}
+                                            prices={prices}
+                                            size={size}
+                                            selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
+                                            name={"Широкоформатний фотодрук:"}
+                                            buttonsArr={[]}
+                                        />
                                     </div>
+                                    {/*<NewSizesButtons*/}
+                                    {/*    size={size}*/}
+                                    {/*    setSize={setSize}*/}
+                                    {/*/>*/}
                                 </Row>
+                                {/*{data.rows.map((item) => (*/}
+                                {/*"proxy": "http://127.0.0.1:3000",*/}
+                                {/*    <CardProduct key={item.id} name={name} data={data} setData={setData} item={item}/>*/}
+                                {/*))}*/}
                                 <div className="d-flex">
                                     {thisOrder && (
                                         <div
@@ -290,11 +302,14 @@ const Laminator = ({
                                             style={{
                                                 width: "90vw",
                                                 marginLeft: "2.5vw",
+                                                fontFamily: "inter",
+                                                fontWeight: "bold",
                                                 display: 'flex',
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
                                                 transition: "all 0.3s ease",
-                                                height: '3vw',
+                                                // cursor: "pointer",
+                                                height: '5vw',
                                             }}
                                         >
                                             <button className="adminButtonAdd" variant="danger"
@@ -302,16 +317,6 @@ const Laminator = ({
                                             >
                                                 Додати до замовлення
                                             </button>
-                                            {/*<div*/}
-                                            {/*    className="btn btn-warning" style={{*/}
-                                            {/*    borderRadius: '0.627vw',*/}
-                                            {/*    border: '0.08vw solid gray',*/}
-                                            {/*    padding: '0.2vw 0.7vw',*/}
-                                            {/*}}*/}
-                                            {/*    // onClick={handleThingClickAndHide}*/}
-                                            {/*>*/}
-                                            {/*    Додати до пресетів*/}
-                                            {/*</div>*/}
                                         </div>
                                     )}
                                 </div>
@@ -324,68 +329,86 @@ const Laminator = ({
                                     </div>
                                 ) : (
                                     <div className="d-flex justify-content-between pricesBlockContainer"
-                                         style={{height: "20vmin"}}>
-                                        <div className="" style={{height: "19vmin"}}>
-
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    Друк: {pricesThis.priceForDrukThisUnit} грн * {pricesThis.skolko} шт*/}
-                                            {/*    = {pricesThis.priceForDrukThisUnit * pricesThis.skolko} грн*/}
-                                            {/*</div>*/}
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    Матеріали: {pricesThis.priceForThisUnitOfPapper}грн. * {pricesThis.skolko} шт*/}
-                                            {/*    = {pricesThis.priceForThisUnitOfPapper * pricesThis.skolko}грн.*/}
-                                            {/*</div>*/}
-
+                                         style={{height: '20vmin'}}>
+                                        <div className="" style={{height: '19vmin'}}>
+                                            {/* Друк (рахується за sheetCount) */}
                                             <div className="fontInfoForPricing">
-                                                Ламінація: {pricesThis.priceForThisUnitOfLamination} грн
-                                                * {pricesThis.skolko} шт
-                                                = {pricesThis.priceForThisAllUnitsOfLamination} грн
+                                                Друк: {parseFloat(pricesThis.priceDrukPerSheet).toFixed(2)} грн
+                                                * {pricesThis.sheetCount} м2
+                                                = {(parseFloat(pricesThis.priceDrukPerSheet) * pricesThis.sheetCount).toFixed(2)} грн
                                             </div>
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    Згинання {pricesThis.priceForThisUnitOfBig} грн * {count} шт*/}
-                                            {/*    = {pricesThis.priceForAllUnitsOfBig} грн*/}
-                                            {/*</div>*/}
-                                            {/*<div className=" fontInfoForPricing">*/}
-                                            {/*    Свердління отворів: {pricesThis.priceForThisUnitOfCute} грн * {count} шт*/}
-                                            {/*    = {pricesThis.priceForAllUnitsOfCute} грн*/}
-                                            {/*</div>*/}
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    Суруглення кутів: {pricesThis.priceForThisUnitOfHoles} грн * {count} шт*/}
-                                            {/*    = {pricesThis.priceForAllUnitsOfHoles} грн*/}
 
-                                            {/*</div>*/}
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    {pricesThis.priceForThisUnitOfPapper * pricesThis.skolko}+*/}
-                                            {/*    {pricesThis.priceForDrukThisUnit * pricesThis.skolko}+*/}
-                                            {/*    {pricesThis.priceForThisAllUnitsOfLamination}+*/}
-                                            {/*    {pricesThis.priceForAllUnitsOfBig}+*/}
-                                            {/*    {pricesThis.priceForAllUnitsOfCute}+*/}
-                                            {/*    {pricesThis.priceForAllUnitsOfHoles}=*/}
-                                            {/*    {pricesThis.price}*/}
-                                            {/*</div>*/}
-                                            <div className="fontInfoForPricing1">
-                                                Загалом: {pricesThis.price} грн
+                                            {/* Матеріали (папір, рахуються за sheetCount) */}
+                                            <div className="fontInfoForPricing">
+                                                Матеріали: {parseFloat(pricesThis.pricePaperPerSheet).toFixed(2)} грн
+                                                * {pricesThis.sheetCount} м2
+                                                = {(parseFloat(pricesThis.pricePaperPerSheet) * pricesThis.sheetCount).toFixed(2)} грн
                                             </div>
+
+                                            {/* Ламінація (рахується за sheetCount) */}
                                             {/*<div className="fontInfoForPricing">*/}
-                                            {/*    - З одного аркуша A3 можливо*/}
-                                            {/*    зробити {pricesThis.skolkoListovNaOdin} виробів*/}
+                                            {/*    Ламінація: {parseFloat(pricesThis.priceLaminationPerSheet).toFixed(2)} грн * {pricesThis.sheetCount} м2 = {(parseFloat(pricesThis.priceLaminationPerSheet) * pricesThis.sheetCount).toFixed(2)} грн*/}
+                                            {/*</div>*/}
+
+                                            {/* Додаткова послуга "Порізка" */}
+                                            {pricesThis.porizka !== 0 && (
+                                                <div className="fontInfoForPricing">
+                                                    Порізка: {parseFloat(pricesThis.porizka).toFixed(2)} грн
+                                                    * {pricesThis.sheetCount} шт
+                                                    = {(parseFloat(pricesThis.porizka) * pricesThis.sheetCount).toFixed(2)} грн
+                                                </div>
+                                            )}
+
+                                            {/* Підсумкова вартість замовлення */}
+                                            <div className="fontInfoForPricing1">
+                                                Загалом: {parseFloat(pricesThis.price).toFixed(2)} грн
+                                            </div>
+
+                                            {/* Інформація про кількість аркушів */}
+                                            {/*<div className="fontInfoForPricing">*/}
+                                            {/*    - З одного аркуша {pricesThis.listsFromBd} можливо зробити {pricesThis.sheetsPerUnit} виробів*/}
                                             {/*</div>*/}
                                             {/*<div className="fontInfoForPricing">*/}
-                                            {/*    - Затрачено {pricesThis.skolko} аркушів (SR A3)*/}
+                                            {/*    - Затрачено {pricesThis.sheetCount} аркушів {pricesThis.listsFromBd}*/}
+                                            {/*</div>*/}
+                                            {/*<div className="fontInfoForPricing">*/}
+                                            {/*    Вартість 1 аркуша {pricesThis.listsFromBd}: {parseFloat(pricesThis.unitSheetPrice).toFixed(2)} грн*/}
+                                            {/*</div>*/}
+
+                                            {/* Розрахунок ціни за виріб (зі всіма допами) */}
+                                            <div className="fontInfoForPricing1">
+                                                Ціна за
+                                                виріб: {parseFloat(pricesThis.priceForItemWithExtras).toFixed(2)} грн
+                                            </div>
+
+                                            {/* Додатковий розрахунок ціни за лист */}
+                                            {/*<div className="fontInfoForPricing">*/}
+                                            {/*    Ціна за аркуш (зі всіма допами): {parseFloat(pricesThis.priceForSheetWithExtras).toFixed(2)} грн*/}
+                                            {/*</div>*/}
+                                            {/*<div className="fontInfoForPricing">*/}
+                                            {/*    Ціна за аркуш (лише матеріал та друк): {parseFloat(pricesThis.priceForSheetMaterialPrint).toFixed(2)} грн*/}
                                             {/*</div>*/}
                                         </div>
 
-
                                         <img
-                                            className="lamination-img-icon"
+                                            className="versant80-img-icon"
                                             alt="sssss"
                                             src={versantIcon}
+                                            style={{
+                                                height: "17vmin",
+                                                marginRight: "2vmin",
 
+                                            }}
                                         />
                                     </div>
                                 )}
                             </MDBContainer>
                         </div>
+                        {/*{thisOrder && (*/}
+                        {/*    <div className="btn btn-light" onClick={handleThingClickAndHide}>*/}
+                        {/*        ДОДАТИ ДО ЗАМОВЛЕННЯ*/}
+                        {/*    </div>*/}
+                        {/*)}*/}
                     </div>
                 </div>
             ) : (
@@ -403,4 +426,4 @@ const Laminator = ({
     )
 };
 
-export default Laminator;
+export default Delivery;

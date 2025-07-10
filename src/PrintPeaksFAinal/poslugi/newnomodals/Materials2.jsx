@@ -156,9 +156,9 @@ const Materials2 = ({
                                 value={item.name}
                                 data-id={item.id}
                             >
-                                {/*<>{"id:"}</>*/}
-                                {/*<>{item.id}</>*/}
-                                {/*<>{" "}</>*/}
+                                <>{"id:"}</>
+                                <>{item.id}</>
+                                <>{" "}</>
                                 <>{item.name}</>
                                 <>{" "}</>
                                 <>{item.thickness} gsm</>
