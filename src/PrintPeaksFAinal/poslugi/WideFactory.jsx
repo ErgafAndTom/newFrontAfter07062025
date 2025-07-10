@@ -6,7 +6,7 @@ import './newnomodals/ArtemStyles.css';
 import versantIcon from "../public/wided@2x.png";
 import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
 import Materials2 from "./newnomodals/Materials2";
-import SliderComponent from "./newnomodals/SlidersComponent";
+import SliderComponentFactory from "./newnomodals/SlidersComponentFactory";
 import {useNavigate} from "react-router-dom";
 import Loader from "../../components/calc/Loader";
 import imgg3 from "../../components/newUIArtem/printers/p3.svg";
@@ -46,7 +46,7 @@ const WideFactory = ({
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [selectWideFactory, setSelectWideFactory] = useState("Баннер FactoryWide");
-  const [arrOfTops, setArrOfTops] = useState(["БАННЕР F"]);
+  const [arrOfTops, setArrOfTops] = useState([""]);
   const [arrOfDruk, setArrOfDruk] = useState(["Екосольвентний друк", "УФ друк"]);
   const [error, setError] = useState(null);
   const handleClose = () => {
@@ -127,13 +127,13 @@ const WideFactory = ({
     })
     setSelectWideFactory(e)
     if(e === "Баннер FactoryWide"){
-      setArrOfTops(["Баннер F"])
+      setArrOfTops(["Банера"])
     } else if(e === "Плівка FactoryWide"){
-      setArrOfTops(["Плівка F"])
+      setArrOfTops(["Стікера", "Наліпки", "Графіка роботи",  ])
     } else if(e === "Папір FactoryWide"){
-      setArrOfTops(["Папір F"])
+      setArrOfTops(["Афіші", "Плаката", "Реклами", ])
     } else if(e === "ПВХ FactoryWide"){
-      setArrOfTops(["ПВХ F"])
+      setArrOfTops(["Таблички"])
     }
   }
 
@@ -289,27 +289,38 @@ const WideFactory = ({
               </div>
             </div>
 
-            <div className="buttonsRow" style={{width: "62vw", marginTop: "1vh"}}>
-              <div
-                onClick={() => handleClickWideFactory("Баннер FactoryWide")}
-                // className="colorButton bg-light cursorPointer "
-                className={`colorButton cursorPointer ${selectWideFactory === "Баннер FactoryWide" ? 'adminButtonAdd' : ''}`}
-              >
-                <img src={bannerb} className="card-img-top noanim" alt="Вишичка"/>
-                <img src={bannerw} className="card-img-top anim" alt="Вишичка"/>
-                <div className="buttonLabel"></div>
-              </div>
+            <div className="buttonsRow" style={{width: "62vw", gap: "1vw"}}>
+
+
               <div
                 onClick={() => handleClickWideFactory("Плівка FactoryWide")}
-                className={`colorButton cursorPointer ${selectWideFactory === "Плівка FactoryWide" ? 'adminButtonAdd' : ''}`}
+                className={`colorButtonFactory cursorPointer ${selectWideFactory === "Плівка FactoryWide" ? 'active' : ''}`}
               >
                 <img src={label} className="card-img-top noanim" alt="Вишичка"/>
                 <img src={Labelw} className="card-img-top anim" alt="Вишичка"/>
                 <div className="buttonLabel"></div>
               </div>
               <div
+                onClick={() => handleClickWideFactory("Баннер FactoryWide")}
+                className={`colorButtonFactory cursorPointer ${selectWideFactory === "Баннер FactoryWide" ? 'active' : ''}`}
+              >
+                <img src={bannerb}
+                     className="d-flex align-items-center justify-content-center card-img-top noanim"
+                     alt="Вишичка"
+
+                />
+                <img src={bannerw}
+                     className="card-img-top anim"
+                     alt="Вишичка"
+
+                />
+
+              </div>
+
+
+              <div
                 onClick={() => handleClickWideFactory("Папір FactoryWide")}
-                className={`colorButton cursorPointer ${selectWideFactory === "Папір FactoryWide" ? 'adminButtonAdd' : ''}`}
+                className={`colorButtonFactory cursorPointer ${selectWideFactory === "Папір FactoryWide" ? 'active' : ''}`}
               >
                 <img src={citylightb} className="card-img-top noanim" alt="Вишичка"/>
                 <img src={citylightw} className="card-img-top anim" alt="Вишичка"/>
@@ -317,20 +328,21 @@ const WideFactory = ({
               </div>
               <div
                 onClick={() => handleClickWideFactory("ПВХ FactoryWide")}
-                className={`colorButton cursorPointer ${selectWideFactory === "ПВХ FactoryWide" ? 'adminButtonAdd' : ''}`}
+                className={`colorButtonFactory cursorPointer ${selectWideFactory === "ПВХ FactoryWide" ? 'active' : ''}`}
               >
-                <img src={PVCw} className="card-img-top noanim" alt="Вишичка"/>
-                <img src={PVCb} className="card-img-top anim" alt="Вишичка"/>
+                <img src={PVCb} className="card-img-top noanim" alt="Вишичка"/>
+                <img src={PVCw} className="card-img-top anim" alt="Вишичка"/>
                 <div className="buttonLabel"></div>
               </div>
             </div>
 
-            <div className="d-flex flex-wrap">
+            <div className="d-flex flex-wrap"
+            style={{marginTop: "1vw", marginLeft: "1.5vw", gap:"1vw"}}>
               {arrOfDruk.map((service, index) => (
                 <button
                   key={index}
-                  className={`btn ${selectedDruk === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}
-                  style={{minWidth: "5vw"}}
+                  className={`btn ${selectedDruk === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'}`}
+                  style={{width: "17vw"}}
                   onClick={() => setSelectedDruk(service)}
                 >
                   {service}
@@ -370,31 +382,18 @@ const WideFactory = ({
                 fluid
                 style={{width: '100%', marginTop: '1vw'}}
               >
-                <Row xs={1} md={6} className="d-flex">
-                  <div className="d-flex flex-column">
+                <Row xs={3} md={6} className="">
+                  <div className="d-flex flex-row align-items-center justify-content-left">
                     <NewNoModalSize
                       size={size}
                       setSize={setSize}
                       prices={prices}
-                      type={"Wide"}
+                      type={"WideFactory"}
                       buttonsArr={["односторонній"]}
                       color={color}
                       setColor={setColor}
                       count={count}
                       setCount={setCount}
-
-                    />
-                    <SliderComponent
-                      size={size}
-                      setSize={setSize}
-                      prices={prices}
-                      type={"Wide"}
-                      buttonsArr={["односторонній"]}
-                      color={color}
-                      setColor={setColor}
-                      count={count}
-                      setCount={setCount}
-
                     />
                     <Materials2
                       material={material}
@@ -407,6 +406,20 @@ const WideFactory = ({
                       name={"Широкоформатний фотодрук:"}
                       buttonsArr={[]}
                     />
+                  </div>
+                    <SliderComponentFactory
+                      size={size}
+                      setSize={setSize}
+                      prices={prices}
+                      type={"Wide"}
+                      buttonsArr={["односторонній"]}
+                      color={color}
+                      setColor={setColor}
+                      count={count}
+                      setCount={setCount}
+
+                    />
+
 
                     {selectWideFactory === "Баннер FactoryWide" &&
                       <Luvarsi
@@ -479,7 +492,7 @@ const WideFactory = ({
                       </>
                     }
 
-                  </div>
+
                   {/*<NewSizesButtons*/}
                   {/*    size={size}*/}
                   {/*    setSize={setSize}*/}
@@ -644,3 +657,5 @@ const WideFactory = ({
 };
 
 export default WideFactory;
+
+/* Додайте ці стилі до вашого CSS файлу */

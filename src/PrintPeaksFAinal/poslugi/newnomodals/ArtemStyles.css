@@ -126,7 +126,31 @@
     cursor: pointer;
 
 }
+.colorButton.active .noanim {
+  opacity: 0;
+}
 
+.colorButton.active .anim {
+  opacity: 1;
+}
+
+.colorButton .noanim {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.colorButton .anim {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.colorButton:hover .noanim {
+  opacity: 0;
+}
+
+.colorButton:hover .anim {
+  opacity: 1;
+}
 .buttonsArtem:hover {
     border-bottom: 3px solid gray; /* 5px * 0.6 */
     transform: scale(1.05);

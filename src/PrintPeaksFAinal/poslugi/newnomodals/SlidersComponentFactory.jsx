@@ -66,11 +66,11 @@ function SliderComponent({size, setSize}) {
         >
             <div className="d-flex flex-column" style={{marginLeft: "2vw", width: "100%"}}>
 
-                <span className="slider-label" style={{marginLeft: "40vw", width: "100%", opacity:"50%"}}>1000 мм</span>
+                <span className="slider-label" style={{marginLeft: "40vw", width: "100%", opacity:"50%"}}>1600 мм</span>
                 <input
                     type="range"
                     min={45}
-                    max={1000}
+                    max={1600}
                     value={x}
                     onChange={handleChange1}
                     onMouseUp={handleMouseUp1} // Встановлення остаточного значення при відпусканні миші
@@ -85,11 +85,11 @@ function SliderComponent({size, setSize}) {
             </div>
 
             <div className="d-flex flex-column" style={{marginLeft: "2vw", width: "100%"}}>
-                <span className="slider-label" style={{marginLeft: "40vw", width: "100%", opacity:"50%"}}>4000 мм</span>
+                <span className="slider-label" style={{marginLeft: "40vw", width: "100%", opacity:"50%"}}>5000 мм</span>
                 <input
                     type="range"
                     min={45}
-                    max={4000}
+                    max={5000}
                     value={y}
                     onChange={handleChange2}
                     onMouseUp={handleMouseUp2} // Встановлення остаточного значення при відпусканні миші

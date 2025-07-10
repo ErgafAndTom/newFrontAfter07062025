@@ -145,9 +145,10 @@
 
 }
 .adminButtonAdd:hover {
-
+  background: #fab416;
   color: white;
-  transform: scale(1.025);
+  /*transform: scale(1.025);*/
+
 }
 .navbar-section {
   height: 4vh;

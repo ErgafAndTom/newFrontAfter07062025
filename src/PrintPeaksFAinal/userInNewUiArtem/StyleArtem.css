@@ -1492,7 +1492,6 @@
     margin: auto;
     overflow: auto;
     display: flex;
-    width: 50h;
     width: 100%;
     text-align: right;
     justify-content: center;
@@ -2878,7 +2877,7 @@
     width: 73px;
     height: 21px;
 
-    font-size: 23;
+
     color: var(--color-black);
 }
 
@@ -5250,7 +5249,7 @@
     border: 0;
     width: 130px;
 
-    font-size: 23;
+
     color: var(--color-black);
 }
 
@@ -5565,15 +5564,26 @@
     background-color: #eee; /* можна міняти через класи bg-xxx */
     transition: transform 0.3s;
 }
-
+.colorButtonFactory{
+  width: 8vw;
+  height: 11vh;
+  border-radius: 0.5vw;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.5rem;
+  transform: skew(-15deg);
+  background-color: #eee; /* можна міняти через класи bg-xxx */
+  transition: transform 0.3s;
+}
 .colorButtonNote {
     position: relative;
     left: 1.1vw;
 }
 
-.colorButton:hover .colorButtonNote:hover {
+.colorButton:hover .colorButtonNote:hover  {
 
-    transform: skew(-15deg) scale(1.05);
+  background: #fab416;
 
 }
 
@@ -5622,7 +5632,23 @@
     pointer-events: none;
 
 }
+.colorButton:hover {
+  background-color: #fab416;
+}
 
+/* Якщо потрібно більш специфічний селектор */
+.colorButton.cursorPointer:hover {
+
+}
+
+/* Або для плавного переходу */
+.colorButton {
+  transition: background-color 0.3s ease;
+}
+
+.colorButton:hover {
+
+}
 .colorButton:hover img.noanim {
     opacity: 0;
 }
@@ -5633,6 +5659,56 @@
 
 .noanimcgcolor {
     height: 30vh;
+}
+.colorButtonFactory {
+  position: relative;
+  width: 16vh; /* або що пасує в твоєму grid */
+  height: 11vh;
+  overflow: hidden;
+  border-radius: 1vh;
+  background: #f2f0e9;
+  box-shadow: 0 0.3vh 1vh rgba(0,0,0,0.15);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.colorButtonFactory:hover {
+  /*transform: scale(1.03);*/
+  box-shadow: 0 0.5vh 1.5vh rgba(0,0,0,0.25);
+  background-color: #ffc33c;
+}
+
+.colorButtonFactory.active {
+  /*border: 0.3vh solid #ffb400; !* твій акцент *!*/
+  background: #fab416;
+}
+
+.colorButtonFactory img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /*object-fit: cover;*/
+  transition: opacity 0.3s ease;
+}
+
+.colorButtonFactory .anim {
+  opacity: 0;
+}
+
+.colorButtonFactory.active .anim,
+.colorButtonFactory:hover .anim {
+  opacity: 1;
+}
+
+.colorButtonFactory .noanim {
+  opacity: 1;
+}
+
+.colorButtonFactory.active .noanim,
+.colorButtonFactory:hover .noanim {
+  opacity: 0;
 }
 
 /* Фонові кольори */
@@ -5717,6 +5793,18 @@
     background-color: #cbbd94;
 }
 
+.bg-light-coral:hover {
+  background-color: #f5a9a8;
+}
+
+.bg-factory {
+  background-color: #c0ecd6;
+  transition: background-color 0.3s ease;
+}
+
+.bg-factory:hover {
+  background-color: #a4f3cb;
+}
 /* OrderList.css */
 
 /* OrderList.css */
@@ -5733,206 +5821,3 @@
     --font-family: 'Inter', sans-serif;
 }
 
-/* ========== Контейнер списку ========== */
-/* ========== Фон-покриття, щоб затемнити все поза модалкою ========== */
-/*.modal-overlay {*/
-/*    position: fixed;*/
-/*    top: 0;*/
-/*    left: 0;*/
-/*    width: 100vw;*/
-/*    height: 100vh;*/
-/*    background: rgba(0, 0, 0, 0.3);*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    justify-content: center;*/
-/*    z-index: 999;*/
-/*}*/
-
-/* ========== Контейнер “віконця” ========== */
-/*.modal-container {*/
-/*    position: relative;*/
-/*    width: 90vw;*/
-/*    max-width: 1000px;*/
-/*    max-height: 85vh;*/
-/*    background: #fff;*/
-/*    border-radius: 1vmin;*/
-/*    padding: 2vmin;*/
-/*    box-shadow: 0 0.5vmin 1vmin rgba(0, 0, 0, 0.1);*/
-/*    overflow-y: auto;*/
-/*}*/
-
-/* ========== Кнопка закриття зверху праворуч ========== */
-/* ========== Вся панель з замовленнями ========== */
-/*.order-panel {*/
-/*    position: relative;*/
-/*    width: 100%;*/
-/*    max-width: 60rem; !* не ширше ніж 40rem (~640px) *!*/
-/*    max-height: 57vh; !* не вище ніж 70% висоти екрану *!*/
-/*    padding: 1rem;*/
-/*    !*background: #fff;*!*/
-/*    border-radius: 0.5rem;*/
-/*    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);*/
-/*    overflow-y: auto; !* внутрішня прокрутка *!*/
-/*    margin: 0 auto; !* центруємо горизонтально *!*/
-/*}*/
-
-/*!* підлаштовуємо місце між заголовком та списком, якщо є *!*/
-/*.order-panel .empty {*/
-/*    text-align: center;*/
-/*    color: #888;*/
-/*    padding: 2rem 0;*/
-/*}*/
-
-/*!* ========== Список елементів ========== *!*/
-/*.order-list {*/
-/*    display: flex;*/
-/*    flex-direction: column;*/
-/*    gap: 0.75rem;*/
-/*}*/
-
-/*!* ========== Один рядок зі “thing” ========== *!*/
-/*.order-item {*/
-/*    display: grid;*/
-/*    grid-template-columns: 1.5rem 1fr auto;*/
-/*    grid-column-gap: 0.75rem;*/
-/*    align-items: center;*/
-/*    padding: 0.75rem;*/
-/*    background: #f9f9f9;*/
-/*    border-radius: 0.375rem;*/
-/*}*/
-
-/*!* “✕” видалення *!*/
-/*.order-item .battonClosed {*/
-/*    font-size: 1rem;*/
-/*    color: #aaa;*/
-/*    cursor: pointer;*/
-/*    transition: color 0.2s, transform 0.2s;*/
-/*}*/
-
-/*.order-item .battonClosed:hover {*/
-/*    color: #EE3C23;*/
-/*    transform: scale(1.2);*/
-/*}*/
-
-/*!* Інформація про товар *!*/
-/*.order-item .item-info {*/
-/*    display: flex;*/
-/*    flex-direction: column;*/
-/*    gap: 0.25rem;*/
-/*    min-width: 0;*/
-/*}*/
-
-/*!* Назва *!*/
-/*.order-item .item-info .item-name {*/
-/*    font-weight: 600;*/
-/*    font-size: 1rem;*/
-/*    color: #333;*/
-/*    white-space: nowrap;*/
-/*    overflow: hidden;*/
-/*    text-overflow: ellipsis;*/
-/*}*/
-
-/*!* Рядок зі розмірами і кількістю *!*/
-/*.order-item .item-info .metrics {*/
-/*    display: flex;*/
-/*    flex-wrap: wrap;*/
-/*    gap: 0.5rem;*/
-/*    font-size: 0.875rem;*/
-/*    color: #555;*/
-/*}*/
-
-/*.order-item .item-info .metrics small {*/
-/*    margin-left: 0.25rem;*/
-/*}*/
-
-/*!* Блок ціни справа *!*/
-/*.order-item .item-price {*/
-/*    display: flex;*/
-/*    align-items: flex-end;*/
-/*    gap: 0.25rem;*/
-/*    white-space: nowrap;*/
-/*}*/
-
-/*.order-item .item-price .price-eq {*/
-/*    font-size: 0.875rem;*/
-/*}*/
-
-/*.order-item .item-price .price-value {*/
-/*    font-weight: 700;*/
-/*    font-size: 1.125rem;*/
-/*    color: #EE3C23;*/
-/*}*/
-
-/*.order-item .item-price small {*/
-/*    margin-top: 0.25rem;*/
-/*    font-size: 0.875rem;*/
-/*    color: #EE3C23;*/
-/*}*/
-
-/*!* ========== Прокрутка для довгого списку ========== *!*/
-/*.order-panel::-webkit-scrollbar {*/
-/*    width: 0.5rem;*/
-/*}*/
-
-/*.order-panel::-webkit-scrollbar-thumb {*/
-/*    background: rgba(0, 0, 0, 0.1);*/
-/*    border-radius: 0.25rem;*/
-/*}*/
-
-/*!* ========== Адаптивність ========== *!*/
-/*@media (max-width: 600px) {*/
-/*    .order-panel {*/
-/*        max-width: 90vw;*/
-/*        padding: 1rem;*/
-/*    }*/
-
-/*    .order-item {*/
-/*        grid-template-columns: 1.5rem 1fr;*/
-/*        grid-template-rows: auto auto;*/
-/*    }*/
-
-/*    .order-item .item-price {*/
-/*        grid-column: 1 / -1;*/
-/*        margin-top: 0.5rem;*/
-/*    }*/
-/*}*/
-
-/*.order-summary {*/
-/*    display: flex;*/
-/*    flex-direction: column; !* колоною, щоб discount завжди був знизу *!*/
-/*    gap: 0.5rem; !* відстань між рядками *!*/
-/*    font-family: var(--font);*/
-/*}*/
-
-/*!* сам рядок “цифровий друк” *!*/
-/*.order-summary .digital-print {*/
-/*    display: flex;*/
-/*    justify-content: space-between;*/
-/*    align-items: baseline;*/
-/*    font-size: 1.2vmin;*/
-/*    color: var(--text-main);*/
-/*}*/
-
-/*!* блок зі знижкою *!*/
-/*.order-summary .discount-container {*/
-/*    display: flex;*/
-/*    align-items: baseline;*/
-/*    gap: 0.25rem;*/
-/*    font-size: 1.1vmin;*/
-/*    color: var(--text-secondary);*/
-/*    margin-left: 1rem; !* злегка відсунемо вправо, щоб було видно ієрархію *!*/
-/*}*/
-
-/*.order-summary .discount-container .label {*/
-/*    font-weight: 500;*/
-/*}*/
-
-/*.order-summary .discount-container .price {*/
-/*    font-weight: 700;*/
-/*    color: #EE3C23;*/
-/*}*/
-
-/*.order-summary .discount-container small {*/
-/*    margin-left: 0.2rem;*/
-/*    font-size: 0.9vmin;*/
-/*}*/

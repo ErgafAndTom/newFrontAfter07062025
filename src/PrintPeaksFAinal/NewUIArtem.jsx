@@ -38,6 +38,8 @@ import imgg8 from "../components/newUIArtem/printers/p8.svg";
 import imgg9 from "../components/newUIArtem/printers/p9.svg";
 import imgg101 from "./evroscoba.png";
 import scoba from "./poslugi/newnomodals/skoba.svg";
+import Widefactory from "../components/newUIArtem/printers/Widefactory.png";
+import Widefactoryw from "../components/newUIArtem/printers/Widefactoryw.png";
 
 import versantIcon from "../components/newUIArtem/printers/group-1468.svg";
 
@@ -304,11 +306,11 @@ const NewUIArtem = () => {
             <div className="buttonsRow" style={{width: "62vw", marginTop: "1vh"}}>
               <div
                 onClick={() => setShowWideFactory(true)}
-                className="colorButton bg-light cursorPointer "
+                className="colorButton bg-factory cursorPointer "
               >
-                <img src={imgg3} className="card-img-top noanim" alt="Вишичка"/>
-                <img src={img2} className="card-img-top anim" alt="Вишичка"/>
-                <div className="buttonLabel">WideFactory</div>
+                <img src={Widefactory} className="card-img-top noanim" alt="Вишичка"/>
+                <img src={Widefactoryw} className="card-img-top anim" alt="Вишичка"/>
+                <div className="buttonLabel">WIDE FACTORY</div>
               </div>
             </div>
 
