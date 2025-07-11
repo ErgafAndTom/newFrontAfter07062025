@@ -17,7 +17,12 @@ import PlotterCutting from "./newnomodals/wideFactory/PlotterCutting";
 import MontajnaPlivkaWideFactory from "./newnomodals/wideFactory/MontajnaPlivkaWideFactory";
 import LaminationWideFactory from "./newnomodals/wideFactory/LaminationWideFactory";
 import NewSheetCut from "./NewSheetCut";
-
+import {
+  Sticker,      // lucide-react
+  Image,
+  FileText,
+  Layers
+} from "lucide-react";
 import bannerb from "../../components/newUIArtem/printers/banerb.png";
 import bannerw from "../../components/newUIArtem/printers/banerw.png";
 import citylightb from "../../components/newUIArtem/printers/citylightb.png";
@@ -289,52 +294,26 @@ const WideFactory = ({
               </div>
             </div>
 
-            <div className="buttonsRow" style={{width: "62vw", gap: "1vw"}}>
-
-
-              <div
-                onClick={() => handleClickWideFactory("Плівка FactoryWide")}
-                className={`colorButtonFactory cursorPointer ${selectWideFactory === "Плівка FactoryWide" ? 'active' : ''}`}
-              >
-                <img src={label} className="card-img-top noanim" alt="Вишичка"/>
-                <img src={Labelw} className="card-img-top anim" alt="Вишичка"/>
-                <div className="buttonLabel"></div>
-              </div>
-              <div
-                onClick={() => handleClickWideFactory("Баннер FactoryWide")}
-                className={`colorButtonFactory cursorPointer ${selectWideFactory === "Баннер FactoryWide" ? 'active' : ''}`}
-              >
-                <img src={bannerb}
-                     className="d-flex align-items-center justify-content-center card-img-top noanim"
-                     alt="Вишичка"
-
-                />
-                <img src={bannerw}
-                     className="card-img-top anim"
-                     alt="Вишичка"
-
-                />
-
-              </div>
-
-
-              <div
-                onClick={() => handleClickWideFactory("Папір FactoryWide")}
-                className={`colorButtonFactory cursorPointer ${selectWideFactory === "Папір FactoryWide" ? 'active' : ''}`}
-              >
-                <img src={citylightb} className="card-img-top noanim" alt="Вишичка"/>
-                <img src={citylightw} className="card-img-top anim" alt="Вишичка"/>
-                <div className="buttonLabel"></div>
-              </div>
-              <div
-                onClick={() => handleClickWideFactory("ПВХ FactoryWide")}
-                className={`colorButtonFactory cursorPointer ${selectWideFactory === "ПВХ FactoryWide" ? 'active' : ''}`}
-              >
-                <img src={PVCb} className="card-img-top noanim" alt="Вишичка"/>
-                <img src={PVCw} className="card-img-top anim" alt="Вишичка"/>
-                <div className="buttonLabel"></div>
-              </div>
+            {/* категорії */}
+            <div className="wf-cards">
+              {[
+                ["Плівка FactoryWide",  Sticker],     // стікер, самоклейка
+                ["Баннер FactoryWide",  Image],   // білборд / банер
+                ["Папір FactoryWide",   FileText],    // афіша, плакат
+                ["ПВХ FactoryWide",     Layers],      // багатошаровий пластик
+              ].map(([val, Icon]) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => handleClickWideFactory(val)}
+                  className={`wf-card ${selectWideFactory === val ? "is-active" : ""}`}
+                >
+                  <Icon className="wf-icon"/>
+                  <span className="wf-caption">{val.split(" ")[0]}</span>
+                </button>
+              ))}
             </div>
+
 
             <div className="d-flex flex-wrap"
             style={{marginTop: "1vw", marginLeft: "1.5vw", gap:"1vw"}}>
@@ -432,7 +411,7 @@ const WideFactory = ({
                     }
 
                     {selectWideFactory === "Плівка FactoryWide" &&
-                      <>
+                      <div className={"d-flex flex-column "}>
                         {selectedDruk === "Екосольвентний друк" &&
                           <>
                             <LaminationWideFactory
@@ -460,7 +439,7 @@ const WideFactory = ({
                           type={"MontajnaPlivkaWideFactory"}
                           buttonsArr={[]}
                         />
-                      </>
+                      </div>
                     }
 
                     {selectWideFactory === "Папір FactoryWide" &&

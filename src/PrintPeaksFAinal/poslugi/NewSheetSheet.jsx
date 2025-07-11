@@ -15,7 +15,7 @@ import PhotoPosluga from "./newnomodals/photo/PhotoPosluga";
 import Porizka from "./newnomodals/Porizka";
 import "../global.css"
 import PerepletPereplet from "./newnomodals/PerepletPereplet";
-import NewNoModalProkleka from "./newnomodals/NewNoModalProkleka";
+import NewNoModalProkleyka from "./newnomodals/NewNoModalProkleyka";
 
 const NewSheetSheet = ({
                          thisOrder,
@@ -91,7 +91,7 @@ const NewSheetSheet = ({
         radius: "",
     });
     const [holes, setHoles] = useState("Не потрібно");
-    const [prokleka, setProkleka] = useState("Не потрібно");
+    const [Prokleyka, setProkleyka] = useState("Не потрібно");
     const [holesR, setHolesR] = useState("");
     const [count, setCount] = useState(1);
     const [prices, setPrices] = useState([]);
@@ -111,7 +111,7 @@ const NewSheetSheet = ({
                 big: big,
                 cute: cute,
                 cuteLocal: cuteLocal,
-                prokleka: prokleka,
+                Prokleyka: Prokleyka,
                 holes: holes,
                 holesR: holesR,
                 count: count,
@@ -161,7 +161,7 @@ const NewSheetSheet = ({
             lamination: lamination,
             big: big,
             cute: cute,
-            prokleka: prokleka,
+            Prokleyka: Prokleyka,
             cuteLocal: cuteLocal,
             holes: holes,
             holesR: holesR,
@@ -180,7 +180,7 @@ const NewSheetSheet = ({
                 }
                 console.log(error.response);
             })
-    }, [size, material, color, lamination.materialId, big, cute, cuteLocal, holes, holesR, count, porizka, prokleka]);
+    }, [size, material, color, lamination.materialId, big, cute, cuteLocal, holes, holesR, count, porizka, Prokleyka]);
 
     useEffect(() => {
         if (showNewSheetSheet) {
@@ -345,9 +345,9 @@ const NewSheetSheet = ({
                                         {/*    selectArr={["", "3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}*/}
                                         {/*/>*/}
 
-                                        {/*<NewNoModalProkleka*/}
-                                        {/*    prokleka={prokleka}*/}
-                                        {/*    setProkleka={setProkleka}*/}
+                                        {/*<NewNoModalProkleyka*/}
+                                        {/*    Prokleyka={Prokleyka}*/}
+                                        {/*    setProkleyka={setProkleyka}*/}
                                         {/*    prices={prices}*/}
                                         {/*    type={"SheetCut"}*/}
                                         {/*    buttonsArr={[]}*/}

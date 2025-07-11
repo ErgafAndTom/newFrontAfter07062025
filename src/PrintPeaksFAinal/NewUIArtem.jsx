@@ -14,6 +14,7 @@ import creo from "../components/newUIArtem/printers/creo.png";
 import MUG from "../components/newUIArtem/printers/mug.png";
 import magnets from "./magnetsIcon.png";
 import Scans from "./scan.png";
+import Deliverypng from "../components/newUIArtem/printers/delivery.png";
 
 // Usage of ClientsMenu
 import img1 from '../components/newUIArtem/printers/46.png';
@@ -67,7 +68,7 @@ import NewMagnets from "./poslugi/NewMagnets";
 import NewScans from "./poslugi/NewScans";
 import WideFactory from "./poslugi/WideFactory";
 import NewSheetSheet from "./poslugi/NewSheetSheet";
-import Delivery from "./poslugi/Delivery";
+import Delivery from "./poslugi/DeliveryPage";
 const NewUIArtem = () => {
   const navigate = useNavigate();
   const [things, setThings] = useState([]);
@@ -241,14 +242,14 @@ const NewUIArtem = () => {
                 <img src={img1} className="anim noanimcgcolor"></img>
                 <div className="buttonLabel">COLOR PRODUCTS</div>
               </div>
-              <div
-                onClick={() => setShowNewSheetSheet(true)}
-                className="colorButton bg-lavender cursorPointer "
-              >
-                <img src={imgg2} className="noanimcgcolor noanim"></img>
-                <img src={img1} className="anim noanimcgcolor"></img>
-                <div className="buttonLabel">COLOR SHEETS</div>
-              </div>
+              {/*<div*/}
+              {/*  onClick={() => setShowNewSheetSheet(true)}*/}
+              {/*  className="colorButton bg-lavender cursorPointer "*/}
+              {/*>*/}
+              {/*  <img src={imgg2} className="noanimcgcolor noanim"></img>*/}
+              {/*  <img src={img1} className="anim noanimcgcolor"></img>*/}
+              {/*  <div className="buttonLabel">COLOR SHEETS</div>*/}
+              {/*</div>*/}
               {/* 3 */}
               <div
                 onClick={() => setShowNewWide(true)}
@@ -364,9 +365,9 @@ const NewUIArtem = () => {
               </div>
               <div
                 onClick={() => setShowDelivery(true)}
-                className="colorButtonNote colorButton bg-light-cyan  cursorPointer">
-                <img src={Scans} className="card-img-top noanim" alt="Продукти"/>
-                <img src={Scans} className="card-img-top anim" alt="Продукти"/>
+                className="colorButtonNote colorButton bg-yellow  cursorPointer">
+                <img src={Deliverypng} className="card-img-top noanim" alt="Продукти"/>
+                <img src={Deliverypng} className="card-img-top anim" alt="Продукти"/>
                 <div className="buttonLabel">DELIVERY</div>
               </div>
             </div>
@@ -752,19 +753,19 @@ const NewUIArtem = () => {
             showNewSheetCut={showNewSheetCut}
           />
         }
-        {showNewSheetSheet &&
-          <NewSheetSheet
-            productName={productName}
-            thisOrder={thisOrder}
-            newThisOrder={newThisOrder}
-            selectedThings2={selectedThings2}
-            setNewThisOrder={setNewThisOrder}
-            setShowNewSheetSheet={setShowNewSheetSheet}
-            setThisOrder={setThisOrder}
-            setSelectedThings2={setSelectedThings2}
-            showNewSheetSheet={showNewSheetSheet}
-          />
-        }
+        {/*{showNewSheetSheet &&*/}
+        {/*  <NewSheetSheet*/}
+        {/*    productName={productName}*/}
+        {/*    thisOrder={thisOrder}*/}
+        {/*    newThisOrder={newThisOrder}*/}
+        {/*    selectedThings2={selectedThings2}*/}
+        {/*    setNewThisOrder={setNewThisOrder}*/}
+        {/*    setShowNewSheetSheet={setShowNewSheetSheet}*/}
+        {/*    setThisOrder={setThisOrder}*/}
+        {/*    setSelectedThings2={setSelectedThings2}*/}
+        {/*    showNewSheetSheet={showNewSheetSheet}*/}
+        {/*  />*/}
+        {/*}*/}
         {showNewWide &&
           <NewWide
             productName={productName}

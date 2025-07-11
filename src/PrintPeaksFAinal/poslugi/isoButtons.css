@@ -1,0 +1,38 @@
+.iso-wrapper{
+  position:relative;
+  width:100%;
+  max-width:800px;           /* будь-яка зручна ширина */
+  aspect-ratio: 841 / 1189;  /* зберігає пропорції */
+}
+.iso-bg{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+}
+.adminButtonAdd{
+  position:absolute;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:transparent;
+  border:none;
+  font-weight:600;
+  font-size:1rem;
+  cursor:pointer;
+  transition:background .2s, font-size .2s;
+}
+.adminButtonAdd .dims{
+  position:absolute;
+  opacity:0;
+  font-size:0.8em;
+  top:4px;          /* ближче до краю */
+  right:4px;
+}
+.adminButtonAdd:hover{
+  background:#FAB416;
+  font-size:1.2rem;           /* +20 % */
+}
+.adminButtonAdd:hover .dims{
+  opacity:1;
+}
