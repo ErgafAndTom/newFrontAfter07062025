@@ -1,0 +1,89 @@
+Index: src/PrintPeaksFAinal/poslugi/BigOvshik.jsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/PrintPeaksFAinal/poslugi/BigOvshik.jsx b/src/PrintPeaksFAinal/poslugi/BigOvshik.jsx
+--- a/src/PrintPeaksFAinal/poslugi/BigOvshik.jsx	(date 1752099925738)
++++ b/src/PrintPeaksFAinal/poslugi/BigOvshik.jsx	(revision AI Assistant Changes)
+@@ -75,6 +75,7 @@
+     });
+     const [holes, setHoles] = useState("Не потрібно");
+     const [holesR, setHolesR] = useState("");
++    const [design, setDesign] = useState("Не потрібно");
+     const [count, setCount] = useState(1);
+     const [prices, setPrices] = useState([]);
+     const [pricesThis, setPricesThis] = useState(null);
+@@ -96,6 +97,7 @@
+                 holes: holes,
+                 holesR: holesR,
+                 count: count,
++                design: design
+             }
+         };
+
+@@ -147,6 +149,7 @@
+             holes: holes,
+             holesR: holesR,
+             count: count,
++            design: design
+         }
+         axios.post(`/calc/pricing`, dataToSend)
+             .then(response => {
+@@ -158,7 +161,7 @@
+                 }
+                 console.log(error.message);
+             })
+-    }, [size, material, color, lamination, big, Prokleyka, cute, cuteLocal, holes, holesR, count]);
++    }, [size, material, color, lamination, big, Prokleyka, cute, cuteLocal, holes, holesR, count, design]);
+
+     useEffect(() => {
+         if (showBigOvshik) {
+@@ -281,6 +284,31 @@
+                                             buttonsArr={[]}
+                                             selectArr={["", "3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
+                                         />
++                                        <div className="d-flex flex-column align-items-start allArtemElem">
++                                            <div className="d-flex flex-row inputsArtemkilk" style={{
++                                                marginLeft: "1.4vw",
++                                                border: "transparent",
++                                                justifyContent: "left",
++                                                marginTop: "1vw"
++                                            }}>
++                                                Дизайн:
++                                                <select
++                                                    className="inputsArtem selectArtem"
++                                                    style={{
++                                                        marginLeft: "1vw",
++                                                        background: "#FBFAF6",
++                                                        width: "10vw",
++                                                    }}
++                                                    value={design}
++                                                    onChange={(e) => setDesign(e.target.value)}
++                                                >
++                                                    <option value="Не потрібно">Не потрібно</option>
++                                                    <option value="Простий">Простий</option>
++                                                    <option value="Складний">Складний</option>
++                                                    <option value="Комплексний">Комплексний</option>
++                                                </select>
++                                            </div>
++                                        </div>
+                                     </div>
+                                 </Row>
+                                 <div className="d-flex">
+@@ -352,8 +380,14 @@
+                                                 Скруглення кутів: {pricesThis.holes.pricePerUnit} грн
+                                                 * {pricesThis.holes.count} шт
+                                                 = {pricesThis.holes.totalPrice} грн
+-
+                                             </div>
++                                            {pricesThis.design && pricesThis.design !== "Не потрібно" && (
++                                                <div className="fontInfoForPricing">
++                                                    Дизайн: {pricesThis.design.pricePerUnit} грн
++                                                    * {pricesThis.design.count} шт
++                                                    = {pricesThis.design.totalPrice} грн
++                                                </div>
++                                            )}
+                                             {/*<div className="fontInfoForPricing">*/}
+                                             {/*    {pricesThis.priceForThisUnitOfPapper * pricesThis.skolko}+*/}
+                                             {/*    {pricesThis.priceForDrukThisUnit * pricesThis.skolko}+*/}
