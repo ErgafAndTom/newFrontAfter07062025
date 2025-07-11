@@ -39,7 +39,7 @@ export default function IsoButtons() {
               display:"flex",
               alignItems:"center",
               justifyContent:"center",
-              background:"#f2f0e7",
+              background:"#dcd9ce",
               font:"400 0.8rem/1 Inter, sans-serif",
               cursor:"pointer",
 

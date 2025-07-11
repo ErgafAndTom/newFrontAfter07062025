@@ -7,6 +7,7 @@
   border-left:1px solid #000;
   border-radius:1vh;
   overflow:hidden;
+  background:#f2f0e7;
 }
 
 /* центральний круг A0 */
@@ -19,7 +20,7 @@
   aspect-ratio:1/1;
   border:1px solid #000;
   border-radius:50%;
-  background:#f2f0e7;
+  background:#dcd9ce;
   display:flex;
   align-items:center;
   justify-content:center;
