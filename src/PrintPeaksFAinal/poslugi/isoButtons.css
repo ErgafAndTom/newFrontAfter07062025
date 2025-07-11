@@ -1,38 +1,36 @@
+/* контейнер-схема: рамка лише зверху та зліва */
 .iso-wrapper{
   position:relative;
-  width:100%;
-  max-width:800px;           /* будь-яка зручна ширина */
-  aspect-ratio: 841 / 1189;  /* зберігає пропорції */
+  width:18vw;
+  height:23vw;
+  border-top:1px solid #000;
+  border-left:1px solid #000;
+  border-radius:1vh;
+  overflow:hidden;
 }
-.iso-bg{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  display:block;
-}
-.adminButtonAdd{
+
+/* центральний круг A0 */
+.circle-a0{
   position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:30%;            /* діаметр ≈ 30 % ширини блоку */
+  aspect-ratio:1/1;
+  border:1px solid #000;
+  border-radius:50%;
+  background:#f2f0e7;
   display:flex;
   align-items:center;
   justify-content:center;
-  background:transparent;
-  border:none;
-  font-weight:600;
-  font-size:1rem;
+  font:600 0.9rem/1 Inter, sans-serif;
   cursor:pointer;
-  transition:background .2s, font-size .2s;
+  z-index:10;           /* поверх прямокутників */
+  transition:background .15s;
 }
-.adminButtonAdd .dims{
-  position:absolute;
-  opacity:0;
-  font-size:0.8em;
-  top:4px;          /* ближче до краю */
-  right:4px;
-}
-.adminButtonAdd:hover{
-  background:#FAB416;
-  font-size:1.2rem;           /* +20 % */
-}
-.adminButtonAdd:hover .dims{
-  opacity:1;
+.circle-a0:hover{background:#f5a400;}
+
+/* підсвічення прямокутних кнопок */
+.iso-wrapper button:hover{
+  background:#fab416 !important;
 }
