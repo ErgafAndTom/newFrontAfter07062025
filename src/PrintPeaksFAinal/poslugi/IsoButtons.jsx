@@ -1,7 +1,8 @@
+// src/components/IsoButtons.jsx   ← лишаєш решту без змін
 import React from "react";
 import "./isoButtons.css";
 
-/* прямокутники A1-A9 (A0 буде окремим кругом) */
+/* прямокутники A1-A9 */
 const CELLS = [
   { id:"A1", top:0,     left:0,   wPct:100,   hPct:50,   w:594, h:841  },
   { id:"A2", top:50,    left:0,    wPct:50,   hPct:50,   w:420, h:594  },
@@ -14,42 +15,48 @@ const CELLS = [
   { id:"A9", top:93.75, left:93.75,wPct:6.25, hPct:6.25, w:37,  h:52   },
 ];
 
+/* кутові радіуси для вибраних форматів */
+const CORNER_RADIUS = {
+  A1: { borderTopLeftRadius:"1vh", borderTopRightRadius:"1vh", borderTop: "1px"},
+  A2: { borderBottomLeftRadius:"1vh" },
+  A9: { borderBottomRightRadius:"1vh" },
+};
+
 export default function IsoButtons() {
   return (
     <div className="iso-wrapper">
-      {/* центральний круг A0 поверх усіх елементів */}
+      {/* коло A0, без змін */}
       <button className="circle-a0" title="841×1189">A0</button>
 
-      {/* решта форматів */}
       {CELLS.map(c => {
         const rightPct  = c.left + c.wPct;
         const bottomPct = c.top  + c.hPct;
 
+        const style = {
+          position:"absolute",
+          top:`${c.top}%`,
+          left:`${c.left}%`,
+          width:`${c.wPct}%`,
+          height:`${c.hPct}%`,
+
+          display:"flex",
+          alignItems:"center",
+          justifyContent:"center",
+          background:"#dcd9ce",
+          font:"400 0.8rem/1 Inter, sans-serif",
+          cursor:"pointer",
+
+          borderTop:    c.top   === 0     ? "none" : "1px solid #000",
+          borderLeft:   c.left  === 0     ? "none" : "1px solid #000",
+          borderRight:  rightPct  === 100 ? "1px solid #000" : "none",
+          borderBottom: bottomPct === 100 ? "1px solid #000" : "none",
+
+          /* радіуси кутів для A1, A2, A9 */
+          ...CORNER_RADIUS[c.id],
+        };
+
         return (
-          <button
-            key={c.id}
-            title={`${c.w}×${c.h}`}
-            style={{
-              position:"absolute",
-              top:`${c.top}%`,
-              left:`${c.left}%`,
-              width:`${c.wPct}%`,
-              height:`${c.hPct}%`,
-
-              display:"flex",
-              alignItems:"center",
-              justifyContent:"center",
-              background:"#dcd9ce",
-              font:"400 0.8rem/1 Inter, sans-serif",
-              cursor:"pointer",
-
-              /* внутрішня сітка—лише 1-px лінія */
-              borderTop:    c.top   === 0     ? "none":"1px solid #000",
-              borderLeft:   c.left  === 0     ? "none":"1px solid #000",
-              borderRight:  rightPct  === 100 ? "1px solid #000":"none",
-              borderBottom: bottomPct === 100 ? "1px solid #000":"none",
-            }}
-          >
+          <button key={c.id} style={style} title={`${c.w}×${c.h}`}>
             {c.id}
           </button>
         );

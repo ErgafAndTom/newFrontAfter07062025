@@ -3,11 +3,11 @@
   position:relative;
   width:18vw;
   height:23vw;
+border-radius: 1vh;
   border-top:1px solid #000;
   border-left:1px solid #000;
-  border-radius:1vh;
-  overflow:hidden;
-  background:#f2f0e7;
+  overflow: auto;
+  background:#dcd9ce;
 }
 
 /* центральний круг A0 */
