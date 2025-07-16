@@ -92,6 +92,7 @@ const Materials2NoteFront = ({
                 reverse: false
             },
             size: size,
+            typeOfPosluga: "Note/Booklet",
             material: {
                 type: materialAndDrukFront.materialType,
                 typeUse: materialAndDrukFront.materialTypeUse
@@ -479,20 +480,20 @@ const Materials2NoteFront = ({
                         )}
                     </div>
                     {/* Блок "Біговка" */}
-                    {materialAndDrukFront.big &&
-                        <div style={{marginLeft: "8vw"}}>
-                            <BigInBooklet
-                                materialAndDrukFront={materialAndDrukFront}
-                                setMaterialAndDrukFront={setMaterialAndDrukFront}
-                                count={count}
-                                setCount={setCount}
-                                prices={prices}
-                                type={"SheetCut"}
-                                buttonsArr={[]}
-                                selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
-                            />
-                        </div>
-                    }
+                    {/*{materialAndDrukFront.big &&*/}
+                    {/*    <div style={{marginLeft: "8vw"}}>*/}
+                    {/*        <BigInBooklet*/}
+                    {/*            materialAndDrukFront={materialAndDrukFront}*/}
+                    {/*            setMaterialAndDrukFront={setMaterialAndDrukFront}*/}
+                    {/*            count={count}*/}
+                    {/*            setCount={setCount}*/}
+                    {/*            prices={prices}*/}
+                    {/*            type={"SheetCut"}*/}
+                    {/*            buttonsArr={[]}*/}
+                    {/*            selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}*/}
+                    {/*        />*/}
+                    {/*    </div>*/}
+                    {/*}*/}
                 </div>
 
             }

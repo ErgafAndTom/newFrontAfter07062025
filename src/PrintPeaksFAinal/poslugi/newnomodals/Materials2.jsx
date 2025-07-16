@@ -80,19 +80,19 @@ const Materials2 = ({
                 // console.log(response.data);
                 setPaper(response.data.rows)
                 setLoad(false)
-                if (response.data && response.data.rows && response.data.rows[0]) {
-                    setMaterial({
-                        ...material,
-                        material: response.data.rows[0].name,
-                        materialId: response.data.rows[0].id,
-                    })
-                } else {
+                // if (response.data && response.data.rows && response.data.rows[0]) {
+                //     setMaterial({
+                //         ...material,
+                //         material: response.data.rows[0].name,
+                //         materialId: response.data.rows[0].id,
+                //     })
+                // } else {
                     setMaterial({
                         ...material,
                         material: "Немає",
                         materialId: 0,
                     })
-                }
+                // }
             })
             .catch(error => {
                 setLoad(false)

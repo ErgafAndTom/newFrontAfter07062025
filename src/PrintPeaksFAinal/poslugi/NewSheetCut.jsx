@@ -64,8 +64,8 @@ const NewSheetCut = ({
   const [material, setMaterial] = useState({
     type: "Папір",
     thickness: "Цупкий",
-    material: "Крейдований",
-    materialId: "237",
+    material: "",
+    materialId: "0",
     typeUse: "Цупкий"
   });
 

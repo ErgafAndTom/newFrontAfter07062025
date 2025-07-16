@@ -87,6 +87,7 @@ const Materials2NoteBack = ({
                 reverse: false
             },
             size: size,
+            typeOfPosluga: "Note/Booklet",
             material: {
                 type: materialAndDrukBack.materialType,
                 typeUse: materialAndDrukBack.materialTypeUse
