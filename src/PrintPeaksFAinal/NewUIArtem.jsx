@@ -669,7 +669,7 @@ const NewUIArtem = () => {
                                   style={{
                                     fontSize: "1.5vmin",
                                     color: "#ee3c23"
-                                  }}> ~{parseFloat(thing.priceForOneThis/thing.newField5).toFixed(2)} </strong>
+                                  }}> ~{parseFloat(thing.priceForThis/thing.amount).toFixed(2)} </strong>
                                 &nbsp;грн
                               </div>
                               {parseFloat(thing.priceForOneThis).toFixed(2) !== thing.priceForOneThisDiscount && (
