@@ -178,16 +178,16 @@ const BigOvshik = ({
 
   }, [size, material, color, big, prokleyka, cute, cuteLocal, holes, holesR, count, design, lyuversy, navigate, lamination]);
 
-  useEffect(() => {
-    setPricesThis(prev => ({
-      ...prev,
-      design: {
-        pricePerUnit: design === 'Не потрібно' ? 0 : Number(design) || 0,
-        totalPrice:   design === 'Не потрібно' ? 0 : Number(design) || 0,
-      },
-
-    }));
-  }, [design]);
+  // useEffect(() => {
+  //   setPricesThis(prev => ({
+  //     ...prev,
+  //     design: {
+  //       pricePerUnit: design === 'Не потрібно' ? 0 : Number(design) || 0,
+  //       totalPrice:   design === 'Не потрібно' ? 0 : Number(design) || 0,
+  //     },
+  //
+  //   }));
+  // }, [design]);
 
 // сразу после useState с pricesThis
 
