@@ -109,38 +109,38 @@ const PerepletPereplet = ({pereplet, setPereplet, prices, buttonsArr, selectArr,
                                     onClick={() => handleClickType(item)}
                                 >
                                     <>
-                                        {item.name === "На пружину" &&
+                                        {item.name === "На пружину".toLowerCase() &&
                                             <div className="d-flex flex-column align-content-center align-items-center" style={{
                                                 height: "100%",
                                                 opacity: item === pereplet.size ? '100%' : '90%',
                                                 whiteSpace: "nowrap",
                                             }}>
-                                                {item.name === "На скобу" &&
+                                                {item.name === "На скобу".toLowerCase() &&
                                                     <img src={skoba} alt="На скобу" style={{diheight: "5vw"}}/>
                                                 }
-                                                {item.name === "На пластик" &&
+                                                {item.name === "На пластик".toLowerCase() &&
                                                     <img src={plastick} alt="На пластик" style={{height: "5vw"}}/>
                                                 }
-                                                {item.name === "На пружину" &&
+                                                {item.name === "На пружину".toLowerCase() &&
                                                     <img src={metall} alt="На пружину" style={{height: "5vw"}}/>
                                                 }
 
                                                 {item.name}
                                             </div>
                                         }
-                                        {item.name === "На пластик" &&
+                                        {item.name === "На пластик".toLowerCase() &&
                                             <div className="d-flex flex-column align-content-center align-items-center" style={{
                                                 height: "100%",
                                                 opacity: item === pereplet.size ? '100%' : '90%',
                                                 whiteSpace: "nowrap",
                                             }}>
-                                                {item.name === "На скобу" &&
+                                                {item.name === "На скобу".toLowerCase() &&
                                                     <img src={skoba} alt="На скобу" style={{diheight: "5vw"}}/>
                                                 }
-                                                {item.name === "На пластик" &&
+                                                {item.name === "На пластик".toLowerCase() &&
                                                     <img src={plastick} alt="На пластик" style={{height: "5vw"}}/>
                                                 }
-                                                {item.name === "На пружину" &&
+                                                {item.name === "На пружину".toLowerCase() &&
                                                     <img src={metall} alt="На пружину" style={{height: "5vw"}}/>
                                                 }
 

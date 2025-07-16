@@ -85,9 +85,9 @@ const PerepletPerepletBooklet = ({
 
                 })
                 .catch(error => {
-                    if (error.response.status === 403) {
-                        navigate('/login');
-                    }
+                    // if (error.response.status === 403) {
+                    //     navigate('/login');
+                    // }
                     console.log(error.message);
                 })
         },
@@ -119,7 +119,7 @@ const PerepletPerepletBooklet = ({
                             </div>
                             <div className="d-flex">{thisPerepletVariants.map((item, index) => (
                                 <>
-                                    {item.name === "На скобу" &&
+                                    {item.name === "На скобу".toLowerCase() &&
                                         <div
                                             className={item.id === pereplet.materialId ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
                                             key={index}
@@ -131,13 +131,13 @@ const PerepletPerepletBooklet = ({
                                                      opacity: item === pereplet.size ? '100%' : '90%',
                                                      whiteSpace: "nowrap",
                                                  }}>
-                                                {item.name === "На скобу" &&
+                                                {item.name === "На скобу".toLowerCase() &&
                                                     <img src={skoba} alt="На скобу" style={{height: "5vw"}}/>
                                                 }
-                                                {item.name === "На пластик" &&
+                                                {item.name === "На пластик".toLowerCase() &&
                                                     <img src={plastick} alt="На пластик" style={{height: "5vw"}}/>
                                                 }
-                                                {item.name === "На пружину" &&
+                                                {item.name === "На пружину".toLowerCase() &&
                                                     <img src={metall} alt="На пружину" style={{height: "5vw"}}/>
                                                 }
 
@@ -145,7 +145,7 @@ const PerepletPerepletBooklet = ({
                                             </div>
                                         </div>
                                     }
-                                    {item.name === "На євроскобу" &&
+                                    {item.name === "На євроскобу".toLowerCase() &&
                                         <div
                                             className={item.id === pereplet.materialId ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
                                             key={index}
@@ -157,16 +157,16 @@ const PerepletPerepletBooklet = ({
                                                      opacity: item === pereplet.size ? '100%' : '90%',
                                                      whiteSpace: "nowrap",
                                                  }}>
-                                                {item.name === "На скобу" &&
+                                                {item.name === "На скобу".toLowerCase() &&
                                                     <img src={skoba} alt="На скобу" style={{height: "5vw"}}/>
                                                 }
-                                                {item.name === "На пластик" &&
+                                                {item.name === "На пластик".toLowerCase() &&
                                                     <img src={plastick} alt="На пластик" style={{height: "5vw"}}/>
                                                 }
-                                                {item.name === "На пружину" &&
+                                                {item.name === "На пружину".toLowerCase() &&
                                                     <img src={metall} alt="На пружину" style={{height: "5vw"}}/>
                                                 }
-                                                {item.name === "На євроскобу" &&
+                                                {item.name === "На євроскобу".toLowerCase() &&
                                                     <img src={evroskob} alt="На пружину" style={{height: "5vw"}}/>
                                                 }
 

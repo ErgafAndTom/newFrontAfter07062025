@@ -116,9 +116,9 @@ const Materials2NoteBack = ({
             .catch((error) => {
                 setLoad(false);
                 setError(error.message);
-                if (error.response?.status === 403) {
-                    navigate("/login");
-                }
+                // if (error.response?.status === 403) {
+                //     navigate("/login");
+                // }
                 console.log(error.message);
             });
     }, [materialAndDrukBack.materialTypeUse, size]);
@@ -166,9 +166,9 @@ const Materials2NoteBack = ({
                 .catch((err) => {
                     setLoadLamination(false);
                     setError(err.message);
-                    if (err.response?.status === 403) {
-                        navigate("/login");
-                    }
+                    // if (err.response?.status === 403) {
+                    //     navigate("/login");
+                    // }
                     console.log(err.message);
                 });
         }

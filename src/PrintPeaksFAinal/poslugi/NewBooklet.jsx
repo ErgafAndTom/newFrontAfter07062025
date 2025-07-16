@@ -211,9 +211,9 @@ const NewBooklet = ({
             })
             .catch(error => {
                 setError(error)
-                if (error.response.status === 403) {
-                    navigate('/login');
-                }
+                // if (error.response.status === 403) {
+                //     navigate('/login');
+                // }
                 console.log(error.message);
             })
     }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, porizka, materialAndDrukFront, materialAndDrukBack, pereplet]);
@@ -302,9 +302,9 @@ const NewBooklet = ({
                 setShowNewBooklet(false)
             })
             .catch(error => {
-                if (error.response.status === 403) {
-                    navigate('/login');
-                }
+                // if (error.response.status === 403) {
+                //     navigate('/login');
+                // }
                 console.log(error.message);
                 // setErr(error)
             });
