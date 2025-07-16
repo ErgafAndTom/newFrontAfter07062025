@@ -261,7 +261,7 @@ const BigOvshik = ({
                   setLamination={setLamination}
                   prices={prices}
                   size={size}
-                  type={"SheetCut"}
+                  type={"BigOvshik"}
 
                   buttonsArr={["З глянцевим ламінуванням",
                     "З матовим ламінуванням",

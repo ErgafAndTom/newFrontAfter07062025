@@ -655,12 +655,21 @@ const NewUIArtem = () => {
                                 &nbsp;аркушів
                               </div>
                               <div className="d-flex adminFontTable">
-                                За 1 шт:&nbsp;
+                                За 1 лист:&nbsp;
                                 <strong
                                   style={{
                                     fontSize: "1.5vmin",
                                     color: "#ee3c23"
                                   }}> {parseFloat(thing.priceForOneThis).toFixed(2)} </strong>
+                                &nbsp;грн
+                              </div>
+                              <div className="d-flex adminFontTable">
+                                За 1 шт:&nbsp;
+                                <strong
+                                  style={{
+                                    fontSize: "1.5vmin",
+                                    color: "#ee3c23"
+                                  }}> ~{parseFloat(thing.priceForOneThis/thing.newField5).toFixed(2)} </strong>
                                 &nbsp;грн
                               </div>
                               {parseFloat(thing.priceForOneThis).toFixed(2) !== thing.priceForOneThisDiscount && (

@@ -295,6 +295,7 @@ const NewSheetCutBw = ({
                                                     "З ламінуванням Soft Touch",]}
                                                 defaultt={"З глянцевим ламінуванням"}
                                                 selectArr={["30", "80", "100", "125", "250"]}
+                                                size={size}
 
                                             />
                                         </div>

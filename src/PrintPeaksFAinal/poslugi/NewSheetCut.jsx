@@ -407,37 +407,37 @@ const NewSheetCut = ({
                       prices={prices}
                       type={"SheetCut"}
                     />
-                    <div className="d-flex allArtemElem" style={{alignItems:"center"}}>
-                      <div
-                        className={`toggleContainer scale04ForButtonToggle ${
-                          design==="Не потрібно" ? "disabledCont":"enabledCont"}`}
-                        onClick={()=>setDesign(design==="Не потрібно" ? "0":"Не потрібно")}
-                      >
-                        <div className={`toggle-button ${
-                          design==="Не потрібно" ? "disabled":"enabledd"}`}/>
-                      </div>
+                    {/*<div className="d-flex allArtemElem" style={{alignItems:"center"}}>*/}
+                    {/*  <div*/}
+                    {/*    className={`toggleContainer scale04ForButtonToggle ${*/}
+                    {/*      design==="Не потрібно" ? "disabledCont":"enabledCont"}`}*/}
+                    {/*    onClick={()=>setDesign(design==="Не потрібно" ? "0":"Не потрібно")}*/}
+                    {/*  >*/}
+                    {/*    <div className={`toggle-button ${*/}
+                    {/*      design==="Не потрібно" ? "disabled":"enabledd"}`}/>*/}
+                    {/*  </div>*/}
 
 
-                      <div className="d-flex flex-row align-items-center" style={{  }}>
-                        <span>Дизайн:</span>
-                        {design !== "Не потрібно" && (
-                          <div className={'d-flex'}>
-                            <input
-                              type="number"
-                              min={0}
-                              value={design}
-                              onChange={e => setDesign(e.target.value)}
-                              style={{ width:"5vw", marginLeft:"0.5vw" }}
-                              className="inputsArtem"
-                            />
-                            <div className="inputsArtemx" style={{ border:"transparent" }}>грн</div>
-                          </div>
-                        )}
+                    {/*  <div className="d-flex flex-row align-items-center" style={{  }}>*/}
+                    {/*    <span>Дизайн:</span>*/}
+                    {/*    {design !== "Не потрібно" && (*/}
+                    {/*      <div className={'d-flex'}>*/}
+                    {/*        <input*/}
+                    {/*          type="number"*/}
+                    {/*          min={0}*/}
+                    {/*          value={design}*/}
+                    {/*          onChange={e => setDesign(e.target.value)}*/}
+                    {/*          style={{ width:"5vw", marginLeft:"0.5vw" }}*/}
+                    {/*          className="inputsArtem"*/}
+                    {/*        />*/}
+                    {/*        <div className="inputsArtemx" style={{ border:"transparent" }}>грн</div>*/}
+                    {/*      </div>*/}
+                    {/*    )}*/}
 
-                      </div>
+                    {/*  </div>*/}
 
 
-                    </div>
+                    {/*</div>*/}
                   </div>
                 </Row>
                 <div style={{position:"absolute", top:"7vh", right:"1vw"}}><IsoButtons /></div>
@@ -551,12 +551,25 @@ const NewSheetCut = ({
                           Порізка: {pricesThis.porizka} грн
                         </div>
                       )}
-                      <div className="fontInfoForPricing">
-                        Дизайн: {fmt2(pricesThis.design.pricePerUnit)} грн = {fmt2(pricesThis.design.totalPrice)} грн
-                      </div>
+                      {/*<div className="fontInfoForPricing">*/}
+                      {/*  Дизайн: {fmt2(pricesThis.design.pricePerUnit)} грн = {fmt2(pricesThis.design.totalPrice)} грн*/}
+                      {/*</div>*/}
                       {/* Підсумкова вартість замовлення */}
+
+
+                      {/*<div className="fontInfoForPricing1">*/}
+                      {/*  Загалом: {pricesThis.price} грн*/}
+                      {/*</div>*/}
+
+
+                      {/*<div className="fontInfoForPricing1">*/}
+                      {/*  за штуку~: {(pricesThis.priceForItemWithExtras/pricesThis.sheetsPerUnit).toFixed(2)} грн*/}
+                      {/*</div>*/}
                       <div className="fontInfoForPricing1">
-                        Загалом: {pricesThis.price} грн
+                        За 1 виріб~: {(pricesThis.price/count).toFixed(2)} грн
+                      </div>
+                      <div className="fontInfoForPricing1">
+                        Загалом =: {(parseFloat(pricesThis.price/count).toFixed(2)*count).toFixed(2)} грн
                       </div>
 
                       {/* Інформація про кількість аркушів */}
@@ -573,9 +586,12 @@ const NewSheetCut = ({
 
                       {/* Розрахунок ціни за виріб (зі всіма допами) */}
                       {/* Ціна за один готовий виріб */}
-                      <div className="fontInfoForPricing1">
-                        Ціна за виріб: {fmt2(pricesThis.priceForItemWithExtras)} грн
-                      </div>
+                      {/*<div className="fontInfoForPricing1">*/}
+                      {/*  Ціна за виріб: {fmt2(pricesThis.priceForItemWithExtras)} грн*/}
+                      {/*</div>*/}
+                      {/*<div className="fontInfoForPricing1">*/}
+                      {/*  Ціна за виріб NEW!: {fmt2(pricesThis.totalPriceForOneUnit)} грн*/}
+                      {/*</div>*/}
 
                       {/* Ціна за аркуш зі всіма допами */}
                       <div className="fontInfoForPricing">

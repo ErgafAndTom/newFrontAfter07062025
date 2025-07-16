@@ -55,7 +55,7 @@ const Porizka = ({porizka, setPorizka, prices, buttonsArr, selectArr}) => {
             <div className="d-flex flex-row">
             <span className={"d-flex flex-row" } style={{
                  marginRight: '0.633vw', width: '20vw',
-            }}>{"Порiзка (+10% к вартості):"}</span>
+            }}>{"Порiзка (+15% к вартості):"}</span>
                 {/*{photo.type !== "Не потрібно" ? (*/}
                 {/*    <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center',}}>*/}
                 {/*        <div style={{*/}
