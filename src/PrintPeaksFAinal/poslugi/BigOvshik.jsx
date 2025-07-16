@@ -25,8 +25,9 @@ const normalize = (obj = {}) => ({
 
 const BigOvshik = ({
                      thisOrder,
+                      setThisOrder,
                      showBigOvshik,
-
+                     setSelectedThings2,
                      setShowBigOvshik
                    }) => {
   const navigate = useNavigate();
@@ -36,8 +37,12 @@ const BigOvshik = ({
     new Intl.NumberFormat("uk-UA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
       .format(Number(v));
   const [material] = useState({
-
+    type: "Не потрібно",
+    material: "",
+    materialId: "",
+    size: ""
   });
+  const [error, setError] = useState(null);
   const [big, setBig] = useState("Не потрібно");
   const [prokleyka, setProkleyka] = useState("Не потрібно");
   const [lamination, setLamination] = useState({
@@ -61,7 +66,7 @@ const BigOvshik = ({
   const [prices, setPrices] = useState([]);
 
   const [color, setColor] = useState({
-    sides: "односторонній",
+    sides: "Не потрібно",
     one: "",
     two: "",
     allSidesColor: "CMYK",
@@ -187,9 +192,46 @@ const BigOvshik = ({
 // сразу после useState с pricesThis
 
 
-  const addNewOrderUnit = () => {
-    // TODO: реалізація додавання позиції у замовлення
-  };
+  const addNewOrderUnit = e => {
+    let dataToSend = {
+      orderId: thisOrder.id,
+      toCalc: {
+        nameOrderUnit: `Постпресс`,
+        type: "BigOvshik",
+        size: size,
+        material: material,
+        color: color,
+        lamination: lamination,
+        big: big,
+        cute: cute,
+        cuteLocal: cuteLocal,
+        prokleyka: prokleyka,
+        lyuversy:  lyuversy,
+        design,
+        holes: holes,
+        holesR: holesR,
+        count: count,
+
+      }
+    };
+
+    axios.post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, dataToSend)
+      .then(response => {
+        // console.log(response.data);
+        setThisOrder(response.data);
+        // setSelectedThings2(response.data.order.OrderUnits || []);
+        setSelectedThings2(response.data.OrderUnits);
+        setShowBigOvshik(false)
+      })
+      .catch(error => {
+        setError(error)
+        if (error.response.status === 403) {
+          navigate('/login');
+        }
+        console.log(error.response);
+        // setErr(error)
+      });
+  }
 
   if (!isVisible) return <Loader />;
 
@@ -254,34 +296,34 @@ const BigOvshik = ({
                 </div>
               </div>
 
-              <div className={"d-flex flex-row align-items-center justify-content-start" } >
+              {/*<div className={"d-flex flex-row align-items-center justify-content-start" } >*/}
 
-                <NewNoModalLamination
-                  lamination={lamination}
-                  setLamination={setLamination}
-                  prices={prices}
-                  size={size}
-                  type={"BigOvshik"}
+              {/*  <NewNoModalLamination*/}
+              {/*    lamination={lamination}*/}
+              {/*    setLamination={setLamination}*/}
+              {/*    prices={prices}*/}
+              {/*    size={size}*/}
+              {/*    type={"BigOvshik"}*/}
 
-                  buttonsArr={["З глянцевим ламінуванням",
-                    "З матовим ламінуванням",
-                    "З ламінуванням Soft Touch",]}
-                  selectArr={["30", "80", "100", "125", "250"]}
-                />
+              {/*    buttonsArr={["з глянцевим ламінуванням",*/}
+              {/*      "з матовим ламінуванням",*/}
+              {/*      "з ламінуванням Soft Touch",]}*/}
+              {/*    selectArr={["30", "80", "100", "125", "250"]}*/}
+              {/*  />*/}
 
-              <LaminationSize
-                size={size}
-                setSize={setSize}
-                prices={prices}
-                type={"BigOvshik"}
-                buttonsArr={["односторонній", "двосторонній",]}
-                color={color}
-                setColor={setColor}
-                count={count}
-                setCount={setCount}
-                defaultt={"А3 (297 х 420 мм)"}
-              />
-              </div>
+              {/*<LaminationSize*/}
+              {/*  size={size}*/}
+              {/*  setSize={setSize}*/}
+              {/*  prices={prices}*/}
+              {/*  type={"BigOvshik"}*/}
+              {/*  buttonsArr={["односторонній", "двосторонній",]}*/}
+              {/*  color={color}*/}
+              {/*  setColor={setColor}*/}
+              {/*  count={count}*/}
+              {/*  setCount={setCount}*/}
+              {/*  defaultt={"А3 (297 х 420 мм)"}*/}
+              {/*/>*/}
+              {/*</div>*/}
               <NewNoModalCornerRounding
                 big={big}
                 setBig={setBig}

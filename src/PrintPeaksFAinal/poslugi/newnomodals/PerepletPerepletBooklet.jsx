@@ -69,7 +69,7 @@ const PerepletPerepletBooklet = ({
                     setThisPerepletVariants(response.data.rows);
                     console.log(response.data.rows[2]);
                     if (response.data.rows[2]) {
-                        const activeUsers = response.data.rows.filter(awdawd => awdawd.name === "На скобу");
+                        const activeUsers = response.data.rows.filter(awdawd => awdawd.name === "На скобу".toLowerCase());
                         setPereplet({
                             ...pereplet,
                             material: activeUsers[0].name,
