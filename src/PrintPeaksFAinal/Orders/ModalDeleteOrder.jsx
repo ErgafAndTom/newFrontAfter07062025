@@ -23,7 +23,11 @@ function ModalDeleteOrder({thisOrderForDelete, showDeleteOrderModal, setThisOrde
         axios.delete(`${url}/${id}`)
             .then(response => {
                 if (response.status === 200) {
+                  if(url === "/materials"){
+                    // setData(data => data.filter(order => order.id !== id));
+                  } else {
                     setData(prevData => prevData.filter(order => order.id !== id));
+                  }
                     setLoad(false)
                     setShowDeleteOrderModal(false);
                 }

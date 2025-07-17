@@ -1,6 +1,6 @@
 import React from 'react';
 
-const OneItemInTable = ({itemData, tablPosition, item, metaItem, handleItemClickRed, handleItemClickCopy}) => {
+const OneItemInTable = ({itemData, tablPosition, item, metaItem, handleItemClickRed, handleItemClickCopy, handleItemClickDelete2}) => {
     // Функція для визначення ширини стовпця - має бути ідентичним в CustomStorageTable.jsx
     const getColumnWidth = (columnName) => {
         switch (columnName) {
@@ -66,9 +66,15 @@ const OneItemInTable = ({itemData, tablPosition, item, metaItem, handleItemClick
 
     if (tablPosition === "created") {
         return (
-            <button className="CustomOrderTable-cell btn-black" style={cellStyle} onClick={(e) => {
-                handleItemClickCopy(item, e, metaItem)
-            }}>{"cop"}</button>
+          <>
+            <div className="CustomOrderTable-cell btn-black" style={{...cellStyle, width: "1.8vw", minWidth: "1.8vw"}} onClick={(e) => {
+              handleItemClickCopy(item, e, metaItem)
+            }}>{"copy"}</div>
+
+            <div className="CustomOrderTable-cell btnm btn-danger" style={{...cellStyle, width: "1.6vw", minWidth: "1.6vw"}} onClick={(e) => {
+              handleItemClickDelete2(item, e)
+            }}>{"del"}</div>
+          </>
         );
     }
 

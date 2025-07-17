@@ -6,7 +6,7 @@ import TrashIcon from '../../artemm/public/Trash.png';
 import {useNavigate} from "react-router-dom";
 
 
-function ModalDeleteInStorage({tableName, data, setData, inPageCount, setInPageCount, currentPage, setCurrentPage, pageCount, setPageCount,  item}) {
+function ModalDeleteInStorage({tableName, data, setData, inPageCount, setInPageCount, currentPage, setCurrentPage, pageCount, setPageCount,  item, thisItemForModal}) {
     const [show, setShow] = useState(false);
     const navigate = useNavigate();
 
@@ -52,7 +52,7 @@ function ModalDeleteInStorage({tableName, data, setData, inPageCount, setInPageC
 
             <Modal show={show} onHide={handleClose} >
 
-                <Modal.Header className="borderRadius">Видалити {translateColumnName('type')}: {item.type}, {translateColumnName('name')}: {item.name}?</Modal.Header>
+                <Modal.Header className="borderRadius">Видалити {translateColumnName('type')}: {thisItemForModal.type}, {translateColumnName('name')}: {thisItemForModal.name}?</Modal.Header>
                 {/*<Modal.Body>Видалити {item.type} {item.name}?</Modal.Body>*/}
                 <Modal.Footer style={{ background: '#F2F0E7'}}>
                     <button className="hoverOrange" onClick={(e) => {deleteThisRowF(e)}}>
