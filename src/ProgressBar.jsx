@@ -5,6 +5,8 @@ import DiscountCalculator from './DiscountCalculator';
 import axios from "./api/axiosInstance";
 import ClientChangerUIArtem from "./PrintPeaksFAinal/userInNewUiArtem/ClientChangerUIArtem";
 import TimerDeadline from "./PrintPeaksFAinal/Orders/TimerDeadline";
+import PopupLeftNotification from "./components/nav/PopupLeftNotification";
+import {useSelector} from "react-redux";
 
 
 const stages = [
@@ -26,6 +28,7 @@ const ProgressBar = ({
                          setSelectedThings2
                      }) => {
     const [isVisible, setIsVisible] = useState(true);
+  const currentUser = useSelector((state) => state.auth.user);
     const [currentStage, setCurrentStage] = useState(thisOrder?.status ? parseInt(thisOrder.status) : 0);
     const [isPaid, setIsPaid] = useState(false);
     const [isCancelled, setIsCancelled] = useState(false);
@@ -553,23 +556,27 @@ const ProgressBar = ({
             {/* <TimerDeadline deadline={deadline} thisOrder={thisOrder} /> */}
 
             {!isPaid && (
-                <div style={{
+              <>
+                {currentUser?.role === "admin" &&
+                  <div style={{
                     justifyContent: 'flex-end',
                     alignItems: 'flex-end', marginTop: '-10vh',
-                }}>
+                  }}>
                     <button
-                        onClick={() => handleStageChangeServer('pay')}
-                        className="adminButtonAdd"
-                        style={{
-                            background: "#008249",
-                            position: 'absolute',
-                            right: '0.5vw',
-                            top: '8.3vh',
-                        }}
+                      onClick={() => handleStageChangeServer('pay')}
+                      className="adminButtonAdd"
+                      style={{
+                        background: "#008249",
+                        position: 'absolute',
+                        right: '0.5vw',
+                        top: '8.3vh',
+                      }}
                     >
-                        Оплатити
+                      Оплатити
                     </button>
-                </div>
+                  </div>
+                }
+              </>
             )}
 
             {isPaid && (
@@ -594,7 +601,7 @@ const ProgressBar = ({
                             <div style={{
                                 position: 'absolute',
                                 top: '11.1vh',
-                                // marginBottom: "19vw",   
+                                // marginBottom: "19vw",
                                 right: '-13vw',
                                 fontSize: '0.5vw',
                                 color: '#008249'

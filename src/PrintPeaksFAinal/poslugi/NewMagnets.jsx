@@ -105,6 +105,7 @@ const NewMagnets = ({
                 setShowNewMagnets(false)
             })
             .catch(error => {
+              setError(error)
                 if (error.response.status === 403) {
                     navigate('/login');
                 }
@@ -321,7 +322,7 @@ const NewMagnets = ({
                                     )}
                                 </div>
                                 {error &&
-                                    <div>{error.message}</div>
+                                    <div>{error.response.data.error}</div>
                                 }
                                 {null === pricesThis ? (
                                     <div style={{width: '50vw'}}>

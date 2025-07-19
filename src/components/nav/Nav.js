@@ -16,6 +16,7 @@ import PopupLeftNotification from "./PopupLeftNotification";
 import {fetchTrelloData} from "../../actions/trello_async_actions";
 import iii from './logo/logo.svg';
 import LogoWithText from './LogoWithText';
+import Laminator from "../../PrintPeaksFAinal/poslugi/Laminator";
 
 const Nav = () => {
     const dispatch = useDispatch();
@@ -70,31 +71,59 @@ const Nav = () => {
 
   <div className="d-flex justify-content-between align-items-center " style={{borderRadius:'0vh',marginBottom:'1vh'}}>
     {/* Ліва панель з кнопками */}
-    <div className="d-flex flex-row align-items-center " style={{ paddingLeft: '0.5vw', zIndex: '0' }}>
-      {[
-        { to: "/Desktop", label: "Головна" },
-        { to: "/Users", label: "Клієнти" },
-        { to: "/Orders", label: "Замовлення" },
-        { to: "/Storage", label: "Склад" },
-        { to: "/db2", label: "База" },
-        { to: "/Trello", label: "Завдання", hasMess: true },
-        { to: "/Vimogi", label: "Вимоги" }
-      ].map(({ to, label, hasMess }, index, arr) => (
-        <Link key={to} to={to} style={{ textDecoration: 'none' }}>
-          <button
-            onClick={() => handleBasicClick(to)}
-            className={`buttonSkewed
+    <>
+      {currentUser?.role === "user" &&
+        <div className="d-flex flex-row align-items-center " style={{paddingLeft: '0.5vw', zIndex: '0'}}>
+          {[
+            {to: "/Desktop", label: "Головна"},
+            {to: "/Orders", label: "Замовлення"},
+            {to: "/Vimogi", label: "Вимоги"}
+          ].map(({to, label, hasMess}, index, arr) => (
+            <Link key={to} to={to} style={{textDecoration: 'none'}}>
+              <button
+                onClick={() => handleBasicClick(to)}
+                className={`buttonSkewed
         ${index === 0 ? 'first' : ''}
         ${index === arr.length - 1 ? 'last' : ''}
       `}
-          >
-            {label}
-            {hasMess && currentUser && <NavMess currentUser={currentUser} />}
-          </button>
-        </Link>
-      ))}
+              >
+                {label}
+                {hasMess && currentUser && <NavMess currentUser={currentUser}/>}
+              </button>
+            </Link>
+          ))}
 
-    </div>
+        </div>
+      }
+      {currentUser?.role === "admin" &&
+        <div className="d-flex flex-row align-items-center " style={{paddingLeft: '0.5vw', zIndex: '0'}}>
+          {[
+            {to: "/Desktop", label: "Головна"},
+            {to: "/Users", label: "Клієнти"},
+            {to: "/Orders", label: "Замовлення"},
+            {to: "/Storage", label: "Склад"},
+            {to: "/db2", label: "База"},
+            {to: "/Trello", label: "Завдання", hasMess: true},
+            {to: "/Vimogi", label: "Вимоги"}
+          ].map(({to, label, hasMess}, index, arr) => (
+            <Link key={to} to={to} style={{textDecoration: 'none'}}>
+              <button
+                onClick={() => handleBasicClick(to)}
+                className={`buttonSkewed
+        ${index === 0 ? 'first' : ''}
+        ${index === arr.length - 1 ? 'last' : ''}
+      `}
+              >
+                {label}
+                {hasMess && currentUser && <NavMess currentUser={currentUser}/>}
+              </button>
+            </Link>
+          ))}
+
+        </div>
+      }
+
+    </>
 
     {/* Права частина */}
     <div className="d-flex align-items-center" style={{ height: '3.5vh', gap: '0.5vw',  marginRight:'0.5vw'}}>
@@ -116,7 +145,9 @@ const Nav = () => {
         }}
       />
       <div style={{ height: '3.5vh', display: 'flex', alignItems: 'center', borderRadius: '0vh', }}>
-        <AddUserButton fetchUsers={() => dispatch(fetchUser())} />
+        {currentUser?.role === "admin" &&
+          <AddUserButton fetchUsers={() => dispatch(fetchUser())} />
+        }
       </div>
       {currentUser ? (
         <div className="d-flex align-items-center" style={{ height: '3.5vh'}}>
@@ -134,7 +165,10 @@ const Nav = () => {
             </button>
           </Link>
 
-          <PopupLeftNotification />
+          {currentUser?.role === "admin" &&
+            <PopupLeftNotification />
+          }
+          {/*<PopupLeftNotification />*/}
 
           <button
             onClick={logoutt}

@@ -2,11 +2,13 @@ import React, {useEffect, useState} from 'react';
 import axios from "./api/axiosInstance";
 import {Spinner} from "react-bootstrap";
 import {useNavigate} from "react-router-dom";
+import {useSelector} from "react-redux";
 
 function PaymentCalculator({thisOrder, setThisOrder, selectedThings2, setSelectedThings2}) {
     const navigate = useNavigate();
     const [amount, setAmount] = useState(thisOrder.price);
     const [discount, setDiscount] = useState(thisOrder.prepayment);
+  const currentUser = useSelector((state) => state.auth.user);
     const [total, setTotal] = useState(thisOrder.allPrice);
     const [error, setError] = useState(null);
     const [load, setLoad] = useState(false);
@@ -23,31 +25,33 @@ function PaymentCalculator({thisOrder, setThisOrder, selectedThings2, setSelecte
     };
 
     const handleDiscountChange = (value) => {
+      if (currentUser?.role === "admin") {
         setDiscount(value);
         // calculateTotal(amount.replace(/[^0-9]/g, ''), value);
         let dataToSend = {
-            newDiscound: value,
-            orderId: thisOrder.id,
+          newDiscound: value,
+          orderId: thisOrder.id,
         }
         setError(null)
         setLoad(true)
         axios.put(`/orders/OneOrder/discount`, dataToSend)
-            .then(response => {
-                console.log(response.data);
-                setThisOrder({...thisOrder, prepayment: response.data.prepayment, allPrice: response.data.allPrice})
-                // setThisOrder(response.data)
-                setSelectedThings2(response.data.OrderUnits)
-                // setSelectedThings2({...selectedThings2, prepayment: response.data.prepayment, allPrice: response.data.allPrice})
-                setLoad(false)
-            })
-            .catch(error => {
-                if (error.response.status === 403) {
-                    navigate('/login');
-                }
-                setError(error.message)
-                setLoad(false)
-                console.log(error.message);
-            })
+          .then(response => {
+            console.log(response.data);
+            setThisOrder({...thisOrder, prepayment: response.data.prepayment, allPrice: response.data.allPrice})
+            // setThisOrder(response.data)
+            setSelectedThings2(response.data.OrderUnits)
+            // setSelectedThings2({...selectedThings2, prepayment: response.data.prepayment, allPrice: response.data.allPrice})
+            setLoad(false)
+          })
+          .catch(error => {
+            if (error.response.status === 403) {
+              navigate('/login');
+            }
+            setError(error.message)
+            setLoad(false)
+            console.log(error.message);
+          })
+      }
     };
 
     useEffect(() => {

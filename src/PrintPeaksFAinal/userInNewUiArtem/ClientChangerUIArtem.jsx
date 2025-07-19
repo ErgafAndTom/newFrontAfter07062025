@@ -22,6 +22,7 @@ import {useNavigate} from "react-router-dom";
 import {Button, Modal, Spinner, ListGroup, InputGroup} from "react-bootstrap";
 import {buttonStyles, containerStyles, formStyles} from './styles';
 import PaysInOrderRestored from "./pays/PayInOrderRestored";
+import {useSelector} from "react-redux";
 
 
 const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => {
@@ -29,6 +30,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
     const navigate = useNavigate();
     const [showAddUser, setShowAddUser] = useState(false);
     const [showDocGenerate, setShowDocGenerate] = useState(false);
+  const currentUser = useSelector((state) => state.auth.user);
     const [showNP, setShowNP] = useState(false);
     const [showPays, setShowPays] = useState(false);
     const [load, setLoad] = useState(false);
@@ -56,10 +58,12 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
 
     // Функція для відкриття модального вікна
     const handleShow = () => {
+      if (currentUser.role === "admin") {
         setShowVisible(true)
         setShow(true);
         setSearchQuery("");
         fetchUsers();
+      }
     };
 
     // Завантаження списку користувачів
