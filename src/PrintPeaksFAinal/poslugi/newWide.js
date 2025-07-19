@@ -105,6 +105,7 @@ const NewWide = ({
                 setShowNewWide(false)
             })
             .catch(error => {
+              setError(error);
                 if (error.response.status === 403) {
                     navigate('/login');
                 }
@@ -196,8 +197,8 @@ const NewWide = ({
                             <div className="m-auto text-center fontProductName">
                                 <div className="d-flex flex-wrap justify-content-center">
                                     {["Плаката", "Креслення", "Фотографії", "Афіши", "Лекала", "Холста"].map((service, index) => (
-                                        <button 
-                                            key={index} 
+                                        <button
+                                            key={index}
                                             className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}
                                             style={{minWidth: "5vw"}}
                                             onClick={() => setSelectedService(service)}
@@ -320,9 +321,30 @@ const NewWide = ({
                                         </div>
                                     )}
                                 </div>
-                                {error &&
-                                    <div>{error.message}</div>
-                                }
+                              {error &&
+                                <div style={{
+                                  transition: "all 0.3s ease",
+                                  color: "red",
+                                  width: "20vw",
+                                  marginLeft: "2.5vw",
+                                  fontFamily: "inter",
+                                  display: 'flex',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  height: '3vw',
+                                  marginTop: "1vh",
+                                  marginBottom: "1vh",
+                                  border: "1px solid red",
+                                  borderRadius: "10px",
+                                  padding: "10px",
+                                  backgroundColor: "rgba(255, 0, 0, 0.2)",
+                                  fontSize: "1.5vw",
+                                  fontWeight: "bold",
+                                  textAlign: "center",
+                                  cursor: "pointer",
+
+                                }}>{error.response.data.error}</div>
+                              }
                                 {null === pricesThis ? (
                                     <div style={{width: '50vw'}}>
 
