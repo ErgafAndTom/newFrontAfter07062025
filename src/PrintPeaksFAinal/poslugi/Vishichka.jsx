@@ -405,7 +405,7 @@ const Vishichka = ({
                                         </div>
                                     ) : (
                                         <div className="d-flex justify-content-between pricesBlockContainer"
-                                             style={{height: "20vmin"}}>
+                                             style={{height: "20v min"}}>
                                             <div className="" style={{height: "19vmin"}}>
                                                 <div className="fontInfoForPricing">
                                                     Друк: {pricesThis.priceDrukPerSheet} грн

@@ -11,6 +11,7 @@ import {translateColumnName} from "./translations";
 import OneUnitInTable from "./OneUnitInTable";
 import SlideInModal from "../userInNewUiArtem/SlideInModal";
 import PropTypes from 'prop-types';
+import ModalDeleteOrder from "../Orders/ModalDeleteOrder";
 
 // Основний компонент таблиці користувачів
 const UsersCustomTable = ({name}) => {
@@ -26,6 +27,7 @@ const UsersCustomTable = ({name}) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [pageCount, setPageCount] = useState(null);
     const [typeSelect] = useState("");
+    const [thisOrderForDelete, setThisOrderForDelete] = useState(null);
     const [thisColumn, setThisColumn] = useState({
         column: "id",
         reverse: false
@@ -61,6 +63,12 @@ const UsersCustomTable = ({name}) => {
         setThisItemForModal(item);
         setThisMetaItemForModal(metaItem);
     };
+
+  const handleOrderClickDelete = (Order) => {
+    setShowDeleteItemModal(true);
+    // setThisMetaItemForModal(Order);
+    setThisItemForModal(Order);
+  };
 
     // Завантаження даних користувачів
     useEffect(() => {
@@ -210,35 +218,35 @@ const UsersCustomTable = ({name}) => {
                                 {data.metadata.map((metaItem, iter2) => (
                                     <React.Fragment key={`${item.id}-${metaItem}-${iter2}`}>
                                         {metaItem === "lastLoginAt" ? (
-                                            <Link className="CustomOrderTable-cell statusEnabled"
-                                                  style={{
-                                                      textDecoration: 'none',
-                                                      width: getColumnWidth(metaItem),
-                                                      minWidth: getColumnWidth(metaItem),
-                                                      maxWidth: getColumnWidth(metaItem),
-                                                      overflow: 'hidden',
-                                                      textOverflow: 'ellipsis',
-                                                      whiteSpace: 'nowrap',
+                                          <><div onClick={() => handleOrderClickDelete(item)}>del</div><Link className="CustomOrderTable-cell statusEnabled"
+                                                   style={{
+                                                     textDecoration: 'none',
+                                                     width: getColumnWidth(metaItem),
+                                                     minWidth: getColumnWidth(metaItem),
+                                                     maxWidth: getColumnWidth(metaItem),
+                                                     overflow: 'hidden',
+                                                     textOverflow: 'ellipsis',
+                                                     whiteSpace: 'nowrap',
 
-                                                      minHeight: "2vh",
-                                                      display: "flex",
-                                                      alignItems: "center",
-                                                      justifyContent: "center",
-                                                      fontSize: "1rem",
-                                                      boxSizing: "border-box",
-                                                      textAlign: "center",
-                                                      // background: "#FBFAF6",
-                                                      boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
-                                                  }}
-                                                  to={`/client/${item.id}`}
-                                            >
-                                                <div className="" style={{
-                                                    background: "transparent",
-                                                    color: "#c1a537",
-                                                }}>
-                                                    ⋮
-                                                </div>
-                                            </Link>
+                                                     minHeight: "2vh",
+                                                     display: "flex",
+                                                     alignItems: "center",
+                                                     justifyContent: "center",
+                                                     fontSize: "1rem",
+                                                     boxSizing: "border-box",
+                                                     textAlign: "center",
+                                                     // background: "#FBFAF6",
+                                                     boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                                                   }}
+                                                   to={`/client/${item.id}`}
+                                          >
+                                            <div className="" style={{
+                                              background: "transparent",
+                                              color: "#c1a537",
+                                            }}>
+                                              ⋮
+                                            </div>
+                                          </Link></>
                                         ) : (
                                             <OneUnitInTable
                                                 key={`${item.id}${iter}${iter2}`}
@@ -323,17 +331,36 @@ const UsersCustomTable = ({name}) => {
                     />
                 )}
 
-                {showDeleteItemModal && (
-                    <ModalDeleteInStorage
-                        showDeleteItemModal={showDeleteItemModal}
-                        setShowDeleteItemModal={setShowDeleteItemModal}
-                        thisItemForModal={thisItemForModal}
-                        setThisItemForModal={setThisItemForModal}
-                        data={data}
-                        setData={setData}
-                        url={"/user/All"}
-                    />
-                )}
+                {/*{showDeleteItemModal && (*/}
+                {/*    <ModalDeleteInStorage*/}
+                {/*        showDeleteItemModal={showDeleteItemModal}*/}
+                {/*        setShowDeleteItemModal={setShowDeleteItemModal}*/}
+                {/*        thisItemForModal={thisItemForModal}*/}
+                {/*        setThisItemForModal={setThisItemForModal}*/}
+                {/*        data={data}*/}
+                {/*        setData={setData}*/}
+                {/*        url={"/OneUser"}*/}
+                {/*    />*/}
+                {/*)}*/}
+              {/*<ModalDeleteOrder*/}
+              {/*  showDeleteItemModal={showDeleteItemModal}*/}
+              {/*  setShowDeleteItemModal={setShowDeleteItemModal}*/}
+              {/*  thisItemForModal={thisItemForModal}*/}
+              {/*  setThisItemForModal={setThisItemForModal}*/}
+              {/*  data={data}*/}
+              {/*  setData={setData}*/}
+              {/*  url={"/user/All"}*/}
+              {/*/>*/}
+              <ModalDeleteOrder
+                showDeleteOrderModal={showDeleteItemModal}
+                setShowDeleteOrderModal={setShowDeleteItemModal}
+                thisOrderForDelete={thisItemForModal}
+                setThisItemForModal={setThisItemForModal}
+                data={data}
+                setData={setData}
+
+                url={"/user/OneUser"}
+              />
             </div>
         );
     }

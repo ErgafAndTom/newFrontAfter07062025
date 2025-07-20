@@ -26,7 +26,9 @@ function ModalDeleteOrder({thisOrderForDelete, showDeleteOrderModal, setThisOrde
                   if(url === "/materials"){
                     // setData(data => data.filter(order => order.id !== id));
                   } else {
-                    setData(prevData => prevData.filter(order => order.id !== id));
+                    setData(data => data.filter(order => order.id !== id));
+
+                    // window.location.reload();
                   }
                     setLoad(false)
                     setShowDeleteOrderModal(false);
