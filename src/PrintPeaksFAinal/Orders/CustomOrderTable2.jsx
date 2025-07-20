@@ -656,7 +656,7 @@ const CustomOrderTable2 = () => {
         setThisOrderForDelete={setThisOrderForDelete}
         data={data}
         setData={setData}
-        url={"/orders/OneOrder/"}
+        url={"/orders/OneOrder"}
       />
     </div>
   );

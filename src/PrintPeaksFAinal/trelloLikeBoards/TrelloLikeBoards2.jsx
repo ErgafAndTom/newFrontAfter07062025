@@ -93,13 +93,15 @@ const TrelloBoard = () => {
     try {
       const res = await axios.post(`/trello/${listId}/cards`, newCard);
       console.log(res.data);
-      setServerData(prevLists =>
-        prevLists.map(list =>
-          list.id === listId
-            ? {...list, Cards: [...list.Cards, res.data]}
-            : list
-        )
-      );
+      // setServerData(prevLists =>
+      //   prevLists.map(list =>
+      //     list.id === listId
+      //       ? {...list, Cards: [...list.Cards, res.data]}
+      //       : list
+      //   )
+      // );
+      // setServerData(res.data);
+      // setLists(res.data);
     } catch (error) {
       console.error("Помилка створення картки:", error);
     }

@@ -130,7 +130,7 @@ const trelloReducer = (state = initialState, action) => {
         ...state,
         lists: state.lists.map(list =>
           list.id === action.payload.listId
-            ? { ...list, Cards: [...list.Cards, action.payload.card] }
+            ? { ...list, Cards: [action.payload.card, ...list.Cards, ] }
             : list
         )
       };

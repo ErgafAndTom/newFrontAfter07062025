@@ -2,44 +2,45 @@ import React, { useCallback, useEffect, useState } from 'react';
 import axios from '../../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 
-function ModalDeleteOrder({
-                            thisOrderForDelete,
-                            showDeleteOrderModal,
-                            setThisOrderForDelete,
-                            setShowDeleteOrderModal,
-                            data,
-                            setData,
-                            url
-                          }) {
+function ModalDeleteUser({
+                           thisItemForModal,
+                           showDeleteItemModal,
+                           setThisItemForModal,
+                           setShowDeleteItemModal,
+                           data,
+                           setData,
+                           url
+                         }) {
   const [load, setLoad] = useState(false);
   const navigate = useNavigate();
-  const [isVisible, setIsVisible] = useState(showDeleteOrderModal);
+  const [isVisible, setIsVisible] = useState(showDeleteItemModal);
   const [isAnimating, setIsAnimating] = useState(false);
   const [error, setError] = useState(null);
 
   const handleClose = () => {
-    setShowDeleteOrderModal(false);
+    setShowDeleteItemModal(false);
   };
 
   const handleShow = useCallback(() => {
-    setShowDeleteOrderModal(true);
+    setShowDeleteItemModal(true);
   }, []);
 
   const deleteThis = () => {
-    let id = thisOrderForDelete.id;
+    let id = thisItemForModal.id;
     setLoad(true);
     axios
       .delete(`${url}/${id}`)
       .then((response) => {
         if (response.status === 200) {
-          setData((prev) => ({
+          setData(prev => ({
             ...prev,
             rows: Array.isArray(prev?.rows)
-              ? prev.rows.filter((item) => item.id !== id)
+              ? prev.rows.filter(user => user.id !== id)
               : []
           }));
+
           setLoad(false);
-          setShowDeleteOrderModal(false);
+          setShowDeleteItemModal(false);
         }
       })
       .catch((error) => {
@@ -50,14 +51,14 @@ function ModalDeleteOrder({
   };
 
   useEffect(() => {
-    if (showDeleteOrderModal) {
+    if (showDeleteItemModal) {
       setIsVisible(true);
       setTimeout(() => setIsAnimating(true), 100);
     } else {
       setIsAnimating(false);
       setTimeout(() => setIsVisible(false), 300);
     }
-  }, [showDeleteOrderModal]);
+  }, [showDeleteItemModal]);
 
   return isVisible ? (
     <>
@@ -108,9 +109,7 @@ function ModalDeleteOrder({
             borderRadius: '1vw 1vw 0 0'
           }}
         >
-          Видалити замовлення {thisOrderForDelete?.name}?
-          {thisOrderForDelete?.count && <> — {thisOrderForDelete.count} шт</>}
-          {thisOrderForDelete?.priceForThis && <> за ціною {thisOrderForDelete.priceForThis} грн</>}
+          Видалити користувача {thisItemForModal?.name || thisItemForModal?.username}?
         </div>
         <div
           className="d-flex justify-content-center align-content-center"
@@ -162,4 +161,4 @@ function ModalDeleteOrder({
   ) : null;
 }
 
-export default ModalDeleteOrder;
+export default ModalDeleteUser;

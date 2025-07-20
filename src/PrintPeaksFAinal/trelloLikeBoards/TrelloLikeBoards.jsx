@@ -38,8 +38,10 @@ const TrelloBoard = () => {
             prevLists.map(list => ({
                 ...list,
                 Cards: list.Cards.map((card, index) => ({
-                    ...card,
-                    id: card.id // Если id не задан, можно генерировать: || `card-${list.id}-${index}`
+                  id: card.id, // Если id не задан, можно генерировать: || `card-${list.id}-${index}`
+
+                  ...card,
+
                 }))
             }))
         );
@@ -79,25 +81,26 @@ const TrelloBoard = () => {
     };
 
     // Добавление новой карточки в список
-    const addCard = async (listId) => {
-        const newCard = { content: '', type: 'text' };
+  const addCard = async (listId) => {
+    const newCard = {content: '', type: 'text'};
 
-        try {
-            const res = await axios.post(`/trello/${listId}/cards`, newCard);
-            console.log(res.data);
-            setServerData(prevLists =>
-                prevLists.map(list =>
-                    list.id === listId
-                        ? { ...list, Cards: [...list.Cards, res.data] }
-                        : list
-                )
-            );
-        } catch (error) {
-            console.error("Помилка створення картки:", error);
-        }
-    };
+    try {
+      const res = await axios.post(`/trello/${listId}/cards`, newCard);
+      console.log(res.data);
+      setServerData(prevLists =>
+        prevLists.map(list =>
+          list.id === listId
+            ? { ...list, Cards: [res.data, ...list.Cards] } // додати нову картку зверху
+            : list
+        )
+      );
+    } catch (error) {
+      console.error("Помилка створення картки:", error);
+    }
+  };
 
-    // Удаление списка
+
+  // Удаление списка
     const removeList = async (listId) => {
         setDeleting(prev => ({ ...prev, [listId]: true }));
 

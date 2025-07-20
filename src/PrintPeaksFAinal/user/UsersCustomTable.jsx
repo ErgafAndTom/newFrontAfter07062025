@@ -12,6 +12,7 @@ import OneUnitInTable from "./OneUnitInTable";
 import SlideInModal from "../userInNewUiArtem/SlideInModal";
 import PropTypes from 'prop-types';
 import ModalDeleteOrder from "../Orders/ModalDeleteOrder";
+import ModalDeleteUser from "./ModalDeleteUser";
 
 // Основний компонент таблиці користувачів
 const UsersCustomTable = ({name}) => {
@@ -218,7 +219,7 @@ const UsersCustomTable = ({name}) => {
                                 {data.metadata.map((metaItem, iter2) => (
                                     <React.Fragment key={`${item.id}-${metaItem}-${iter2}`}>
                                         {metaItem === "lastLoginAt" ? (
-                                          <><div onClick={() => handleOrderClickDelete(item)}>del</div><Link className="CustomOrderTable-cell statusEnabled"
+                                          <><div onClick={() => handleOrderClickDelete(item)}> Х </div><Link className="CustomOrderTable-cell statusEnabled"
                                                    style={{
                                                      textDecoration: 'none',
                                                      width: getColumnWidth(metaItem),
@@ -351,16 +352,16 @@ const UsersCustomTable = ({name}) => {
               {/*  setData={setData}*/}
               {/*  url={"/user/All"}*/}
               {/*/>*/}
-              <ModalDeleteOrder
-                showDeleteOrderModal={showDeleteItemModal}
-                setShowDeleteOrderModal={setShowDeleteItemModal}
-                thisOrderForDelete={thisItemForModal}
+              <ModalDeleteUser
+                showDeleteItemModal={showDeleteItemModal}
+                setShowDeleteItemModal={setShowDeleteItemModal}
+                thisItemForModal={thisItemForModal}
                 setThisItemForModal={setThisItemForModal}
                 data={data}
                 setData={setData}
-
                 url={"/user/OneUser"}
               />
+
             </div>
         );
     }
