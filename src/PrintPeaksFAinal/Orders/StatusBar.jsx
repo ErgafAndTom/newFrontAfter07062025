@@ -2,32 +2,34 @@ import React from 'react';
 
 function StatusBar({item}) {
     const style = {
-        color:
-            item.status === '0' ? '#000000' :
-                item.status === '1' ? '#ffffff' :
-                    item.status === '2' ? '#ffffff' :
-                        item.status === '3' ? '#ffffff' :
-                            item.status === '4' ? '#ffffff' :
-                                '#ffffff',
+        // color:
+        //     item.status === '0' ? '#000000' :
+        //         item.status === '1' ? '#ffffff' :
+        //             item.status === '2' ? '#ffffff' :
+        //                 item.status === '3' ? '#ffffff' :
+        //                     item.status === '4' ? '#ffffff' :
+        //                         '#ffffff',
         overflow: 'hidden',
         whiteSpace: "nowrap",
-        textOverflow: "ellipsis",
-        // height: "100%",
-        borderRadius: "0.3vw",
+        // textOverflow: "ellipsis",
+      clipPath: 'polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%)',
+      // borderRadius: "1vh",
         alignItems: "center",
         justifyContent: "center",
+      fontSize: "1rem",
         // height: "1.2vw",
-        padding: "0.2vw",
-        fontSize: "0.5vw",
-        // color: "black",
+        padding: "1rem",
+        // fontSize: "0.5vw",
+        color: "black",
+        index: "1",
         backgroundColor:
             item.status === '0' ? '#FBFAF6' :
-                item.status === '1' ? '#8B4513' :
-                item.status === '2' ? '#3C60A6' :
-                    item.status === '3' ? '#F075AA' :
-                        item.status === '4' ? '#008249' :
+                item.status === '1' ? '#d3bda7' :
+                item.status === '2' ? '#bbc5d3' :
+                    item.status === '3' ? '#f1cbd4' :
+                        item.status === '4' ? '#a9cfb7' :
                             item.status === 'Відміна' ? '#ee3c23' :
-                                '#F2F0E7',
+                                '#FBFAF6',
     };
     return (
         <div className="adminFontTable d-flex align-content-center justify-content-center m-auto" style={style}>

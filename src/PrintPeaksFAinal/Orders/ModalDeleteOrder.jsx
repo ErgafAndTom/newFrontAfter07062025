@@ -65,21 +65,20 @@ function ModalDeleteOrder({
         style={{
           width: '100vw',
           height: '100vh',
-          background: 'rgba(0, 0, 0, 0.5)',
-          opacity: isAnimating ? 1 : 0,
-          transition: 'opacity 0.3s ease-in-out',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
           position: 'fixed',
+          top: '0',
           left: '0',
-          bottom: '0',
           zIndex: 99
         }}
         onClick={handleClose}
-      ></div>
+      />
+
       <div
         style={{
           zIndex: 100,
           position: 'fixed',
-          background: '#dcd9ce',
+          background: '#fbfaf6',
           top: '20%',
           left: '50%',
           borderRadius: '1vw',
@@ -99,12 +98,12 @@ function ModalDeleteOrder({
             padding: '0 0 0.3vw 0.3vw'
           }}
         >
-          <div className="btn btn-lg btn-close" onClick={handleClose}></div>
+          {/*<div className="btn btn-lg btn-close" onClick={handleClose}></div>*/}
         </div>
         <div
           style={{
             padding: '0.5vw',
-            background: '#F2F0E7',
+            background: '#fbfaf6',
             borderRadius: '1vw 1vw 0 0'
           }}
         >
@@ -116,7 +115,7 @@ function ModalDeleteOrder({
           className="d-flex justify-content-center align-content-center"
           style={{
             borderRadius: '0 0 1vw 1vw',
-            background: '#F2F0E7',
+            background: '#fbfaf6',
             padding: '0.5vw'
           }}
         >

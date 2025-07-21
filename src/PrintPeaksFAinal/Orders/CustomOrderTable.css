@@ -491,16 +491,173 @@ body {
     box-sizing: border-box;
 }
 
-.CustomOrderTable-body {
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    overflow-x: auto;
-    width: 100%;
-    height: 86vh;
-    /*max-height: 95vh;*/
-    border: 0.1vw solid white;
-    background-color: transparent;
-    cursor: pointer;
-    border-radius: 0 0 0.5rem 0.5rem;
+/*.CustomOrderTable-body {*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    overflow-y: auto;*/
+/*    overflow-x: auto;*/
+/*    width: 100%;*/
+/*    height: 86vh;*/
+/*    !*max-height: 95vh;*!*/
+/*    border: 0.1vw solid white;*/
+/*    background-color: transparent;*/
+/*    cursor: pointer;*/
+/*    border-radius: 0 0 0.5rem 0.5rem;*/
+/*}*/
+/* CSS styles (inline or in CustomOrderTable.css) */
+.OrderList {
+
+  position: relative;  /* щоб sticky спрацьовував */
+}
+
+.OrderBlock {
+  margin-bottom: 0.5rem;
+  /*transition: background 0.3s ease;*/
+  border-radius: 1vh;
+  cursor: pointer;
+}
+
+.OrderRow-summary {
+
+  display: flex;
+  align-items: center;
+  /*justify-content: center;*/
+  background: #fbfaf6;
+  /*padding: 0.6rem 1rem;*/
+  border-radius: 1vh;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+  /*transition: all 0.2s ease;*/
+}
+
+.OrderRow-summary:hover {
+  background: #fbfaf6;
+}
+.OrderRow-hover {
+
+}
+.OrderRow-hover:hover {
+  background: #fbfaf6;
+  margin-left: 0.4rem ;
+}
+.summary-cell {
+  padding: 0 1rem;
+  white-space: nowrap;
+}
+
+.summary-cell.id { width: 5rem; }
+.summary-cell.status { width: 14rem; background: transparent; }
+.summary-cell.client { width: 20vw; margin-left: 3rem;}
+.summary-cell.telegram { width: 13rem; }
+.summary-cell.phoneNumber { width: 13rem; }
+.summary-cell.pay { width: 14rem; text-align: center; }
+.summary-cell.price { width: 10rem;  }
+.summary-cell.barcode-orders { width: 23rem; opacity: 0; z-index: 1000 }
+.summary-cell.barcode-orders:hover {opacity: 1}
+.summary-cell.barcode-orders:active { opacity: 1}
+
+.summary-cell.action { width: 9.5rem; margin-left: 3rem; }
+.summary-cell.documents { width: 9.5rem; }
+.summary-cell.files { width: 9.5rem; }
+
+
+.summary-cell.paid {
+  background-color: #dcfce7;
+  color: #166534;
+  border-radius: 1vh;
+  padding: 0.5vw;
+}
+
+.summary-cell.unpaid {
+  /*background-color: #fee2e2;*/
+  /*color: #991b1b;*/
+  /*border-radius: 1vh;*/
+  /*padding: 0.5vw;*/
+}
+
+.OrderRow-expanded {
+  background: transparent;
+  /*padding: 1rem;*/
+  border-radius: 1vh;
+  /*box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);*/
+  /*margin: 0.5rem 1rem 1rem;*/
+}
+
+.OrderUnit-card {
+  background: #f2f0e7;
+  color: black;
+  opacity: 0.8;
+  border: 1px solid silver;
+  border-radius: 1vh;
+  padding: 0.5rem 0.75rem;
+  margin-right: 0.5rem;
+  width: 11vw;
+  font-size: 0.9rem;
+}
+.OrderUnit-card:hover {
+  background: #fbfaf6;
+
+}
+.ExpandedRow-details{
+  display: flex;
+  gap: 1vw;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1vh;
+  font-size: 0.7rem;
+}
+/*.btn.pastel-action {*/
+/*  background: #bfecff;*/
+/*  color: #003b4f;*/
+/*  border: none;*/
+/*  padding: 6px 10px;*/
+/*  border-radius: 8px;*/
+/*  cursor: pointer;*/
+/*}*/
+.OrderRow-header {
+  position: sticky;
+  top: 0;
+  color: black;
+  background: #fbfaf6; /* або ваш фон */
+  margin-bottom: 0.5rem;
+  display: flex;
+  z-index: 10;
+}
+
+.OrderRow-header  {
+  font-weight: 600;
+  padding: 1rem 0rem;
+}
+.adminButtonAddOrder {
+  clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+  /*display: flex;*/
+  /*height: auto;*/
+  /*width: auto;*/
+  margin: 0;
+  min-width: 10rem;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 1rem 1rem;
+
+  color: #000000;
+
+  background-color: rgba(251, 250, 246, 0.3);
+  /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/
+  transition: all 0.2s ease;
+
+}
+
+.adminButtonAddOrder:hover {
+  cursor: pointer;
+  background-color: rgba(250, 180, 22, 0.8);
+  /*color: white;*/
+
+  /*box-shadow: 0 3px 5px rgb(233, 157, 0);*/
+}
+
+.adminButtonAddOrder:active {
+  background: #FAB416;
+  outline: none !important;
+  box-shadow: none !important;
+  /*box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);*/
 }

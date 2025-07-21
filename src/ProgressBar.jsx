@@ -244,8 +244,9 @@ const ProgressBar = ({
                 console.log(response.data);
                 if (stage === 'pay') {
                     setThisOrder(prevState => ({
-                        ...prevState,
-                        payStatus: "pay"
+
+                        payStatus: "pay",
+                      OrderId: thisOrder.id
                     }));
                     setIsPaid(true);
                 } else {

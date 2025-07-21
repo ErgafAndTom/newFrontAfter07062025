@@ -90,7 +90,7 @@ function PaymentCalculator({thisOrder, setThisOrder, selectedThings2, setSelecte
                 <div style={{display: 'flex', alignItems: 'center', width: '70%'}}>
                     <input
                         type="text"
-                        value={`${discount}`}
+                        value={`${discount}%`}
                         onChange={(e) => handleDiscountChange(e.target.value)}
                         style={{
                             padding: '0.5vh',
