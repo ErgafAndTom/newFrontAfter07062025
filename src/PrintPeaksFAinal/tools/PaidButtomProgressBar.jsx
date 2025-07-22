@@ -1,45 +1,165 @@
-import React from "react";
-import "./PaidButtomProgressBar.css";
-const PaymentMethodsPanel = ({ onSelect }) => {
-  const methods = [
-    { key: "cash", label: "Готівка" },
-    { key: "terminal", label: "Термінал" },
-    { key: "online", label: "Інтернет(mono)" },
-    { key: "invoices", label: "Рахунки" },
-  ];
+import React, { useState, useEffect, useRef } from 'react';
+import axios from '../../api/axiosInstance';
+import './PaidButtomProgressBar.css';
+import {io} from 'socket.io-client';
+
+const PaidButtomProgressBar = ({ thisOrder }) => {
+  const [paymentState, setPaymentState] = useState('initial');
+  const [invoiceId, setInvoiceId]       = useState(null);
+  const intervalRef                      = useRef(null);
+  const socket = io('http://localhost:3000/'); // або просто '/'
+  // Обробник вибору способу оплати
+  const handleSelect = (method) => {
+    if (method === 'online') {
+      const totalUAH = (thisOrder.OrderUnits || [])
+        .reduce((sum, u) => sum + parseFloat(u.priceForThis || 0), 0);
+      createInvoice(totalUAH);
+    }
+    // TODO: додати обробку інших методів (cash, terminal, invoices)
+  };
+
+  // Створення рахунку через ваш бекенд
+  const createInvoice = async (sumUAH) => {
+    try {
+      const amount = Math.round(sumUAH * 100); // копійки
+      const { data } = await axios.post('/api/create-invoice', {
+        amount,
+        merchantPaymInfo: {
+          reference:   `Order-${thisOrder.id}`,
+          destination: `Оплата замовлення #${thisOrder.id}`,
+          comment:     `Оплата за замовлення #${thisOrder.id}`,
+        },
+      });
+      // відкриваємо платіжну сторінку Monobank у новій вкладці
+      if (data.pageUrl) window.open(data.pageUrl, '_blank');
+      setInvoiceId(data.invoiceId);
+      setPaymentState('pending');
+    } catch (error) {
+      console.error('createInvoice error:', error.response || error.message);
+      alert('Не вдалося ініціювати оплату.');
+    }
+  };
+  // :contentReference[oaicite:0]{index=0}
+
+  // Перевірка статусу рахунку
+  const checkStatus = async () => {
+    if (!invoiceId) return;
+    try {
+      const { data } = await axios.get('/api/invoice-status', {
+        params: { invoiceId }
+      });
+      if (data.status === 'PAID') {
+        setPaymentState('paid');
+        clearInterval(intervalRef.current);
+      }
+    } catch (err) {
+      console.error('Помилка перевірки статусу:', err);
+    }
+  };
+  // :contentReference[oaicite:1]{index=1}
+
+  // Скасування (повернення) платежу
+  const cancelPayment = async () => {
+    if (!invoiceId) return;
+    try {
+      await axios.post('/api/cancel-invoice', { invoiceId });
+    } catch (err) {
+      console.error('Помилка скасування платежу:', err);
+    } finally {
+      clearInterval(intervalRef.current);
+      setPaymentState('initial');
+      setInvoiceId(null);
+    }
+  };
+  // :contentReference[oaicite:2]{index=2}
+
+  // (Опційно) Інвалідація рахунку
+  const invalidateInvoice = async () => {
+    if (!invoiceId) return;
+    try {
+      await axios.post('/api/invalidate-invoice', { invoiceId });
+    } catch (err) {
+      console.error('Помилка інвалідації рахунку:', err);
+    } finally {
+      clearInterval(intervalRef.current);
+      setPaymentState('initial');
+      setInvoiceId(null);
+    }
+  };
+  // :contentReference[oaicite:3]{index=3}
+  useEffect(() => {
+    // при відкритті сторінки підписатися на room конкретного замовлення
+    socket.emit('join', `order_${thisOrder.id}`);
+
+    socket.on('paymentStatusChanged', ({ orderId, status }) => {
+      if (orderId === thisOrder.id && status === 'paid') {
+        setPaymentState('paid');
+        // можна одразу зберегти в localStorage, оновити візуал
+      }
+    });
+
+    return () => {
+      socket.off('paymentStatusChanged');
+    };
+  }, [thisOrder.id]);
+  // Підписка на інтервал перевірки статусу
+  useEffect(() => {
+    if (paymentState === 'pending') {
+      intervalRef.current = setInterval(checkStatus, 5000);
+    }
+    return () => clearInterval(intervalRef.current);
+  }, [paymentState, invoiceId]);
+
+  // Динамічні стилі панелі
+  const panelStyle = {
+    backgroundColor:
+      paymentState === 'pending' ? '#fab416'
+        : paymentState === 'paid'    ? 'green'
+          : undefined,
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0.5rem',
+    borderRadius: '0.5rem',
+  };
 
   return (
-    <div
-      style={{
-        height: "12vh",
-        width: "36.5vw",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "0 0.3vw",
-        background: "#fbfaf6",
-        borderRadius: "0.5rem",
-      }}
-    >
-      {methods.map(({ key, label }) => (
-        <button
-          className={"PayButtons"}
-          key={key}
-          onClick={() => onSelect && onSelect(key)}
-          style={{
-
-          }}
-          // onMouseEnter={e => {
-          //   e.currentTarget.style.background = "#a4f3cb";
-          //   e.currentTarget.style.boxShadow = "0 2px 6px rgba(0,0,0,0.1)";
-          // }}
-
-        >
-          {label}
-        </button>
-      ))}
+    <div className="payment-methods-panel" style={panelStyle}>
+      {paymentState === 'initial' && (
+        ['cash','terminal','online','invoices'].map(key => {
+          const labels = {
+            cash:     'Готівка',
+            terminal: 'Термінал',
+            online:   'Інтернет (mono)',
+            invoices: 'Рахунки',
+          };
+          return (
+            <button
+              key={key}
+              className="PayButtons"
+              onClick={() => handleSelect(key)}
+            >
+              {labels[key]}
+            </button>
+          );
+        })
+      )}
+      {paymentState === 'pending' && (
+        <>
+          <span style={{ flex: 1 }}>Очікується оплата…</span>
+          <button
+            className="PayButtons"
+            style={{ backgroundColor: 'red', color: 'white' }}
+            onClick={cancelPayment}
+          >
+            Відмінити платіж
+          </button>
+        </>
+      )}
+      {paymentState === 'paid' && (
+        <span>Замовлення оплачене</span>
+      )}
     </div>
   );
 };
 
-export default PaymentMethodsPanel;
+export default PaidButtomProgressBar;
