@@ -201,8 +201,8 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                     maxWidth: '100%',
                     // width: '30vw',
                     overflow: 'hidden',
-                    marginLeft: '0.8vw',
-                    marginTop: '1vh',
+                    marginLeft: '0.4vw',
+                    marginTop: '0vh',
                     textAlign: 'left',
 
                     border: 'none',
@@ -226,9 +226,9 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                         <span style={{background: "#f2f0e7"}}>Вибрати клієнта</span>
                     )}
                 </div>
-
+                <div style={{position:"absolute", right:"0.5vw", top:"0.5vh"}}>
                 {thisOrder.client && (
-                    <div className="client-details" style={{fontSize: '1.7vmin', marginLeft: "1vw"}}>
+                    <div className="client-details" style={{fontSize: '1.5vmin', marginLeft: "1vw"}}>
 
                         {thisOrder.client.phoneNumber && (
                             <span className="">{thisOrder.client.phoneNumber}</span>
@@ -239,6 +239,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
 
                     </div>
                 )}
+                </div>
               <div className="d-flex align-items-center" style={{marginTop: "0.3vh", position: "absolute", right:'1vw', top:'1vh'}}>
                 {thisOrder.client && thisOrder.client.telegram && (
                   <div
@@ -264,27 +265,10 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
               </div>
             {/* Кнопки швидких дій з клієнтом */}
             {!show && thisOrder.client && thisOrder.client.phoneNumber && (
-                <div className="d-flex  gap-1 mt-2 justify-content-between">
+                <div className="d-flex  gap-1 mt-2 justify-content-between" style={{marginTop: "1.4vh"}}>
                     <div className="d-flex gap-1">
 
-                        {/*{thisOrder.client.viber && (*/}
-                        {/*    <button*/}
-                        {/*        onClick={() => openMessenger('viber')}*/}
-                        {/*        title="Viber"*/}
-                        {/*        style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
-                        {/*    >*/}
-                        {/*        <img src={viberlogo} alt="Viber" style={{width: '16px', height: '16px'}}/>*/}
-                        {/*    </button>*/}
-                        {/*)}*/}
-                        {/*{!thisOrder.client.viber && (*/}
-                        {/*    <button*/}
-                        {/*        title="Viber"*/}
-                        {/*        style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
-                        {/*    >*/}
-                        {/*        <img src={viberlogo} alt="Viber"*/}
-                        {/*             style={{width: '16px', height: '16px', filter: 'grayscale(100%)', opacity: 0.5}}/>*/}
-                        {/*    </button>*/}
-                        {/*)}*/}
+
 
 
                         {!thisOrder.client.whatsapp && (
