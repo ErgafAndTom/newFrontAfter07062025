@@ -874,15 +874,9 @@ const NewUIArtem = () => {
           <div className="ClientsMenuAll" style={{
             width: "36.5vw",position: "absolute", bottom: "0vh", height: "15vh",
           }}>
-            <div className="containerNewUI d-flex justify-content-end align-items-center" style={{height: "9vh", width: "36.5vw", position: "absolute", right:"0vw", bottom:"15vh", padding:'0.3rem', marginLeft:"0vw"}}>
-              <PaidButtomProgressBar
-                thisOrder={thisOrder}
-                setThisOrder={setThisOrder}
-                setNewThisOrder={setNewThisOrder}
-                setSelectedThings2={setSelectedThings2}
-                handleThisOrderChange={handleThisOrderChange}
-              />
-            </div>
+            {/*<div className="containerNewUI d-flex justify-content-end align-items-center" style={{height: "9vh", width: "36.5vw", position: "absolute", right:"0vw", bottom:"15vh", padding:'0.3rem', marginLeft:"0vw"}}>*/}
+
+            {/*</div>*/}
             <ProgressBar thisOrder={thisOrder} setThisOrder={setThisOrder}
                          setNewThisOrder={setNewThisOrder}
                          handleThisOrderChange={handleThisOrderChange}
@@ -903,7 +897,7 @@ const NewUIArtem = () => {
           <div className="containerNewUI" style={{height: "15vh", width: "30vw", position: "relative",padding:'0.3rem'}}>
             <CommentsInOrder thisOrder={thisOrder}/>
           </div>
-          <div className="containerNewUI" style={{height: "15vh", width: "30vw", position: "relative",padding:'0.3rem'}}>
+          <div className="containerNewUI" style={{height: "15vh", width: "30vw", position: "relative"}}>
             <ClientChangerUIArtem
               thisOrder={thisOrder}
               setThisOrder={setThisOrder}

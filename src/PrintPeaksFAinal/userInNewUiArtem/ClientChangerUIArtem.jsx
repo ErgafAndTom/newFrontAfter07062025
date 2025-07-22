@@ -24,6 +24,7 @@ import {buttonStyles, containerStyles, formStyles} from './styles';
 import PaysInOrderRestored from "./pays/PayInOrderRestored";
 import {useSelector} from "react-redux";
 import TelegramAvatar from "../../PrintPeaksFAinal/Messages/TelegramAvatar";
+import PaidButtomProgressBar from "../../PrintPeaksFAinal/tools/PaidButtomProgressBar";
 
 
 const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => {
@@ -42,6 +43,8 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
     const [showVisible, setShowVisible] = useState(false);
     const [error, setError] = useState(false);
     const [filteredUsers, setFilteredUsers] = useState([]);
+  const [newThisOrder, setNewThisOrder] = useState(thisOrder);
+  const [handleThisOrderChange, setHandleThisOrderChange] = useState(thisOrder);
 
     // Функція для закриття модального вікна
     const handleClose = () => {
@@ -363,7 +366,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                         <div className="" style={{marginTop: "0.3vh"}}>
                           <div>
                             <strong> <span
-                              className="text-success">     Знижка: {thisOrder.client.discount}%</span></strong>
+                              className="">     Знижка: {thisOrder.client.discount}%</span></strong>
                           </div>
                         </div>
                       )}
@@ -716,14 +719,21 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
             </Modal></div>
 
             {/* Модальне вікно для додавання нового користувача */}
-
+            <div style={{position:"absolute", bottom: "0",}}>
+             <PaidButtomProgressBar
+                thisOrder={thisOrder}
+                setThisOrder={setThisOrder}
+                setNewThisOrder={setNewThisOrder}
+                setSelectedThings2={setSelectedThings2}
+                handleThisOrderChange={handleThisOrderChange}
+              />
 
             {/* Інші модальні вікна, які можуть бути потрібні */}
             {/*{showNP && <NP show={showNP} onHide={() => setShowNP(false)}/>}*/}
             {showPays && <PaysInOrderRestored showPays={showPays} setShowPays={setShowPays} thisOrder={thisOrder}
                                               setThisOrder={setThisOrder}/>}
 
-
+            </div>
             {/* Модальне вікно для генерації документів */}
             <Modal
                 show={showDocGenerate}
@@ -849,8 +859,11 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                                         </button>
                                     </div>
                                 </div>
+
                             </div>
+
                         </div>
+
                     )}
                 </Modal.Body>
                 <Modal.Footer>

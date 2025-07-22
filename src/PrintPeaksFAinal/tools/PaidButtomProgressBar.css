@@ -1,12 +1,93 @@
 /* src/tools/PaidButtomProgressBar.css */
 .payment-methods-panel {
-  width: 100%;
+  /*width: 30vw;*/
 }
 
-.PayButtons {
-  margin: 0 0.5rem;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.25rem;
+.PayButtons.cash{
+  clip-path: polygon(0 0, 100% 0, calc(100% - 1.6vh) 100%, 0 100%);
+  background: #f2f0e7;
+  width: 8vw;
+  padding: 0.5rem 0.5rem;
+  height: 6vh;
+  border: 1px;
+  border-radius: 0rem;
+  cursor: pointer;
+}
+
+.PayButtons.online {
+  clip-path: polygon(1.6vh 0, 100% 0, calc(100% - 1.6vh) 100%, 0 100%);
+  background: #f2f0e7;
+  width: 8vw;
+  padding: 0.5rem 0.5rem;
+  border: 1px;
+  border-radius: 0rem;
+  height: 6vh;
+  margin-left: -0.5vw;
+  cursor: pointer;
+}
+.PayButtons.terminal {
+  clip-path: polygon(1.6vh 0, 100% 0, calc(100% - 1.6vh) 100%, 0 100%);
+  background: #f2f0e7;
+  height: 6vh;
+  width: 8vw;
+  padding: 0.5rem 0.5rem;
+  border: 1px;
+  margin-left: -0.5vw;
+  border-radius: 0rem;
+  cursor: pointer;
+}
+.PayButtons.invoices{
+  clip-path: polygon(1.6vh 0, 100% 0, 100% 100%, 0 100%);
+  background: #f2f0e7;
+  width: 8vw;
+  height: 6vh;
+  padding: 0.5rem 0.5rem;
+  border: 1px;
+  margin-left: -0.5vw;
+  border-radius: 0rem;
+  cursor: pointer;
+}
+.PayButtons.cash:hover{
+  clip-path: polygon(0 0, 100% 0, calc(100% - 1.6vh) 100%, 0 100%);
+  background: #fab416;
+  width: 8vw;
+  height: 5vh;
+  padding: 0.5rem 0.5rem;
+  border: 1px;
+  border-radius: 0rem;
+  cursor: pointer;
+}
+
+.PayButtons.online:hover {
+  clip-path: polygon(1.6vh 0, 100% 0, calc(100% - 1.6vh) 100%, 0 100%);
+  background: #fab416;
+  width: 8vw;
+  height: 5vh;
+  padding: 0.5rem 0.5rem;
+  border: 1px;
+  border-radius: 0rem;
+  margin-left: -0.5vw;
+  cursor: pointer;
+}
+.PayButtons.terminal:hover {
+  clip-path: polygon(1.6vh 0, 100% 0, calc(100% - 1.6vh) 100%, 0 100%);
+  background: #fab416;
+  width: 8vw;
+  padding: 0.5rem 0.5rem;
+  border: 1px;
+  height: 5vh;
+  margin-left: -0.5vw;
+  border-radius: 0rem;
+  cursor: pointer;
+}
+.PayButtons.invoices:hover{
+  clip-path: polygon(1.6vh 0, 100% 0, 100% 100%, 0 100%);
+  background: #fab416;
+  width: 8vw;
+  padding: 0.5rem 0.5rem;
+  border: 1px;
+  height: 5vh;
+  margin-left: -0.5vw;
+  border-radius: 0rem;
   cursor: pointer;
 }

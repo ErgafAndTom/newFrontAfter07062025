@@ -8,6 +8,7 @@ const PaidButtomProgressBar = ({ thisOrder }) => {
   const [invoiceId, setInvoiceId]       = useState(null);
   const intervalRef                      = useRef(null);
   const socket = io('http://localhost:3000/'); // або просто '/'
+
   // Обробник вибору способу оплати
   const handleSelect = (method) => {
     if (method === 'online') {
@@ -118,31 +119,44 @@ const PaidButtomProgressBar = ({ thisOrder }) => {
           : undefined,
     display: 'flex',
     alignItems: 'center',
-    padding: '0.5rem',
-    borderRadius: '0.5rem',
+
+
   };
 
   return (
-    <div className="payment-methods-panel" style={panelStyle}>
+    <div className="payment-methods-panel" style={{marginLeft:'-1vw'}}>
       {paymentState === 'initial' && (
-        ['cash','terminal','online','invoices'].map(key => {
-          const labels = {
-            cash:     'Готівка',
-            terminal: 'Термінал',
-            online:   'Інтернет (mono)',
-            invoices: 'Рахунки',
-          };
-          return (
-            <button
-              key={key}
-              className="PayButtons"
-              onClick={() => handleSelect(key)}
-            >
-              {labels[key]}
-            </button>
-          );
-        })
+        <div className="payment-methods-panel">
+          <button
+            className="PayButtons cash"
+            onClick={() => handleSelect('cash')}
+          >
+            <span>Готівка</span>
+          </button>
+
+          <button
+            className="PayButtons terminal"
+            onClick={() => handleSelect('terminal')}
+          >
+            Термінал
+          </button>
+
+          <button
+            className="PayButtons online"
+            onClick={() => handleSelect('online')}
+          >
+            Інтернет
+          </button>
+
+          <button
+            className="PayButtons invoices"
+            onClick={() => handleSelect('invoices')}
+          >
+            Рахунки
+          </button>
+        </div>
       )}
+
       {paymentState === 'pending' && (
         <>
           <span style={{ flex: 1 }}>Очікується оплата…</span>
