@@ -15,7 +15,7 @@ import MUG from "../components/newUIArtem/printers/mug.png";
 import magnets from "./magnetsIcon.png";
 import Scans from "./scan.png";
 import Deliverypng from "../components/newUIArtem/printers/delivery.png";
-
+import ClientChangerUIArtem from "../PrintPeaksFAinal/userInNewUiArtem/ClientChangerUIArtem";
 // Usage of ClientsMenu
 import img1 from '../components/newUIArtem/printers/46.png';
 import img2 from '../components/newUIArtem/printers/ComponentTMP_0-image2.png';
@@ -43,7 +43,7 @@ import Widefactory from "../components/newUIArtem/printers/Widefactory.png";
 import Widefactoryw from "../components/newUIArtem/printers/Widefactoryw.png";
 
 import versantIcon from "../components/newUIArtem/printers/group-1468.svg";
-
+import PaidButtomProgressBar from "../PrintPeaksFAinal/tools/PaidButtomProgressBar";
 import OneProductInOrders from "../components/newcalc/Orders/OneProductInOrders";
 import Plotter from "../components/newcalc/products/Plotter";
 import NewWide from "./poslugi/newWide";
@@ -371,84 +371,8 @@ const NewUIArtem = () => {
                 <div className="buttonLabel">DELIVERY</div>
               </div>
             </div>
-            <div className="containerNewUI" style={{height: "15vh"}}>
-              <CommentsInOrder thisOrder={thisOrder}/>
-            </div>
-
 
           </div>
-          {/*<div className="containerOrderUnits">*/}
-          {/*    {selectedThings2 && selectedThings2.length !== 0 ? (*/}
-          {/*        selectedThings2.map((thing, index) => (*/}
-          {/*            <div key={index} className="orderItem">*/}
-          {/*                <div className="orderHeader">*/}
-          {/*                    <span>{thing.name}</span>*/}
-          {/*                    <span className="deleteButton"*/}
-          {/*                          onClick={() => handleThingClickDelete2(thing)}>✕</span>*/}
-          {/*                </div>*/}
-
-          {/*                <div className="orderDetails">*/}
-          {/*                    <div className="detailBlock">*/}
-          {/*<span>*/}
-          {/*  {thing.newField2} <span className="unitLabel">мм</span> x {thing.newField3} <span*/}
-          {/*    className="unitLabel">мм</span>*/}
-          {/*</span>*/}
-          {/*                    </div>*/}
-          {/*                    <div className="detailBlock">*/}
-          {/*<span>*/}
-          {/*  {thing.amount} <span className="unitLabel">шт</span>*/}
-          {/*</span>*/}
-          {/*                    </div>*/}
-          {/*                    <div className="detailBlock price">*/}
-          {/*<span>*/}
-          {/*  = {thing.priceForThis} <span className="unitLabel">грн</span>*/}
-          {/*</span>*/}
-          {/*                    </div>*/}
-          {/*                </div>*/}
-
-          {/*                {!['0', '0%', '', '%'].includes(thisOrder.prepayment) && (*/}
-          {/*                    <div className="orderDetails">*/}
-          {/*                        <div className="detailBlock">*/}
-          {/*                            <span>Зі знижкою ({thisOrder.prepayment}) = </span>*/}
-          {/*                        </div>*/}
-          {/*                        <div className="detailBlock">*/}
-          {/*  <span>*/}
-          {/*    {thing.amount} <span className="unitLabel">шт</span>*/}
-          {/*  </span>*/}
-          {/*                        </div>*/}
-          {/*                        <div className="detailBlock">*/}
-          {/*  <span>*/}
-          {/*    x {thing.priceForOneThisDiscount} <span className="unitLabel">грн</span>*/}
-          {/*  </span>*/}
-          {/*                        </div>*/}
-          {/*                        <div className="detailBlock discountPrice">*/}
-          {/*  <span>*/}
-          {/*    = {thing.priceForThisDiscount} <span className="unitLabel">грн</span>*/}
-          {/*  </span>*/}
-          {/*                        </div>*/}
-          {/*                    </div>*/}
-          {/*                )}*/}
-
-          {/*                <div className="additionalInfo">*/}
-          {/*                    <div>*/}
-          {/*                        На аркуші: <strong>{thing.newField4} <span*/}
-          {/*                        className="unitLabel">шт</span></strong>*/}
-          {/*                    </div>*/}
-          {/*                    <div>*/}
-          {/*                        Використано: <strong>{thing.newField5} <span*/}
-          {/*                        className="unitLabel">аркушів</span></strong>*/}
-          {/*                    </div>*/}
-          {/*                    <div>*/}
-          {/*                        За 1 шт: <strong>{parseFloat(thing.priceForOneThis).toFixed(2)} <span*/}
-          {/*                        className="unitLabel">грн</span></strong>*/}
-          {/*                    </div>*/}
-          {/*                </div>*/}
-          {/*            </div>*/}
-          {/*        ))*/}
-          {/*    ) : (*/}
-          {/*        <div className="text-center text-black-50">Замовлення порожнє</div>*/}
-          {/*    )}*/}
-          {/*</div>*/}
 
 
           <div className="d-flex flex-column" style={{width: "37.5vw"}}>
@@ -635,6 +559,7 @@ const NewUIArtem = () => {
 
                               </div>
                             )}
+
                             <OneProductInOrders item={thing} cash={true}
                                                 handleAmountChange={handleAmountChange}
                                                 index={index}
@@ -685,19 +610,7 @@ const NewUIArtem = () => {
                               )}
                             </div>
 
-                            <Modal.Footer>
 
-                              {/*<div*/}
-                              {/*    className="d-flex adminFontTable"*/}
-                              {/*    style={{marginLeft: "1.5vw"}}*/}
-                              {/*> За 1 виріб (2 спосіб): {thing.priceForOneThis} грн*/}
-                              {/*</div>*/}
-                              {/*<div*/}
-                              {/*    className="d-flex adminFontTable"*/}
-                              {/*    style={{marginLeft: "1.5vw"}}*/}
-                              {/*> За ВСЕ (2 спосіб*шт): {thing.priceForOneThis*thing.amount} грн*/}
-                              {/*</div>*/}
-                            </Modal.Footer>
                           </div>
                         </div>
 
@@ -714,15 +627,7 @@ const NewUIArtem = () => {
               )}
             </div>
 
-            <div className="d-flex flex-column"
 
-            >
-              {/*<ProgressBar/>*/}
-              {/*<div className="containerNewUI containerDetailsThisOrder " style={{border: "0vw"}}>*/}
-
-              {/*</div>*/}
-              {/*<NovaPoshtaButton/>*/}
-            </div>
           </div>
         </div>
 
@@ -963,24 +868,26 @@ const NewUIArtem = () => {
             setSelectedThings2={setSelectedThings2}
           />
         }
+
         {thisOrder ? (
+
           <div className="ClientsMenuAll" style={{
-            width: "36.5vw",
+            width: "36.5vw",position: "absolute", bottom: "0vh", height: "15vh",
           }}>
+            <div className="containerNewUI d-flex justify-content-end align-items-center" style={{height: "9vh", width: "36.5vw", position: "absolute", right:"0vw", bottom:"15vh", padding:'0.3rem', marginLeft:"0vw"}}>
+              <PaidButtomProgressBar
+                thisOrder={thisOrder}
+                setThisOrder={setThisOrder}
+                setNewThisOrder={setNewThisOrder}
+                setSelectedThings2={setSelectedThings2}
+                handleThisOrderChange={handleThisOrderChange}
+              />
+            </div>
             <ProgressBar thisOrder={thisOrder} setThisOrder={setThisOrder}
                          setNewThisOrder={setNewThisOrder}
                          handleThisOrderChange={handleThisOrderChange}
                          setSelectedThings2={setSelectedThings2}
                          selectedThings2={selectedThings2}/>
-            {/*<ClientChangerUIArtem*/}
-            {/*    client={thisOrder.User}*/}
-            {/*    thisOrder={thisOrder}*/}
-            {/*    setThisOrder={setThisOrder}*/}
-            {/*    setNewThisOrder={setNewThisOrder}*/}
-            {/*    handleThisOrderChange={handleThisOrderChange}*/}
-            {/*/>*/}
-            {/*<ClientsMenu client={thisOrder.User} />*/}
-            {/*<ProgressBar thisOrder={thisOrder} setThisOrder={setThisOrder}/>*/}
           </div>
         ) : (
           <div>
@@ -992,6 +899,21 @@ const NewUIArtem = () => {
           //                       handleThisOrderChange={handleThisOrderChange}/>
           // <ClientChangerUIArtem client={{email: "null", id: 0, phone: "+00000000",}}/>
         )}
+        <div className="d-flex flex-row" style={{position:"absolute", bottom:"0"}} >
+          <div className="containerNewUI" style={{height: "15vh", width: "30vw", position: "relative",padding:'0.3rem'}}>
+            <CommentsInOrder thisOrder={thisOrder}/>
+          </div>
+          <div className="containerNewUI" style={{height: "15vh", width: "30vw", position: "relative",padding:'0.3rem'}}>
+            <ClientChangerUIArtem
+              thisOrder={thisOrder}
+              setThisOrder={setThisOrder}
+              setNewThisOrder={setNewThisOrder}
+              setSelectedThings2={setSelectedThings2}
+              handleThisOrderChange={handleThisOrderChange}
+            />
+          </div>
+
+        </div>
       </div>
 
     );

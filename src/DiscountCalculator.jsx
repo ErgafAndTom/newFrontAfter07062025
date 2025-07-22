@@ -61,8 +61,8 @@ function PaymentCalculator({thisOrder, setThisOrder, selectedThings2, setSelecte
     }, [thisOrder.price, thisOrder.prepayment, thisOrder.allPrice]);
 
     return (
-        <div>
-            <div style={{display: 'flex', alignItems: 'center', marginTop: '-1vh'}}>
+        <div style={{ width:"36vw"}}>
+            <div style={{display: 'flex', alignItems: 'center', marginTop: '-1vh', width:"36vw"}}>
                 <label style={{fontSize: '0.7vw', color: '#707070'}}>Загальна вартість:</label>
                 <input
                     disabled
@@ -85,40 +85,46 @@ function PaymentCalculator({thisOrder, setThisOrder, selectedThings2, setSelecte
                 />
             </div>
 
-            <div style={{display: 'flex', alignItems: 'center', marginTop: '0.5vh'}}>
-                <label style={{fontSize: '0.7vw', color: '#707070'}}>Знижка:</label>
-                <div style={{display: 'flex', alignItems: 'center', width: '70%'}}>
-                    <input
-                        type="text"
-                        value={`${discount}%`}
-                        onChange={(e) => handleDiscountChange(e.target.value)}
-                        style={{
-                            padding: '0.5vh',
-                            fontSize: '0.7vw',
-                            width: '40%',
-                            marginLeft: '4.25vw',
-                            backgroundColor: '#F2F0E7',
-                            position: 'relative',
-                            border: 'none',
-                            borderRadius: '1vw',
-                            zIndex: 0,
-                            color: '#707070',
-                            paddingLeft: '1vw',
-                        }}
-                    />
-                    {load && (
-                        <Spinner animation="border" variant="danger" size="sm"/>
-                    )}
-                    {/*<label style={{fontSize: '0.7vw', color: '#707070'}}>грн</label>*/}
-                </div>
+          <div
+            className="position-absolute d-flex align-items-center"
+            style={{ top: '6.5vh', right: "0.5vw", gap: '0.5vw',  }}
+          >
+            <label
+              style={{ fontSize: '0.8vw', color: '#707070', whiteSpace: 'nowrap' }}
+            >
+              Знижка:
+            </label>
+
+            <div style={{ position: 'relative', width: '4vw'}}>
+              <input
+                type="text"
+                value={discount}
+                onChange={e => handleDiscountChange(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.5vh 1vw',
+                   // місце для "%"
+                  fontSize: '0.8vw',
+                  backgroundColor: '#F2F0E7',
+                  border: 'none',
+                  borderRadius: '1vw',
+                  color: '#707070',
+                }}
+              />
+
             </div>
 
-            {error && (
+            {load && <Spinner animation="border" variant="danger" size="sm" />}
+          </div>
+
+
+
+          {error && (
                 <div style={{color: 'red', fontSize: '0.7vw', marginTop: '0.5vh'}}>{error}</div>
             )}
 
             <div style={{display: 'flex', alignItems: 'center', marginTop: '0.5vh'}}>
-                <label style={{fontSize: '0.7vw', color: '#707070'}}>К оплаті буде:</label>
+                <label style={{fontSize: '0.7vw',  color: '#707070'}}>К оплаті буде:</label>
                 <input
                     disabled
                     type="text"
@@ -136,6 +142,7 @@ function PaymentCalculator({thisOrder, setThisOrder, selectedThings2, setSelecte
                         color: 'black',
                         marginLeft: '2.15vw',
                         paddingLeft: '1vw',
+                      fontWeight:"1000" ,
                     }}
                 />
                 {load && (

@@ -17,7 +17,7 @@ const CustomOrderTable = () => {
     const [showDeleteOrderModal, setShowDeleteOrderModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const [inPageCount, setInPageCount] = useState(500);
+    const [inPageCount, setInPageCount] = useState(888);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageCount, setPageCount] = useState(null);
     const [typeSelect, setTypeSelect] = useState("");

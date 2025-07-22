@@ -1,0 +1,80 @@
+.pagination-wrapper {
+  display: flex;
+  position: sticky;     /* прилипает внутри родителя */
+  bottom: -0.4vh;
+  align-items: center;
+  justify-content: start;
+
+  background: #fff;
+  border-top: 1px solid #e0e0e0;
+  flex-wrap: nowrap;
+}
+
+.page-btn {
+  position: sticky ;
+  background: transparent;
+  border: none;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-list-wrapper {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 0.5rem;
+}
+
+.pagination-list {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.page-item {
+  flex: 0 0 auto;
+  margin: 0 0.25rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 0.25rem;
+}
+
+.page-item.active {
+  background: #000;
+  color: #fff;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-limit {
+  display: flex;
+  align-items: center;
+  margin-left: 0rem;
+  white-space: nowrap;
+}
+
+.pagination-limit label {
+  margin-right: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.pagination-limit select {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}

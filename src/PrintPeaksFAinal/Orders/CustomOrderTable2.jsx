@@ -8,8 +8,15 @@ import { Spinner } from "react-bootstrap";
 import Barcode from 'react-barcode';
 import { useSelector } from "react-redux";
 import status from "./StatusBar";
-import { FiFile, FiFolder} from 'react-icons/fi';
+import { FiFile, FiFolder, FiPhone} from 'react-icons/fi';
 import { RiCalculatorLine } from 'react-icons/ri';
+import TelegramAvatar from "../Messages/TelegramAvatar";
+import ViberAvatar from "../Messages/ViberAvatar";
+import { FiPhoneCall } from 'react-icons/fi';
+import {FaTelegramPlane, FaViber} from 'react-icons/fa';
+import Pagination from "../tools/Pagination";
+
+
 
 const CustomOrderTable2 = () => {
   const [data, setData] = useState(null);
@@ -19,9 +26,10 @@ const CustomOrderTable2 = () => {
   const [showDeleteOrderModal, setShowDeleteOrderModal] = useState(false);
   const [expandedOrderId, setExpandedOrderId] = useState(null);
   const [activeBarcodeId, setActiveBarcodeId] = useState(null);
-
+  const [currentPage, setCurrentPage] = useState(1);
   const currentUser = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
+  const [limit, setLimit] = useState(50);
 
   const toggleOrder = (orderId) => {
     setExpandedOrderId(prevId => (prevId === orderId ? null : orderId));
@@ -37,8 +45,8 @@ const CustomOrderTable2 = () => {
       try {
         const url = currentUser.role === 'admin' ? '/orders/all' : '/orders/my';
         const postData = {
-          inPageCount: 500,
-          currentPage: 1,
+          inPageCount: limit,
+          currentPage: currentPage,
           search: '',
           columnName: { column: 'id', reverse: true },
           startDate: '',
@@ -65,7 +73,8 @@ const CustomOrderTable2 = () => {
     };
 
     fetchData();
-  }, [currentUser.role]);
+  }, [currentPage, limit, currentUser.role]);
+
 
   const getStatusColor = (status, isCancelled) => {
     if (isCancelled) return '#ee3c23'; // червоний для скасованих
@@ -107,8 +116,15 @@ const CustomOrderTable2 = () => {
         <div className="summary-cell pay">Оплата</div>
         <div className="summary-cell price">Ціна</div>
         <div className="summary-cell client">Клієнт</div>
-        <div className="summary-cell phoneNumber">Телефон</div>
-        <div className="summary-cell telegram ">Telegram</div>
+        <div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20} style={{ color: '#000' }}/></div>
+        <div className="summary-cell telegram d-flex justify-content-center">
+          <FaTelegramPlane size={20} style={{ color: '#000' }} />
+        </div>
+        {/*<div className="summary-cell viber d-flex justify-content-center">*/}
+        {/*  <FaViber size={20} style={{ color: '#000' }} />*/}
+        {/*</div>*/}
+
+
         <div className="summary-cell action d-flex justify-content-center">Прорахунок</div>
         <div className="summary-cell documents d-flex justify-content-center">Документи</div>
         <div className="summary-cell files d-flex justify-content-sm-around ">Файли</div>
@@ -146,8 +162,17 @@ const CustomOrderTable2 = () => {
               <div className="summary-cell price">{order.price} грн</div>
               <div className="summary-cell client">{order.client?.firstName} {order.client?.lastName}</div>
               <div className="summary-cell phoneNumber">{order.client?.phoneNumber || '—'}</div>
-              <div className="summary-cell telegram">{order.client?.telegram || '—'}</div>
+              <div className="summary-cell telegram d-flex justify-content-center">
+                {order.client?.telegram
+                  ? <TelegramAvatar link={order.client.telegram} size={45} defaultSrc="/default-avatar.png" />
+                  : '—'}
+              </div>
 
+              {/*<div className="summary-cell viber d-flex justify-content-center">*/}
+              {/*  {order.client?.phoneNumber*/}
+              {/*    ? <ViberAvatar link={order.client.phoneNumber} size={32} defaultSrc="/viber-icon.png" />*/}
+              {/*    : '—'}*/}
+              {/*</div>*/}
 
               <div className="summary-cell action documents d-flex justify-content-center">
                 <Link to={`/Orders/${order.id}`}
@@ -158,28 +183,17 @@ const CustomOrderTable2 = () => {
               <div className="summary-cell documents d-flex justify-content-center">
                 <Link to={`/Orders/${order.id}`}
                       style={{ textDecoration: 'none', outline: 'none' }}>
-                  <button className="adminButtonAddOrder" ><FiFile size={16} /></button>
+                  <button className="adminButtonAddOrder" ><FiFile size={19} /></button>
                 </Link>
               </div>
               <div className="summary-cell documents files d-flex justify-content-center">
                 <Link to={`/Orders/${order.id}`}
                       style={{ textDecoration: 'none', outline: 'none',  }}>
-                  <button className="adminButtonAddOrder"> <FiFolder size={16} /></button>
+                  <button className="adminButtonAddOrder"> <FiFolder size={18} /></button>
 
                 </Link>
               </div>
-              {/*<div className="summary-cell barcode-orders" style={{display: "flex", justifyContent: "center", alignItems: "center", padding:"0vh", margin:"0vw"}}>*/}
-              {/*  {order.barcode ? (*/}
-              {/*    <Barcode*/}
-              {/*      value={order.barcode.toString()}*/}
-              {/*      width={1.6}*/}
-              {/*      height={35}*/}
-              {/*      fontSize={13}*/}
-              {/*      style={{margin: "0", padding: "0"}}*/}
-              {/*      displayValue={false}*/}
-              {/*    />*/}
-              {/*  ) : '—'}*/}
-              {/*</div>*/}
+
               <div
                 className={`summary-cell barcode-orders ${
                   activeBarcodeId === order.id ? 'active' : ''
@@ -194,9 +208,9 @@ const CustomOrderTable2 = () => {
                 {order.barcode ? (
                   <Barcode
                     value={order.barcode.toString()}
-                    width={1.6}
-                    height={35}
-                    fontSize={13}
+                    width={1.7}
+                    height={30}
+                    fontSize={12}
                     displayValue={false}
                   />
                 ) : '—'}
@@ -257,6 +271,15 @@ const CustomOrderTable2 = () => {
         setData={setData}
         url={"/orders/OneOrder"}
       />
+      {data?.count > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(data.count / limit)}
+          onPageChange={setCurrentPage}
+          onLimitChange={setLimit}
+          limit={limit}
+        />
+      )}
     </div>
   );
 };

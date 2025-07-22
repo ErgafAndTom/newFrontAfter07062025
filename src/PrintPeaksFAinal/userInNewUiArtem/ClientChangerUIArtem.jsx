@@ -23,6 +23,7 @@ import {Button, Modal, Spinner, ListGroup, InputGroup} from "react-bootstrap";
 import {buttonStyles, containerStyles, formStyles} from './styles';
 import PaysInOrderRestored from "./pays/PayInOrderRestored";
 import {useSelector} from "react-redux";
+import TelegramAvatar from "../../PrintPeaksFAinal/Messages/TelegramAvatar";
 
 
 const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => {
@@ -157,9 +158,9 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
             case 'whatsapp':
                 url = `https://wa.me/${phoneNum}`;
                 break;
-            case 'telegram':
-                url = thisOrder.client.telegram ? `https://t.me/${thisOrder.client.telegram}` : '';
-                break;
+            // case 'telegram':
+            //     url = thisOrder.client.telegram ? `https://t.me/${thisOrder.client.telegram}` : '';
+            //     break;
             default:
                 break;
         }
@@ -197,14 +198,13 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                     maxWidth: '100%',
                     // width: '30vw',
                     overflow: 'hidden',
-
+                    marginLeft: '0.8vw',
                     marginTop: '1vh',
                     textAlign: 'left',
 
                     border: 'none',
                     cursor: 'pointer',
-                    fontFamily: 'inter, sans-serif',
-                    fontSize: '1.5vmin',
+
                     backgroundColor: 'transparent'
                 }}
             >
@@ -233,47 +233,57 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                         {thisOrder.client.address && (
                             <span className="">{thisOrder.client.address}</span>
                         )}
-                        {thisOrder.client.discount && (
-                            <span className="text-success"
-                                  style={{marginLeft: "3vw"}}>Знижка: {thisOrder.client.discount}%</span>
-                        )}
+
                     </div>
                 )}
-            </div>
+              <div className="d-flex align-items-center" style={{marginTop: "0.3vh", position: "absolute", right:'1vw', top:'1vh'}}>
+                {thisOrder.client && thisOrder.client.telegram && (
+                  <div
+                    className="d-flex align-items-center"
+                    style={{
+                      marginTop: '0.3vh',
+                      position: 'absolute',
+                      right: '1vw',
+                      top: '1vh',
+                      cursor: 'pointer'
+                    }}
+                    title={`@${thisOrder.client.telegram.replace(/^@/, '')}`}
+                    onClick={() => openMessenger('telegram')}
+                  >
+                    <TelegramAvatar
+                      link={thisOrder.client.telegram}
+                      size={70}
+                      defaultSrc="/default-avatar.png"
+                    />
+                  </div>
+                )}
 
+              </div>
             {/* Кнопки швидких дій з клієнтом */}
             {!show && thisOrder.client && thisOrder.client.phoneNumber && (
-                <div className="d-flex gap-1 mt-2 justify-content-between">
+                <div className="d-flex  gap-1 mt-2 justify-content-between">
                     <div className="d-flex gap-1">
 
-                        {thisOrder.client.viber && (
-                            <button
-                                onClick={() => openMessenger('viber')}
-                                title="Viber"
-                                style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-                            >
-                                <img src={viberlogo} alt="Viber" style={{width: '16px', height: '16px'}}/>
-                            </button>
-                        )}
-                        {!thisOrder.client.viber && (
-                            <button
-                                title="Viber"
-                                style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-                            >
-                                <img src={viberlogo} alt="Viber"
-                                     style={{width: '16px', height: '16px', filter: 'grayscale(100%)', opacity: 0.5}}/>
-                            </button>
-                        )}
+                        {/*{thisOrder.client.viber && (*/}
+                        {/*    <button*/}
+                        {/*        onClick={() => openMessenger('viber')}*/}
+                        {/*        title="Viber"*/}
+                        {/*        style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
+                        {/*    >*/}
+                        {/*        <img src={viberlogo} alt="Viber" style={{width: '16px', height: '16px'}}/>*/}
+                        {/*    </button>*/}
+                        {/*)}*/}
+                        {/*{!thisOrder.client.viber && (*/}
+                        {/*    <button*/}
+                        {/*        title="Viber"*/}
+                        {/*        style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
+                        {/*    >*/}
+                        {/*        <img src={viberlogo} alt="Viber"*/}
+                        {/*             style={{width: '16px', height: '16px', filter: 'grayscale(100%)', opacity: 0.5}}/>*/}
+                        {/*    </button>*/}
+                        {/*)}*/}
 
-                        {thisOrder.client.whatsapp && (
-                            <button
-                                onClick={() => openMessenger('whatsapp')}
-                                title="WhatsApp"
-                                style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-                            >
-                                <img src={whatsapplogo} alt="WhatsApp" style={{width: '16px', height: '16px'}}/>
-                            </button>
-                        )}
+
                         {!thisOrder.client.whatsapp && (
                             <button
                                 title="WhatsApp"
@@ -303,24 +313,10 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                             </button>
                         )}
 
-                        {thisOrder.client.telegram && (
-                            <button
-                                onClick={() => openMessenger('telegram')}
-                                title="Telegram"
-                                style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-                            >
-                                <img src={telegram} alt="Telegram" style={{width: '16px', height: '16px'}}/>
-                            </button>
-                        )}
-                        {!thisOrder.client.telegram && (
-                            <button
-                                title="Telegram"
-                                style={{...buttonStyles.base, ...buttonStyles.iconButton}}>
-                                <img src={telegram} alt="Telegram"
-                                     style={{width: '16px', height: '16px', filter: 'grayscale(100%)', opacity: 0.5}}/>
-                            </button>
-                        )}
-                        {thisOrder.client.email && (
+
+
+
+                      {thisOrder.client.email && (
                             <button
                                 onClick={() => openMessenger('E-mail')}
                                 title="Email"
@@ -337,13 +333,8 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                                 <img src={Email} alt="Email" style={{width: '2vh', height: '2vh', opacity: '40%'}}/>
                             </button>
                         )}
-                        {/*<button*/}
-                        {/*    onClick={() => setShowNP(true)}*/}
-                        {/*    title="Нова Пошта"*/}
-                        {/*    style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
-                        {/*>*/}
-                        {/*    НП*/}
-                        {/*</button>*/}
+
+
 
                         <button
                             onClick={() => setShowPays(true)}
@@ -353,13 +344,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                             <img src={pays} alt="Платежі" style={{width: '16px', height: '16px'}}/>
                         </button>
 
-                        {/*<button*/}
-                        {/*    onClick={() => setShowDocGenerate(true)}*/}
-                        {/*    title="Генерувати документи"*/}
-                        {/*    style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
-                        {/*>*/}
-                        {/*    <img src={dockGenerate} alt="Документи" style={{width: '16px', height: '16px'}}/>*/}
-                        {/*</button>*/}
+
 
                         <button
                             onClick={() => {
@@ -374,12 +359,20 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                         >
                             <img src={FilesButton} alt="Файли" style={{width: '16px', height: '16px'}}/>
                         </button>
+                      {thisOrder.client.discount && (
+                        <div className="" style={{marginTop: "0.3vh"}}>
+                          <div>
+                            <strong> <span
+                              className="text-success">     Знижка: {thisOrder.client.discount}%</span></strong>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
 
                 </div>
             )}
-
+            </div>
             {/* Відображення помилки */}
             {error && (
                 <div className="alert alert-danger alert-dismissible fade show mt-2" role="alert">
@@ -425,10 +418,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                                 title="Відкрити профіль клієнта"
                                 className="adminButtonAdd flex-right-center"
                                 style={{
-                                    // ...buttonStyles.base,
-                                    // ...buttonStyles.primary,
-                                    // ...buttonStyles.actionButton,
-                                    // position: 'relative',
+
 
                                     background: "#3c60a6",
                                     position: 'absolute',
@@ -484,14 +474,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                                         </div>
                                     </div>
                                 )}
-                                {thisOrder.client.discount && (
-                                    <div className="" style={{marginTop: "0.3vh"}}>
-                                        <div>
-                                            <strong> <span
-                                                className="text-success">Знижка: {thisOrder.client.discount}%</span></strong>
-                                        </div>
-                                    </div>
-                                )}
+
 
                                 {thisOrder.client.notes && (
                                     <div className="d-flex" style={{marginTop: "0.3vh"}}>
@@ -504,77 +487,11 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                             </div>
 
 
-                            {/* Кнопки для взаємодії з поточним клієнтом */}
-                            <div className="d-flex flex-wrap gap-1" style={{marginTop: '1vh'}}>
-                                {!show && thisOrder.client && thisOrder.client.phoneNumber && (
-                                    <>
 
-                                        <button
-                                            onClick={() => openMessenger('viber')}
-                                            title="Viber"
-                                            style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-                                        >
-                                            <img src={viberlogo} alt="Viber" style={{width: '2vh', height: '2vh'}}/>
-                                        </button>
-
-                                        <button
-                                            onClick={() => openMessenger('whatsapp')}
-                                            title="WhatsApp"
-                                            style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-                                        >
-                                            <img src={whatsapplogo} alt="WhatsApp"
-                                                 style={{width: '2vh', height: '2vh'}}/>
-                                        </button>
-
-                                        <button
-                                            onClick={() => openMessenger('signal')}
-                                            title="Signal"
-                                            style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-                                        >
-                                            <img src={signallogo} alt="Signal" style={{width: '2vh', height: '2vh'}}/>
-                                        </button>
-                                    </>
-                                )}
-
-
-                                {thisOrder.client.telegram && (
-                                    <button
-                                        onClick={() => openMessenger('telegram')}
-                                        title="Telegram"
-                                        style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-                                    >
-                                        <img src={telegram} alt="Telegram" style={{width: '2vh', height: '2vh'}}/>
-                                    </button>
-                                )}
-                                {thisOrder.client.email && (
-                                    <button
-                                        onClick={() => openMessenger('E-mail')}
-                                        title="Email"
-                                        style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-                                    >
-                                        <img src={Email} alt="Email" style={{width: '2vh', height: '2vh'}}/>
-                                    </button>
-                                )}
-                            </div>
                             <>
 
 
-                                {/*<div style={{display: 'flex', justifyContent: 'center'}}>*/}
-                                {/*    <button*/}
-                                {/*        onClick={() => setModalVisible(true)}*/}
-                                {/*        className="adminButtonAdd"*/}
-                                {/*        style={{*/}
-                                {/*            position: 'absolute',*/}
-                                {/*            bottom: '1vh',*/}
-                                {/*            right: '0.5vw',*/}
-                                {/*            display: 'flex',*/}
-                                {/*            alignItems: 'flex-end'*/}
-                                {/*        }}*/}
-                                {/*    >*/}
-                                {/*        Створити клієнта*/}
-                                {/*    </button>*/}
 
-                                {/*</div>*/}
 
                                 <SlideInModal
                                     show={modalVisible}
@@ -666,10 +583,6 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                                 display: "flex",
                                 flexDirection: "column",
                                 textAlign: "center",
-                                // padding: "0.5vh 0.5vw",
-                                // paddingTop: "0.5vh",
-                                // paddingBottom: "0.5vh",
-                                // paddingLeft: "0.5vw",
 
                             }}>
                                 <Spinner animation="border" variant="primary"/>
@@ -765,14 +678,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    {/*{thisOrder.client && thisOrder.client.id === user.id && (*/}
-                                                    {/*    <span className="badge bg-primary rounded-pill" style={{}}>✓</span>*/}
-                                                    {/*)}*/}
-                                                    {/*{thisOrder.executor && thisOrder.executor.id === user.id && (*/}
-                                                    {/*    <span className="badge bg-success rounded-pill" style={{*/}
-                                                    {/*        boxShadow: "0vh 0vh 1vh #226012",*/}
-                                                    {/*    }}>Це ви</span>*/}
-                                                    {/*)}*/}
+
                                                 </ListGroup.Item></div>
                                         ))}
                                     </ListGroup>
@@ -798,13 +704,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                                             </div>
                                         </div>
 
-                                        {/* Виносимо поза DOM потоку, щоб працювали позиціонування */}
-                                        {/*<SlideInModal*/}
-                                        {/*    // onClose={() => setModalVisible(false)}*/}
-                                        {/*    // onHide={handleClose}*/}
-                                        {/*    title="Додавання клієнта"*/}
-                                        {/*    handleCloseAddUser={handleCloseAddUser}*/}
-                                        {/*/>*/}
+
                                     </>
 
                                 )}
@@ -812,33 +712,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                         </div>
                     )}
                 </Modal.Body>
-                {/*<Modal.Footer style={{backgroundColor: '#F2F0E7', borderRadius: '0 0 1vw 1vw', fontSize: "1.2vmin", height: '7.5vh' }}>*/}
-                {/*    <button*/}
-                {/*        onClick={handleClose}*/}
-                {/*        style={{*/}
-                {/*            ...buttonStyles.base,*/}
-                {/*            ...buttonStyles.close,*/}
-                {/*            position: "relative",*/}
 
-
-                {/*        }}*/}
-                {/*    >*/}
-                {/*        Скасувати*/}
-                {/*    </button>*/}
-                {/*    {thisOrder.client && (*/}
-                {/*        <button*/}
-                {/*            onClick={() => handleSelectUser(null)}*/}
-                {/*            style={{*/}
-                {/*                ...buttonStyles.base,*/}
-                {/*                ...buttonStyles.delete,*/}
-                {/*                // color: '#d57272',*/}
-                {/*                boxShadow: "0vh 0vh 2vh #d57272",*/}
-                {/*            }}*/}
-                {/*        >*/}
-                {/*            Видалити вибір*/}
-                {/*        </button>*/}
-                {/*    )}*/}
-                {/*</Modal.Footer>*/}
             </Modal></div>
 
             {/* Модальне вікно для додавання нового користувача */}

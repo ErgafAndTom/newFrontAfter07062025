@@ -84,7 +84,7 @@ const CommentsInOrder = ({thisOrder}) => {
                 )}
 
                 {!loading && comments.length === 0 && (
-                    <div className=" ">Коментарі та нотатки для замовлення</div>
+                    <div className=" ">Коментарі, нотатки та файли</div>
                 )}
 
                 {comments.map((item, idx) => (
@@ -107,34 +107,37 @@ const CommentsInOrder = ({thisOrder}) => {
                 ))}
             </div>
 
+          <div style={{ position: 'relative', width: '30vw' }}>
             {commentInputActive ? (
-                <div className="d-flex align-items-center justify-content-between "
-                >
-                    <input
-                        autoFocus
-                        style={{border: 'none', padding: '0.5rem'}}
-                        value={newCommentText}
-                        onChange={(e) => setNewCommentText(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        onBlur={handleBlur}
-                        onFocus={handleFocus}
-                        placeholder="..."
-                    />
-                    <IoSend
-                        size={24}
-                        onMouseDown={(e) => e.preventDefault()} // предотвращаем потерю фокуса до клика
-                        onClick={sendComment}
-                    />
-                </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                <input
+                  autoFocus
+                  style={{ border: 'none', padding: '0.5rem' }}
+                  value={newCommentText}
+                  onChange={(e) => setNewCommentText(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  onBlur={handleBlur}
+                  onFocus={handleFocus}
+                  placeholder="..."
+                />
+                <IoSend
+                  size={24}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={sendComment}
+                />
+              </div>
             ) : (
-                <div
-                    className="adminButtonAdd" style={{width: "8vw"}}
-                    onClick={() => setCommentInputActive(true)}
-
-                >
-                    +
-                </div>
+              <div
+               className={'adminButtonAdd d-flex justify-content-center align-items-center '}
+               style={{ cursor: 'pointer',width: '5vw' }}
+                onClick={() => setCommentInputActive(true)}
+              >
+                +
+              </div>
             )}
+          </div>
+
+
         </div>
     );
 };

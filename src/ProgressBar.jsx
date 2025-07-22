@@ -98,7 +98,7 @@ const ProgressBar = ({
         }, [isFocused]);
 
         return (
-            <div style={{display: 'flex', alignItems: 'center', marginBottom: '0.5vh', position: 'relative'}}>
+            <div style={{display: 'flex', alignItems: 'center',  position: 'relative'}}>
                 <input
                     type={isFocused ? "datetime-local" : formats[placeholderIndex]}
                     value={isFocused ? "datetime-local" : formats[placeholderIndex]}
@@ -111,7 +111,7 @@ const ProgressBar = ({
                         display: 'flex',
                         alignItems: 'center',
                         fontSize: '0.7vw',
-                        width: '52.5%',
+                        width: '100%',
                         backgroundColor: isFocused ? 'white' : '#F2F0E7',
                         // position: 'relative',
                         border: 'none',
@@ -423,13 +423,7 @@ const ProgressBar = ({
     return (
 
         <div style={{marginTop: "-0.8vh"}}>
-            <ClientChangerUIArtem
-                thisOrder={thisOrder}
-                setThisOrder={setThisOrder}
-                setNewThisOrder={setNewThisOrder}
-                setSelectedThings2={setSelectedThings2}
-                handleThisOrderChange={handleThisOrderChange}
-            />
+
             <button onClick={() => handleStageChange('cancel')} style={buttonStyles.cancel}>
 
             </button>
@@ -528,8 +522,9 @@ const ProgressBar = ({
                 <DiscountCalculator thisOrder={thisOrder} setThisOrder={setThisOrder} selectedThings2={selectedThings2}
                                     setSelectedThings2={setSelectedThings2}/>
             </div>
+          <div style={{marginBottom: '0.5vh', position: 'absolute', right: '0.5vw', bottom: '0.5vh'}}>
             {deadline === null && (
-                <div style={{marginBottom: '0.5vh'}}>
+                <div >
                     <AnimatedPlaceholderInput onChange={handleDeadlineChangeServer}/>
                 </div>
             )}
@@ -554,67 +549,68 @@ const ProgressBar = ({
                 </div>
 
             )}
+          </div>
             {/* <TimerDeadline deadline={deadline} thisOrder={thisOrder} /> */}
 
-            {!isPaid && (
-              <>
-                {currentUser?.role === "admin" &&
-                  <div style={{
-                    justifyContent: 'flex-end',
-                    alignItems: 'flex-end', marginTop: '-10vh',
-                  }}>
-                    <button
-                      onClick={() => handleStageChangeServer('pay')}
-                      className="adminButtonAdd"
-                      style={{
-                        background: "#008249",
-                        position: 'absolute',
-                        right: '0.5vw',
-                        top: '8.3vh',
-                      }}
-                    >
-                      Оплатити
-                    </button>
-                  </div>
-                }
-              </>
-            )}
+            {/*{!isPaid && (*/}
+            {/*  <>*/}
+            {/*    {currentUser?.role === "admin" &&*/}
+            {/*      <div style={{*/}
+            {/*        justifyContent: 'flex-end',*/}
+            {/*        alignItems: 'flex-end', marginTop: '-10vh',*/}
+            {/*      }}>*/}
+            {/*        <button*/}
+            {/*          onClick={() => handleStageChangeServer('pay')}*/}
+            {/*          className="adminButtonAdd"*/}
+            {/*          style={{*/}
+            {/*            background: "#008249",*/}
+            {/*            position: 'absolute',*/}
+            {/*            right: '0.5vw',*/}
+            {/*            top: '8.3vh',*/}
+            {/*          }}*/}
+            {/*        >*/}
+            {/*          Оплатити*/}
+            {/*        </button>*/}
+            {/*      </div>*/}
+            {/*    }*/}
+            {/*  </>*/}
+            {/*)}*/}
 
-            {isPaid && (
-                <div style={{
+            {/*{isPaid && (*/}
+            {/*    <div style={{*/}
 
-                    justifyContent: 'flex-end',
-                    alignItems: 'flex-end',
+            {/*        justifyContent: 'flex-end',*/}
+            {/*        alignItems: 'flex-end',*/}
 
-                }}>
+            {/*    }}>*/}
 
-                    <div style={{
-                        // position: 'relative',
-                        width: '45%',
-                        transform: 'rotate(-30deg)'
-                    }}>
-                        <img
-                            src={rozrahuvImage}
-                            alt="Розрахувались"
-                            style={{width: '100%', height: 'auto', marginTop: "8vh", marginLeft: "19vw"}}
-                        />
-                        {paymentDate && (
-                            <div style={{
-                                position: 'absolute',
-                                top: '11.1vh',
-                                // marginBottom: "19vw",
-                                right: '-13vw',
-                                fontSize: '0.5vw',
-                                color: '#008249'
-                            }}>
-                                {formatDate(paymentDate)}
+            {/*        <div style={{*/}
+            {/*            // position: 'relative',*/}
+            {/*            width: '45%',*/}
+            {/*            transform: 'rotate(-30deg)'*/}
+            {/*        }}>*/}
+            {/*            <img*/}
+            {/*                src={rozrahuvImage}*/}
+            {/*                alt="Розрахувались"*/}
+            {/*                style={{width: '100%', height: 'auto', marginTop: "8vh", marginLeft: "19vw"}}*/}
+            {/*            />*/}
+            {/*            {paymentDate && (*/}
+            {/*                <div style={{*/}
+            {/*                    position: 'absolute',*/}
+            {/*                    top: '11.1vh',*/}
+            {/*                    // marginBottom: "19vw",*/}
+            {/*                    right: '-13vw',*/}
+            {/*                    fontSize: '0.5vw',*/}
+            {/*                    color: '#008249'*/}
+            {/*                }}>*/}
+            {/*                    {formatDate(paymentDate)}*/}
 
-                            </div>
-                        )}
-                    </div>
+            {/*                </div>*/}
+            {/*            )}*/}
+            {/*        </div>*/}
 
-                </div>
-            )}
+            {/*    </div>*/}
+            {/*)}*/}
 
             {(currentStage >= 1 && currentStage <= 3 ? elapsedTime : finalManufacturingTime) && (
                 <div style={{

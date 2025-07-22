@@ -1,0 +1,14 @@
+.PayButtons {
+  flex: 1;
+  margin: 0 0.4vw;
+  height: 6vh;
+  border: none;
+  border-radius: 1vh;
+  background: #f2f0e7;
+
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.PayButtons:hover {
+background: #fab416;
+}
