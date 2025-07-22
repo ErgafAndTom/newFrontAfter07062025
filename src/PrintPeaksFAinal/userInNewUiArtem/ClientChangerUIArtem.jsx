@@ -32,7 +32,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
     const navigate = useNavigate();
     const [showAddUser, setShowAddUser] = useState(false);
     const [showDocGenerate, setShowDocGenerate] = useState(false);
-  const currentUser = useSelector((state) => state.auth.user);
+    const currentUser = useSelector((state) => state.auth.user);
     const [showNP, setShowNP] = useState(false);
     const [showPays, setShowPays] = useState(false);
     const [load, setLoad] = useState(false);
@@ -43,9 +43,12 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
     const [showVisible, setShowVisible] = useState(false);
     const [error, setError] = useState(false);
     const [filteredUsers, setFilteredUsers] = useState([]);
-  const [newThisOrder, setNewThisOrder] = useState(thisOrder);
-  const [handleThisOrderChange, setHandleThisOrderChange] = useState(thisOrder);
 
+  const [handleThisOrderChange, setHandleThisOrderChange] = useState(thisOrder);
+  const [newThisOrder, setNewThisOrder] = useState(thisOrder);
+  const buttonStyles = {
+    border: "none",
+  }
     // Функція для закриття модального вікна
     const handleClose = () => {
         setShowVisible(false)
@@ -323,13 +326,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
 
 
 
-                        <button
-                            onClick={() => setShowPays(true)}
-                            title="Платежі"
-                            style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-                        >
-                            <img src={pays} alt="Платежі" style={{width: '16px', height: '16px'}}/>
-                        </button>
+
 
 
 
