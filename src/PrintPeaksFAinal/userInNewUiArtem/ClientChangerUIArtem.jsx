@@ -327,15 +327,15 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
               </button>
 
 
-              <button
-                onClick={() => {
-                  setShowPays(true)
-                }}
-                title="Файли клієнта"
-                style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-              >
-                <img src={pays} alt="Файли" style={{width: '16px', height: '16px'}}/>
-              </button>
+              {/*<button*/}
+              {/*  onClick={() => {*/}
+              {/*    setShowPays(true)*/}
+              {/*  }}*/}
+              {/*  title="Файли клієнта"*/}
+              {/*  style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
+              {/*>*/}
+              {/*  <img src={pays} alt="Файли" style={{width: '16px', height: '16px'}}/>*/}
+              {/*</button>*/}
 
 
               {thisOrder.client.discount && (
@@ -694,6 +694,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
           setNewThisOrder={setNewThisOrder}
           setSelectedThings2={setSelectedThings2}
           handleThisOrderChange={handleThisOrderChange}
+          setShowPays={setShowPays}
         />
 
         {/* Інші модальні вікна, які можуть бути потрібні */}

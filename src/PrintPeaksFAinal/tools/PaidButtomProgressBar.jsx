@@ -3,13 +3,13 @@ import axios from '../../api/axiosInstance';
 import './PaidButtomProgressBar.css';
 import {io} from 'socket.io-client';
 
-const PaidButtomProgressBar = ({ thisOrder }) => {
+const PaidButtomProgressBar = ({ thisOrder, setShowPays }) => {
   const [paymentState, setPaymentState] = useState('initial');
   const [invoiceId, setInvoiceId]       = useState(null);
   const intervalRef                      = useRef(null);
   const socket = io('http://localhost:3000/'); // або просто '/'
   const buttonStyles = {}
-  const [showPays, setShowPays] = useState(false);
+  // const [showPays, setShowPays] = useState(false);
 
   // Обробник вибору способу оплати
   const handleSelect = (method) => {
