@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from '../../api/axiosInstance';
 import './PaidButtomProgressBar.css';
-import {io} from 'socket.io-client';
+// import {io} from 'socket.io-client';
 
 const PaidButtomProgressBar = ({ thisOrder, setShowPays }) => {
   const [paymentState, setPaymentState] = useState('initial');
   const [invoiceId, setInvoiceId]       = useState(null);
   const intervalRef                      = useRef(null);
-  const socket = io('http://localhost:3000/'); // або просто '/'
+  // const socket = io('http://localhost:3000/'); // або просто '/'
   const buttonStyles = {}
   // const [showPays, setShowPays] = useState(false);
 
@@ -90,28 +90,28 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays }) => {
     }
   };
   // :contentReference[oaicite:3]{index=3}
-  useEffect(() => {
-    // при відкритті сторінки підписатися на room конкретного замовлення
-    socket.emit('join', `order_${thisOrder.id}`);
-
-    socket.on('paymentStatusChanged', ({ orderId, status }) => {
-      if (orderId === thisOrder.id && status === 'paid') {
-        setPaymentState('paid');
-        // можна одразу зберегти в localStorage, оновити візуал
-      }
-    });
-
-    return () => {
-      socket.off('paymentStatusChanged');
-    };
-  }, [thisOrder.id]);
-  // Підписка на інтервал перевірки статусу
-  useEffect(() => {
-    if (paymentState === 'pending') {
-      intervalRef.current = setInterval(checkStatus, 5000);
-    }
-    return () => clearInterval(intervalRef.current);
-  }, [paymentState, invoiceId]);
+  // useEffect(() => {
+  //   // при відкритті сторінки підписатися на room конкретного замовлення
+  //   socket.emit('join', `order_${thisOrder.id}`);
+  //
+  //   socket.on('paymentStatusChanged', ({ orderId, status }) => {
+  //     if (orderId === thisOrder.id && status === 'paid') {
+  //       setPaymentState('paid');
+  //       // можна одразу зберегти в localStorage, оновити візуал
+  //     }
+  //   });
+  //
+  //   return () => {
+  //     socket.off('paymentStatusChanged');
+  //   };
+  // }, [thisOrder.id]);
+  // // Підписка на інтервал перевірки статусу
+  // useEffect(() => {
+  //   if (paymentState === 'pending') {
+  //     intervalRef.current = setInterval(checkStatus, 5000);
+  //   }
+  //   return () => clearInterval(intervalRef.current);
+  // }, [paymentState, invoiceId]);
 
   // Динамічні стилі панелі
   const panelStyle = {
