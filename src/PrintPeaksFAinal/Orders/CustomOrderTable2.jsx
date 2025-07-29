@@ -15,6 +15,7 @@ import ViberAvatar from "../Messages/ViberAvatar";
 import { FiPhoneCall } from 'react-icons/fi';
 import {FaTelegramPlane, FaViber} from 'react-icons/fa';
 import Pagination from "../tools/Pagination";
+import Vishichka from "../poslugi/Vishichka";
 
 
 
@@ -157,9 +158,31 @@ const CustomOrderTable2 = () => {
 
               <div className="summary-cell id  d-flex justify-content-center">{order.id}</div>
               <div className="summary-cell status "><StatusBar item={order} style={{borderRadius:"none"}}/></div>
-              <div className={`summary-cell pay  ${order.payStatus === 'pay' ? 'paid' : 'unpaid'}`}>
-                {order.payStatus || '-'}
-              </div>
+              {order.Payment?.status === 'CREATED' &&
+                <div className={`summary-cell pay`} style={{color:'#ffcb00'}}>
+                  {"Очі кує ⚒️"}
+                </div>
+              }
+              {order.Payment?.status === 'PAID' &&
+                <div className={`summary-cell pay`} style={{color:'#007341'}}>
+                  {"Успіх!"}
+                </div>
+              }
+              {order.Payment?.status === 'CANCELLED' &&
+                <div className={`summary-cell pay`} style={{color:'#ff0090'}}>
+                  {"Відміна?"}
+                </div>
+              }
+              {order.Payment?.status === 'EXPIRED' &&
+                <div className={`summary-cell pay`} style={{color:'#750000'}}>
+                  {"Хаос з'їв"}
+                </div>
+              }
+              {order.Payment === null &&
+                <div className={`summary-cell pay`} style={{color:'#000000'}}>
+                  {"-"}
+                </div>
+              }
               <div className="summary-cell price">{order.price} грн</div>
               <div className="summary-cell client">{order.client?.firstName} {order.client?.lastName}</div>
               <div className="summary-cell company">{order.client?.company || '—'} </div>

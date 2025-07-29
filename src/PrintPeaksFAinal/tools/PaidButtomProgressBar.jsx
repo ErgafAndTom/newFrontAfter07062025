@@ -60,15 +60,16 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
 
   // Перевірка статусу рахунку
   const checkStatus = async () => {
-    if (!invoiceId) return;
+    if (!thisOrder.Payment?.invoiceId) return;
+    let invoiceId  = thisOrder.Payment?.invoiceId
     try {
       const {data} = await axios.get('/api/payment/invoice-status', {
-        params: {invoiceId}
+        params: {invoiceId }
       });
-      if (data.status === 'PAID') {
-        setPaymentState('paiwd');
-        clearInterval(intervalRef.current);
-      }
+      setThisOrder(prev => ({
+        ...prev,
+        Payment: data
+      }));
     } catch (err) {
       console.error('Помилка перевірки статусу:', err);
     }
@@ -98,6 +99,35 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
   };
   // :contentReference[oaicite:2]{index=2}
 
+    const [index, setIndex] = useState(0);
+
+    const formats = [
+      "В|",
+      "В о|",
+      "В оч|",
+      "В очі|",
+      "В очік|",
+      "В очіку|",
+      "В очікув|",
+      "В очікува|",
+      "В очікуван|",
+      "В очікуванн|",
+      "В очікуванні|",
+      "В очікуванні |",
+      "В очікуванні о|",
+      "В очікуванні оп|",
+      "В очікуванні опл|",
+      "В очікуванні опла|",
+      "В очікуванні оплат|",
+      "В очікуванні оплати|"
+    ];
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setIndex((prev) => (prev + 1) % formats.length);
+      }, 100);
+      return () => clearInterval(interval);
+    }, []);
   // (Опційно) Інвалідація рахунку
   const invalidateInvoice = async () => {
     if (!thisOrder.Payment.invoiceId) return;
@@ -115,74 +145,38 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
     } catch (err) {
       console.error('Помилка інвалідації рахунку:', err);
     } finally {
-      clearInterval(intervalRef.current);
-      setPaymentState('initial');
-      setInvoiceId(null);
+
     }
   };
-  // :contentReference[oaicite:3]{index=3}
-  // useEffect(() => {
-  //   if (!thisOrder.id) return;
-  //
-  //   socket.emit('join', `order_${thisOrder.id}`);
-  //
-  //   socket.on('paymentStatusChanged', ({ orderId: changedId, status }) => {
-  //     if (changedId === thisOrder.id) {
-  //       setThisOrder(prev => ({
-  //         ...prev,
-  //         Payment: {
-  //           ...prev.Payment,
-  //           status: 'PAID' // або будь-яке інше поле, яке хочеш змінити
-  //         }
-  //       }));
-  //     }
-  //   });
-  //
-  //   return () => {
-  //     socket.off('paymentStatusChanged');
-  //     socket.emit('leave', `order_${thisOrder.id}`);
-  //   };
-  // }, [thisOrder.id]);
-
-  // Динамічні стилі панелі
 
   useEffect(() => {
     console.log(thisOrder);
-  }, []);
-  // const panelStyle = {
-  //   backgroundColor:
-  //     thisOrder.Payment?.status === 'CREATED' ? '#fab416'
-  //       : thisOrder.Payment?.status === 'PAID'    ? 'green'
-  //         : undefined,
-  //   display: 'flex',
-  //   alignItems: 'center',
-  //
-  //
-  // };
+    checkStatus()
+  }, [thisOrder.id]);
 
   return (
     <div className="payment-methods-panel" style={{}}>
-      {thisOrder.Payment === null || thisOrder.Payment?.status === 'CANCELLED' && (
+      {thisOrder.Payment?.status === 'CANCELLED' || thisOrder.Payment?.status === "EXPIRED" && (
         <div className="payment-methods-panel d-flex align-items-center ">
           <button
             className="PayButtons cash"
             onClick={() => handleSelect('cash')}
           >
-            <span>Готівка</span>
+            Розрахунок готівкою
           </button>
 
           <button
             className="PayButtons terminal"
             onClick={() => handleSelect('terminal')}
           >
-            Термінал
+          Розрахунок карткою
           </button>
 
           <button
             className="PayButtons online"
             onClick={() => handleSelect('online')}
           >
-            Інтернет
+            Платіж за посиланням
           </button>
 
           <button
@@ -192,44 +186,114 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
             className="PayButtons invoices"
 
           >
-            Рахунки
+            Оплата на рахунок
           </button>
 
         </div>
       )}
-
-      {thisOrder.Payment?.status === 'CREATED' && (
-        <>
-          <span style={{flex: 1}}>Очікується оплата…</span>
+      {thisOrder.Payment === null || thisOrder.Payment?.status === 'CANCELLED' && (
+        <div className="payment-methods-panel d-flex align-items-center ">
           <button
-            className="PayButtons"
-            style={{backgroundColor: 'red', color: 'white'}}
-            onClick={invalidateInvoice}
+            className="PayButtons cash"
+            onClick={() => handleSelect('cash')}
           >
-            Відмінити платіж(invalidate)
+            Розрахунок готівкою
           </button>
+
           <button
-            className="PayButtons"
-            style={{backgroundColor: 'cadetblue', color: 'white'}}
+            className="PayButtons terminal"
+            onClick={() => handleSelect('terminal')}
+          >
+            Розрахунок карткою
+          </button>
+
+          <button
+            className="PayButtons online"
+            onClick={() => handleSelect('online')}
+          >
+            Платіж за посиланням
+
+          </button>
+
+          <button
+            onClick={() => setShowPays(true)}
+            title="Платежі"
+            style={{...buttonStyles.base, ...buttonStyles.iconButton}}
+            className="PayButtons invoices"
+
+          >
+            Оплата на рахунок
+          </button>
+
+        </div>
+      )}
+      {/*{thisOrder.Payment?.status}*/}
+      {thisOrder.Payment?.status === 'CREATED' && (
+        <div className={"payment-methods-panel d-flex align-items-center "}>
+          <button
+            className="PayButtons link"
+            style={{backgroundColor: '#008249', color: 'fbfaf6',width: '3vw'}}
             onClick={() => {
               window.open(thisOrder.Payment.pageUrl, '_blank');
             }}
-          >
-            Посилання на оплату
+          >+&nbsp;
+
+
           </button>
-        </>
+          <div
+            className="PayButtons wait"
+            style={{
+            background: "#f2f0e7",
+            height: "6vh",
+            width: "25vw",
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: "center",
+            fontSize: '1vw',
+            fontWeight: 400,
+            borderRadius: "0vw",
+            color: '#9f9e9d'
+          }}>
+            {formats[index]}
+          </div>
+
+          <button
+            className="PayButtons end"
+            style={{backgroundColor: 'red', color: 'fbfaf6', width:"3vw"}}
+            onClick={invalidateInvoice}
+          >
+            &nbsp;x
+          </button>
+
+        </div>
       )}
       {thisOrder.Payment?.status === 'PAID' && (
-        <>
-          <span>Замовлення оплачене</span>
+        <div className={"payment-methods-panel d-flex align-items-center "}>
           <button
-            className="PayButtons"
-            style={{backgroundColor: 'red', color: 'white'}}
+            className="PayButtons link"
+            style={{
+              background: "#008249",
+              height: "6vh",
+              width: "28vw",
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: "center",
+              fontSize: '1vw',
+              fontWeight: 400,
+              borderRadius: "0vw",
+              color: '#fbfaf6'
+            }}
+          >Замовлення оплачене </button>
+          <button
+            className="PayButtons end"
+            style={{backgroundColor: 'red', color: 'fbfaf6', width:"3vw"}}
             onClick={cancelPayment}
           >
-            Відмінити платіж(cancel)
+            x
           </button>
-        </>
+        </div>
       )}
 
 

@@ -240,7 +240,7 @@ function PaysInOrderRestored({showPays, setShowPays, thisOrder, setThisOrder}) {
                 {/* Header */}
                 <div className="d-flex">
                     {thisOrder && thisOrder.client &&
-                        <div className="m-auto text-center fontProductName">Реквізити Платник/Отримувач {thisOrder.client.username} - {thisOrder.client.firstName} {thisOrder.client.lastName} {thisOrder.client.familyName} (ID {thisOrder.client.id})</div>
+                        <div className="m-auto text-center fontProductName">Реквізити{thisOrder.client.username} - {thisOrder.client.firstName} {thisOrder.client.lastName} {thisOrder.client.familyName}</div>
                     }
                     <button className="btn btn-close btn-lg" style={{margin: "0.5vw"}} onClick={handleClose}/>
                 </div>
@@ -259,13 +259,13 @@ function PaysInOrderRestored({showPays, setShowPays, thisOrder, setThisOrder}) {
                             <tr className="ContractorRow">
                                 <th>№</th>
                                 <th>Найменування</th>
-                                <th>Податкова система</th>
-                                <th>Тел</th>
+                                <th>Система оподаткування</th>
+                                <th>Тел.</th>
                                 <th>E-mail</th>
-                                <th>НДС/ПДВ</th>
-                                <th>юзер/клієнт</th>
-                                <th>last оновл.</th>
-                                <th></th>
+                                <th>ПДВ</th>
+                                <th>Клієнт</th>
+                                <th>Останнє оновлення</th>
+                                <th>Документи</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -280,7 +280,7 @@ function PaysInOrderRestored({showPays, setShowPays, thisOrder, setThisOrder}) {
                                     <td className="ContractorCell">{`${thisOrder.client.firstName} ${thisOrder.client.lastName} ${thisOrder.client.familyName} (${thisOrder.client.phoneNumber})`}</td>
                                     <td className="ContractorCell">{`${new Date(thisOrder.updatedAt).toLocaleDateString()} ${new Date(thisOrder.updatedAt).toLocaleTimeString()}`}</td>
                                     <td className="ContractorCell ContractorActions">
-                                        <button className="adminButtonAdd" style={{background: "lightgray", fontSize: "1.2vh"}}
+                                        <button className="adminButtonAdd" style={{}}
                                                 onClick={(e) => generateInvoice(e, item)}>
                                             Инвойс+
                                         </button>
@@ -288,13 +288,13 @@ function PaysInOrderRestored({showPays, setShowPays, thisOrder, setThisOrder}) {
                                         {/*        onClick={(e) => generateDoc1(e, item)}>*/}
                                         {/*    Рахунок*/}
                                         {/*</button>*/}
-                                        <button className="adminButtonAdd" style={{fontSize: "1.2vh"}} onClick={(e) => openSeePay(e, item)}>
+                                        <button className="adminButtonAdd" onClick={(e) => openSeePay(e, item)}>
                                             Переглянути/Редагувати
                                         </button>
                                         <button
                                             // className="ContractorMoreBtn"
                                             className="adminButtonAdd"
-                                            style={{background: "brown", fontSize: "1.2vh"}}
+                                            style={{background: "#ee3c23"}}
                                             onClick={(e) => openDeletePay(e, item)}
                                         >
                                             {/*⋮*/}
@@ -307,7 +307,7 @@ function PaysInOrderRestored({showPays, setShowPays, thisOrder, setThisOrder}) {
                         </table>
                     )}
 
-                    <button className="adminButtonAdd mt-3" style={{background: "lightgray", fontSize: "1.2vh"}} onClick={openAddPay}>
+                    <button className="adminButtonAdd" style={{marginTop:'2vh'}} onClick={openAddPay}>
                         Додати контрагента
                     </button>
 

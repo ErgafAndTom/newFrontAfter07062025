@@ -9,7 +9,9 @@
   padding: 0.5rem;
   border: 0.1vw;
   background: #f2f0e7;
-  font-size: 0.7vw;
+  font-size: 1.6vh;
+  text-align: center;
+  align-items: center;
   cursor: pointer;
 }
 
@@ -17,20 +19,40 @@
   margin-left: -0.5vw;
 }
 
-.PayButtons.cash {
+.PayButtons.cash, .PayButtons.link {
   clip-path: polygon(0 0, 100% 0, calc(100% - 1.6vh) 100%, 0 100%);
+
 }
 
 .PayButtons.online,
-.PayButtons.terminal {
+.PayButtons.terminal,
+.PayButtons.wait
+{
   clip-path: polygon(1.6vh 0, 100% 0, calc(100% - 1.6vh) 100%, 0 100%);
 }
 
-.PayButtons.invoices {
+.PayButtons.invoices, .PayButtons.end{
   clip-path: polygon(1.6vh 0, 100% 0, 100% 100%, 0 100%);
 }
 
 .PayButtons:hover {
   background: #fab416;
-  height: 5vh;
+  color: white;
+}
+.PayButtons.link:hover  {
+  font-weight: bold;
+  font-size:  3vh;
+}
+.PayButtons.link .PayButtons.end{
+  font-weight: bold;
+  font-size:  2vh;
+  text-decoration: none;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+.PayButtons.end:hover {
+  font-weight: bold;
+  font-size:  2.5vh;
 }
