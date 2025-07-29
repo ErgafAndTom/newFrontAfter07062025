@@ -687,7 +687,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
       </Modal></div>
 
       {/* Модальне вікно для додавання нового користувача */}
-      <div style={{position: "absolute", bottom: "0",}}>
+      <div style={{position: "absolute", bottom: "0", left: "0vw"}}>
         <PaidButtomProgressBar
           thisOrder={thisOrder}
           setThisOrder={setThisOrder}
