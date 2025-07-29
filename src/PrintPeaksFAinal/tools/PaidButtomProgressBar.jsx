@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from '../../api/axiosInstance';
 import './PaidButtomProgressBar.css';
+import PerepletMet from "../poslugi/PerepletMet";
+import AwaitPays from "./AwaitPays";
 // import {io} from 'socket.io-client';
 
 const PaidButtomProgressBar = ({ thisOrder, setShowPays }) => {
@@ -9,7 +11,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays }) => {
   const intervalRef                      = useRef(null);
   // const socket = io('http://localhost:3000/'); // або просто '/'
   const buttonStyles = {}
-  // const [showPays, setShowPays] = useState(false);
+  const [showAwaitPays, setShowAwaitPays] = useState(false);
 
   // Обробник вибору способу оплати
   const handleSelect = (method) => {
@@ -17,6 +19,12 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays }) => {
       const totalUAH = (thisOrder.OrderUnits || [])
         .reduce((sum, u) => sum + parseFloat(u.priceForThis || 0), 0);
       createInvoice(totalUAH);
+    }
+    if (method === 'cash') {
+      const totalUAH = (thisOrder.OrderUnits || [])
+        .reduce((sum, u) => sum + parseFloat(u.priceForThis || 0), 0);
+      setShowAwaitPays(true)
+      // createInvoice(totalUAH);
     }
     // TODO: додати обробку інших методів (cash, terminal, invoices)
   };
@@ -178,6 +186,16 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays }) => {
       {paymentState === 'paid' && (
         <span>Замовлення оплачене</span>
       )}
+
+
+
+      {showAwaitPays &&
+        <AwaitPays
+          thisOrder={thisOrder}
+          setShowAwaitPays={setShowAwaitPays}
+          showAwaitPays={showAwaitPays}
+        />
+      }
     </div>
   );
 };
