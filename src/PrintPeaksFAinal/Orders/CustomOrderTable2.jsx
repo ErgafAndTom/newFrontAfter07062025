@@ -116,6 +116,7 @@ const CustomOrderTable2 = () => {
         <div className="summary-cell pay">Оплата</div>
         <div className="summary-cell price">Ціна</div>
         <div className="summary-cell client">Клієнт</div>
+        <div className="summary-cell company">Компанія</div>
         <div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20} style={{ color: '#000' }}/></div>
         <div className="summary-cell telegram d-flex justify-content-center">
           <FaTelegramPlane size={20} style={{ color: '#000' }} />
@@ -161,6 +162,7 @@ const CustomOrderTable2 = () => {
               </div>
               <div className="summary-cell price">{order.price} грн</div>
               <div className="summary-cell client">{order.client?.firstName} {order.client?.lastName}</div>
+              <div className="summary-cell company">{order.client?.company || '—'} </div>
               <div className="summary-cell phoneNumber">{order.client?.phoneNumber || '—'}</div>
               <div className="summary-cell telegram d-flex justify-content-center">
                 {order.client?.telegram
@@ -174,7 +176,7 @@ const CustomOrderTable2 = () => {
               {/*    : '—'}*/}
               {/*</div>*/}
 
-              <div className="summary-cell action documents d-flex justify-content-center">
+              <div className="summary-cell action d-flex justify-content-center">
                 <Link to={`/Orders/${order.id}`}
                       style={{ textDecoration: 'none', outline: 'none' }}>
                   <button className="adminButtonAddOrder" > <RiCalculatorLine size={20} /></button>
@@ -186,7 +188,7 @@ const CustomOrderTable2 = () => {
                   <button className="adminButtonAddOrder" ><FiFile size={19} /></button>
                 </Link>
               </div>
-              <div className="summary-cell documents files d-flex justify-content-center">
+              <div className="summary-cell files d-flex justify-content-center">
                 <Link to={`/Orders/${order.id}`}
                       style={{ textDecoration: 'none', outline: 'none',  }}>
                   <button className="adminButtonAddOrder"> <FiFolder size={18} /></button>
@@ -208,9 +210,10 @@ const CustomOrderTable2 = () => {
                 {order.barcode ? (
                   <Barcode
                     value={order.barcode.toString()}
-                    width={1.7}
-                    height={30}
-                    fontSize={12}
+                    width={1.1}
+                    height={34}
+                    background={'transparent'}
+                    fontSize={14}
                     displayValue={false}
                   />
                 ) : '—'}

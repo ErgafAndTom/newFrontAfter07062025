@@ -1,7 +1,7 @@
 .pagination-wrapper {
   display: flex;
   position: sticky;     /* прилипает внутри родителя */
-  bottom: -0.4vh;
+  bottom: 0vh;
   align-items: center;
   justify-content: start;
 

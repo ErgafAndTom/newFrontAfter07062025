@@ -507,12 +507,13 @@ body {
 /* CSS styles (inline or in CustomOrderTable.css) */
 
 .OrderList {
-  height: 92vh;
+  height: 95vh;
+  overflow-x: auto;
 }
 .OrderBlock {
   margin-bottom: 0.5rem;
   /*transition: background 0.3s ease;*/
-  border-radius: 1vh;
+  border-radius: 0vh;
 
   cursor: pointer;
 }
@@ -524,7 +525,7 @@ body {
   /*justify-content: center;*/
   background: #fbfaf6;
   /*padding: 0.6rem 1rem;*/
-  border-radius: 1vh;
+  /*border-radius: 1vh;*/
   box-shadow: 0 1px 2px rgba(0,0,0,0.07);
   /*transition: all 0.2s ease;*/
 }
@@ -540,28 +541,52 @@ body {
   margin-left: 0.4rem ;
 }
 .summary-cell {
-  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /*padding: 0 0.4vw;*/
   white-space: nowrap;
+  text-align: center;
 }
 
-.summary-cell.id { width: 5rem; }
-.summary-cell.status { width: 14rem; background: transparent; }
-.summary-cell.client { width: 20vw; margin-left: 3rem;}
-.summary-cell.telegram { width: 5rem; }
-.summary-cell.viber { width: 5rem; }
-.summary-cell.phoneNumber { width: 13rem; }
-.summary-cell.pay { width: 14rem; text-align: center; }
-.summary-cell.price { width: 10rem;  }
-.summary-cell.barcode-orders { width: 23rem; opacity: 0; }
-.summary-cell.barcode-orders:hover {opacity: 1}
-.summary-cell.barcode-orders:active { opacity: 1}
+/*.summary-cell.id { width: 5rem; }*/
+/*.summary-cell.status { width: 14rem;  }*/
+/*.summary-cell.client { width: 20vw; }*/
+/*.summary-cell.telegram { width: 5rem; }*/
+/*.summary-cell.viber { width: 5rem; }*/
+/*.summary-cell.phoneNumber { width: 13rem; }*/
+/*.summary-cell.pay { width: 14rem; text-align: center; }*/
+/*.summary-cell.price { width: 10rem;  }*/
+/*.summary-cell.barcode-orders { width: 23rem;  }*/
 
-.summary-cell.action { width: 9.4rem; margin-left: 3rem; }
-.summary-cell.documents { width: 9.4rem; }
-.summary-cell.files { width: 9.4rem; }
+
+
+.summary-cell.id              { width: 3.5vw; }
+.summary-cell.status          { width: 9vw; background: transparent;}
+.summary-cell.pay             { width: 9vw; }
+.summary-cell.price           { width: 7vw; }
+.summary-cell.client          {
+  width: 13vw;
+  white-space: normal;
+  word-break: break-word;
+
+}
+.summary-cell.company {
+  width: 13vw;
+  white-space: normal;
+  word-break: break-word;
+}
+.summary-cell.phoneNumber     { width: 10vw; }
+.summary-cell.telegram        { width: 5vw; }
+.summary-cell.action          { width: 7vw; }
+.summary-cell.documents       { width: 7vw; }
+.summary-cell.files           { width: 7vw; }
+.summary-cell.barcode-orders  { width: 11vw; opacity: 0; }
 .OrderRow-header .barcode-orders {
   opacity: 1 !important;
 }
+.summary-cell.barcode-orders:hover {opacity: 1}
+.summary-cell.barcode-orders:active { opacity: 1}
 
 .summary-cell.paid {
   background-color: #dcfce7;
@@ -635,18 +660,16 @@ body {
   /*display: flex;*/
   /*height: auto;*/
   /*width: auto;*/
-  margin: -0.1rem;
-  min-width: 10rem;
+
+  min-width: 7.5vw;
   align-items: center;
   justify-content: center;
   border: none;
-  padding: 0.9rem 0.9rem;
-
+  padding: 1.01rem;
   color: #000000;
-
   background-color: rgba(251, 250, 246, 0.3);
   /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/
-  transition: all 0.2s ease;
+
 
 }
 
@@ -677,6 +700,6 @@ body {
 }
 
 /* заголовок завжди видно */
-.OrderRow-header .barcode-orders {
+.OrderRow-header.barcode-orders {
   opacity: 1 !important;
 }

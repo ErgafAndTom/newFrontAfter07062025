@@ -11,6 +11,7 @@ function StatusBar({item}) {
         //                         '#ffffff',
         overflow: 'hidden',
         whiteSpace: "nowrap",
+      width: '7vw',
         // textOverflow: "ellipsis",
       clipPath: 'polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%)',
       // borderRadius: "1vh",
