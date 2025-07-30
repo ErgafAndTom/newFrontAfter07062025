@@ -159,29 +159,29 @@ const CustomOrderTable2 = () => {
               <div className="summary-cell id  d-flex justify-content-center">{order.id}</div>
               <div className="summary-cell status "><StatusBar item={order} style={{borderRadius:"none"}}/></div>
               {order.Payment?.status === 'CREATED' &&
-                <div className={`summary-cell pay`} style={{color:'#ffcb00'}}>
-                  {"Очі кує ⚒️"}
+                <div className={`adminButtonAddOrder wait`} style={{}}>
+                  {"Очікування️"}
                 </div>
               }
               {order.Payment?.status === 'PAID' &&
-                <div className={`summary-cell pay`} style={{color:'#007341'}}>
-                  {"Успіх!"}
+                <div className={`adminButtonAddOrder pay`} style={{}}>
+                  {"Оплачено за посиланням"}
                 </div>
               }
               {order.Payment?.status === 'CANCELLED' &&
-                <div className={`summary-cell pay`} style={{color:'#ff0090'}}>
-                  {"Відміна?"}
-                </div>
+                <button className={`adminButtonAddOrder cancel`} style={{}}>
+                  {"Відміна"}
+                </button>
               }
               {order.Payment?.status === 'EXPIRED' &&
-                <div className={`summary-cell pay`} style={{color:'#750000'}}>
-                  {"Хаос з'їв"}
-                </div>
+                <button className={`adminButtonAddOrder nopay`} style={{}}>
+                  -
+                </button>
               }
               {order.Payment === null &&
-                <div className={`summary-cell pay`} style={{color:'#000000'}}>
+                <button className={`adminButtonAddOrder nopay`} style={{color:'#000000'}}>
                   {"-"}
-                </div>
+                </button>
               }
               <div className="summary-cell price">{order.price} грн</div>
               <div className="summary-cell client">{order.client?.firstName} {order.client?.lastName}</div>

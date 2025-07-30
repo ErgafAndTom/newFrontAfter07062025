@@ -91,7 +91,7 @@ body {
 .CustomOrderTable-cell1:hover {
     background-color: #FAB416;
     cursor: pointer;
-    color: white;
+  color: #f2f0e7;
     transition: all 0.2s ease;
 
 }
@@ -507,11 +507,11 @@ body {
 /* CSS styles (inline or in CustomOrderTable.css) */
 
 .OrderList {
-  height: 95vh;
+  height: 95.5vh;
   overflow-x: auto;
 }
 .OrderBlock {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.5vh;
   /*transition: background 0.3s ease;*/
   border-radius: 0vh;
 
@@ -660,12 +660,13 @@ body {
   /*display: flex;*/
   /*height: auto;*/
   /*width: auto;*/
-
-  min-width: 7.5vw;
+display: flex;
+  width: 7.5vw;
   align-items: center;
   justify-content: center;
+  text-align: center;
   border: none;
-  padding: 1.01rem;
+  height: 5.5vh;
   color: #000000;
   background-color: rgba(251, 250, 246, 0.3);
   /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/
@@ -702,4 +703,42 @@ body {
 /* заголовок завжди видно */
 .OrderRow-header.barcode-orders {
   opacity: 1 !important;
+}
+.adminButtonAddOrder.nopay:hover {
+background: #fbfaf6;
+}
+.adminButtonAddOrder.cancel {
+  background: #ee3c23;
+  color: #fbfaf6;
+  width: 9vw;
+}
+.adminButtonAddOrder.cancel:hover {
+
+}
+.adminButtonAddOrder.wait {
+  background: #fab416;
+  color: #fbfaf6;
+  width: 9vw;
+  height: 5.5vh;
+}
+.adminButtonAddOrder.wait:hover {
+
+}
+.adminButtonAddOrder.pay {
+  background: #008249;
+  color: #fbfaf6;
+  width: 9vw;
+  height: 5.5vh;
+}
+.adminButtonAddOrder.pay:hover {
+  background: #008249;
+  color: #fbfaf6;
+}
+.adminButtonAddOrder.nopay {
+
+  width: 9vw;
+  height: 5.5vh;
+}
+.adminButtonAddOrder.nopay:hover {
+
 }

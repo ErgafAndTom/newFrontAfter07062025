@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import "./OneProductInOrders.css";
+import {Accordion} from "react-bootstrap";
 
 function OneProductInOrders({item, thisOrder}) {
     const [show, setShow] = useState(false);
@@ -8,6 +9,7 @@ function OneProductInOrders({item, thisOrder}) {
 
     return (
         <div className="unit-list" style={{width: "34.5vw"}}>
+
             {item.OrderUnitUnits.map((unit, idx) => (
                 <div key={unit.idKey} className="unit-item">
                     {/* header row */}

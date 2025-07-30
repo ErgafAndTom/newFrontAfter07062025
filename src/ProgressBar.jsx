@@ -48,6 +48,18 @@ const ProgressBar = ({
     const [placeholderIndex, setPlaceholderIndex] = useState(0);
     const [manufacturingStartTime, setManufacturingStartTime] = useState(null);
     const [finalManufacturingTime, setFinalManufacturingTime] = useState(null);
+  const getBackgroundColorByStatus = (status) => {
+    switch (status) {
+      case '0': return 'rgba(251, 250, 246, 0.5)';
+      case '1': return 'rgba(245, 164, 0, 0.5)';
+      case '2': return 'rgba(211, 189, 167, 0.5)';
+      case '3': return 'rgba(187, 197, 211, 0.5)';
+      case '4': return 'rgba(241, 203, 212, 0.5)';
+      case '5': return 'rgba(169, 207, 183, 0.5)';
+      case 'Відміна': return 'rgba(238, 60, 35, 0.5)';
+      default: return 'rgba(251, 250, 246, 0.5)';
+    }
+  };
 
     const formats = [
         "Д|",
@@ -308,7 +320,7 @@ const ProgressBar = ({
         if (currentStage === 1 && [1, 2].includes(id)) return '#8B4513';
         if (currentStage === 2 && [1, 2, 3].includes(id)) return '#3C60A6';
         if (currentStage === 3 && [1, 2, 3, 4].includes(id)) return '#F075AA';
-        if (currentStage === 4 && [1, 2, 3, 4, 6].includes(id)) return '#008249';
+        if (currentStage === 4 && [1, 2, 3, 4, 5, 6].includes(id)) return '#008249';
         if (currentStage === 0 && id === 0) return '#FFC107';
         return '#F2F0E7';
     };
@@ -422,7 +434,15 @@ const ProgressBar = ({
 
     return (
 
-        <div style={{marginTop: "-0.8vh"}}>
+        <div style={{  marginTop: "-0.8vh",
+          backgroundColor: getBackgroundColorByStatus(thisOrder?.status),
+          position: "fixed",
+          right: "1vw",
+          bottom: "1vh",
+          width: "36.5vw",
+          padding:"1.5vh",
+          height:"15vh",
+          borderRadius: '1vh'}}>
 
             <button onClick={() => handleStageChange('cancel')} style={buttonStyles.cancel}>
 
@@ -522,7 +542,7 @@ const ProgressBar = ({
                 <DiscountCalculator thisOrder={thisOrder} setThisOrder={setThisOrder} selectedThings2={selectedThings2}
                                     setSelectedThings2={setSelectedThings2}/>
             </div>
-          <div style={{marginBottom: '0.5vh', position: 'absolute', right: '0.5vw', bottom: '0.5vh'}}>
+          <div style={{ position: 'absolute', right: '0.5vw', bottom: '0.5vh'}}>
             {deadline === null && (
                 <div >
                     <AnimatedPlaceholderInput onChange={handleDeadlineChangeServer}/>
@@ -620,7 +640,8 @@ const ProgressBar = ({
                     display: 'flex',
                     alignItems: 'center',
                     position: 'relative',
-                    top: '14vh'
+                    top: '14vh',
+                    opacity: '0.5'
                 }}>
                     {currentStage === 3 ? "Фінальний час виготовлення: " : "Час виготовлення замовлення: "}
                     <span style={{

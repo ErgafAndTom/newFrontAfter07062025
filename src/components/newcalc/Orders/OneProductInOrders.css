@@ -10,6 +10,13 @@
     --font: 'Inter', sans-serif;
 }
 
+.notBorderRadius{
+  border-radius: var(--radius);
+}
+.notBorderRadius:hover{
+  background-color: transparent;
+}
+
 .unit-list {
     display: flex;
     flex-direction: column;

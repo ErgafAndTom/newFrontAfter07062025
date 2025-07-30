@@ -109,6 +109,12 @@ const NewUIArtem = () => {
   const [showLaminator, setShowLaminator] = useState(false);
   const [showVishichka, setShowVishichka] = useState(false);
   const [showDelivery, setShowDelivery] = useState(false);
+  const [expandedThingIndex, setExpandedThingIndex] = useState(null);
+  const toggleExpandedThing = (index) => {
+    setExpandedThingIndex(prev => (prev === index ? null : index));
+  };
+
+
 
 
   const setTypeSelect2 = (thing) => {
@@ -380,20 +386,21 @@ const NewUIArtem = () => {
               {selectedThings2 && selectedThings2.length !== 0 ? (
                 <div className="order-list" style={{overflow: "auto", height: "60vh"}}>
                   {selectedThings2.map((thing, index) => (
-                    <div key={index} className="order-item"
-                         style={{
-                           position: "relative",
-                           // border: "0.2vw solid #0000001a",
-                           border: "0.1vw solid #ffffff",
-                           padding: "0.5vw",
-                           marginLeft: "0vw",
-                           marginBottom: "1vh",
-                           borderRadius: "0.5vw",
-                           width: "36vw",
-                           overflow: "hidden",
-
-                           // backgroundColor: "#ffffff"
-                         }}
+                    <div
+                      key={index}
+                      className="order-item"
+                      onClick={() => toggleExpandedThing(index)}
+                      style={{
+                        position: "relative",
+                        border: "0.1vw solid #ffffff",
+                        padding: "0.5vw",
+                        marginLeft: "0vw",
+                        marginBottom: "1vh",
+                        borderRadius: "0.5vw",
+                        width: "36vw",
+                        overflow: "hidden",
+                        cursor: "pointer"
+                      }}
                     >
                       <div
                         onClick={(e) => handleThingClickDelete2(thing)}
@@ -559,56 +566,57 @@ const NewUIArtem = () => {
 
                               </div>
                             )}
-
-                            <OneProductInOrders item={thing} cash={true}
-                                                handleAmountChange={handleAmountChange}
-                                                index={index}
-                                                thisOrder={thisOrder}/>
-                            <div
-                              className="d-flex" style={{gap: "0.5vw"}}>
-                              <div className="d-flex adminFontTable"
-                              >
-                                На аркуші:&nbsp;
-                                <strong
-                                  style={{fontSize: "1.5vmin"}}> {thing.newField4} </strong>
-                                &nbsp;шт
-                              </div>
-                              <div className="d-flex adminFontTable">
-                                Використано:&nbsp;
-                                <strong
-                                  style={{fontSize: "1.5vmin"}}> {thing.newField5} </strong>
-                                &nbsp;аркушів
-                              </div>
-                              <div className="d-flex adminFontTable">
-                                За 1 лист:&nbsp;
-                                <strong
-                                  style={{
-                                    fontSize: "1.5vmin",
-                                    color: "#ee3c23"
-                                  }}> {parseFloat(thing.priceForOneThis).toFixed(2)} </strong>
-                                &nbsp;грн
-                              </div>
-                              <div className="d-flex adminFontTable">
-                                За 1 шт:&nbsp;
-                                <strong
-                                  style={{
-                                    fontSize: "1.5vmin",
-                                    color: "#ee3c23"
-                                  }}> ~{parseFloat(thing.priceForThis/thing.amount).toFixed(2)} </strong>
-                                &nbsp;грн
-                              </div>
-                              {parseFloat(thing.priceForOneThis).toFixed(2) !== thing.priceForOneThisDiscount && (
-                                <div className="d-flex adminFontTable">
-                                  За 1 шт зі знижкою:&nbsp;
-                                  <strong
-                                    style={{
-                                      fontSize: "1.5vmin",
-                                      color: "#008249"
-                                    }}> {thing.priceForOneThisDiscount} </strong>
-                                  &nbsp;грн
-                                </div>
-                              )}
-                            </div>
+                            {expandedThingIndex === index && (
+                              <><OneProductInOrders item={thing} cash={true}
+                                                     handleAmountChange={handleAmountChange}
+                                                     index={index}
+                                                     thisOrder={thisOrder}/>
+                                <div
+                                  className="d-flex" style={{gap: "0.5vw"}}>
+                                  <div className="d-flex adminFontTable"
+                                  >
+                                    На аркуші:&nbsp;
+                                    <strong
+                                      style={{fontSize: "1.5vmin"}}> {thing.newField4} </strong>
+                                    &nbsp;шт
+                                  </div>
+                                  <div className="d-flex adminFontTable">
+                                    Використано:&nbsp;
+                                    <strong
+                                      style={{fontSize: "1.5vmin"}}> {thing.newField5} </strong>
+                                    &nbsp;аркушів
+                                  </div>
+                                  <div className="d-flex adminFontTable">
+                                    За 1 лист:&nbsp;
+                                    <strong
+                                      style={{
+                                        fontSize: "1.5vmin",
+                                        color: "#ee3c23"
+                                      }}> {parseFloat(thing.priceForOneThis).toFixed(2)} </strong>
+                                    &nbsp;грн
+                                  </div>
+                                  <div className="d-flex adminFontTable">
+                                    За 1 шт:&nbsp;
+                                    <strong
+                                      style={{
+                                        fontSize: "1.5vmin",
+                                        color: "#ee3c23"
+                                      }}> ~{parseFloat(thing.priceForThis/thing.amount).toFixed(2)} </strong>
+                                    &nbsp;грн
+                                  </div>
+                                  {parseFloat(thing.priceForOneThis).toFixed(2) !== thing.priceForOneThisDiscount && (
+                                    <div className="d-flex adminFontTable">
+                                      За 1 шт зі знижкою:&nbsp;
+                                      <strong
+                                        style={{
+                                          fontSize: "1.5vmin",
+                                          color: "#008249"
+                                        }}> {thing.priceForOneThisDiscount} </strong>
+                                      &nbsp;грн
+                                    </div>
+                                  )}
+                                </div></>
+                            )}
 
 
                           </div>
