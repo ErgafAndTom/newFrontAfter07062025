@@ -404,7 +404,7 @@ const NewUIArtem = () => {
                     >
                       <div
                         onClick={(e) => handleThingClickDelete2(thing)}
-                        className="battonClosed">
+                        className="battonClosed booooold">
                         ✕
                       </div>
                       {/*<span className="battonClosed" style={{*/}
@@ -425,197 +425,148 @@ const NewUIArtem = () => {
                           <div
                             className="d-flex flex-column justify-content-start">
                             <div
-                              className=""
+                              className="d-flex justify-content-between align-items-start"
                               style={{
-                                display: "flex",
-                                alignItems: "right",
-                                justifyContent: "flex-end",
-                                marginRight: "1.3vw",
-                                marginTop: "-1.5vh",
-                                marginBottom: "-1vh",
-                                padding: "0.3vw"
+                                background: "transparent",
+                                padding: "0",
+                                borderRadius: "1vh",
+                                border: "0",
+                                width: "100%",
+                                flexWrap: "wrap"
                               }}
                             >
-                              <div className="adminFontTable booooold"
-                                   style={{
-                                     // marginLeft: "0.5vw",
-                                     fontSize: "2vh",
-                                   }}
-                              >
-                                {thing.amount}
-                              </div>
+                              {/* Ціна за штуку без знижки */}
+
+
+                              {/* Назва + розміри */}
                               <div
-                                className="adminFontTable booooold">
-                                шт
-                              </div>
-                              <div className="adminFontTable"
-                                   style={{fontSize: "2vh"}}>
-                                =
-                              </div>
-                              <div
-                                className="adminFontTable booooold "
+                                className="adminFontTable d-flex flex-column"
                                 style={{
-                                  color: "#EE3C23",
                                   fontSize: "2vh",
-                                }}>
-                                {thing.priceForThis}
-                              </div>
-                              <div className="adminFontTable booooold "
-                                   style={{
-                                     color: "#EE3C23",
-                                     fontSize: "2vh",
-                                   }}>грн
-                              </div>
-                            </div>
-                            <div className="d-flex" style={{
-                              // width: "27vw",
-                              // overflow: "hidden"
-                            }}>
-                              <div
-                                className="d-flex align-items-start priceord"
+                                  // textTransform: "uppercase",
+                                  maxWidth: "33vw",
+                                  textAlign: "justify",
+                                  textJustify: "inter-word",
+                                  lineHeight: "1.4",
+                                  wordBreak: "break-word"
+                                }}
                               >
-                                <div
-                                  className="adminFontTable d-flex justify-content-center align-items-start"
-                                  style={{
-                                    fontSize: "1.8vh",
-                                    width: "31vw",
-                                    overflow: "hidden",
-                                    wordBreak: "break-word", whiteSpace: "pre-line"
-                                  }}
-                                >
-                                  {thing.name}
-                                  <div
-                                    className="d-flex justify-content-center align-items-start fontSize1VH"
-                                    style={{
-                                      wordBreak: "normal", whiteSpace: "balance"
-                                    }}>
-                                    <div className="adminFontTable"
-                                         style={{
-                                           // fontSize: "1.5vh",
-                                           opacity: "0.6",
-                                           marginLeft: "0.5vw",
-                                         }}>
-                                      {thing.newField2}
-                                    </div>
-                                    <div
-                                      className="adminFontTable"
-                                      style={{opacity: "0.6",}}>
-                                      мм
-                                    </div>
+                                <div className={"d-flex flex-row align-items-center"}>
+                                  <div>
+                                {thing.name}
                                   </div>
-
-                                  <div className="adminFontTable"
-                                       style={{opacity: "0.6",}}>x
-                                  </div>
-                                  <div
-                                    className="d-flex align-items-start" style={{
-                                    wordBreak: "normal",
-                                    whiteSpace: "balance"
-                                  }}>
-                                    <div className="adminFontTable"
-                                         style={{
-                                           // fontSize: "1.5vh",
-                                           opacity: "0.6",
-                                         }}>
-                                      {thing.newField3}
-                                    </div>
-                                    <div
-                                      className="adminFontTable"
-                                      style={{opacity: "0.6",}}>
-                                      мм
-                                    </div>
-                                  </div>
+                                {/*  <div style={{ fontSize: "2vh", opacity: 0.6 }}>*/}
+                                {/*  ({thing.newField2} мм × {thing.newField3} мм)*/}
+                                {/*</div>*/}
                                 </div>
-                              </div>
-                            </div>
-                            {parseFloat(thing.priceForOneThis).toFixed(2) !== parseFloat(thing.priceForOneThisDiscount).toFixed(2) && (
-                              <div className="discount-container"
-                                   style={{
-                                     paddingLeft: "0.5vw",
-                                     paddingBottom: "0.6vh"
-                                   }}>
-
+                                {/* Основна ціна з кількістю */}
                                 <div
-                                  className="d-flex justify-content-flex-end align-items-end"
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "flex-end",
-                                    position: "relative",
-                                    right: "0.5vw"
-                                  }}
+                                  className="d-flex align-items-center justify-content-start"
+                                  style={{ fontSize: "2vh", color: "#EE3C23", gap: "0.5vw", minWidth: "12vw", letterSpacing: "0.0vw" }}
                                 >
-                                  <div
-                                    className="label booooold"
-                                    style={{
-                                      color: "#008249",
-                                      marginRight: "1vw",
-                                      marginLeft: "0.2vw",
-                                    }}>Зі знижкою {thisOrder.prepayment}
-                                  </div>
-                                  <div className="">
-                                    <div className="value">
-                                      {thing.amount}<small> шт</small> × {thing.priceForOneThisDiscount}<small> грн</small> =&nbsp;
-                                    </div>
-                                    <div
-                                      className="price booooold"
-                                      style={{color: "#008249"}}> {thing.priceForThisDiscount}<small> грн</small>
-                                    </div>
-                                  </div>
+                                  <span className="">{thing.amount}<span style={{ fontSize: "1.4vh", opacity: 0.7 }}> шт</span></span>
+                                  <span className=""> &nbsp; × &nbsp;  {parseFloat(thing.priceForThis/thing.amount).toFixed(2)}<span style={{ fontSize: "1.4vh", opacity: 0.7 }}> грн</span></span>
+
+                                  <span>=</span>
+                                  <span className="booooold">{thing.priceForThis}<span style={{ fontSize: "1.4vh", opacity: 0.7 }}> грн</span></span>
 
                                 </div>
-
-                              </div>
-                            )}
-                            {expandedThingIndex === index && (
-                              <><OneProductInOrders item={thing} cash={true}
-                                                     handleAmountChange={handleAmountChange}
-                                                     index={index}
-                                                     thisOrder={thisOrder}/>
-                                <div
-                                  className="d-flex" style={{gap: "0.5vw"}}>
-                                  <div className="d-flex adminFontTable"
+                                {/* Знижка, якщо є */}
+                                {parseFloat(thing.priceForOneThis).toFixed(2) !== parseFloat(thing.priceForOneThisDiscount).toFixed(2) && (
+                                  <div
+                                    className="d-flex"
+                                    style={{ width: "100%", gap: "0.5vw", fontSize: "2vh", textAlign: "justify" }}
                                   >
+
+                                    <div style={{ fontSize: "2vh", color:"#008249" }}>
+                                      <span className="adminFontTable " style={{ fontSize: "2vh"}} >
+                                      {thing.amount}
+                                        <span style={{ fontSize: "1.4vh", opacity: 0.7 , color:"#008249"}}> шт</span>
+                                        &nbsp; × &nbsp;
+                                        {thing.priceForThisDiscount / thing.amount}
+                                        <span style={{ fontSize: "1.4vh", opacity: 0.7 }}> грн</span>
+                                        &nbsp;=
+                                      </span>{" "}
+                                      <span className="booooold " style={{ color: "#008249" }}>
+          {thing.priceForThisDiscount}<span style={{ fontSize: "1.4vh", opacity: 0.7 }}> грн</span>
+        </span>
+                                    </div>
+                                    <div
+                                      className="label "
+                                      style={{ color: "#008249", fontSize: "1.7vh", alignSelf: "center" }}
+                                    >
+                                     (Зі знижкою {thisOrder.prepayment})
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+
+
+
+
+                            </div>
+
+                            {expandedThingIndex === index && (
+                              <><OneProductInOrders
+                                item={thing}
+                                cash={true}
+                                handleAmountChange={handleAmountChange}
+                                index={index}
+                                thisOrder={thisOrder}
+                              />
+
+                                <div
+                                  className="d-flex flex-wrap align-items-center justify-content-center align-items-center"
+                                  style={{
+                                    gap: "1vw",
+                                    paddingTop: "0.5vh",
+                                    paddingLeft: "0.5vw",
+                                    fontSize: "1.55vmin",
+                                    lineHeight: "1.3",
+                                  }}
+                                >
+                                  <div className="adminFontTable d-flex align-items-center">
                                     На аркуші:&nbsp;
-                                    <strong
-                                      style={{fontSize: "1.5vmin"}}> {thing.newField4} </strong>
-                                    &nbsp;шт
+                                    <strong style={{ fontSize: "1.55vmin" }}>{thing.newField4}</strong>&nbsp;шт
                                   </div>
-                                  <div className="d-flex adminFontTable">
-                                    Використано:&nbsp;
-                                    <strong
-                                      style={{fontSize: "1.5vmin"}}> {thing.newField5} </strong>
-                                    &nbsp;аркушів
+
+                                  <div className="adminFontTable d-flex align-items-center">
+                                    Задіяно:&nbsp;
+                                    <strong style={{ fontSize: "1.55vmin" }}>{thing.newField5}</strong>&nbsp;аркушів
                                   </div>
-                                  <div className="d-flex adminFontTable">
-                                    За 1 лист:&nbsp;
-                                    <strong
-                                      style={{
-                                        fontSize: "1.5vmin",
-                                        color: "#ee3c23"
-                                      }}> {parseFloat(thing.priceForOneThis).toFixed(2)} </strong>
-                                    &nbsp;грн
+
+                                  <div className="adminFontTable d-flex align-items-center">
+                                    За 1 аркуш:&nbsp;
+                                    <strong style={{ fontSize: "1.55vmin", color: "#ee3c23" }}>
+                                      {parseFloat(thing.priceForOneThis).toFixed(2)}
+                                    </strong>&nbsp;грн
                                   </div>
-                                  <div className="d-flex adminFontTable">
+
+                                  <div className="adminFontTable d-flex align-items-center justify-content-center" >
                                     За 1 шт:&nbsp;
-                                    <strong
-                                      style={{
-                                        fontSize: "1.5vmin",
-                                        color: "#ee3c23"
-                                      }}> ~{parseFloat(thing.priceForThis/thing.amount).toFixed(2)} </strong>
-                                    &nbsp;грн
+                                    <strong style={{ fontSize: "1.55vmin", color: "#ee3c23" }}>
+                                      ~{parseFloat(thing.priceForThis / thing.amount).toFixed(2)}
+                                    </strong>&nbsp;грн
                                   </div>
+
                                   {parseFloat(thing.priceForOneThis).toFixed(2) !== thing.priceForOneThisDiscount && (
-                                    <div className="d-flex adminFontTable">
-                                      За 1 шт зі знижкою:&nbsp;
-                                      <strong
-                                        style={{
-                                          fontSize: "1.5vmin",
-                                          color: "#008249"
-                                        }}> {thing.priceForOneThisDiscount} </strong>
-                                      &nbsp;грн
+                                    <div className="adminFontTable d-flex align-items-center">
+                                      За 1 аркуш зі знижкою:&nbsp;
+                                      <strong style={{ fontSize: "1.55vmin", color: "#008249" }}>
+                                        {thing.priceForOneThisDiscount}
+                                      </strong>&nbsp;грн
                                     </div>
                                   )}
-                                </div></>
+                                  {parseFloat(thing.priceForOneThis).toFixed(2) !== thing.priceForOneThisDiscount && (
+                                    <div className="adminFontTable d-flex align-items-center">
+                                      За 1 шт зі знижкою:&nbsp;
+                                      <strong style={{ fontSize: "1.55vmin", color: "#008249" }}>
+                                        {thing.priceForThisDiscount / thing.amount}
+                                      </strong>&nbsp;грн
+                                    </div>
+                                  )}
+                                </div>
+                              </>
                             )}
 
 
