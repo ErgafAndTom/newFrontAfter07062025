@@ -271,7 +271,7 @@ function ContrAgentsInUserProfile({user}) {
                                         {/*    Рахунок*/}
                                         {/*</button>*/}
                                         <button className="adminButtonAdd" onClick={(e) => openSeePay(e, item)}>
-                                            Переглянути/Редагувати
+                                            Редагувати
                                         </button>
                                         <button
                                             // className="ContractorMoreBtn"

@@ -531,7 +531,7 @@
 .label {
   position: absolute;
   top: 67.86%;
-  left: 72.97%;
+  right: 1vw;
   font-size: var(--font-size-6xs);
   letter-spacing: 0.23px;
 

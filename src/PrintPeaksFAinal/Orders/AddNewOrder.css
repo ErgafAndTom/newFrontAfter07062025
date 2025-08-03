@@ -27,15 +27,16 @@
   clip-path: polygon(0 0, 100% 0, calc(100% - 1.6vh) 100%, 0 100%);
   border-bottom-left-radius: 1vh;
 }
-.buttonSkewedOrder:hover {
+.buttonSkewedOrder:hover .buttonSkewed:hover{
   background-color: #fab416;
-  color: #f2f0e7;
+  color: #fbfaf6;
 
   transform: scale(1.02);
 
 }
-.buttonSkewed:hover::after {
-  background: #0a5c38;
+.buttonSkewed:hover {
+  background: #fab416;
+  color: #fff;
 }
 .buttonSkewed:active {
   background-color: #0a5c38;

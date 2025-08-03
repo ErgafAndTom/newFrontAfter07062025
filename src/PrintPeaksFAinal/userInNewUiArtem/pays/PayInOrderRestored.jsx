@@ -282,14 +282,14 @@ function PaysInOrderRestored({showPays, setShowPays, thisOrder, setThisOrder}) {
                                     <td className="ContractorCell ContractorActions">
                                         <button className="adminButtonAdd" style={{}}
                                                 onClick={(e) => generateInvoice(e, item)}>
-                                            Инвойс+
+                                            Завантажити
                                         </button>
                                         {/*<button className="ContractorViewBtn" style={{background: "green"}}*/}
                                         {/*        onClick={(e) => generateDoc1(e, item)}>*/}
                                         {/*    Рахунок*/}
                                         {/*</button>*/}
                                         <button className="adminButtonAdd" onClick={(e) => openSeePay(e, item)}>
-                                            Переглянути/Редагувати
+                                            Редагувати
                                         </button>
                                         <button
                                             // className="ContractorMoreBtn"

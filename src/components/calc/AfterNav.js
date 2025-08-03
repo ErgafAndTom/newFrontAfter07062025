@@ -45,6 +45,8 @@ import TrelloBoardAI from "../../PrintPeaksFAinal/trelloLikeBoards/TrelloBoardAI
 
 
 const AfterNav = () => {
+    const user = useSelector(state => state.auth.user);
+     console.log(user);
     const pricesIsLoading = useSelector((state) => state.prices.pricesIsLoading);
     const pricesError = useSelector((state) => state.prices.pricesError);
     const token = useSelector((state) => state.auth.token);
@@ -91,7 +93,6 @@ const AfterNav = () => {
                 <Route path="/createOrder" element={<CreateOrder />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/Users" element={<UsersCustomTable />} />
-
                 <Route path="/currentUser" element={<Profile />} />
                 <Route path="/client/:id" element={<ClientUserProfile />} />
                 <Route path="/myFiles" element={<UserFiles />} />

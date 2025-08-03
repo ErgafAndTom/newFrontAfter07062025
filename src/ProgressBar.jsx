@@ -51,7 +51,7 @@ const ProgressBar = ({
   const getBackgroundColorByStatus = (status) => {
     switch (status) {
       case '0': return 'rgba(251, 250, 246, 0.5)';
-      case '1': return 'rgba(245, 164, 0, 0.5)';
+      case '1': return 'rgba(255,217,174,0.8)';
       case '2': return 'rgba(211, 189, 167, 0.5)';
       case '3': return 'rgba(187, 197, 211, 0.5)';
       case '4': return 'rgba(241, 203, 212, 0.5)';

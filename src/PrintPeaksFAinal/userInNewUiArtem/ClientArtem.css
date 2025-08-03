@@ -71,6 +71,7 @@
     max-height: 84vh;
     min-height: 84vh;
     background: transparent;
+
     animation: slideInRight 0.5s ease-out forwards;
 }
 
@@ -87,6 +88,7 @@
     background-color: #F2F0E7;
     border: 1px solid #707070;
     box-sizing: border-box;
+
 }
 
 .clientb {

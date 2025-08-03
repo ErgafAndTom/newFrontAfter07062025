@@ -25,6 +25,9 @@ import PaysInOrderRestored from "./pays/PayInOrderRestored";
 import {useSelector} from "react-redux";
 import TelegramAvatar from "../../PrintPeaksFAinal/Messages/TelegramAvatar";
 import PaidButtomProgressBar from "../../PrintPeaksFAinal/tools/PaidButtomProgressBar";
+import client from "./ClientSelectionModal";
+import ClientSelectionModal from "./ClientSelectionModal";
+import zIndex from "@mui/material/styles/zIndex";
 
 
 const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => {
@@ -117,7 +120,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
       orderId: thisOrder.id,
       userId: userId,
     };
-
+    setShow(false);
     setLoad(true);
     setError(null);
 
@@ -198,7 +201,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
           flexDirection: 'column',
           alignItems: 'flex-start',
           gap: '4px',
-          maxWidth: '100%',
+
           // width: '30vw',
           overflow: 'hidden',
           marginLeft: '0.4vw',
@@ -211,16 +214,21 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
           backgroundColor: 'transparent'
         }}
       >
-        <div style={{display: 'flex', alignItems: 'center', gap: '1vw'}}>
+        <div style={{display: 'flex', alignItems: 'center',  gap: '1vw'}}>
+
 
           {thisOrder.client ? (
-
-            <div className="" style={{fontSize: '1.7vmin', position: "relative"}}>
+            <div className="" style={{fontSize: '1.7vh', position: "relative"}}>
               <div className="fw-bold d-flex " style={{flexcolumn: 'row'}}>
                 {thisOrder.client.lastName} {thisOrder.client.firstName} {thisOrder.client.familyName}
-                <div className="fw-lighter" style={{fontSize: "1vmin"}}>: №{thisOrder.client.id}</div>
+
               </div>
+              <strong className="" style={{position: "fixed", bottom: "8vh", marginLeft:"-1vw"}}>
+            <span
+              className="">     Знижка: {thisOrder.client.discount}%</span></strong>
+
             </div>
+
           ) : (
 
             <span style={{background: "#f2f0e7"}}>Вибрати клієнта</span>
@@ -230,9 +238,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
           {thisOrder.client && (
             <div className="client-details" style={{fontSize: '1.5vmin', marginLeft: "1vw"}}>
 
-              {thisOrder.client.phoneNumber && (
-                <span className="">{thisOrder.client.phoneNumber}</span>
-              )}
+
               {thisOrder.client.address && (
                 <span className="">{thisOrder.client.address}</span>
               )}
@@ -241,15 +247,15 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
           )}
         </div>
         <div className="d-flex align-items-center"
-             style={{marginTop: "0.3vh", position: "absolute", right: '1vw', top: '1vh'}}>
+             style={{ position: "absolute", right: '0vw', top: '1vh'}}>
           {thisOrder.client && thisOrder.client.telegram && (
             <div
               className="d-flex align-items-center"
               style={{
-                marginTop: '0.3vh',
+
                 position: 'absolute',
                 right: '1vw',
-                top: '1vh',
+                top: '0vh',
                 cursor: 'pointer'
               }}
               title={`@${thisOrder.client.telegram.replace(/^@/, '')}`}
@@ -260,97 +266,101 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                 size={70}
                 defaultSrc="/default-avatar.png"
               />
+
             </div>
+
           )}
         </div>
+        <div>
+          {thisOrder?.client?.phoneNumber && (
+            <span className="" style={{ fontSize:"2vh" }}>{thisOrder.client.phoneNumber}</span>
+          )}
+
+        </div>
         {/* Кнопки швидких дій з клієнтом */}
-        {!show && thisOrder.client && thisOrder.client.phoneNumber && (
-          <div className="d-flex  gap-1 mt-2 justify-content-between" style={{marginTop: "1.4vh"}}>
-            <div className="d-flex gap-1">
-              {!thisOrder.client.whatsapp && (
-                <button
-                  title="WhatsApp"
-                  style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-                >
-                  <img src={whatsapplogo} alt="WhatsApp"
-                       style={{width: '16px', height: '16px', filter: 'grayscale(100%)', opacity: 0.5}}/>
-                </button>
-              )}
-
-              {thisOrder.client.signal && (
-                <button
-                  onClick={() => openMessenger('signal')}
-                  title="Signal"
-                  style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-                >
-                  <img src={signallogo} alt="Signal" style={{width: '16px', height: '16px'}}/>
-                </button>
-              )}
-              {!thisOrder.client.signal && (
-                <button
-                  title="Signal"
-                  style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-                >
-                  <img src={signallogo} alt="Signal"
-                       style={{width: '16px', height: '16px', filter: 'grayscale(100%)', opacity: 0.5}}/>
-                </button>
-              )}
-              {thisOrder.client.email && (
-                <button
-                  onClick={() => openMessenger('E-mail')}
-                  title="Email"
-                  style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-                >
-                  <img src={Email} alt="Email" style={{width: '2vh', height: '2vh'}}/>
-                </button>
-              )}
-              {!thisOrder.client.email && (
-                <button
-                  title="Email"
-                  style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-                >
-                  <img src={Email} alt="Email" style={{width: '2vh', height: '2vh', opacity: '40%'}}/>
-                </button>
-              )}
-              <button
-                onClick={() => {
-                  if (thisOrder.client && thisOrder.client.id) {
-                    window.open(`/client-files/${thisOrder.client.id}`, '_blank');
-                  } else {
-                    setError('Спочатку виберіть клієнта');
-                  }
-                }}
-                title="Файли клієнта"
-                style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-              >
-                <img src={FilesButton} alt="Файли" style={{width: '16px', height: '16px'}}/>
-              </button>
+        {/*{!show && thisOrder.client && thisOrder.client.phoneNumber && (*/}
+        {/*  <div className="d-flex  gap-1 mt-2 justify-content-between" style={{marginTop: "22vh",marginLeft:"1.3vw",}}>*/}
+        {/*    <div className="d-flex gap-1" style={{}}>*/}
 
 
-              {/*<button*/}
-              {/*  onClick={() => {*/}
-              {/*    setShowPays(true)*/}
-              {/*  }}*/}
-              {/*  title="Файли клієнта"*/}
-              {/*  style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
-              {/*>*/}
-              {/*  <img src={pays} alt="Файли" style={{width: '16px', height: '16px'}}/>*/}
-              {/*</button>*/}
+        {/*        <button*/}
+        {/*          title="WhatsApp"*/}
+        {/*          style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
+        {/*        >*/}
+        {/*          <img src={whatsapplogo} alt="WhatsApp"*/}
+        {/*               style={{width: '16px', height: '16px', filter: 'grayscale(100%)', opacity: 0.5}}/>*/}
+        {/*        </button>*/}
 
 
-              {thisOrder.client.discount && (
-                <div className="" style={{marginTop: "0.3vh"}}>
-                  <div>
-                    <strong> <span
-                      className="">     Знижка: {thisOrder.client.discount}%</span></strong>
-                  </div>
-                </div>
-              )}
-            </div>
+
+        {/*      {thisOrder.client.signal && (*/}
+        {/*        <button*/}
+        {/*          onClick={() => openMessenger('signal')}*/}
+        {/*          title="Signal"*/}
+        {/*          style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
+        {/*        >*/}
+        {/*          <img src={signallogo} alt="Signal" style={{width: '16px', height: '16px'}}/>*/}
+        {/*        </button>*/}
+        {/*      )}*/}
+        {/*      {!thisOrder.client.signal && (*/}
+        {/*        <button*/}
+        {/*          title="Signal"*/}
+        {/*          style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
+        {/*        >*/}
+        {/*          <img src={signallogo} alt="Signal"*/}
+        {/*               style={{width: '16px', height: '16px', filter: 'grayscale(100%)', opacity: 0.5}}/>*/}
+        {/*        </button>*/}
+        {/*      )}*/}
+        {/*      {thisOrder.client.email && (*/}
+        {/*        <button*/}
+        {/*          onClick={() => openMessenger('E-mail')}*/}
+        {/*          title="Email"*/}
+        {/*          style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
+        {/*        >*/}
+        {/*          <img src={Email} alt="Email" style={{width: '2vh', height: '2vh'}}/>*/}
+        {/*        </button>*/}
+        {/*      )}*/}
+        {/*      {!thisOrder.client.email && (*/}
+        {/*        <button*/}
+        {/*          title="Email"*/}
+        {/*          style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
+        {/*        >*/}
+        {/*          <img src={Email} alt="Email" style={{width: '2vh', height: '2vh', opacity: '40%'}}/>*/}
+        {/*        </button>*/}
+        {/*      )}*/}
+        {/*      <button*/}
+        {/*        onClick={() => {*/}
+        {/*          if (thisOrder.client && thisOrder.client.id) {*/}
+        {/*            window.open(`/client-files/${thisOrder.client.id}`, '_blank');*/}
+        {/*          } else {*/}
+        {/*            setError('Спочатку виберіть клієнта');*/}
+        {/*          }*/}
+        {/*        }}*/}
+        {/*        title="Файли клієнта"*/}
+        {/*        style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
+        {/*      >*/}
+        {/*        <img src={FilesButton} alt="Файли" style={{width: '16px', height: '16px'}}/>*/}
+
+        {/*      </button>*/}
 
 
-          </div>
-        )}
+        {/*      /!*<button*!/*/}
+        {/*      /!*  onClick={() => {*!/*/}
+        {/*      /!*    setShowPays(true)*!/*/}
+        {/*      /!*  }}*!/*/}
+        {/*      /!*  title="Файли клієнта"*!/*/}
+        {/*      /!*  style={{...buttonStyles.base, ...buttonStyles.iconButton}}*!/*/}
+        {/*      /!*>*!/*/}
+        {/*      /!*  <img src={pays} alt="Файли" style={{width: '16px', height: '16px'}}/>*!/*/}
+        {/*      /!*</button>*!/*/}
+
+
+
+        {/*    </div>*/}
+
+        {/*  </div>*/}
+        {/*)}*/}
+
       </div>
       {/* Відображення помилки */}
       {error && (
@@ -361,333 +371,32 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
       )}
 
       {/* Модальне вікно для вибору користувача */}
-      <div><Modal
+    <div>
+      <ClientSelectionModal
         show={show}
-        onHide={handleClose}
-        dialogClassName="modal-content"
-        style={{
-          transform: `${showVisible ? 'translateX(0)' : 'translateX(35%)'}`,
-          transition: 'transform 0.3s ease-in-out',
-          overflow: "hidden",
-        }}
-      >
-        {/*<Modal.Header dialogClassName="Modal-Header" closeButton style={{background:"#f2f0e7", borderRadius: '1vw 1vw 0 0 ', fontSize:"1.2vmin", height: '3vh' }}>*/}
-        {/*    <Modal.Title dialogClassName="Modal-Header" style={{fontSize:"1.5vmin", marginLeft:'0.3vw'}}>Вибір клієнта:</Modal.Title>*/}
-        {/*</Modal.Header>*/}
-        <Modal.Body style={{
-          background: "transparent",
-          borderRadius: '1vw',
-          fontSize: "1.5vmin",
-          position: "absolute",
-          minHeight: '75vh',
-          top: '-1vw',
-          maxHeight: "75vh",
-        }}>
-          {/* Відображення поточного клієнта якщо він обраний */}
-          {thisOrder.client && (
-            <div className="" style={{
-              background: '#f8f9fa',
-              borderRadius: '1vw',
-              position: 'relative',
-              padding: '1vh 0.8vw',
-              minHeight: '10vh'
-            }}>
-              <button
-                onClick={() => window.open(`/client/${thisOrder.client.id}`, '_blank')}
-                title="Відкрити профіль клієнта"
-                className="adminButtonAdd flex-right-center"
-                style={{
+        showVisible={showVisible}
+        handleClose={handleClose}
+        handleSearchChange={handleSearchChange}
+        fetchUsers={fetchUsers}
+        searchQuery={searchQuery}
+        thisOrder={thisOrder}
+        handleSelectUser={handleSelectUser}
+        users={users}
+        load={load}
+        error={error}
+        modalVisible={modalVisible}
+        handleCloseAddUser={handleCloseAddUser}
+        setModalVisible={setModalVisible}
+        setShowPays={setShowPays}
+      />
+    </div>
 
 
-                  background: "#3c60a6",
-                  position: 'absolute',
-                  top: '1vh',
-                  right: '0.5vw',
-                  display: 'flex',
-                  alignItems: 'flex-end'
-                  // boxShadow: "0vh 0vh 2vh #1351e6",
-                }}
-              >
-                Профіль клієнта
-              </button>
 
 
-              <div className="" style={{width: "20vw", margin: "0.3vh"}}>
-
-                <div className="" style={{position: "relative", marginTop: "0.3vh"}}>
-                  <div className="fw-bold d-flex " style={{flexcolumn: 'row'}}>
-                    {thisOrder.client.lastName} {thisOrder.client.firstName} {thisOrder.client.familyName}
-                    <div className="fw-lighter" style={{fontSize: "1vmin"}}>:
-                      №{thisOrder.client.id}</div>
-                  </div>
-                </div>
-                {thisOrder.client.phoneNumber && (
-                  <div className="d-flex" style={{marginTop: "0.3vh"}}>
-
-                    <div className="">
-                      <strong className="">Телефон:</strong> {thisOrder.client.phoneNumber}
-                    </div>
-                  </div>
-                )}
-
-                {thisOrder.client.email && (
-                  <div className="d-flex " style={{marginTop: "0.3vh"}}>
-                    <div className="">
-                      <strong>Пошта:</strong> {thisOrder.client.email}
-                    </div>
-                  </div>
-                )}
-
-
-                {thisOrder.client.address && (
-                  <div className="">
-                    <div className="" style={{marginTop: "0.3vh"}}>
-                      <strong>Адреса:</strong> {thisOrder.client.address}
-                    </div>
-                  </div>
-                )}
-                {thisOrder.client.telegram && (
-                  <div className="" style={{marginTop: "0.3vh"}}>
-                    <div>
-                      <strong>Telegram: </strong>{thisOrder.client.telegram}
-                    </div>
-                  </div>
-                )}
-
-
-                {thisOrder.client.notes && (
-                  <div className="d-flex" style={{marginTop: "0.3vh"}}>
-                    <div>
-                      <strong>Нотатки:</strong> {thisOrder.client.notes}
-                    </div>
-                  </div>
-                )}
-
-              </div>
-              <>
-                <SlideInModal
-                  show={modalVisible}
-                  handleCloseAddUser={handleCloseAddUser}
-                  onClose={() => setModalVisible(false)}
-                  onHide={handleClose}
-                  title="Додавання клієнта"
-                />
-              </>
-            </div>
-          )}
-          {/* Пошук клієнтів */}
-          <div>
-            <InputGroup>
-              <div style={{position: 'relative', width: '100%'}}>
-                <Form.Control
-                  type="text"
-                  placeholder="Пошук за ім'ям, прізвищем, номером телефону або email..."
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  style={{
-                    paddingRight: '3vw', // місце для кнопки
-                    borderRadius: '1vw',
-                    border: 'none',
-                    fontSize: '1.5vmin',
-                    marginTop: '1vh',
-                    background: "#f8f9fa",
-                    position: 'relative',
-                  }}
-                />
-
-                <button
-                  onClick={fetchUsers}
-                  style={{
-                    position: 'absolute',
-                    // top: '50%',
-                    right: '1vw',
-                    // width: '0vw',
-                    height: '0vh',
-                    border: '1px',
-                    padding: 0,
-                    cursor: 'pointer',
-                  }}
-                >
-                  <img
-                    src={ChangeClienticons}
-                    alt="Change Client"
-                    style={{
-
-                      width: '20px',
-                      height: '20px',
-                      alignItemss: 'center',
-                      justifyContent: 'center',
-                      background: 'transparent',
-                      marginLeft: '29vw',
-                      transform: 'translateY(-155%)',
-                    }}
-                  />
-                </button>
-              </div>
-
-            </InputGroup>
-          </div>
-
-          {/* Відображення списку користувачів */}
-          {load ? (
-            <div className="" style={{
-              background: "#f8f9fa",
-              borderRadius: '1vw',
-              padding: '1vh 0.8vw',
-              Height: '74vh',
-
-              marginTop: '-0.5vh',
-              overflow: 'hidden',              // ← додано
-              paddingRight: "0.5vw",
-            }}>
-              <div className="user-list user-form-container" style={{
-                background: "transparent",
-                border: "none",
-                width: '31vw',
-                marginLeft: '-1.1vw',
-                marginTop: '-1.5vh',
-                borderRadius: '1vw',
-                maxHeight: "75vh",
-                paddingRight: "0.5vw",
-                justifyContent: "center",
-                alignItems: "center",
-                display: "flex",
-                flexDirection: "column",
-                textAlign: "center",
-
-              }}>
-                <Spinner animation="border" variant="primary"/>
-              </div>
-            </div>
-          ) : error ? (
-            <div className="" style={{
-
-              color: "#f8f9fa"
-            }}
-            >{error}</div>
-          ) : (
-            <div style={{
-              background: "#f8f9fa",
-              borderRadius: '1vw',
-              padding: '1vh 0.8vw',
-              Height: '71vh',
-              marginTop: '0.5vh',
-              overflow: 'hidden',              // ← додано
-              paddingRight: "0.5vw",
-            }}>
-              <div className="" style={{
-                background: "transparent",
-                border: "none",
-                width: '31vw',
-                marginLeft: '-1.1vw',
-                marginTop: '-1.5vh',
-                borderRadius: '1vw',
-                maxHeight: "75vh",
-                paddingRight: "0.5vw",
-                overflow: "auto"
-
-              }}>
-                {users.rows && users.rows.length > 0 ? (
-                  <ListGroup>
-                    {users.rows.map((user) => (
-                      <div style={{
-                        borderBottom: "0.1vw solid #e8e8e8",
-                        borderRadius: "1vw",
-                        // color: "#e8e8e8",
-                      }}>
-                        <ListGroup.Item
-                          style={{
-                            border: "none",
-                            // borderBottom: "0.1vw solid #b6b6b6",
-                            // color: "#b6b6b6",
-                          }}
-                          key={user.id}
-                          action
-                          onClick={() => handleSelectUser(user.id)}
-                          className={`d-flex justify-content-between align-items-start ${thisOrder.client && thisOrder.client.id === user.id ? 'border-primary-5' : ''}`}
-                        >
-                          <div className="" style={{
-                            fontSize: '1.5vmin',
-                            // borderBottom: "0.1vw solid #ffffff",
-                          }}>
-                            <div className=""
-                                 style={{position: 'relative', width: '27.5vw'}}>
-                              <div className="" style={{position: 'relative'}}>
-                                <div className="fw-bold d-flex "
-                                     style={{flexcolumn: 'row'}}>
-                                  {user.lastName} {user.firstName} {user.familyName} {}
-                                  <div className="fw-lighter"
-                                       style={{fontSize: "1vmin"}}>: №{user.id}</div>
-                                </div>
-
-
-                                {user.phoneNumber && <div> {user.phoneNumber} </div>}
-                                {user.email && <div>{user.email}</div>}
-                                {user.telegram && <div> {user.telegram}</div>}
-
-                              </div>
-                              <div className="flex-right" style={{
-                                position: "absolute",
-                                display: "flex",
-                                top: "0vw",
-                                right: "0",
-                                fontSize: "1.5vmin"
-                              }}>
-
-                                <div>
-                                  {user.photoLink && <div> {user.photoLink} </div>}
-                                  {user.discount > 0 &&
-                                    <div>
-                                      <strong> <span
-                                        className="text-success">Знижка: {user.discount}%</span></strong>
-                                    </div>}
-                                  {user.address && <div>{user.address}</div>}
-                                  {user.notes &&
-                                    <div> {user.notes}
-                                    </div>}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                        </ListGroup.Item></div>
-                    ))}
-                  </ListGroup>
-                ) : (
-                  <>
-                    <div className="text-center p-4 bg-light rounded">
-                      <p>Немає клієнтів за даним запитом</p>
-
-                      <div style={{display: 'flex', justifyContent: 'center'}}>
-                        <button
-                          onClick={() => setModalVisible(true)}
-                          className="adminButtonAdd"
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            border: 'none',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          Створити нового клієнта
-                        </button>
-                      </div>
-                    </div>
-
-
-                  </>
-
-                )}
-              </div>
-            </div>
-          )}
-        </Modal.Body>
-
-      </Modal></div>
 
       {/* Модальне вікно для додавання нового користувача */}
-      <div style={{position: "absolute", bottom: "0", left: "0vw"}}>
+      <div style={{position: "absolute", bottom: "0", left: "0vw", }}>
         <PaidButtomProgressBar
           thisOrder={thisOrder}
           setThisOrder={setThisOrder}
@@ -699,21 +408,24 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
 
         {/* Інші модальні вікна, які можуть бути потрібні */}
         {/*{showNP && <NP show={showNP} onHide={() => setShowNP(false)}/>}*/}
+<div style={{zIndex: 2000}}>
         {showPays && <PaysInOrderRestored showPays={showPays} setShowPays={setShowPays} thisOrder={thisOrder}
                                           setThisOrder={setThisOrder}/>}
-
+</div>
       </div>
       {/* Модальне вікно для генерації документів */}
+      <div style={{zIndex: 2000}}>
       <Modal
         show={showDocGenerate}
         onHide={() => setShowDocGenerate(false)}
         size="lg"
         centered
+
       >
         <Modal.Header closeButton>
           <Modal.Title>Генерація документів</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className={{}}>
           {!thisOrder.client ? (
             <div className="alert alert-warning">
               <i className="bi bi-exclamation-triangle-fill me-2"></i>
@@ -725,7 +437,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                 <div className="card h-100">
                   <div className="card-body text-center">
                     <img src={whiteSVG} alt="Договір"
-                         style={{width: '64px', height: '64px', marginBottom: '15px'}}/>
+                         style={{width: '64px', height: '64px', zIndex: 2000, marginBottom: '15px'}}/>
                     <h5 className="card-title">Договір</h5>
                     <p className="card-text">Створення договору для замовлення</p>
                     <button
@@ -844,6 +556,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
           </button>
         </Modal.Footer>
       </Modal>
+      </div>
     </>
   );
 };

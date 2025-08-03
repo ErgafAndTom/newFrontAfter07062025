@@ -165,7 +165,7 @@ const CustomOrderTable2 = () => {
               }
               {order.Payment?.status === 'PAID' &&
                 <div className={`adminButtonAddOrder pay`} style={{}}>
-                  {"Оплачено за посиланням"}
+                  {"Оплата за посиланням"}
                 </div>
               }
               {order.Payment?.status === 'CANCELLED' &&

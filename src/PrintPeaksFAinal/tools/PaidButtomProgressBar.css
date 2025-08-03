@@ -56,3 +56,21 @@
   font-weight: bold;
   font-size:  2.5vh;
 }
+.pay-button-wait {
+  background: #f2f0e7;
+  height: 6vh;
+  width: 25vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 1vw;
+  font-weight: 400;
+  border-radius: 0vw;
+  color: #9f9e9d;
+}
+.pay-button-cancel {
+  background-color: red;
+  color: #fbfaf6;
+  width: 3vw;
+}

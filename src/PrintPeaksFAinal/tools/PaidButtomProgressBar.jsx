@@ -20,52 +20,61 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
       createInvoice(totalUAH);
     }
     if (method === 'cash') {
-      const totalUAH = (thisOrder.OrderUnits || [])
-        .reduce((sum, u) => sum + parseFloat(u.priceForThis || 0), 0);
-      setShowAwaitPays(true)
-      // createInvoice(totalUAH);
+      const totalUAH = (thisOrder.OrderUnits || []).reduce(
+        (sum, u) => sum + parseFloat(u.priceForThis || 0), 0
+      );
+
+      if (totalUAH <= 0) {
+        console.error("Сума замовлення = 0. Рахунок не буде створено.");
+        return;
+      }
+
+      createInvoice(totalUAH);
+
     }
     // TODO: додати обробку інших методів (cash, terminal, invoices)
   };
 
-  // Створення рахунку через ваш бекенд
-  const createInvoice = async (sumUAH) => {
+
+  const createInvoice = async (totalUAH) => {
     try {
-      const amount = Math.round(sumUAH * 100); // копійки
-      const {data} = await axios.post('/api/payment/create-invoice', {
+      const response = await axios.post('/api/payment/create-invoice', {
         orderId: thisOrder.id,
         payload: {
-          amount,
+          amount: Math.round(totalUAH * 100), // копійки
           merchantPaymInfo: {
-            reference: `Order-${thisOrder.id}`,
-            destination: `Оплата замовлення #${thisOrder.id}`,
-            comment: `Оплата за замовлення #${thisOrder.id}`,
-          },
-        }
+            reference: thisOrder.barcode,
+            destination: "Оплата замовлення",
+            comment: "Оплата за послуги"
+          }
+        },
+        customerPhone: thisOrder.phone,
+        customerEmail: thisOrder.email
       });
-      // відкриваємо платіжну сторінку Monobank у новій вкладці
-      console.log(data);
-      if (data.pageUrl) {
-        setThisOrder({...thisOrder, Payment: data});
-        window.open(data.pageUrl, '_blank');
+
+      if (response.data) {
+        setThisOrder(prev => ({
+          ...prev,
+          Payment: response.data
+        }));
       }
-      setInvoiceId(data.invoiceId);
-      // setPaymentState('pending');
-    } catch (error) {
-      console.error('createInvoice error:', error.response || error.message);
-      alert('Не вдалося ініціювати оплату.');
+      console.log('Invoice created', response.data);
+    } catch (e) {
+      console.log('createInvoice error:', e);
     }
   };
-  // :contentReference[oaicite:0]{index=0}
+
 
   // Перевірка статусу рахунку
   const checkStatus = async () => {
     if (!thisOrder.Payment?.invoiceId) return;
-    let invoiceId  = thisOrder.Payment?.invoiceId
+    const invoiceId = thisOrder.Payment.invoiceId;
+
     try {
-      const {data} = await axios.get('/api/payment/invoice-status', {
-        params: {invoiceId }
+      const { data } = await axios.get('/api/payment/invoice-status', {
+        params: { invoiceId }
       });
+
       setThisOrder(prev => ({
         ...prev,
         Payment: data
@@ -74,6 +83,7 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
       console.error('Помилка перевірки статусу:', err);
     }
   };
+
   // :contentReference[oaicite:1]{index=1}
 
   // Скасування (повернення) платежу
@@ -81,7 +91,7 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
     if (!thisOrder.Payment.invoiceId) return;
     let invoiceIdMy = thisOrder.Payment.invoiceId
     try {
-      let res = await axios.post('/api/payment/cancel-invoice', {invoiceIdMy});
+      let res = await axios.post('/api/payment/cancel-invoice', { orderId: thisOrder.id });
       console.log(res);
       setThisOrder(prev => ({
         ...prev,
@@ -156,42 +166,7 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
 
   return (
     <div className="payment-methods-panel" style={{}}>
-      {thisOrder.Payment?.status === 'CANCELLED' || thisOrder.Payment?.status === "EXPIRED" && (
-        <div className="payment-methods-panel d-flex align-items-center ">
-          <button
-            className="PayButtons cash"
-            onClick={() => handleSelect('cash')}
-          >
-            Розрахунок готівкою
-          </button>
-
-          <button
-            className="PayButtons terminal"
-            onClick={() => handleSelect('terminal')}
-          >
-          Розрахунок карткою
-          </button>
-
-          <button
-            className="PayButtons online"
-            onClick={() => handleSelect('online')}
-          >
-            Платіж за посиланням
-          </button>
-
-          <button
-            onClick={() => setShowPays(true)}
-            title="Платежі"
-            style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-            className="PayButtons invoices"
-
-          >
-            Оплата на рахунок
-          </button>
-
-        </div>
-      )}
-      {thisOrder.Payment === null || thisOrder.Payment?.status === 'CANCELLED' && (
+      {(!thisOrder.Payment || ['CANCELLED', 'EXPIRED'].includes(thisOrder.Payment.status)) && (
         <div className="payment-methods-panel d-flex align-items-center ">
           <button
             className="PayButtons cash"
@@ -212,7 +187,6 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
             onClick={() => handleSelect('online')}
           >
             Платіж за посиланням
-
           </button>
 
           <button
@@ -220,19 +194,54 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
             title="Платежі"
             style={{...buttonStyles.base, ...buttonStyles.iconButton}}
             className="PayButtons invoices"
-
           >
             Оплата на рахунок
           </button>
-
         </div>
       )}
-      {/*{thisOrder.Payment?.status}*/}
+
+      {/*{thisOrder.Payment === null && (*/}
+      {/*  <div className="payment-methods-panel d-flex align-items-center ">*/}
+      {/*    <button*/}
+      {/*      className="PayButtons cash"*/}
+      {/*      onClick={() => handleSelect('cash')}*/}
+      {/*    >*/}
+      {/*      Розрахунок готівкою*/}
+      {/*    </button>*/}
+
+      {/*    <button*/}
+      {/*      className="PayButtons terminal"*/}
+      {/*      onClick={() => handleSelect('terminal')}*/}
+      {/*    >*/}
+      {/*      Розрахунок карткою*/}
+      {/*    </button>*/}
+
+      {/*    <button*/}
+      {/*      className="PayButtons online"*/}
+      {/*      onClick={() => handleSelect('online')}*/}
+      {/*    >*/}
+      {/*      Платіж за посиланням*/}
+
+      {/*    </button>*/}
+
+      {/*    <button*/}
+      {/*      onClick={() => setShowPays(true)}*/}
+      {/*      title="Платежі"*/}
+      {/*      style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
+      {/*      className="PayButtons invoices"*/}
+
+      {/*    >*/}
+      {/*      Оплата на рахунок*/}
+      {/*    </button>*/}
+
+      {/*  </div>*/}
+      {/*)}*/}
+
       {thisOrder.Payment?.status === 'CREATED' && (
         <div className={"payment-methods-panel d-flex align-items-center "}>
           <button
             className="PayButtons link"
-            style={{backgroundColor: '#008249', color: 'fbfaf6',width: '3vw'}}
+            style={{backgroundColor: '#008249', color: 'white',width: '3vw'}}
             onClick={() => {
               window.open(thisOrder.Payment.pageUrl, '_blank');
             }}
@@ -260,7 +269,7 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
 
           <button
             className="PayButtons end"
-            style={{backgroundColor: 'red', color: 'fbfaf6', width:"3vw"}}
+            style={{backgroundColor: 'red', color: 'white', width:"3vw"}}
             onClick={invalidateInvoice}
           >
             &nbsp;x
@@ -275,7 +284,7 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
             style={{
               background: "#008249",
               height: "6vh",
-              width: "28vw",
+              width: "27vw",
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -283,12 +292,12 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
               fontSize: '1vw',
               fontWeight: 400,
               borderRadius: "0vw",
-              color: '#fbfaf6'
+              color: '#f2f0e7'
             }}
           >Замовлення оплачене </button>
           <button
             className="PayButtons end"
-            style={{backgroundColor: 'red', color: 'fbfaf6', width:"3vw"}}
+            style={{backgroundColor: 'red', color: 'white', width:"3vw"}}
             onClick={cancelPayment}
           >
             x

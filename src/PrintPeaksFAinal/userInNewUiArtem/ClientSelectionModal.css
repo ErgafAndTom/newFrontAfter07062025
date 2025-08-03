@@ -1,0 +1,208 @@
+/* Скрыть скроллбар и задать внутренние отступы */
+.noScrollbar,
+.no-scrollbar {
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 1vw 0.4vw 0.4vw;
+}
+.noScrollbar::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Hover effect */
+.userListItem:hover {
+  background-color: #fbfaf6;
+}
+
+/* Оверлей */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 83vh;
+  z-index: 0; /* <= додати */
+  background-color: rgba(0, 0, 0, 0.5);
+
+}
+
+/* Модальное окно */
+.modalContainer {
+  position: fixed;
+  left: 31.4%;
+  bottom: 18vh;
+  transform: translate(-50%, -50%);
+  width: 30vw;
+  max-height: 80vh;
+  background-color: #f2f0e7;
+  border-radius: 1vh;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1; /* <= додати */
+  display: flex;
+  padding-bottom: 6vh;
+  padding-top: 1vh;
+
+  flex-direction: column;
+}
+
+/* Список пользователей */
+.userList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+
+}
+
+/* Элемент списка */
+.userListItem {
+  padding: 0.5vw 1vw;
+  margin-bottom: 0.5vh;
+  border-bottom: 1px solid #eee;
+  background-color: #f2f0e7;
+  border-radius: 1vh;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+
+  width: 100%;
+}
+
+/* Компактный режим */
+.userListItem.compact {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+}
+.userListItem.compact .labelTelegram {
+  margin-left: auto;
+
+}
+
+/* Развернутый режим */
+.userListItem.expanded {
+  position: relative;
+  /*display: flex;*/
+  flex-direction: column;
+
+  /*height: 17vh;!* место для кнопки *!*/
+
+}
+
+
+
+/* Имя */
+.userName {
+  font-weight: bold;
+  margin-bottom: 0vw;
+
+}
+
+/* Детали */
+.userDetail,
+.discount,
+.userBarcode {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 0.2vw;
+
+}
+
+/* Ряд кнопки */
+.buttonRow {
+  position: absolute;
+  bottom: 0.8vw;
+  right: 1vw;
+  display: flex;
+  justify-content: flex-end;
+  background: transparent;
+
+
+}
+.labelTelegram{
+  /*position: absolute;*/
+
+}
+
+/* Кнопка выбора */
+
+
+/* Поиск */
+.searchSection {
+  padding: 16px;
+  border-top: none;
+  display: flex;
+
+  bottom: -1vh;
+
+  position: absolute;
+}
+.searchInput {
+
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #fbfaf6;
+  border-radius: 4px 0 0 4px;
+  outline: none;
+  width: 19vw;
+
+}
+.searchButton {
+  padding: 8px 16px;
+  font-size: 14px;
+  border: 1px solid #3c60a6;
+  background-color: #3c60a6;
+  color: #fbfaf6;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+
+/* Нет клиентов */
+.no-clients {
+  background-color: transparent;
+  text-align: center;
+  padding:  0;
+}
+.no-clients button {
+
+  font-size: 14px;
+  border: 1px solid #28a745;
+  background-color: #28a745;
+  color: #fbfaf6;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.animate-slide-up {
+  animation: slideUp 1s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0%);
+  }
+}
+
+.userCard {
+  position: relative;
+  width: 30vw;
+
+  background: transparent;
+  border-radius: 1vw;
+  margin-bottom: 1vh;
+}
+
+.userTelegramIcon {
+  position: absolute;
+  top: 0vh;
+  right: 0vw;
+  animation: slideUpFadeIn 0.5s ease-out;
+}

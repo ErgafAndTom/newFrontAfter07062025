@@ -61,7 +61,7 @@ function ModalDeleteOrderUnit({showDeleteOrderUnitModal, setShowDeleteOrderUnitM
                     <div
                         style={{
                             width: "100vw",
-                            zIndex: "99",
+                            zIndex: "9999",
                             height: "100vh",
                             background: "rgba(0, 0, 0, 0.5)",
                             opacity: isAnimating ? 1 : 0, // для анимации прозрачности
@@ -76,7 +76,7 @@ function ModalDeleteOrderUnit({showDeleteOrderUnitModal, setShowDeleteOrderUnitM
                     <div
                         style={
                             {
-                                zIndex: "100", // модальное окно поверх затемненного фона
+                                zIndex: "10099", // модальное окно поверх затемненного фона
                                 position: "fixed",
                                 background: "#dcd9ce",
                                 top: "20%",

@@ -266,7 +266,7 @@ const NewSheetCut = ({
             <div className="d-flex">
               <div className="m-auto text-center fontProductName">
                 <div className="d-flex flex-wrap justify-content-center  ">
-                  {["Листівки", "Візитки", "Флаєра", "Буклета", "Картки", "Диплома", "Диплома", "Подяки", "Зіна", "Презентації", "Бланка", "Афіши", "Календаря", "Плаката", "Візуалізації", "Меню", "Документа"].map((service, index) => (
+                  {["Листівки", "Візитки", "Флаєра", "Буклета", "Картки", "Диплома", "Сертифіката", "Подяки", "Зіна", "Презентації", "Бланка", "Афіши", "Календаря", "Плаката", "Візуалізації", "Меню", "Документа", "Бейджів"].map((service, index) => (
                     <button
                       key={index}
                       className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}

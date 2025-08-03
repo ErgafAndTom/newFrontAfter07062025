@@ -46,7 +46,7 @@ const InvoicePrint = ({ invoice, onClose }) => {
                 <tr>
                     <th>№</th>
                     <th>Найменування</th>
-                    <th>О/В</th>
+                    <th></th>
                     <th>К-ть</th>
                     <th>Ціна (грн)</th>
                     <th>Сума (грн)</th>

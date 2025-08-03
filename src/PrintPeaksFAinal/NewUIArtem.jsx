@@ -442,7 +442,7 @@ const NewUIArtem = () => {
                               <div
                                 className="adminFontTable d-flex flex-column"
                                 style={{
-                                  fontSize: "2vh",
+                                  fontSize: "1.7vh",
                                   // textTransform: "uppercase",
                                   maxWidth: "33vw",
                                   textAlign: "justify",
@@ -831,11 +831,9 @@ const NewUIArtem = () => {
         {thisOrder ? (
 
           <div className="ClientsMenuAll" style={{
-            width: "36.5vw",position: "absolute", bottom: "0vh", height: "15vh",
+            width: "36.5vw",position: "fixed", bottom: "0vh", height: "15vh",
           }}>
-            {/*<div className="containerNewUI d-flex justify-content-end align-items-center" style={{height: "9vh", width: "36.5vw", position: "absolute", right:"0vw", bottom:"15vh", padding:'0.3rem', marginLeft:"0vw"}}>*/}
 
-            {/*</div>*/}
             <ProgressBar thisOrder={thisOrder} setThisOrder={setThisOrder}
                          setNewThisOrder={setNewThisOrder}
                          handleThisOrderChange={handleThisOrderChange}
@@ -852,11 +850,11 @@ const NewUIArtem = () => {
           //                       handleThisOrderChange={handleThisOrderChange}/>
           // <ClientChangerUIArtem client={{email: "null", id: 0, phone: "+00000000",}}/>
         )}
-        <div className="d-flex flex-row" style={{position:"absolute", bottom:"0"}} >
+        <div className="d-flex flex-row" style={{position:"absolute", bottom:"0", }} >
           <div className="containerNewUI" style={{height: "15vh", width: "30vw", position: "relative",padding:'0.3rem'}}>
             <CommentsInOrder thisOrder={thisOrder}/>
           </div>
-          <div className="containerNewUI" style={{height: "15vh", width: "30vw", position: "relative"}}>
+          <div className="containerNewUI" style={{height: "15vh", width: "30vw", position: "relative", }}>
             <ClientChangerUIArtem
               thisOrder={thisOrder}
               setThisOrder={setThisOrder}

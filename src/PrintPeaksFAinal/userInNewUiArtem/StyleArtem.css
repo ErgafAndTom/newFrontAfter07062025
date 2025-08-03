@@ -307,6 +307,7 @@
     overflow: auto;
     direction: rtl;
     background: #F2F0E7;
+    z-index: 2000;
 
 
 }
@@ -405,6 +406,7 @@
 
 .containerForTextAndInputsOrder {
     height: 3.5vh;
+  z-index: 1000;
     /*margin-top: 0.45vw;*/
 }
 
@@ -460,6 +462,7 @@
 
     overflow: hidden;
     margin-left: 1vw;
+
 }
 
 /*.containerNewUI {*/
@@ -489,6 +492,7 @@
     max-width: 61vw;
     background: #fbfaf6;
 
+
 }
 
 .containerForContNewUI {
@@ -498,6 +502,7 @@
     align-items: center;
     width: 100%;
     height: 100%;
+
 }
 
 @keyframes wobble-hor-bottom {
@@ -1496,6 +1501,7 @@
     text-align: right;
     justify-content: center;
     align-items: center;
+    z-index: 1000;
 }
 
 .imaga-icon {
@@ -3129,6 +3135,7 @@
     background-color: var(--color-gainsboro);
     border: 1px solid var(--color-dimgray);
     box-sizing: border-box;
+  z-index: 1000;
 }
 
 .input-text8 {
@@ -5529,17 +5536,17 @@
 }
 
 .ClientsMenuAll {
-    /*margin: 1vh 1vw;*/
-    /*padding: 1vw;*/
-    /*width: 37vw;*/
-    /*border-radius: 1vw;*/
-    /*height: 31.8vh;*/
-    /*background: #FBFAF6;*/
-    /*position: fixed;*/
-    /*bottom: 0;*/
-    /*right: 0;*/
-}
+  /*margin: 1vh 1vw;*/
+  /*padding: 1vw;*/
+  /*width: 37vw;*/
+  /*border-radius: 1vw;*/
+  /*height: 31.8vh;*/
+  /*background: #FBFAF6;*/
+  /*position: fixed;*/
+  /*bottom: 0;*/
+  /*right: 0;*/
 
+}
 
 .buttonsRow {
 
