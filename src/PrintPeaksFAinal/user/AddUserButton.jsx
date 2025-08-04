@@ -20,15 +20,25 @@ function AddUserButton({ fetchUsers, addOrdOrOnlyClient, thisOrder, setThisOrder
     return (
         <div>
             <div>
+              {thisOrder && (
                 <button
-                    className="buttonSkewedUser storeButton"
-                    onClick={handleAddUser}
-               >
-
-                    <span style={{alignItems: 'center', justifyContent: 'center', fontSize: '0.7vw'}}
-
-                    >&nbsp;&nbsp;&nbsp;Створити клієнта</span>
+                  className="btn btn-sm btn-success storeButton"
+                  onClick={handleAddUser}
+                >
+                  +
                 </button>
+              )}
+              {!thisOrder && (
+                <button
+                  className="buttonSkewedUser storeButton"
+                  onClick={handleAddUser}
+                >
+                  <span style={{alignItems: 'center', justifyContent: 'center', fontSize: '0.7vw'}}
+
+                  >&nbsp;&nbsp;&nbsp;Створити клієнта</span>
+                </button>
+              )}
+
             </div>
 
             {showAddUser && (
