@@ -170,7 +170,7 @@ const Nav = () => {
         }}
       />
       <div style={{ height: '3.5vh', display: 'flex', alignItems: 'center', borderRadius: '0vh', }}>
-        {currentUser?.role === "admin" &&
+        {currentUser?.role === "admin"  || currentUser?.role === "operator" &&
           <AddUserButton fetchUsers={() => dispatch(fetchUser())} />
         }
       </div>
@@ -190,7 +190,7 @@ const Nav = () => {
             </button>
           </Link>
 
-          {currentUser?.role === "admin" &&
+          {currentUser?.role === "admin" || currentUser?.role === "operator" &&
             <PopupLeftNotification />
           }
           {/*<PopupLeftNotification />*/}

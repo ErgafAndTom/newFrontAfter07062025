@@ -74,7 +74,7 @@ const CustomOrderTable2 = () => {
     };
 
     fetchData();
-  }, [currentPage, limit, currentUser.role]);
+  }, [currentPage, limit, currentUser?.role]);
 
 
   const getStatusColor = (status, isCancelled) => {

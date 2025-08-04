@@ -47,9 +47,13 @@
 
 @keyframes slideInRight {
     0% {
-        transform: translateX(100%);
+        /*transform: translateX(100%);*/
         opacity: 0;
     }
+    /*99% {*/
+    /*  transform: translateX(100%);*/
+    /*  opacity: 1;*/
+    /*}*/
     100% {
         transform: translateX(0%);
         opacity: 1;
@@ -62,17 +66,17 @@
 
 .modal-content {
     position: fixed;
-    top: 1.7vmin;
-    right: 1vmin;
-    opacity: 0;
-    transform: translateX(100%);
+    /*top: 1.7vmin;*/
+    /*right: 1vmin;*/
+    opacity: 1;
+    transform: translateX(0%);
     border-radius: 1vw;
     max-width: 32.5vw;
     max-height: 84vh;
     min-height: 84vh;
     background: transparent;
 
-    animation: slideInRight 0.5s ease-out forwards;
+    animation: slideInRight 0.3s ease-out forwards;
 }
 
 

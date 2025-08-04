@@ -36,11 +36,11 @@ function ModalDeleteOrderUnit({showDeleteOrderUnitModal, setShowDeleteOrderUnitM
             })
             .catch(error => {
                 setLoad(false)
-                setError(error.message)
+                setError(error)
                 if(error.response.status === 403){
                     navigate('/login');
                 }
-                console.log(error.message);
+                console.log(error);
             });
     };
 
@@ -144,7 +144,7 @@ function ModalDeleteOrderUnit({showDeleteOrderUnitModal, setShowDeleteOrderUnitM
                             </button>
                         </div>
                         {error && (
-                            <div style={{color: 'red', fontSize: '0.7vw', marginTop: '1vh'}}>{error}</div>
+                            <div style={{color: 'red', fontSize: '0.7vw', marginTop: '1vh'}}>{error?.message} {error?.response?.data?.error}</div>
                         )}
                     </div>
                 </div>

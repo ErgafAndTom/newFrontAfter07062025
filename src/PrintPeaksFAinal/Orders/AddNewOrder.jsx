@@ -53,7 +53,7 @@ function AddNewOrder({namem, data, setData, inPageCount, setInPageCount, current
             {/*    +*/}
             {/*</Button>*/}
             <div
-              className={`buttonSkewedOrder`}
+              className={`buttonSkewedOrder adminButtonAdd ${namem === 'orders' ? 'skewedOrder' : ''}`}
                 onClick={handleShow}
 
                 data-testid="new-order-button"

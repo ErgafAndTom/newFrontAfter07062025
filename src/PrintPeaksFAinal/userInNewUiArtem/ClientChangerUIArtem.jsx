@@ -63,7 +63,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
 
   // Функція для відкриття модального вікна
   const handleShow = () => {
-    if (currentUser.role === "admin") {
+    if (currentUser.role === "admin" || currentUser.role === "operator") {
       setShowVisible(true)
       setShow(true);
       setSearchQuery("");
@@ -133,7 +133,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
         if (error.response && error.response.status === 403) {
           navigate('/login');
         }
-        setError(error.message);
+        setError(error);
         console.error(error.message);
       });
   };
@@ -362,7 +362,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
       {/* Відображення помилки */}
       {error && (
         <div className="alert alert-danger alert-dismissible fade show mt-2" role="alert">
-          {error}
+          {error?.message} {error?.response?.data?.error}
           <button type="button" className="btn-close" onClick={() => setError(null)}></button>
         </div>
       )}
