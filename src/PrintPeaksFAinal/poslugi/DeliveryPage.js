@@ -45,27 +45,27 @@ const DeliveryPage = ({
   }, []);
 
   /* === Розрахунок вартості доставки === */
-  useEffect(() => {
-    if (!city) return; // бракує даних
-
-    const payload = {
-      deliveryType,
-      city,
-      warehouse,
-      courierAddress,
-    };
-
-    axios
-      .post("/calc/delivery", payload)
-      .then((res) => {
-        setCost(res.data.price);
-        setError(null);
-      })
-      .catch((err) => {
-        setError(err);
-        if (err.response?.status === 403) navigate("/login");
-      });
-  }, [deliveryType, city, warehouse, courierAddress]);
+  // useEffect(() => {
+  //   if (!city) return; // бракує даних
+  //
+  //   const payload = {
+  //     deliveryType,
+  //     city,
+  //     warehouse,
+  //     courierAddress,
+  //   };
+  //
+  //   axios
+  //     .post("/calc/delivery", payload)
+  //     .then((res) => {
+  //       setCost(res.data.price);
+  //       setError(null);
+  //     })
+  //     .catch((err) => {
+  //       setError(err);
+  //       if (err.response?.status === 403) navigate("/login");
+  //     });
+  // }, [deliveryType, city, warehouse, courierAddress]);
 
   /* === Ефект для плавного показу / приховання модалки === */
   useEffect(() => {
@@ -90,6 +90,30 @@ const DeliveryPage = ({
         warehouse,
         courierAddress,
         cost,
+
+        size: { x: 0, y: 0 },
+        material: {
+          type: "Не потрібно"
+        },
+        color: {
+          sides: "Не потрібно"
+        },
+        lamination: {
+          type: "Не потрібно"
+        },
+        big: "Не потрібно",
+        cute: "Не потрібно",
+        cuteLocal: {
+          leftTop: false,
+          rightTop: false,
+          rightBottom: false,
+          leftBottom: false,
+          radius: "",
+        },
+        holes: "Не потрібно",
+        holesR: "Не потрібно",
+        count: city,
+        price: warehouse
       },
     };
 
@@ -162,64 +186,100 @@ const DeliveryPage = ({
             <div className="d-flex flex-column" style={{ marginLeft: "1.7vw", width:"10vw"}}>
               {/* Тип доставки */}
 
-              <div className="fontInfoForPricing">Тип доставки:
-              <select
-                value={deliveryType}
-                onChange={(e) => setDeliveryType(e.target.value)}
-                className="inputsArtem"
-              >
-                <option>Таксі </option>
-                <option>Кур'єр по Києву</option>
-                <option>Нова Пошта</option>
-              </select>
-              </div>
-
-              {/* Місто та склад / адреса */}
-
-              {deliveryType !== "Самовивіз" && (
-
+              {/*<div className="fontInfoForPricing">Тип доставки:*/}
+              {/*<select*/}
+              {/*  value={deliveryType}*/}
+              {/*  onChange={(e) => setDeliveryType(e.target.value)}*/}
+              {/*  className="inputsArtem"*/}
+              {/*>*/}
+              {/*  <option>Таксі </option>*/}
+              {/*  <option>Кур'єр по Києву</option>*/}
+              {/*  <option>Нова Пошта</option>*/}
+              {/*</select>*/}
+              {/*</div>*/}
+              <>
                 <div className={"d-flex flex-row align-items-center justify-content-start gap-3"}>
-                  <label className="fontInfoForPricing">Місто:</label>
+                  <label className="fontInfoForPricing">кількість</label>
                   <input
-                    type="text"
+                    type="number"
+                    min={1}
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="inputsArtem"
                   />
                 </div>
-
-              )}
-
-
-              {deliveryType === "Нова Пошта" && (
                 <div className={"d-flex flex-row align-items-center justify-content-start gap-3"}>
-                  <label className="fontInfoForPricing mt-2">Відділення:</label>
+                  <label className="fontInfoForPricing mt-2">ціна</label>
                   <input
-                    type="text"
+                    type="number"
+                    min={1}
                     value={warehouse}
                     onChange={(e) => setWarehouse(e.target.value)}
                     className="inputsArtem"
                   />
                 </div>
-              )}
+              </>
 
-              {deliveryType === "Кур'єр по Києву" && (
-                <>
-                  <label className="fontInfoForPricing mt-2">Адреса доставки:</label>
-                  <input
-                    type="text"
-                    value={courierAddress}
-                    onChange={(e) => setCourierAddress(e.target.value)}
-                    className="inputsArtem"
-                  />
-                </>
-              )}
+              {/* Місто та склад / адреса */}
+
+              {/*{deliveryType !== "Самовивіз" && (*/}
+
+              {/*  <>*/}
+              {/*    <div className={"d-flex flex-row align-items-center justify-content-start gap-3"}>*/}
+              {/*      <label className="fontInfoForPricing">Місто:</label>*/}
+              {/*      <input*/}
+              {/*        type="number"*/}
+              {/*        min={1}*/}
+              {/*        value={city}*/}
+              {/*        onChange={(e) => setCity(e.target.value)}*/}
+              {/*        className="inputsArtem"*/}
+              {/*      />*/}
+              {/*    </div>*/}
+              {/*    <div className={"d-flex flex-row align-items-center justify-content-start gap-3"}>*/}
+              {/*      <label className="fontInfoForPricing mt-2">Відділення:</label>*/}
+              {/*      <input*/}
+              {/*        type="text"*/}
+              {/*        value={warehouse}*/}
+              {/*        onChange={(e) => setWarehouse(e.target.value)}*/}
+              {/*        className="inputsArtem"*/}
+              {/*      />*/}
+              {/*    </div>*/}
+              {/*  </>*/}
+
+              {/*)}*/}
+
+
+              {/*{deliveryType === "Нова Пошта" && (*/}
+              {/*  <div className={"d-flex flex-row align-items-center justify-content-start gap-3"}>*/}
+              {/*    <label className="fontInfoForPricing mt-2">Відділення:</label>*/}
+              {/*    <input*/}
+              {/*      type="text"*/}
+              {/*      value={warehouse}*/}
+              {/*      onChange={(e) => setWarehouse(e.target.value)}*/}
+              {/*      className="inputsArtem"*/}
+              {/*    />*/}
+              {/*  </div>*/}
+              {/*)}*/}
+
+              {/*{deliveryType === "Кур'єр по Києву" && (*/}
+              {/*  <>*/}
+              {/*    <label className="fontInfoForPricing mt-2">Адреса доставки:</label>*/}
+              {/*    <input*/}
+              {/*      type="text"*/}
+              {/*      value={courierAddress}*/}
+              {/*      onChange={(e) => setCourierAddress(e.target.value)}*/}
+              {/*      className="inputsArtem"*/}
+              {/*    />*/}
+              {/*  </>*/}
+              {/*)}*/}
             </div>
 
 
           {/* Блок вартості + кнопка */}
           <div className="d-flex" style={{ marginLeft: "2.5vw"}}>
-            <button className="adminButtonAdd" onClick={addDeliveryToOrder} disabled={!cost && deliveryType !== "Самовивіз"} style={{background:"#fab416"}}>
+            <button className="adminButtonAdd" onClick={addDeliveryToOrder}
+                    // disabled={!cost && deliveryType !== "Самовивіз"}
+                    style={{background:"#fab416"}}>
               Додати до замовлення
             </button>
           </div>
