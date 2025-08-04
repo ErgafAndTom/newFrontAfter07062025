@@ -5,7 +5,7 @@ import {useNavigate} from "react-router-dom";
 import { Modal, Form, Button, Row, Col, InputGroup, Spinner, Alert } from "react-bootstrap";
 import {BsPerson, BsEnvelope, BsTelephone, BsTelegram, BsGeoAlt, BsPercent} from "react-icons/bs";
 
-function AddUserWindow({ show, onHide, onUserAdded }) {
+function AddUserWindow({ show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder, setThisOrder }) {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -62,27 +62,51 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
         setLoading(true);
         setError(null);
         // console.log(user);
-
-        axios.post('/orders/createUser', user)
+        let url = '/orders/createUserAndOrder'
+        if(thisOrder === null || thisOrder === undefined || thisOrder.id === null || thisOrder.id === undefined || thisOrder.id === 0){
+          axios.post(url, user)
             .then(response => {
-                console.log(response.data);
-                setLoading(false);
-                if (onUserAdded) {
-                    onUserAdded(response.data);
-                }
-                navigate(`/Orders/${response.data.id}`);
-                document.location(`/Orders/${response.data.id}`);
-                onHide();
+              console.log(response.data);
+              setLoading(false);
+              if (onUserAdded) {
+                onUserAdded(response.data);
+              }
+              navigate(`/Orders/${response.data.id}`);
+              document.location(`/Orders/${response.data.id}`);
+              onHide();
             })
             .catch(error => {
-                setLoading(false);
-                if (error.response && error.response.status === 403) {
-                    navigate('/login');
+              setLoading(false);
+              if (error.response && error.response.status === 403) {
+                navigate('/login');
 
-                }
-                setError(error.response?.data?.message || 'Помилка при додаванні клієнта');
-                // console.error('Помилка додавання клієнта:', error);
+              }
+              setError(error.response?.data?.message || 'Помилка при додаванні клієнта');
+              // console.error('Помилка додавання клієнта:', error);
             });
+        } else {
+          url = '/orders/createUserAndUpdateOrder'
+          let dataToSend = {
+            user: user,
+            orderId: thisOrder.id
+          }
+          axios.post(url, dataToSend)
+            .then(response => {
+              console.log(response.data);
+              setLoading(false);
+              setThisOrder(response.data)
+              onHide();
+            })
+            .catch(error => {
+              setLoading(false);
+              if (error.response && error.response.status === 403) {
+                navigate('/login');
+
+              }
+              setError(error.response?.data?.message || 'Помилка при додаванні клієнта');
+              // console.error('Помилка додавання клієнта:', error);
+            });
+        }
     };
 
     return (

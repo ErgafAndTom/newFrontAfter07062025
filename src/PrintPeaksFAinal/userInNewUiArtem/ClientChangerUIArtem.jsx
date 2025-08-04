@@ -25,9 +25,7 @@ import PaysInOrderRestored from "./pays/PayInOrderRestored";
 import {useSelector} from "react-redux";
 import TelegramAvatar from "../../PrintPeaksFAinal/Messages/TelegramAvatar";
 import PaidButtomProgressBar from "../../PrintPeaksFAinal/tools/PaidButtomProgressBar";
-import client from "./ClientSelectionModal";
 import ClientSelectionModal from "./ClientSelectionModal";
-import zIndex from "@mui/material/styles/zIndex";
 
 
 const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => {
@@ -380,6 +378,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
         fetchUsers={fetchUsers}
         searchQuery={searchQuery}
         thisOrder={thisOrder}
+        setThisOrder={setThisOrder}
         handleSelectUser={handleSelectUser}
         users={users}
         load={load}

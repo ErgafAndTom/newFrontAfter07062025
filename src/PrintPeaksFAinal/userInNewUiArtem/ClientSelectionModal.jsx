@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './ClientSelectionModal.css';
 import TelegramAvatar from '../../PrintPeaksFAinal/Messages/TelegramAvatar';
+import {fetchUser} from "../../actions/authActions";
+import AddUserButton from "../user/AddUserButton";
 
 const ClientSelectionModal = ({
                                 showVisible,
@@ -11,6 +13,8 @@ const ClientSelectionModal = ({
                                 error,
                                 handleSelectUser,
                                 setModalVisible,
+                                thisOrder,
+                                setThisOrder,
                               }) => {
   const [expandedThingIndex, setExpandedThingIndex] = useState(null);
 
@@ -47,6 +51,7 @@ const ClientSelectionModal = ({
                 <button className="adminButtonAdd" onClick={fetchUsers}>
                   Пошук
                 </button>
+                <AddUserButton fetchUsers={() => dispatch(fetchUser())} thisOrder={thisOrder} setThisOrder={setThisOrder} />
               </div>
 
               <ul className="userList">
