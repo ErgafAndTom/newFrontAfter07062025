@@ -15,6 +15,8 @@ const ClientSelectionModal = ({
                                 setModalVisible,
                                 thisOrder,
                                 setThisOrder,
+                                setSearchQuery,
+                                searchQuery
                               }) => {
   const [expandedThingIndex, setExpandedThingIndex] = useState(null);
 
@@ -22,7 +24,7 @@ const ClientSelectionModal = ({
 
   const filteredUsers = users.rows?.filter(u => u.firstName || u.lastName) || [];
 
-  const [searchQuery, setSearchQuery] = useState('');
+  // const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -40,20 +42,6 @@ const ClientSelectionModal = ({
         <div className="noScrollbar">
           {!load && !error && filteredUsers.length > 0 && (
             <>
-              <div className="searchSection">
-                <input
-                  type="text"
-                  className="searchInput"
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  placeholder="Пошук клієнта..."
-                />
-                <button className="adminButtonAdd" onClick={fetchUsers}>
-                  Пошук
-                </button>
-                <AddUserButton fetchUsers={() => dispatch(fetchUser())} thisOrder={thisOrder} setThisOrder={setThisOrder} />
-              </div>
-
               <ul className="userList">
                 {filteredUsers.map((user, index) => {
                   const isExpanded = index === expandedThingIndex;
@@ -128,6 +116,19 @@ const ClientSelectionModal = ({
               </ul>
             </>
           )}
+        </div>
+        <div className="searchSection">
+          <input
+            type="text"
+            className="searchInput"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            placeholder="Пошук клієнта..."
+          />
+          <button className="adminButtonAdd" onClick={fetchUsers}>
+            Пошук
+          </button>
+          <AddUserButton fetchUsers={() => dispatch(fetchUser())} thisOrder={thisOrder} setThisOrder={setThisOrder} />
         </div>
       </div>
     </>

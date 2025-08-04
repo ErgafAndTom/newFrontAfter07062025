@@ -67,7 +67,6 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
       setShowVisible(true)
       setShow(true);
       setSearchQuery("");
-      fetchUsers();
     }
   };
 
@@ -387,6 +386,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
         handleCloseAddUser={handleCloseAddUser}
         setModalVisible={setModalVisible}
         setShowPays={setShowPays}
+        setSearchQuery={setSearchQuery}
       />
     </div>
 
