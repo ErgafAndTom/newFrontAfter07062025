@@ -4,11 +4,14 @@ import './PaidButtomProgressBar.css';
 import PerepletMet from "../poslugi/PerepletMet";
 import AwaitPays from "./AwaitPays";
 import {io} from 'socket.io-client';
+import Vishichka from "../poslugi/Vishichka";
+import {useSelector} from "react-redux";
 
 const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
   const [paymentState, setPaymentState] = useState('initial');
   const [invoiceId, setInvoiceId] = useState(null);
   const intervalRef = useRef(null);
+  const currentUser = useSelector((state) => state.auth.user);
   // const socket = io('http://localhost:3000/'); // або просто '/'
   const buttonStyles = {}
   const [showAwaitPays, setShowAwaitPays] = useState(false);
@@ -161,7 +164,9 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
 
   useEffect(() => {
     console.log(thisOrder);
-    checkStatus()
+    if(thisOrder.Payment?.status === 'CREATED'){
+      checkStatus()
+    }
   }, [thisOrder.id]);
 
   return (
@@ -295,13 +300,16 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
               color: '#f2f0e7'
             }}
           >Замовлення оплачене </button>
-          <button
-            className="PayButtons end"
-            style={{backgroundColor: 'red', color: 'white', width:"3vw"}}
-            onClick={cancelPayment}
-          >
-            x
-          </button>
+          {currentUser.role === 'admin' &&
+            <button
+              className="PayButtons end"
+              style={{backgroundColor: 'red', color: 'white', width:"3vw"}}
+              onClick={cancelPayment}
+            >
+              x
+            </button>
+          }
+
         </div>
       )}
 

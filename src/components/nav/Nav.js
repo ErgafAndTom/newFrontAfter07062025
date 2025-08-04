@@ -95,6 +95,31 @@ const Nav = () => {
 
         </div>
       }
+      {currentUser?.role === "operator" &&
+        <div className="d-flex flex-row align-items-center " style={{paddingLeft: '0.5vw', zIndex: '0'}}>
+          {[
+            {to: "/Desktop", label: "Головна"},
+            {to: "/Users", label: "Клієнти"},
+            {to: "/Orders", label: "Замовлення"},
+            {to: "/Vimogi", label: "Вимоги"},
+            {to: "/Trello", label: "Завдання", hasMess: true},
+          ].map(({to, label, hasMess}, index, arr) => (
+            <Link key={to} to={to} style={{textDecoration: 'none'}}>
+              <button
+                onClick={() => handleBasicClick(to)}
+                className={`buttonSkewed
+        ${index === 0 ? 'first' : ''}
+        ${index === arr.length - 1 ? 'last' : ''}
+      `}
+              >
+                {label}
+                {hasMess && currentUser && <NavMess currentUser={currentUser}/>}
+              </button>
+            </Link>
+          ))}
+
+        </div>
+      }
       {currentUser?.role === "admin" &&
         <div className="d-flex flex-row align-items-center " style={{paddingLeft: '0.5vw', zIndex: '0'}}>
           {[

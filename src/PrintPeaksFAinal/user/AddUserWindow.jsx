@@ -253,7 +253,7 @@ function AddUserWindow({ show, onHide, onUserAdded }) {
                                     <InputGroup.Text><BsTelegram /></InputGroup.Text>
                                     <Form.Control
                                         type="text"
-                                        name="telegramlogin"
+                                        name="telegram"
                                         value={user.telegramlogin}
                                         onChange={handleChange}
                                         placeholder="@telegram"

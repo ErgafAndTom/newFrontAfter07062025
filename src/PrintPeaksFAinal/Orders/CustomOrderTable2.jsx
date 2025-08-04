@@ -44,7 +44,7 @@ const CustomOrderTable2 = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const url = currentUser.role === 'admin' ? '/orders/all' : '/orders/my';
+        const url = currentUser.role === 'admin' || currentUser.role === 'operator' ? '/orders/all' : '/orders/my';
         const postData = {
           inPageCount: limit,
           currentPage: currentPage,
