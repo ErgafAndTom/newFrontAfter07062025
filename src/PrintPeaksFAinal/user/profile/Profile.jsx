@@ -1,17 +1,19 @@
 import React, {useEffect, useState} from 'react';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {logout} from '../../../actions/authActions';
 import {Link, useParams} from 'react-router-dom';
 import axios from '../../../api/axiosInstance';
 import ContrAgentsInUserProfile from '../profile/ContrAgentsInUserProfile';
 import {buttonStyles, containerStyles, formStyles, avatarStyles, tabStyles} from '../profile/styles';
+import TelegramAvatar from "../../Messages/TelegramAvatar";
 
 function ClientUserProfile() {
   const dispatch = useDispatch();
+  const user = useSelector(state => state.auth.user);
   const {id} = useParams();
   const [activeTab, setActiveTab] = useState('profile');
   const [editMode, setEditMode] = useState(false);
-  const [thisUser, setThisUser] = useState({id});
+  const [thisUser, setThisUser] = useState(user);
   const [isLoad, setIsLoad] = useState(false);
   const [isError, setIsError] = useState(null);
 
@@ -29,7 +31,7 @@ function ClientUserProfile() {
 
   useEffect(() => {
     setIsLoad(true);
-    axios.get(`/user/getOneUser/${id}`)
+    axios.get(`/user/getOneUser/${thisUser.id}`)
       .then(response => {
         setThisUser(response.data);
         setIsError(null);
@@ -106,11 +108,14 @@ function ClientUserProfile() {
 
       {activeTab === 'profile' && (
         <div style={containerStyles.contentContainer}>
-          <img
-            src={thisUser.photoLink || '/default-avatar.png'}
-            alt='Аватар'
-            style={avatarStyles.profileAvatar}
-          />
+          {/*<img*/}
+          {/*  src={thisUser.photoLink || '/default-avatar.png'}*/}
+          {/*  alt='Аватар'*/}
+          {/*  style={avatarStyles.profileAvatar}*/}
+          {/*/>*/}
+          {user.telegram
+            ? <TelegramAvatar link={user.telegram} size={100} defaultSrc="/default-avatar.png" />
+            : ''}
 
           {editMode ? (
             <>
