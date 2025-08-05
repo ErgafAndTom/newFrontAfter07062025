@@ -440,7 +440,12 @@ const NewSheetCut = ({
                     {/*</div>*/}
                   </div>
                 </Row>
-                <div style={{position:"absolute", top:"7vh", right:"1vw"}}><IsoButtons /></div>
+                <div style={{position:"absolute", top:"7vh", right:"1vw"}}>
+                  <IsoButtons
+                    size={size}
+                    setSize={setSize}
+                  />
+                </div>
 
                 <div className="d-flex">
                   {thisOrder && (
