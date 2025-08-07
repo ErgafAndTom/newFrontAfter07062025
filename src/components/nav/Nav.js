@@ -17,6 +17,7 @@ import {fetchTrelloData} from "../../actions/trello_async_actions";
 import iii from './logo/logo.svg';
 import LogoWithText from './LogoWithText';
 import Laminator from "../../PrintPeaksFAinal/poslugi/Laminator";
+import NewSheetCut from "../../PrintPeaksFAinal/poslugi/NewSheetCut";
 
 const Nav = () => {
     const dispatch = useDispatch();
@@ -38,9 +39,9 @@ const Nav = () => {
     // Ефект для відслідковування зміни currentUser
     useEffect(() => {
         // Якщо користувач вийшов (currentUser став null), перезавантажуємо компонент
-        if (currentUser === null) {
-            console.log('Користувач вийшов')
-        }
+        // if (currentUser === null) {
+        //     console.log('Користувач вийшов')
+        // }
     }, [currentUser])
 
     useEffect(() => {
@@ -170,9 +171,22 @@ const Nav = () => {
         }}
       />
       <div style={{ height: '3.5vh', display: 'flex', alignItems: 'center', borderRadius: '0vh', }}>
-        {currentUser?.role === "admin"  || currentUser?.role === "operator" &&
-          <AddUserButton fetchUsers={() => dispatch(fetchUser())} />
-        }
+        <>
+          {currentUser &&
+            <>
+              {currentUser.role === "admin" &&
+                <>
+                  <AddUserButton fetchUsers={() => dispatch(fetchUser())}/>
+                </>
+              }
+              {currentUser.role === "operator" &&
+                <>
+                  <AddUserButton fetchUsers={() => dispatch(fetchUser())}/>
+                </>
+              }
+            </>
+          }
+        </>
       </div>
       {currentUser ? (
         <div className="d-flex align-items-center" style={{ height: '3.5vh'}}>
@@ -186,14 +200,17 @@ const Nav = () => {
                 marginTop: '-0.4vh'
               }}
             >
-              <FiSettings  />: {currentUser.username}
+              <FiSettings  />: {currentUser?.username} ({currentUser?.role})
             </button>
           </Link>
 
           {currentUser?.role === "admin" || currentUser?.role === "operator" &&
-            <PopupLeftNotification />
+            <>
+              <AddUserButton fetchUsers={() => dispatch(fetchUser())}/>
+              <PopupLeftNotification/>
+            </>
           }
-          {/*<PopupLeftNotification />*/}
+          <PopupLeftNotification />
 
           <button
             onClick={logoutt}

@@ -42,38 +42,40 @@ const CustomOrderTable2 = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const url = currentUser.role === 'admin' || currentUser.role === 'operator' ? '/orders/all' : '/orders/my';
-        const postData = {
-          inPageCount: limit,
-          currentPage: currentPage,
-          search: '',
-          columnName: { column: 'id', reverse: true },
-          startDate: '',
-          endDate: '',
-          statuses: {
-            status0: true,
-            status1: true,
-            status2: true,
-            status3: true,
-            status4: true,
-            status5: true,
-          }
-        };
+    if (currentUser) {
+      const fetchData = async () => {
+        try {
+          const url = currentUser.role === 'admin' || currentUser.role === 'operator' ? '/orders/all' : '/orders/my';
+          const postData = {
+            inPageCount: limit,
+            currentPage: currentPage,
+            search: '',
+            columnName: {column: 'id', reverse: true},
+            startDate: '',
+            endDate: '',
+            statuses: {
+              status0: true,
+              status1: true,
+              status2: true,
+              status3: true,
+              status4: true,
+              status5: true,
+            }
+          };
 
-        setLoading(true);
-        const res = await axios.post(url, postData);
-        setData(res.data);
-        setLoading(false);
-      } catch (err) {
-        if (err.response?.status === 403) navigate('/login');
-        setError(err.message);
-        setLoading(false);
-      }
-    };
+          setLoading(true);
+          const res = await axios.post(url, postData);
+          setData(res.data);
+          setLoading(false);
+        } catch (err) {
+          if (err.response?.status === 403) navigate('/login');
+          setError(err.message);
+          setLoading(false);
+        }
+      };
 
-    fetchData();
+      fetchData();
+    }
   }, [currentPage, limit, currentUser?.role]);
 
 

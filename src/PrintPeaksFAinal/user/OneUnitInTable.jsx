@@ -10,9 +10,9 @@ const OneUnitInTable = ({itemData, tablPosition, item, metaItem, handleItemClick
             case 'id':
                 return '2vw';
             case 'createdAt':
-                return '7vw';
+                return '6vw';
             case 'updatedAt':
-                return '7vw';
+                return '6vw';
 
             // Колонки користувачів
             case 'username':
@@ -26,15 +26,17 @@ const OneUnitInTable = ({itemData, tablPosition, item, metaItem, handleItemClick
             case 'email':
                 return '6vw';
             case 'company':
-                return '8vw';
+                return '4vw';
             case 'phoneNumber':
-                return '8vw';
+                return '5.3vw';
+            case 'telegram':
+              return '5.2vw';
             case 'address':
-                return '10vw';
+                return '3vw';
             case 'role':
                 return '4vw';
             case 'password':
-                return '5vw';
+                return '3vw';
             case 'lastLoginAt':
                 return '2.8vw';
             case 'discount':
@@ -59,7 +61,7 @@ const OneUnitInTable = ({itemData, tablPosition, item, metaItem, handleItemClick
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontSize: "0.7rem",
+        fontSize: "0.5vw",
         boxSizing: "border-box",
         textAlign: "center",
         background: "#FBFAF6",
