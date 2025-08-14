@@ -199,7 +199,8 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
           alignItems: 'flex-start',
           gap: '4px',
 
-          // width: '30vw',
+          width: '32vw',
+          height: '10vh',
           overflow: 'hidden',
           marginLeft: '0.4vw',
           marginTop: '0vh',

@@ -58,7 +58,7 @@ const ClientSelectionModal = ({
                               {user.lastName} {user.firstName}
                             </div>
                             <div className="discount">
-                              Знижка: {user.discount != null ? `${user.discount}%` : '—'}
+                              Знижка: {user.discount != null ? `${user.discount}` : '—'}
                             </div>
                           </div>
                           {user.telegram && (
@@ -80,7 +80,7 @@ const ClientSelectionModal = ({
                               <div className="userDetail">Компанія: {user.company || '—'}</div>
                               <div className="userBarcode">Штрих-код: {user.barcode || '—'}</div>
                               <div className="discount">
-                                Знижка: {user.discount != null ? `${user.discount}%` : '—'}
+                                Знижка: {user.discount != null ? `${user.discount}` : '—'}
                               </div>
                             </div>
 

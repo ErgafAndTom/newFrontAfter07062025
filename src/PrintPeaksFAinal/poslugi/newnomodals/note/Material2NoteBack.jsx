@@ -253,7 +253,7 @@ const Materials2NoteBack = ({
 
                 />
                 <div className="inputsArtemx allArtemElem" style={{border: "transparent", marginTop: "-2vh"}}> шт</div>
-                <div className="inputsArtemx allArtemElem" style={{border: "transparent", marginTop: "-2vh", width: "10vw"}}> (Сторінок: {materialAndDrukBack.count*2})</div>
+                <div className="inputsArtemx allArtemElem" style={{border: "transparent", marginTop: "-1.8vh", width: "8vw",opacity:"0.5", fontSize:"0.8vw"}}>Сторінок: {materialAndDrukBack.count*2} шт</div>
             </div>
 
             {/* 2. Друк */}

@@ -192,8 +192,11 @@ function AddUserWindow({ show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrde
                                     <InputGroup.Text><BsPercent /></InputGroup.Text>
                                     <Form.Control
                                         required
-
+                                        type="number"
                                         name="discount"
+                                        min="0"
+                                        max="50"
+                                        step="1"
                                         value={user.discount}
                                         onChange={handleChange}
                                         placeholder="Знижка (%)"
