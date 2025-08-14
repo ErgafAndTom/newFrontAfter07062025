@@ -6,6 +6,7 @@ import AwaitPays from "./AwaitPays";
 import {io} from 'socket.io-client';
 import Vishichka from "../poslugi/Vishichka";
 import {useSelector} from "react-redux";
+import PrroShiftBadge from "../prro/PrroShiftBadge";
 
 const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
   const [paymentState, setPaymentState] = useState('initial');
@@ -321,6 +322,14 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
           showAwaitPays={showAwaitPays}
         />
       }
+
+      <PrroShiftBadge
+        blockIfClosed
+        onState={({ shiftOpen }) => {
+          // например, можно дизейблить оплату, если смена закрыта
+          // setPosDisabled(!shiftOpen);
+        }}
+      />
     </div>
   );
 };
