@@ -22,7 +22,8 @@ const ClientSelectionModal = ({
 
   const [isClosing, setIsClosing] = useState(false); // ✅ тут
 
-  const filteredUsers = users.rows?.filter(u => u.firstName || u.lastName) || [];
+  const filteredUsers = users.rows || []
+  // const filteredUsers = users.rows?.filter(u => u.firstName || u.lastName) || [];
 
   // const [searchQuery, setSearchQuery] = useState('');
 
