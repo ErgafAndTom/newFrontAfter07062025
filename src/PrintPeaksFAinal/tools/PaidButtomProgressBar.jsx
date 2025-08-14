@@ -323,13 +323,13 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
         />
       }
 
-      <PrroShiftBadge
-        blockIfClosed
-        onState={({ shiftOpen }) => {
-          // например, можно дизейблить оплату, если смена закрыта
-          // setPosDisabled(!shiftOpen);
-        }}
-      />
+      {/*<PrroShiftBadge*/}
+      {/*  blockIfClosed*/}
+      {/*  onState={({ shiftOpen }) => {*/}
+      {/*    // например, можно дизейблить оплату, если смена закрыта*/}
+      {/*    // setPosDisabled(!shiftOpen);*/}
+      {/*  }}*/}
+      {/*/>*/}
     </div>
   );
 };

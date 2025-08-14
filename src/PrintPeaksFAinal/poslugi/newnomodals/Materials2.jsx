@@ -156,12 +156,36 @@ const Materials2 = ({
                                 value={item.name}
                                 data-id={item.id}
                             >
-                                <>{"id:"}</>
-                                <>{item.id}</>
+                                {/*<>{"id:"}</>*/}
+                                {/*<>{item.id}</>*/}
                                 <>{" "}</>
                                 <>{item.name}</>
                                 <>{" "}</>
-                                <>{item.thickness} gsm</>
+                              {material.type === "Магніт" &&
+                                <>{item.thickness} мм</>
+                              }
+                              {material.type === "ПВХ FactoryWide" &&
+                                <>{item.thickness} мм</>
+                              }
+                              {/*{material.type === "Папір FactoryWide" &&*/}
+                              {/*  <>{item.thickness} мм</>*/}
+                              {/*}*/}
+                              {/*{material.type === "Плівка" ||*/}
+                              {/*  material.type === "Папір" ||*/}
+                              {/*  material.type === "Папір FactoryWide" ||*/}
+                              {/*  material.type === "Плівка FactoryWide" ||*/}
+                              {/*  material.type === "Баннер FactoryWide" &&*/}
+                              {/*  <>{item.thickness} gsm</>*/}
+                              {/*}*/}
+
+                              {(
+                                material.type === "Плівка" ||
+                                material.type === "Папір" ||
+                                material.type === "Папір FactoryWide" ||
+                                material.type === "Папір Широкоформат" ||
+                                material.type === "Плівка FactoryWide" ||
+                                material.type === "Баннер FactoryWide"
+                              ) && <>{item.thickness} gsm</>}
                                 {/*<>{"id:"}</>*/}
                                 {/*<> {item.x}</>*/}
                                 {/*<>x</>*/}

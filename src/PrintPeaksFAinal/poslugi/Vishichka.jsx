@@ -10,6 +10,7 @@ import Loader from "../../components/calc/Loader";
 import PerepletPereplet from "./newnomodals/PerepletPereplet";
 import VishichkaVibor from "./newnomodals/vishichka/VishichkaVibor";
 import PlivkaMontajna from "./newnomodals/plivka/PlivkaMontajna";
+import NewNoModalLamination from "./newnomodals/NewNoModalLamination";
 
 const Vishichka = ({
                        thisOrder,
@@ -60,9 +61,10 @@ const Vishichka = ({
     });
     const [lamination, setLamination] = useState({
         type: "Не потрібно",
-        material: "",
+        material: "З глянцевим ламінуванням",
         materialId: "",
-        size: ""
+        size: "",
+        typeUse: "А3"
     });
     const [vishichka, setVishichka] = useState({
         type: "vishichka",
@@ -193,7 +195,7 @@ const Vishichka = ({
                 }
                 console.log(error.message);
             })
-    }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, vishichka, plivkaMontajna]);
+    }, [size, material, color, lamination.materialId, big, cute, cuteLocal, holes, holesR, count, vishichka, plivkaMontajna]);
 
     useEffect(() => {
         if (showVishichka) {
@@ -332,7 +334,19 @@ const Vishichka = ({
                                                 buttonsArr={["З плотерною порізкою на надрукованих аркушах", "З плотерною порізкою стікерпаків", "З плотерною порізкою окремими виробами",]}
                                                 defaultt={"А3 (297 х 420 мм)"}
                                             />
+                                          <NewNoModalLamination
+                                            lamination={lamination}
+                                            setLamination={setLamination}
+                                            prices={prices}
+                                            size={size}
+                                            type={"SheetCut"}
+                                            isVishichka={true}
 
+                                            buttonsArr={["З глянцевим ламінуванням",
+                                              "З матовим ламінуванням",
+                                              "З ламінуванням Soft Touch",]}
+                                            selectArr={["30", "80", "100", "125"]}
+                                          />
                                           <PlivkaMontajna
                                             size={size}
                                             plivkaMontajna={plivkaMontajna}
@@ -405,8 +419,8 @@ const Vishichka = ({
                                         </div>
                                     ) : (
                                         <div className="d-flex justify-content-between pricesBlockContainer"
-                                             style={{height: "20v min"}}>
-                                            <div className="" style={{height: "19vmin"}}>
+                                             style={{height: "12vw"}}>
+                                            <div className="" style={{padding: "1vh"}}>
                                                 <div className="fontInfoForPricing">
                                                     Друк: {pricesThis.priceDrukPerSheet} грн
                                                     * {pricesThis.sheetCount} шт
@@ -424,18 +438,26 @@ const Vishichka = ({
                                                     Висічка: {pricesThis.priceVishichkaPerSheet} грн
                                                     * {pricesThis.sheetCount} шт = {pricesThis.totalVishichkaPrice} грн
                                                 </div>
+
+                                              <div className="fontInfoForPricing">
+                                                Монтажка + вибірка: {pricesThis.pricePlivkaPerSheet} грн
+                                                * {pricesThis.sheetCount} шт = {pricesThis.totalPlivkaPrice} грн
+                                              </div>
+                                              <div className="fontInfoForPricing">
+                                                Ламінація: {pricesThis.priceLaminationPerSheet} грн * {pricesThis.sheetCount} шт =
+                                                {pricesThis.priceLaminationPerSheet * pricesThis.sheetCount} грн
+                                              </div>
                                                 {/*<div className="fontInfoForPricing">
         Свердління отворів: {pricesThis.priceForThisUnitOfCute} грн * {pricesThis.sheetCount} шт = {pricesThis.priceForAllUnitsOfCute} грн
     </div>*/}
-                                                <div className="fontInfoForPricing1">
+                                                <div className="fontInfoForPricing1"  style={{marginTop: '0.5vw', color: '#ee3c23'}}>
                                                     Загалом: {pricesThis.price} грн
                                                 </div>
                                                 <div className="fontInfoForPricing">
-                                                    - З одного аркуша A3 можна
-                                                    зробити {pricesThis.sheetsPerUnit} виробів
+                                                    - З одного аркуша можна виробити: {pricesThis.sheetsPerUnit} шт
                                                 </div>
                                                 <div className="fontInfoForPricing">
-                                                    - Використано {pricesThis.sheetCount} аркушів (SR A3)
+                                                    - Використано аркушів(А3/SrA3/SrA3+): {pricesThis.sheetCount}  шт
                                                 </div>
 
                                               <div className="fontInfoForPricing1">

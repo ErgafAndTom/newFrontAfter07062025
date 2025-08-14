@@ -195,10 +195,17 @@ const Materials2NoteBack = ({
     const handleColorCountChange = (e) => {
         const value = Number(e.target.value);
         const value2 = e.target.value;
+      if (value % 2 !== 0) {
         setMaterialAndDrukBack((prev) => ({
-            ...prev,
-            count: value
+          ...prev,
+          count: value+1
         }));
+      } else {
+        setMaterialAndDrukBack((prev) => ({
+          ...prev,
+          count: value
+        }));
+      }
     };
 
     return (
@@ -249,7 +256,8 @@ const Materials2NoteBack = ({
 
 
                     }}
-                    min={1}
+                    min={2}
+                    step={2}
 
                 />
                 <div className="inputsArtemx allArtemElem" style={{border: "transparent", marginTop: "-2vh"}}> шт</div>

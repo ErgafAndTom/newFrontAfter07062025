@@ -223,7 +223,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
               </div>
               <strong className="" style={{position: "fixed", bottom: "8vh", marginLeft:"-1vw"}}>
             <span
-              className="">     Знижка: {thisOrder.client.discount}%</span></strong>
+              className="">     Знижка: {thisOrder.client.discount}</span></strong>
 
             </div>
 

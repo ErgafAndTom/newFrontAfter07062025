@@ -6,7 +6,7 @@ import './newnomodals/ArtemStyles.css';
 import versantIcon from "../public/wided@2x.png";
 import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
 import Materials2 from "./newnomodals/Materials2";
-import SliderComponentFactory from "./newnomodals/SlidersComponentFactory";
+import SliderComponent from "./newnomodals/SlidersComponent";
 import {useNavigate} from "react-router-dom";
 import Loader from "../../components/calc/Loader";
 import imgg3 from "../../components/newUIArtem/printers/p3.svg";
@@ -387,18 +387,7 @@ const WideFactory = ({
                       buttonsArr={[]}
                     />
                   </div>
-                    <SliderComponentFactory
-                      size={size}
-                      setSize={setSize}
-                      prices={prices}
-                      type={"Wide"}
-                      buttonsArr={["односторонній"]}
-                      color={color}
-                      setColor={setColor}
-                      count={count}
-                      setCount={setCount}
-
-                    />
+                  <SliderComponent type="WideFactory" size={size} setSize={setSize} />
 
 
                     {selectWideFactory === "Баннер FactoryWide" &&

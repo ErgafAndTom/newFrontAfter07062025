@@ -126,7 +126,7 @@ const NewNote = ({
         laminationmaterial: "",
         laminationmaterialId: "",
         typeUse: "",
-        count: 1
+        count: 50
     });
 
 
@@ -545,33 +545,35 @@ const NewNote = ({
                                                     <strong> Загалом: {pricesThis.totalSheetPriceBack} грн</strong>
                                                 </div>
                                                 <div className="fontInfoForPricing">
-                                                    Використано {pricesThis.sheetCount} шт A3+
+                                                    Використано {pricesThis.sheetCountBack} шт A3+
                                                 </div>
                                             </div>
                                             <div className="d-flex flex-column" style={{marginLeft: '2vw'}}>
                                                 <div className="fontInfoForPricing">
-                                                    <strong>Прошивка:</strong>
+                                                    <strong>Брошурування:</strong>
                                                 </div>
 
                                                 <div className="fontInfoForPricing">
-                                                    Перепліт: {pricesThis.pricePerepletUnit} грн * {count} шт
+                                                  {pereplet.material}: {pricesThis.pricePerepletUnit} грн * {count} шт
                                                     = {pricesThis.totalPerepletPrice} грн
                                                 </div>
+                                              <div className="fontInfoForPricing">
+                                                <strong> Загалом: {pricesThis.totalPerepletPrice} грн</strong>
+                                              </div>
                                             </div>
                                         </div>
 
 
                                         {/* Итоговые данные */}
-                                        <div className="fontInfoForPricing1" style={{marginTop: '1vw'}}>
+                                        <div className="fontInfoForPricing1" style={{marginTop: '0.5vw', color: '#ee3c23'}}>
                                             Загальна сума: {pricesThis.price} грн
                                         </div>
                                         <div className="fontInfoForPricing">
-                                            З одного аркуша A3+ можна зробити {pricesThis.sheetsPerUnit} шт
+                                          Тиражування відбувається кратно {pricesThis.sheetsPerUnit} шт
                                         </div>
 
                                         <div className="fontInfoForPricing">
-                                            Ціна за виріб (з урахуванням
-                                            постпресу): {pricesThis.priceForItemWithExtras} грн
+                                            Ціна за виріб:  {pricesThis.priceForItemWithExtras} грн
                                         </div>
                                     </div>
 
@@ -581,8 +583,9 @@ const NewNote = ({
                                         alt="sssss"
                                         src={versantIcon}
                                         style={{
-                                            width: "7vw",
+                                            width: "6vw",
                                             justifyContent: "center",
+                                            marginRight: "1vw",
                                         }}
                                     />
                                 </div>

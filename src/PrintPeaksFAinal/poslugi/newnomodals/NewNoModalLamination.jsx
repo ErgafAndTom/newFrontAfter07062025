@@ -3,7 +3,7 @@ import axios from '../../../api/axiosInstance';
 import {Navigate, useNavigate} from "react-router-dom";
 import "../../global.css"
 
-const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, selectArr, size, type}) => {
+const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, selectArr, size, type, isVishichka}) => {
     const [thisLaminationSizes, setThisLaminationSizes] = useState([]);
     const [error, setError] = useState(null);
     const [load, setLoad] = useState(true);
@@ -81,21 +81,41 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
             .then(response => {
                 console.log(response.data);
                 setLoad(false)
+                // const filtered = response.data.rows?.filter(u => u.thickness === "250");
+              if(isVishichka){
+                const filteredData = response.data.rows?.filter(u => u.thickness < 249);
+                setThisLaminationSizes(filteredData)
+                if(response.data && response.data.rows && response.data.rows[0]){
+                  setLamination({
+                    ...lamination,
+                    // material: response.data.rows[0].name,
+                    materialId: filteredData[0].id,
+                    size: `${filteredData[0].thickness}`
+                  })
+                } else {
+                  setThisLaminationSizes([])
+                  setLamination({
+                    ...lamination,
+                    materialId: 0,
+                  })
+                }
+              } else {
                 setThisLaminationSizes(response.data.rows)
                 if(response.data && response.data.rows && response.data.rows[0]){
-                    setLamination({
-                        ...lamination,
-                        // material: response.data.rows[0].name,
-                        materialId: response.data.rows[0].id,
-                        size: `${response.data.rows[0].thickness}`
-                    })
+                  setLamination({
+                    ...lamination,
+                    // material: response.data.rows[0].name,
+                    materialId: response.data.rows[0].id,
+                    size: `${response.data.rows[0].thickness}`
+                  })
                 } else {
-                    setThisLaminationSizes([])
-                    setLamination({
-                        ...lamination,
-                        materialId: 0,
-                    })
+                  setThisLaminationSizes([])
+                  setLamination({
+                    ...lamination,
+                    materialId: 0,
+                  })
                 }
+              }
             })
             .catch(error => {
                 setLoad(false)
@@ -106,7 +126,7 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
                 setThisLaminationSizes([])
                 console.log(error.message);
             })
-    }, [lamination.material, size]);
+    }, [lamination.material, lamination.type, size]);
 
     return (<div className="d-flex allArtemElem" >
         <div style={{display: 'flex', alignItems: 'center', marginTop: "1vw", marginLeft: "0vw"}}>

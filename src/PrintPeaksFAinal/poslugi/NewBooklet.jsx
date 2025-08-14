@@ -169,7 +169,7 @@ const NewBooklet = ({
         laminationmaterial: "",
         laminationmaterialId: "",
         typeUse: "",
-        count: 2
+        count: 12
     });
 
     const [pereplet, setPereplet] = useState({
@@ -565,33 +565,35 @@ const NewBooklet = ({
                                                     <strong> Загалом: {pricesThis.totalSheetPriceBack} грн</strong>
                                                 </div>
                                                 <div className="fontInfoForPricing">
-                                                    Використано {pricesThis.sheetCount} шт A3+
+                                                    Використано {pricesThis.sheetCountBack} шт A3+
                                                 </div>
                                             </div>
                                             <div className="d-flex flex-column" style={{marginLeft: '2vw'}}>
                                                 <div className="fontInfoForPricing">
-                                                    <strong>Прошивка:</strong>
+                                                    <strong>Брошурування:</strong>
                                                 </div>
 
                                                 <div className="fontInfoForPricing">
-                                                    Перепліт: {pricesThis.pricePerepletUnit} грн * {count} шт
+                                                  {pereplet.material}: {pricesThis.pricePerepletUnit} грн * {count} шт
                                                     = {pricesThis.totalPerepletPrice} грн
                                                 </div>
+                                              <div className="fontInfoForPricing">
+                                                <strong> Загалом: {pricesThis.totalPerepletPrice} грн</strong>
+                                              </div>
                                             </div>
                                         </div>
 
 
                                         {/* Итоговые данные */}
-                                        <div className="fontInfoForPricing1" style={{marginTop: '1vw'}}>
+                                        <div className="fontInfoForPricing1" style={{marginTop: '0.5vw', color: '#ee3c23'}}>
                                             Загальна сума: {pricesThis.price} грн
                                         </div>
                                         <div className="fontInfoForPricing">
-                                            З одного аркуша A3+ можна зробити {pricesThis.sheetsPerUnit} шт
+                                          Тиражування відбувається кратно {pricesThis.sheetsPerUnit/2} шт
                                         </div>
 
                                         <div className="fontInfoForPricing">
-                                            Ціна за виріб (з урахуванням
-                                            постпресу): {pricesThis.priceForItemWithExtras} грн
+                                            Ціна за 1 шт: {pricesThis.priceForItemWithExtras} грн
                                         </div>
                                     </div>
 
@@ -602,6 +604,8 @@ const NewBooklet = ({
                                         src={evroskoba}
                                         style={{
                                             width: "7vw",
+                                            height: "18vh",
+                                          marginRight:"1vw",
                                             justifyContent: "center",
                                         }}
                                     />

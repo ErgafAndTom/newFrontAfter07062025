@@ -113,6 +113,23 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
         xMaxValue = 1000
         yMaxValue = 5000
         invalid = `Будь-ласка введіть розмір від ${minXYValue} до ${maxXYValue} (y до ${yMaxValue}).`
+    } else if (type === "Magnets") {
+        formats = [
+            {name: "Задати свій розмір", x: 1, y: 1},
+            // {name: "A4 (210 x 297 мм)", x: 210, y: 297},
+            // {name: "А3 (297 х 420 мм)", x: 297, y: 420},
+            {name: "A7 (75 x 105 мм)", x: 75, y: 105},
+            {name: "А6 (105 x 145 мм)", x: 105, y: 145},
+            {name: "100 х 150 мм", x: 100, y: 150},
+            {name: "А5 (148 x 210 мм)", x: 148, y: 210},
+            {name: "A4 (210 x 297 мм)", x: 210, y: 297},
+            {name: "А3 (297 х 420 мм)", x: 297, y: 420},
+        ]
+        minXYValue = 50
+        maxXYValue = 1000
+        xMaxValue = 600
+        yMaxValue = 1000
+        invalid = `Максимальна ширина: ${xMaxValue} Максимальна довжина ${yMaxValue}`
     } else if (type === "WideFactory") {
       formats = [
         {name: "Задати свій розмір", x: 1, y: 1},

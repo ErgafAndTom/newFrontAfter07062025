@@ -34,7 +34,7 @@ const LogoWithText = ({ logoSrc }) => {
         className="shinyFaded"
         alt="logo"
         style={{
-          height: '3.5vh',
+          height: '1.7vw',
           objectFit: 'contain',
           // background: 'transparent',
         }}
@@ -48,7 +48,7 @@ const LogoWithText = ({ logoSrc }) => {
           position: 'absolute',
           top: '0.6vh',
           right: '0vw', // ключове — ставимо прив’язку до правого краю
-          fontSize: '1.2vh',
+          fontSize: '0.6vw',
           fontFamily: 'Montserrat, sans-serif',
           fontWeight: 'bold',
           color: 'black', // або білий, залежно від фону
@@ -61,14 +61,14 @@ const LogoWithText = ({ logoSrc }) => {
            onClick={handleLogoClick}
            style={{
              position: 'absolute',
-             top: '2vh',
-             right: '0.1vw', // ключове — ставимо прив’язку до правого краю
-             fontSize: '0.8vh',
+             top: '1vw',
+             right: '0vw', // ключове — ставимо прив’язку до правого краю
+             fontSize: '0.4vw',
              fontFamily: 'Montserrat, sans-serif',
              fontWeight: 'bold',
              color: 'black', // або білий, залежно від фону
              zIndex: 2000,
-           }}>v.11.17</div>
+           }}>v.12.03</div>
 
     </div>
   );

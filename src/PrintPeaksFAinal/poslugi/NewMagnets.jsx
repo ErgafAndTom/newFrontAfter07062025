@@ -42,8 +42,8 @@ const NewMagnets = ({
 
 
     const [size, setSize] = useState({
-        x: 420,
-        y: 594
+        x: 100,
+        y: 150
     });
     const [material, setMaterial] = useState({
         type: "Магніт",
@@ -255,7 +255,7 @@ const NewMagnets = ({
                                             size={size}
                                             setSize={setSize}
                                             prices={prices}
-                                            type={"Wide"}
+                                            type={"Magnets"}
                                             buttonsArr={["односторонній"]}
                                             color={color}
                                             setColor={setColor}
@@ -267,7 +267,7 @@ const NewMagnets = ({
                                             size={size}
                                             setSize={setSize}
                                             prices={prices}
-                                            type={"Wide"}
+                                            type={"Magnets"}
                                             buttonsArr={["односторонній"]}
                                             color={color}
                                             setColor={setColor}

@@ -140,7 +140,7 @@ const PlivkaMontajna = ({
                 {/*<>{" "}</>*/}
                 <>{item.name}</>
                 <>{" "}</>
-                <>{item.thickness} gsm</>
+                {/*<>{item.thickness} gsm</>*/}
                 {/*<>{"id:"}</>*/}
                 {/*<> {item.x}</>*/}
                 {/*<>x</>*/}

@@ -25,9 +25,9 @@ const DeliveryPage = ({
 
   // Форма доставки
   const [deliveryType, setDeliveryType] = useState("Нова Пошта");
-  const [city, setCity] = useState("");
-  const [warehouse, setWarehouse] = useState("");
-  const [courierAddress, setCourierAddress] = useState("");
+  const [city, setCity] = useState(1);
+  const [warehouse, setWarehouse] = useState(50);
+  const [courierAddress, setCourierAddress] = useState(1);
   const [cost, setCost] = useState(null);
   const [error, setError] = useState(null);
 
@@ -198,25 +198,33 @@ const DeliveryPage = ({
               {/*</select>*/}
               {/*</div>*/}
               <>
-                <div className={"d-flex flex-row align-items-center justify-content-start gap-3"}>
-                  <label className="fontInfoForPricing">кількість</label>
+                <div className={"d-flex flex-row align-items-center justify-content-start gap-1"}>
+                  <label className="fontInfoForPricing" >Кількість: </label>
                   <input
                     type="number"
+                    style={{marginLeft:"0.5vw"}}
                     min={1}
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="inputsArtem"
                   />
+                  <div className="inputsArtemx allArtemElem"
+                       style={{border: "transparent", marginTop: "-2vh"}}> шт
+                  </div>
                 </div>
-                <div className={"d-flex flex-row align-items-center justify-content-start gap-3"}>
-                  <label className="fontInfoForPricing mt-2">ціна</label>
+                <div className={"d-flex flex-row align-items-center justify-content-start gap-1"}>
+                  <label className="fontInfoForPricing mt-2">Ціна: </label>
                   <input
                     type="number"
-                    min={1}
+                    min={50}
+                    style={{marginLeft:"0.5vw"}}
                     value={warehouse}
                     onChange={(e) => setWarehouse(e.target.value)}
                     className="inputsArtem"
                   />
+                  <div className="inputsArtemx allArtemElem"
+                       style={{border: "transparent", marginTop: "-2vh"}}> грн
+                  </div>
                 </div>
               </>
 
@@ -276,7 +284,7 @@ const DeliveryPage = ({
 
 
           {/* Блок вартості + кнопка */}
-          <div className="d-flex" style={{ marginLeft: "2.5vw"}}>
+          <div className="d-flex" style={{ marginTop: "1.5vw", marginLeft: "1.6vw"}}>
             <button className="adminButtonAdd" onClick={addDeliveryToOrder}
                     // disabled={!cost && deliveryType !== "Самовивіз"}
                     style={{background:"#fab416"}}>

@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import axios from '../../../../api/axiosInstance';
 import {useNavigate} from "react-router-dom";
 import {Spinner} from "react-bootstrap";
+import NewScans from "../../NewScans";
 
 const Materials2Cup = ({
                            material,
@@ -161,7 +162,10 @@ const Materials2Cup = ({
                                 {/*<>{" "}</>*/}
                                 <>{item.name}</>
                                 <>{" "}</>
+                              {item.thickness > 0 &&
                                 <>{item.thickness} мл</>
+                              }
+
                                 {/*<>{"id:"}</>*/}
                                 {/*<>{item.typeUse}</>*/}
                                 {/*<>{" "}</>*/}

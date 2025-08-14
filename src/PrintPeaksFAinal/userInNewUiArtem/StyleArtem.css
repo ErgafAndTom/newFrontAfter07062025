@@ -5566,7 +5566,7 @@
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    padding: 1.5rem;
+    padding: 1.2vw;
     transform: skew(-15deg);
     background-color: #eee; /* можна міняти через класи bg-xxx */
     transition: transform 0.3s;
@@ -5605,8 +5605,8 @@
     font-weight: 900;
     width: 80%;
     margin-bottom: 5vh;
-    padding-bottom: 0.5rem;
-    font-size: 1.5vmin;
+    padding-bottom: 0.5vw;
+    font-size: 0.9vw;
     object-fit: contain;
 
 
