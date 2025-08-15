@@ -16,6 +16,7 @@ import { FiPhoneCall } from 'react-icons/fi';
 import {FaTelegramPlane, FaViber} from 'react-icons/fa';
 import Pagination from "../tools/Pagination";
 import Vishichka from "../poslugi/Vishichka";
+import FiltrOrders from "./FiltrOrders";
 
 
 
@@ -32,6 +33,18 @@ const CustomOrderTable2 = () => {
   const navigate = useNavigate();
   const [limit, setLimit] = useState(50);
 
+  const [typeSelect, setTypeSelect] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [statuses, setStatuses] = useState({
+    status0: true,
+    status1: true,
+    status2: true,
+    status3: true,
+    status4: true,
+    status5: true
+  });
+
   const toggleOrder = (orderId) => {
     setExpandedOrderId(prevId => (prevId === orderId ? null : orderId));
   };
@@ -46,22 +59,32 @@ const CustomOrderTable2 = () => {
       const fetchData = async () => {
         try {
           const url = currentUser.role === 'admin' || currentUser.role === 'operator' ? '/orders/all' : '/orders/my';
+          // const postData = {
+          //   inPageCount: limit,
+          //   currentPage: currentPage,
+          //   search: '',
+          //   columnName: {column: 'id', reverse: true},
+          //   startDate: '',
+          //   endDate: '',
+          //   statuses: {
+          //     status0: true,
+          //     status1: true,
+          //     status2: true,
+          //     status3: true,
+          //     status4: true,
+          //     status5: true,
+          //   }
+          // };
           const postData = {
             inPageCount: limit,
             currentPage: currentPage,
             search: '',
             columnName: {column: 'id', reverse: true},
-            startDate: '',
-            endDate: '',
-            statuses: {
-              status0: true,
-              status1: true,
-              status2: true,
-              status3: true,
-              status4: true,
-              status5: true,
-            }
+            startDate: startDate,
+            endDate: endDate,
+            statuses: statuses
           };
+
 
           setLoading(true);
           const res = await axios.post(url, postData);
@@ -76,7 +99,8 @@ const CustomOrderTable2 = () => {
 
       fetchData();
     }
-  }, [currentPage, limit, currentUser?.role]);
+  }, [currentPage, limit, currentUser?.role, startDate, endDate, statuses.status0, statuses.status1, statuses.status2, statuses.status3, statuses.status4, statuses.status5,
+  ]);
 
 
   const getStatusColor = (status, isCancelled) => {
@@ -101,11 +125,11 @@ const CustomOrderTable2 = () => {
     return `rgba(${r},${g},${b},${alpha})`;
   };
 
-  if (loading) {
-    return <div className="d-flex justify-content-center align-items-center" style={{ height: "100%" }}>
-      <Spinner animation="border" variant="dark" />
-    </div>;
-  }
+  // if (loading) {
+  //   return <div className="d-flex justify-content-center align-items-center" style={{ height: "100%" }}>
+  //     <Spinner animation="border" variant="dark" />
+  //   </div>;
+  // }
 
   if (error) {
     return <div className="text-center text-danger">{error}</div>;
@@ -135,6 +159,18 @@ const CustomOrderTable2 = () => {
         <div className="summary-cell barcode-orders d-flex justify-content-center" style={{opacity:"1"}}>Штрих-код</div>
       </div>
       {/* data rows */}
+
+      <FiltrOrders
+        typeSelect={typeSelect}
+        setTypeSelect={setTypeSelect}
+        startDate={startDate}
+        setStartDate={setStartDate}
+        endDate={endDate}
+        setEndDate={setEndDate}
+        statuses={statuses}
+        setStatuses={setStatuses}
+      />
+
       {data?.rows.map(order => {
         const isExpanded = expandedOrderId === order.id;
         const isCancelled = parseInt(order.status) === 5; // або адаптуй під свою логіку

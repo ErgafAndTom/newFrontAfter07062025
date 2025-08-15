@@ -18,6 +18,7 @@ import {da} from "date-fns/locale";
 import NewNote from "../poslugi/NewNote";
 import {columnTranslations, translateColumnName} from "./translations";
 import ModalDeleteOrder from "../Orders/ModalDeleteOrder";
+import Pagination from "../tools/Pagination";
 
 
 // Основний компонент CustomOrderTable
@@ -35,6 +36,7 @@ const CustomStorageTable = ({name}) => {
   const [pageCount, setPageCount] = useState(null);
   const [typeSelect, setTypeSelect] = useState("");
   const [show, setShow] = useState("");
+  const [limit, setLimit] = useState(50);
   const [thisColumn, setThisColumn] = useState({
     column: "id",
     reverse: false
@@ -272,10 +274,11 @@ const CustomStorageTable = ({name}) => {
         <div className="CustomOrderTable-body "
              style={{
                maxWidth: '99vw',
-               height: "82vh",
+               height: "85vh",
                // background: "transparent",
                display: "flex",
-               flexDirection: "column"
+               flexDirection: "column",
+               overflowY: "auto",
              }}>
 
           {data.rows.map((item, iter) => (
@@ -314,6 +317,17 @@ const CustomStorageTable = ({name}) => {
               url={"/materials/All"}
               thisColumn={thisColumn}
             />
+
+
+            {/*{data?.count > 1 && (*/}
+            {/*  <Pagination*/}
+            {/*    currentPage={currentPage}*/}
+            {/*    totalPages={Math.ceil(data.count / limit)}*/}
+            {/*    onPageChange={setCurrentPage}*/}
+            {/*    onLimitChange={setLimit}*/}
+            {/*    limit={limit}*/}
+            {/*  />*/}
+            {/*)}*/}
           </div>
           <div className="right-group" style={{display: "flex", alignItems: "center"}}>
             <Button
@@ -377,7 +391,15 @@ const CustomStorageTable = ({name}) => {
           url={`/materials`}
         />
 
-
+        {/*{data?.count > 1 && (*/}
+        {/*  <Pagination*/}
+        {/*    currentPage={currentPage}*/}
+        {/*    totalPages={Math.ceil(data.count / limit)}*/}
+        {/*    onPageChange={setCurrentPage}*/}
+        {/*    onLimitChange={setLimit}*/}
+        {/*    limit={limit}*/}
+        {/*  />*/}
+        {/*)}*/}
         <Offcanvas show={show} onHide={handleClose}>
           <Offcanvas.Header closeButton>
             <Offcanvas.Title>Додавання нового матеріалу</Offcanvas.Title>

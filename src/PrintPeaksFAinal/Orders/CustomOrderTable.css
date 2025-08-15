@@ -10,6 +10,7 @@
     border-radius: 1rem;
     align-items: stretch;
     background-color: #FBFAF6;
+  overflow-x: auto;
 
 }
 
@@ -254,7 +255,7 @@ body {
     width: 100%;
     transition: background-color 0.5s ease;
     margin: 0.2rem 0;
-  height: 95vh;
+    height: 95vh;
 
 }
 

@@ -351,10 +351,9 @@ const NewSheetCut = ({
                       prices={prices}
                       size={size}
                       type={"SheetCut"}
-
-                      buttonsArr={["З глянцевим ламінуванням",
-                        "З матовим ламінуванням",
-                        "З ламінуванням Soft Touch",]}
+                      buttonsArr={["з глянцевим ламінуванням",
+                        "з матовим ламінуванням",
+                        "з ламінуванням Soft Touch",]}
                       selectArr={["30", "80", "100", "125", "250"]}
                     />
                     <NewNoModalCornerRounding
@@ -502,7 +501,7 @@ const NewSheetCut = ({
                   </div>
                 ) : (
                   <div className="d-flex justify-content-between pricesBlockContainer"
-                       style={{height: "39vmin"}}>
+                       style={{height: "17vw", padding: "1vw"}}>
 
                     <div className="">
                       {/* Друк (рахується за sheetCount) */}
@@ -570,20 +569,17 @@ const NewSheetCut = ({
                       {/*<div className="fontInfoForPricing1">*/}
                       {/*  за штуку~: {(pricesThis.priceForItemWithExtras/pricesThis.sheetsPerUnit).toFixed(2)} грн*/}
                       {/*</div>*/}
-                      <div className="fontInfoForPricing1">
-                        За 1 виріб~: {(pricesThis.price/count).toFixed(2)} грн
-                      </div>
-                      <div className="fontInfoForPricing1">
+
+                      <div className="fontInfoForPricing1" style={{marginTop: '0.5vw', color: '#ee3c23'}}>
                         Загалом =: {(parseFloat(pricesThis.price/count).toFixed(2)*count).toFixed(2)} грн
                       </div>
 
                       {/* Інформація про кількість аркушів */}
                       <div className="fontInfoForPricing">
-                        - З одного аркуша {pricesThis.listsFromBd} можливо
-                        зробити {pricesThis.sheetsPerUnit} виробів
+                        - З одного аркуша можна виробити: {pricesThis.sheetsPerUnit} шт
                       </div>
                       <div className="fontInfoForPricing">
-                        - Затрачено {pricesThis.sheetCount} аркушів {pricesThis.listsFromBd}
+                        - Використано аркушів(А3/SrA3/SrA3+): {pricesThis.sheetCount}  шт
                       </div>
                       {/*<div className="fontInfoForPricing1">*/}
                       {/*    Вартість 1 аркуша: {pricesThis.unitSheetPrice.toFixed(2)} грн*/}
@@ -599,17 +595,28 @@ const NewSheetCut = ({
                       {/*</div>*/}
 
                       {/* Ціна за аркуш зі всіма допами */}
-                      <div className="fontInfoForPricing">
-                        Ціна за аркуш {pricesThis.listsFromBd} (зі всіма допами):
-                        &nbsp;{fmt2(pricesThis.priceForSheetWithExtras)} грн
+                      <div style={{
+                        position: "absolute",
+                        bottom:"1vh",
+                        right: "0.5vw",
+                        textAlign: "right",
+                        opacity: "0.5",
+                        fontSize: "0.7vh",
+                      }}>
+                        <div className="fontInfoForPricing" style={{fontSize: "0.85vw"}}>
+                          Вартість аркуша з постпресс обробкою :
+                          &nbsp;{fmt2(pricesThis.priceForSheetWithExtras)} грн
+                        </div>
+
+                        <div className="fontInfoForPricing" style={{fontSize: "0.85vw"}}>
+                          Вартість аркуша (лише матеріал та друк):
+                          &nbsp;{fmt2(pricesThis.priceForSheetMaterialPrint)} грн
+                        </div>
                       </div>
 
-                      {/* Ціна за аркуш лише матеріал + друк */}
-                      <div className="fontInfoForPricing">
-                        Ціна за аркуш {pricesThis.listsFromBd} (лише матеріал та друк):
-                        &nbsp;{fmt2(pricesThis.priceForSheetMaterialPrint)} грн
+                      <div className="fontInfoForPricing1">
+                        За 1 виріб: {(pricesThis.price/count).toFixed(2)} грн
                       </div>
-
                       {/*<div className="fontInfoForPricing">*/}
                       {/*    Ціна за all(2спосіб) {pricesThis.totalSheetPrice} грн*/}
                       {/*</div>*/}

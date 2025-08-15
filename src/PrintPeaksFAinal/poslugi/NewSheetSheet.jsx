@@ -56,7 +56,7 @@ const NewSheetSheet = ({
         type: "Папір",
         thickness: "Цупкий",
         material: "Крейдований",
-        materialId: "237",
+        materialId: "",
         typeUse: "Цупкий"
     });
 
@@ -311,9 +311,9 @@ const NewSheetSheet = ({
                                             prices={prices}
                                             size={size}
                                             type={"SheetCut"}
-                                            buttonsArr={["З глянцевим ламінуванням",
-                                                "З матовим ламінуванням",
-                                                "З ламінуванням Soft Touch",]}
+                                            buttonsArr={["з глянцевим ламінуванням",
+                                                "з матовим ламінуванням",
+                                                "з ламінуванням Soft Touch",]}
                                             selectArr={["30", "80", "100", "125", "250"]}
                                         />
                                         <NewNoModalCornerRounding
@@ -494,10 +494,10 @@ const NewSheetSheet = ({
                                             </div>
 
                                             {/* Додатковий розрахунок ціни за лист */}
-                                            <div className="fontInfoForPricing">
-                                                Ціна за аркуш {pricesThis.listsFromBd} (зі всіма
-                                                допами): {pricesThis.priceForSheetWithExtras.toFixed(2)} грн
-                                            </div>
+                                            {/*<div className="fontInfoForPricing">*/}
+                                            {/*    Ціна за аркуш {pricesThis.listsFromBd} (зі всіма*/}
+                                            {/*    допами): {pricesThis.priceForSheetWithExtras.toFixed(2)} грн*/}
+                                            {/*</div>*/}
                                             <div className="fontInfoForPricing">
                                                 Ціна за аркуш {pricesThis.listsFromBd} (лише матеріал та
                                                 друк): {pricesThis.priceForSheetMaterialPrint.toFixed(2)} грн
