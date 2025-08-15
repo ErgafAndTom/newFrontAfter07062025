@@ -81,7 +81,7 @@ const NewMagnets = ({
         let dataToSend = {
             orderId: thisOrder.id,
             toCalc: {
-                nameOrderUnit: `Друк ${selectedService ? selectedService + " " : ""}`,
+                nameOrderUnit: `Друк ${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
                 type: "Magnets",
                 size: size,
                 material: material,

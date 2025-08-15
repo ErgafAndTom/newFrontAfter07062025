@@ -100,7 +100,7 @@ const Vishichka = ({
         let dataToSend = {
             orderId: thisOrder.id,
             toCalc: {
-                nameOrderUnit: `Друк ${selectedService ? selectedService + " " : ""}`,
+                nameOrderUnit: `Друк ${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
                 type: "Vishichka",
                 size: size,
                 material: material,
@@ -341,7 +341,6 @@ const Vishichka = ({
                                             size={size}
                                             type={"SheetCut"}
                                             isVishichka={true}
-
                                             buttonsArr={["З глянцевим ламінуванням",
                                               "З матовим ламінуванням",
                                               "З ламінуванням Soft Touch",]}

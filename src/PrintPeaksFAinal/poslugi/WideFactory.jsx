@@ -150,7 +150,7 @@ const WideFactory = ({
     let dataToSend = {
       orderId: thisOrder.id,
       toCalc: {
-        nameOrderUnit: `Друк ${selectedService ? selectedService + " " : ""}`,
+        nameOrderUnit: `Друк ${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
         type: "Wide",
         size: size,
         material: material,

@@ -86,7 +86,7 @@ const NewPhoto = ({
         let dataToSend = {
             orderId: thisOrder.id,
             toCalc: {
-                nameOrderUnit: `Друк ${selectedService ? selectedService + " " : ""}`,
+                nameOrderUnit: `Друк ${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
                 type: "Photo",
                 size: size,
                 material: {
@@ -213,8 +213,8 @@ const NewPhoto = ({
                             <div className="m-auto text-center fontProductName">
                                 <div className="d-flex flex-wrap justify-content-center">
                                     {["Фотографії", "Диплома", "Сертифіката", "Подяки", "Візуалізації", "Графіки"].map((service, index) => (
-                                        <button 
-                                            key={index} 
+                                        <button
+                                            key={index}
                                             className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}
                                             style={{minWidth: "5vw"}}
                                             onClick={() => setSelectedService(service)}

@@ -24,7 +24,7 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
         if (lamination.type === "Не потрібно") {
             setLamination({
                 ...lamination,
-                type: "З глянцевим ламінуванням",
+                type: "",
                 material: "З глянцевим ламінуванням",
                 materialId: "",
                 size: "",

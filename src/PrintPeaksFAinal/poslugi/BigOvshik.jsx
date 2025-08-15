@@ -196,7 +196,16 @@ const BigOvshik = ({
     let dataToSend = {
       orderId: thisOrder.id,
       toCalc: {
-        nameOrderUnit: `Постпресс`,
+        nameOrderUnit: [
+          design !== "Не потрібно" ? "Дизайн" : null,
+          prokleyka !== "Не потрібно" ? "Проклейка" : null,
+          lyuversy !== "Не потрібно" ? "Люверси" : null,
+          big !== "Не потрібно" ? "Згинання" : null,
+          cute !== "Не потрібно" ? "Скруглення" : null,
+          holes !== "Не потрібно" ? "Свердління" : null
+        ]
+          .filter(Boolean)
+          .join(", ") || "Постпресс",
         type: "BigOvshik",
         size: size,
         material: material,
