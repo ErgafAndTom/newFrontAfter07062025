@@ -404,7 +404,7 @@ const NewUIArtem = () => {
                     >
                       <div
                         onClick={(e) => handleThingClickDelete2(thing)}
-                        className="battonClosed booooold">
+                        className="battonClosed">
                         ✕
                       </div>
                       {/*<span className="battonClosed" style={{*/}

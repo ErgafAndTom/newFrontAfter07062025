@@ -248,15 +248,16 @@ const BigOvshik = ({
     <div>
       <div
         style={{
-          width: "100vw",
-          height: "100vh",
-          background: "rgba(0,0,0,0.5)",
-          opacity: isAnimating ? 1 : 0,
-          transition: "opacity 0.3s",
-          position: "fixed",
+          position: 'fixed',
+          inset: 0,
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'rgba(15, 15, 15, 0.45)',
+          backdropFilter: 'blur(2px)',
+          WebkitBackdropFilter: 'blur(2px)',
           zIndex: 99,
-          left: 0,
-          bottom: 0
+          opacity: isAnimating ? 1 : 0,
+          transition: 'opacity 200ms ease'
         }}
         onClick={handleClose}
       />

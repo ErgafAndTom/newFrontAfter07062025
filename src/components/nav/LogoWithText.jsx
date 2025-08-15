@@ -52,7 +52,7 @@ const LogoWithText = ({ logoSrc }) => {
           fontFamily: 'Montserrat, sans-serif',
           fontWeight: 'bold',
           color: 'black', // або білий, залежно від фону
-          zIndex: 2000,
+
         }}
       >
         ERP
@@ -67,7 +67,7 @@ const LogoWithText = ({ logoSrc }) => {
              fontFamily: 'Montserrat, sans-serif',
              fontWeight: 'bold',
              color: 'black', // або білий, залежно від фону
-             zIndex: 2000,
+
            }}>v.12.03</div>
 
     </div>

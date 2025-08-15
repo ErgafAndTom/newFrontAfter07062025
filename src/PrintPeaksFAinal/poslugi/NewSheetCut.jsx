@@ -237,15 +237,16 @@ const NewSheetCut = ({
         <div>
           <div
             style={{
-              width: "100vw",
-              zIndex: "99",
-              height: "100vh",
-              background: "rgba(0, 0, 0, 0.5)",
-              opacity: isAnimating ? 1 : 0, // для анимации прозрачности
-              transition: "opacity 0.3s ease-in-out", // плавная анимация
-              position: "fixed",
-              left: "0",
-              bottom: "0"
+              position: 'fixed',
+              inset: 0,
+              width: '100vw',
+              height: '100vh',
+              backgroundColor: 'rgba(15, 15, 15, 0.45)',
+              backdropFilter: 'blur(2px)',
+              WebkitBackdropFilter: 'blur(2px)',
+              zIndex: 99,
+              opacity: isAnimating ? 1 : 0,
+              transition: 'opacity 200ms ease'
             }}
             onClick={handleClose}
           ></div>

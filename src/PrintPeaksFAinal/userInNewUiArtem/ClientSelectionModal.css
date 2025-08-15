@@ -40,7 +40,7 @@
   background-color: #f2f0e7;
   border-radius: 1vh;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1; /* <= додати */
+  z-index: 100; /* <= додати */
   display: flex;
   padding-bottom: 6vh;
   padding-top: 1vh;
@@ -147,7 +147,7 @@
   border: 1px solid #fbfaf6;
   border-radius: 4px 0 0 4px;
   outline: none;
-  width: 19vw;
+  width: 20vw;
 
 }
 .searchButton {

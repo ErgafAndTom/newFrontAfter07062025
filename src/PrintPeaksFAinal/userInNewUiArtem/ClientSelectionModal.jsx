@@ -38,8 +38,21 @@ const ClientSelectionModal = ({
   if (!showVisible) return null;
   return (
     <>
-      <div className="modalOverlay " onClick={handleClose} />
-      <div className="modalContainer animate-slide-up">
+      <div className="modalOverlay " onClick={handleClose}
+           style={{
+             position: 'fixed',
+             inset: 0,
+             width: '100vw',
+             height: '100vh',
+             backgroundColor: 'rgba(15, 15, 15, 0.45)',
+             backdropFilter: 'blur(2px)',
+             WebkitBackdropFilter: 'blur(2px)',
+             zIndex: 99,
+             // opacity: isAnimating ? 1 : 0,
+             transition: 'opacity 200ms ease',
+           }}
+      />
+      <div className="modalContainer animate-slide-up" >
         <div className="noScrollbar">
           {!load && !error && filteredUsers.length > 0 && (
             <>
@@ -47,13 +60,16 @@ const ClientSelectionModal = ({
                 {filteredUsers.map((user, index) => {
                   const isExpanded = index === expandedThingIndex;
                   return (
+
                     <li
                       key={user.id}
                       className={`userListItem ${isExpanded ? 'expanded' : 'compact'}`}
                       onClick={() => setExpandedThingIndex(isExpanded ? null : index)}
                     >
+
                       {!isExpanded ? (
                         <>
+
                           <div>
                             <div className="userName">
                               {user.lastName} {user.firstName}
@@ -118,6 +134,14 @@ const ClientSelectionModal = ({
             </>
           )}
         </div>
+        <div className="addUserWrap">
+          {/* Ніяких dispatch тут. Передаємо той самий fetchUsers, що прийшов у пропсах */}
+          {/*<AddUserButton*/}
+          {/*  fetchUsers={fetchUsers}*/}
+          {/*  thisOrder={thisOrder}*/}
+          {/*  setThisOrder={setThisOrder}*/}
+          {/*/>*/}
+        </div>
         <div className="searchSection">
           <input
             type="text"
@@ -126,10 +150,15 @@ const ClientSelectionModal = ({
             onChange={handleSearchChange}
             placeholder="Пошук клієнта..."
           />
-          <button className="adminButtonAdd" onClick={fetchUsers}>
-            Пошук
-          </button>
-          <AddUserButton fetchUsers={() => dispatch(fetchUser())} thisOrder={thisOrder} setThisOrder={setThisOrder} />
+          {/*<button className="adminButtonAdd" onClick={fetchUsers}>*/}
+          {/*  Пошук*/}
+          {/*</button>*/}
+          <AddUserButton
+            fetchUsers={fetchUsers}
+            thisOrder={thisOrder}
+            setThisOrder={setThisOrder}
+          />
+          {/*<AddUserButton fetchUsers={() => dispatch(fetchUser())} thisOrder={thisOrder} setThisOrder={setThisOrder} />*/}
         </div>
       </div>
     </>

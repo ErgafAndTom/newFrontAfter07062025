@@ -22,18 +22,18 @@ function AddUserButton({ fetchUsers, addOrdOrOnlyClient, thisOrder, setThisOrder
             <div>
               {thisOrder && (
                 <button
-                  className="btn btn-sm btn-success storeButton"
+                  className="adminButtonAdd btn btn-success storeButton" style={{position: "absolute", top: "2.1vh"}}
                   onClick={handleAddUser}
                 >
-                  +
+                  Створити клієнта
                 </button>
               )}
               {!thisOrder && (
                 <button
-                  className="buttonSkewedUser storeButton"
+                  className="adminButtonAdd btn btn-success storeButton"
                   onClick={handleAddUser}
                 >
-                  <span style={{alignItems: 'center', justifyContent: 'center', fontSize: '0.7vw'}}
+                  <span style={{alignItems: 'center', justifyContent: 'center'}}
 
                   >&nbsp;&nbsp;&nbsp;Створити клієнта</span>
                 </button>

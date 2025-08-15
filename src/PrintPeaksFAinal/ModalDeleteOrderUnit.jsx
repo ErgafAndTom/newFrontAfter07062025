@@ -59,17 +59,18 @@ function ModalDeleteOrderUnit({showDeleteOrderUnitModal, setShowDeleteOrderUnitM
             {isVisible  === true ? (
                 <div>
                     <div
-                        style={{
-                            width: "100vw",
-                            zIndex: "9999",
-                            height: "100vh",
-                            background: "rgba(0, 0, 0, 0.5)",
-                            opacity: isAnimating ? 1 : 0, // для анимации прозрачности
-                            transition: "opacity 0.3s ease-in-out", // плавная анимация
-                            position: "fixed",
-                            left: "0",
-                            bottom: "0"
-                        }}
+                      style={{
+                        position: 'fixed',
+                        inset: 0,
+                        width: '100vw',
+                        height: '100vh',
+                        backgroundColor: 'rgba(15, 15, 15, 0.45)',
+                        backdropFilter: 'blur(2px)',
+                        WebkitBackdropFilter: 'blur(2px)',
+                        zIndex: 99,
+                        opacity: isAnimating ? 1 : 0,
+                        transition: 'opacity 200ms ease'
+                      }}
                         onClick={handleClose}
                     ></div>
 
@@ -90,18 +91,7 @@ function ModalDeleteOrderUnit({showDeleteOrderUnitModal, setShowDeleteOrderUnitM
                             }
                         }
                     >
-                        <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: "flex-end",
-                                padding: "0 0 0.3vw 0.3vw",
-                            }}
-                        >
-                            <div
-                                className="btn btn-lg btn-close"
-                                onClick={handleClose}
-                            ></div>
-                        </div>
+
                         <div
                             style={{
                                 padding: "0.5vw",
@@ -121,7 +111,7 @@ function ModalDeleteOrderUnit({showDeleteOrderUnitModal, setShowDeleteOrderUnitM
                             }}
                         >
                             <button
-                                className="adminFontTable d-flex justify-content-center align-content-center hoverOrange"
+                                className="adminButtonAdd d-flex justify-content-center align-content-center hoverOrange"
                                 style={{
                                     padding: "0.5vw",
                                     margin: "0.5vw",
@@ -129,11 +119,11 @@ function ModalDeleteOrderUnit({showDeleteOrderUnitModal, setShowDeleteOrderUnitM
                                 onClick={handleClose}>Закрити
                             </button>
                             <button
-                                className="adminFontTable d-flex justify-content-center align-content-center hoverOrange"
+                                className="adminButtonAdd d-flex justify-content-center align-content-center hoverOrange"
                                 style={{
                                     padding: "0.5vw",
                                     margin: "0.5vw",
-                                    background: '#ff5d5d',
+                                    background: '#ee3c23',
                                 }}
                                 onClick={deleteThis}
                             >

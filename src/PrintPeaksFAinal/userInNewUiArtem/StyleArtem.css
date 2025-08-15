@@ -5828,3 +5828,42 @@
     --font-family: 'Inter', sans-serif;
 }
 
+/* Кнопка удаления позиции в списке OrderUnits */
+.orderItem__deleteBtn {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: black;
+  cursor: pointer;
+  box-shadow: none;
+  transition: transform 80ms ease, box-shadow 140ms ease, background-color 140ms ease, color 140ms ease, opacity 140ms ease;
+}
+
+.orderItem__deleteBtn:hover {
+
+  color: #a0001a;
+
+}
+
+.orderItem__deleteBtn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.orderItem__deleteBtn:focus {
+  outline: 2px solid rgba(176,0,32,0.25);
+  outline-offset: 2px;
+}
+
+.orderItem__deleteBtn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(30%);
+}
