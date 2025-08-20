@@ -57,7 +57,7 @@ const LaminationWideFactory = ({lamination, setLamination, prices, buttonsArr, s
           material: lamination.material,
           materialId: lamination.materialId,
           thickness: lamination.size,
-          typeUse: "А3"
+          typeUse: ""
         },
         size: size,
       }

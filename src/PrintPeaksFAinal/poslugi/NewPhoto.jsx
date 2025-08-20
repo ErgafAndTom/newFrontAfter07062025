@@ -80,7 +80,7 @@ const NewPhoto = ({
     const [count, setCount] = useState(1);
     const [prices, setPrices] = useState(null);
     const [pricesThis, setPricesThis] = useState(null);
-    const [selectedService, setSelectedService] = useState("Фотографії");
+    const [selectedService, setSelectedService] = useState("Фото");
 
     const addNewOrderUnit = e => {
         let dataToSend = {
@@ -213,7 +213,7 @@ const NewPhoto = ({
                         <div className="d-flex">
                             <div className="m-auto text-center fontProductName">
                                 <div className="d-flex flex-wrap justify-content-center">
-                                    {["Фотографії", "Диплома", "Сертифіката", "Подяки", "Візуалізації", "Графіки"].map((service, index) => (
+                                    {["Фото", "Диплома", "Сертифіката", "Подяки", "Візуалізації", "Графіки"].map((service, index) => (
                                         <button
                                             key={index}
                                             className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}

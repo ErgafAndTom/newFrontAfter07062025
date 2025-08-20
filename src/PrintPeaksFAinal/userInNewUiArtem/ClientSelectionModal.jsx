@@ -16,7 +16,7 @@ const ClientSelectionModal = ({
                                 thisOrder,
                                 setThisOrder,
                                 setSearchQuery,
-                                searchQuery
+                                searchQuery, searchId, setSearchId
                               }) => {
   const [expandedThingIndex, setExpandedThingIndex] = useState(null);
 
@@ -28,7 +28,13 @@ const ClientSelectionModal = ({
   // const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearchChange = (e) => {
+    // console.log(e.target.value);
     setSearchQuery(e.target.value);
+  };
+
+  const handleSearchChangeId = (e) => {
+    // console.log(e);
+    setSearchId(e);
   };
 
   const handleChooseUser = (userId) => {
@@ -72,7 +78,7 @@ const ClientSelectionModal = ({
 
                           <div>
                             <div className="userName">
-                              {user.lastName} {user.firstName}
+                              {user.lastName} {user.firstName} 🤖:{user.id}
                             </div>
                             <div className="discount">
                               Знижка: {user.discount != null ? `${user.discount}` : '—'}
@@ -89,7 +95,7 @@ const ClientSelectionModal = ({
                           <div className="d-flex flex-row">
                             <div>
                               <div className="userName">
-                                {user.lastName} {user.firstName} <small>№{user.id}</small>
+                                {user.lastName} {user.firstName} <small>🤖:{user.id}</small>
                               </div>
                               <div className="userDetail">Телефон: {user.phoneNumber || '—'}</div>
                               <div className="userDetail">Email: {user.email || '—'}</div>
@@ -149,6 +155,13 @@ const ClientSelectionModal = ({
             value={searchQuery}
             onChange={handleSearchChange}
             placeholder="Пошук клієнта..."
+          />
+          <input
+            type="checkbox"
+            className="searchInput"
+            style={{width: '4vh'}}
+            checked={searchId}
+            onChange={(e) => handleSearchChangeId(e.target.checked)}
           />
           {/*<button className="adminButtonAdd" onClick={fetchUsers}>*/}
           {/*  Пошук*/}

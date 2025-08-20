@@ -134,7 +134,7 @@ const WideFactory = ({
     if(e === "Баннер FactoryWide"){
       setArrOfTops(["Банера"])
     } else if(e === "Плівка FactoryWide"){
-      setArrOfTops(["Стікера", "Наліпки", "Графіка роботи",  ])
+      setArrOfTops([ "Наліпки", "Стікера", "Графіка роботи",  ])
     } else if(e === "Папір FactoryWide"){
       setArrOfTops(["Афіші", "Плаката", "Реклами", ])
     } else if(e === "ПВХ FactoryWide"){
@@ -410,7 +410,9 @@ const WideFactory = ({
                               setLamination={setLamination}
                               selectArr={[100, 200, 300, 400, 500]}
                               type={"LaminationWideFactory"}
-                              buttonsArr={['Глянцева', "Матова"]}
+                              buttonsArr={["з глянцевим ламінуванням",
+                                "з матовим ламінуванням"
+                                ]}
                             />
                           </>
                         }

@@ -38,6 +38,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
   const [showPays, setShowPays] = useState(false);
   const [load, setLoad] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchId, setSearchId] = useState(false);
   const [typeSelect, setTypeSelect] = useState("");
   const [users, setUsers] = useState({rows: []});
   const [show, setShow] = useState(false);
@@ -77,6 +78,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
       inPageCount: 999999,
       currentPage: 1,
       search: searchQuery,
+      searchId: searchId,
       columnName: {
         column: "id",
         reverse: false
@@ -102,6 +104,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
 
   // Пошук користувачів при зміні запиту
   useEffect(() => {
+    // console.log(searchId);
     if (show) {
       // const timer = setTimeout(() => {
       //     fetchUsers();
@@ -109,7 +112,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
       // return () => clearTimeout(timer);
       fetchUsers();
     }
-  }, [searchQuery, show]);
+  }, [searchQuery, show, searchId]);
 
   // Обробник для вибору користувача
   const handleSelectUser = (userId) => {
@@ -218,7 +221,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
           {thisOrder.client ? (
             <div className="" style={{fontSize: '1.7vh', position: "relative"}}>
               <div className="fw-bold d-flex " style={{flexcolumn: 'row'}}>
-                {thisOrder.client.lastName} {thisOrder.client.firstName} {thisOrder.client.familyName}
+                {thisOrder.client.lastName} {thisOrder.client.firstName} {thisOrder.client.familyName} 🤖:{thisOrder.client.id}
 
               </div>
               <strong className="" style={{position: "fixed", bottom: "8vh", marginLeft:"-1vw"}}>
@@ -388,6 +391,8 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
         setModalVisible={setModalVisible}
         setShowPays={setShowPays}
         setSearchQuery={setSearchQuery}
+        searchId={searchId}
+        setSearchId={setSearchId}
       />
     </div>
 
