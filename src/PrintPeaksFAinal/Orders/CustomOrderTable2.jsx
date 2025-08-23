@@ -221,7 +221,11 @@ const CustomOrderTable2 = () => {
                   {"-"}
                 </button>
               }
-              <div className="summary-cell price">{order.price} грн</div>
+              <div className="summary-cell price">
+                {order.allPrice === order.price || order.allPrice === 0 || order.allPrice === "0.00"
+                  ? <span style={{color: "red"}}>{order.price}</span>
+                  : <span style={{color: "green"}}>{order.allPrice}({order.discount})</span>}&nbsp;грн
+              </div>
               <div className="summary-cell client">{order.client?.firstName} {order.client?.lastName}</div>
               <div className="summary-cell company">{order.client?.company || '—'} </div>
               <div className="summary-cell phoneNumber">{order.client?.phoneNumber || '—'}</div>
