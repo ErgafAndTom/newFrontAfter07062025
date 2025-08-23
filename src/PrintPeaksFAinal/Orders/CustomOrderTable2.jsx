@@ -231,7 +231,7 @@ const CustomOrderTable2 = () => {
               <div className="summary-cell phoneNumber">{order.client?.phoneNumber || '—'}</div>
               <div className="summary-cell telegram d-flex justify-content-center">
                 {order.client?.telegram
-                  ? <TelegramAvatar link={order.client.telegram} size={45} defaultSrc="/default-avatar.png" />
+                  ? <TelegramAvatar link={order.client.telegram} size={45} defaultSrc="" />
                   : '—'}
               </div>
 
