@@ -18,12 +18,14 @@ import iii from './logo/logo.svg';
 import LogoWithText from './LogoWithText';
 import Laminator from "../../PrintPeaksFAinal/poslugi/Laminator";
 import NewSheetCut from "../../PrintPeaksFAinal/poslugi/NewSheetCut";
+import {searchChange} from "../../actions/searchAction";
 
 const Nav = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const currentUser = useSelector((state) => state.auth.user);
-    const [search, setSearch] = useState({search: ""});
+    const search = useSelector((state) => state.search.search);
+    // const [search, setSearch] = useState({search: ""});
     const [basicActive, setBasicActive] = useState('/');
     const newOrderButtonRef = useRef(null);
 
@@ -52,6 +54,10 @@ const Nav = () => {
     const handleSearch = (searchValue) => {
         console.log(searchValue);
         dispatch(fetchUser(searchValue))
+    };
+
+    const handleSearchChange = (e) => {
+      dispatch(searchChange(e.target.value))
     };
 
     const handleBasicClick = (value) => {
@@ -163,11 +169,10 @@ const Nav = () => {
         name="search"
         type="text"
         placeholder=""
-        value={search.search}
+        value={search}
         style={{borderRadius:'0'}}
         onChange={(e) => {
-          setSearch({ ...search, search: e.target.value });
-          handleSearch(e.target.value);
+          handleSearchChange(e)
         }}
       />
       <div style={{ height: '3.5vh', display: 'flex', alignItems: 'center', borderRadius: '0vh', }}>

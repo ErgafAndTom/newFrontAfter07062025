@@ -13,10 +13,13 @@ import SlideInModal from "../userInNewUiArtem/SlideInModal";
 import PropTypes from 'prop-types';
 import ModalDeleteOrder from "../Orders/ModalDeleteOrder";
 import ModalDeleteUser from "./ModalDeleteUser";
+import {searchChange} from "../../actions/searchAction";
+import {useDispatch, useSelector} from "react-redux";
 
 // Основний компонент таблиці користувачів
 const UsersCustomTable = ({name}) => {
   const [data, setData] = useState(null);
+  const dispatch = useDispatch();
   const [error, setError] = useState(null);
   const [thisItemForModal, setThisItemForModal] = useState(null);
   const [thisMetaItemForModal, setThisMetaItemForModal] = useState(null);
@@ -28,6 +31,7 @@ const UsersCustomTable = ({name}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageCount, setPageCount] = useState(null);
   const [typeSelect] = useState("");
+  const search = useSelector((state) => state.search.search);
   const [thisOrderForDelete, setThisOrderForDelete] = useState(null);
   const [thisColumn, setThisColumn] = useState({
     column: "id",
@@ -41,6 +45,11 @@ const UsersCustomTable = ({name}) => {
   const handleCloseAddUser = () => {
     setModalVisible(false);
   }
+
+  useEffect(() => {
+    // console.log(document.location.pathname);
+    dispatch(searchChange(""))
+  }, [])
 
   // Функція для сортування колонок
   const setCol = (e) => {
@@ -76,7 +85,7 @@ const UsersCustomTable = ({name}) => {
     let requestData = {
       inPageCount: inPageCount,
       currentPage: currentPage,
-      search: typeSelect,
+      search: search,
       columnName: thisColumn
     };
     axios.post(`/user/All`, requestData)
@@ -93,7 +102,7 @@ const UsersCustomTable = ({name}) => {
         setError(error.message);
         console.log(error.message);
       });
-  }, [typeSelect, thisColumn, inPageCount, currentPage, navigate, show, showRed, modalVisible]);
+  }, [search, typeSelect, thisColumn, inPageCount, currentPage, navigate, show, showRed, modalVisible]);
 
   // Функція для визначення ширини колонок - ОБОВ'ЯЗКОВО повинна бути така сама, як у OneUnitInTable.jsx
   const getColumnWidth = (columnName) => {

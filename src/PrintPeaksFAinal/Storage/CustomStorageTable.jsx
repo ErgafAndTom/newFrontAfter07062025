@@ -19,11 +19,15 @@ import NewNote from "../poslugi/NewNote";
 import {columnTranslations, translateColumnName} from "./translations";
 import ModalDeleteOrder from "../Orders/ModalDeleteOrder";
 import Pagination from "../tools/Pagination";
+import {useDispatch, useSelector} from "react-redux";
+import {searchChange} from "../../actions/searchAction";
 
 
 // Основний компонент CustomOrderTable
 const CustomStorageTable = ({name}) => {
   const [data, setData] = useState(null);
+  const dispatch = useDispatch();
+  const search = useSelector((state) => state.search.search);
   const [error, setError] = useState(null);
   const [thisItemForModal, setThisItemForModal] = useState(null);
   const [thisMetaItemForModal, setThisMetaItemForModal] = useState(null);
@@ -59,6 +63,11 @@ const CustomStorageTable = ({name}) => {
     }
   }
 
+  useEffect(() => {
+    // console.log(document.location.pathname);
+    dispatch(searchChange(""))
+  }, [])
+
   const handleItemClickRed = (item, event, metaItem) => {
     setShowRed(true)
     setEvent(event)
@@ -81,7 +90,7 @@ const CustomStorageTable = ({name}) => {
       let requestData = {
         inPageCount: inPageCount,
         currentPage: currentPage,
-        search: typeSelect,
+        search: search,
         columnName: thisColumn
       }
       setLoading(true)
@@ -102,7 +111,7 @@ const CustomStorageTable = ({name}) => {
           setLoading(false)
         })
     }
-  }, [typeSelect, thisColumn, show, currentPage, inPageCount, navigate, showRed, showDeleteItemModal]);
+  }, [search, typeSelect, thisColumn, show, currentPage, inPageCount, navigate, showRed, showDeleteItemModal]);
 
   useEffect(() => {
     if (data) {

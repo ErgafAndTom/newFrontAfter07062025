@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import ModalDeleteOrder from "./ModalDeleteOrder";
 import { Spinner } from "react-bootstrap";
 import Barcode from 'react-barcode';
-import { useSelector } from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import status from "./StatusBar";
 import { FiFile, FiFolder, FiPhone} from 'react-icons/fi';
 import { RiCalculatorLine } from 'react-icons/ri';
@@ -17,11 +17,13 @@ import {FaTelegramPlane, FaViber} from 'react-icons/fa';
 import Pagination from "../tools/Pagination";
 import Vishichka from "../poslugi/Vishichka";
 import FiltrOrders from "./FiltrOrders";
+import {searchChange} from "../../actions/searchAction";
 
 
 
 const CustomOrderTable2 = () => {
   const [data, setData] = useState(null);
+  const dispatch = useDispatch();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [thisOrderForDelete, setThisOrderForDelete] = useState(null);
@@ -30,6 +32,7 @@ const CustomOrderTable2 = () => {
   const [activeBarcodeId, setActiveBarcodeId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const currentUser = useSelector((state) => state.auth.user);
+  const search = useSelector((state) => state.search.search);
   const navigate = useNavigate();
   const [limit, setLimit] = useState(50);
 
@@ -78,7 +81,7 @@ const CustomOrderTable2 = () => {
           const postData = {
             inPageCount: limit,
             currentPage: currentPage,
-            search: '',
+            search: search,
             columnName: {column: 'id', reverse: true},
             startDate: startDate,
             endDate: endDate,
@@ -99,8 +102,13 @@ const CustomOrderTable2 = () => {
 
       fetchData();
     }
-  }, [currentPage, limit, currentUser?.role, startDate, endDate, statuses.status0, statuses.status1, statuses.status2, statuses.status3, statuses.status4, statuses.status5,
+  }, [search, currentPage, limit, currentUser?.role, startDate, endDate, statuses.status0, statuses.status1, statuses.status2, statuses.status3, statuses.status4, statuses.status5,
   ]);
+
+  useEffect(() => {
+    // console.log(document.location.pathname);
+    dispatch(searchChange(""))
+  }, [])
 
 
   const getStatusColor = (status, isCancelled) => {
