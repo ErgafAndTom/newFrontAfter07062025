@@ -36,12 +36,14 @@ import {
 // Async Actions для роботи з API
 
 // Отримання даних дошки
-export const fetchTrelloData = () => {
+export const fetchTrelloData = (search) => {
   return async (dispatch) => {
     dispatch({ type: TRELLO_FETCH_DATA_REQUEST });
-
+    const postData = {
+      search: search,
+    };
     try {
-      const response = await axios.post('/trello/getdata');
+      const response = await axios.post('/trello/getdata', postData);
       dispatch({
         type: TRELLO_FETCH_DATA_SUCCESS,
         payload: response.data

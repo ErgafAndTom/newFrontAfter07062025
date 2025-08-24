@@ -8,14 +8,12 @@ import Files from "./files/Files";
 import CreateOrder from "./createorder/CreateOrder";
 import { Login } from "../../PrintPeaksFAinal/login/Login";
 import Profile from "../../PrintPeaksFAinal/user/profile/Profile";
-// import CustomOrderTable from "../../PrintPeaksFAinal/Orders/CustomOrderTable";
 import NewUIArtem from "../../PrintPeaksFAinal/NewUIArtem";
 import { TableStorage } from "../../PrintPeaksFAinal/Storage/TableStorage";
 import CustomStorageTable from "../../PrintPeaksFAinal/Storage/CustomStorageTable";
 import UsersCustomTable from "../../PrintPeaksFAinal/user/UsersCustomTable";
 import CustomOrderTable2 from "../../PrintPeaksFAinal/Orders/CustomOrderTable2";
 import TableManager from "../../PrintPeaksFAinal/dataMenager/TableManager";
-import TrelloLikeBoards2 from "../../PrintPeaksFAinal/trelloLikeBoards/TrelloLikeBoards2";
 import ExportImportComponent from "../../PrintPeaksFAinal/dataMenager/ExportImportComponent";
 import TelegramBot from "../admin/crm/chats/TelegramBot";
 import Colorprinthelpsmall from "../admin/crm/Vimogi/Colorprinthelpsmall";
@@ -38,7 +36,6 @@ import UserFiles from "../../PrintPeaksFAinal/user/UserFiles";
 import Payments from "../../PrintPeaksFAinal/user/Payments";
 import Invoices from "../../pages/Invoices";
 import ClientUserProfile from "../../PrintPeaksFAinal/user/client/ClientUserProfile";
-import TrelloBoardComponent from "../../PrintPeaksFAinal/trelloLikeBoards/TrelloBoardComponent";
 import TrelloBoardAI from "../../PrintPeaksFAinal/trelloLikeBoards/TrelloBoardAI";
 
 

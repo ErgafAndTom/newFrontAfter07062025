@@ -21,6 +21,7 @@ import {
   hideDeleteListModal,
   setSaving
 } from '../../actions/trello_async_actions';
+import {searchChange} from "../../actions/searchAction";
 
 const TrelloBoard = () => {
   const dispatch = useDispatch();
@@ -30,11 +31,16 @@ const TrelloBoard = () => {
     openCardInfo: isCardInfoOpen, openCardData, showDeleteListModal: isDeleteListModalOpen,
     listToDelete, error
   } = useSelector((state) => state.trello);
+  const search = useSelector((state) => state.search.search);
 
   const [newListTitle, setNewListTitle] = useState('');
   const [shouldCloseAfterSave, setShouldCloseAfterSave] = useState(false);
 
-  useEffect(() => { dispatch(fetchTrelloData()); }, []);
+  useEffect(() => { dispatch(fetchTrelloData(search)); }, [search]);
+  useEffect(() => {
+    // console.log(document.location.pathname);
+    dispatch(searchChange(""))
+  }, [])
 
   const cardRefs = useRef({});
 
