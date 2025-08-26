@@ -277,6 +277,21 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
               title={`@${thisOrder.client.telegram.replace(/^@/, '')}`}
               onClick={() => openMessenger('telegram')}
             >
+
+              <button
+                onClick={() => {
+                  if (thisOrder?.client?.id) {
+                    window.open(`/api/users/${thisOrder.client.id}/drive-folder`, '_blank');
+                  } else {
+                    setError('Спочатку виберіть клієнта');
+                  }
+                }}
+                title="Файли клієнта"
+                style={{ ...buttonStyles.base, ...buttonStyles.iconButton }}
+              >
+                <img src={FilesButton} alt="Файли" style={{ width: '16px', height: '16px' }} />
+              </button>
+
               <button
                 className="clientCabinetButton client-cabinet-icon"
                 onClick={(e) => {
