@@ -6,6 +6,7 @@ import axios from '../../../api/axiosInstance';
 import ContrAgentsInUserProfile from '../profile/ContrAgentsInUserProfile';
 import {buttonStyles, containerStyles, formStyles, avatarStyles, tabStyles} from '../profile/styles';
 import TelegramAvatar from "../../Messages/TelegramAvatar";
+import PaysInOrderRestoredForAdmin from "../../userInNewUiArtem/pays/PaysInOrderRestoredForAdmin";
 
 function ClientUserProfile() {
   const dispatch = useDispatch();
@@ -103,6 +104,10 @@ function ClientUserProfile() {
         <button
           style={{...tabStyles.tabButton, ...(activeTab === 'counterparties' ? tabStyles.activeTab : {})}}
           onClick={() => setActiveTab('counterparties')}
+        >Контрагенти</button>
+        <button
+          style={{...tabStyles.tabButton, ...(activeTab === 'counterpartiesAdmin' ? tabStyles.activeTab : {})}}
+          onClick={() => setActiveTab('counterpartiesAdmin')}
         >Контрагенти</button>
       </div>
 
@@ -252,6 +257,11 @@ function ClientUserProfile() {
       {activeTab === 'counterparties' && (
         <div style={containerStyles.contentContainer}>
           <ContrAgentsInUserProfile user={thisUser}/>
+        </div>
+      )}
+      {activeTab === 'counterpartiesAdmin' && (
+        <div style={containerStyles.contentContainer}>
+          <PaysInOrderRestoredForAdmin user={thisUser}/>
         </div>
       )}
     </div>

@@ -26,12 +26,18 @@ import {useSelector} from "react-redux";
 import TelegramAvatar from "../../PrintPeaksFAinal/Messages/TelegramAvatar";
 import PaidButtomProgressBar from "../../PrintPeaksFAinal/tools/PaidButtomProgressBar";
 import ClientSelectionModal from "./ClientSelectionModal";
+import ClientCabinet from "./ClientCabinet";
+import {FiUser} from "react-icons/fi";
 
+import "./ClientCabinet.css";
 
 const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
   const [showAddUser, setShowAddUser] = useState(false);
+  // додай біля інших useState:
+  const [clientCabinetOpen, setClientCabinetOpen] = useState(false);
+
   const [showDocGenerate, setShowDocGenerate] = useState(false);
   const currentUser = useSelector((state) => state.auth.user);
   const [showNP, setShowNP] = useState(false);
@@ -45,6 +51,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
   const [showVisible, setShowVisible] = useState(false);
   const [error, setError] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const user = thisOrder?.client || {};
 
   const [handleThisOrderChange, setHandleThisOrderChange] = useState(thisOrder);
   const [newThisOrder, setNewThisOrder] = useState(thisOrder);
@@ -101,6 +108,14 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
       console.error(error.message);
     }
   };
+  useEffect(() => {
+    const handler = (e) => {
+      const btn = e.target.closest('.clientCabinetButton');
+      if (btn) setClientCabinetOpen(true);
+    };
+    document.addEventListener('click', handler, true); // capture = true
+    return () => document.removeEventListener('click', handler, true);
+  }, []);
 
   // Пошук користувачів при зміні запиту
   useEffect(() => {
@@ -262,6 +277,18 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
               title={`@${thisOrder.client.telegram.replace(/^@/, '')}`}
               onClick={() => openMessenger('telegram')}
             >
+              <button
+                className="clientCabinetButton client-cabinet-icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log("Кабінет клієнта:", user.id);
+
+                }}
+                title="Кабінет клієнта"
+                aria-label="Відкрити кабінет клієнта"
+              >
+                <FiUser />
+              </button>
               <TelegramAvatar
                 link={thisOrder.client.telegram}
                 size={70}
@@ -562,6 +589,28 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
         </Modal.Footer>
       </Modal>
       </div>
+      {/* Кабінет клієнта */}
+      {clientCabinetOpen && thisOrder?.client && (
+        <ClientCabinet
+          user={thisOrder.client}
+          orders={[
+            thisOrder && {
+              id: thisOrder.id,
+              title: thisOrder.title || thisOrder.name || `Замовлення #${thisOrder.id}`,
+              status: thisOrder.status,
+              total: thisOrder.total || thisOrder.totalSum || 0,
+              paid: thisOrder.paid || thisOrder.payedSum || 0,
+              currency: thisOrder.currency || 'UAH',
+              createdAt: thisOrder.createdAt
+            }
+          ].filter(Boolean)}
+          onCreateOrder={()=>{}}
+          onOpenChat={()=>{}}
+          onOpenProfile={()=>{}}
+          onClose={()=>setClientCabinetOpen(false)}
+        />
+      )}
+
     </>
   );
 };

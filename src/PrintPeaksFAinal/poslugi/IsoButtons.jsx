@@ -1,9 +1,8 @@
-// src/components/IsoButtons.jsx   ← лишаєш решту без змін
+// src/components/IsoButtons.jsx
 import React, {useEffect, useState} from "react";
 import "./isoButtons.css";
 import NewSheetCut from "./NewSheetCut";
 
-/* прямокутники A1-A9 */
 const CELLS = [
   { id:"A1", top:0,     left:0,   wPct:100,   hPct:50,   w:594, h:841, name: "A1 (594 x 841 мм)", x: 594, y: 841  },
   { id:"A2", top:50,    left:0,    wPct:50,   hPct:50,   w:420, h:594, name: "A2 (420 x 594 мм)", x: 420, y: 594  },
@@ -16,12 +15,13 @@ const CELLS = [
   { id:"A9", top:93.75, left:93.75,wPct:6.25, hPct:6.25, w:37,  h:52,    },
 ];
 
-/* кутові радіуси для вибраних форматів */
 const CORNER_RADIUS = {
-  A1: { borderTopLeftRadius:"1vh", borderTopRightRadius:"1vh", borderTop: "1px"},
-  A2: { borderBottomLeftRadius:"1vh" },
-  A9: { borderBottomRightRadius:"1vh" },
+  A1: { borderTopLeftRadius:"9px", borderTopRightRadius:"9px", borderTop: "9px"},
+  A2: { borderBottomLeftRadius:"9px" },
+  A9: { borderBottomRightRadius:"9px" },
 };
+
+const ROTATE_IDS = new Set(['A6','A7','A8','A9','A5','A4','A3','A2','A1']);
 
 export default function IsoButtons({size, setSize}) {
   const [thisSize, setThisSize] = useState("0");
@@ -38,8 +38,10 @@ export default function IsoButtons({size, setSize}) {
 
   return (
     <div className="iso-wrapper">
-      {/* коло A0, без змін */}
-      <button className="circle-a0" title="841×1189">A0</button>
+      {/* коло A0 */}
+      <button className="circle-a0" title="841×1189">
+        <span className="rot270">A0</span>
+      </button>
 
       {CELLS.map(c => {
         const rightPct  = c.left + c.wPct;
@@ -56,31 +58,25 @@ export default function IsoButtons({size, setSize}) {
           alignItems:"center",
           justifyContent:"center",
           background:"#dcd9ce",
-          font:"400 0.8rem/1 Inter, sans-serif",
+          font:"400 0.7rem/1 Inter, sans-serif",
           cursor:"pointer",
 
-          borderTop:    c.top   === 0     ? "none" : "1px solid #000",
-          borderLeft:   c.left  === 0     ? "none" : "1px solid #000",
-          borderRight:  rightPct  === 100 ? "1px solid #000" : "none",
-          borderBottom: bottomPct === 100 ? "1px solid #000" : "none",
+          borderTop:    c.top   === 0     ? "none" : "0.5px  solid #dcd9ce",
+          borderLeft:   c.left  === 0     ? "none" : "0.5px  solid #dcd9ce",
+          borderRight:  rightPct  === 100 ? "0.5px solid #dcd9ce" : "none",
+          borderBottom: bottomPct === 100 ? "0.5px  solid #dcd9ce" : "none",
 
-          /* радіуси кутів для A1, A2, A9 */
           ...CORNER_RADIUS[c.id],
         };
 
+        const content = ROTATE_IDS.has(c.id)
+          ? <span className="rot270">{c.id}</span>
+          : c.id;
+
         return (
-          <>
-            {thisSize !== c.id &&
-              <button key={c.id} style={style} title={`${c.w}×${c.h}`}>
-                {c.id}
-              </button>
-            }
-            {thisSize === c.id &&
-              <button key={c.id} style={{...style, background: "#f5a400"}} title={`${c.w}×${c.h}`}>
-                {c.id}
-              </button>
-            }
-          </>
+          thisSize !== c.id
+            ? <button key={c.id} style={style} title={`${c.w}×${c.h}`}>{content}</button>
+            : <button key={c.id} style={{...style, background:"#f5a400"}} title={`${c.w}×${c.h}`}>{content}</button>
         );
       })}
     </div>

@@ -3,6 +3,8 @@ import './ClientSelectionModal.css';
 import TelegramAvatar from '../../PrintPeaksFAinal/Messages/TelegramAvatar';
 import {fetchUser} from "../../actions/authActions";
 import AddUserButton from "../user/AddUserButton";
+import { FiUser } from "react-icons/fi";
+import ClientCabinet from "./ClientCabinet.jsx";
 
 const ClientSelectionModal = ({
                                 showVisible,
@@ -84,8 +86,23 @@ const ClientSelectionModal = ({
                               Знижка: {user.discount != null ? `${user.discount}` : '—'}
                             </div>
                           </div>
+
                           {user.telegram && (
-                            <span className="labelTelegram">
+
+                            <span className="labelTelegram d-flex flex-row justify-content-start align-items-center gap-2">
+
+                             <button
+                              className="clientCabinetButton client-cabinet-icon"
+                              onClick={(e) => {
+                              e.stopPropagation();
+                              console.log("Кабінет клієнта:", user.id);
+                              <ClientCabinet />
+                                  }}
+                              title="Кабінет клієнта"
+                             aria-label="Відкрити кабінет клієнта"
+                             >
+                             <FiUser />
+                            </button>
                               <TelegramAvatar link={user.telegram} size={50} />
                             </span>
                           )}
@@ -140,15 +157,24 @@ const ClientSelectionModal = ({
             </>
           )}
         </div>
-        <div className="addUserWrap">
-          {/* Ніяких dispatch тут. Передаємо той самий fetchUsers, що прийшов у пропсах */}
-          {/*<AddUserButton*/}
-          {/*  fetchUsers={fetchUsers}*/}
-          {/*  thisOrder={thisOrder}*/}
-          {/*  setThisOrder={setThisOrder}*/}
-          {/*/>*/}
-        </div>
-        <div className="searchSection">
+
+        <div className="searchSection d-flex flex-row justify-content-start align-items-center">
+          <label style={{ cursor: "pointer", fontSize: "1.7rem" }}>
+            <input
+              type="checkbox"
+              checked={searchId}
+              onChange={(e) => handleSearchChangeId(e.target.checked)}
+              style={{ display: "none" }} // ховаємо стандартний чекбокс
+            />
+            <div
+              style={{
+                opacity: searchId ? 1 : 0.5, // прозорий якщо не натиснутий
+                transition: "opacity 0.4s",
+                height: "35px",
+                lineHeight: "35px",
+              }}
+            >    🤖      </div>
+          </label>
           <input
             type="text"
             className="searchInput"
@@ -156,13 +182,7 @@ const ClientSelectionModal = ({
             onChange={handleSearchChange}
             placeholder="Пошук клієнта..."
           />
-          <input
-            type="checkbox"
-            className="searchInput"
-            style={{width: '4vh'}}
-            checked={searchId}
-            onChange={(e) => handleSearchChangeId(e.target.checked)}
-          />
+
           {/*<button className="adminButtonAdd" onClick={fetchUsers}>*/}
           {/*  Пошук*/}
           {/*</button>*/}

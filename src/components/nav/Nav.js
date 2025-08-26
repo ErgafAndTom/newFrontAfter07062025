@@ -76,7 +76,7 @@ const Nav = () => {
     return (
 <div>
 
-  <div className="d-flex justify-content-between align-items-center " style={{borderRadius:'0vh',marginBottom:'1vh'}}>
+  <div className="d-flex justify-content-between align-items-center " style={{borderRadius:'0vh',marginBottom:'1vh', height:"2rem"}}>
     {/* Ліва панель з кнопками */}
     <>
       {currentUser?.role === "user" &&
@@ -93,6 +93,7 @@ const Nav = () => {
         ${index === 0 ? 'first' : ''}
         ${index === arr.length - 1 ? 'last' : ''}
       `}
+
               >
                 {label}
                 {hasMess && currentUser && <NavMess currentUser={currentUser}/>}
@@ -128,7 +129,7 @@ const Nav = () => {
         </div>
       }
       {currentUser?.role === "admin" &&
-        <div className="d-flex flex-row align-items-center " style={{paddingLeft: '0.5vw', zIndex: '0'}}>
+        <div className="d-flex flex-row align-items-center " style={{paddingLeft: '12px', zIndex: '0'}}>
           {[
             {to: "/Desktop", label: "Головна"},
             {to: "/Users", label: "Клієнти"},
@@ -145,6 +146,7 @@ const Nav = () => {
         ${index === 0 ? 'first' : ''}
         ${index === arr.length - 1 ? 'last' : ''}
       `}
+style={{height: '2rem'}}
               >
                 {label}
                 {hasMess && currentUser && <NavMess currentUser={currentUser}/>}
@@ -158,7 +160,7 @@ const Nav = () => {
     </>
 
     {/* Права частина */}
-    <div className="d-flex align-items-center" style={{ height: '3.5vh', gap: '0.5vw',  marginRight:'0.5vw'}}>
+    <div className="d-flex align-items-center" style={{borderRadius:"0"}}>
       <div >
         <LogoWithText />
         <AddNewOrder />
@@ -175,7 +177,7 @@ const Nav = () => {
           handleSearchChange(e)
         }}
       />
-      <div style={{ height: '3.5vh', display: 'flex', alignItems: 'center', borderRadius: '0vh', }}>
+      <div style={{   }}>
         <>
           {currentUser &&
             <>
@@ -194,15 +196,15 @@ const Nav = () => {
         </>
       </div>
       {currentUser ? (
-        <div className="d-flex align-items-center" style={{ height: '3.5vh'}}>
-          <Link to="/currentUser" style={{ textDecoration: 'none', }}>
+        <div className="d-flex align-items-center" >
+          <Link to="/currentUser" style={{ textDecoration: 'none' }}>
             <button
               className="adminButtonAddNav"
               style={{
                 background: '#008249',
-                borderRadius: '0vh',
-                height: '3.5vh',
-                marginTop: '-0.4vh'
+                height: '2rem',
+                borderRadius: '0 0 0 9px',
+
               }}
             >
               <FiSettings  />: {currentUser?.username} ({currentUser?.role})
@@ -222,9 +224,9 @@ const Nav = () => {
             className="adminButtonAddNav"
             style={{
               background: '#EE3C23',
-              borderRadius: '0 0 1vh 0',
-              marginTop: '-0.4vh',
-              height: '3.5vh',
+              borderRadius: '0 0px 9px 0',
+              marginRight: '1vw',
+              height: '2rem',
 
             }}
           >
@@ -234,12 +236,11 @@ const Nav = () => {
       ) : (
         <Link to="/login" style={{ textDecoration: 'none' }}>
           <button
-            className="adminButtonAddNav"
+            className="adminButtonAddNav buttonSkewedOrderClient"
             style={{
               background: '#008249',
-              borderRadius: '0 0 1vh 0',
-              marginTop: '-0.4vh',
-              height: '3,5vh'
+              borderRadius: '0 0 9px 0',
+              height: '2rem'
             }}
           >
             Логін

@@ -23,52 +23,53 @@ const LogoWithText = ({ logoSrc }) => {
   }, []);
 
   return (
-    <div className="logoContainerCentered shinyComboWrapper" onClick={handleLogoClick}  style={{marginTop:'-0.6vh', cursor: 'pointer' }}>
-      <div className="shinyOverlayUnified"></div>
+    <div className="logoContainerCentered shinyComboWrapper d-flex align-items-center justify-content-center" onClick={handleLogoClick}  style={{cursor: 'pointer'}}>
+      <div className="shinyOverlayUnified d-flex align-items-center justify-content-center"></div>
 
       {/* Лого по центру */}
       <img
         src={logo}
         ref={imgRef}
         onClick={handleLogoClick}
-        className="shinyFaded"
+        className="d-flex align-items-center justify-content-center"
         alt="logo"
         style={{
-          height: '1.7vw',
-          objectFit: 'contain',
+          height: '2rem',
+
+          // objectFit: 'contain',
           // background: 'transparent',
         }}
       />
 
       {/* ERP — позиція відносно лого */}
-      <div
-        className="shinyFaded shinyTextCombo"
-        onClick={handleLogoClick}
-        style={{
-          position: 'absolute',
-          top: '0.6vh',
-          right: '0vw', // ключове — ставимо прив’язку до правого краю
-          fontSize: '0.6vw',
-          fontFamily: 'Montserrat, sans-serif',
-          fontWeight: 'bold',
-          color: 'black', // або білий, залежно від фону
+      {/*<div*/}
+      {/*  className="shinyFaded shinyTextCombo"*/}
+      {/*  onClick={handleLogoClick}*/}
+      {/*  style={{*/}
+      {/*    position: 'absolute',*/}
+      {/*    top: '0.6vh',*/}
+      {/*    right: '0vw', // ключове — ставимо прив’язку до правого краю*/}
+      {/*    fontSize: '0.6vw',*/}
+      {/*    fontFamily: 'Montserrat, sans-serif',*/}
+      {/*    fontWeight: 'bold',*/}
+      {/*    color: 'black', // або білий, залежно від фону*/}
 
-        }}
-      >
-        ERP
-      </div>
-      <div className="shinyFaded shinyTextCombo"
-           onClick={handleLogoClick}
-           style={{
-             position: 'absolute',
-             top: '1vw',
-             right: '0vw', // ключове — ставимо прив’язку до правого краю
-             fontSize: '0.4vw',
-             fontFamily: 'Montserrat, sans-serif',
-             fontWeight: 'bold',
-             color: 'black', // або білий, залежно від фону
+      {/*  }}*/}
+      {/*>*/}
+      {/*  ERP*/}
+      {/*</div>*/}
+      {/*<div className="shinyFaded shinyTextCombo"*/}
+      {/*     onClick={handleLogoClick}*/}
+      {/*     style={{*/}
+      {/*       position: 'absolute',*/}
+      {/*       top: '1vw',*/}
+      {/*       right: '0vw', // ключове — ставимо прив’язку до правого краю*/}
+      {/*       fontSize: '0.4vw',*/}
+      {/*       fontFamily: 'Montserrat, sans-serif',*/}
+      {/*       fontWeight: 'bold',*/}
+      {/*       color: 'black', // або білий, залежно від фону*/}
 
-           }}>v.12.03</div>
+      {/*     }}>v.12.03</div>*/}
 
     </div>
   );

@@ -170,18 +170,19 @@
     position: fixed; /* или absolute, если в контейнере с relative */
     bottom: 0;
     right: 0;
-    height: 25vmin;
-    border: 0.06vw solid grey;
-    border-radius: 0.6vw;
-    padding: 0.48vh 0.76vw;
-    font-size: var(--font-size-base);
+  padding: 1rem;
+  box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.2);
+    border: none;
+    border-radius: 12px;
+
+    /*font-size: var(--font-size-base);*/
     align-items: center;
     justify-content: center;
     display: flex;
 
     /* по центру по вертикалі внутри блока */
     margin: 1vw; /* небольшой отступ от краёв */
-    overflow: hidden;
+    /*overflow: hidden;*/
 }
 
 .BWabout {

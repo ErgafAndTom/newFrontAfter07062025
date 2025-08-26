@@ -250,6 +250,7 @@ const NewSheetCut = ({
             }}
             onClick={handleClose}
           ></div>
+
           <div className="d-flex flex-column" style={{
             zIndex: "100",
             position: "fixed",
@@ -259,15 +260,16 @@ const NewSheetCut = ({
             transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)", // анимация масштаба
             opacity: isAnimating ? 1 : 0, // анимация прозрачности
             transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out", // плавная анимация
-            borderRadius: "1vw",
+            borderRadius: "9px",
             width: "95vw",
             height: "95vh",
             // padding: "20px"
           }}>
+
             <div className="d-flex">
               <div className="m-auto text-center fontProductName">
                 <div className="d-flex flex-wrap justify-content-center  ">
-                  {["Листівки", "Візитки", "Флаєра", "Буклета", "Картки", "Диплома", "Сертифіката", "Подяки", "Зіна", "Презентації", "Бланка", "Афіши", "Календаря", "Плаката", "Візуалізації", "Меню", "Документа", "Бейджів"].map((service, index) => (
+                  {["Листівки", "Візитки", "Флаєра", "Буклета", "Картки", "Диплома", "Сертифіката", "Подяки", "Зіна", "Презентації", "Бланка", "Афіши", "Календаря", "Плаката", "Візуалізації", "Меню", "Документа", "Бейджів","Холдера"].map((service, index) => (
                     <button
                       key={index}
                       className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}
@@ -279,8 +281,9 @@ const NewSheetCut = ({
                   ))}
                 </div>
               </div>
+
               <div
-                className="btn btn-close btn-lg"
+                className="btn btn-close"
                 style={{
                   margin: "0.5vw",
 
@@ -288,7 +291,9 @@ const NewSheetCut = ({
                 onClick={handleClose}
               >
               </div>
+
             </div>
+
             <div className="d-flex flex-column">
               <div className="d-flex flex-row inputsArtemkilk allArtemElem" style={{
                 marginLeft: "1.4vw",
@@ -314,6 +319,15 @@ const NewSheetCut = ({
                 <div className="inputsArtemx allArtemElem"
                      style={{border: "transparent", marginTop: "-2vh"}}> шт
                 </div>
+              </div>
+              <div
+                style={{position:"absolute", top:"3vh", right:"3.2vw",height:"20vw"}}
+              >
+                <IsoButtons
+                  size={size}
+                  setSize={setSize}
+
+                />
               </div>
               <MDBContainer fluid style={{width: '100%', marginLeft: '-1vw', marginTop: "2vh"}}>
                 <Row xs={1} md={6} className="">
@@ -439,13 +453,9 @@ const NewSheetCut = ({
 
                     {/*</div>*/}
                   </div>
+
                 </Row>
-                <div style={{position:"absolute", top:"7vh", right:"1vw"}}>
-                  <IsoButtons
-                    size={size}
-                    setSize={setSize}
-                  />
-                </div>
+
 
                 <div className="d-flex">
                   {thisOrder && (
@@ -453,6 +463,7 @@ const NewSheetCut = ({
                       className="d-flex align-content-between justify-content-between"
                       style={{
                         width: "90vw",
+
                         marginLeft: "2.5vw",
                         fontFamily: "inter",
                         fontWeight: "bold",
@@ -486,7 +497,7 @@ const NewSheetCut = ({
                     marginTop: "1vh",
                     marginBottom: "1vh",
                     border: "1px solid red",
-                    borderRadius: "10px",
+                    borderRadius: "9px",
                     padding: "10px",
                     backgroundColor: "rgba(255, 0, 0, 0.2)",
                     fontSize: "1.5vw",
@@ -502,7 +513,8 @@ const NewSheetCut = ({
                   </div>
                 ) : (
                   <div className="d-flex justify-content-between pricesBlockContainer"
-                       style={{height: "17vw", padding: "1vw"}}>
+
+                       >
 
                     <div className="">
                       {/* Друк (рахується за sheetCount) */}
@@ -604,12 +616,12 @@ const NewSheetCut = ({
                         opacity: "0.5",
                         fontSize: "0.7vh",
                       }}>
-                        <div className="fontInfoForPricing" style={{fontSize: "0.85vw"}}>
+                        <div className="fontInfoForPricing" style={{fontSize: "0.8vw"}}>
                           Вартість аркуша з постпресс обробкою :
                           &nbsp;{fmt2(pricesThis.priceForSheetWithExtras)} грн
                         </div>
 
-                        <div className="fontInfoForPricing" style={{fontSize: "0.85vw"}}>
+                        <div className="fontInfoForPricing" style={{fontSize: "0.8vw"}}>
                           Вартість аркуша (лише матеріал та друк):
                           &nbsp;{fmt2(pricesThis.priceForSheetMaterialPrint)} грн
                         </div>

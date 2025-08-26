@@ -105,36 +105,21 @@
 }
 
 /* Стилі для всіх адміністративних кнопок */
-.adminButtonAdd {
-  height: 4vh;
-  min-width: 3vw;
-  padding: 0 1vw;
-  font-size: 0.8vw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  border: none;
-  cursor: pointer;
-  background-color: #FAB416 ;
-  color: white;
-  transition: background 0.3s ease;
-}
+
 .adminButtonAddNav
 {
-  height: 3.5vh;
-  min-width: 3vw;
+
   padding: 0 1vw;
   font-size: 0.7vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  white-space: nowrap;
+  /*white-space: nowrap;*/
   border: none;
   cursor: pointer;
   background-color: #fbfaf6;
   color: black;
-  transition: background 0.3s ease;
+
 }
 .adminButtonAddNav:hover {
 
@@ -190,18 +175,23 @@
 .buttonSkewed {
   height: 3.5vh;
   width: 7vw;
-  padding: 0 1vw;
   font-size: 0.7vw;
   background-color: #fbfaf6;
   color: black;
-  border: none;
+  border: 0px;
   display: flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-  clip-path: polygon(1.6vh 0, 100% 0, calc(100% - 1.6vh) 100%, 0 100%);
+
+  clip-path: polygon(
+    16px 0,                  /* верхний левый срез */
+    100% 0,                  /* правый верхний */
+    calc(100% - 16px) 100%,  /* правый нижний со срезом */
+    0 100%                   /* левый нижний */
+  );
   margin-right: -0.6vw;
-  margin-top: -0.4vw;
+
   position: relative;
   z-index: 1;
 }
@@ -216,32 +206,30 @@
   box-shadow: none;
 }
 .buttonSkewed.last {
-  clip-path: polygon(1.6vh 0, 100% 0, 100% 100%, 0 100%);
+  clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%);
   margin-right: 0;
   border-bottom-right-radius: 1vh;
 }
 
 .buttonSkewed.first {
-  clip-path: polygon(0 0, 100% 0, calc(100% - 1.6vh) 100%, 0 100%);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 100%, 0 100%);
   border-bottom-left-radius: 1vh;
 }
 
 
 .buttonSkewedSearch{
-  height: 4.5vh;
-  width: 10vw;
+  height: 2rem;
   font-size: 0.7vw;
+  margin-left: -1rem;
+  margin-right: -1rem;
   background-color: #fbfaf6;
   color: black;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  white-space: nowrap;
-  clip-path: polygon(1.6vh 0, 100% 0, calc(100% - 1.6vh) 100%, 0 100%);
-  margin-left: -1.3vw;
-  margin-right: -2vw;
-  margin-top: -0.4vw;
+  /*white-space: nowrap;*/
+  clip-path: polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%);
   position: relative;
   z-index: 1;
 }
@@ -251,19 +239,20 @@
 }
 
 .buttonSkewedSearchLupa {
-  width: 2vw;
+  width: 2rem;
   /*transition: width 0.5s ease, padding 0.5s ease;*/
   padding-left: 2vw;
   border: none;
   background-color: #fbfaf6;
-  font-size: 1.3vh;
+  font-size: 14px;
   /*font-family: inherit;*/
   color: black;
-
+opacity: 0.7;
   background-image: url("data:image/svg+xml;utf8, <svg fill='black' xmlns='http://www.w3.org/2000/svg' viewBox='4 4 20 24'> <g transform='rotate(70,11,16)'> <path d='M10,2A8,8 0 0,1 18,10C18,12.1 17.2,14 15.9,15.4L21.7,21.2L20.3,22.6L14.5,16.8C13.1,18.1 11.1,19 9,19A8,8 0 0,1 1,11A8,8 0 0,1 9,3A8,8 0 0,1 10,2M10,4A6,6 0 0,0 4,10A6,6 0 0,0 10,16A6,6 0 0,0 16,10A6,6 0 0,0 10,4Z'/> </g></svg>");
   background-repeat: no-repeat;
-  background-position: 0.5vw center;
-  background-size: 1.3vh;
+  background-position: 1vw center;
+  background-size: 14px;
+
   position: relative;
   cursor: text;
 
@@ -271,31 +260,18 @@
 
 .buttonSkewedSearchLupa:focus {
   width: 15vw;
-  background-color: #f5f5f5;
+  background-color: #fbfaf6;
   /*box-shadow: 0 0 0.4vh #00824955;*/
 }
 
-.buttonSkewedSearchLupa:focus::before {
-  content: '';
-  position: absolute;
-  left: 0.5vw;
-  top: 50%;
-  transform: translateY(-10%);
-  width: 1.2vh;
-  height: 1.2vh;
-  background-image: inherit;
-  background-size: contain;
-  background-repeat: no-repeat;
-  animation: spinIcon 1.2s linear infinite;
-}
+
 
 .buttonSkewedSearchLupa::placeholder {
-  color: #999;
-  opacity: 0.6;
+  color: #fbfaf6;
+
   transition: opacity 0.3s ease;
 }
 
 .buttonSkewedSearchLupa:focus::placeholder {
-  opacity: 0;
 }
 

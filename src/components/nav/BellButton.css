@@ -1,5 +1,5 @@
 .bell-button {
-  height: 3.5vh;
+  height: 2rem;
   /*z-index: 510;*/
   background: #f075aa;
   color: black;
@@ -9,10 +9,10 @@
   display: flex;
   align-items: center;
   gap: 0.5em;
-  font-size: 1.5vh;
+  /*font-size: 14px;*/
   cursor: pointer;
   transition: background 0.5s ease;
-  margin-top: -0.4vh;
+
 
   justify-content: center
 }

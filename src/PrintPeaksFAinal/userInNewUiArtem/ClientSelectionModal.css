@@ -35,14 +35,15 @@
   left: 31.4%;
   bottom: 18vh;
   transform: translate(-50%, -50%);
-  width: 30vw;
+  min-width: 400px;
   max-height: 80vh;
+  width: 30vw;
   background-color: #f2f0e7;
   border-radius: 1vh;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 100; /* <= додати */
   display: flex;
-  padding-bottom: 6vh;
+  padding-bottom: 1vh;
   padding-top: 1vh;
 
   flex-direction: column;
@@ -132,33 +133,28 @@
 
 /* Поиск */
 .searchSection {
-  padding: 16px;
+
   border-top: none;
   display: flex;
+padding-left: 0.3vw;
+gap: 0.3vw;
 
-  bottom: -1vh;
 
-  position: absolute;
 }
 .searchInput {
 
-  padding: 8px;
-  font-size: 14px;
-  border: 1px solid #fbfaf6;
-  border-radius: 4px 0 0 4px;
-  outline: none;
-  width: 18vw;
 
+  font-size: 16px;
+  border: none;
+  padding: 0.4rem;
+  border-radius: 9px;
+  outline: none;
+  width: 17vw;
+  height: 35px;          /* висота інпута */
+  line-height: 35px;     /* текст по середині */
+  box-sizing: border-box;
 }
-.searchButton {
-  padding: 8px 16px;
-  font-size: 14px;
-  border: 1px solid #3c60a6;
-  background-color: #3c60a6;
-  color: #fbfaf6;
-  border-radius: 0 4px 4px 0;
-  cursor: pointer;
-}
+
 
 /* Нет клиентов */
 .no-clients {
@@ -177,12 +173,12 @@
 }
 
 .animate-slide-up {
-  animation: slideUp 1s ease-out forwards;
+  animation: slideUp 0.7s ease-out forwards;
 }
 
 @keyframes slideUp {
   from {
-    opacity: 1;
+    opacity: 0.7;
     transform: translateY(100%);
   }
   to {
@@ -205,4 +201,42 @@
   top: 0vh;
   right: 0vw;
   animation: slideUpFadeIn 0.5s ease-out;
+}
+/* кругла кнопка-іконка */
+.client-cabinet-icon{
+  --pp-size: 50px;             /* змінюй розмір тут */
+  inline-size: var(--pp-size);
+  block-size: var(--pp-size);
+  border-radius: 50%;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border:1px solid var(--pp-border, #DADDE2);
+  background: transparent;
+  color: var(--pp-fg, #222);
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease, border-color .15s ease;
+}
+
+.client-cabinet-icon svg{
+  width: 55%;
+  height: 55%;
+}
+
+.client-cabinet-icon:hover{
+  background: var(--pp-primary, #111);
+  color:#fff;
+  border-color: var(--pp-primary, #111);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.12);
+}
+
+.client-cabinet-icon:active{ transform: translateY(0); }
+
+/* доступність */
+.client-cabinet-icon:focus-visible{
+  outline: 2px solid color-mix(in oklab, var(--pp-primary, #111) 60%, white);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--pp-primary, #111) 20%, transparent);
 }

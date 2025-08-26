@@ -120,23 +120,22 @@
     display: flex;
     height: auto;
     width: auto;
-    min-width: 10rem;
+    min-width: 8.5vw;
+    min-height: 3.3vh;
+  font-size: 0.85rem;
     align-items: center;
     justify-content: center;
     border: none;
-    padding: 0.5rem 1rem;
-    font-size: var(--font-size-sm);
-    border-radius: 0.5rem;
+    padding: 0.3vw 0.8vh;
+    border-radius: 9px;
     color: #000000;
     background: #FAB416;
-    /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/
-    transition: all 0.2s ease;
-    font-weight: 500;
+
 }
 
 .adminButtonAdd:hover {
     cursor: pointer;
-    background: #f5a400;
+    /*background: #f5a400;*/
     color: white;
 
     /*box-shadow: 0 3px 5px rgb(233, 157, 0);*/
