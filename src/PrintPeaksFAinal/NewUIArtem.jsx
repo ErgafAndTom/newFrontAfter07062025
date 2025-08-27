@@ -62,13 +62,14 @@ import ProgressBar from "../ProgressBar";
 import NewCup from "./poslugi/NewCup";
 import NovaPoshtaButton from "./userInNewUiArtem/novaPoshta/NovaPoshtaButton";
 import FilesInOrder from "./filesInOrder/FilesInOrder";
-import CommentsInOrder from "./commentsInOrders/CommentsInOrder";
+import CommentsInOrder from "./commentsInOrders/OrderFilesPanel";
 import NewBooklet from "./poslugi/NewBooklet";
 import NewMagnets from "./poslugi/NewMagnets";
 import NewScans from "./poslugi/NewScans";
 import WideFactory from "./poslugi/WideFactory";
 import NewSheetSheet from "./poslugi/NewSheetSheet";
 import Delivery from "./poslugi/DeliveryPage";
+import OrderFilesPanel from "./commentsInOrders/OrderFilesPanel";
 const NewUIArtem = () => {
   const navigate = useNavigate();
   const [things, setThings] = useState([]);
@@ -852,7 +853,7 @@ const NewUIArtem = () => {
         )}
         <div className="d-flex flex-row" style={{position:"absolute", bottom:"0", }} >
           <div className="containerNewUI" style={{height: "15vh", width: "30vw", position: "relative",padding:'0.3rem'}}>
-            <CommentsInOrder thisOrder={thisOrder}/>
+            <OrderFilesPanel thisOrder={thisOrder}/>
           </div>
           <div className="containerNewUI" style={{height: "15vh", width: "30vw", position: "relative", }}>
             <ClientChangerUIArtem
