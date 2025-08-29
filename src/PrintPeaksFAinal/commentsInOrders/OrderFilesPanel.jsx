@@ -156,7 +156,11 @@ const OrderFilesPanel = ({
   function buildWsUrl(uploadSessionId) {
     const host = window.location.hostname; // 'localhost'
     const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    return `${proto}://${host}:5555/ws/uploads?uploadId=${encodeURIComponent(uploadSessionId)}`;
+    if(host === "localhost"){
+      return `${proto}://${host}:5555/ws/uploads?uploadId=${encodeURIComponent(uploadSessionId)}`;
+    } else {
+      return `/ws/uploads?uploadId=${encodeURIComponent(uploadSessionId)}`;
+    }
   }
 
   const uploadFiles = async (fileList) => {
