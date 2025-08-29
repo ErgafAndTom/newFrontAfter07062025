@@ -4,14 +4,14 @@
 
 .order-files-panel {
   /*position: relative;*/
-
+  font-size: 0.50rem;
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
+  /*border-radius: 12px;*/
   /*outline: none;*/
   /*padding: 6px 6px 4px 6px;*/
   background: transparent;
-  height: auto;
+  /*height: auto;*/
 }
 
 /* header */
@@ -254,7 +254,7 @@
   flex-direction: column;
   gap: 6px;
   align-items: stretch;
-  width: 100%;
+  width: 90%;
   box-sizing: border-box;
 }
 .uploads-overall-info {
@@ -321,3 +321,9 @@
 .uploads-overall-info { font-size: 12px; opacity: .85; margin-bottom: 4px; }
 .uploads-overall-track { height: 8px; background: rgba(0,0,0,.1); border-radius: 999px; overflow: hidden; }
 .uploads-overall-track .uploads-overall-bar { height: 100%; width: calc(var(--overall, 0) * 1%); background: #111; transition: width .15s ease; }
+.tile-progress-rows { display: grid; gap: 6px; margin-top: 6px; }
+.tile-progress-row { display: grid; grid-template-columns: 1fr; gap: 4px; position: relative; }
+.tile-progress-label { font-size: 11px; opacity: .8; }
+.tile-progress { height: 6px; background: rgba(0,0,0,.08); border-radius: 999px; overflow: hidden; }
+.tile-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #60a5fa, #22c55e); transition: width .15s ease; }
+.tile-progress-percent { position: absolute; right: 0; top: -1.2em; font-size: 11px; opacity: .8; }

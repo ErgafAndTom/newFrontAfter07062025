@@ -105,7 +105,7 @@ const OrderFilesPanel = ({
                            height,
                          }) => {
   const navigate = useNavigate();
-
+  const uploadsRef = useRef([]);
   const listUrl   = listEndpoint   || `/orders/${thisOrder?.id}/getFiles`;
   const uploadUrl = uploadEndpoint || `/orders/${thisOrder?.id}/addNewFile`;
 
@@ -118,7 +118,7 @@ const OrderFilesPanel = ({
   const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef(null);
   const containerRef = useRef(null);
-
+  useEffect(() => { uploadsRef.current = uploads; }, [uploads]);
   const fetchFiles = useCallback(async () => {
     if (!thisOrder?.id) return;
     try {
@@ -144,92 +144,149 @@ const OrderFilesPanel = ({
 
   useEffect(() => { fetchFiles(); }, [fetchFiles]);
 
+  // function buildWsUrl(uploadSessionId) {
+  //   if (axios.defaults.baseURL) {
+  //     const base = new URL(axios.defaults.baseURL);
+  //     const proto = base.protocol === "https:" ? "wss" : "ws";
+  //     return `${proto}://${base.host}/ws/uploads?uploadId=${encodeURIComponent(uploadSessionId)}`;
+  //   }
+  //   // Фолбэк на CRA proxy (нужен setupProxy.cjs с ws:true)
+  //   return `/ws/uploads?uploadId=${encodeURIComponent(uploadSessionId)}`;
+  // }
+  function buildWsUrl(uploadSessionId) {
+    const host = window.location.hostname; // 'localhost'
+    const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    return `${proto}://${host}:5555/ws/uploads?uploadId=${encodeURIComponent(uploadSessionId)}`;
+  }
+
   const uploadFiles = async (fileList) => {
     if (!fileList || fileList.length === 0) return;
     const list = Array.from(fileList);
 
-    for (const file of list) {
+    list.forEach((file) => {
       const tempId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
       const uploadSessionId = `up_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-
       const controller = new AbortController();
-      let es; // EventSource
 
-      // додаємо тайл з двома прогресами
       setUploads(prev => [...prev, {
         tempId, name: file.name, size: file.size,
-        progress: 0,            // на сервер
-        driveProgress: 0,       // у Google Drive
-        controller, eventSource: null
+        progress: 0, driveProgress: 0,
+        stageMessage: 'Очікування WebSocket…',
+        controller, ws: null,
       }]);
 
-      try {
-        // 1) Підписка на Drive-прогрес (SSE)
-        es = new EventSource(`${uploadUrl.replace(/\/addNewFile.*/,'')}/${thisOrder.id}/upload-progress/${uploadSessionId}`);
-        es.onmessage = (evt) => {
-          try {
-            const data = JSON.parse(evt.data);
-            if (data?.stage === 'drive' && data?.uploadId === uploadSessionId) {
-              const dp = Number.isFinite(data.progress) ? data.progress : 0;
-              setUploads(prev => prev.map(u => u.tempId === tempId ? { ...u, driveProgress: dp } : u));
-              if (data.done) { es.close(); }
-            }
-          } catch {}
-        };
-        es.onerror = () => { /* мережеві дрібниці ігноруємо */ };
+      // 1) Открываем WS ПРАВИЛЬНЫМ URL
+      const wsUrl = buildWsUrl(uploadSessionId);
+      console.log('[UPLOAD] opening WS:', wsUrl, 'uploadId:', uploadSessionId);
+      const ws = new WebSocket(wsUrl);
+      console.log(ws);
+      setUploads(prev => prev.map(x => x.tempId === tempId ? ({ ...x, ws }) : x));
 
-        // збережемо посилання на ES (для відміни)
-        setUploads(prev => prev.map(u => u.tempId === tempId ? { ...u, eventSource: es } : u));
+      // 2) Слушаем прогресс стадий от бэка
+      ws.onmessage = (evt) => {
+        try {
+          const m = JSON.parse(evt.data);
+          const stage = m.stage || '';
+          const drivePct = Number.isFinite(m.progress) ? m.progress : 0;
+          const msg =
+            m.message ||
+            (stage === 'ensureRoot' ? 'Пошук/створення кореневої теки…'
+              : stage === 'ensureClientFolder' ? 'Підготовка теки клієнта…'
+                : stage === 'ensureOrderFolder' ? 'Підготовка теки замовлення…'
+                  : stage === 'uploadingToDrive' ? 'Завантаження у Google Drive…'
+                    : stage === 'finalizing' ? 'Фіналізація…'
+                      : 'Опрацювання…');
 
-        // 2) Завантаження на сервер
-        const formData = new FormData();
-        formData.append("file", file, file.name);
+          setUploads(prev => prev.map(x =>
+            x.tempId === tempId ? { ...x, driveProgress: drivePct, stageMessage: msg } : x
+          ));
 
-        const res = await axios.post(uploadUrl, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            "X-Upload-Id": uploadSessionId,     // важливо: щоб бек знав, куди слати SSE
-          },
-          signal: controller.signal,
-          onUploadProgress: (evt) => {
-            const total = evt.total || file.size || 1;
-            const pct = Math.max(0, Math.min(100, Math.round((evt.loaded * 100) / total)));
-            setUploads(prev => prev.map(u => u.tempId === tempId ? { ...u, progress: pct } : u));
-          },
-        });
+          if (m.done || m.error) {
+            try { ws.close(); } catch {}
+          }
+        } catch {}
+      };
+      ws.onerror = () => {
+        setUploads(prev => prev.map(x =>
+          x.tempId === tempId ? { ...x, stageMessage: 'WS помилка (продовжуємо)…' } : x
+        ));
+      };
+      ws.onclose = () => {
+        setUploads(prev => prev.map(x => x.tempId === tempId ? { ...x, ws: null } : x));
+      };
 
-        const f = res.data;
-        setFiles(prev => [...prev, {
-          id: f.id,
-          fileName: f.fileName || file.name,
-          fileLink: f.fileLink,
-          previewUrl: f.previewUrl || null,
-          size: f.size ?? file.size,
-          createdAt: f.createdAt || new Date().toISOString(),
-        }]);
-      } catch (e) {
-        if (axios.isCancel?.(e) || e.name === "CanceledError" || e.message === "canceled") {
-          // cancelled
-        } else {
-          setError(e.message || `Помилка завантаження: ${file.name}`);
+      // 3) POST начинаем ТОЛЬКО после успешного открытия WS (или по таймауту)
+      const WS_OPEN_TIMEOUT = 50000; // мс
+      let postStarted = false;
+
+      const startPost = async () => {
+        if (postStarted) return;
+        postStarted = true;
+
+        try {
+          setUploads(prev => prev.map(x =>
+            x.tempId === tempId ? { ...x, stageMessage: 'Канал WS підключено, починаємо POST…' } : x
+          ));
+
+          const formData = new FormData();
+          formData.append("file", file, file.name);
+
+          const res = await axios.post(uploadUrl, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              "X-Upload-Id": uploadSessionId, // тот же id, что в wsUrl
+            },
+            signal: controller.signal,
+            onUploadProgress: (evt) => {
+              const total = evt.total || file.size || 1;
+              const pct = Math.max(0, Math.min(100, Math.round((evt.loaded * 100) / total)));
+              setUploads(prev => prev.map(u => u.tempId === tempId ? { ...u, progress: pct } : u));
+            },
+          });
+
+          const f = res.data;
+          setFiles(prev => [...prev, {
+            id: f.id,
+            fileName: f.fileName || file.name,
+            fileLink: f.fileLink,
+            previewUrl: f.previewUrl || null,
+            size: f.size ?? file.size,
+            createdAt: f.createdAt || new Date().toISOString(),
+          }]);
+        } catch (e) {
+          if (!(axios.isCancel?.(e) || e.name === "CanceledError" || e.message === "canceled")) {
+            setError(e.message || `Помилка завантаження: ${file.name}`);
+          }
+        } finally {
+          setUploads(prev => {
+            const u = prev.find(x => x.tempId === tempId);
+            try { u?.controller?.abort?.(); } catch {}
+            try { u?.ws?.close?.(); } catch {}
+            return prev.filter(x => x.tempId !== tempId);
+          });
         }
-      } finally {
-        // закриваємо ES і прибираємо тайл
-        setUploads(prev => {
-          const u = prev.find(x => x.tempId === tempId);
-          try { u?.eventSource?.close?.(); } catch {}
-          return prev.filter(x => x.tempId !== tempId);
-        });
-      }
-    }
+      };
 
+      // Ждём onopen, но не вечно: если WS не открылся за N секунд — всё равно пошлём POST (без live-стадий)
+      // const openTimer = setTimeout(() => {
+      //   console.warn('[UPLOAD] WS open timeout, starting POST without WS');
+      //   startPost();
+      // }, WS_OPEN_TIMEOUT);
+
+      ws.onopen = () => {
+        // clearTimeout(openTimer);
+        startPost();
+      };
+    });
   };
+
+
 
   const cancelUpload = (tempId) => {
     setUploads(prev => {
       const u = prev.find(x => x.tempId === tempId);
       try { u?.controller?.abort(); } catch {}
-      try { u?.eventSource?.close?.(); } catch {}
+      try { u?.ws?.close(); } catch {}
       return prev.filter(x => x.tempId !== tempId);
     });
   };
@@ -281,13 +338,13 @@ const OrderFilesPanel = ({
       onDragLeave={onDragLeave}
       onDrop={onDrop}
       title="Перетягни файли або натисни «+»"
-      style={{ height }}
+      style={{ ...height, fontSize: "0.60rem" }}
     >
       <div className="drop-hint">
-        <div className="left-hint">
-          <FiUploadCloud style={{ marginRight: 8, opacity: 0.9 }} />
-          <div style={{opacity:"0.85", whiteSpace:"nowrap"}}>Перетягни файли або натисни "+"</div>
-        </div>
+        {/*<div className="left-hint">*/}
+        {/*  <FiUploadCloud style={{ marginRight: 8, opacity: 0.9 }} />*/}
+        {/*  <div style={{opacity:"0.85", whiteSpace:"nowrap"}}>Перетягни файли або натисни "+"</div>*/}
+        {/*</div>*/}
         <button
           type="button"
           className="AddButtonFilesOrder"
@@ -308,6 +365,35 @@ const OrderFilesPanel = ({
           </div>
           <div className="uploads-overall-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={overallProgress} style={{'--overall': overallProgress}}>
             <div className="uploads-overall-bar"/>
+          </div>
+          <div className="tile-progress-rows" style={{padding: "4px 0"}}>
+            <div className="tile-progress-row">
+              <div className="tile-progress-label">На сервер</div>
+              <div className="tile-progress">
+                <div
+                  className="tile-progress-bar"
+                  style={{ width: `${uploads[0].progress || 0}%` }}
+                />
+              </div>
+              <div className="tile-progress-percent">
+                {uploads[0].progress ? `${uploads[0].progress}%` : ""}
+              </div>
+            </div>
+
+            <div className="tile-progress-row">
+              <div className="tile-progress-label">
+                Google: {uploads[0].stageMessage || "Опрацювання…"}
+              </div>
+              <div className="tile-progress">
+                <div
+                  className="tile-progress-bar"
+                  style={{ width: `${uploads[0].driveProgress || 0}%` }}
+                />
+              </div>
+              <div className="tile-progress-percent">
+                {uploads[0].driveProgress ? `${uploads[0].driveProgress}%` : ""}
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -362,7 +448,7 @@ const OrderFilesPanel = ({
                   </div>
 
                   <div className="tile-progress-row">
-                    <div className="tile-progress-label">У Google Drive</div>
+                    <div className="tile-progress-label">Google: {u.stageMessage || 'Опрацювання…'}</div>
                     <div className="tile-progress">
                       <div className="tile-progress-bar" style={{ width: `${u.driveProgress || 0}%` }}/>
                     </div>

@@ -2,7 +2,7 @@ import axios from 'axios';
 // document.get()
 
 const instance = axios.create({
-    // baseURL: 'http://localhost:3000', // Базовий URL сервера
+    // baseURL: 'http://localhost:5555', // Базовий URL сервера
 });
 
 // Добавляем интерсептор для добавления токена к каждому запросу
