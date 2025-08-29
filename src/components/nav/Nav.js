@@ -136,6 +136,7 @@ const Nav = () => {
             {to: "/Orders", label: "Замовлення"},
             {to: "/Storage", label: "Склад"},
             {to: "/db2", label: "База"},
+            {to: "/dbGraph", label: "БазаGraph"},
             {to: "/Trello", label: "Завдання", hasMess: true},
             {to: "/Vimogi", label: "Вимоги"}
           ].map(({to, label, hasMess}, index, arr) => (
