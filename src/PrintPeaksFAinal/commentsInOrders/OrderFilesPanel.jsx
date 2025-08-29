@@ -341,10 +341,12 @@ const OrderFilesPanel = ({
       style={{ ...height, fontSize: "0.60rem" }}
     >
       <div className="drop-hint">
-        {/*<div className="left-hint">*/}
-        {/*  <FiUploadCloud style={{ marginRight: 8, opacity: 0.9 }} />*/}
-        {/*  <div style={{opacity:"0.85", whiteSpace:"nowrap"}}>Перетягни файли або натисни "+"</div>*/}
-        {/*</div>*/}
+        {uploads.length === 0 && (
+          <div className="left-hint">
+            <FiUploadCloud style={{ marginRight: 8, opacity: 0.9 }} />
+            <div style={{opacity:"0.85", whiteSpace:"nowrap"}}>Перетягни файли або натисни "+"</div>
+          </div>
+        )}
         <button
           type="button"
           className="AddButtonFilesOrder"
