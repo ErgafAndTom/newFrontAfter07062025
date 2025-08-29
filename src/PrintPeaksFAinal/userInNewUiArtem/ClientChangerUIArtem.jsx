@@ -28,6 +28,7 @@ import PaidButtomProgressBar from "../../PrintPeaksFAinal/tools/PaidButtomProgre
 import ClientSelectionModal from "./ClientSelectionModal";
 import ClientCabinet from "./ClientCabinet";
 import {FiUser} from "react-icons/fi";
+import {FiFolder} from "react-icons/fi";
 
 import "./ClientCabinet.css";
 
@@ -266,7 +267,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
              style={{ position: "absolute", right: '0vw', top: '1vh'}}>
           {thisOrder.client && thisOrder.client.telegram && (
             <div
-              className="d-flex align-items-center"
+              className="d-flex align-items-center gap-2"
               style={{
 
                 position: 'absolute',
@@ -279,7 +280,8 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
             >
 
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   if (thisOrder?.client?.id) {
                     window.open(`/api/users/${thisOrder.client.id}/drive-folder`, '_blank');
                   } else {
@@ -287,26 +289,31 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                   }
                 }}
                 title="Файли клієнта"
-                style={{ ...buttonStyles.base, ...buttonStyles.iconButton }}
+                aria-label="Файли клієнта"
+                className="icon-btn icon-btn--outlined folder-btn"
+                /* видали inline style width/height або buttonStyles.iconButton,
+                   якщо вони конфліктують — краще керувати через CSS */
               >
-                <img src={FilesButton} alt="Файли" style={{ width: '16px', height: '16px' }} />
+                <FiFolder size={30} style={{color: "black"}}/>
               </button>
+
 
               <button
                 className="clientCabinetButton client-cabinet-icon"
                 onClick={(e) => {
                   e.stopPropagation();
                   console.log("Кабінет клієнта:", user.id);
-
                 }}
                 title="Кабінет клієнта"
                 aria-label="Відкрити кабінет клієнта"
               >
-                <FiUser />
+                {/* user icon — stroke-based, uses currentColor */}
+                <FiUser size={30} style={{color: "black"}}/>
               </button>
+
               <TelegramAvatar
                 link={thisOrder.client.telegram}
-                size={70}
+                size={60}
                 defaultSrc="/default-avatar.png"
               />
 

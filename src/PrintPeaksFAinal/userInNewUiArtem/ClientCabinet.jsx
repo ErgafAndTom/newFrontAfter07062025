@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo } from "react";
+import TelegramAvatar from "../Messages/TelegramAvatar";
+import { FiUser } from "react-icons/fi";
 
 export default function ClientCabinet({
                                         user = {},
@@ -29,18 +31,59 @@ export default function ClientCabinet({
     <div className="cc-overlay" onClick={onClose}>
       <div className="cc-panel" onClick={(e) => e.stopPropagation()}>
         <header className="cc-header">
-          <div className="cc-avatar">{user.photoLink
-            ? <img src={user.photoLink} alt={fullName}/>
-            : <span className="cc-avatar-fallback">👤</span>}
+          <div className="cc-avatar">
+            {user.telegram ? (
+              <TelegramAvatar
+                link={user.telegram}
+                size={50}
+                defaultSrc={
+                  "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%20width%3D'70'%20height%3D'70'%20fill%3D'none'%20stroke%3D'currentColor'%20stroke-width%3D'1.6'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'12'%20cy%3D'8'%20r%3D'3.2'/%3E%3Cpath%20d%3D'M4%2020c0-3.3%203.6-6%208-6s8%202.7%208%206'/%3E%3C%2Fsvg%3E"
+                }
+              />
+            ) : user.photoLink ? (
+              <img src={user.photoLink} alt={fullName} />
+            ) : (
+              <div className="cc-avatar-fallback" aria-hidden="true">
+                {/* Inline SVG fallback */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="34"
+                  height="34"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.6}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  role="img"
+                  aria-label="Аватар"
+                >
+                  <circle cx="12" cy="8" r="3.2" />
+                  <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" />
+                </svg>
+              </div>
+            )}
           </div>
-          <div className="cc-title">
+          <div className="cc-title d-flex flex-row gap-1 ">
             <div className="cc-name">{fullName}</div>
             <div className="cc-meta">
-              {user.company && <span className="cc-chip">{user.company}</span>}
+             {user.company && <span className="cc-chip">{user.company}</span>}
               {user.role && <span className="cc-chip">{user.role}</span>}
-              {user.discount != null && <span className="cc-chip">Знижка {user.discount}%</span>}
+
             </div>
+            <section className="cc-contacts">
+
+              {user.phoneNumber && <a className="cc-contact" href={`tel:${user.phoneNumber}`}>{user.phoneNumber}</a>}
+              {user.email && <a className="cc-contact" href={`mailto:${user.email}`}>{user.email}</a>}
+              {user.telegram && (
+                <a className="cc-contact" target="_blank" rel="noreferrer"
+                   href={`https://t.me/${String(user.telegram).replace("@","")}`}>
+                  {String(user.telegram).replace("@","")}
+                </a>
+              )}
+            </section>
           </div>
+
           <button className="cc-close" onClick={onClose} aria-label="Закрити">✕</button>
         </header>
 
@@ -50,16 +93,7 @@ export default function ClientCabinet({
           <button className="cc-btn" onClick={() => onOpenProfile?.(user)}>↗ Профіль</button>
         </div>
 
-        <section className="cc-contacts">
-          {user.phoneNumber && <a className="cc-contact" href={`tel:${user.phoneNumber}`}>📞 {user.phoneNumber}</a>}
-          {user.email && <a className="cc-contact" href={`mailto:${user.email}`}>✉️ {user.email}</a>}
-          {user.telegram && (
-            <a className="cc-contact" target="_blank" rel="noreferrer"
-               href={`https://t.me/${String(user.telegram).replace("@","")}`}>
-              tg @{String(user.telegram).replace("@","")}
-            </a>
-          )}
-        </section>
+
 
         <section className="cc-stats">
           <div className="cc-stat"><div className="cc-stat-v">{stats.count}</div><div className="cc-stat-l">Замовл.</div></div>

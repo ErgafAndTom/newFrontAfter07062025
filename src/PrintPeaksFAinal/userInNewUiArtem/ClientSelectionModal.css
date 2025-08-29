@@ -220,16 +220,15 @@ gap: 0.3vw;
 }
 
 .client-cabinet-icon svg{
-  width: 55%;
-  height: 55%;
+
 }
 
 .client-cabinet-icon:hover{
-  background: var(--pp-primary, #111);
+
   color:#fff;
-  border-color: var(--pp-primary, #111);
+
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0,0,0,.12);
+  box-shadow: 0 1px 6px rgba(0,0,0,.1);
 }
 
 .client-cabinet-icon:active{ transform: translateY(0); }
@@ -239,4 +238,73 @@ gap: 0.3vw;
   outline: 2px solid color-mix(in oklab, var(--pp-primary, #111) 60%, white);
   outline-offset: 2px;
   box-shadow: 0 0 0 4px color-mix(in oklab, var(--pp-primary, #111) 20%, transparent);
+}
+/* Важливо: box-sizing щоб padding не «псував» розміри */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+/* Базовий круглий контрол іконки */
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 60px;              /* підганяй під потрібний розмір */
+  height: 60px;
+  padding: 0;               /* ніяких внутрішніх відступів */
+  margin: 0;
+  border-radius: 50%;       /* Ось воно — круг */
+  overflow: hidden;         /* обтинає будь-які внутрішні прямокутники */
+  background: transparent;  /* прозорий фон */
+  cursor: pointer;
+  color: #000;              /* іконка буде чорна через currentColor */
+  -webkit-tap-highlight-color: transparent;
+  vertical-align: middle;
+  line-height: 0;           /* вимикає weird baseline spacing */
+  border: none;             /* прибираємо дефолт border (обведення додаємо окремо) */
+}
+.icon-btn:hover{
+
+  color:#fff;
+
+  transform: translateY(-1px);
+  box-shadow: 0 1px 6px rgba(0,0,0,.1);
+}
+/* Тонка сіра рамка (як у іконки клієнта) */
+.icon-btn--outlined {
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+/* Якщо у тебе глобальні стилі для button сильно зашиті — пробити останньою інструкцією: */
+.icon-btn.icon-btn--outlined.folder-btn {
+  border-radius: 50% !important;
+  overflow: hidden !important;
+}
+
+/* Розмір SVG всередині та вирівнювання */
+.icon-btn .icon-svg {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+
+/* Забезпечуємо, що SVG та його path не мають власного background */
+.icon-btn .icon-svg, .icon-btn .icon-svg * {
+  background: transparent;
+}
+.client-cabinet-icon {
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.08); /* тонка сіра рамка, як у інших іконок */
+  color: #000; /* іконка чорна */
+}
+
+.client-cabinet-icon .icon-svg {
+  width: 40px;
+  height: 40px;
+  display: block;
 }

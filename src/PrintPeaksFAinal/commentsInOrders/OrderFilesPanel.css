@@ -309,3 +309,15 @@
 .tile-cancel:active {
   transform: scale(0.97);
 }
+
+.tile-progress-rows { display: grid; gap: 6px; margin-top: 6px; }
+.tile-progress-row { display: grid; grid-template-columns: 1fr; gap: 4px; position: relative; }
+.tile-progress-label { font-size: 11px; opacity: .75; }
+.tile-progress { height: 6px; background: rgba(0,0,0,.08); border-radius: 999px; overflow: hidden; }
+.tile-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #4ade80, #22c55e); transition: width .15s ease; }
+.tile-progress-percent { position: absolute; right: 0; top: -1.2em; font-size: 11px; opacity: .8; }
+
+.uploads-overall { margin: 8px 10px 6px; }
+.uploads-overall-info { font-size: 12px; opacity: .85; margin-bottom: 4px; }
+.uploads-overall-track { height: 8px; background: rgba(0,0,0,.1); border-radius: 999px; overflow: hidden; }
+.uploads-overall-track .uploads-overall-bar { height: 100%; width: calc(var(--overall, 0) * 1%); background: #111; transition: width .15s ease; }

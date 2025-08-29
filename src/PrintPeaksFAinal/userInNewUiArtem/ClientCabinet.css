@@ -1,41 +1,290 @@
-.cc-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:saturate(120%) blur(2px);display:flex;align-items:center;justify-content:center;z-index:9999}
-.cc-panel{width:min(100vw,900px);max-height:90vh;background:#0b0e14;color:#e5e7eb;border:1px solid #2a2f3a;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.3);display:flex;flex-direction:column;overflow:hidden}
-.cc-header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #222631;background:linear-gradient(180deg,#101420,#0b0e14)}
-.cc-avatar{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#1a1f2b;overflow:hidden}
-.cc-avatar img{width:100%;height:100%;object-fit:cover}
-.cc-avatar-fallback{font-size:18px}
-.cc-title{flex:1;min-width:0}
-.cc-name{font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cc-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
-.cc-chip{font-size:12px;border:1px solid #2a2f3a;border-radius:999px;padding:2px 8px;background:#111520}
-.cc-close{background:transparent;border:0;color:#9aa3b2;cursor:pointer;padding:6px;border-radius:8px}
-.cc-close:hover{background:#161b26;color:#fff}
+/* Загальний оверлей */
+.cc-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: saturate(120%) blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
 
-.cc-actions{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid #222631;background:#0d111a;flex-wrap:wrap}
-.cc-btn{display:inline-flex;align-items:center;gap:8px;background:#141927;border:1px solid #2a2f3a;color:#e5e7eb;padding:8px 12px;border-radius:10px;cursor:pointer}
-.cc-btn:hover{background:#1a2031}
+/* Панель — світлий елемент на контрасті фону */
+.cc-panel {
+  width: min(100vw, 900px);
+  max-height: 90vh;
+  background: #fbfaf6; /* фон елементів */
+  color: #000;         /* шрифт чорний */
+  border-radius: 12px;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.12), /* великий глибокий контур для панелі */
+    0 1px 3px rgba(0, 0, 0, 0.15);    /* тонкий "border" як тінь */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
-.cc-contacts{display:flex;gap:12px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid #222631}
-.cc-contact{display:inline-flex;align-items:center;gap:6px;color:#c5cce1;text-decoration:none;font-size:14px}
-.cc-contact:hover{text-decoration:underline}
+/* Хедер панелі */
+.cc-header {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);    /* тонкий "border" як тінь */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: transparent;
+}
 
-.cc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 16px;border-bottom:1px solid #222631;background:#0d111a}
-.cc-stat{background:#111624;border:1px solid #222631;border-radius:12px;padding:10px 12px}
-.cc-stat-v{font-weight:700;font-size:18px}
-.cc-stat-l{opacity:.7;font-size:12px;margin-top:2px}
+/* Аватар */
 
-.cc-orders{flex:1;min-height:0;display:flex;flex-direction:column}
-.cc-orders-head{padding:10px 16px;font-weight:600;border-bottom:1px solid #222631}
-.cc-order-list{overflow:auto;padding:10px 16px;display:grid;gap:10px}
-.cc-order{border:1px solid #252a36;border-radius:12px;padding:10px 12px;background:#0f1422}
-.cc-order-top{display:flex;justify-content:space-between;gap:8px}
-.cc-order-title{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cc-order-status{font-size:12px;opacity:.8}
-.cc-order-meta{display:flex;gap:10px;opacity:.7;font-size:12px;margin-top:4px}
-.cc-order-sum{display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:600}
-.cc-paid{opacity:.8;font-weight:500}
 
-.cc-order.is-paid{border-color:#115e36;background:#0f1d16}
-.cc-order.is-cancel{border-color:#5e1111;background:#1a0f10}
-.cc-order.is-done{border-color:#2b4b7c;background:#0f1623}
-.cc-order.is-inwork{border-color:#6c4b12;background:#1a150e}
+.cc-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+.cc-avatar-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: #000;
+  font-size: 20px;
+}
+/* Назва та мета */
+.cc-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.cc-name {
+  font-weight: 600;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #000;
+}
+
+.cc-meta {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.cc-chip {
+  font-size: 14px;
+  border-radius: 999px;
+
+  background: transparent; /* легка відмінність для чіпа */
+  color: #000;
+
+}
+
+/* Кнопка закриття */
+.cc-close {
+margin-top: -2rem;
+  background: transparent;
+  border: 0;
+  color: #000;
+  cursor: pointer;
+  align-items: start;
+  padding: 0px;
+  border-radius: 8px;
+  justify-content: start;
+}
+
+.cc-close:hover {
+color: red
+}
+
+/* Дії під хедером */
+.cc-actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  background: transparent;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);   /* тонкий "border" як тінь */
+}
+
+.cc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fbfaf6;
+  color: #000;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.cc-btn:hover {
+  transform: translateY(-1px);
+  background: #fab416;
+}
+
+/* Контакти */
+.cc-contacts {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-left: 2rem;
+
+}
+
+.cc-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #000;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.cc-contact:hover {
+  text-decoration: underline;
+}
+
+/* Статистичні блоки */
+.cc-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.cc-stat {
+  background: #fbfaf6;
+  border-radius: 12px;
+  padding: 10px 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  color: #000;
+}
+
+.cc-stat-v {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.cc-stat-l {
+  opacity: 0.8;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* Список замовлень */
+.cc-orders {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cc-orders-head {
+  padding: 10px 16px;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  background: transparent;
+  color: #000;
+}
+
+.cc-order-list {
+  overflow: auto;
+  padding: 10px 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.cc-order {
+  background: #fbfaf6;
+  border-radius: 12px;
+  padding: 10px 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  color: #000;
+}
+
+.cc-order-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cc-order-title {
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #000;
+}
+
+.cc-order-status {
+  font-size: 12px;
+  opacity: 0.8;
+  color: #000;
+}
+
+.cc-order-meta {
+  display: flex;
+  gap: 10px;
+  opacity: 0.8;
+  font-size: 12px;
+  margin-top: 4px;
+  color: #000;
+}
+
+.cc-order-sum {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-weight: 600;
+  color: #000;
+}
+
+.cc-paid {
+  opacity: 0.8;
+  font-weight: 500;
+  color: #000;
+}
+
+/* Стани замовлень — легка кольорова підказка через тінь/фон */
+.cc-order.is-paid {
+  box-shadow: 0 1px 6px rgba(17, 94, 54, 0.06);
+}
+
+.cc-order.is-cancel {
+  box-shadow: 0 1px 6px rgba(94, 17, 17, 0.06);
+}
+
+.cc-order.is-done {
+  box-shadow: 0 1px 6px rgba(43, 75, 124, 0.06);
+}
+
+.cc-order.is-inwork {
+  box-shadow: 0 1px 6px rgba(108, 75, 18, 0.06);
+}
+
+/* Дрібні поліпшення для читабельності */
+* {
+  box-sizing: border-box;
+  color: #000;
+  /*font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;*/
+}
+
+/* Скрол у списках — більш тонкий та акуратний */
+.cc-order-list::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+.cc-order-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+}

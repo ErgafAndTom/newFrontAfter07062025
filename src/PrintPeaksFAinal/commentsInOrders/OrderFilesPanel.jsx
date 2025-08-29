@@ -148,18 +148,48 @@ const OrderFilesPanel = ({
     if (!fileList || fileList.length === 0) return;
     const list = Array.from(fileList);
 
-    list.forEach(async (file) => {
+    for (const file of list) {
       const tempId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const controller = new AbortController();
+      const uploadSessionId = `up_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
-      setUploads(prev => [...prev, { tempId, name: file.name, size: file.size, progress: 0, controller }]);
+      const controller = new AbortController();
+      let es; // EventSource
+
+      // додаємо тайл з двома прогресами
+      setUploads(prev => [...prev, {
+        tempId, name: file.name, size: file.size,
+        progress: 0,            // на сервер
+        driveProgress: 0,       // у Google Drive
+        controller, eventSource: null
+      }]);
 
       try {
+        // 1) Підписка на Drive-прогрес (SSE)
+        es = new EventSource(`${uploadUrl.replace(/\/addNewFile.*/,'')}/${thisOrder.id}/upload-progress/${uploadSessionId}`);
+        es.onmessage = (evt) => {
+          try {
+            const data = JSON.parse(evt.data);
+            if (data?.stage === 'drive' && data?.uploadId === uploadSessionId) {
+              const dp = Number.isFinite(data.progress) ? data.progress : 0;
+              setUploads(prev => prev.map(u => u.tempId === tempId ? { ...u, driveProgress: dp } : u));
+              if (data.done) { es.close(); }
+            }
+          } catch {}
+        };
+        es.onerror = () => { /* мережеві дрібниці ігноруємо */ };
+
+        // збережемо посилання на ES (для відміни)
+        setUploads(prev => prev.map(u => u.tempId === tempId ? { ...u, eventSource: es } : u));
+
+        // 2) Завантаження на сервер
         const formData = new FormData();
         formData.append("file", file, file.name);
 
         const res = await axios.post(uploadUrl, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "X-Upload-Id": uploadSessionId,     // важливо: щоб бек знав, куди слати SSE
+          },
           signal: controller.signal,
           onUploadProgress: (evt) => {
             const total = evt.total || file.size || 1;
@@ -184,15 +214,22 @@ const OrderFilesPanel = ({
           setError(e.message || `Помилка завантаження: ${file.name}`);
         }
       } finally {
-        setUploads(prev => prev.filter(u => u.tempId !== tempId));
+        // закриваємо ES і прибираємо тайл
+        setUploads(prev => {
+          const u = prev.find(x => x.tempId === tempId);
+          try { u?.eventSource?.close?.(); } catch {}
+          return prev.filter(x => x.tempId !== tempId);
+        });
       }
-    });
+    }
+
   };
 
   const cancelUpload = (tempId) => {
     setUploads(prev => {
       const u = prev.find(x => x.tempId === tempId);
       try { u?.controller?.abort(); } catch {}
+      try { u?.eventSource?.close?.(); } catch {}
       return prev.filter(x => x.tempId !== tempId);
     });
   };
@@ -226,14 +263,13 @@ const OrderFilesPanel = ({
   // overall progress (weighted by size when available)
   const overallProgress = (() => {
     if (!uploads || uploads.length === 0) return 0;
-    const totalSize = uploads.reduce((s, u) => s + (u.size || 0), 0);
-    if (totalSize > 0) {
-      const uploadedBytes = uploads.reduce((s, u) => s + ((u.progress || 0) / 100) * (u.size || 0), 0);
-      return Math.round((uploadedBytes / totalSize) * 100);
-    } else {
-      const avg = uploads.reduce((s, u) => s + (u.progress || 0), 0) / uploads.length;
-      return Math.round(avg);
-    }
+    const totals = uploads.map(u => {
+      const p1 = u.progress ?? 0;
+      const p2 = u.driveProgress ?? 0;
+      // середнє двох етапів, можна зважити якщо потрібно
+      return (p1 + p2) / 2;
+    });
+    return Math.round(totals.reduce((s, x) => s + x, 0) / uploads.length);
   })();
 
   return (
@@ -270,7 +306,7 @@ const OrderFilesPanel = ({
           <div className="uploads-overall-info">
             Завантаження {uploads.length} {uploads.length === 1 ? "файлу" : "файлів"} — {overallProgress}%
           </div>
-          <div className="uploads-overall-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={overallProgress}>
+          <div className="uploads-overall-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={overallProgress} style={{'--overall': overallProgress}}>
             <div className="uploads-overall-bar"/>
           </div>
         </div>
@@ -303,8 +339,8 @@ const OrderFilesPanel = ({
               <div key={u.tempId} className="file-tile uploading" title={u.name}>
                 <div className="tile-top">
                   <a className="tile-link" onClick={(e)=>e.preventDefault()} href="#" tabIndex={0}>
-                    <div className={`tile-icon tile-icon--${meta.type}`} style={{ borderColor: meta.color }}>
-                      <div className="tile-icon-inner">{meta.icon}</div>
+                    <div className={`tile-icon tile-icon--${fileTypeMeta(u.name).type}`} style={{ borderColor: fileTypeMeta(u.name).color }}>
+                      <div className="tile-icon-inner">{fileTypeMeta(u.name).icon}</div>
                     </div>
                   </a>
                 </div>
@@ -316,11 +352,23 @@ const OrderFilesPanel = ({
                   <FiX size={10}/>
                 </button>
 
-                <div className="tile-progress" aria-hidden>
-                  <div className="tile-progress-bar"/>
-                </div>
+                <div className="tile-progress-rows">
+                  <div className="tile-progress-row">
+                    <div className="tile-progress-label">На сервер</div>
+                    <div className="tile-progress">
+                      <div className="tile-progress-bar" style={{ width: `${u.progress || 0}%` }}/>
+                    </div>
+                    <div className="tile-progress-percent">{u.progress ? `${u.progress}%` : ""}</div>
+                  </div>
 
-                <div className="tile-progress-percent">{u.progress ? `${u.progress}%` : ""}</div>
+                  <div className="tile-progress-row">
+                    <div className="tile-progress-label">У Google Drive</div>
+                    <div className="tile-progress">
+                      <div className="tile-progress-bar" style={{ width: `${u.driveProgress || 0}%` }}/>
+                    </div>
+                    <div className="tile-progress-percent">{u.driveProgress ? `${u.driveProgress}%` : ""}</div>
+                  </div>
+                </div>
               </div>
             );
           })}
