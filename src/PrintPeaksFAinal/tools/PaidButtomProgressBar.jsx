@@ -62,7 +62,7 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
           Payment: response.data
         }));
       }
-      console.log('Invoice created', response.data);
+      // console.log('Invoice created', response.data);
     } catch (e) {
       console.log('createInvoice error:', e);
     }
@@ -96,7 +96,7 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
     let invoiceIdMy = thisOrder.Payment.invoiceId
     try {
       let res = await axios.post('/api/payment/cancel-invoice', { orderId: thisOrder.id });
-      console.log(res);
+      // console.log(res);
       setThisOrder(prev => ({
         ...prev,
         Payment: {
@@ -148,7 +148,7 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
     let invoiceIdMy = thisOrder.Payment.invoiceId
     try {
       let res = await axios.post('/api/payment/invalidate-invoice', {invoiceIdMy});
-      console.log(res);
+      // console.log(res);
       setThisOrder(prev => ({
         ...prev,
         Payment: {
@@ -164,7 +164,7 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
   };
 
   useEffect(() => {
-    console.log(thisOrder);
+    // console.log(thisOrder);
     if(thisOrder.Payment?.status === 'CREATED'){
       checkStatus()
     }

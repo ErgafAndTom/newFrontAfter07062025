@@ -28,7 +28,7 @@ function ClientUserProfile() {
         setIsLoad(true)
         axios.get(`/user/getOneUser/${id}`)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setThisUser(response.data)
                 setIsLoad(false)
                 setIsError(null)

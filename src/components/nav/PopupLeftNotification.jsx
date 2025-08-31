@@ -36,7 +36,7 @@ const PopupLeftNotification = () => {
     if (!currentUser?.id) return;
     axios.post('/trello/getdataPost', { userId: currentUser.id })
       .then(res => {
-        console.log(res.data);
+        // console.log(res.data);
         setData(res.data)
       })
       .catch(console.error);

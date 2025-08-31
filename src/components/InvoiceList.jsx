@@ -16,7 +16,7 @@ export const InvoiceList = () => {
     const loadInvoices = async () => {
         try {
             const data = await invoiceService.getAll();
-            console.log(data);
+            // console.log(data);
             setInvoices(data);
             setLoading(false);
         } catch (err) {
@@ -70,7 +70,7 @@ export const InvoiceList = () => {
                                 </span>
                             </td>
                             <td>
-                                <button 
+                                <button
                                     className="btn btn-primary btn-sm"
                                     onClick={() => handleGenerateDocx(invoice.id)}
                                 >
@@ -83,4 +83,4 @@ export const InvoiceList = () => {
             </table>
         </div>
     );
-}; 
+};

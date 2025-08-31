@@ -14,7 +14,7 @@ function SelectedProduct({name, data, setData, item, index, isLoad}) {
         setShow(false);
     }
     const handleShow = () => {
-        console.log(item);
+        // console.log(item);
         setShow(true);
     }
 
@@ -40,7 +40,7 @@ function SelectedProduct({name, data, setData, item, index, isLoad}) {
         }
         axios.post(`admin/api/products`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setData(response.data)
             })
             .catch(error => {
@@ -48,8 +48,8 @@ function SelectedProduct({name, data, setData, item, index, isLoad}) {
             })
     };
 
-    console.log("item");
-    console.log(item);
+    // console.log("item");
+    // console.log(item);
     return (
         <Card>
             <Card.Body>

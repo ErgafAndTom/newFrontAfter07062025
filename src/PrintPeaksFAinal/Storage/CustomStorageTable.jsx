@@ -96,7 +96,7 @@ const CustomStorageTable = ({name}) => {
       setLoading(true)
       axios.post(`/materials/All`, requestData)
         .then(response => {
-          console.log(response.data);
+          // console.log(response.data);
           setData(response.data)
           setError(null)
           setLoading(false)
@@ -136,10 +136,10 @@ const CustomStorageTable = ({name}) => {
       currentPage: currentPage,
       formValues: forData
     }
-    console.log(data);
+    // console.log(data);
     axios.post(`/materials/`, data)
       .then(response => {
-        console.log(response.data);
+        // console.log(response.data);
         setData(response.data)
         setPageCount(Math.ceil(response.data.count / inPageCount))
 
@@ -176,12 +176,12 @@ const CustomStorageTable = ({name}) => {
       search: typeSelect,
       columnName: thisColumn
     }
-    console.log(data);
+    // console.log(data);
     setError(null)
     // setLoad(true)
     axios.put(`/materials/copy`, data)
       .then(response => {
-        console.log(response.data);
+        // console.log(response.data);
         setData(response.data)
         setPageCount(Math.ceil(response.data.count / inPageCount))
         setShowRed(false)

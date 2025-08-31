@@ -192,7 +192,7 @@ const NewUIArtem = () => {
 
   useEffect(() => {
     (() => {
-      console.log(1);
+      // console.log(1);
     })();
     if (id) {
       setIsLoad(true)
@@ -203,7 +203,7 @@ const NewUIArtem = () => {
       axios.post(`/Orders/OneOrder`, data)
         .then(response => {
           // console.log(axios);
-          console.log(response.data);
+          // console.log(response.data);
           setThisOrder(response.data)
           setSelectedThings2(response.data.OrderUnits)
           setIsLoad(false)

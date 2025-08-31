@@ -79,7 +79,7 @@ export const TableDevices = ({name}) => {
             inPageCount: inPageCount,
             currentPage: currentPage,
         }
-        console.log(data);
+        // console.log(data);
         axios.post(`admin/deleteintable`, data)
             .then(response => {
                 setData(response.data)

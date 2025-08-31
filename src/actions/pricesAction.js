@@ -29,7 +29,7 @@ export const fetchPrices = () => {
         axios.get('/getprices')
             .then(response => {
                 const prices = response.data
-                console.log(response.data);
+                // console.log(response.data);
                 dispatch(fetchPricesSuccess(prices))
             })
             .catch(error => {
@@ -70,7 +70,7 @@ export const fetchPrices2 = () => {
         axios.get('/getprices2')
             .then(response => {
                 const prices = response.data
-                console.log(response.data);
+                // console.log(response.data);
                 dispatch(fetchPricesSuccess2(prices))
             })
             .catch(error => {

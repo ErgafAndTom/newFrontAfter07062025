@@ -36,7 +36,7 @@ function PaymentCalculator({thisOrder, setThisOrder, selectedThings2, setSelecte
         setLoad(true)
         axios.put(`/orders/OneOrder/discount`, dataToSend)
           .then(response => {
-            console.log(response.data);
+            // console.log(response.data);
             setThisOrder({...thisOrder, prepayment: response.data.prepayment, allPrice: response.data.allPrice})
             // setThisOrder(response.data)
             setSelectedThings2(response.data.OrderUnits)

@@ -67,7 +67,7 @@ const PerepletPerepletBooklet = ({
             axios.post(`/materials/NotAll`, data)
                 .then(response => {
                     setThisPerepletVariants(response.data.rows);
-                    console.log(response.data.rows[2]);
+                    // console.log(response.data.rows[2]);
                     if (response.data.rows[2]) {
                         const activeUsers = response.data.rows.filter(awdawd => awdawd.name === "На скобу".toLowerCase());
                         setPereplet({

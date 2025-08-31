@@ -74,7 +74,7 @@ const Photo = ({thisOrder, newThisOrder, setNewThisOrder, selectedThings2, setSh
     useEffect(() => {
         axios.get(`/getpricesNew`)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setPrices(response.data)
             })
             .catch(error => {
@@ -96,7 +96,7 @@ const Photo = ({thisOrder, newThisOrder, setNewThisOrder, selectedThings2, setSh
         }
         axios.post(`/api/pricing`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setPricesThis(response.data)
             })
             .catch(error => {

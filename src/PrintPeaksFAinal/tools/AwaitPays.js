@@ -30,7 +30,7 @@ const AwaitPays = ({
     };
     axios.post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, dataToSend)
       .then(response => {
-        console.log(response.data);
+        // console.log(response.data);
       })
       .catch(error => {
         if (error.response.status === 403) {

@@ -143,7 +143,7 @@ const Laminator = ({
         }
         axios.post(`/calc/pricing`, dataToSend)
             .then(response => {
-                console.log(response.data.prices);
+                // console.log(response.data.prices);
                 setPricesThis(response.data.prices)
                 setError(null)
             })

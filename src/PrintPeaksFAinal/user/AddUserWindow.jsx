@@ -66,7 +66,7 @@ function AddUserWindow({ show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrde
         if(thisOrder === null || thisOrder === undefined || thisOrder.id === null || thisOrder.id === undefined || thisOrder.id === 0){
           axios.post(url, user)
             .then(response => {
-              console.log(response.data);
+              // console.log(response.data);
               setLoading(false);
               if (onUserAdded) {
                 onUserAdded(response.data);
@@ -92,7 +92,7 @@ function AddUserWindow({ show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrde
           }
           axios.post(url, dataToSend)
             .then(response => {
-              console.log(response.data);
+              // console.log(response.data);
               setLoading(false);
               setThisOrder(response.data)
               onHide();

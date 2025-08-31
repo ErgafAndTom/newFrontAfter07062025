@@ -14,7 +14,7 @@ function ModalDeleteInStorage({tableName, data, setData, inPageCount, setInPageC
         setShow(false);
     }
     const handleShow = () => {
-        console.log(item);
+        // console.log(item);
         setShow(true);
     }
 
@@ -26,10 +26,10 @@ function ModalDeleteInStorage({tableName, data, setData, inPageCount, setInPageC
             currentPage: currentPage,
             search: "",
         }
-        console.log(data);
+        // console.log(data);
         axios.post(`admin/deleteintable`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setData(response.data)
                 setPageCount(Math.ceil(response.data.count / inPageCount))
                 setShow(false);

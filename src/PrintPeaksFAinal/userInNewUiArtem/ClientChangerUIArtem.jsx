@@ -283,7 +283,10 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                 onClick={(e) => {
                   e.stopPropagation();
                   if (thisOrder?.client?.id) {
-                    window.open(`/api/users/${thisOrder.client.id}/drive-folder`, '_blank');
+                    // window.open(`/api/users/${thisOrder.client.id}/drive-folder`, '_blank');
+                    // window.open(`https://drive.google.com/drive/folders/0ABGMb1Ge05gnUk9PVA`, '_blank');
+                    window.open(`https://drive.google.com/drive/folders/1zpPDvQF2g_QcE3i6SCemKhg81rqLHag3`, '_blank');
+                    // window.location.href = "file:///C:/Users/Public/Documents";
                   } else {
                     setError('Спочатку виберіть клієнта');
                   }
@@ -302,7 +305,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                 className="clientCabinetButton client-cabinet-icon"
                 onClick={(e) => {
                   e.stopPropagation();
-                  console.log("Кабінет клієнта:", user.id);
+                  // console.log("Кабінет клієнта:", user.id);
                 }}
                 title="Кабінет клієнта"
                 aria-label="Відкрити кабінет клієнта"

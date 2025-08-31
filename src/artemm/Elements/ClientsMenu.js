@@ -41,7 +41,7 @@ const ClientsMenu = ({ user = {} }) => {
         }
         axios.get(`/user/all`, data)
             .then(response => {
-                console.log(response.data.rows);
+                // console.log(response.data.rows);
                 setUsers(response.data.rows)
                 // setPageCount(Math.ceil(response.data.result.count / inPageCount))
             })
@@ -89,7 +89,7 @@ const ClientsMenu = ({ user = {} }) => {
 
     const selectUser = (user) => {
         setShowUserList(false);
-        console.log('Вибраний користувач:', user);  // Наприклад, тут ви можете оновити стан поточного користувача.
+        // console.log('Вибраний користувач:', user);  // Наприклад, тут ви можете оновити стан поточного користувача.
     };
 
     if (users) {

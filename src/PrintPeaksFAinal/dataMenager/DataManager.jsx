@@ -13,7 +13,7 @@ const DataManager = () => {
         // Получение списка баз данных, схем и таблиц
         axios.post('/db/databases')
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setDatabases(response.data);
                 const firstSchema = Object.keys(response.data)[0];
                 setSelectedSchema(firstSchema);

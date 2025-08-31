@@ -168,7 +168,7 @@ const ProgressBar = ({
     }, [manufacturingStartTime, currentStage]);
 
     useEffect(() => {
-        console.log(isCancelled);
+        // console.log(isCancelled);
     }, [isCancelled]);
 
     useEffect(() => {
@@ -253,7 +253,7 @@ const ProgressBar = ({
 
         axios.put(`/orders/OneOrder/statusUpdate`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 if (stage === 'pay') {
                     setThisOrder(prevState => ({
 
@@ -295,7 +295,7 @@ const ProgressBar = ({
         // setLoad(true)
         axios.put(`/orders/OneOrder/deadlineUpdate`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setThisOrder({...thisOrder, deadline: response.data.deadline})
                 // setLoad(false)
                 // setThisOrder(response.data)

@@ -272,7 +272,7 @@ export default function CardInfo({
                 setLoad(true)
                 setError(null)
                 const res = await axios.delete(`/trello/${id}/contentPhoto`);
-                console.log(res.data);
+                // console.log(res.data);
                 if (res.status === 200) {
                     setServerData(prevLists =>
                         prevLists.map(list => ({

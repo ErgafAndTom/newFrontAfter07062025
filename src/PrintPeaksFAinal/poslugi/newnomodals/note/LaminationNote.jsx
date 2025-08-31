@@ -45,7 +45,7 @@ const LaminationNote = ({materialAndDruk, setMaterialAndDruk, prices, buttonsArr
         // } else {
         //     setThisLaminationSizes(["30", "80"])
         // }
-        console.log(e);
+        // console.log(e);
         setMaterialAndDruk({
             ...materialAndDruk,
             laminationmaterial: e,
@@ -73,10 +73,10 @@ const LaminationNote = ({materialAndDruk, setMaterialAndDruk, prices, buttonsArr
         }
         setLoad(true)
         setError(null)
-        console.log(materialAndDruk);
+        // console.log(materialAndDruk);
         axios.post(`/materials/NotAll`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setLoad(false)
                 setThisLaminationSizes(response.data.rows)
                 if(response.data && response.data.rows && response.data.rows[0]){

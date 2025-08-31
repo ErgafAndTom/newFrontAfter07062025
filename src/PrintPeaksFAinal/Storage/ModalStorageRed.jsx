@@ -82,13 +82,13 @@ const ModalStorageRed = ({
         if (modalInput === "") {
             data.input = 0
         }
-        console.log(data);
-        console.log(url);
+        // console.log(data);
+        // console.log(url);
         setError(null)
         setLoad(true)
         axios.put(url, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setData(response.data)
                 setPageCount(Math.ceil(response.data.count / inPageCount))
                 setLoad(false)

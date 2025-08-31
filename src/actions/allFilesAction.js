@@ -31,7 +31,7 @@ export const fetchAllFiles = () => {
         axios.get('/orders')
             .then(response => {
                 const users = response.data
-                console.log(response.data);
+                // console.log(response.data);
                 dispatch(fetchFilesSuccess(users))
             })
             .catch(error => {

@@ -72,12 +72,12 @@ const Test2 = () => {
             crud: "create",
             data: forms,
         }
-        console.log(dataToSend);
+        // console.log(dataToSend);
 
         setLoad(true)
         axios.post(`/api/eav`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setData([...data, response.data])
                 setLoad(false)
                 handleClose()
@@ -93,7 +93,7 @@ const Test2 = () => {
         }
         axios.post(`/api/eav`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setData(response.data)
             })
             .catch(error => {

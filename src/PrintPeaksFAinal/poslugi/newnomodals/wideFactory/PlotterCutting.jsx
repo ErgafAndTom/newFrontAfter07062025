@@ -33,7 +33,7 @@ const PlotterCutting = ({plotterCutting, setPlotterCutting, plivkaOrPVH, prices,
   }
 
   let handleClick = (e) => {
-    console.log(e);
+    // console.log(e);
     setPlotterCutting({
       ...plotterCutting,
       materialId: e,
@@ -64,10 +64,10 @@ const PlotterCutting = ({plotterCutting, setPlotterCutting, plivkaOrPVH, prices,
     setError(null)
     axios.post(`/materials/NotAll`, data)
       .then(response => {
-        console.log(response.data);
+        // console.log(response.data);
         setLoad(false)
         setThisLaminationSizes(response.data.rows)
-        console.log(response.data.rows);
+        // console.log(response.data.rows);
         if(response.data && response.data.rows && response.data.rows[0]){
           setPlotterCutting({
             ...plotterCutting,

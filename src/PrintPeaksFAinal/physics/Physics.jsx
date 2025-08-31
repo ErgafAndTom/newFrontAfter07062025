@@ -112,7 +112,7 @@ class PhysicsEngine extends React.Component {
             const pairs = event.pairs;
             for (let i = 0; i < pairs.length; i++) {
                 const pair = pairs[i];
-                console.log('Collision detected between bodies:', pair.bodyA.id, pair.bodyB.id);
+                // console.log('Collision detected between bodies:', pair.bodyA.id, pair.bodyB.id);
             }
         });
     }

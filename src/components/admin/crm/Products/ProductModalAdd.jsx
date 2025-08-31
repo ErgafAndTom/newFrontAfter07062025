@@ -16,7 +16,7 @@ function ProductModalAdd({namem, data, setData, data1}) {
     const [canDo, setCanDo] = useState(false);
     const [load, setLoad] = useState(false);
     const [type, setType] = useState("");
-    console.log(data1);
+    // console.log(data1);
     const handleClose = () => {
         setShow(false);
     }
@@ -70,12 +70,12 @@ function ProductModalAdd({namem, data, setData, data1}) {
             productUnits: forms,
             type: type
         }
-        console.log(dataToSend);
+        // console.log(dataToSend);
 
         setLoad(true)
         axios.post(`admin/api/products`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setData(response.data)
                 setLoad(false)
                 handleClose()

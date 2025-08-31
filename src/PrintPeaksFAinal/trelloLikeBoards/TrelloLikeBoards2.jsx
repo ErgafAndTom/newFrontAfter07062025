@@ -30,7 +30,7 @@ const TrelloBoard = () => {
     const fetchData = async () => {
       try {
         const res = await axios.post('/trello/getdata');
-        console.log(res.data);
+        // console.log(res.data);
         setServerData(res.data);
       } catch (error) {
         console.error("Помилка при отриманні даних:", error);
@@ -69,7 +69,7 @@ const TrelloBoard = () => {
 
     try {
       const res = await axios.post('/trello', newList);
-      console.log(res.data);
+      // console.log(res.data);
       setServerData(prevLists => [...prevLists, res.data]);
     } catch (error) {
       console.error("Помилка створення списку:", error);
@@ -92,7 +92,7 @@ const TrelloBoard = () => {
 
     try {
       const res = await axios.post(`/trello/${listId}/cards`, newCard);
-      console.log(res.data);
+      // console.log(res.data);
       // setServerData(prevLists =>
       //   prevLists.map(list =>
       //     list.id === listId
@@ -206,7 +206,7 @@ const TrelloBoard = () => {
         cardId: cardId,
         newContent: contentToSave
       });
-      console.log("Збережено:", res.data);
+      // console.log("Збережено:", res.data);
     } catch (error) {
       console.error("Помилка при збереженні картки:", error);
     } finally {
@@ -263,7 +263,7 @@ const TrelloBoard = () => {
       const response = await axios.put('/trello/drag', dataToSend);
       if (response.status !== 200) throw new Error(response.data.message || 'Ошибка перемещения');
       setServerData(response.data);
-      console.log(response.data);
+      // console.log(response.data);
     } catch (error) {
       console.error('Ошибка при перемещении:', error);
     }

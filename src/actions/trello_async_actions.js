@@ -184,7 +184,7 @@ export const saveCardContent = (listId, cardId, content) => {
         payload: { listId, cardId, content }
       });
 
-      console.log("Збережено:", response.data);
+      // console.log("Збережено:", response.data);
     } catch (error) {
       dispatch({
         type: TRELLO_UPDATE_CARD_CONTENT_FAILURE,
@@ -220,7 +220,7 @@ export const dragCard = (cardId, fromListId, toListId, fromIndex, toIndex) => {
         payload: response.data
       });
 
-      console.log(response.data);
+      // console.log(response.data);
     } catch (error) {
       dispatch({
         type: TRELLO_DRAG_CARD_FAILURE,

@@ -47,7 +47,7 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
         // } else {
         //     setThisLaminationSizes(["30", "80"])
         // }
-        console.log(e);
+        // console.log(e);
         setLamination({
             ...lamination,
             material: e,
@@ -76,10 +76,10 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
         }
         setLoad(true)
         setError(null)
-        console.log(lamination);
+        // console.log(lamination);
         axios.post(`/materials/NotAll`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setLoad(false)
                 // const filtered = response.data.rows?.filter(u => u.thickness === "250");
               if(isVishichka){

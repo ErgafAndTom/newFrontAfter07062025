@@ -13,7 +13,7 @@ function CardProduct({name, data, setData, item}) {
         setShow(false);
     }
     const handleShow = () => {
-        console.log(item);
+        // console.log(item);
         setShow(true);
     }
     const handleSubmit = (event) => {
@@ -23,7 +23,7 @@ function CardProduct({name, data, setData, item}) {
         }
         axios.post(`admin/api/products`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setData(response.data)
             })
             .catch(error => {

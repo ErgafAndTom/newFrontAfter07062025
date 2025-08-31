@@ -26,7 +26,7 @@ const ModalLamination = ({lamination, setLamination, prices, size}) => {
     }
 
     let handleClick = (e) => {
-        console.log(e);
+        // console.log(e);
         setMat1(e.target.getAttribute("toClick"))
         if(e.target.getAttribute("toClick") === "Не потрібно"){
             setMat3("")

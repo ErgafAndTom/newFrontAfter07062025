@@ -21,7 +21,7 @@ const LifeHackBoard = () => {
         const fetchData = async () => {
             try {
                 const res = await axios.post('/lifehack/getdata');
-                console.log(res.data);
+                // console.log(res.data);
                 setServerData(res.data);
             } catch (error) {
                 console.error("Помилка при отриманні даних:", error);
@@ -61,7 +61,7 @@ const LifeHackBoard = () => {
 
         try {
             const res = await axios.post('/lifehack', newList);
-            console.log(res.data);
+            // console.log(res.data);
             setServerData(prevLists => [...prevLists, res.data]);
         } catch (error) {
             console.error("Помилка створення списку:", error);
@@ -84,7 +84,7 @@ const LifeHackBoard = () => {
 
         try {
             const res = await axios.post(`/lifehack/${listId}/cards`, newCard);
-            console.log(res.data);
+            // console.log(res.data);
             setServerData(prevLists =>
                 prevLists.map(list =>
                     list.id === listId
@@ -141,7 +141,7 @@ const LifeHackBoard = () => {
             };
             try {
                 const res = await axios.put(`/lifehack/content`, data);
-                console.log(res.data);
+                // console.log(res.data);
             } catch (error) {
                 console.error("Помилка при зміні вмісту картки:", error);
             } finally {
@@ -225,7 +225,7 @@ const LifeHackBoard = () => {
         try {
             const response = await axios.put('/lifehack/drag', dataToSend);
             if (response.status !== 200) throw new Error(response.data.message || 'Ошибка перемещения');
-            console.log(response.data);
+            // console.log(response.data);
             setServerData(response.data);
         } catch (error) {
             console.error('Ошибка при перемещении:', error);

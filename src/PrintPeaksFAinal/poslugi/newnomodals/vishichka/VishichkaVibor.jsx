@@ -41,7 +41,7 @@ const VishichkaVibor = ({vishichka, setVishichka, prices, buttonsArr, selectArr,
         }
         axios.post(`/materials/NotAll`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setThisVishichka(response.data.rows)
                 if(response.data && response.data.rows && response.data.rows[0]){
                     setVishichka({

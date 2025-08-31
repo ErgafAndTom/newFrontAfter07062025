@@ -106,7 +106,7 @@ const SheetCut = ({thisOrder, newThisOrder, setNewThisOrder, selectedThings2, se
     useEffect(() => {
         axios.get(`/getpricesNew`)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setPrices(response.data)
             })
             .catch(error => {
@@ -128,7 +128,7 @@ const SheetCut = ({thisOrder, newThisOrder, setNewThisOrder, selectedThings2, se
         }
         axios.post(`/api/pricing`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setPricesThis(response.data)
             })
             .catch(error => {

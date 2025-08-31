@@ -57,7 +57,7 @@ function ForUserOrder({showAddPay, setShowAddPay, openCardData}) {
     };
     axios.post(`/trello/updateCardAssignetUser`, dataToSend)
       .then(response => {
-        console.log(response.data);
+        // console.log(response.data);
         setData(prevData =>
           prevData.map(obj =>
             obj.id === response.data.id ? response.data : obj
@@ -118,7 +118,7 @@ function ForUserOrder({showAddPay, setShowAddPay, openCardData}) {
     axios
       .post(`/api/users/getUserAdmin`, payload)
       .then((response) => {
-        console.log(response.data.rows);
+        // console.log(response.data.rows);
         setFilteredContrAgents(response.data.rows);
         // setPageCount(Math.ceil(response.data.count / inPageCount));
         setError(null);

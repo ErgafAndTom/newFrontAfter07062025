@@ -181,9 +181,9 @@ const OrderFilesPanel = ({
 
       // 1) Открываем WS ПРАВИЛЬНЫМ URL
       const wsUrl = buildWsUrl(uploadSessionId);
-      console.log('[UPLOAD] opening WS:', wsUrl, 'uploadId:', uploadSessionId);
+      // console.log('[UPLOAD] opening WS:', wsUrl, 'uploadId:', uploadSessionId);
       const ws = new WebSocket(wsUrl);
-      console.log(ws);
+      // console.log(ws);
       setUploads(prev => prev.map(x => x.tempId === tempId ? ({ ...x, ws }) : x));
 
       // 2) Слушаем прогресс стадий от бэка

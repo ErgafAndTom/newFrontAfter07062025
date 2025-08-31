@@ -57,7 +57,7 @@ const PlivkaMontajna = ({
     setError(null)
     axios.post(`/materials/NotAll`, data)
       .then(response => {
-        console.log(response.data);
+        // console.log(response.data);
         setPaper(response.data.rows)
         setLoad(false)
         // if (response.data && response.data.rows && response.data.rows[0]) {

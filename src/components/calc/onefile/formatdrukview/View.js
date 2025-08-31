@@ -37,7 +37,7 @@ export const View = () => {
 
     const loadFile = (e) => {
         if(e.target.value){
-            console.log(e.target.value);
+            // console.log(e.target.value);
         }
     }
 
@@ -62,7 +62,7 @@ export const View = () => {
         let imgHeight = img.height;
         let src = img.src;
         if (thisFile.x > 0 && thisFile.y > 0) {
-            console.log("render!!!");
+            // console.log("render!!!");
             let x = thisFile.x;
             let y = thisFile.y;
             let etalon = 30;

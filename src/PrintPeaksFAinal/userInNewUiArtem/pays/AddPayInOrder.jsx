@@ -47,7 +47,7 @@ function AddPaysInOrder({ showAddPay, setShowAddPay, formData, setFormData, data
         };
         axios.post(`/api/contractorsN/updateContractor`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setData(prevData =>
                     prevData.map(obj =>
                         obj.id === response.data.id ? response.data : obj
@@ -76,7 +76,7 @@ function AddPaysInOrder({ showAddPay, setShowAddPay, formData, setFormData, data
         };
         axios.post(`/api/contractorsN/addContractor`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setData([
                     ...data,
                     response.data

@@ -203,7 +203,7 @@ const NewBooklet = ({
         if (porizka.type !== "Не потрібно") {
             dataToSend.porizka = porizka;
         }
-        console.log(dataToSend);
+        // console.log(dataToSend);
         axios.post(`/calc/pricing`, dataToSend)
             .then(response => {
                 setPricesThis(response.data.prices)
@@ -313,7 +313,7 @@ const NewBooklet = ({
     // Додаємо useEffect для відстеження змін у згинанні
     useEffect(() => {
         if (materialAndDrukFront.big && materialAndDrukFront.big !== "Не потрібно") {
-            console.log('Згинання активовано:', materialAndDrukFront.big);
+            // console.log('Згинання активовано:', materialAndDrukFront.big);
         }
     }, [materialAndDrukFront.big]);
 

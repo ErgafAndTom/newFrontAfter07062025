@@ -279,7 +279,7 @@ const NewNote = ({
         if (porizka.type !== "Не потрібно") {
             dataToSend.porizka = porizka;
         }
-        console.log(dataToSend);
+        // console.log(dataToSend);
         axios.post(`/calc/pricing`, dataToSend)
             .then(response => {
                 setPricesThis(response.data.prices)

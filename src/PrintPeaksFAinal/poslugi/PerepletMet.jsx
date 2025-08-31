@@ -105,7 +105,7 @@ const PerepletMet = ({
         };
         axios.post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setThisOrder(response.data);
                 // setSelectedThings2(response.data.order.OrderUnits || []);
                 setSelectedThings2(response.data.OrderUnits);
@@ -155,7 +155,7 @@ const PerepletMet = ({
         }
         axios.post(`/calc/pricing`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setPricesThis(response.data.prices)
                 setError(null)
             })

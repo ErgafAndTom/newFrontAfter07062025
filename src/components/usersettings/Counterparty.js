@@ -86,7 +86,7 @@ const Counterparty = () => {
         }
         try {
             const response = await counterpartyApi.getCounterparties(user.id, getData);
-            console.log(response.data.rows);
+            // console.log(response.data.rows);
             setCounterparties(response.data.rows || []);
             setLoading(false);
         } catch (err) {

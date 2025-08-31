@@ -80,7 +80,7 @@ const CupDraggable = () => {
         canvas.height = backgroundImage.height;
 
         let canvasRect = compositeRef.current.getBoundingClientRect()
-        console.log(canvasRect);
+        // console.log(canvasRect);
 
         const ctx = canvas.getContext('2d');
         ctx.drawImage(backgroundImage, parseInt(canvasRect.x), parseInt(canvasRect.y));

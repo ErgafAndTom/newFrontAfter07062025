@@ -44,7 +44,7 @@ import Graph3D from "../../PrintPeaksFAinal/Graph3D";
 
 const AfterNav = () => {
     const user = useSelector(state => state.auth.user);
-     console.log(user);
+     // console.log(user);
     const pricesIsLoading = useSelector((state) => state.prices.pricesIsLoading);
     const pricesError = useSelector((state) => state.prices.pricesError);
     const token = useSelector((state) => state.auth.token);

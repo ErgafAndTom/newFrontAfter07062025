@@ -23,7 +23,7 @@ const NavMess = ({currentUser, basicActive}) => {
         let res = await axios.post('/trello/getdataPost', {
           userId: currentUser.id
         });
-        console.log(res.data.length);
+        // console.log(res.data.length);
         setData(res.data.length);
         setLoading(false);
       } catch (err) {

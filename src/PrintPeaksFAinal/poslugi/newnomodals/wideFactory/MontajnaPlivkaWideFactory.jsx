@@ -43,7 +43,7 @@ const MontajnaPlivkaWideFactory = ({
   }
 
   let handleClick = (e) => {
-    console.log(e);
+    // console.log(e);
     setMontajnaPlivka({
       ...montajnaPlivka,
       material: e,

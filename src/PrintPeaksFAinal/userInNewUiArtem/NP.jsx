@@ -101,7 +101,7 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder }) {
     }
 
     const handleDepartmentSelect = (departmentId, allData, description, cityRef, departmentRef, WarehouseIndex) => {
-        console.log(allData);
+        // console.log(allData);
         setFormData({
             ...formData,
             // departmentId: departmentId,
@@ -148,7 +148,7 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder }) {
 
         try {
             const response = await axios.post('/novaposhta/create', formData);
-            console.log(response.data);
+            // console.log(response.data);
             setResult(response.data);
             setError(null);
         } catch (err) {

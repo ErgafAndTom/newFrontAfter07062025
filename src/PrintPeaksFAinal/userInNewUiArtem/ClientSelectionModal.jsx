@@ -95,7 +95,7 @@ const ClientSelectionModal = ({
                               className="clientCabinetButton client-cabinet-icon"
                               onClick={(e) => {
                               e.stopPropagation();
-                              console.log("Кабінет клієнта:", user.id);
+                              // console.log("Кабінет клієнта:", user.id);
                               <ClientCabinet />
                                   }}
                               title="Кабінет клієнта"

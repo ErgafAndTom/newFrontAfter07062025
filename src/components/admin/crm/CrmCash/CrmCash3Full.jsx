@@ -53,7 +53,7 @@ const CrmCash3Full = ({setErr}) => {
 
     const handleThingClick = (thing, typeThing) => {
         let newThisOrderToSend = thisOrder
-        console.log(thing);
+        // console.log(thing);
         if(thing.productunits){
             newThisOrderToSend.orderunits = [...selectedThings2, {...thing, amount: 1, newField2: 45, newField3: 45, orderunitunits: thing.productunits}]
         } else {
@@ -92,7 +92,7 @@ const CrmCash3Full = ({setErr}) => {
 
             axios.post(`/api/order/save`, dataToSend)
                 .then(response => {
-                    console.log(response.data);
+                    // console.log(response.data);
                     setThisOrder(response.data);
                     setSelectedThings2(response.data.orderunits);
                 })
@@ -112,7 +112,7 @@ const CrmCash3Full = ({setErr}) => {
         }
         axios.post(`/api/order/create`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 navigate(`/CashFull/${response.data.id}`);
             })
             .catch(error => {
@@ -186,10 +186,10 @@ const CrmCash3Full = ({setErr}) => {
                 name: "OneOrder",
                 id: id
             }
-            console.log(data);
+            // console.log(data);
             axios.post(`/api/order/get`, data)
                 .then(response => {
-                    console.log(response.data);
+                    // console.log(response.data);
                     setThisOrder(response.data)
                     setSelectedThings2(response.data.orderunits)
                     setIsLoad(false)
@@ -210,7 +210,7 @@ const CrmCash3Full = ({setErr}) => {
         }
         axios.post(`/api/order/get`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setOrders(response.data)
             })
             .catch(error => {

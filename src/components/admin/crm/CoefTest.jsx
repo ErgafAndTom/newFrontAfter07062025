@@ -20,7 +20,7 @@ const CoefTest = () => {
     let y = розвязатиРівняння(x);
     // console.log(y);
 
-    console.log(`Для x = ${x}, y = ${y}`);
+    // console.log(`Для x = ${x}, y = ${y}`);
 
     useEffect(() => {
         let dataForChars = []

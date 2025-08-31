@@ -72,7 +72,7 @@ const Note = ({thisOrder, newThisOrder, setNewThisOrder, selectedThings2, setSho
     useEffect(() => {
         axios.get(`/getpricesNew`)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setPrices(response.data)
             })
             .catch(error => {
@@ -92,7 +92,7 @@ const Note = ({thisOrder, newThisOrder, setNewThisOrder, selectedThings2, setSho
         }
         axios.post(`/api/pricing`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setPricesThis(response.data)
             })
             .catch(error => {

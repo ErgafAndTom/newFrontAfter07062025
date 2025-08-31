@@ -38,7 +38,7 @@ const NewChartMy2 = ({data}) => {
                 y: parseInt(y),
             };
         });
-        console.log(pointsArray);
+        // console.log(pointsArray);
         setPoints(pointsArray);
     }, [data]);
 
@@ -49,7 +49,7 @@ const NewChartMy2 = ({data}) => {
         }
         const x = e.clientY - rect.top; // x position within the element.
         const index = Math.round(x / xScale);
-        console.log(index);
+        // console.log(index);
         setCurrentIndex(index);
         setCurrentPrice(data[index] ? data[index].price : null);
 

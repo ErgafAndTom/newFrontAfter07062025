@@ -20,7 +20,7 @@ const ModalNotes = ({notes, setNotes, prices, size}) => {
     }
 
     let handleClick = (e) => {
-        console.log(e);
+        // console.log(e);
         setMat1(e.target.getAttribute("toClick"))
     }
 

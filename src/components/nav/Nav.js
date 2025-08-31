@@ -52,7 +52,7 @@ const Nav = () => {
     }, [document.location.pathname])
 
     const handleSearch = (searchValue) => {
-        console.log(searchValue);
+        // console.log(searchValue);
         dispatch(fetchUser(searchValue))
     };
 

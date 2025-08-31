@@ -22,7 +22,7 @@ const customUkLocale = {
         // Note: Do not override the essential date-fns parts like localize.
     },
 };
-console.log(defaultStaticRanges);
+// console.log(defaultStaticRanges);
 const ukrainianStaticRanges = defaultStaticRanges.map(range => {
     let newLabel = range.label;
     switch (range.label) {
@@ -78,10 +78,10 @@ const App = () => {
             start_date: state[0].startDate,
             end_date: state[0].endDate,
         }
-        console.log(data);
+        // console.log(data);
         axios.post(`/statistics/get1`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setStatistics(response.data);
                 // console.log(response.data);
             })
@@ -97,10 +97,10 @@ const App = () => {
             start_date: state[0].startDate,
             end_date: state[0].endDate,
         }
-        console.log(data);
+        // console.log(data);
         axios.post(`/statistics/getChartData`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setChartData(response.data);
                 // console.log(response.data);
             })

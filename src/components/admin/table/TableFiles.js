@@ -52,7 +52,7 @@ export const TableFiles = ({name}) => {
         }
         axios.post(`admin/addtotable`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setData(response.data)
                 setPageCount(Math.ceil(response.data.count / inPageCount))
                 setNamee("")
@@ -83,7 +83,7 @@ export const TableFiles = ({name}) => {
         }
         axios.post(`admin/gettable`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setData(response.data)
                 setPageCount(Math.ceil(response.data.count / inPageCount))
             })

@@ -38,7 +38,7 @@ const ClientChanger = ({thisOrder, handleThisOrderChange, setNewThisOrder}) => {
         };
         axios.post(`/admin/gettable`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setUsers(response.data)
             })
             .catch(error => {

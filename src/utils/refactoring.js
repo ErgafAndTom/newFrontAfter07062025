@@ -9,11 +9,11 @@ export const startRefactoring = async (projectPath) => {
     // Функція для рекурсивного читання файлів
     const readComponents = (dir) => {
         const files = fs.readdirSync(dir);
-        
+
         for (const file of files) {
             const fullPath = path.join(dir, file);
             const stat = fs.statSync(fullPath);
-            
+
             if (stat.isDirectory()) {
                 readComponents(fullPath);
             } else if (file.endsWith('.jsx') || file.endsWith('.js')) {
@@ -33,11 +33,11 @@ export const startRefactoring = async (projectPath) => {
 
         // Створюємо план рефакторингу
         const plan = await agent.createRefactoringPlan(components);
-        console.log('План рефакторингу створено:', plan);
+        // console.log('План рефакторингу створено:', plan);
 
         // Виконуємо рефакторинг
         const results = await agent.executeRefactoring(plan);
-        console.log('Результати рефакторингу:', results);
+        // console.log('Результати рефакторингу:', results);
 
         return {
             success: true,
@@ -73,8 +73,8 @@ export const applyRefactoring = async (projectPath) => {
     const results = await startRefactoring(projectPath);
     if (results.success) {
         const report = generateReport(results.results);
-        console.log('Звіт про рефакторинг:', report);
+        // console.log('Звіт про рефакторинг:', report);
         return report;
     }
     throw new Error(`Помилка рефакторингу: ${results.error}`);
-}; 
+};

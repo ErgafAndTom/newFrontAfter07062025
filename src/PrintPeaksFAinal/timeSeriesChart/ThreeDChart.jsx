@@ -56,10 +56,10 @@ const ThreeDChart = ({ state }) => {
                 start_date: state[0].startDate,
                 end_date: state[0].endDate,
             };
-            console.log(data);
+            // console.log(data);
             try {
                 const response = await axios.post(`/statistics/getChartData`, data);
-                console.log(response.data);
+                // console.log(response.data);
                 setChartData(response.data);
                 // После получения данных создаем объекты на сцене
                 createChartObjects(scene, response.data);

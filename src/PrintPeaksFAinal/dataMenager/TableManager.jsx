@@ -12,7 +12,7 @@ const TableManager = () => {
         // Получение списка таблиц при загрузке компонента
         axios.post('/db/tables', )
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 const tableList = response.data.tables;
                 setTables(tableList);
                 if (tableList.length > 0) {
@@ -38,7 +38,7 @@ const TableManager = () => {
         // setLoad(true)
         axios.post(`/db/export-excel`, dataToSend, { responseType: 'arraybuffer' })
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
                 saveAs(blob, `Material(склад).xlsx`);
             })

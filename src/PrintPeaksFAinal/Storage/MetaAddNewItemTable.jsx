@@ -30,10 +30,10 @@ function MetaAddNewItemTable({namem, data, setData, inPageCount, setInPageCount,
            currentPage: currentPage,
            formValues: forData
        }
-       console.log(data);
+       // console.log(data);
        axios.post(`admin/addtotable`, data)
            .then(response => {
-               console.log(response.data);
+               // console.log(response.data);
                setData(response.data)
                setPageCount(Math.ceil(response.data.count / inPageCount))
 

@@ -72,7 +72,7 @@ const CrmCash = () => {
         }
         axios.post(`/api/order/create`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setThisOrder(response.data)
             })
             .catch(error => {
@@ -151,7 +151,7 @@ const CrmCash = () => {
             axios.post(`api/pricing`, dataToSend)
                 .then(response => {
                     // console.log(`this is response.data pure`);
-                    console.log(response.data);
+                    // console.log(response.data);
                     setSumm(response.data.calcResponse[0].price)
                     setIsLoad(false)
                     setSelectedThings2(response.data.newDataWithPrices2)
@@ -170,7 +170,7 @@ const CrmCash = () => {
         }
         axios.post(`/api/order/get`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setOrders(response.data)
             })
             .catch(error => {
@@ -186,7 +186,7 @@ const CrmCash = () => {
         }
         axios.post(`/api/order/get`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setThisOrder(response.data)
                 setSelectedThings(response.data)
                 setIsLoad(false)

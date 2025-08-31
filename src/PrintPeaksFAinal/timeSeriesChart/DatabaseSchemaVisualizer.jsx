@@ -98,7 +98,7 @@ const DatabaseSchemaVisualizer = () => {
         // Запрос схемы базы данных с сервера
         axios.post('/statistics/getSchema')
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setSchema(response.data);
                 createSchemaVisualization(scene, response.data);
             })

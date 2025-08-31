@@ -61,7 +61,7 @@ function AddContrAgentInProfileAdmin({ showAddPay, setShowAddPay, formData, setF
         };
         axios.post(`/api/contractorsN/updatePPContractor`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setData(prevData =>
                     prevData.map(obj =>
                         obj.id === response.data.id ? response.data : obj
@@ -89,7 +89,7 @@ function AddContrAgentInProfileAdmin({ showAddPay, setShowAddPay, formData, setF
         };
         axios.post(`/api/contractorsN/addPPContractor`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setData([
                     ...data,
                     response.data
@@ -122,7 +122,7 @@ function AddContrAgentInProfileAdmin({ showAddPay, setShowAddPay, formData, setF
         axios
             .post(`/api/contractorsN/getContractorsAdmin`, payload)
             .then((response) => {
-                console.log(response.data.rows);
+                // console.log(response.data.rows);
                 setFilteredContrAgents(response.data.rows);
                 // setPageCount(Math.ceil(response.data.count / inPageCount));
                 setError(null);

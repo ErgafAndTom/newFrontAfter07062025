@@ -37,9 +37,9 @@ export let DECREMENT = "DECREMENT";
 export const fetchUser = (credentials) => async (dispatch) => {
     dispatch({ type: FETCH_USER_REQUEST });
     try {
-        console.log(credentials);
+        // console.log(credentials);
         const response = await axios.post(`/user/All`, credentials);
-        console.log(response);
+        // console.log(response);
         const user = response.data.user;
         // console.log(user);
         dispatch({ type: FETCH_USER_SUCCESS, payload: user });

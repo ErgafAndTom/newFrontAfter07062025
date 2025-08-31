@@ -152,7 +152,7 @@ const NewSheetSheet = ({
     // }, []);
 
     useEffect(() => {
-      console.log(material);
+      // console.log(material);
       let dataToSend = {
             type: "SheetCut",
             size: size,

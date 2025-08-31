@@ -46,7 +46,7 @@ export const UsersTable = ({name}) => {
         }
         axios.get(`/user/all`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setData(response.data)
                 // setPageCount(Math.ceil(response.data.result.count / inPageCount))
             })

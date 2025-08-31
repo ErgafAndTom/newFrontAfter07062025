@@ -73,7 +73,7 @@ export const TableMaterials = ({name}) => {
         setPrice("")
     }
     let editThisRowF = (e) => {
-        console.log(e);
+        // console.log(e);
     }
     //--------------------------------------------------------------------
 

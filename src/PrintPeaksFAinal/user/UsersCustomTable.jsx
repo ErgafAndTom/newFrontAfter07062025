@@ -90,7 +90,7 @@ const UsersCustomTable = ({name}) => {
     };
     axios.post(`/user/All`, requestData)
       .then(response => {
-        console.log(response.data);
+        // console.log(response.data);
         setData(response.data);
         setError(null);
         setPageCount(Math.ceil(response.data.count / inPageCount));

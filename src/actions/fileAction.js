@@ -72,7 +72,7 @@ export const deleteFileAction = (id) => {
         axios.delete('/orders', config)
             .then(response => {
                 const data = response.data
-                console.log(data);
+                // console.log(data);
                 if(data.status === "ok"){
                     dispatch(deleteFile(data.id))
                 }
@@ -103,11 +103,11 @@ export const updateFileAction = (thisFile, parameter, parameter2, parameter3, va
                 value: value,
             }
         }
-        console.log(config);
+        // console.log(config);
         axios.put('/orders', config)
             .then(response => {
                 if(response.data.status === "ok"){
-                    console.log(response.data);
+                    // console.log(response.data);
                     // let thisFileUpdated = thisFile
                     let thisFU = response.data.thisFile
                     // Object.defineProperty(thisFile, parameter, {
@@ -146,7 +146,7 @@ export const updateFileAction = (thisFile, parameter, parameter2, parameter3, va
                     // });
                     dispatch(updateFile(thisFU))
                 } else {
-                    console.log(response.data);
+                    // console.log(response.data);
                     dispatch(deleteFile(thisFile.id))
                 }
             })
@@ -178,7 +178,7 @@ export const errorDownloadImg = (err) => {
 export const DownloadImgAction = (thisFile) => {
     return (dispatch) => {
         dispatch(startDownloadImg())
-        console.log("DownloadImgAction (after start");
+        // console.log("DownloadImgAction (after start");
         if(thisFile.url.img){
             const img = new Image();
             img.src = thisFile.url.url;
@@ -188,9 +188,9 @@ export const DownloadImgAction = (thisFile) => {
                     height: event.target.naturalHeight,
                     src: event.target.src
                 }
-                console.log(imgP);
+                // console.log(imgP);
                 dispatch(successDownloadImg(imgP))
-                console.log("DownloadImgAction (after success");
+                // console.log("DownloadImgAction (after success");
             }
             img.onerror = (error) => {
                 dispatch(errorDownloadImg(error))
@@ -216,7 +216,7 @@ export const DownloadImgAction = (thisFile) => {
             //     }
             // })
             dispatch(successDownloadImg(null))
-            console.log("DownloadImgAction (after success");
+            // console.log("DownloadImgAction (after success");
         }
     }
 }

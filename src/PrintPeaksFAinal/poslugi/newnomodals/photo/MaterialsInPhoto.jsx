@@ -39,7 +39,7 @@ const MaterialsInPhoto = ({material, setMaterial, count, setCount, prices, type,
         }
         axios.post(`/materials/NotAll`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setPaper(response.data.rows)
                 if(response.data && response.data.rows && response.data.rows[0]){
                     setMaterial({

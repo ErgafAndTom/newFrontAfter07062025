@@ -64,29 +64,29 @@ export default function PdfViewer({url}){
                 viewport: viewport
             };
             page.render(renderContext);
-            console.log("renderPage func done");
+            // console.log("renderPage func done");
         })
     }, [pdfRef, currentPage]);
 
     useEffect(() => {
         renderPage(currentPage, pdfRef);
-        console.log("useEffect for render");
+        // console.log("useEffect for render");
     }, [pdfRef, currentPage, thisFile.x, thisFile.y]);
 
     useEffect(() => {
         const loadingTask = pdfjsLib.getDocument(url);
-        console.log("useEffect for load(before then)");
+        // console.log("useEffect for load(before then)");
         loadingTask.promise.then(loadedPdf => {
             setPdfRef(loadedPdf);
-            console.log("useEffect for load(at then)");
+            // console.log("useEffect for load(at then)");
         }, function (reason) {
             console.error(reason);
         });
-        console.log("useEffect for load(after then)");
+        // console.log("useEffect for load(after then)");
     }, [url]);
 
     const setPage = (value) => {
-        console.log(value);
+        // console.log(value);
         if(value > 0){
             if(value <= pdfRef.numPages){
                 setCurrentPage(parseInt(value))
@@ -133,7 +133,7 @@ export default function PdfViewer({url}){
     }
     //---------------------------------------------------------------------------------------------------------
 
-    console.log(canvasStyles);
+    // console.log(canvasStyles);
 
     return (
         <div className="fileViewContainer">

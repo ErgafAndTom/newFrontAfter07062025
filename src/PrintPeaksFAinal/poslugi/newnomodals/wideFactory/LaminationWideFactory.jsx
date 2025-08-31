@@ -33,7 +33,7 @@ const LaminationWideFactory = ({lamination, setLamination, prices, buttonsArr, s
   }
 
   let handleClick = (e) => {
-    console.log(e);
+    // console.log(e);
     setLamination({
       ...lamination,
       materialId: e,
@@ -61,12 +61,12 @@ const LaminationWideFactory = ({lamination, setLamination, prices, buttonsArr, s
         },
         size: size,
       }
-      console.log(data);
+      // console.log(data);
       setLoad(true)
       setError(null)
       axios.post(`/materials/NotAll`, data)
         .then(response => {
-          console.log(response.data);
+          // console.log(response.data);
           setLoad(false)
           setThisLaminationSizes(response.data.rows)
           if (response.data && response.data.rows && response.data.rows[0]) {

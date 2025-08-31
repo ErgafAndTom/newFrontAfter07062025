@@ -25,7 +25,7 @@ const Statistics = () => {
         // const formattedStartDate = startDate
         const formattedEndDate = endDate.toISOString().split('T')[0];
         // const formattedEndDate = endDate
-        console.log(formattedStartDate);
+        // console.log(formattedStartDate);
         try {
             const response = await axios.post('/statistics/get_statistics', {
                 params: {
@@ -34,7 +34,7 @@ const Statistics = () => {
                 },
             });
             setStatistics(response.data);
-            console.log(response.data);
+            // console.log(response.data);
         } catch (error) {
             console.error('Помилка під час отримання статистики:', error);
         }

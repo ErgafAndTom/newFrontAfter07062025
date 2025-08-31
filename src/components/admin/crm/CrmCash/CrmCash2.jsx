@@ -63,7 +63,7 @@ const CrmCash2 = () => {
 
             axios.post(`/api/order/save`, dataToSend)
                 .then(response => {
-                    console.log(response.data);
+                    // console.log(response.data);
                     setThisOrder(response.data);
                     setSelectedThings2(response.data.orderunits);
                 })
@@ -79,7 +79,7 @@ const CrmCash2 = () => {
         }
         axios.post(`/api/order/save`, dataToSend)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setThisOrder(response.data)
             })
             .catch(error => {
@@ -140,7 +140,7 @@ const CrmCash2 = () => {
         }
         axios.post(`/api/order/get`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setThisOrder(response.data)
                 setSelectedThings2(response.data.orderunits)
                 setIsLoad(false)

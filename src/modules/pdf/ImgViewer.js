@@ -20,7 +20,7 @@ export default function ImgViewer({url}){
                 height: event.target.naturalHeight,
                 src: event.target.src
             }
-            console.log(imgP);
+            // console.log(imgP);
             setImgRef(imgP)
             // ImggRef.current.src = imgP.src;
 
@@ -57,7 +57,7 @@ export default function ImgViewer({url}){
             }
             //-------------------------------------------------------
 
-            console.log("DownloadImgAction (after success");
+            // console.log("DownloadImgAction (after success");
         }
         img.onerror = (error) => {
             console.error(error);

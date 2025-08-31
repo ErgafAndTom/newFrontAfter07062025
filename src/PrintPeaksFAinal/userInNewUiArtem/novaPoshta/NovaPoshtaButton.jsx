@@ -36,7 +36,7 @@ const NovaPoshtaButton = ({ onDepartmentSelect }) => {
     };
 
     const handleFrameMessage = (event) => {
-        console.log(event.data);
+        // console.log(event.data);
         if (event.origin !== 'https://widget.novapost.com') {
             console.warn('Повідомлення з невідомого джерела:', event.origin);
             return;

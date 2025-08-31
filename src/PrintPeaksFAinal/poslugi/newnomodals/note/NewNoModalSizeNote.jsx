@@ -151,7 +151,7 @@ const NewNoModalSizeNote = ({size, setSize, type, buttonsArr, color, setColor, c
     }
 
     useEffect((e) => {
-        console.log(size);
+        // console.log(size);
         let validX = true;
         let validY = true;
         setXVal(false)

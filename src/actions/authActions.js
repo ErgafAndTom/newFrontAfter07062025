@@ -63,7 +63,7 @@ export const login = (credentials, navigate) => async (dispatch) => {
 
 // Действие для получения данных пользователя
 export const fetchUser = () => async (dispatch) => {
-    console.log(dispatch.payload);
+    // console.log(dispatch.payload);
     dispatch({ type: FETCH_USER_REQUEST });
     try {
         const response = await axios.get('/auth/me');

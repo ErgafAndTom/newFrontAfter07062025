@@ -20,7 +20,7 @@ const LoadingErrorComponent = () => {
         setError(null)
         axios.post(`/materials/NotAll`, data)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 setData(response.data.rows)
                 setLoad(false)
             })

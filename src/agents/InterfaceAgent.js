@@ -17,7 +17,7 @@ class InterfaceAgent {
         if (selector) {
             targetElement = document.querySelector(selector);
         } else if (text) {
-            const elements = Array.from(document.querySelectorAll('*')).filter(el => 
+            const elements = Array.from(document.querySelectorAll('*')).filter(el =>
                 el.textContent.trim() === text
             );
             targetElement = elements[index || 0];
@@ -33,7 +33,7 @@ class InterfaceAgent {
     async handleType(text, options = {}) {
         const { selector, delay = 100 } = options;
         const element = document.querySelector(selector);
-        
+
         if (element) {
             // Симуляція набору тексту
             for (let char of text) {
@@ -100,10 +100,10 @@ class InterfaceAgent {
     }
 
     async executePrompt(prompt) {
-        console.log(`Виконується дія: ${prompt.description}`);
+        // console.log(`Виконується дія: ${prompt.description}`);
         this.steps = prompt.steps;
         return await this.executeAll();
     }
 }
 
-export default InterfaceAgent; 
+export default InterfaceAgent;

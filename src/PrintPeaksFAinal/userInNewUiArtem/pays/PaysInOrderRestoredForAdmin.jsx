@@ -154,7 +154,7 @@ function PaysInOrderRestoredForAdmin({user}) {
         axios
             .post(`/api/contractorsN/getPPContractors`, payload)
             .then((response) => {
-                console.log(response.data.rows);
+                // console.log(response.data.rows);
                 setData(response.data.rows);
                 setPageCount(Math.ceil(response.data.count / inPageCount));
                 setError(null);

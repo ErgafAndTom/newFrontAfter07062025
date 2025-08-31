@@ -19,7 +19,7 @@ const FilesInOrder = ({thisOrder}) => {
             };
             axios.post(`/orders/${thisOrder.id}/getFiles`, data)
                 .then(response => {
-                    console.log(response.data);
+                    // console.log(response.data);
                     setFiles(response.data);
                     setLoad(false);
                 })
@@ -46,7 +46,7 @@ const FilesInOrder = ({thisOrder}) => {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log(res.data);
+            // console.log(res.data);
             // Если нужно, обновите список файлов после загрузки, например:
             setFiles([...files, res.data]);
             setLoad(false);

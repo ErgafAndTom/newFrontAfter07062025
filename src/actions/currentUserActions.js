@@ -34,7 +34,7 @@ export const fetchCurrentUser = () => {
         axios.get('/auth/me')
             .then(response => {
                 const user = response.data
-                console.log(response.data);
+                // console.log(response.data);
                 // dispatch(fetchCurrentUserSuccess(user))
                 if(user.length === 0){
                     dispatch(fetchCurrentUserSuccess(null))
@@ -77,7 +77,7 @@ export const loginSendCurrentUser = (login, pass) => {
         };
         axios.post('/auth/login', config)
             .then(response => {
-                console.log(response);
+                // console.log(response);
                 if (response.status === 200){
                     // dispatch(loginSuccess())
                     // dispatch(fetchCurrentUser())

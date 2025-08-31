@@ -32,7 +32,7 @@ const Luvarsi = ({luversi, setLuversi, prices, buttonsArr, selectArr, size, type
   }
 
   let handleClick = (e) => {
-    console.log(e);
+    // console.log(e);
     setLuversi({
       ...luversi,
       material: e,

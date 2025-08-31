@@ -159,7 +159,7 @@ const NewNoModalSizeCup = ({size, setSize, type, buttonsArr, color, setColor, co
     }
 
     useEffect((e) => {
-        console.log(size);
+        // console.log(size);
         let validX = true;
         let validY = true;
         setXVal(false)
