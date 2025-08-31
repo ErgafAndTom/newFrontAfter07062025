@@ -39,7 +39,21 @@ const TelegramAvatar = ({ link, size = 32, defaultSrc = '/default-avatar.png' })
 
   // Підпис підказки: @username або номер телефону
   const displayName = phonePattern.test(link) ? username : `@${username}`;
-
+  // if(defaultSrc === '/default-avatar.png'){
+  //   return (
+  //     <a
+  //       href={profileUrl}
+  //       target="_blank"
+  //       rel="noopener noreferrer"
+  //       title={displayName}
+  //       style={{ display: 'inline-block', width: size, height: size }}
+  //     >
+  //       {/*<img*/}
+  //       {/*  src={avatarUrl}*/}
+  //       {/*/>*/}
+  //     </a>
+  //   )
+  // }
   return (
     <a
       href={profileUrl}
@@ -60,7 +74,7 @@ const TelegramAvatar = ({ link, size = 32, defaultSrc = '/default-avatar.png' })
         }}
         onError={e => {
           e.target.onerror = null;
-          e.target.src = defaultSrc;
+          // e.target.src = defaultSrc;
         }}
       />
     </a>

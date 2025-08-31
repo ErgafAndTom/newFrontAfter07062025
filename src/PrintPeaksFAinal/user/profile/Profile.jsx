@@ -119,7 +119,9 @@ function ClientUserProfile() {
           {/*  style={avatarStyles.profileAvatar}*/}
           {/*/>*/}
           {user.telegram
-            ? <TelegramAvatar link={user.telegram} size={100} defaultSrc="/default-avatar.png" />
+            ? <TelegramAvatar link={user.telegram} size={100}
+                              // defaultSrc="/default-avatar.png"
+            />
             : ''}
 
           {editMode ? (

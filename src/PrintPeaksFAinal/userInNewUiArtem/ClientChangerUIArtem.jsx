@@ -83,7 +83,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
   const fetchUsers = async () => {
     let data = {
       name: "",
-      inPageCount: 999999,
+      inPageCount: 9999,
       currentPage: 1,
       search: searchQuery,
       searchId: searchId,
@@ -317,7 +317,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
               <TelegramAvatar
                 link={thisOrder.client.telegram}
                 size={60}
-                defaultSrc="/default-avatar.png"
+                // defaultSrc="/default-avatar.png"
               />
 
             </div>

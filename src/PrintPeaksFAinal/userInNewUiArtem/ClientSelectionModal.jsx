@@ -168,7 +168,7 @@ const ClientSelectionModal = ({
             />
             <div
               style={{
-                opacity: searchId ? 1 : 0.5, // прозорий якщо не натиснутий
+                opacity: searchId ? 1 : 0.2, // прозорий якщо не натиснутий
                 transition: "opacity 0.4s",
                 height: "35px",
                 lineHeight: "35px",

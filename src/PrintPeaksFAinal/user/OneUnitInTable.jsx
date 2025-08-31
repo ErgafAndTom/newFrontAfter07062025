@@ -41,6 +41,10 @@ const OneUnitInTable = ({itemData, tablPosition, item, metaItem, handleItemClick
                 return '2.8vw';
             case 'discount':
                 return '3.2vw';
+          case 'driveFolderId':
+            return '0vw';
+          case 'companyId':
+            return '0vw';
 
             // За замовчуванням
             default:

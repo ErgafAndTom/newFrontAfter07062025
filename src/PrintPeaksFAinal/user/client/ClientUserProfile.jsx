@@ -86,7 +86,9 @@ function ClientUserProfile() {
             {activeTab === 'profile' && (
                 <div style={containerStyles.contentContainer}>
                     <img
-                        src={thisUser.photoLink || '/default-avatar.png'}
+                        src={
+                      thisUser.photoLink || '/default-avatar.png'
+                          }
                         alt="Аватар"
                         style={avatarStyles.profileAvatar}
                     />
