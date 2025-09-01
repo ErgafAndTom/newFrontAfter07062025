@@ -169,16 +169,20 @@ const CustomOrderTable2 = () => {
       </div>
       {/* data rows */}
 
-      <FiltrOrders
-        typeSelect={typeSelect}
-        setTypeSelect={setTypeSelect}
-        startDate={startDate}
-        setStartDate={setStartDate}
-        endDate={endDate}
-        setEndDate={setEndDate}
-        statuses={statuses}
-        setStatuses={setStatuses}
-      />
+      <div className="d-flex">
+        <FiltrOrders
+          typeSelect={typeSelect}
+          setTypeSelect={setTypeSelect}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+          statuses={statuses}
+          setStatuses={setStatuses}
+        />
+        <div className="d-flex" style={{opacity: "0.5", margin: "auto", marginTop: "0.1vw"}}>Знайдено ({data?.count})</div>
+      </div>
+
       {loading &&
         <div className="d-flex justify-content-center align-items-center" style={{ height: "100%" }}>
           <h1 className="d-flex justify-content-center align-items-center">
