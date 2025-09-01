@@ -1,6 +1,8 @@
-import React, { useEffect, useMemo } from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import TelegramAvatar from "../Messages/TelegramAvatar";
 import { FiUser } from "react-icons/fi";
+import axios from "../../api/axiosInstance";
+import Loader from "../../components/calc/Loader";
 
 export default function ClientCabinet({
                                         user = {},
@@ -10,11 +12,64 @@ export default function ClientCabinet({
                                         onOpenProfile,
                                         onClose,
                                       }) {
+
+  const [clientOrders, setClientOrders] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const h = (e) => e.key === "Escape" && onClose?.();
     document.addEventListener("keydown", h);
     return () => document.removeEventListener("keydown", h);
   }, [onClose]);
+
+  useEffect(() => {
+    if (user) {
+      const fetchData = async () => {
+        try {
+          // const url = user.role === 'admin' || user.role === 'operator' ? '/orders/all' : '/orders/my';
+          const url = '/orders/all';
+          const postData = {
+            inPageCount: 9999,
+            currentPage: 1,
+            search: "",
+            columnName: {column: 'id', reverse: true},
+            startDate: "",
+            endDate: "",
+            statuses: {
+              status0: true,
+              status1: true,
+              status2: true,
+              status3: true,
+              status4: true,
+              status5: true
+            },
+            user: user.id,
+          };
+
+
+          setLoading(true);
+          const res = await axios.post(url, postData);
+          console.log(res.data);
+          setClientOrders(res.data.rows);
+          setLoading(false);
+        } catch (err) {
+          // if (err.response?.status === 403) navigate('/login');
+          setError(err.message);
+          setLoading(false);
+        }
+      };
+
+      fetchData();
+    }
+  }, [user
+  ]);
+
+  // const stats = useMemo(() => {
+  //   const total = orders.reduce((s, o) => s + (+o.total || 0), 0);
+  //   const paid = orders.reduce((s, o) => s + (+o.paid || 0), 0);
+  //   return { total, paid, balance: total - paid, count: orders.length };
+  // }, [clientOrders]);
 
   const fullName = useMemo(() => {
     const base = [user.firstName, user.lastName].filter(Boolean).join(" ");
@@ -22,10 +77,12 @@ export default function ClientCabinet({
   }, [user]);
 
   const stats = useMemo(() => {
-    const total = orders.reduce((s, o) => s + (+o.total || 0), 0);
-    const paid = orders.reduce((s, o) => s + (+o.paid || 0), 0);
-    return { total, paid, balance: total - paid, count: orders.length };
-  }, [orders]);
+    const total = clientOrders.reduce((s, o) => s + (+o.allPrice || 0), 0);
+    const paid = clientOrders.reduce((s, o) =>
+        s + (o.Payment?.status === 'PAID' ? (+o.allPrice || 0) : 0),
+      0);
+    return { total, paid, balance: total - paid, count: clientOrders.length };
+  }, [clientOrders]);
 
   return (
     <div className="cc-overlay" onClick={onClose}>
@@ -105,19 +162,71 @@ export default function ClientCabinet({
         <section className="cc-orders">
           <div className="cc-orders-head">Замовлення</div>
           <div className="cc-order-list">
-            {orders.length === 0 && <div className="cc-empty">Замовлень немає.</div>}
-            {orders.map((o) => (
-              <div key={o.id || o._id} className={`cc-order ${statusClass(o.status)}`}>
-                <div className="cc-order-top">
-                  <div className="cc-order-title">{o.title || o.name || `Замовлення #${o.id}`}</div>
-                  <div className="cc-order-status">{o.status || "—"}</div>
+            {loading &&
+              <div className="d-flex justify-content-center align-items-center" style={{ height: "100%" }}>
+                <h1 className="d-flex justify-content-center align-items-center">
+                  <Loader/>
+                </h1>
+              </div>
+            }
+            {clientOrders.length === 0 && <div className="cc-empty">Замовлень немає.</div>}
+            {clientOrders.map((o) => (
+              <div className="d-flex cc-order " style={{background: `${statusClass(o.status)}`}}>
+                <div key={o.id || o._id}>
+                  <div className="cc-order-top">
+                    <div className="cc-order-title">{o.title || o.name || `Замовлення #${o.id}`}</div>
+                  </div>
+                  <div className="cc-order-meta">
+                    <span>ID: {o.id || o._id}</span>
+                    {o.createdAt && <span>{formatDate(o.createdAt)}</span>}
+                  </div>
+                  <div className="cc-order-sum">💳 {fmtMoney(o.allPrice, o.currency)}
+                    {o.paid != null && <span className="cc-paid"> • Опл.: {fmtMoney(o.paid, o.currency)}</span>}
+                  </div>
                 </div>
-                <div className="cc-order-meta">
-                  <span>ID: {o.id || o._id}</span>
-                  {o.createdAt && <span>{formatDate(o.createdAt)}</span>}
+                <div className="cc-order-status-icon m-auto">
+                  {o.Payment?.status === 'CREATED' &&
+                    <div className={`adminButtonAddOrder wait`} style={{}}>
+                      {"Очікування️"}
+                    </div>
+                  }
+                  {o.Payment?.status === 'PAID' &&
+                    <div className={`adminButtonAddOrder pay`} style={{}}>
+                      {"Оплата за посиланням"}
+                    </div>
+                  }
+                  {o.Payment?.status === 'CANCELLED' &&
+                    <button className={`adminButtonAddOrder cancel`} style={{}}>
+                      {"Відміна"}
+                    </button>
+                  }
+                  {o.Payment?.status === 'EXPIRED' &&
+                    <button className={`adminButtonAddOrder nopay`} style={{}}>
+                      Не оплачено (EXPIRED)
+                    </button>
+                  }
+                  {o.Payment === null &&
+                    <button className={`adminButtonAddOrder nopay`} style={{color:'#000000'}}>
+                      {"Не оплачено"}
+                    </button>
+                  }
                 </div>
-                <div className="cc-order-sum">💳 {fmtMoney(o.total, o.currency)}
-                  {o.paid != null && <span className="cc-paid"> • Опл.: {fmtMoney(o.paid, o.currency)}</span>}
+                {/*<div className="cc-order-status">{o.status || "—"}</div>*/}
+                <div className="adminFontTable d-flex align-content-center justify-content-center m-auto" style={{}}>
+                  {/*{item.status}*/}
+                  {o.status === "-1"
+                    ? 'Скасоване'
+                    : o.status === "0"
+                      ? 'Оформлення'
+                      : o.status === "1"
+                        ? 'Друкується'
+                        : o.status === "2"
+                          ? 'Постпресc'
+                          : o.status === "3"
+                            ? 'Готове'
+                            : o.status === "4"
+                              ? 'Віддали'
+                              : 'Віддали'}
                 </div>
               </div>
             ))}
@@ -130,11 +239,13 @@ export default function ClientCabinet({
 
 function statusClass(s) {
   const v = String(s||"").toLowerCase();
-  if (v.includes("paid") || v.includes("оплач")) return "is-paid";
-  if (v.includes("cancel") || v.includes("скас")) return "is-cancel";
-  if (v.includes("done") || v.includes("готов") || v.includes("викон")) return "is-done";
-  if (v.includes("in") || v.includes("робот") || v.includes("work")) return "is-inwork";
-  return "is-default";
+  if (v.includes("0")) return '#FBFAF6';
+  if (v.includes("1")) return '#d3bda7';
+  if (v.includes("2")) return '#bbc5d3';
+  if (v.includes("3")) return '#f1cbd4';
+  if (v.includes("4")) return '#a9cfb7';
+  if (v.includes("відміна")) return '#ee3c23';
+  return '#FBFAF6';
 }
 function formatDate(d){
   try{

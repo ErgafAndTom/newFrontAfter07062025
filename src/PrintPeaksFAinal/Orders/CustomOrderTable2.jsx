@@ -18,6 +18,7 @@ import Pagination from "../tools/Pagination";
 import Vishichka from "../poslugi/Vishichka";
 import FiltrOrders from "./FiltrOrders";
 import {searchChange} from "../../actions/searchAction";
+import Loader from "../../components/calc/Loader";
 
 
 
@@ -178,7 +179,13 @@ const CustomOrderTable2 = () => {
         statuses={statuses}
         setStatuses={setStatuses}
       />
-
+      {loading &&
+        <div className="d-flex justify-content-center align-items-center" style={{ height: "100%" }}>
+          <h1 className="d-flex justify-content-center align-items-center">
+            <Loader/>
+          </h1>
+        </div>
+      }
       {data?.rows.map(order => {
         const isExpanded = expandedOrderId === order.id;
         const isCancelled = parseInt(order.status) === 5; // або адаптуй під свою логіку
