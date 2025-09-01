@@ -3,6 +3,7 @@ import TelegramAvatar from "../Messages/TelegramAvatar";
 import { FiUser } from "react-icons/fi";
 import axios from "../../api/axiosInstance";
 import Loader from "../../components/calc/Loader";
+import {useSelector} from "react-redux";
 
 export default function ClientCabinet({
                                         user = {},
@@ -16,6 +17,7 @@ export default function ClientCabinet({
   const [clientOrders, setClientOrders] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const currentUser = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     const h = (e) => e.key === "Escape" && onClose?.();
@@ -28,31 +30,37 @@ export default function ClientCabinet({
       const fetchData = async () => {
         try {
           // const url = user.role === 'admin' || user.role === 'operator' ? '/orders/all' : '/orders/my';
-          const url = '/orders/all';
-          const postData = {
-            inPageCount: 9999,
-            currentPage: 1,
-            search: "",
-            columnName: {column: 'id', reverse: true},
-            startDate: "",
-            endDate: "",
-            statuses: {
-              status0: true,
-              status1: true,
-              status2: true,
-              status3: true,
-              status4: true,
-              status5: true
-            },
-            user: user.id,
-          };
+          let url = '/orders/all';
+          if(currentUser.role === 'user'){
+            url = '/orders/my';
+            setClientOrders(orders);
+          } else {
+            const postData = {
+              inPageCount: 9999,
+              currentPage: 1,
+              search: "",
+              columnName: {column: 'id', reverse: true},
+              startDate: "",
+              endDate: "",
+              statuses: {
+                status0: true,
+                status1: true,
+                status2: true,
+                status3: true,
+                status4: true,
+                status5: true
+              },
+              user: user.id,
+            };
 
 
-          setLoading(true);
-          const res = await axios.post(url, postData);
-          console.log(res.data);
-          setClientOrders(res.data.rows);
-          setLoading(false);
+            setLoading(true);
+            const res = await axios.post(url, postData);
+            console.log(res.data);
+            setClientOrders(res.data.rows);
+            setLoading(false);
+          }
+
         } catch (err) {
           // if (err.response?.status === 403) navigate('/login');
           setError(err.message);

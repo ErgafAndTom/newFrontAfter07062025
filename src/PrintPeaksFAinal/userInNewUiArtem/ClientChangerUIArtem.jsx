@@ -619,15 +619,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
         <ClientCabinet
           user={thisOrder.client}
           orders={[
-            thisOrder && {
-              id: thisOrder.id,
-              title: thisOrder.title || thisOrder.name || `Замовлення #${thisOrder.id}`,
-              status: thisOrder.status,
-              total: thisOrder.total || thisOrder.totalSum || 0,
-              paid: thisOrder.paid || thisOrder.payedSum || 0,
-              currency: thisOrder.currency || 'UAH',
-              createdAt: thisOrder.createdAt
-            }
+            thisOrder
           ].filter(Boolean)}
           onCreateOrder={()=>{}}
           onOpenChat={()=>{}}
