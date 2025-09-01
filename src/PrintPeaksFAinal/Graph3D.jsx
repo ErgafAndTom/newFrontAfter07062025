@@ -1,5 +1,6 @@
 // Graph3D.jsx
 // Готовая 3D-визуализация с защитой от undefined links и без "частиц"
+import axios from "../api/axiosInstance";
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ForceGraph3D from 'react-force-graph-3d';
@@ -32,13 +33,14 @@ const Graph3D = () => {
   const fetchGraph = useCallback(async (selectedMode) => {
     setLoading(true);
     try {
-      const resp = await fetch(`/api/graph?mode=${encodeURIComponent(selectedMode)}`);
-      if (!resp.ok) {
-        console.error('Graph API not ok:', resp.status, resp.statusText);
-        setGraphData({ nodes: [], links: [] });
-        return;
-      }
-      const raw = await resp.json();
+      const resp = await axios.get(`visual/api/graph?mode=${encodeURIComponent(selectedMode)}`);
+      // if (!resp.ok) {
+      //   console.error('Graph API not ok:', resp.status, resp.statusText);
+      //   setGraphData({ nodes: [], links: [] });
+      //   return;
+      // }
+      console.log(resp);
+      const raw = await resp.data;
       const safe = normalizeGraph(raw);
       setGraphData(safe);
     } catch (err) {
@@ -106,12 +108,14 @@ const Graph3D = () => {
       ) : (
         <ForceGraph3D
           ref={fgRef}
+          width="100%"
+          height="80%"
           graphData={safeGraph}
           // ВАЖНО: не задаём linkDirectionalParticles / Speed,
           // чтобы не трогать updatePhotons внутри либы.
           nodeColor={nodeColor}
           linkColor={() => '#9CA3AF'}
-          linkOpacity={0.6}
+          linkOpacity={0.4}
           nodeLabel={node =>
             mode === 'schema'
               ? node.id
