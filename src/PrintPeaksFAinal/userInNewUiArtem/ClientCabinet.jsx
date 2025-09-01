@@ -56,7 +56,7 @@ export default function ClientCabinet({
 
             setLoading(true);
             const res = await axios.post(url, postData);
-            console.log(res.data);
+            // console.log(res.data);
             setClientOrders(res.data.rows);
             setLoading(false);
           }
