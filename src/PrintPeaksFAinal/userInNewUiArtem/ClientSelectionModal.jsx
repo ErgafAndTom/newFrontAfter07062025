@@ -87,25 +87,26 @@ const ClientSelectionModal = ({
                             </div>
                           </div>
 
-                          {user.telegram && (
-
-                            <span className="labelTelegram d-flex flex-row justify-content-start align-items-center gap-2">
+                          <span className="labelTelegram d-flex flex-row justify-content-start align-items-center gap-2">
 
                              <button
-                              className="clientCabinetButton client-cabinet-icon"
-                              onClick={(e) => {
-                              e.stopPropagation();
-                              // console.log("Кабінет клієнта:", user.id);
-                              <ClientCabinet />
-                                  }}
-                              title="Кабінет клієнта"
-                             aria-label="Відкрити кабінет клієнта"
+                               className="clientCabinetButton client-cabinet-icon"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 // console.log("Кабінет клієнта:", user.id);
+                                 //   <ClientCabinet />
+                               }}
+                               title="Кабінет клієнта"
+                               aria-label="Відкрити кабінет клієнта"
                              >
                              <FiUser />
                             </button>
+                            {user.telegram && (
                               <TelegramAvatar link={user.telegram} size={50} />
+                            )}
+
+
                             </span>
-                          )}
                         </>
                       ) : (
                         <>

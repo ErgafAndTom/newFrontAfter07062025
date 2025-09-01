@@ -265,7 +265,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
         </div>
         <div className="d-flex align-items-center"
              style={{ position: "absolute", right: '0vw', top: '1vh'}}>
-          {thisOrder.client && thisOrder.client.telegram && (
+          {thisOrder.client && (
             <div
               className="d-flex align-items-center gap-2"
               style={{
@@ -275,7 +275,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                 top: '0vh',
                 cursor: 'pointer'
               }}
-              title={`@${thisOrder.client.telegram.replace(/^@/, '')}`}
+              title={`@${thisOrder.client?.telegram?.replace(/^@/, '')}`}
               onClick={() => openMessenger('telegram')}
             >
 

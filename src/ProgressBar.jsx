@@ -280,10 +280,11 @@ const ProgressBar = ({
                 }
             })
             .catch(error => {
-                if (error.response?.status === 403) {
+              if (error.response?.status === 403) {
                     // navigate('/login');
                 }
-                console.log(error.message);
+              setError(error)
+              console.log(error.message);
             });
     };
 
@@ -467,6 +468,12 @@ const ProgressBar = ({
                                         : 'Віддали замовлення'}
                 </div>
                 <div style={{display: 'flex',}}>
+                  {error && (
+                    <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                      {error?.message} {error?.response?.data?.error}
+                      <div className="btn-close" onClick={() => setError(null)}></div>
+                    </div>
+                  )}
                     {thisOrder?.status && parseInt(thisOrder.status) === 0 && (
                         <button
                             className="adminButtonAdd"
