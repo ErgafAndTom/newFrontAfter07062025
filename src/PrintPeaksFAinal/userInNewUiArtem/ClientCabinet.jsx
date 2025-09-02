@@ -8,7 +8,7 @@ import {useSelector} from "react-redux";
 export default function ClientCabinet({
                                         user = {},
                                         orders = [],
-                                        onCreateOrder,
+                                        // onCreateOrder,
                                         onOpenChat,
                                         onOpenProfile,
                                         onClose,
@@ -24,6 +24,30 @@ export default function ClientCabinet({
     document.addEventListener("keydown", h);
     return () => document.removeEventListener("keydown", h);
   }, [onClose]);
+
+  const handleSearchChange = (e) => {
+    // console.log(e.target.value);
+    setSearchQuery(e.target.value);
+  };
+
+  const onCreateOrder = () => {
+    // Створюємо новий запит для створення замовлення
+    const postData = {
+      userId: user.id,
+    };
+    axios.post(`/orders/createForThisUser`, postData)
+      .then(response => {
+        // Сповіщаємо всіх про створення замовлення
+        // const event = new CustomEvent('orderCreated', { detail: response.data });
+        // event.log = 'orderCreated';
+        // window.orderEvents.dispatchEvent(event);
+
+        window.location.href = `/Orders/${response.data.id}`;
+      })
+      .catch(error => {
+        console.log(error.message);
+      });
+  };
 
   useEffect(() => {
     if (user) {
