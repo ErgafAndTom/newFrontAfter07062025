@@ -618,6 +618,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
       {clientCabinetOpen && thisOrder?.client && (
         <ClientCabinet
           user={thisOrder.client}
+          thisOrder={thisOrder}
           orders={[
             thisOrder
           ].filter(Boolean)}

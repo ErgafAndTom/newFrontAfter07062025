@@ -2,12 +2,15 @@ import React, {useEffect, useMemo, useState} from "react";
 import TelegramAvatar from "../Messages/TelegramAvatar";
 import { FiUser } from "react-icons/fi";
 import axios from "../../api/axiosInstance";
+import {Link} from "react-router-dom";
 import Loader from "../../components/calc/Loader";
 import {useSelector} from "react-redux";
+import Laminator from "../poslugi/Laminator";
 
 export default function ClientCabinet({
                                         user = {},
                                         orders = [],
+                                        thisOrder,
                                         // onCreateOrder,
                                         onOpenChat,
                                         onOpenProfile,
@@ -203,64 +206,71 @@ export default function ClientCabinet({
             }
             {clientOrders.length === 0 && <div className="cc-empty">Замовлень немає.</div>}
             {clientOrders.map((o) => (
-              <div className="d-flex cc-order " style={{background: `${statusClass(o.status)}`}}>
-                <div key={o.id || o._id}>
-                  <div className="cc-order-top">
-                    <div className="cc-order-title">{o.title || o.name || `Замовлення #${o.id}`}</div>
-                  </div>
-                  <div className="cc-order-meta">
-                    <span>ID: {o.id || o._id}</span>
-                    {o.createdAt && <span>{formatDate(o.createdAt)}</span>}
-                  </div>
-                  <div className="cc-order-sum">💳 {fmtMoney(o.allPrice, o.currency)}
-                    {o.paid != null && <span className="cc-paid"> • Опл.: {fmtMoney(o.paid, o.currency)}</span>}
-                  </div>
-                </div>
-                <div className="cc-order-status-icon m-auto">
-                  {o.Payment?.status === 'CREATED' &&
-                    <div className={`adminButtonAddOrder wait`} style={{}}>
-                      {"Очікування️"}
+              <Link key={o.id} style={{textDecoration: 'none'}} to={`/Orders/${o.id}`}>
+                <div className="d-flex cc-order " style={{background: `${statusClass(o.status)}`}}>
+                  <div key={o.id || o._id}>
+                    <div className="cc-order-top">
+                      {thisOrder.id === o.id &&
+                        <div className="cc-order-title" style={{color: "red"}}>{o.title || o.name || `Замовлення #${o.id}`}</div>
+                      }
+                      {thisOrder.id !== o.id &&
+                        <div className="cc-order-title">{o.title || o.name || `Замовлення #${o.id}`}</div>
+                      }
                     </div>
-                  }
-                  {o.Payment?.status === 'PAID' &&
-                    <div className={`adminButtonAddOrder pay`} style={{}}>
-                      {"Оплата за посиланням"}
+                    <div className="cc-order-meta">
+                      <span>ID: {o.id || o._id}</span>
+                      {o.createdAt && <span>{formatDate(o.createdAt)}</span>}
                     </div>
-                  }
-                  {o.Payment?.status === 'CANCELLED' &&
-                    <button className={`adminButtonAddOrder cancel`} style={{}}>
-                      {"Відміна"}
-                    </button>
-                  }
-                  {o.Payment?.status === 'EXPIRED' &&
-                    <button className={`adminButtonAddOrder nopay`} style={{}}>
-                      Не оплачено (EXPIRED)
-                    </button>
-                  }
-                  {o.Payment === null &&
-                    <button className={`adminButtonAddOrder nopay`} style={{color:'#000000'}}>
-                      {"Не оплачено"}
-                    </button>
-                  }
+                    <div className="cc-order-sum">💳 {fmtMoney(o.allPrice, o.currency)}
+                      {o.paid != null && <span className="cc-paid"> • Опл.: {fmtMoney(o.paid, o.currency)}</span>}
+                    </div>
+                  </div>
+                  <div className="cc-order-status-icon m-auto">
+                    {o.Payment?.status === 'CREATED' &&
+                      <div className={`adminButtonAddOrder wait`} style={{}}>
+                        {"Очікування️"}
+                      </div>
+                    }
+                    {o.Payment?.status === 'PAID' &&
+                      <div className={`adminButtonAddOrder pay`} style={{}}>
+                        {"Оплата за посиланням"}
+                      </div>
+                    }
+                    {o.Payment?.status === 'CANCELLED' &&
+                      <button className={`adminButtonAddOrder cancel`} style={{}}>
+                        {"Відміна"}
+                      </button>
+                    }
+                    {o.Payment?.status === 'EXPIRED' &&
+                      <button className={`adminButtonAddOrder nopay`} style={{}}>
+                        Не оплачено (EXPIRED)
+                      </button>
+                    }
+                    {o.Payment === null &&
+                      <button className={`adminButtonAddOrder nopay`} style={{color: '#000000'}}>
+                        {"Не оплачено"}
+                      </button>
+                    }
+                  </div>
+                  {/*<div className="cc-order-status">{o.status || "—"}</div>*/}
+                  <div className="adminFontTable d-flex align-content-center justify-content-center m-auto" style={{}}>
+                    {/*{item.status}*/}
+                    {o.status === "-1"
+                      ? 'Скасоване'
+                      : o.status === "0"
+                        ? 'Оформлення'
+                        : o.status === "1"
+                          ? 'Друкується'
+                          : o.status === "2"
+                            ? 'Постпресc'
+                            : o.status === "3"
+                              ? 'Готове'
+                              : o.status === "4"
+                                ? 'Віддали'
+                                : 'Віддали'}
+                  </div>
                 </div>
-                {/*<div className="cc-order-status">{o.status || "—"}</div>*/}
-                <div className="adminFontTable d-flex align-content-center justify-content-center m-auto" style={{}}>
-                  {/*{item.status}*/}
-                  {o.status === "-1"
-                    ? 'Скасоване'
-                    : o.status === "0"
-                      ? 'Оформлення'
-                      : o.status === "1"
-                        ? 'Друкується'
-                        : o.status === "2"
-                          ? 'Постпресc'
-                          : o.status === "3"
-                            ? 'Готове'
-                            : o.status === "4"
-                              ? 'Віддали'
-                              : 'Віддали'}
-                </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
