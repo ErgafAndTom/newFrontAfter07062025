@@ -540,15 +540,15 @@ const Graph3D = () => {
           }}
 
           // подписи-спрайты только когда заморожено
-          // nodeThreeObject={isFrozen ? (node) => {
-          //   // const SpriteText = require('three-spritetext').default; // если ESM/SSR капризничает
-          //   const label = new SpriteText(getDiagramLabel(node));
-          //   label.fontSize = 20; label.padding = 2;
-          //   label.backgroundColor = "rgba(0,0,0,0.55)";
-          //   label.borderRadius = 2; label.color = "#fff";
-          //   label.position.set(0, 8, 0);
-          //   return label;
-          // } : undefined}
+          nodeThreeObject={isFrozen ? (node) => {
+            // const SpriteText = require('three-spritetext').default; // если ESM/SSR капризничает
+            const label = new SpriteText(getDiagramLabel(node));
+            label.fontSize = 50; label.padding = 2;
+            label.backgroundColor = "rgba(0,0,0,0.55)";
+            label.borderRadius = 2; label.color = "#fff";
+            label.position.set(0, 8, 0);
+            return label;
+          } : undefined}
           nodeThreeObjectExtend={true}
 
           backgroundColor="#111827"

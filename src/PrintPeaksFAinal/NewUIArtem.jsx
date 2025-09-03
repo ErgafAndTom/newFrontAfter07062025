@@ -484,7 +484,7 @@ const NewUIArtem = () => {
                                       {thing.amount}
                                         <span style={{ fontSize: "1.4vh", opacity: 0.7 , color:"#008249"}}> шт</span>
                                         &nbsp; × &nbsp;
-                                        {thing.priceForThisDiscount / thing.amount}
+                                        {parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(3)}
                                         <span style={{ fontSize: "1.4vh", opacity: 0.7 }}> грн</span>
                                         &nbsp;=
                                       </span>{" "}
