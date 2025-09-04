@@ -80,94 +80,221 @@
     background: #F2F0E7;
     display: none;
 }
+:root {
+  /* Кольори PrintPeaks */
+  --btn-bg-1: #f7c23b;   /* світліший від #FAB416 */
+  --btn-bg-2: #FAB416;   /* основний */
+  --btn-bg-3: #f2a800;   /* тепліший акцент */
+  --btn-edge: #d19000;   /* ребро тіні для 3D */
 
-.adminButtonAdd-primary {
-  text-decoration: none;
-    display: flex;
-    height: auto;
-    width: auto;
-    min-width: 10rem;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    padding: 0.5rem 1rem;
-    font-size: var(--font-size-sm);
-    border-radius: 0.5rem;
-    color: #000000;
-    background: #dcd9ce;
-    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease;
-    font-weight: 500;
-    opacity: 0.6;
+  /* Типографіка */
+  --btn-fs-min: 0.72rem;
+  --btn-fs-fluid: calc(0.55vh + 0.45vw);
+  --btn-fs-max: 0.9rem;
 }
 
-.adminButtonAdd-primary:hover {
-    cursor: pointer;
-    background: #dcd9ce;
-    opacity: 1;
-    color: black;
-    transform: translateY(-2px);
-}
 .adminButtonAdd,
 .adminButtonAdd:link,
 .adminButtonAdd:visited {
   text-decoration: none;
-  border-bottom: none;
+  border: none;
   outline: none !important;
   box-shadow: none !important;
 }
+
+/* КНОПКА */
 .adminButtonAdd {
-    display: flex;
-    height: auto;
-    width: auto;
-    min-width: 8.5vw;
-    min-height: 3.3vh;
-  font-size: 0.85rem;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    padding: 0.3vw 0.8vh;
-    border-radius: 9px;
-    color: #000000;
-    background: #FAB416;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
+  min-width: 8vw;
+  padding: 10px 18px;
+  gap: 0.3em;
+
+  /* пропорційний font-size: від ширини екрана */
+  font-size: clamp(14px, 2vw - 1.5vw, 22px);
+
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  color: #000;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  backface-visibility: hidden;
+  will-change: transform, box-shadow, background-position;
+
+  background:
+    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.35), transparent 42%),
+    linear-gradient(130deg, var(--btn-bg-1), var(--btn-bg-2), var(--btn-bg-3), var(--btn-bg-2));
+  background-size: 250% 250%, 320% 320%;
+  background-position: 30% 18%, 0% 50%;
+  animation: btnGlow 10s ease-in-out infinite;
+
+  box-shadow: 0 4px 0 var(--btn-edge), 0 10px 16px rgba(0,0,0,0.18);
+  transition: transform .18s ease, box-shadow .18s ease, color .18s ease, filter .18s ease;
 }
 
+
+/* Блиск (“sheen”) */
+/*.adminButtonAdd::before {*/
+/*  content: "";*/
+/*  position: absolute;*/
+/*  inset: -45% -25% -45% -25%;*/
+/*  background: linear-gradient(*/
+/*    115deg,*/
+/*    transparent 0%,*/
+/*    rgba(255,255,255,0.00) 35%,*/
+/*    rgba(255,255,255,0.55) 49%,*/
+/*    rgba(255,255,255,0.00) 63%,*/
+/*    transparent 100%*/
+/*  );*/
+/*  transform: translateX(-120%) rotate(0.001deg);*/
+/*  animation: sheen 3.6s cubic-bezier(.25,.1,.25,1) infinite;*/
+/*  pointer-events: none;*/
+/*  mix-blend-mode: soft-light;*/
+/*}*/
+
+/* Hover */
 .adminButtonAdd:hover {
-    cursor: pointer;
-    /*background: #f5a400;*/
-    color: white;
-
-    /*box-shadow: 0 3px 5px rgb(233, 157, 0);*/
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--btn-edge), 0 14px 18px rgba(0,0,0,0.22);
+  filter: saturate(1.05);
 }
 
+/* Active */
 .adminButtonAdd:active {
-    background: #FAB416;
-  outline: none !important;
-  box-shadow: none !important;
-    /*box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);*/
+  transform: translateY(2px);
+  box-shadow: inset 0 3px 7px var(--btn-edge);
 }
 
-.adminButtonAdd:active:focus {
-    background: #FAB416;
-  outline: none !important;
-  box-shadow: none !important;
+/* Focus */
+.adminButtonAdd:focus-visible {
+  outline: 3px solid rgba(250,180,22,0.45);
+  outline-offset: 2px;
 }
 
-.adminButtonAdd:focus {
-
-  outline: none !important;
-  box-shadow: none !important;
-    /*box-shadow: 0 0 0 3px rgba(250, 180, 22, 0.3);*/
-}
-
+/* Disabled */
 .adminButtonAdd:disabled {
-    background: #F2F0E7;
-    cursor: not-allowed;
-    opacity: 0.7;
-    transform: none;
-    box-shadow: none;
+  background: #F2F0E7 !important;
+  color: #777 !important;
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+  box-shadow: none;
 }
+
+/* Анімації */
+@keyframes btnGlow {
+  0%   { background-position: 30% 18%, 0% 50%; }
+  50%  { background-position: 72% 82%, 100% 50%; }
+  100% { background-position: 30% 18%, 0% 50%; }
+}
+@keyframes sheen {
+  0%   { transform: translateX(-120%) rotate(0.001deg); }
+  55%  { transform: translateX(140%)  rotate(0.001deg); }
+  100% { transform: translateX(140%)  rotate(0.001deg); }
+}
+
+/* Менше руху */
+@media (prefers-reduced-motion: reduce) {
+  .adminButtonAdd,
+  .adminButtonAdd::before { animation: none !important; }
+}
+
+/*.adminButtonAdd-primary {*/
+/*  text-decoration: none;*/
+/*    display: flex;*/
+/*    height: auto;*/
+/*    width: auto;*/
+/*    min-width: 10rem;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    border: none;*/
+/*    padding: 0.5rem 1rem;*/
+/*    font-size: var(--font-size-sm);*/
+/*    border-radius: 0.5rem;*/
+/*    color: #000000;*/
+/*    background: #dcd9ce;*/
+/*    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);*/
+/*    transition: all 0.2s ease;*/
+/*    font-weight: 500;*/
+/*    opacity: 0.6;*/
+/*}*/
+
+/*.adminButtonAdd-primary:hover {*/
+/*    cursor: pointer;*/
+/*    background: #dcd9ce;*/
+/*    opacity: 1;*/
+/*    color: black;*/
+/*    transform: translateY(-2px);*/
+/*}*/
+/*.adminButtonAdd,*/
+/*.adminButtonAdd:link,*/
+/*.adminButtonAdd:visited {*/
+/*  text-decoration: none;*/
+/*  border-bottom: none;*/
+/*  outline: none !important;*/
+/*  box-shadow: none !important;*/
+/*}*/
+/*.adminButtonAdd {*/
+/*    display: flex;*/
+/*    height: auto;*/
+/*    width: auto;*/
+/*    min-width: 8.5vw;*/
+/*    min-height: 3.3vh;*/
+/*    !*font-size: 0.85rem;*!*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    border: none;*/
+/*    padding: 0.3vw 0.8vh;*/
+/*    border-radius: 9px;*/
+/*    color: #000000;*/
+/*    background: #FAB416;*/
+
+/*}*/
+
+/*.adminButtonAdd:hover {*/
+/*    cursor: pointer;*/
+/*    !*background: #f5a400;*!*/
+/*    color: white;*/
+
+/*    !*box-shadow: 0 3px 5px rgb(233, 157, 0);*!*/
+/*}*/
+
+/*.adminButtonAdd:active {*/
+/*    background: #FAB416;*/
+/*  outline: none !important;*/
+/*  box-shadow: none !important;*/
+/*    !*box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);*!*/
+/*}*/
+
+/*.adminButtonAdd:active:focus {*/
+/*    background: #FAB416;*/
+/*  outline: none !important;*/
+/*  box-shadow: none !important;*/
+/*}*/
+
+/*.adminButtonAdd:focus {*/
+
+/*  outline: none !important;*/
+/*  box-shadow: none !important;*/
+/*    !*box-shadow: 0 0 0 3px rgba(250, 180, 22, 0.3);*!*/
+/*}*/
+
+/*.adminButtonAdd:disabled {*/
+/*    background: #F2F0E7;*/
+/*    cursor: not-allowed;*/
+/*    opacity: 0.7;*/
+/*    transform: none;*/
+/*    box-shadow: none;*/
+/*}*/
 
 .hoverOrange:hover {
     background: #FAB416;

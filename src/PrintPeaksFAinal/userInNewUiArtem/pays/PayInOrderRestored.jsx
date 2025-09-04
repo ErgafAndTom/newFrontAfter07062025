@@ -254,17 +254,18 @@ function PaysInOrderRestored({showPays, setShowPays, thisOrder, setThisOrder}) {
                             <Spinner animation="border" variant="dark"/>
                         </div>
                     ) : (
-                        <table className="ContractorTable w-100">
+                        <table className="ContractorTable">
                             <thead>
-                            <tr className="ContractorRow">
+                            <tr className="ContractorRow ">
                                 <th>№</th>
                                 <th>Найменування</th>
                                 <th>Система оподаткування</th>
-                                <th>Тел.</th>
-                                <th>E-mail</th>
+                                <th>Банк</th>
+                                <th>IBAN</th>
                                 <th>ПДВ</th>
                                 <th>Клієнт</th>
-                                <th>Останнє оновлення</th>
+                                <th>ЄДРОПУ</th>
+                               <th>Тел.</th>
                                 <th>Документи</th>
                             </tr>
                             </thead>
@@ -274,12 +275,15 @@ function PaysInOrderRestored({showPays, setShowPays, thisOrder, setThisOrder}) {
                                     <td className="ContractorCell">{idx + 1}</td>
                                     <td className="ContractorCell ContractorName">{item.name}</td>
                                     <td className="ContractorCell">{item.taxSystem}</td>
-                                    <td className="ContractorCell">{item.phone}</td>
-                                    <td className="ContractorCell">{item.email}</td>
+
+                                    <td className="ContractorCell">{item.bankName}</td>
+                                    <td className="ContractorCell">{item.iban}</td>
                                     <td className="ContractorCell">{item.pdv === "true" ? '+' : '-'}</td>
                                     <td className="ContractorCell">{`${thisOrder.client.firstName} ${thisOrder.client.lastName} ${thisOrder.client.familyName} (${thisOrder.client.phoneNumber})`}</td>
-                                    <td className="ContractorCell">{`${new Date(thisOrder.updatedAt).toLocaleDateString()} ${new Date(thisOrder.updatedAt).toLocaleTimeString()}`}</td>
-                                    <td className="ContractorCell ContractorActions">
+                                  <td className="ContractorCell">{item.edrpou}</td>
+                                  {/*<td className="ContractorCell">{`${new Date(thisOrder.updatedAt).toLocaleDateString()} ${new Date(thisOrder.updatedAt).toLocaleTimeString()}`}</td>*/}
+                                  <td className="ContractorCell">{item.phone}</td>
+                                  <td className="ContractorCell ContractorActions">
                                         <button className="adminButtonAdd" style={{}}
                                                 onClick={(e) => generateInvoice(e, item)}>
                                             Завантажити

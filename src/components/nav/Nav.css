@@ -172,48 +172,135 @@
   transform: skewY(45deg);
   transform-origin: top right;
 }
+:root{
+  --btn-base:#fbfaf6;
+  --btn-1:#f7c23b; --btn-2:#FAB416; --btn-3:#f2a800; --edge:#d19000;
+  --btn-light-1: #ffffff;
+  --btn-light-2: #fbfaf6;
+  --btn-light-3: #f3f2ef;
+  /* розміри */
+  --h: clamp(40px, 3.6vh, 56px);     /* вище */
+  --fs: clamp(13px, 0.95vw, 15px);   /* трохи більший текст */
+  --cut: 15px;                       /* базовий зріз */
+  --r: 0px;                         /* радіус низу */
+  --overlap: -8px;                   /* накладка між табами */
+}
+
+/* контейнер (опційно) */
+.tabsBar{display:flex;align-items:center;padding-left:12px;background:var(--btn-base)}
+
+/* базовий таб */
 .buttonSkewed {
-  height: 3.5vh;
-  width: 7vw;
-  font-size: 0.7vw;
-  background-color: #fbfaf6;
-  color: black;
-  border: 0px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-
-  clip-path: polygon(
-    16px 0,                  /* верхний левый срез */
-    100% 0,                  /* правый верхний */
-    calc(100% - 16px) 100%,  /* правый нижний со срезом */
-    0 100%                   /* левый нижний */
-  );
-  margin-right: -0.6vw;
-
   position: relative;
   z-index: 1;
-}
-.buttonSkewed:hover,
-.buttonSkewed:active {
-  background-color: #fab416;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: var(--h);
+  padding: 0 1.5rem;
+  font-size: var(--fs);
+  line-height: 1;
+  white-space: nowrap;
+
+  color: #000;
+  border: 0;
+  cursor: pointer;
+
+  border-bottom-left-radius: var(--r);
+  border-bottom-right-radius: var(--r);
+  overflow: hidden;
+  background-clip: padding-box;
+
+  --c: var(--cut);
+  clip-path: polygon(
+    var(--c) 0, 100% 0,
+    calc(100% - var(--c)) 100%,
+    0 100%
+  );
+
+  margin-right: var(--overlap);
+
+  /* базовий: дуже м’який світлий перелив */
+  background:
+    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,.4), transparent 42%),
+    linear-gradient(130deg, var(--btn-light-1), var(--btn-light-2), var(--btn-light-3), var(--btn-light-2));
+  background-size: 220% 220%, 260% 260%;
+  background-position: 30% 18%, 0% 50%;
+  animation: tabsGlow 14s ease-in-out infinite;
+
+  transition: transform .16s ease, box-shadow .16s ease, color .16s ease, background .3s ease;
 }
 
-.buttonSkewed:focus,
-.buttonSkewed:active {
-  outline: none;
-  box-shadow: none;
-}
-.buttonSkewed.last {
-  clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%);
-  margin-right: 0;
-  border-bottom-right-radius: 1vh;
+/* правий розділювач як «фальш-зріз», щоб кути були рівні */
+.buttonSkewed::after{
+  content:"";
+  position:absolute; top:0; right:calc(var(--overlap) - 4px); bottom:0; width:var(--cut);
+  background:linear-gradient( to bottom, transparent 0 0),var(--btn-base);
+  transform:skewX(-14deg);
+  /*box-shadow:inset -3px 0 0 rgba(0,0,0,.06);*/
+  pointer-events:none;
 }
 
-.buttonSkewed.first {
-  clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 100%, 0 100%);
-  border-bottom-left-radius: 1vh;
+/* перший таб: ідеальний лівий край без артефактів */
+.buttonSkewed.first{
+  clip-path:polygon(
+    0 0, 100% 0,
+    calc(100% - var(--c)) 100%,
+    0 100%
+  );
+  border-bottom-left-radius: 12px;
+}
+.buttonSkewed.first::after{ /* трішки менше перекриття на першому */
+  right:calc(var(--overlap) - 3px);
+}
+
+/* останній таб: рівний правий край */
+.buttonSkewed.last{
+  clip-path:polygon(
+    var(--c) 0, 100% 0,
+    100% 100%, 0 100%
+  );
+  margin-right:0;
+  border-bottom-right-radius:var(--r);
+}
+.buttonSkewed.last::after{ display:none; }
+
+/* hover: помаранчевий перелив і підйом */
+.buttonSkewed:hover {
+  color: #fff;
+  background:
+    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,.35), transparent 42%),
+    linear-gradient(130deg, var(--btn-1), var(--btn-2), var(--btn-3), var(--btn-2));
+  background-size: 220% 220%, 280% 280%;
+  background-position: 30% 18%, 0% 50%;
+  animation: tabsGlow 12s ease-in-out infinite;
+  transform: translateY(-2px);
+}
+
+.buttonSkewed:active{ transform:translateY(1px);
+  /*box-shadow:inset 0 2px 5px var(--edge) */
+}
+.buttonSkewed:focus-visible{
+  outline:2px solid rgba(250,180,22,.45);
+  outline-offset:5px }
+
+/* анімації */
+@keyframes tabsGlow {
+  0%   { background-position: 30% 18%, 0% 50%; }
+  50%  { background-position: 72% 82%, 100% 50%; }
+  100% { background-position: 30% 18%, 0% 50%; }
+}
+@keyframes tabsSheen{
+  0%{transform:translateX(-120%) rotate(.001deg)}
+  55%{transform:translateX(140%) rotate(.001deg)}
+  100%{transform:translateX(140%) rotate(.001deg)}
+}
+
+/* менше руху */
+@media (prefers-reduced-motion:reduce){
+  .buttonSkewed:hover{animation:none}
+  .buttonSkewed:hover::before{animation:none}
 }
 
 

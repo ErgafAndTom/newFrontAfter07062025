@@ -72,7 +72,9 @@
 .ContractorRow {
     background-color: #faf8f3;
     border-bottom: 1px solid #e1e1e1;
-    font-size: 0.6vw;
+    font-size: 0.8em;
+    justify-content: center;
+  align-items: center;
 }
 
 .ContractorCell {
