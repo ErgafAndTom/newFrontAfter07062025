@@ -38,6 +38,7 @@ import Invoices from "../../pages/Invoices";
 import ClientUserProfile from "../../PrintPeaksFAinal/user/client/ClientUserProfile";
 import TrelloBoardAI from "../../PrintPeaksFAinal/trelloLikeBoards/TrelloBoardAI";
 import Graph3D from "../../PrintPeaksFAinal/Graph3D";
+import CompanyTabl from "../../PrintPeaksFAinal/company/CompanyTabl";
 
 
 
@@ -92,6 +93,7 @@ const AfterNav = () => {
                 <Route path="/createOrder" element={<CreateOrder />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/Users" element={<UsersCustomTable />} />
+                <Route path="/Company" element={<CompanyTabl />} />
                 <Route path="/currentUser" element={<Profile />} />
                 <Route path="/client/:id" element={<ClientUserProfile />} />
                 <Route path="/myFiles" element={<UserFiles />} />

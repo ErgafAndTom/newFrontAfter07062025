@@ -133,6 +133,7 @@ const Nav = () => {
           {[
             {to: "/Desktop", label: "Головна"},
             {to: "/Users", label: "Клієнти"},
+            {to: "/Company", label: "Компанії"},
             {to: "/Orders", label: "Замовлення"},
             {to: "/Storage", label: "Склад"},
             {to: "/db2", label: "База"},
