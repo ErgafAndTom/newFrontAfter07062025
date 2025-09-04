@@ -45,57 +45,26 @@ const Porizka = ({porizka, setPorizka, prices, buttonsArr, selectArr}) => {
     }
 
     return (<div className="d-flex allArtemElem">
-        <div style={{display: 'flex', alignItems: 'center',}}>
-            <div
-                className={`toggleContainer scale04ForButtonToggle ${porizka.type === "Не потрібно" ? 'disabledCont' : 'enabledCont'}`}
-                onClick={handleToggle}>
-                <div className={`toggle-button ${porizka.type === "Не потрібно" ? 'disabled' : 'enabledd'}`}>
-                </div>
-            </div>
-            <div className="d-flex flex-row">
-            <span className={"d-flex flex-row" } style={{
-                 marginRight: '0.633vw', width: '20vw',
-            }}>{"Порiзка (+15% к вартості):"}</span>
-                {/*{photo.type !== "Не потрібно" ? (*/}
-                {/*    <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center',}}>*/}
-                {/*        <div style={{*/}
-                {/*            display: 'flex', justifyContent: 'center', alignItems: 'center', marginLeft: "2vw"*/}
-                {/*        }}>*/}
-                {/*            {buttonsArr.map((item, index) => (<button*/}
-                {/*                className={item === photo.material ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}*/}
-                {/*                key={index}*/}
-                {/*                onClick={() => handleClick(item)}*/}
-                {/*                // style={{*/}
-                {/*                //     backgroundColor: item === lamination.material ? 'orange' : 'transparent',*/}
-                {/*                //     border: item === lamination.material ? '0.13vw solid transparent' : '0.13vw solid transparent',*/}
-                {/*                // }}*/}
-                {/*            >*/}
-                {/*                <div className="" style={{*/}
-                {/*                    height: "100%",*/}
-                {/*                    opacity: item === photo.material ? '100%' : '90%',*/}
-                {/*                    whiteSpace: "nowrap",*/}
-                {/*                }}>*/}
-                {/*                    {item}*/}
-                {/*                </div>*/}
-                {/*            </button>))}*/}
-                {/*            <div className="ArtemNewSelectContainer">*/}
-                {/*                <select*/}
-                {/*                    value={photo.size}*/}
-                {/*                    onChange={(event) => handleSelectChange(event)}*/}
-                {/*                    className="selectArtem"*/}
-                {/*                >*/}
-                {/*                    <option value={""}>{""}</option>*/}
-                {/*                    {thisLaminationSizes.map((item, iter2) => (*/}
-                {/*                        <option className="optionInSelectArtem" key={item.thickness}*/}
-                {/*                                value={item.thickness}>{item.thickness} мкм</option>))}*/}
-                {/*                </select>*/}
-                {/*            </div>*/}
-                {/*        </div>*/}
-                {/*    </div>) : (<div>*/}
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        {/* NEW SWITCH */}
+        <label className="switch scale04ForButtonToggle" style={{ marginRight: '0.633vw' }} aria-label="Порізка">
+          <input
+            type="checkbox"
+            checked={porizka.type !== "Не потрібно"}
+            onChange={handleToggle}
+          />
+          <span className="slider" />
+        </label>
 
-                {/*</div>)}*/}
-            </div>
+        <div className="d-flex flex-row">
+    <span className="d-flex flex-row" style={{ marginRight: '0.633vw', width: '20vw' }}>
+      Порізка (+15% к вартості):
+    </span>
+
+          {/* за потреби тут контент для активного стану */}
         </div>
+      </div>
+
     </div>)
 };
 

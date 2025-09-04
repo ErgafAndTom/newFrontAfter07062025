@@ -127,11 +127,13 @@ const CompanyTabl = () => {
     <div className="OrderList">
       <div className="OrderRow-summary OrderRow-header">
         <div className="summary-cell id d-flex justify-content-center">ID</div>
-        <div className="summary-cell status d-flex justify-content-center">Статус</div>
-        <div className="summary-cell pay">Оплата</div>
-        <div className="summary-cell price">Ціна</div>
-        <div className="summary-cell client">Клієнт</div>
-        <div className="summary-cell company">Компанія</div>
+        <div className="summary-cell status d-flex justify-content-center">Назва</div>
+        <div className="summary-cell client">ЄДРОПУ</div>
+
+        <div className="summary-cell price">Знижка</div>
+
+        <div className="summary-cell company">Юзери</div>
+        <div className="summary-cell pay">Контактна особа</div>
         <div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20} style={{ color: '#000' }}/></div>
         <div className="summary-cell telegram d-flex justify-content-center">
           <FaTelegramPlane size={20} style={{ color: '#000' }} />
@@ -139,10 +141,8 @@ const CompanyTabl = () => {
         {/*<div className="summary-cell viber d-flex justify-content-center">*/}
         {/*  <FaViber size={20} style={{ color: '#000' }} />*/}
         {/*</div>*/}
-
-
-        <div className="summary-cell action d-flex justify-content-center">Прорахунок</div>
-        <div className="summary-cell documents d-flex justify-content-center">Документи</div>
+        <div className="summary-cell action d-flex justify-content-center">Кількість замовлень</div>
+        <div className="summary-cell documents d-flex justify-content-center">Баланс</div>
         <div className="summary-cell files d-flex justify-content-sm-around ">Файли</div>
         <div className="summary-cell barcode-orders d-flex justify-content-center" style={{opacity:"1"}}>Штрих-код</div>
       </div>

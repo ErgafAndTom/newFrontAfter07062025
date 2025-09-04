@@ -11,29 +11,34 @@ const NewNoModalLyuversy = ({ lyuversy, setLyuversy, selectArr = [] }) => {
 
   return (
     <div className="d-flex allArtemElem">
-      <div style={{ display:"flex", alignItems:"center" }}>
-        <div
-          className={`toggleContainer scale04ForButtonToggle ${
-            lyuversy === "Не потрібно" ? "disabledCont" : "enabledCont"
-          }`}
-          role="button" tabIndex={0}
-          onClick={handleToggle}
-        >
-          <div className={`toggle-button ${lyuversy === "Не потрібно" ? "disabled" : "enabledd"}`}/>
-        </div>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        {/* NEW SWITCH */}
+        <label className="switch scale04ForButtonToggle" style={{ marginRight: "0.633vw" }}>
+          <input
+            type="checkbox"
+            checked={lyuversy !== "Не потрібно"}
+            onChange={handleToggle}
+          />
+          <span className="slider" />
+        </label>
 
         <div className="d-flex flex-column">
-          <span style={{ marginRight:"0.633vw" }}>Люверси:</span>
+          <span style={{ marginRight: "0.633vw" }}>Люверси:</span>
 
           {lyuversy !== "Не потрібно" && (
-            <div className="ArtemNewSelectContainer" style={{ display:"flex", justifyContent:"center", alignItems:"center" }}>
+            <div
+              className="ArtemNewSelectContainer"
+              style={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+            >
               <select
                 value={lyuversy}
                 onChange={e => setLyuversy(e.target.value)}
                 className="selectArtem"
               >
                 {selectArr.map(item => (
-                  <option key={item} value={item}>{item}</option>
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
                 ))}
               </select>
             </div>
@@ -42,6 +47,7 @@ const NewNoModalLyuversy = ({ lyuversy, setLyuversy, selectArr = [] }) => {
       </div>
     </div>
   );
+
 };
 
 export default NewNoModalLyuversy;

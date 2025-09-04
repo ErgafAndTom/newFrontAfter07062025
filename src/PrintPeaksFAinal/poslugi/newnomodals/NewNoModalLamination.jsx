@@ -128,59 +128,73 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
             })
     }, [lamination.material, lamination.type, size]);
 
-    return (<div className="d-flex allArtemElem" >
-        <div style={{display: 'flex', alignItems: 'center', marginTop: "1vw", marginLeft: "0vw"}}>
-            <div className={`toggleContainer scale04ForButtonToggle ${lamination.type === "Не потрібно" ? 'disabledCont' : 'enabledCont'}`}
-                 onClick={handleToggle}>
-                <div className={`toggle-button ${lamination.type === "Не потрібно" ? 'disabled' : 'enabledd'}`}>
+  return (
+    <div className="d-flex allArtemElem">
+      <div style={{ display: 'flex', alignItems: 'center', marginTop: '1vw', marginLeft: '0vw' }}>
+        {/* NEW SWITCH */}
+        <label className="switch scale04ForButtonToggle" style={{ marginRight: '0.633vw' }}>
+          <input
+            type="checkbox"
+            checked={lamination.type !== "Не потрібно"}
+            onChange={handleToggle}
+          />
+          <span className="slider" />
+        </label>
+
+        <div className="d-flex flex-column">
+          <span style={{ marginRight: '0.633vw' }}>Ламінація:</span>
+
+          {lamination.type !== "Не потрібно" ? (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {buttonsArr.map((item, index) => (
+                  <button
+                    className={item === lamination.material ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
+                    key={index}
+                    onClick={() => handleClick(item)}
+                  >
+                    <div
+                      style={{
+                        fontSize: "var(--font-size-base)",
+                        opacity: item === lamination.material ? '100%' : '50%',
+                        width: "13vw"
+                      }}
+                    >
+                      {item}
+                    </div>
+                  </button>
+                ))}
+
+                <div className="ArtemNewSelectContainer">
+                  <select
+                    value={lamination.size}
+                    onChange={(event) => handleSelectChange(event)}
+                    className="selectArtem"
+                  >
+                    <option value="">{""}</option>
+                    {thisLaminationSizes.map((item) => (
+                      <option
+                        className="optionInSelectArtem"
+                        key={item.thickness}
+                        value={item.thickness}
+                        data-id={item.id}
+                        tosend={item.thickness}
+                      >
+                        {item.thickness} мкм
+                      </option>
+                    ))}
+                  </select>
                 </div>
+              </div>
             </div>
-            <div className="d-flex flex-column">
-            <span style={{
-                 marginRight: '0.633vw'
-            }}>{"Ламінація:"}</span>
-                {lamination.type !== "Не потрібно" ? (
-                    <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center',}}>
-                        <div style={{
-                            display: 'flex', justifyContent: 'center', alignItems: 'center'
-                        }}>
-                            {buttonsArr.map((item, index) => (<button
-                                className={item === lamination.material ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
-                                key={index}
-                                onClick={() => handleClick(item)}
-                                // style={{
-                                //     backgroundColor: item === lamination.material ? 'orange' : 'transparent',
-                                //     border: item === lamination.material ? '0.13vw solid transparent' : '0.13vw solid transparent',
-                                // }}
-                            >
-                                <div className="" style={{
-                                    fontSize: "var(--font-size-base)",
-                                    opacity: item === lamination.material ? '100%' : '50%',
-                                    width:"13vw"
-
-                                }}>
-                                    {item}
-                                </div>
-                            </button>))}
-                            <div className="ArtemNewSelectContainer">
-                                <select
-                                    value={lamination.size}
-                                    onChange={(event) => handleSelectChange(event)}
-                                    className="selectArtem"
-                                >
-                                    <option value={""}>{""}</option>
-                                    {thisLaminationSizes.map((item, iter2) => (
-                                        <option className="optionInSelectArtem" key={item.thickness}
-                                                value={item.thickness} data-id={item.id} tosend={item.thickness}>{item.thickness} мкм</option>))}
-                                </select>
-                            </div>
-                        </div>
-                    </div>) : (<div>
-
-                </div>)}
-            </div>
+          ) : (
+            <div />
+          )}
         </div>
-    </div>)
+      </div>
+    </div>
+  );
+
 };
 
 export default NewNoModalLamination;

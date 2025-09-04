@@ -19,8 +19,7 @@
   /*height: 2rem;*/
   width: 7vw;
   font-size: 0.7vw;
-  background-color: #fbfaf6;
-  color: black;
+
   border: none;
   display: flex;
   align-items: center;
@@ -30,6 +29,10 @@
   margin-right: 0;
   border-bottom-right-radius: 9px;
 }
+.buttonSkewedOrderClient:hover span {
+  color: #ffffff;
+}
+
 .buttonSkewed.last {
   clip-path: polygon(1.6vh 0, 100% 0, 100% 100%, 0 100%);
   margin-right: 0;

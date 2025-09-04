@@ -16,6 +16,7 @@ import magnets from "./magnetsIcon.png";
 import Scans from "./scan.png";
 import Deliverypng from "../components/newUIArtem/printers/delivery.png";
 import ClientChangerUIArtem from "../PrintPeaksFAinal/userInNewUiArtem/ClientChangerUIArtem";
+
 // Usage of ClientsMenu
 import img1 from '../components/newUIArtem/printers/46.png';
 import img2 from '../components/newUIArtem/printers/ComponentTMP_0-image2.png';
@@ -70,6 +71,7 @@ import WideFactory from "./poslugi/WideFactory";
 import NewSheetSheet from "./poslugi/NewSheetSheet";
 import Delivery from "./poslugi/DeliveryPage";
 import OrderFilesPanel from "./commentsInOrders/OrderFilesPanel";
+// import RadicalMenuGrid from "./tools/RadicalMenuGrid";
 const NewUIArtem = () => {
   const navigate = useNavigate();
   const [things, setThings] = useState([]);
@@ -228,158 +230,69 @@ const NewUIArtem = () => {
       <div>
         <div className="d-flex">
           <div className="containerForContNewUI">
-            <div className="buttonsRow" style={{width: "62vw"}}>
-              {/* 1 */}
-              <div
-                onClick={() => setShowNewSheetCutBw(true)}
-                className="colorButton bg-pink cursorPointer "
-              >
-                <img src={imgg1} className="card-img-top noanim" alt="Фото"/>
-                <img src={img5} className="card-img-top anim" alt="Фото"/>
-                <div className="buttonLabel">BLACK</div>
 
-              </div>
-
-              {/* 2 */}
-              <div
-                onClick={() => setShowNewSheetCut(true)}
-                className="colorButton bg-yellow  cursorPointer "
-              >
-                <img src={imgg2} className="noanimcgcolor noanim"></img>
-                <img src={img1} className="anim noanimcgcolor"></img>
-                <div className="buttonLabel">COLOR PRODUCTS</div>
-              </div>
-              {/*<div*/}
-              {/*  onClick={() => setShowNewSheetSheet(true)}*/}
-              {/*  className="colorButton bg-lavender cursorPointer "*/}
-              {/*>*/}
-              {/*  <img src={imgg2} className="noanimcgcolor noanim"></img>*/}
-              {/*  <img src={img1} className="anim noanimcgcolor"></img>*/}
-              {/*  <div className="buttonLabel">COLOR SHEETS</div>*/}
-              {/*</div>*/}
-              {/* 3 */}
-              <div
-                onClick={() => setShowNewWide(true)}
-                className="colorButton bg-green skewed cursorPointer "
-              >
-                <img src={imgg3} className="card-img-top noanim" alt="Чашки"/>
-                <img src={img2} className="card-img-top anim" alt="Чашки"/>
-                <div className="buttonLabel">WIDE</div>
-              </div>
-
-              {/* 4 */}
-              <div
-                onClick={() => setShowNewPhoto(true)}
-                className="colorButton bg-light-cyan skewed cursorPointer "
-              >
-                <img src={p800} className="card-img-top noanim" alt="Фото"/>
-                <img src={img3} className="card-img-top anim" alt="Фото"/>
-                <div className="buttonLabel">PHOTO</div>
-              </div>
-
-              {/* 5 */}
-              <div
-                onClick={() => setShowBigOvshik(true)}
-                className="colorButton bg-blue skewed cursorPointer "
-              >
-                <img src={imgg10} className="card-img-top noanim" alt="Овшик"/>
-                <img src={creo} className="card-img-top anim" alt="Овшик"/>
-                <div className="buttonLabel">POSTPRESS</div>
-              </div>
-
-              {/* 6 */}
-              <div
-                onClick={() => setShowPerepletMet(true)}
-                className="colorButton bg-lavender skewed cursorPointer"
-              >
-                <img src={imgg6} className="card-img-top noanim" alt="Переплет"/>
-                <img src={img9} className="card-img-top anim" alt="Переплет"/>
-                <div className="buttonLabel">BINDING</div>
-              </div>
-
-              {/* 7 */}
-
-
-              {/* 8 */}
-              <div
-                onClick={() => setShowVishichka(true)}
-                className="colorButton bg-green skewed cursorPointer "
-              >
-                <img src={imgg9} className="card-img-top noanim" alt="Вишичка"/>
-                <img src={img4} className="card-img-top anim" alt="Вишичка"/>
-                <div className="buttonLabel">CUTTING</div>
-              </div>
-
-              {/* 9 */}
-
+            {/* Перша група */}
+            <div className="card" >
+              <p onClick={() => setShowNewSheetCutBw(true)}>
+                <span ><img className="cardImg" src={imgg1} alt="Фото"/> BLACK</span>
+              </p>
+              <p onClick={() => setShowNewSheetCut(true)}>
+                <span><img src={imgg2} className="cardImg" alt="Фото"/> COLOR PRODUCTS</span>
+              </p>
+              <p onClick={() => setShowNewWide(true)}>
+                <span><img src={imgg3} className="cardImg" alt="Чашки"/> WIDE</span>
+              </p>
+              <p onClick={() => setShowNewPhoto(true)}>
+                <span><img src={p800} className="cardImg" alt="Фото"/> PHOTO</span>
+              </p>
+              <p onClick={() => setShowBigOvshik(true)}>
+                <span><img src={imgg10} className="cardImg" alt="Овшик"/> POSTPRESS</span>
+              </p>
+              <p onClick={() => setShowPerepletMet(true)}>
+                <span><img src={imgg6} className="cardImg" alt="Переплет"/> BINDING</span>
+              </p>
+              <p onClick={() => setShowVishichka(true)}>
+                <span><img src={imgg9} className="cardImg" alt="Вишичка"/> CUTTING</span>
+              </p>
             </div>
 
-            <div className="buttonsRow" style={{width: "62vw", marginTop: "1vh"}}>
-              <div
-                onClick={() => setShowWideFactory(true)}
-                className="colorButton bg-factory cursorPointer "
-              >
-                <img src={Widefactory} className="card-img-top noanim" alt="Вишичка"/>
-                <img src={Widefactoryw} className="card-img-top anim" alt="Вишичка"/>
-                <div className="buttonLabel">WIDE FACTORY</div>
-              </div>
-              <div
-                onClick={() => setShowLaminator(true)}
-                className="colorButton bg-peach skewed cursorPointer "
-              >
-                <img src={p8svg} className="card-img-top noanim"/>
-                <img src={img8} className="card-img-top anim" alt="Ламінатор"/>
-                <div className="buttonLabel">LAMINATION</div>
-              </div>
+            {/* Друга група */}
+            <div className="card" >
+              <p onClick={() => setShowWideFactory(true)}>
+                <span><img src={Widefactory} className="cardImg" alt="Wide Factory"/> WIDE FACTORY</span>
+              </p>
+              <p onClick={() => setShowLaminator(true)}>
+                <span><img src={p8svg} className="cardImg" alt="Ламінатор"/> LAMINATION</span>
+              </p>
             </div>
 
-            <div className="containerNewUI d-flex "
-                 style={{marginBottom: "17vh", background: "transparent"}}>
-              <div
-                onClick={() => setShowNewNote(true)}
-                className="colorButtonNote colorButton bg-brown  cursorPointer">
-                <img src={versantIcon} className="card-img-top noanim" alt="Продукти"/>
-                <img src={versantIcon} className="card-img-top anim" alt="Продукти"/>
-                <div className="buttonLabel">NOTE</div>
-              </div>
-              <div
-                onClick={() => setShowNewBooklet(true)}
-                className="colorButtonNote colorButton bg-peach  cursorPointer">
-                <img src={scoba} className="card-img-top noanim" alt="Продукти"/>
-                <img src={imgg101} className="card-img-top anim" alt="Продукти"/>
-                <div className="buttonLabel">BOOKLET</div>
-              </div>
-              <div
-                onClick={() => setShowNewCup(true)}
-                className="colorButtonNote colorButton bg-green  cursorPointer">
-                <img src={MUG} className="card-img-top noanim" alt="Продукти"/>
-                <img src={MUG} className="card-img-top anim" alt="Продукти"/>
-                <div className="buttonLabel">MUG</div>
-              </div>
-              <div
-                onClick={() => setShowNewMagnets(true)}
-                className="colorButtonNote colorButton bg-pink  cursorPointer">
-                <img src={magnets} className="card-img-top noanim" alt="Продукти"/>
-                <img src={magnets} className="card-img-top anim" alt="Продукти"/>
-                <div className="buttonLabel">MAGNETS</div>
-              </div>
-              <div
-                onClick={() => setShowNewScans(true)}
-                className="colorButtonNote colorButton bg-light-cyan  cursorPointer">
-                <img src={Scans} className="card-img-top noanim" alt="Продукти"/>
-                <img src={Scans} className="card-img-top anim" alt="Продукти"/>
-                <div className="buttonLabel">SCANS</div>
-              </div>
-              <div
-                onClick={() => setShowDelivery(true)}
-                className="colorButtonNote colorButton bg-yellow  cursorPointer">
-                <img src={Deliverypng} className="card-img-top noanim" alt="Продукти"/>
-                <img src={Deliverypng} className="card-img-top anim" alt="Продукти"/>
-                <div className="buttonLabel">DELIVERY</div>
-              </div>
+            {/* Третя група */}
+            <div className="card d-flex" style={{marginBottom: "17vh", background: "transparent"}}>
+              <p onClick={() => setShowNewNote(true)}>
+                <span><img src={versantIcon} className="cardImg" alt="Note"/> NOTE</span>
+              </p>
+              <p onClick={() => setShowNewBooklet(true)}>
+                <span><img src={scoba} className="cardImg"  alt="Booklet"/> BOOKLET</span>
+              </p>
+              <p onClick={() => setShowNewCup(true)}>
+                <span><img src={MUG} className="cardImg" alt="Mug"/> MUG</span>
+              </p>
+              <p onClick={() => setShowNewMagnets(true)}>
+                <span><img src={magnets} className="cardImg" alt="Magnets"/> MAGNETS</span>
+              </p>
+              <p onClick={() => setShowNewScans(true)}>
+                <span><img src={Scans} className="cardImg" alt="Scans"/> SCANS</span>
+              </p>
+              <p onClick={() => setShowDelivery(true)}>
+                <span><img src={Deliverypng}className="cardImg"  alt="Delivery"/> DELIVERY</span>
+              </p>
+              <p onClick={() => setShowDelivery(true)}>
+                <span><img src={Deliverypng} className="cardImg" alt="Delivery"/> DELIVERY</span>
+              </p>
             </div>
 
           </div>
+
 
 
           <div className="d-flex flex-column" style={{width: "37.5vw"}}>

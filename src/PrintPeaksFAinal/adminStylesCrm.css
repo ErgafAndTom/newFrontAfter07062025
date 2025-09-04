@@ -108,34 +108,31 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
+  height: 3.6vh;
   min-width: 8vw;
   padding: 10px 18px;
   gap: 0.3em;
-
   /* пропорційний font-size: від ширини екрана */
-  font-size: clamp(14px, 2vw - 1.5vw, 22px);
-
+  /*font-size: clamp(14px, 2vw - 1.5vw, 22px);*/
+  font-size: 0.7vw;
   line-height: 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
   color: #000;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
   overflow: hidden;
   backface-visibility: hidden;
   will-change: transform, box-shadow, background-position;
-
   background:
     radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.35), transparent 42%),
     linear-gradient(130deg, var(--btn-bg-1), var(--btn-bg-2), var(--btn-bg-3), var(--btn-bg-2));
   background-size: 250% 250%, 320% 320%;
   background-position: 30% 18%, 0% 50%;
-  animation: btnGlow 10s ease-in-out infinite;
-
+  animation: btnGlow 3s ease-in-out infinite;
   box-shadow: 0 4px 0 var(--btn-edge), 0 10px 16px rgba(0,0,0,0.18);
   transition: transform .18s ease, box-shadow .18s ease, color .18s ease, filter .18s ease;
 }
@@ -207,7 +204,63 @@
   .adminButtonAdd,
   .adminButtonAdd::before { animation: none !important; }
 }
+/* From Uiverse.io by joe-watson-sbf */
+.card {
+  width: 25vw;
+  height: 25vh;      /* щоб блок підлаштовувався під кількість кнопок */
+  border-radius: 12px;
+  background: transparent;
+  display: flex;
+  flex-direction: row; /* <-- вертикально */
+  gap: 10px;
 
+  border: none;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.cardImg {
+  transform: rotate(90deg);
+  height: 5vh;
+  width: 2vw;
+}
+.card p {
+  height: 25vh;
+  width: 20vw;
+  flex: 3;
+  overflow: hidden;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all .5s;
+  background: transparent;
+  border: 1px solid #fdb40e;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+
+}
+
+.card p:hover {
+  flex: 2;
+}
+
+.card p span {
+  min-width: 5vw;
+  padding: .5em;
+  text-align: center;
+  transform: rotate(-90deg);
+  transition: all .5s;
+  text-transform: uppercase;
+  color: #ff568e;
+  letter-spacing: .1em;
+}
+
+.card p:hover span {
+  transform: rotate(0);
+}
 /*.adminButtonAdd-primary {*/
 /*  text-decoration: none;*/
 /*    display: flex;*/

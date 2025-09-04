@@ -40,7 +40,18 @@
   border: none;
   width: 36px;
   height: 15vh;
-  background-color: #228b57;
+  background:
+    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.25), transparent 42%),
+    linear-gradient(
+      130deg,
+      #007a43,
+      #008249,
+      #009054,
+      #008249
+    );
+  background-size: 250% 250%, 320% 320%;
+  background-position: 30% 18%, 0% 50%;
+  animation: btnGlow 4s ease-in-out infinite;
   color: black;
   font-size: 1.7rem;
   display:flex;

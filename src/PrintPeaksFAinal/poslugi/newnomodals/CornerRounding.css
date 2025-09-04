@@ -1,51 +1,59 @@
-/* CornerRounding.css */
-
-.toggle-button {
-
-    width: 1.9vw;
-    height: 1.9vw;
-    background-color: white;
-    border-radius: 0.95vw;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    position: relative;
-    transition: all 0.3s ease;
-}
-.toggleContainer {
-    /*border: 0.133vw solid black;*/
-    border-radius: 3.167vw;
-    padding: 0.633vh 1.273vw;
-    margin-right: 0.633vw;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: 4.5vw;
-    height: 2.65vw;
+/* NEW SWITCH (Uiverse by Praashoo7) */
+.switch {
+  font-size: 17px;
+  position: relative;
+  display: inline-block;
+  width: 4vw;
+  height: 4.5vh;
 }
 
-.enabledd {
-    transform: translateX(0.95vw);
-    background: #1a1e21;
-}
-.enabledCont {
-    background-color: orange;
-}
-
-.disabled {
-    transform: translateX(-0.95vw);
-    background: #1a1e21;
-}
-.disabledCont {
-    background-color: #FBFAF6;
+/* hide default checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
-.toggle-button::before {
-    content: '';
-    position: absolute;
-    width: 1.9vw;
-    height: 1.9vw;
-    border-radius: 50%;
-    transition: all 0.3s ease;
+/* slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #ebebe6;
+  box-shadow: inset 0px 2px 4px rgba(0,0,0,0.2);
+  transition: .4s;
+  border-radius: 12px;
 }
 
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 1.6em;
+  border-radius: 2px;
+  width: 0.2em;
+  left: 0.6em;
+  bottom: 0.3em;
+  background-color: gray;
+  transition: .4s;
+}
+
+/* checked state */
+.switch input:checked + .slider {
+  background:
+    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.35), transparent 42%),
+    linear-gradient(130deg, var(--btn-bg-1), var(--btn-bg-2), var(--btn-bg-3), var(--btn-bg-2));
+  background-size: 250% 250%, 320% 320%;
+  background-position: 30% 18%, 0% 50%;
+  animation: btnGlow 7s ease-in-out infinite;
+  /*box-shadow: inset 0px 1px 3px rgb(0, 0, 0);*/
+
+  border: none;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(2.8em) rotate(360deg);
+}
+
+/* прибери старе:
+.toggleContainer, .toggle-button, .enabledd, .enabledCont, .disabled, .disabledCont, .toggle-button::before
+*/

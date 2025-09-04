@@ -1,5 +1,6 @@
 import React, {useEffect, useState, useRef} from "react";
-import "./Nav.css"
+import "./Nav.css";
+import { NavLink } from "react-router-dom";
 import {Link} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {MDBContainer, MDBNavbar,} from "mdb-react-ui-kit";
@@ -76,7 +77,7 @@ const Nav = () => {
     return (
 <div>
 
-  <div className="d-flex justify-content-between align-items-center " style={{borderRadius:'0vh',marginBottom:'1vh', height:"2rem"}}>
+  <div className="d-flex justify-content-between align-items-center " style={{borderRadius:'0vh',marginBottom:'1vh'}}>
     {/* Ліва панель з кнопками */}
     <>
       {currentUser?.role === "user" &&
@@ -128,43 +129,134 @@ const Nav = () => {
 
         </div>
       }
-      {currentUser?.role === "admin" &&
-        <div className="d-flex flex-row align-items-center " style={{paddingLeft: '12px', zIndex: '0'}}>
-          {[
-            {to: "/Desktop", label: "Головна"},
-            {to: "/Users", label: "Клієнти"},
-            {to: "/Company", label: "Компанії"},
-            {to: "/Orders", label: "Замовлення"},
-            {to: "/Storage", label: "Склад"},
-            {to: "/db2", label: "База"},
-            {to: "/dbGraph", label: "БазаGraph"},
-            {to: "/Trello", label: "Завдання", hasMess: true},
-            {to: "/Vimogi", label: "Вимоги"}
-          ].map(({to, label, hasMess}, index, arr) => (
-            <Link key={to} to={to} style={{textDecoration: 'none'}}>
-              <button
-                onClick={() => handleBasicClick(to)}
-                className={`buttonSkewed
-        ${index === 0 ? 'first' : ''}
-        ${index === arr.length - 1 ? 'last' : ''}
-      `}
-style={{height: '2rem'}}
-              >
-                {label}
-                {hasMess && currentUser && <NavMess currentUser={currentUser}/>}
-              </button>
-            </Link>
-          ))}
+      {/* навбар */}
+      {/* блок навігації з радіусом низу 12px */}
+      {currentUser?.role === "admin" && (
+        <div className="btnBlock flipNav navTheme-amber d-flex align-items-center" style={{paddingLeft:"5px"}}>
+          <nav className="btnRow" >
+            <NavLink to="/Desktop" className="btn">
+              <span className="flip-front" >Головна</span>
+              <span className="flip-back"  >
+          {/* home */}
+                <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 10.5L12 3l9 7.5" />
+            <path d="M5 10.5V21h14V10.5" />
+            <path d="M9 21v-6h6v6" />
+          </svg>
+        </span>
+            </NavLink>
 
+            <NavLink to="/Users" className="btn">
+              <span className="flip-front">Клієнти</span>
+              <span className="flip-back">
+          {/* users */}
+                <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="7" r="3" />
+            <path d="M17 21v-2a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3v2" />
+          </svg>
+        </span>
+            </NavLink>
+
+            <NavLink to="/Company" className="btn">
+              <span className="flip-front">Компанії</span>
+              <span className="flip-back">
+          {/* building */}
+                <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 8V4h6v4" />
+            <rect x="6" y="8" width="12" height="12" rx="1" />
+            <path d="M9 12h2m2 0h2m-6 3h2m2 0h2" />
+          </svg>
+        </span>
+            </NavLink>
+
+            <NavLink to="/Orders" className="btn">
+              <span className="flip-front">Замовлення</span>
+              <span className="flip-back">
+          {/* clipboard */}
+                <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="7" y="4" width="10" height="16" rx="2" />
+            <path d="M9 4V2h6v2" />
+            <path d="M9 9h6M9 13h6M9 17h6" />
+          </svg>
+        </span>
+            </NavLink>
+
+            <NavLink to="/Storage" className="btn">
+              <span className="flip-front">Склад</span>
+              <span className="flip-back">
+          {/* box */}
+                <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7l8 4 8-4" />
+            <path d="M4 7v10l8 4 8-4V7" />
+            <path d="M12 11v10" />
+          </svg>
+        </span>
+            </NavLink>
+
+            <NavLink to="/db2" className="btn">
+              <span className="flip-front">База</span>
+              <span className="flip-back">
+          {/* database */}
+                <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <ellipse cx="12" cy="5" rx="7" ry="3" />
+            <path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5" />
+            <path d="M5 11c0 1.7 3.1 3 7 3s7-1.3 7-3" />
+          </svg>
+        </span>
+            </NavLink>
+
+            <NavLink to="/dbGraph" className="btn">
+              <span className="flip-front">БазаGraph</span>
+              <span className="flip-back">
+          {/* graph */}
+                <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="5" cy="12" r="2" />
+            <circle cx="12" cy="5" r="2" />
+            <circle cx="19" cy="12" r="2" />
+            <circle cx="12" cy="19" r="2" />
+            <path d="M7 12h10M12 7v10" />
+          </svg>
+        </span>
+            </NavLink>
+
+            <NavLink to="/Trello" className="btn">
+              <span className="flip-front">Завдання</span>
+              <span className="flip-back">
+          {/* kanban */}
+                <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <rect x="6" y="7" width="4" height="10" rx="1" />
+            <rect x="14" y="7" width="4" height="6" rx="1" />
+          </svg>
+        </span>
+            </NavLink>
+
+            <NavLink to="/Vimogi" className="btn">
+              <span className="flip-front" >Вимоги</span>
+              <span className="flip-back"  >
+          {/* checklist */}
+                <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="6" y="3" width="12" height="18" rx="2" />
+            <path d="M9 7h6M9 11h6M9 15h6" />
+          </svg>
+        </span>
+            </NavLink>
+          </nav>
         </div>
-      }
+      )}
+
+
+
+
+
+
 
     </>
 
     {/* Права частина */}
     <div className="d-flex align-items-center" style={{borderRadius:"0"}}>
       <div >
-        <LogoWithText />
+        {/*<LogoWithText />*/}
         <AddNewOrder />
       </div>
 
@@ -200,18 +292,19 @@ style={{height: '2rem'}}
       {currentUser ? (
         <div className="d-flex align-items-center" >
           <Link to="/currentUser" style={{ textDecoration: 'none' }}>
-            <button
-              className="adminButtonAddNav"
-              style={{
-                background: '#008249',
-                height: '2rem',
-                borderRadius: '0 0 0 9px',
-
-              }}
-            >
-              <FiSettings  />: {currentUser?.username} ({currentUser?.role})
+            <button className="adminButtonAddNav">
+              <svg
+                className="ico"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82a2 2 0 1 1-2.83 2.83a1.65 1.65 0 0 0-1.82.33a1.65 1.65 0 0 0-.5 1.47a2 2 0 1 1-3.9 0a1.65 1.65 0 0 0-1.47-.5a1.65 1.65 0 0 0-1.82-.33a2 2 0 1 1-2.83-2.83a1.65 1.65 0 0 0-.33-1.82a1.65 1.65 0 0 0-1.47-.5a2 2 0 1 1 0-3.9a1.65 1.65 0 0 0 1.47-.5a1.65 1.65 0 0 0 .33-1.82a2 2 0 1 1 2.83-2.83a1.65 1.65 0 0 0 1.82-.33a1.65 1.65 0 0 0 .5-1.47a2 2 0 1 1 3.9 0a1.65 1.65 0 0 0 1.47.5a1.65 1.65 0 0 0 1.82.33a2 2 0 1 1 2.83 2.83a1.65 1.65 0 0 0 .33 1.82a1.65 1.65 0 0 0 1.47.5a2 2 0 1 1 0 3.9a1.65 1.65 0 0 0-1.47.5z"></path>
+              </svg>
+             {currentUser?.username} ({currentUser?.role})
             </button>
           </Link>
+
 
           {currentUser?.role === "admin" || currentUser?.role === "operator" &&
             <>
@@ -223,14 +316,8 @@ style={{height: '2rem'}}
 
           <button
             onClick={logoutt}
-            className="adminButtonAddNav"
-            style={{
-              background: '#EE3C23',
-              borderRadius: '0 0px 9px 0',
-              marginRight: '1vw',
-              height: '2rem',
+            className="adminButtonAddNavExit"
 
-            }}
           >
             <FiLogOut />
           </button>

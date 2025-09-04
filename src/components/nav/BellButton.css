@@ -1,7 +1,19 @@
 .bell-button {
-  height: 2rem;
+  height: 3vh;
   /*z-index: 510;*/
-  background: #f075aa;
+  background:
+    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.35), transparent 42%),
+    linear-gradient(
+      130deg,
+      #f075aa,
+      #f184b3,
+      #ee6da0,
+      #f184b3
+    );
+  background-size: 250% 250%, 320% 320%;
+  background-position: 30% 18%, 0% 50%;
+  animation: btnGlow 10s ease-in-out infinite;
+
   color: black;
   border: none;
   padding: 0.6em 1em;

@@ -374,41 +374,41 @@ const BigOvshik = ({
                 type="SheetCut"
                 selectArr={["", "3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
               />
+            <div className="">
+              <div className="d-flex flex-row allArtemElem"  >
+                {/* NEW SWITCH */}
+                <label className="switch scale04ForButtonToggle" style={{ marginRight: "-2vw" }} aria-label="Дизайн">
+                  <input
+                    type="checkbox"
+                    checked={design !== "Не потрібно"}
+                    onChange={() => setDesign(design === "Не потрібно" ? "0" : "Не потрібно")}
+                  />
+                  <span className="slider" />
+                </label>
 
-              <div className="d-flex allArtemElem" style={{ alignItems: "center" }}>
-                <div
-                  className={`toggleContainer scale04ForButtonToggle ${
-                    design === "Не потрібно" ? "disabledCont" : "enabledCont"
-                  }`}
-                  onClick={() =>
-                    setDesign(design === "Не потрібно" ? "0" : "Не потрібно")
-                  }
-                >
-                  <div className={`toggle-button ${design === "Не потрібно" ? "disabled" : "enabledd"}`} />
+                <div className="d-flex flex-row align-items-center">
+
+
+                  {design !== "Не потрібно" && (
+                    <div className="d-flex align-items-center" style={{marginLeft:"2vw"}}>
+                      Дизайн
+                      <input
+                        type="number"
+                        min={0}
+                        value={design}
+                        onChange={(e) => setDesign(e.target.value)}
+                        className="inputsArtem designInput"
+                      />
+                      <span className="inputsArtemx">грн</span>
+                    </div>
+                  )}
                 </div>
-
-                  <div className="d-flex flex-row align-items-center" style={{  }}>
-                    <span>Дизайн:</span>
-                    {design !== "Не потрібно" && (
-                      <div className={'d-flex'}>
-                    <input
-                      type="number"
-                      min={0}
-                      value={design}
-                      onChange={e => setDesign(e.target.value)}
-                      style={{ width:"5vw", marginLeft:"0.5vw" }}
-                      className="inputsArtem"
-                    />
-                      <div className="inputsArtemx" style={{ border:"transparent" }}>грн</div>
-                      </div>
-                    )}
-
-
-
-
-                  </div>
-
               </div>
+              </div>
+
+
+
+
 
               {thisOrder && (
                 <div style={{ display: "flex", justifyContent: "center", marginTop: "2vh" }}>

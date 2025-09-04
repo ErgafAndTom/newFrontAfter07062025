@@ -176,7 +176,8 @@ function PaysInOrderRestored({showPays, setShowPays, thisOrder, setThisOrder}) {
         axios
             .post(`/api/contractorsN/getContractors`, payload)
             .then((response) => {
-                setData(response.data.rows);
+              console.log(response.data.rows);
+              setData(response.data.rows);
                 setPageCount(Math.ceil(response.data.count / inPageCount));
                 setError(null);
                 setLoad(false);

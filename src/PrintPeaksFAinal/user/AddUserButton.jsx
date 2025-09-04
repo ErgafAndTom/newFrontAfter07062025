@@ -22,7 +22,7 @@ function AddUserButton({ fetchUsers, addOrdOrOnlyClient, thisOrder, setThisOrder
             <div>
               {thisOrder && (
                 <button
-                  className="adminButtonAdd " style={{marginLeft:"1vw", height:"2rem"}}
+                  className="adminButtonAdd " style={{marginLeft:"1vw"}}
                   onClick={handleAddUser}
                 >
                   Створити клієнта
@@ -32,7 +32,7 @@ function AddUserButton({ fetchUsers, addOrdOrOnlyClient, thisOrder, setThisOrder
                 <button
                   className="adminButtonAdd buttonSkewedOrderClient"
                   onClick={handleAddUser}
-                  style={{borderTopRightRadius:"0px", marginRight:"1vw", borderBottomLeftRadius:"0px", height:"2rem"}}
+                  style={{borderTopRightRadius:"0px", marginRight:"1vw", borderBottomLeftRadius:"0px", height:"3vh"}}
                 >
                   <span
 

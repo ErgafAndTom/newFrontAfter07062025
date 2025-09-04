@@ -40,82 +40,73 @@ const NewNoModalHoles = ({holes, setHoles, holesR, setHolesR, prices, buttonsArr
         setHolesR("5 мм")
     }
 
-    return (
-        <div className="d-flex flex-column allArtemElem">
-            <div style={{display: 'flex', alignItems: 'center',  width: '15vm'}}>
-                <div className={`toggleContainer scale04ForButtonToggle ${holes === "Не потрібно" ? 'disabledCont' : 'enabledCont'}`}
-                     onClick={handleToggle}
-                     >
-                    <div className={`toggle-button ${holes === "Не потрібно" ? 'disabled' : 'enabledd'}`}>
-                    </div>
-                </div>
-                <div className="d-flex flex-column">
-                    <span style={{
-                        width: "10vw",
-                    }}>{"Cвердління отворів:"}</span>
-                    {holes !== "Не потрібно" ? (
-                        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center',width: '44vmin'}}>
-                            <div className="ArtemNewSelectContainer">
-                                <select
-                                    className="selectArtem"
-                                    onChange={(event) => handleSelectChange(event)}
-                                    value={holesR}
-                                    // style={{marginLeft: "2vw"}}
-                                >
-                                    {/*<option disabled selected>Оберіть значення</option>*/}
-                                    {/*<option>Задати свій розмір</option>*/}
-                                  {(selectArr || []).map((item, iter) => (
+  return (
+    <div className="d-flex allArtemElem">
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        {/* NEW SWITCH */}
+        <label
+          className="switch scale04ForButtonToggle"
+          style={{ marginRight: '0.733vw', display: 'inline-flex', alignItems: 'center' }}
+          aria-label="Свердління отворів"
+        >
+          <input
+            type="checkbox"
+            checked={holes !== "Не потрібно"}
+            onChange={handleToggle}
+          />
+          <span className="slider" />
+        </label>
 
-                                  <option
-                                            className="optionInSelectArtem"
-                                            key={item}
-                                            value={item}
-                                        >
-                                            {item}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginLeft: "2vw"}}>
-                                {iconArray.map((item, index) => (
-                                    <div
-                                        key={index}
-                                        className={holes === index + 1 ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
-                                        onClick={() => handleClick(index + 1)}
-                                        style={{
-                                            // backgroundColor: holes === index + 1 ? 'orange' : 'transparent',
-                                            // border: holes === index ? '0.13vw solid black' : '0.13vw solid grey',
-                                            // borderRadius: '0.627vw',
-                                            // padding: '1.273vh 1.273vw',
-                                            padding: '0 0',
-                                            margin: '0.323vw',
-                                            // width: '3.173vw',
-                                            // height: '3.173vw',
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            transition: "all 0.3s ease",
-                                            cursor: "pointer",
-                                        }}
-                                    >
-                                        <img className="" style={{
-                                            height: "3.173vw",
-                                            opacity: holes === index + 1 ? '100%' : '90%',
-                                        }} alt="" src={iconArray[index]}/>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    ) : (
-                        <div>
+        <div className="d-flex flex-column">
+          <span style={{ marginRight: '-0.9vw' }}>Cвердління отворів:</span>
 
-                        </div>
-                    )}
-                </div>
+          {holes !== "Не потрібно" && (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div className="ArtemNewSelectContainer">
+                <select
+                  className="selectArtem"
+                  onChange={handleSelectChange}
+                  value={holesR}
+                >
+                  {(selectArr || []).map((item) => (
+                    <option className="optionInSelectArtem" key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
+              <div style={{ display: 'flex', alignItems: 'center', marginLeft: '2vw' }}>
+                {iconArray.map((item, index) => (
+                  <div
+                    key={index}
+                    className={holes === index + 1 ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
+                    onClick={() => handleClick(index + 1)}
+                    style={{
+                      padding: 0,
+                      margin: '0.323vw',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      transition: 'all 0.3s ease',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <img
+                      style={{ height: '3.173vw', opacity: holes === index + 1 ? '100%' : '90%' }}
+                      alt=""
+                      src={iconArray[index]}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
+          )}
         </div>
-    )
+      </div>
+    </div>
+  );
+
 };
 
 export default NewNoModalHoles;
