@@ -42,7 +42,7 @@ margin-top: 0.7rem;
     flex-direction: column;
     /*gap: calc(var(--spacing) / 2);*/
     width: 34.8vw;
-    overflow: hidden;
+    /*overflow: hidden;*/
 
 }
 
@@ -53,6 +53,7 @@ margin-top: 0.7rem;
     /*padding-right: 0.5rem;*/
     justify-content: space-between;
     align-items: center;
+    background: transparent;
     /*font-size: 1.6vmin;*/
 
 }

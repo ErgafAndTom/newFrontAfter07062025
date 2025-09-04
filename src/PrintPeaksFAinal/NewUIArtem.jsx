@@ -434,14 +434,14 @@ const NewUIArtem = () => {
                                 className="adminFontTable BasePriceWithQuantityBase d-flex flex-column"
 
                               >
-                                <div className={"d-flex flex-row align-items-center" } style={{maxWidth:"33vw", }}>
+                                <div className={"d-flex flex-row align-items-center" } style={{maxWidth:"33vw", background:"transparent"}}>
                                   <div>
                                     <div>{thing.name}</div>
                                     <div
                                       style={{
                                         marginTop: '0.5rem',
                                         height: '1px',
-                                        background: '#d0d5db',
+                                        background: 'transparent',
                                         boxShadow: '0 1px 2px rgba(0,0,0,0.12)'
                                       }}
                                     />

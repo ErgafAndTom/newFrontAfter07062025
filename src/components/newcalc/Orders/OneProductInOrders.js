@@ -22,14 +22,14 @@ function OneProductInOrders({item, thisOrder}) {
                             <span className="">{unit.newField5}<span className="BasePriceWithQuantitySmall">шт</span></span>
 
                             <span className="">×</span>
-                            <span className="">{unit.priceForOneThis}<span className="BasePriceWithQuantitySmall">грн</span></span>
+                            <span className="">{parseFloat(unit.priceForOneThis).toFixed(2)}<span className="BasePriceWithQuantitySmall">грн</span></span>
 
                           <span className="">=</span>
                             <span className="booooold"
                                   style={{
                                       color: "#ef5223",
 
-                                  }}>{unit.priceForAllThis}<span className="BasePriceWithQuantitySmall"   style={{color: "#ef5223",}}>грн</span></span>
+                                  }}>{parseFloat(unit.priceForAllThis).toFixed(2)}<span className="BasePriceWithQuantitySmall"   style={{color: "#ef5223"}}>грн</span></span>
 
                         </div>
                     </div>
