@@ -309,4 +309,121 @@
 }
 
 
+.BasePriceWithQuantityBase
+{
+  font-size: 1.5rem;
+  gap:0.6rem;
+  min-width: 35vw;
+  text-justify: inter-word;
+  /*line-height: 1.5;*/
+  word-break: break-word;
+}
 
+.BasePriceWithQuantity
+{
+  font-size: 1.5rem;
+  gap:0.8rem;
+}
+.BasePriceWithQuantityDetals
+{
+  font-size: 1.2rem;
+  gap: 0.5rem;
+}
+.BasePriceWithQuantitySmall
+{
+  font-size: 0.9rem;
+  opacity: 0.5;
+  /*display: inline-block;*/
+  margin-left: 0.2rem;
+  display:inline-block;  /* не div! */
+
+
+}
+.BasePriceWithQuantityDiscountword
+{
+  color: #008249;
+  font-size: 2.5rem;
+  opacity: 0.2;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+
+}
+
+.bottomMeta{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+
+  padding-top: 0.7rem;
+  line-height:1.4;
+  opacity: 0.6;
+  padding-right: 0.7rem;
+}
+.bottomMeta .col{
+  display:flex;
+  flex-direction:column;
+  gap:0rem;
+}
+.adminFontTable.BasePriceWithQuantityDetals {
+  font-size: 1.2rem;
+  gap: 0.5rem;
+
+}
+.pricesRow{
+  display:flex;
+  align-items:baseline;
+  gap: .75rem;           /* керує відстанями між блоками */
+  /* без justify-content-between */
+  justify-content: end;
+}
+
+.money{
+  display:inline-flex;   /* число + грн разом */
+  align-items:baseline;
+  gap: 2px;              /* дуже маленький зазор між числом і "грн" */
+}
+
+.card3d{
+  position: relative;
+  background:#f2f0e7;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:.5vw;
+  /* многоуровневая тень + внутренняя подсветка кромки */
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.6) inset,
+    0 -1px 0 rgba(0,0,0,.03) inset,
+    0 3px 6px rgba(0,0,0,.10),
+    0 12px 24px rgba(0,0,0,.08);
+  transition: transform .18s ease, box-shadow .18s ease;
+  transform-style: preserve-3d;
+}
+
+.card3d::after{
+  content:'';
+  position:absolute; inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  /* лёгкий верхний бликующий градиент */
+  background:linear-gradient(40deg, rgba(255,255,255,.55), rgba(255,255,255,0) 35%);
+  mix-blend-mode:overlay; opacity:.4;
+
+}
+
+.card3d:hover{
+  transform: translateY(-2px) translateZ(6px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.65) inset,
+    0 -1px 0 rgba(0,0,0,.03) inset,
+    0 1px 3px rgba(0,0,0,.12),
+    0 3px 6px rgba(0,0,0,.12);
+}
+
+.card3d:active{
+  transform: translateY(0);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.5) inset,
+    0 -1px 0 rgba(0,0,0,.04) inset,
+    0 3px 8px rgba(0,0,0,.14);
+  background: #fbfaf6;
+}
