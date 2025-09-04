@@ -162,7 +162,7 @@ function DropDownList({ showAddPay, setShowAddPay, formData, setFormData, data, 
           value={contrAgentSearch}
           onChange={handleSearchContrAgents}
           onClick={() => setShowContrAgentDropdown(true)}
-          placeholder="Введіть назву постачальника або виберіть зі списку"
+          placeholder="Назва компанії"
         />
         {loadSearch && (
           <div className="d-flex justify-content-center align-items-center" style={{
@@ -180,13 +180,13 @@ function DropDownList({ showAddPay, setShowAddPay, formData, setFormData, data, 
         )}
         {!loadSearch && (
           <img style={{
-            opacity: '1',
+            opacity: '0.5',
             position: 'absolute',
-            left: '95%',
+            right: '3px',
             top: '50%',
             transform: 'translateY(-50%)',
             pointerEvents: 'none',
-            width: "1.5vw", height: "1.5vw", marginLeft: "auto"
+            width: "1.4vw", height: "1.4vh", marginLeft: "auto"
           }} src={find} alt="Search Icon" className="Seaechicon"/>
         )}
 
