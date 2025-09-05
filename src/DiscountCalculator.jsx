@@ -63,7 +63,7 @@ function PaymentCalculator({thisOrder, setThisOrder, selectedThings2, setSelecte
     return (
         <div style={{ width:"36vw"}}>
             <div style={{display: 'flex', alignItems: 'center', marginTop: '-1vh', width:"36vw"}}>
-                <label style={{fontSize: '0.7vw', color: '#707070'}}>Загальна вартість:</label>
+                <label style={{fontSize: '0.9vw', color: '#707070'}}>Загальна вартість:</label>
                 <input
                     disabled
                     type="text"
@@ -72,7 +72,7 @@ function PaymentCalculator({thisOrder, setThisOrder, selectedThings2, setSelecte
                     style={{
                         marginLeft: '0.5vw',
                         padding: '0.5vh',
-                        fontSize: '0.7vw',
+                        fontSize: '0.9vw',
                         width: '28%',
                         backgroundColor: '#F2F0E7',
                         position: 'relative',
@@ -86,11 +86,11 @@ function PaymentCalculator({thisOrder, setThisOrder, selectedThings2, setSelecte
             </div>
 
           <div
-            className="position-absolute d-flex align-items-center"
+            className="position-absolute d-flex flex-row align-items-center"
             style={{ top: '6.5vh', right: "0.5vw", gap: '0.5vw',  }}
           >
             <label
-              style={{ fontSize: '0.8vw', color: '#707070', whiteSpace: 'nowrap' }}
+              style={{ fontSize: '0.9vw', color: '#707070', whiteSpace: 'nowrap' }}
             >
               Знижка:
             </label>
@@ -104,7 +104,7 @@ function PaymentCalculator({thisOrder, setThisOrder, selectedThings2, setSelecte
                   width: '100%',
                   padding: '0.5vh 1vw',
                    // місце для "%"
-                  fontSize: '0.8vw',
+                  fontSize: '0.9vw',
                   backgroundColor: '#F2F0E7',
                   border: 'none',
                   borderRadius: '1vw',
@@ -120,11 +120,11 @@ function PaymentCalculator({thisOrder, setThisOrder, selectedThings2, setSelecte
 
 
           {error && (
-                <div style={{color: 'red', fontSize: '0.7vw', marginTop: '0.5vh'}}>{error}</div>
+                <div style={{color: 'red', fontSize: '1vw', marginTop: '0.5vh'}}>{error}</div>
             )}
 
             <div style={{display: 'flex', alignItems: 'center', marginTop: '0.5vh'}}>
-                <label style={{fontSize: '0.7vw',  color: '#707070'}}>К оплаті буде:</label>
+                <label style={{fontSize: '0.9vw',  color: '#707070'}}>К оплаті буде:</label>
                 <input
                     disabled
                     type="text"
@@ -132,7 +132,7 @@ function PaymentCalculator({thisOrder, setThisOrder, selectedThings2, setSelecte
                     readOnly
                     style={{
                         padding: '0.5vh',
-                        fontSize: '0.7vw',
+                        fontSize: '0.9vw',
                         width: '28%',
                         backgroundColor: '#F2F0E7',
                         position: 'relative',

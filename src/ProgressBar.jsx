@@ -443,7 +443,9 @@ const ProgressBar = ({
           width: "36.5vw",
           padding:"1.5vh",
           height:"15vh",
-          borderRadius: '1vh'}}>
+          borderRadius: '1vh'}}
+        className="adminTextBig"
+        >
 
             <button onClick={() => handleStageChange('cancel')} style={buttonStyles.cancel}>
 
@@ -451,8 +453,8 @@ const ProgressBar = ({
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1vh'}}>
                 <div
                     style={{
-                        fontSize: '2.3vh',
-                        color: isCancelled ? '#ee3c23' : '#000000'
+                        fontSize: '1vw',
+                        color: isCancelled ? '#ee3c23' : '#63625f'
                     }}
                 >
                     {isCancelled
@@ -549,34 +551,34 @@ const ProgressBar = ({
                 <DiscountCalculator thisOrder={thisOrder} setThisOrder={setThisOrder} selectedThings2={selectedThings2}
                                     setSelectedThings2={setSelectedThings2}/>
             </div>
-          <div style={{ position: 'absolute', right: '0.5vw', bottom: '0.5vh'}}>
-            {deadline === null && (
-                <div >
-                    <AnimatedPlaceholderInput onChange={handleDeadlineChangeServer}/>
-                </div>
-            )}
-            {deadline && (
-                <div>
-                    <div className="d-flex align-items-center"
-                         style={{marginTop: '0.5vh', fontSize: '0.7vw', color: '#707070', marginBottom: '0.5vh'}}>
-                        {/*Обраний дедлайн: {deadline.toString()} &*/}
-                        {`Обраний дедлайн: ${new Date(deadline).toLocaleDateString()} ${new Date(deadline).toLocaleTimeString()}`}
+          {/*<div style={{ position: 'absolute', right: '0.5vw', bottom: '0.5vh'}}>*/}
+          {/*  {deadline === null && (*/}
+          {/*      <div >*/}
+          {/*          <AnimatedPlaceholderInput onChange={handleDeadlineChangeServer}/>*/}
+          {/*      </div>*/}
+          {/*  )}*/}
+          {/*  {deadline && (*/}
+          {/*      <div>*/}
+          {/*          /!*<div className="d-flex align-items-center"*!/*/}
+          {/*          /!*     style={{marginTop: '0.5vh', fontSize: '0.7vw', color: '#707070', marginBottom: '0.5vh'}}>*!/*/}
+          {/*          /!*    /!*Обраний дедлайн: {deadline.toString()} &*!/*!/*/}
+          {/*          /!*    {`Обраний дедлайн: ${new Date(deadline).toLocaleDateString()} ${new Date(deadline).toLocaleTimeString()}`}*!/*/}
 
-                        {currentStage === 0 && (
-                            <div style={{marginLeft: "0.5vw"}} onClick={() => handleDeadlineChangeServer(null)}>❌</div>
-                        )}
-                        {/*Обраний дедлайн: {deadline.toLocaleString('uk-UA', {*/}
-                        {/*day: '2-digit',*/}
-                        {/*month: 'long',*/}
-                        {/*year: 'numeric',*/}
-                        {/*hour: '2-digit',*/}
-                        {/*minute: '2-digit',*/}
-                        {/*})}*/}
-                    </div>
-                </div>
+          {/*          /!*    {currentStage === 0 && (*!/*/}
+          {/*          /!*        <div style={{marginLeft: "0.5vw"}} onClick={() => handleDeadlineChangeServer(null)}>❌</div>*!/*/}
+          {/*          /!*    )}*!/*/}
+          {/*          /!*    /!*Обраний дедлайн: {deadline.toLocaleString('uk-UA', {*!/*!/*/}
+          {/*          /!*    /!*day: '2-digit',*!/*!/*/}
+          {/*          /!*    /!*month: 'long',*!/*!/*/}
+          {/*          /!*    /!*year: 'numeric',*!/*!/*/}
+          {/*          /!*    /!*hour: '2-digit',*!/*!/*/}
+          {/*          /!*    /!*minute: '2-digit',*!/*!/*/}
+          {/*          /!*    /!*})}*!/*!/*/}
+          {/*          /!*</div>*!/*/}
+          {/*      </div>*/}
 
-            )}
-          </div>
+          {/*  )}*/}
+          {/*</div>*/}
             {/* <TimerDeadline deadline={deadline} thisOrder={thisOrder} /> */}
 
             {/*{!isPaid && (*/}
@@ -642,7 +644,7 @@ const ProgressBar = ({
             {(currentStage >= 1 && currentStage <= 3 ? elapsedTime : finalManufacturingTime) && (
                 <div style={{
                     fontSize: '1.1vh',
-                    color: '#707070',
+
                     marginBottom: '1vh',
                     display: 'flex',
                     alignItems: 'center',
@@ -652,16 +654,16 @@ const ProgressBar = ({
                 }}>
                     {currentStage === 3 ? "Фінальний час виготовлення: " : "Час виготовлення замовлення: "}
                     <span style={{
-                        fontWeight: 'bold',
+
                         marginLeft: '0.35vw'
                     }}>{currentStage <= 3 ? elapsedTime.days : finalManufacturingTime.days}</span>
-                    <span style={{fontWeight: 'bold', marginRight: '0.35vw'}}>д</span>
+                    <span style={{ marginRight: '0.35vw'}}>д</span>
                     <span
                         style={{fontWeight: 'bold'}}>{currentStage <= 3 ? elapsedTime.hours : finalManufacturingTime.hours}</span>
-                    <span style={{fontWeight: 'bold', marginRight: '0.35vw'}}>год</span>
+                    <span style={{ marginRight: '0.35vw'}}>год</span>
                     <span
                         style={{fontWeight: 'bold'}}>{currentStage <= 3 ? elapsedTime.minutes : finalManufacturingTime.minutes}</span>
-                    <span style={{fontWeight: 'bold', marginRight: '0.35vw'}}>хв</span>
+                    <span style={{ marginRight: '0.35vw'}}>хв</span>
                     <span
                         style={{fontWeight: 'bold'}}>{currentStage <= 3 ? elapsedTime.seconds : finalManufacturingTime.seconds}</span>
                     <span style={{fontWeight: 'bold'}}>сек</span>

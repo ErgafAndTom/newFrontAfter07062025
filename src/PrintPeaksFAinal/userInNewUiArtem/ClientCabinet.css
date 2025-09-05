@@ -14,7 +14,7 @@
 .cc-panel {
   width: min(100vw, 900px);
   max-height: 90vh;
-  background: #fbfaf6; /* фон елементів */
+  background: #f7f5ee; /* фон елементів */
   color: #000;         /* шрифт чорний */
   border-radius: 12px;
   box-shadow:
@@ -161,7 +161,7 @@ color: red
 }
 
 .cc-stat {
-  background: #fbfaf6;
+  background: #f7f5ee;
   border-radius: 12px;
   padding: 10px 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);

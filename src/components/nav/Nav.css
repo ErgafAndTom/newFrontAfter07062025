@@ -261,9 +261,15 @@
   align-items: center;
   transition:all .3s ease-out;
   width: 6vw;
-  font-size: 0.6vw;
-  font-weight: bold;
+  white-space:normal;
+  line-height:1;
+  letter-spacing:.06em;
+  font-size:0.6vw; font-weight:600; color: rgba(0, 0, 0, 0.6);
+  text-align: start;
   border: none;
+  text-transform: uppercase;
+  writing-mode: horizontal-tb;
+  text-orientation:initial;
   border-bottom-right-radius: 12px;
   border-bottom-left-radius: 12px;
 }
@@ -293,7 +299,7 @@
 }
 /* верх */
 .flip-back{
-  color:var(--front-text);
+  color: rgba(0, 0, 0, 0.6);
   background:
     radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.35), transparent 42%),
     linear-gradient(130deg, var(--btn-bg-1), var(--btn-bg-2), var(--btn-bg-3), var(--btn-bg-2));
@@ -305,7 +311,10 @@
   border-bottom-right-radius: 12px;
   border-bottom-left-radius: 12px;
 }
-
+.btn svg{
+  color: rgba(0,0,0,0.6);
+  stroke: rgba(0,0,0,0.6);
+}
 /* наведення/фокус */
 .btn:hover .flip-front, .btn:focus-visible .flip-front{
   transform:rotateX(-90deg) translateZ(var(--z));
@@ -313,6 +322,11 @@
 .btn:hover .flip-back, .btn:focus-visible .flip-back{
   transform:rotateX(0deg) translateZ(var(--z));
   outline:none;
+}
+/* общие стили для всех иконок меню */
+.ico > * {
+  stroke: rgba(0,0,0,0.6);
+  /*fill: rgba(0,0,0,0.6);*/
 }
 
 /* активний маршрут (NavLink додає aria-current="page") */

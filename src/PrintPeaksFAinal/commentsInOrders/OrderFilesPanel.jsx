@@ -336,7 +336,7 @@ const OrderFilesPanel = ({
   return (
     <div
       ref={containerRef}
-      className={`order-files-panel ${dragActive ? "drag-active" : ""}`}
+      className={`order-files-panel adminTextBig ${dragActive ? "drag-active" : ""}`}
       onDragEnter={onDragEnter}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
@@ -353,7 +353,7 @@ const OrderFilesPanel = ({
         )}
         <button
           type="button"
-          className="AddButtonFilesOrder"
+          className="AddButtonFilesOrder adminButtonGreen"
           onClick={openPicker}
           title="Додати файли"
           aria-label="Додати файли"

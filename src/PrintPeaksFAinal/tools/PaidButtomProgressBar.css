@@ -9,7 +9,7 @@
   padding: 0.5rem;
   border: 0.1vw;
   background: #f2f0e7;
-  font-size: 1.6vh;
+  font-size: 1.4vh;
   text-align: center;
   align-items: center;
   cursor: pointer;
@@ -33,10 +33,20 @@
 
 .PayButtons.invoices, .PayButtons.end{
   clip-path: polygon(1.6vh 0, 100% 0, 100% 100%, 0 100%);
+
 }
 
 .PayButtons:hover {
-  background: #fab416;
+  --btn-bg-1: #f7c23b;   /* світліший від #FAB416 */
+  --btn-bg-2: #FAB416;   /* основний */
+  --btn-bg-3: #f2a800;   /* тепліший акцент */
+  --btn-edge: #d19000;
+  background:
+    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.35), transparent 42%),
+    linear-gradient(130deg, var(--btn-bg-1), var(--btn-bg-2), var(--btn-bg-3), var(--btn-bg-2));
+  background-size: 250% 250%, 320% 320%;
+  background-position: 30% 18%, 0% 50%;
+  animation: btnGlow 3s ease-in-out infinite;
   color: white;
 }
 .PayButtons.link:hover  {
@@ -44,8 +54,8 @@
   font-size:  3vh;
 }
 .PayButtons.link .PayButtons.end{
-  font-weight: bold;
-  font-size:  2vh;
+  /*font-weight: bold;*/
+  /*font-size:  2vh;*/
   text-decoration: none;
   align-items: center;
   justify-content: center;
@@ -55,6 +65,18 @@
 .PayButtons.end:hover {
   font-weight: bold;
   font-size:  2.5vh;
+  background:
+    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.25), transparent 42%),
+    linear-gradient(
+      130deg,
+      #007a43,
+      #008249,
+      #009054,
+      #008249
+    );
+  background-size: 250% 250%, 320% 320%;
+  background-position: 30% 18%, 0% 50%;
+  animation: btnGlow 4s ease-in-out infinite;
 }
 .pay-button-wait {
   background: #f2f0e7;

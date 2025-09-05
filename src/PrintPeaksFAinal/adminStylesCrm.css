@@ -92,7 +92,40 @@
   --btn-fs-fluid: calc(0.55vh + 0.45vw);
   --btn-fs-max: 0.9rem;
 }
-
+.adminTextBig {
+  text-transform: uppercase;
+  line-height:1.3;
+  letter-spacing:.06em;
+  font-size:0.6vw; font-weight:600; color: rgba(0, 0, 0, 0.6);
+  text-align: start;
+  border: none;
+}
+.adminButtonGreen {
+  background:
+    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.25), transparent 42%),
+    linear-gradient(
+      130deg,
+      #007a43,
+      #008249,
+      #009054,
+      #008249
+    );
+  background-size: 250% 250%, 320% 320%;
+  background-position: 30% 18%, 0% 50%;
+  animation: btnGlow 4s ease-in-out infinite;
+}
+.adminButtonOrange {
+  --btn-bg-1: #f7c23b;   /* світліший від #FAB416 */
+  --btn-bg-2: #FAB416;   /* основний */
+  --btn-bg-3: #f2a800;   /* тепліший акцент */
+  --btn-edge: #d19000;
+  background:
+    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.35), transparent 42%),
+    linear-gradient(130deg, var(--btn-bg-1), var(--btn-bg-2), var(--btn-bg-3), var(--btn-bg-2));
+  background-size: 250% 250%, 320% 320%;
+  background-position: 30% 18%, 0% 50%;
+  animation: btnGlow 3s ease-in-out infinite;
+}
 .adminButtonAdd,
 .adminButtonAdd:link,
 .adminButtonAdd:visited {
@@ -104,6 +137,10 @@
 
 /* КНОПКА */
 .adminButtonAdd {
+  text-transform: uppercase;
+  letter-spacing:.06em;
+  text-align: start;
+  border: none;
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -114,12 +151,10 @@
   gap: 0.3em;
   /* пропорційний font-size: від ширини екрана */
   /*font-size: clamp(14px, 2vw - 1.5vw, 22px);*/
-  font-size: 0.7vw;
+  font-size: 0.55vw; font-weight:600; color: rgba(0, 0, 0, 0.8);
   line-height: 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  color: #000;
   border-radius: 12px;
   cursor: pointer;
   user-select: none;
@@ -206,9 +241,9 @@
 }:root { --tile-w: 3.5vw; }
 
 /* як було */
-.CardPrintersPoslugi{ height:30vh; display:flex; gap:0.7vw; padding-top:1vh; padding-left:0.5vw; }
+.CardPrintersPoslugi{ height:30vh; display:flex; gap:1vw; padding-top:1vh; padding-left:0.5vw; }
 .CardPrintersPoslugi p{
-  box-sizing:border-box; flex:0 0 var(--tile-w); height:25vh;
+  box-sizing:border-box; flex:0 0 var(--tile-w); height:30vh;
   display:flex; justify-content:start; align-items:stretch;
   box-shadow:  1px 1px 3px 1px rgba(0,0,0,0.1); border-radius:12px;
   background:
@@ -253,7 +288,7 @@
 
 .tileContent{
   display:flex; flex-direction:column; align-items:center; justify-content:center;
-  width:100%; height:100%; padding:.35em .35em .6em;
+  width:100%; height:100%; padding:.35em .35em 0em;
 }
 
 /* ЗАГОЛОВОК — без rotate, не ріжеться */
@@ -289,96 +324,19 @@
 }
 
 /* іконка завжди внизу */
+.CardPrintersPoslugi .tileContent > svg,
 .CardPrintersPoslugi .tileContent > img,
 .CardPrintersPoslugiImg{
-  margin-top:auto; align-self:center; width:3vw; height:5vh;
+  margin-top:auto; align-self:center; width:3vw; height:4vh;
   transform-origin:center bottom; transition:transform .35s ease;
 }
+.CardPrintersPoslugi  > svg,
 .CardPrintersPoslugi p:hover .tileContent > img{ transform:scale(3); }
 
 /* прибрати спадкові трансформації зі span */
 .CardPrintersPoslugi p span{ display:block; }
 
 
-/*.adminButtonAdd-primary {*/
-/*  text-decoration: none;*/
-/*    display: flex;*/
-/*    height: auto;*/
-/*    width: auto;*/
-/*    min-width: 10rem;*/
-/*    align-items: center;*/
-/*    justify-content: center;*/
-/*    border: none;*/
-/*    padding: 0.5rem 1rem;*/
-/*    font-size: var(--font-size-sm);*/
-/*    border-radius: 0.5rem;*/
-/*    color: #000000;*/
-/*    background: #dcd9ce;*/
-/*    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);*/
-/*    transition: all 0.2s ease;*/
-/*    font-weight: 500;*/
-/*    opacity: 0.6;*/
-/*}*/
-
-/*.adminButtonAdd-primary:hover {*/
-/*    cursor: pointer;*/
-/*    background: #dcd9ce;*/
-/*    opacity: 1;*/
-/*    color: black;*/
-/*    transform: translateY(-2px);*/
-/*}*/
-/*.adminButtonAdd,*/
-/*.adminButtonAdd:link,*/
-/*.adminButtonAdd:visited {*/
-/*  text-decoration: none;*/
-/*  border-bottom: none;*/
-/*  outline: none !important;*/
-/*  box-shadow: none !important;*/
-/*}*/
-/*.adminButtonAdd {*/
-/*    display: flex;*/
-/*    height: auto;*/
-/*    width: auto;*/
-/*    min-width: 8.5vw;*/
-/*    min-height: 3.3vh;*/
-/*    !*font-size: 0.85rem;*!*/
-/*    align-items: center;*/
-/*    justify-content: center;*/
-/*    border: none;*/
-/*    padding: 0.3vw 0.8vh;*/
-/*    border-radius: 9px;*/
-/*    color: #000000;*/
-/*    background: #FAB416;*/
-
-/*}*/
-
-/*.adminButtonAdd:hover {*/
-/*    cursor: pointer;*/
-/*    !*background: #f5a400;*!*/
-/*    color: white;*/
-
-/*    !*box-shadow: 0 3px 5px rgb(233, 157, 0);*!*/
-/*}*/
-
-/*.adminButtonAdd:active {*/
-/*    background: #FAB416;*/
-/*  outline: none !important;*/
-/*  box-shadow: none !important;*/
-/*    !*box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);*!*/
-/*}*/
-
-/*.adminButtonAdd:active:focus {*/
-/*    background: #FAB416;*/
-/*  outline: none !important;*/
-/*  box-shadow: none !important;*/
-/*}*/
-
-/*.adminButtonAdd:focus {*/
-
-/*  outline: none !important;*/
-/*  box-shadow: none !important;*/
-/*    !*box-shadow: 0 0 0 3px rgba(250, 180, 22, 0.3);*!*/
-/*}*/
 
 /*.adminButtonAdd:disabled {*/
 /*    background: #F2F0E7;*/
@@ -500,26 +458,7 @@
     order-top-left-radius: 12px;
 }
 
-/*@media (width: 10vw){*/
-/*    .adminFont {*/
-/*        font-size: 1vw;*/
-/*    }*/
-/*    .adminFont2 {*/
-/*        font-size: 4vw;*/
-/*    }*/
-/*    .fontInfoForPricing1 {*/
-/*        font-size: 4vw;*/
-/*    }*/
-/*    .fontProductName {*/
-/*        font-size: 1vw;*/
-/*        padding-bottom: 1.3vw;*/
-/*        padding-top: 1.3vw;*/
-/*    }*/
-/*    .navbarMy {*/
-/*        border: none;*/
-/*        height: 10vw;*/
-/*    }*/
-/*}*/
+
 .priceord {
     flex-direction: row;
     display: flex;
@@ -542,6 +481,7 @@
 {
   font-size: 1.2em;
   gap:0.8rem;
+  color: rgba(0, 0, 0, 0.6);
 }
 .BasePriceWithQuantityDetals
 {
@@ -657,3 +597,95 @@
 
 
 
+.draw { stroke-dasharray:1; stroke-dashoffset:0; }  /* намальовано */
+.CardPrintersPoslugi .tileContent > svg { opacity:.5; width:3vw; height:auto;}
+@keyframes draw {
+  from { stroke-dasharray:1; stroke-dashoffset:1; }
+  to   { stroke-dasharray:1; stroke-dashoffset:0; }
+}
+
+.CardPrintersPoslugi p:hover .tileContent > svg {
+  transform:scale(600);
+  opacity:1;
+}
+.CardPrintersPoslugi p:hover .draw {
+  animation: draw .8s ease forwards;
+}
+/* аркуш завжди видно */
+.sheet { fill: none; }
+
+/* лінія різу: прихована у спокої */
+.cutLine {
+  stroke-dasharray: 32;
+  stroke-dashoffset: 32;
+  transition: stroke-dashoffset .6s ease;
+}
+
+/* у закритому стані — іконка напівпрозора */
+.CardPrintersPoslugi .tileContent > svg { opacity: .5; }
+
+/* на hover: */
+.CardPrintersPoslugi p:hover .tileContent > svg {
+  transform: scale(3);
+  opacity: 1;
+}
+/* початково аркуш виглядає цільним */
+.sheetTop, .sheetBottom {
+  transition: transform 0.6s ease;
+}
+
+/* напівпрозора іконка у звичайному стані */
+.CardPrintersPoslugi .tileContent > svg {
+  opacity: .5;
+  transition: transform 0.35s ease, opacity 0.2s ease;
+}
+
+/* на hover іконка масштабується і стає видимою */
+.CardPrintersPoslugi p:hover .tileContent > svg {
+  transform: scale(3);
+  opacity: 1;
+}
+
+/* ефект розрізання: верхня частина їде вгору, нижня вниз */
+.CardPrintersPoslugi p:hover .sheetTop {
+  transform: translateY(-4px);
+}
+.CardPrintersPoslugi p:hover .sheetBottom {
+  transform: translateY(4px);
+}
+.cutPath {
+  stroke-dasharray: 28;
+  stroke-dashoffset: 28;
+  transition: stroke-dashoffset 0.8s ease;
+}
+
+.CardPrintersPoslugi p:hover .cutPath {
+  stroke-dashoffset: 0; /* промальовується пунктир */
+}
+
+.icon64.wide { width:64px; height:64px; stroke-width:1; }
+.icon64.wide .trace { stroke-dasharray:200; stroke-dashoffset:200; transition:stroke-dashoffset .9s ease; }
+.icon64.wide .moveHead { transform-box:fill-box; transform-origin:center; transition:transform .9s ease; }
+.icon64.wide .feed { transition:transform .9s ease; }
+.icon64.wide .roll { transform-origin:center; transition:transform .9s ease; }
+.icon64.wide .reveal { transform-origin:left; transform:scaleX(0); transition:transform .9s ease; }
+
+.CardPrintersPoslugi p:hover .icon64.wide .trace { stroke-dashoffset:0; }
+.CardPrintersPoslugi p:hover .icon64.wide .moveHead { transform:translateX(18px); }
+.CardPrintersPoslugi p:hover .icon64.wide .feed { transform:translateY(4px); }
+.CardPrintersPoslugi p:hover .icon64.wide .roll { transform:rotate(18deg); }
+.CardPrintersPoslugi p:hover .icon64.wide .reveal { transform:scaleX(1); }
+.icon64.post { width:64px; height:64px; stroke-width:1; }
+.icon64.post .trace{stroke-dasharray:220;stroke-dashoffset:220;transition:stroke-dashoffset .8s ease;}
+.icon64.post .move{transition:transform .6s ease;transform-box:fill-box;transform-origin:center;}
+.icon64.post .hingeL{transform-origin:left center;}
+.icon64.post .hingeR{transform-origin:right center;}
+.icon64.post .up{transform-origin:center;}
+
+/* hover */
+.CardPrintersPoslugi p:hover .icon64.post .blade { transform:translateY(6px); }
+.CardPrintersPoslugi p:hover .icon64.post .armsL { transform:rotate(-20deg); }
+.CardPrintersPoslugi p:hover .icon64.post .armsR { transform:rotate(20deg); }
+.CardPrintersPoslugi p:hover .icon64.post .die { transform:translateY(4px); }
+.CardPrintersPoslugi p:hover .icon64.post .curve { stroke-dashoffset:0; }
+.CardPrintersPoslugi p:hover .icon64.post .dots2 { stroke-dashoffset:0; }

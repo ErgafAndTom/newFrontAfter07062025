@@ -7,10 +7,7 @@ import './Wide.css';
 import './MainWindow.css';
 import {useNavigate, useParams} from "react-router-dom";
 import axios from '../api/axiosInstance';
-import {Modal} from "react-bootstrap";
-import p8svg from "../components/newUIArtem/printers/p8.png";
-import p800 from "../components/newUIArtem/printers/p800.png";
-import creo from "../components/newUIArtem/printers/creo.png";
+
 import MUG from "../components/newUIArtem/printers/mug.png";
 import magnets from "./magnetsIcon.png";
 import Scans from "./scan.png";
@@ -18,36 +15,12 @@ import Deliverypng from "../components/newUIArtem/printers/delivery.png";
 import ClientChangerUIArtem from "../PrintPeaksFAinal/userInNewUiArtem/ClientChangerUIArtem";
 import knopka1 from "./knopki/Knopka1.jsx";
 
-// Usage of ClientsMenu
-import img1 from '../components/newUIArtem/printers/46.png';
-import img2 from '../components/newUIArtem/printers/ComponentTMP_0-image2.png';
-import img3 from '../components/newUIArtem/printers/ComponentTMP_0-image3.png';
-import img4 from '../components/newUIArtem/printers/ComponentTMP_0-image4.png';
-import img5 from '../components/newUIArtem/printers/ComponentTMP_0-image5.png';
-import img6 from '../components/newUIArtem/printers/ComponentTMP_0-image6.png';
-import img7 from '../components/newUIArtem/printers/ComponentTMP_0-image7.png';
-import img8 from "../components/newUIArtem/printers/Без назви-1.png";
-import img9 from "../components/newUIArtem/printers/1996 (1).png";
-import imgg10 from '../components/newUIArtem/printers/binder.svg';
-
-import imgg1 from "../components/newUIArtem/printers/p1.svg";
-import imgg2 from "../components/newUIArtem/printers/p2.svg";
-import imgg3 from "../components/newUIArtem/printers/p3.svg";
-import imgg4 from "../components/newUIArtem/printers/p4.svg";
-import imgg5 from "../components/newUIArtem/printers/p5.svg";
-import imgg6 from "../components/newUIArtem/printers/p6.svg";
-import imgg7 from "../components/newUIArtem/printers/p7.svg";
-import imgg8 from "../components/newUIArtem/printers/p8.svg";
-import imgg9 from "../components/newUIArtem/printers/p9.svg";
-import imgg101 from "./evroscoba.png";
 import scoba from "./poslugi/newnomodals/skoba.svg";
-import Widefactory from "../components/newUIArtem/printers/Widefactory.png";
-import Widefactoryw from "../components/newUIArtem/printers/Widefactoryw.png";
 
 import versantIcon from "../components/newUIArtem/printers/group-1468.svg";
-import PaidButtomProgressBar from "../PrintPeaksFAinal/tools/PaidButtomProgressBar";
+
 import OneProductInOrders from "../components/newcalc/Orders/OneProductInOrders";
-import Plotter from "../components/newcalc/products/Plotter";
+
 import NewWide from "./poslugi/newWide";
 import NewSheetCut from "./poslugi/NewSheetCut";
 import NewSheetCutBw from "./poslugi/NewSheetCutBw";
@@ -62,9 +35,7 @@ import BigOvshik from "./poslugi/BigOvshik";
 import ProgressBar from "../ProgressBar";
 // import {ExampleLoaderComponent} from "../dev/palette";
 import NewCup from "./poslugi/NewCup";
-import NovaPoshtaButton from "./userInNewUiArtem/novaPoshta/NovaPoshtaButton";
-import FilesInOrder from "./filesInOrder/FilesInOrder";
-import CommentsInOrder from "./commentsInOrders/OrderFilesPanel";
+
 import NewBooklet from "./poslugi/NewBooklet";
 import NewMagnets from "./poslugi/NewMagnets";
 import NewScans from "./poslugi/NewScans";
@@ -96,6 +67,9 @@ const NewUIArtem = () => {
   const [showDeleteOrderUnitModal, setShowDeleteOrderUnitModal] = useState(false);
   const [thisOrderUnit, setThisOrderUnit] = useState(null);
 
+  const [showWide, setShowWide] = useState(false);
+
+
 
   const [showNewSheetCutBw, setShowNewSheetCutBw] = useState(false);
   const [showNewSheetCut, setShowNewSheetCut] = useState(false);
@@ -105,7 +79,7 @@ const NewUIArtem = () => {
   const [showNewNote, setShowNewNote] = useState(false);
   const [showNewBooklet, setShowNewBooklet] = useState(false);
   const [showNewPhoto, setShowNewPhoto] = useState(false);
-  const [showPlotter, setShowPlotter] = useState(false);
+
   const [showBigOvshik, setShowBigOvshik] = useState(false);
   const [showPerepletMet, setShowPerepletMet] = useState(false);
   const [showNewCup, setShowNewCup] = useState(false);
@@ -231,121 +205,266 @@ const NewUIArtem = () => {
         <div className="d-flex">
           <div className="containerForContNewUI">
             {/* Перша група */}
+            {/* === GRID OF SERVICE TILES === */}
             <div className="CardPrintersPoslugi">
+
+              {/* 1) BLACK */}
               <p onClick={() => setShowNewSheetCutBw(true)}>
                 <div className="tileContent">
-                  <span className="verticalText">BLACK</span>
-                  <img className="CardPrintersPoslugiImg" src={imgg1} alt="Фото" />
+                  <span className="verticalText">BLACK & WHITE</span>
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <rect className="draw" pathLength="1" x="10" y="18" width="44" height="10" rx="2"/>
+                    <rect className="draw" pathLength="1" x="14" y="28" width="36" height="22" rx="3"/>
+                    <rect className="draw" pathLength="1" x="20" y="10" width="24" height="8" rx="1"/>
+                    <rect className="draw" pathLength="1" x="22" y="42" width="20" height="8"/>
+                    <line className="draw" pathLength="1" x1="18" y1="34" x2="46" y2="34"/>
+                  </svg>
                 </div>
               </p>
 
+              {/* 2) COLOR PRODUCTS */}
               <p onClick={() => setShowNewSheetCut(true)}>
                 <div className="tileContent">
                   <div className="verticalColumns">
-                    <span className="verticalText">COLOR</span>
-                    <span className="verticalText">PRODUCTS</span>
+                    <span className="verticalText">DIGITAL PRINT</span>
+                    <span className="verticalText">CUTING</span>
                   </div>
-                  <img className="CardPrintersPoslugiImg" src={imgg2} alt="Фото" />
+                  <svg
+                    className="icon64 CardPrintersPoslugiImg"
+                    viewBox="0 0 64 64"
+                    fill="none"
+                    stroke="#2f2f2f"
+                    strokeWidth="1"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+
+                    <rect className="sheetTop" x="16" y="12" width="32" height="20" rx="2" />
+
+                    <rect className="sheetBottom" x="16" y="32" width="32" height="20" rx="2" />
+                  </svg>
+
+
+
                 </div>
               </p>
+              {/* 7) CUTTING */}
+              <p onClick={() => setShowVishichka(true)}>
 
-              <p onClick={() => setShowNewWide(true)}>
                 <div className="tileContent">
-                  <span className="verticalText">WIDE</span>
-                  <img className="CardPrintersPoslugiImg" src={imgg3} alt="Чашки" />
+                  <span className="verticalText">PLOTTER CUT</span>
+                  <svg className="icon64 thin CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
+                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="12" y="12" width="40" height="40" rx="2"/>
+                    <circle className="cutPath" cx="32" cy="32" r="10"/>
+                    <line x1="16" y1="18" x2="48" y2="18"/>
+                    <g className="head">
+                      <rect x="18" y="14" width="6" height="6" rx="1"/>
+                      <line x1="21" y1="14" x2="21" y2="10"/>
+                    </g>
+                  </svg>
                 </div>
               </p>
-
-              <p onClick={() => setShowNewPhoto(true)}>
+              {/* 4) PHOTO */}
+              <p onClick={() => setShowNewPhoto?.(true)}>
                 <div className="tileContent">
                   <span className="verticalText">PHOTO</span>
-                  <img className="CardPrintersPoslugiImg" src={p800} alt="Фото" />
+                  <svg
+                    className="icon64 CardPrintersPoslugiImg"
+                    viewBox="0 0 64 64"
+                    fill="none"
+                    stroke="#2f2f2f"
+                    strokeWidth="1"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    {/* рамка полароїда з великим нижнім полем */}
+                    <rect className="draw" pathLength="1" x="16" y="11" width="33" height="40" rx="1"/>
+                    {/* вікно фото всередині */}
+                    <rect className="draw" pathLength="1" x="20" y="14" width="24" height="22" rx="2"/>
+                    {/* пейзаж: гора + сонце */}
+                    <path className="draw" pathLength="1" d="M22 34l8-8 6 5 8-7"/>
+                    <circle className="draw" pathLength="1" cx="38" cy="20" r="3"/>
+                    {/* підпис під фото */}
+                    <line className="draw" pathLength="1" x1="24" y1="42" x2="40" y2="42"/>
+                  </svg>
                 </div>
               </p>
+              {/* 3) WIDE */}
+              <p onClick={() => setShowNewWide(true)}>
 
-              <p onClick={() => setShowBigOvshik(true)}>
                 <div className="tileContent">
-                  <span className="verticalText">POSTPRESS</span>
-                  <img className="CardPrintersPoslugiImg" src={imgg10} alt="Овшик" />
+                  <span className="verticalText">WIDE PHOTO</span>
+                  <svg className="icon64 wide CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f" strokeWidth="1"
+                       strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="10" y="12" width="44" height="10" rx="1"/>
+                    <g className="moveHead"><rect x="12" y="12" width="12" height="10" rx="1"/></g>
+                    <rect x="14" y="26" width="36" height="22" rx="1"/>
+                    <rect className="trace" x="16" y="50" width="4" height="4" rx="0.5"/>
+                    <rect className="trace" x="22" y="50" width="4" height="4" rx="0.5"/>
+                    <rect className="trace" x="28" y="50" width="4" height="4" rx="0.5"/>
+                    <rect className="trace" x="34" y="50" width="4" height="4" rx="0.5"/>
+                  </svg>
                 </div>
               </p>
 
-              <p onClick={() => setShowPerepletMet(true)}>
-                <div className="tileContent">
-                  <span className="verticalText">BINDING</span>
-                  <img className="CardPrintersPoslugiImg" src={imgg6} alt="Переплет" />
-                </div>
-              </p>
-
-              <p onClick={() => setShowVishichka(true)}>
-                <div className="tileContent">
-                  <span className="verticalText">CUTTING</span>
-                  <img className="CardPrintersPoslugiImg" src={imgg9} alt="Вишичка" />
-                </div>
-              </p>
-
-              <p onClick={() => setShowWideFactory(true)}>
+              {/* 8) WIDE FACTORY */}
+              <p onClick={() => setShowWideFactory?.(true)}>
                 <div className="tileContent">
                   <div className="verticalColumns">
                     <span className="verticalText">WIDE</span>
                     <span className="verticalText">FACTORY</span>
                   </div>
-                  <img className="CardPrintersPoslugiImg" src={Widefactory} alt="Wide Factory" />
+                  <svg className="icon64 ind CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="8" y="12" width="48" height="8" rx="2"/>
+                    <g className="gantry"><rect x="26" y="12" width="12" height="8" rx="1"/></g>
+                    <rect className="dry" x="12" y="24" width="40" height="16" rx="2"/>
+                    <path className="trace" d="M16 36l10-6 8 5 8-5"/>
+                  </svg>
+
+
+
+
                 </div>
               </p>
 
+
+
+              {/* 5) POSTPRESS */}
+              <p onClick={() => setShowBigOvshik(true)}>
+
+                <div className="tileContent">
+                  <span className="verticalText">POSTPRESS</span>
+                  <svg className="icon64 post CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
+                       stroke="#2f2f2f" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="14" y="16" width="36" height="32" rx="2"/>
+                    <rect className="move armsL" x="14" y="16" width="12" height="32"/>
+                    <rect className="move armsR" x="38" y="16" width="12" height="32"/>
+                    <line className="trace" x1="26" y1="16" x2="26" y2="48"/>
+                    <line className="trace" x1="38" y1="16" x2="38" y2="48"/>
+                  </svg>
+
+
+
+
+
+                </div>
+              </p>
+
+              {/* 6) BINDING */}
+              <p onClick={() => setShowPerepletMet(true)}>
+
+              <div className="tileContent">
+                  <span className="verticalText">BINDING</span>
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <rect className="draw" pathLength="1" x="14" y="14" width="36" height="36" rx="2"/>
+                    <line className="draw" pathLength="1" x1="22" y1="14" x2="22" y2="50"/>
+                    <path className="draw" pathLength="1" d="M18 18h6M18 24h6M18 30h6M18 36h6M18 42h6"/>
+                  </svg>
+                </div>
+              </p>
+
+
+
+
+              {/* 9) LAMINATION */}
               <p onClick={() => setShowLaminator(true)}>
                 <div className="tileContent">
                   <span className="verticalText">LAMINATION</span>
-                  <img className="CardPrintersPoslugiImg" src={p8svg} alt="Ламінатор" />
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <rect className="draw" pathLength="1" x="10" y="18" width="44" height="10" rx="5"/>
+                    <rect className="draw" pathLength="1" x="10" y="32" width="44" height="10" rx="5"/>
+                    <rect className="draw" pathLength="1" x="18" y="26" width="28" height="8" rx="2"/>
+                  </svg>
                 </div>
               </p>
+
             </div>
+
           </div>
             {/* Третя група */}
-            <div className="d-flex justify-content-end align-items-end" style={{bottom:"15vh", position:"absolute"}} >
+            <div className="d-flex justify-content-end align-items-end" style={{bottom:"19vh", position:"absolute"}} >
             <div className="CardPrintersPoslugi">
               <p onClick={() => setShowNewNote(true)}>
                 <div className="tileContent">
                   <span className="verticalText">NOTE</span>
-                  <img className="CardPrintersPoslugiImg" src={versantIcon} alt="Note" />
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
+                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="18" y="12" width="28" height="40" rx="2"/>
+                    <line className="draw" pathLength="1" x1="22" y1="16" x2="22" y2="48"/>
+                    <circle className="draw" pathLength="1" cx="22" cy="20" r="1"/>
+                    <circle className="draw" pathLength="1" cx="22" cy="26" r="1"/>
+                    <circle className="draw" pathLength="1" cx="22" cy="32" r="1"/>
+                  </svg>
                 </div>
               </p>
+
 
               <p onClick={() => setShowNewBooklet(true)}>
                 <div className="tileContent">
                   <span className="verticalText">BOOKLET</span>
-                  <img className="CardPrintersPoslugiImg" src={scoba} alt="Booklet" />
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
+                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="16" y="14" width="32" height="36" rx="2"/>
+                    <line className="draw" pathLength="1" x1="32" y1="14" x2="32" y2="50"/>
+                  </svg>
                 </div>
               </p>
+
 
               <p onClick={() => setShowNewCup(true)}>
                 <div className="tileContent">
                   <span className="verticalText">MUG</span>
-                  <img className="CardPrintersPoslugiImg" src={MUG} alt="Mug" />
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64"
+                       fill="none" stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <rect className="draw" pathLength="1" x="20" y="24" width="20" height="16" rx="2"/>
+                    <circle className="draw" pathLength="1" cx="42" cy="28" r="5"/>
+                    <path className="draw" pathLength="1" d="M26 20c0-4 4-4 4-8"/>
+                    <path className="draw" pathLength="1" d="M34 20c0-4 4-4 4-8"/>
+                  </svg>
+
+
                 </div>
               </p>
+
 
               <p onClick={() => setShowNewMagnets(true)}>
                 <div className="tileContent">
                   <span className="verticalText">MAGNETS</span>
-                  <img className="CardPrintersPoslugiImg" src={magnets} alt="Magnets" />
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
+                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <path className="draw" pathLength="1" d="M20 20h8v12h-8a12 12 0 0 0 24 0h-8V20h8"/>
+                  </svg>
                 </div>
               </p>
+
 
               <p onClick={() => setShowNewScans(true)}>
                 <div className="tileContent">
                   <span className="verticalText">SCANS</span>
-                  <img className="CardPrintersPoslugiImg" src={Scans} alt="Scans" />
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
+                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="14" y="28" width="36" height="12" rx="2"/>
+                    <rect x="20" y="18" width="24" height="8" rx="1"/>
+                    <line className="draw" pathLength="1" x1="14" y1="40" x2="50" y2="40"/>
+                  </svg>
                 </div>
               </p>
+
 
               <p onClick={() => setShowDelivery(true)}>
                 <div className="tileContent">
                   <span className="verticalText">DELIVERY</span>
-                  <img className="CardPrintersPoslugiImg" src={Deliverypng} alt="Delivery" />
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
+                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="12" y="28" width="40" height="12" rx="2"/>
+                    <path className="draw" pathLength="1" d="M12 28l8-8h24l8 8"/>
+                    <circle cx="20" cy="44" r="4"/>
+                    <circle cx="44" cy="44" r="4"/>
+                  </svg>
                 </div>
               </p>
+
             </div>
           </div>
 
@@ -354,7 +473,7 @@ const NewUIArtem = () => {
           <div className="d-flex flex-column " style={{width: "37.5vw",}}>
             <div className="order-panel d-flex " style={{width: "37.5vw", marginTop: "0.5vh"}}>
               {selectedThings2 && selectedThings2.length !== 0 ? (
-                <div className="order-list" style={{overflowX: "hidden" }}>
+                <div className="order-list" style={{overflowX: "hidden", height:"78vh" }}>
                   {selectedThings2.map((thing, index) => (
                     <div
                       key={index}
@@ -406,19 +525,19 @@ const NewUIArtem = () => {
 
                               {/* Назва + розміри */}
                               <div
-                                className="adminFontTable BasePriceWithQuantityBase d-flex flex-column"
+                                className="adminFontTable  BasePriceWithQuantityBase d-flex flex-column"
 
                               >
                                 <div className={"d-flex flex-row align-items-center"}
                                      style={{maxWidth: "33vw", background: "transparent"}}>
                                   <div>
-                                    <div>{thing.name}</div>
+                                    <div className="adminTextBig" style={{fontSize:"1vw", maxWidth:"33vw"}}>{thing.name}</div>
                                     <div
                                       style={{
                                         marginTop: '0.5rem',
                                         height: '1px',
                                         background: 'transparent',
-                                        boxShadow: '0 1px 2px rgba(0,0,0,0.12)'
+                                        boxShadow: '0 1px 2px rgba(0,0,0,0.2)'
                                       }}
                                     />
                                   </div>
@@ -428,13 +547,13 @@ const NewUIArtem = () => {
                                   {/*</div>*/}
                                 </div>
                                 {/* Основна ціна з кількістю */}
-                                <div className="d-flex align-items-center justify-content-start BasePriceWithQuantity">
-                                  <span className="">{thing.amount}<span
-                                    className="BasePriceWithQuantitySmall"> шт</span></span>
-                                  <span className="">× {parseFloat(thing.priceForThis / thing.amount).toFixed(2)}<span
+                                <div className="d-flex adminTextBig align-items-center justify-content-start BasePriceWithQuantity">
+                                  <span className="" style={{color: "rgba(0, 0, 0, 0.6)"}}>{thing.amount}<span
+                                    className="BasePriceWithQuantitySmall "> шт</span></span>
+                                  <span className="" style={{color: "rgba(0, 0, 0, 0.6)"}}>× {parseFloat(thing.priceForThis / thing.amount).toFixed(2)}<span
                                     className="BasePriceWithQuantitySmall"> грн</span></span>
 
-                                  <span>=</span>
+                                  <span style={{color: "rgba(0, 0, 0, 0.6)"}}>=</span>
                                   <span className="booooold" style={{color: "red"}}>{thing.priceForThis}<span
                                     className="BasePriceWithQuantitySmall" style={{color: "red"}}> грн</span></span>
 

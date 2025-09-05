@@ -171,25 +171,25 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
   }, [thisOrder.id]);
 
   return (
-    <div className="payment-methods-panel" style={{}}>
+    <div className="payment-methods-panel adminTextBig" style={{}}>
       {(!thisOrder.Payment || ['CANCELLED', 'EXPIRED'].includes(thisOrder.Payment.status)) && (
         <div className="payment-methods-panel d-flex align-items-center ">
           <button
-            className="PayButtons cash"
+            className="PayButtons adminTextBig cash"
             onClick={() => handleSelect('cash')}
           >
             Розрахунок готівкою
           </button>
 
           <button
-            className="PayButtons terminal"
+            className="PayButtons adminTextBig terminal"
             onClick={() => handleSelect('terminal')}
           >
             Розрахунок карткою
           </button>
 
           <button
-            className="PayButtons online"
+            className="PayButtons adminTextBig online"
             onClick={() => handleSelect('online')}
           >
             Платіж за посиланням
@@ -199,7 +199,7 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
             onClick={() => setShowPays(true)}
             title="Платежі"
             style={{...buttonStyles.base, ...buttonStyles.iconButton}}
-            className="PayButtons invoices"
+            className="PayButtons adminTextBig invoices"
           >
             Оплата на рахунок
           </button>
@@ -247,7 +247,8 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
         <div className={"payment-methods-panel d-flex align-items-center "}>
           <button
             className="PayButtons link"
-            style={{backgroundColor: '#008249', color: 'white',width: '3vw'}}
+            style={{
+              backgroundColor: '#008249', color: 'white',width: '3vw'}}
             onClick={() => {
               window.open(thisOrder.Payment.pageUrl, '_blank');
             }}

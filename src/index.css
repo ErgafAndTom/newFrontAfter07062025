@@ -1,8 +1,14 @@
 body {
   margin: 0;
-  font-family: 'inte    r';
+  font-family: 'Inter';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /*text-transform: uppercase;*/
+  /*font-weight: 600;*/
+  /*color: rgba(0, 0, 0, 0.6);*/
+  /*line-height:1;*/
+  /*letter-spacing:.06em;*/
+
 }
 
 code {

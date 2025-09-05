@@ -235,35 +235,45 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
 
 
           {thisOrder.client ? (
-            <div className="" style={{fontSize: '1.7vh', position: "relative"}}>
-              <div className="fw-bold d-flex " style={{flexcolumn: 'row'}}>
-                {thisOrder.client.lastName} {thisOrder.client.firstName} {thisOrder.client.familyName} 🤖:{thisOrder.client.id}
+            <div className="" style={{ position: "relative"}}>
+              <div className="adminTextBig" style={{flexcolumn: 'row', fontSize: '1vw',}}
 
+              >
+                {thisOrder.client.lastName} {thisOrder.client.firstName} {thisOrder.client.familyName} 🤖:{thisOrder.client.id}
+                <div
+                  style={{
+                    marginTop: '00rem',
+                    height: '1px',
+                    background: 'transparent',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                  }}
+                />
               </div>
-              <strong className="" style={{position: "fixed", bottom: "8vh", marginLeft:"-1vw"}}>
+
+              <strong className="adminTextBig" style={{position: "fixed", bottom: "8vh", marginLeft:"-1vw", fontSize: '0.6vw',}}>
             <span
-              className="">     Знижка: {thisOrder.client.discount}</span></strong>
+              className="adminTextBig">     Знижка: {thisOrder.client.discount}</span></strong>
 
             </div>
 
           ) : (
 
-            <span style={{background: "#f2f0e7"}}>Вибрати клієнта</span>
+            <span style={{background: "#f7f5ee"}}>Вибрати клієнта</span>
           )}
         </div>
         <div style={{position: "absolute", right: "0.5vw", top: "0.5vh"}}>
           {thisOrder.client && (
-            <div className="client-details" style={{fontSize: '1.5vmin', marginLeft: "1vw"}}>
+            <div className="client-details adminTextBig" style={{fontSize: '1.5vmin', marginLeft: "1vw"}}>
 
 
               {thisOrder.client.address && (
-                <span className="">{thisOrder.client.address}</span>
+                <span className="adminTextBig">{thisOrder.client.address}</span>
               )}
 
             </div>
           )}
         </div>
-        <div className="d-flex align-items-center"
+        <div className="d-flex adminTextBig align-items-center"
              style={{ position: "absolute", right: '0vw', top: '1vh'}}>
           {thisOrder.client && (
             <div
@@ -293,11 +303,11 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                 }}
                 title="Файли клієнта"
                 aria-label="Файли клієнта"
-                className="icon-btn icon-btn--outlined folder-btn"
+                className="icon-btn client-cabinet-icon icon-btn--outlined folder-btn"
                 /* видали inline style width/height або buttonStyles.iconButton,
                    якщо вони конфліктують — краще керувати через CSS */
               >
-                <FiFolder size={30} style={{color: "black"}}/>
+                <FiFolder size={30} color="rgba(0,0,0,0.6)" />
               </button>
 
 
@@ -311,7 +321,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                 aria-label="Відкрити кабінет клієнта"
               >
                 {/* user icon — stroke-based, uses currentColor */}
-                <FiUser size={30} style={{color: "black"}}/>
+                <FiUser size={30}  />
               </button>
 
               <TelegramAvatar
@@ -326,7 +336,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
         </div>
         <div>
           {thisOrder?.client?.phoneNumber && (
-            <span className="" style={{ fontSize:"2vh" }}>{thisOrder.client.phoneNumber}</span>
+            <span className="adminTextBig" style={{ fontSize:"2vh" }}>{thisOrder.client.phoneNumber}</span>
           )}
 
         </div>
@@ -453,7 +463,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
 
 
       {/* Модальне вікно для додавання нового користувача */}
-      <div style={{position: "absolute", bottom: "0", left: "0vw", }}>
+      <div style={{position: "absolute", bottom: "0", left: "0vw",  }}>
         <PaidButtomProgressBar
           thisOrder={thisOrder}
           setThisOrder={setThisOrder}
