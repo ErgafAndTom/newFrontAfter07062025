@@ -16,6 +16,7 @@ import magnets from "./magnetsIcon.png";
 import Scans from "./scan.png";
 import Deliverypng from "../components/newUIArtem/printers/delivery.png";
 import ClientChangerUIArtem from "../PrintPeaksFAinal/userInNewUiArtem/ClientChangerUIArtem";
+import knopka1 from "./knopki/Knopka1.jsx";
 
 // Usage of ClientsMenu
 import img1 from '../components/newUIArtem/printers/46.png';
@@ -71,6 +72,7 @@ import WideFactory from "./poslugi/WideFactory";
 import NewSheetSheet from "./poslugi/NewSheetSheet";
 import Delivery from "./poslugi/DeliveryPage";
 import OrderFilesPanel from "./commentsInOrders/OrderFilesPanel";
+import Knopka1 from "./knopki/Knopka1.jsx";
 // import RadicalMenuGrid from "./tools/RadicalMenuGrid";
 const NewUIArtem = () => {
   const navigate = useNavigate();
@@ -116,8 +118,6 @@ const NewUIArtem = () => {
   const toggleExpandedThing = (index) => {
     setExpandedThingIndex(prev => (prev === index ? null : index));
   };
-
-
 
 
   const setTypeSelect2 = (thing) => {
@@ -230,81 +230,143 @@ const NewUIArtem = () => {
       <div>
         <div className="d-flex">
           <div className="containerForContNewUI">
-
             {/* Перша група */}
-            <div className="card" >
+            <div className="CardPrintersPoslugi">
               <p onClick={() => setShowNewSheetCutBw(true)}>
-                <span ><img className="cardImg" src={imgg1} alt="Фото"/> BLACK</span>
+                <div className="tileContent">
+                  <span className="verticalText">BLACK</span>
+                  <img className="CardPrintersPoslugiImg" src={imgg1} alt="Фото" />
+                </div>
               </p>
+
               <p onClick={() => setShowNewSheetCut(true)}>
-                <span><img src={imgg2} className="cardImg" alt="Фото"/> COLOR PRODUCTS</span>
+                <div className="tileContent">
+                  <div className="verticalColumns">
+                    <span className="verticalText">COLOR</span>
+                    <span className="verticalText">PRODUCTS</span>
+                  </div>
+                  <img className="CardPrintersPoslugiImg" src={imgg2} alt="Фото" />
+                </div>
               </p>
+
               <p onClick={() => setShowNewWide(true)}>
-                <span><img src={imgg3} className="cardImg" alt="Чашки"/> WIDE</span>
+                <div className="tileContent">
+                  <span className="verticalText">WIDE</span>
+                  <img className="CardPrintersPoslugiImg" src={imgg3} alt="Чашки" />
+                </div>
               </p>
+
               <p onClick={() => setShowNewPhoto(true)}>
-                <span><img src={p800} className="cardImg" alt="Фото"/> PHOTO</span>
+                <div className="tileContent">
+                  <span className="verticalText">PHOTO</span>
+                  <img className="CardPrintersPoslugiImg" src={p800} alt="Фото" />
+                </div>
               </p>
+
               <p onClick={() => setShowBigOvshik(true)}>
-                <span><img src={imgg10} className="cardImg" alt="Овшик"/> POSTPRESS</span>
+                <div className="tileContent">
+                  <span className="verticalText">POSTPRESS</span>
+                  <img className="CardPrintersPoslugiImg" src={imgg10} alt="Овшик" />
+                </div>
               </p>
+
               <p onClick={() => setShowPerepletMet(true)}>
-                <span><img src={imgg6} className="cardImg" alt="Переплет"/> BINDING</span>
+                <div className="tileContent">
+                  <span className="verticalText">BINDING</span>
+                  <img className="CardPrintersPoslugiImg" src={imgg6} alt="Переплет" />
+                </div>
               </p>
+
               <p onClick={() => setShowVishichka(true)}>
-                <span><img src={imgg9} className="cardImg" alt="Вишичка"/> CUTTING</span>
+                <div className="tileContent">
+                  <span className="verticalText">CUTTING</span>
+                  <img className="CardPrintersPoslugiImg" src={imgg9} alt="Вишичка" />
+                </div>
               </p>
-            </div>
 
-            {/* Друга група */}
-            <div className="card" >
               <p onClick={() => setShowWideFactory(true)}>
-                <span><img src={Widefactory} className="cardImg" alt="Wide Factory"/> WIDE FACTORY</span>
+                <div className="tileContent">
+                  <div className="verticalColumns">
+                    <span className="verticalText">WIDE</span>
+                    <span className="verticalText">FACTORY</span>
+                  </div>
+                  <img className="CardPrintersPoslugiImg" src={Widefactory} alt="Wide Factory" />
+                </div>
               </p>
+
               <p onClick={() => setShowLaminator(true)}>
-                <span><img src={p8svg} className="cardImg" alt="Ламінатор"/> LAMINATION</span>
+                <div className="tileContent">
+                  <span className="verticalText">LAMINATION</span>
+                  <img className="CardPrintersPoslugiImg" src={p8svg} alt="Ламінатор" />
+                </div>
               </p>
             </div>
-
+          </div>
             {/* Третя група */}
-            <div className="card d-flex" style={{marginBottom: "17vh", background: "transparent"}}>
+            <div className="d-flex justify-content-end align-items-end" style={{bottom:"15vh", position:"absolute"}} >
+            <div className="CardPrintersPoslugi">
               <p onClick={() => setShowNewNote(true)}>
-                <span><img src={versantIcon} className="cardImg" alt="Note"/> NOTE</span>
+                <div className="tileContent">
+                  <span className="verticalText">NOTE</span>
+                  <img className="CardPrintersPoslugiImg" src={versantIcon} alt="Note" />
+                </div>
               </p>
+
               <p onClick={() => setShowNewBooklet(true)}>
-                <span><img src={scoba} className="cardImg"  alt="Booklet"/> BOOKLET</span>
+                <div className="tileContent">
+                  <span className="verticalText">BOOKLET</span>
+                  <img className="CardPrintersPoslugiImg" src={scoba} alt="Booklet" />
+                </div>
               </p>
+
               <p onClick={() => setShowNewCup(true)}>
-                <span><img src={MUG} className="cardImg" alt="Mug"/> MUG</span>
+                <div className="tileContent">
+                  <span className="verticalText">MUG</span>
+                  <img className="CardPrintersPoslugiImg" src={MUG} alt="Mug" />
+                </div>
               </p>
+
               <p onClick={() => setShowNewMagnets(true)}>
-                <span><img src={magnets} className="cardImg" alt="Magnets"/> MAGNETS</span>
+                <div className="tileContent">
+                  <span className="verticalText">MAGNETS</span>
+                  <img className="CardPrintersPoslugiImg" src={magnets} alt="Magnets" />
+                </div>
               </p>
+
               <p onClick={() => setShowNewScans(true)}>
-                <span><img src={Scans} className="cardImg" alt="Scans"/> SCANS</span>
+                <div className="tileContent">
+                  <span className="verticalText">SCANS</span>
+                  <img className="CardPrintersPoslugiImg" src={Scans} alt="Scans" />
+                </div>
               </p>
+
               <p onClick={() => setShowDelivery(true)}>
-                <span><img src={Deliverypng}className="cardImg"  alt="Delivery"/> DELIVERY</span>
-              </p>
-              <p onClick={() => setShowDelivery(true)}>
-                <span><img src={Deliverypng} className="cardImg" alt="Delivery"/> DELIVERY</span>
+                <div className="tileContent">
+                  <span className="verticalText">DELIVERY</span>
+                  <img className="CardPrintersPoslugiImg" src={Deliverypng} alt="Delivery" />
+                </div>
               </p>
             </div>
-
           </div>
 
 
 
-          <div className="d-flex flex-column" style={{width: "37.5vw"}}>
-            <div className="order-panel" style={{width: "37.5vw", marginTop: "0.5vh"}}>
+          <div className="d-flex flex-column " style={{width: "37.5vw",}}>
+            <div className="order-panel d-flex " style={{width: "37.5vw", marginTop: "0.5vh"}}>
               {selectedThings2 && selectedThings2.length !== 0 ? (
-                <div className="order-list" style={{overflow: "auto", height: "60vh"}}>
+                <div className="order-list" style={{overflowX: "hidden" }}>
                   {selectedThings2.map((thing, index) => (
                     <div
                       key={index}
                       className="order-item card3d"
                       onClick={() => toggleExpandedThing(index)}
-                      style={{ width: "36vw", marginBottom: "1vh", cursor: "pointer", padding: "1rem", marginLeft:"3px" }}
+                      style={{
+                        width: "36vw",
+                        marginBottom: "1vh",
+                        cursor: "pointer",
+                        padding: "1rem",
+                        marginLeft: "3px"
+                      }}
                     >
                       <div
                         onClick={(e) => handleThingClickDelete2(thing)}
@@ -347,7 +409,8 @@ const NewUIArtem = () => {
                                 className="adminFontTable BasePriceWithQuantityBase d-flex flex-column"
 
                               >
-                                <div className={"d-flex flex-row align-items-center" } style={{maxWidth:"33vw", background:"transparent"}}>
+                                <div className={"d-flex flex-row align-items-center"}
+                                     style={{maxWidth: "33vw", background: "transparent"}}>
                                   <div>
                                     <div>{thing.name}</div>
                                     <div
@@ -361,16 +424,19 @@ const NewUIArtem = () => {
                                   </div>
 
                                   {/*  <div style={{ fontSize: "2vh", opacity: 0.6 }}>*/}
-                                {/*  ({thing.newField2} мм × {thing.newField3} мм)*/}
-                                {/*</div>*/}
+                                  {/*  ({thing.newField2} мм × {thing.newField3} мм)*/}
+                                  {/*</div>*/}
                                 </div>
                                 {/* Основна ціна з кількістю */}
                                 <div className="d-flex align-items-center justify-content-start BasePriceWithQuantity">
-                                  <span className="">{thing.amount}<span className="BasePriceWithQuantitySmall"> шт</span></span>
-                                  <span className="">× {parseFloat(thing.priceForThis/thing.amount).toFixed(2)}<span className="BasePriceWithQuantitySmall"> грн</span></span>
+                                  <span className="">{thing.amount}<span
+                                    className="BasePriceWithQuantitySmall"> шт</span></span>
+                                  <span className="">× {parseFloat(thing.priceForThis / thing.amount).toFixed(2)}<span
+                                    className="BasePriceWithQuantitySmall"> грн</span></span>
 
                                   <span>=</span>
-                                  <span className="booooold" style={{color:"red" }}>{thing.priceForThis}<span className="BasePriceWithQuantitySmall" style={{ color:"red" }}> грн</span></span>
+                                  <span className="booooold" style={{color: "red"}}>{thing.priceForThis}<span
+                                    className="BasePriceWithQuantitySmall" style={{color: "red"}}> грн</span></span>
 
                                 </div>
                                 {/* Знижка, якщо є */}
@@ -380,28 +446,30 @@ const NewUIArtem = () => {
                                   >
 
 
-                                      <div className="d-flex align-items-center justify-content-start BasePriceWithQuantity " >
+                                    <div
+                                      className="d-flex align-items-center justify-content-start BasePriceWithQuantity ">
 
 
-                                        <span >{thing.amount}<span className="BasePriceWithQuantitySmall" > шт</span></span>
+                                      <span>{thing.amount}<span className="BasePriceWithQuantitySmall"> шт</span></span>
 
-                                        <span className="">  ×   {parseFloat(thing.priceForThisDiscount/thing.amount).toFixed(2)}<span className="BasePriceWithQuantitySmall"> грн</span></span>
-                                        {/*{parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(3)}*/}
-                                        {/*<span style={{ fontSize: "1rem", opacity: 0.5 }}><div className="BasePriceWithQuantitySmall ">грн</div></span>*/}
-                                        =
-                                      <span className="booooold " style={{ color: "#008249" }}>
-          {thing.priceForThisDiscount}<span className="BasePriceWithQuantitySmall" style={{color: "#008249"}}> грн</span>
+                                      <span
+                                        className="">  × {parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)}<span
+                                        className="BasePriceWithQuantitySmall"> грн</span></span>
+                                      {/*{parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(3)}*/}
+                                      {/*<span style={{ fontSize: "1rem", opacity: 0.5 }}><div className="BasePriceWithQuantitySmall ">грн</div></span>*/}
+                                      =
+                                      <span className="booooold " style={{color: "#008249"}}>
+          {thing.priceForThisDiscount}<span className="BasePriceWithQuantitySmall"
+                                            style={{color: "#008249"}}> грн</span>
         </span>
-                                        </div>
+                                    </div>
 
                                     <div className="BasePriceWithQuantityDiscountword">
-                                     Знижка {thisOrder.prepayment}
+                                      Знижка {thisOrder.prepayment}
                                     </div>
                                   </div>
                                 )}
                               </div>
-
-
 
 
                             </div>
@@ -418,44 +486,46 @@ const NewUIArtem = () => {
 
                                 <div className="bottomMeta">
                                   <div className="col">
-                                    <div className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
+                                    <div
+                                      className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
                                       На аркуші можна розмістити
-                                      <strong className="booooold" style={{color:"#3c60a6"}}>
+                                      <strong className="booooold" style={{color: "#3c60a6"}}>
                                         {thing.newField4}
                                       </strong> виробів
                                     </div>
-                                    <div className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
+                                    <div
+                                      className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
                                       Використано на це замовлення
-                                      <strong style={{color:"#3c60a6"}}>{thing.newField5}</strong> аркушів
+                                      <strong style={{color: "#3c60a6"}}>{thing.newField5}</strong> аркушів
                                     </div>
                                   </div>
 
                                   <div className="col ">
                                     <div className="adminFontTable BasePriceWithQuantityDetals pricesRow">
                                       <div>За 1 аркуш:</div>
-                                      <span className="booooold money" style={{color:"#ee3c23"}}>
+                                      <span className="booooold money" style={{color: "#ee3c23"}}>
     {parseFloat(thing.priceForOneThis).toFixed(2)}
                                         <span className="BasePriceWithQuantitySmall">грн</span>
   </span>
                                       <span>/</span>
                                       <div>За 1 шт:</div>
-                                      <span className="money booooold" style={{color:"#ee3c23"}}>
+                                      <span className="money booooold" style={{color: "#ee3c23"}}>
     {parseFloat(thing.priceForThis / thing.amount).toFixed(2)}
                                         <span className="BasePriceWithQuantitySmall">грн</span>
   </span>
                                     </div>
 
                                     {(+parseFloat(thing.priceForOneThis).toFixed(2)) !==
-                                      (+parseFloat(thing.priceForOneThisDiscount||0).toFixed(2)) && (
+                                      (+parseFloat(thing.priceForOneThisDiscount || 0).toFixed(2)) && (
                                         <div className="adminFontTable BasePriceWithQuantityDetals pricesRow">
                                           <div>За 1 аркуш:</div>
-                                          <span className="money booooold" style={{color:"#008249"}}>
+                                          <span className="money booooold" style={{color: "#008249"}}>
       {thing.priceForOneThisDiscount}
                                             <span className="BasePriceWithQuantitySmall">грн</span>
     </span>
                                           <span>/</span>
                                           <div>За 1 шт:</div>
-                                          <span className="money booooold" style={{color:"#008249"}}>
+                                          <span className="money booooold" style={{color: "#008249"}}>
       {(thing.priceForThisDiscount / thing.amount).toFixed(2)}
                                             <span className="BasePriceWithQuantitySmall">грн</span>
     </span>
@@ -466,7 +536,6 @@ const NewUIArtem = () => {
                                 </div>
                               </>
                             )}
-
 
 
                           </div>
@@ -481,7 +550,7 @@ const NewUIArtem = () => {
                   ))}
                 </div>
               ) : (
-                <div className="empty">Немає елементів</div>
+                <div className="empty"></div>
               )}
             </div>
 
@@ -730,7 +799,7 @@ const NewUIArtem = () => {
         {thisOrder ? (
 
           <div className="ClientsMenuAll" style={{
-            width: "36.5vw",position: "fixed", bottom: "0vh", height: "15vh",
+            width: "36.5vw", position: "fixed", bottom: "0vh", height: "15vh", right: "0"
           }}>
 
             <ProgressBar thisOrder={thisOrder} setThisOrder={setThisOrder}
@@ -749,11 +818,12 @@ const NewUIArtem = () => {
           //                       handleThisOrderChange={handleThisOrderChange}/>
           // <ClientChangerUIArtem client={{email: "null", id: 0, phone: "+00000000",}}/>
         )}
-        <div className="d-flex flex-row" style={{position:"absolute", bottom:"0", }} >
-          <div className="containerNewUI" style={{height: "15vh", width: "30vw", position: "relative",padding:'0.3rem'}}>
+        <div className="d-flex flex-row" style={{position: "absolute", bottom: "0",}}>
+          <div className="containerNewUI"
+               style={{height: "15vh", width: "30vw", position: "relative", padding: '0.3rem'}}>
             <OrderFilesPanel thisOrder={thisOrder}/>
           </div>
-          <div className="containerNewUI" style={{height: "15vh", width: "30vw", position: "relative", }}>
+          <div className="containerNewUI" style={{height: "15vh", width: "30vw", position: "relative",}}>
             <ClientChangerUIArtem
               thisOrder={thisOrder}
               setThisOrder={setThisOrder}

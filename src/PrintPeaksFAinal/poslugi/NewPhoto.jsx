@@ -179,6 +179,29 @@ const NewPhoto = ({
 
     return (
         <>
+          <style>{`
+      .uiverse-topright{
+        position:absolute;
+        top:3vw;
+        right:3vw;
+        width:25vmin;
+        height:30vmin;
+        background: transparent;
+       }
+      .u-stack img{display:block;max-width:60%;}
+      .u-stack{width:100%;max-width:400px;transition:0.25s ease;}
+      .u-stack:hover{transform:rotate(5deg);}
+      .u-stack:hover .u-card:before{transform:translateY(-2%) rotate(-4deg);}
+      .u-stack:hover .u-card:after{transform:translateY(2%) rotate(4deg);}
+      .u-card{aspect-ratio:3/2;border:1px solid;background:#f2f0e7;position:relative;
+        transition:0.15s ease;cursor:pointer;padding:5% 5% 15% 5%;}
+      .u-card:before,.u-card:after{content:"";display:block;position:absolute;height:100%;width:100%;
+        border:1px solid;background:transparent;transform-origin:center;z-index:-1;transition:0.15s ease;top:0;left:0;}
+      .u-card:before{transform:translateY(-2%) rotate(-6deg);}
+      .u-card:after{transform:translateY(2%) rotate(6deg);}
+      .u-image{width:100%;border:1px solid;background:#ebebe6;aspect-ratio:1/1;position:relative;
+        display:flex;align-items:center;justify-content:center;}
+      `}</style>
             {isVisible === true ? (
                 <div>
                     <div
@@ -210,6 +233,15 @@ const NewPhoto = ({
                         height: "95vh",
                         // padding: "20px"
                     }}>
+                      <div className="uiverse-topright">
+                        <div className="u-stack">
+                          <div className="u-card">
+                            <div className="u-image">
+                              <img src={versantIcon} alt="Versant" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                         <div className="d-flex">
                             <div className="m-auto text-center fontProductName">
                                 <div className="d-flex flex-wrap justify-content-center">

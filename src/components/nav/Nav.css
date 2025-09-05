@@ -232,7 +232,7 @@
   --gap: 0vw;
 }
 .navTheme-amber{
-  --front-bg: transparent;   --front-text:#313131; --front-b:transparent;
+  --front-bg: transparent;   --front-text: rgba(0, 0, 0, 0.6); --front-b:transparent;
   --back-bg:transparent;         --back-text:#fff;     --back-b:transparent;
 }
 
@@ -262,6 +262,7 @@
   transition:all .3s ease-out;
   width: 6vw;
   font-size: 0.6vw;
+  font-weight: bold;
   border: none;
   border-bottom-right-radius: 12px;
   border-bottom-left-radius: 12px;
@@ -331,7 +332,7 @@
   margin-left: -1rem;
   margin-right: -1rem;
   background-color: #fbfaf6;
-  color: black;
+  color: rgba(0, 0, 0, 0.6);
   border: none;
   display: flex;
   align-items: center;

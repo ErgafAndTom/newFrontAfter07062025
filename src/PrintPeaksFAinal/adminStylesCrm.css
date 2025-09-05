@@ -203,64 +203,103 @@
 @media (prefers-reduced-motion: reduce) {
   .adminButtonAdd,
   .adminButtonAdd::before { animation: none !important; }
-}
-/* From Uiverse.io by joe-watson-sbf */
-.card {
-  width: 25vw;
-  height: 25vh;      /* щоб блок підлаштовувався під кількість кнопок */
-  border-radius: 12px;
-  background: transparent;
-  display: flex;
-  flex-direction: row; /* <-- вертикально */
-  gap: 10px;
+}:root { --tile-w: 3.5vw; }
 
-  border: none;
+/* як було */
+.CardPrintersPoslugi{ height:30vh; display:flex; gap:0.7vw; padding-top:1vh; padding-left:0.5vw; }
+.CardPrintersPoslugi p{
+  box-sizing:border-box; flex:0 0 var(--tile-w); height:25vh;
+  display:flex; justify-content:start; align-items:stretch;
+  box-shadow:  1px 1px 3px 1px rgba(0,0,0,0.1); border-radius:12px;
+  background:
+    radial-gradient(
+      120% 180% at 10% 0%,
+      rgba(251, 250, 246, 0.35),
+      transparent 42%
+    ),
+    linear-gradient(
+      130deg,
+      #ffffff,
+      #fbfaf6,
+      #e4e2d3,
+      #fbfaf6
+    );
+  background-size: 250% 250%, 320% 320%;
+  background-position: 30% 18%, 0% 50%;
+  animation: btnGlow 5s ease-in-out infinite;
+
+  overflow:hidden; cursor:pointer; transition:flex-basis .35s ease;
+}
+@keyframes btnGlow {
+  0% {
+    background-position: 30% 18%, 0% 50%;
+  }
+  50% {
+    background-position: 70% 82%, 100% 50%;
+  }
+  100% {
+    background-position: 30% 18%, 0% 50%;
+  }
+}
+.CardPrintersPoslugi p:hover{ flex-basis:calc(var(--tile-w) * 3);
+
+  background:
+  radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.35), transparent 42%),
+  linear-gradient(130deg, #fff7c6, #f7f1a1, #e4d77d, #f7f1a1);
+
+  background-size: 250% 250%, 320% 320%;
+  background-position: 30% 18%, 0% 50%;
+  animation: btnGlow 5s ease-in-out infinite;}
+
+.tileContent{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  width:100%; height:100%; padding:.35em .35em .6em;
+}
+
+/* ЗАГОЛОВОК — без rotate, не ріжеться */
+.verticalText,
+.verticalColumns{
+  /* позиція у потоці, зверху по центру */
+  /*align-items: start;*/
+  /*align-self:stretch;*/
   justify-content: center;
-  align-items: center;
-  flex-wrap: nowrap;
+  justify-items: center;
+  margin-top:.15rem;
+  flex-direction:column;
+  /* вертикальне письмо замість transform */
+  writing-mode: sideways-rl;
+  /*text-orientation: upright;*/
+  /* вигляд */
+  white-space:normal;
+  line-height:1;
+  letter-spacing:.06em;
+  font-size:1.1vw; font-weight:600; color: rgba(0, 0, 0, 0.6);
+  text-align: start;
 }
 
-.cardImg {
-  transform: rotate(90deg);
-  height: 5vh;
-  width: 2vw;
-}
-.card p {
-  height: 25vh;
-  width: 20vw;
-  flex: 3;
-  overflow: hidden;
-  cursor: pointer;
-  border-radius: 12px;
-  transition: all .5s;
-  background: transparent;
-  border: 1px solid #fdb40e;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: nowrap;
+/* багато слів у ряд — рівно і щільно */
+.verticalColumns{ display:flex;  gap:.25em;  justify-content: flex-start }
+
+/* на hover робимо горизонтально (стрибком, без обрізання) */
+.CardPrintersPoslugi p:hover .verticalText,
+.CardPrintersPoslugi p:hover .verticalColumns{
+  writing-mode: horizontal-tb;
+  text-orientation:initial;
 
 }
 
-.card p:hover {
-  flex: 2;
+/* іконка завжди внизу */
+.CardPrintersPoslugi .tileContent > img,
+.CardPrintersPoslugiImg{
+  margin-top:auto; align-self:center; width:3vw; height:5vh;
+  transform-origin:center bottom; transition:transform .35s ease;
 }
+.CardPrintersPoslugi p:hover .tileContent > img{ transform:scale(3); }
 
-.card p span {
-  min-width: 5vw;
-  padding: .5em;
-  text-align: center;
-  transform: rotate(-90deg);
-  transition: all .5s;
-  text-transform: uppercase;
-  color: #ff568e;
-  letter-spacing: .1em;
-}
+/* прибрати спадкові трансформації зі span */
+.CardPrintersPoslugi p span{ display:block; }
 
-.card p:hover span {
-  transform: rotate(0);
-}
+
 /*.adminButtonAdd-primary {*/
 /*  text-decoration: none;*/
 /*    display: flex;*/
@@ -615,3 +654,6 @@
     0 3px 8px rgba(0,0,0,.14);
   background: #fbfaf6;
 }
+
+
+
