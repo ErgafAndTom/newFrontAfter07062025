@@ -165,12 +165,12 @@ const CompanyTabl = () => {
         {/*<div className="summary-cell viber d-flex justify-content-center">*/}
         {/*  <FaViber size={20} style={{ color: '#000' }} />*/}
         {/*</div>*/}
-        <div className="summary-cell action d-flex justify-content-center">Кількість users</div>
-        <div className="summary-cell action d-flex justify-content-center">Керування</div>
-        <div className="summary-cell documents d-flex justify-content-center">Баланс</div>
-        <div className="summary-cell files d-flex justify-content-sm-around ">Файли</div>
-        <div className="summary-cell barcode-orders d-flex justify-content-center" style={{opacity: "1"}}>Штрих-код
-        </div>
+        <div className="summary-cell phoneNumber d-flex justify-content-center">Members(users)</div>
+        <div className="summary-cell phoneNumber d-flex justify-content-center">Керування</div>
+        {/*<div className="summary-cell documents d-flex justify-content-center">Баланс</div>*/}
+        {/*<div className="summary-cell files d-flex justify-content-sm-around ">Файли</div>*/}
+        {/*<div className="summary-cell barcode-orders d-flex justify-content-center" style={{opacity: "1"}}>Штрих-код*/}
+        {/*</div>*/}
       </div>
       {/* data rows */}
 
@@ -239,7 +239,7 @@ const CompanyTabl = () => {
                   : '—'}
               </div>
 
-              <div className="summary-cell d-flex action justify-content-center">{order.Users.length}</div>
+              <div className="summary-cell d-flex phoneNumber justify-content-center">{order.Users.length}</div>
 
               {/*<div className="summary-cell viber d-flex justify-content-center">*/}
               {/*  {order.client?.phoneNumber*/}
@@ -247,48 +247,48 @@ const CompanyTabl = () => {
               {/*    : '—'}*/}
               {/*</div>*/}
 
-              <div className="summary-cell action d-flex justify-content-center">
+              <div className="summary-cell phoneNumber d-flex justify-content-center">
                 <Link to={`/Companys/${order.id}`}
                       style={{textDecoration: 'none', outline: 'none'}}>
                   <button className="adminButtonAddOrder"><RiCalculatorLine size={20}/></button>
                 </Link>
               </div>
-              <div className="summary-cell documents d-flex justify-content-center">
-                <Link to={`/Companys/${order.id}`}
-                      style={{textDecoration: 'none', outline: 'none'}}>
-                  <button className="adminButtonAddOrder"><FiFile size={19}/></button>
-                </Link>
-              </div>
-              <div className="summary-cell files d-flex justify-content-center">
-                <Link to={`/Companys/${order.id}`}
-                      style={{textDecoration: 'none', outline: 'none',}}>
-                  <button className="adminButtonAddOrder"><FiFolder size={18}/></button>
+              {/*<div className="summary-cell documents d-flex justify-content-center">*/}
+              {/*  <Link to={`/Companys/${order.id}`}*/}
+              {/*        style={{textDecoration: 'none', outline: 'none'}}>*/}
+              {/*    <button className="adminButtonAddOrder"><FiFile size={19}/></button>*/}
+              {/*  </Link>*/}
+              {/*</div>*/}
+              {/*<div className="summary-cell files d-flex justify-content-center">*/}
+              {/*  <Link to={`/Companys/${order.id}`}*/}
+              {/*        style={{textDecoration: 'none', outline: 'none',}}>*/}
+              {/*    <button className="adminButtonAddOrder"><FiFolder size={18}/></button>*/}
 
-                </Link>
-              </div>
+              {/*  </Link>*/}
+              {/*</div>*/}
 
-              <div
-                className={`summary-cell barcode-orders ${
-                  activeBarcodeId === order.id ? 'active' : ''
-                }`}
-                onClick={e => {
-                  e.stopPropagation();
-                  setActiveBarcodeId(prev =>
-                    prev === order.id ? null : order.id
-                  );
-                }}
-              >
-                {order.barcode ? (
-                  <Barcode
-                    value={order.barcode.toString()}
-                    width={1.1}
-                    height={34}
-                    background={'transparent'}
-                    fontSize={14}
-                    displayValue={false}
-                  />
-                ) : '—'}
-              </div>
+              {/*<div*/}
+              {/*  className={`summary-cell barcode-orders ${*/}
+              {/*    activeBarcodeId === order.id ? 'active' : ''*/}
+              {/*  }`}*/}
+              {/*  onClick={e => {*/}
+              {/*    e.stopPropagation();*/}
+              {/*    setActiveBarcodeId(prev =>*/}
+              {/*      prev === order.id ? null : order.id*/}
+              {/*    );*/}
+              {/*  }}*/}
+              {/*>*/}
+              {/*  {order.barcode ? (*/}
+              {/*    <Barcode*/}
+              {/*      value={order.barcode.toString()}*/}
+              {/*      width={1.1}*/}
+              {/*      height={34}*/}
+              {/*      background={'transparent'}*/}
+              {/*      fontSize={14}*/}
+              {/*      displayValue={false}*/}
+              {/*    />*/}
+              {/*  ) : '—'}*/}
+              {/*</div>*/}
             </div>
 
             {isExpanded && (
