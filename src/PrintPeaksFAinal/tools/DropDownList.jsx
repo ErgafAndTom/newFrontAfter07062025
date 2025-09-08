@@ -25,7 +25,7 @@ function DropDownList({ showAddPay, setShowAddPay, formData, setFormData, data, 
   //     setShowAddPay(false);
   //   }, 300); // После завершения анимации скрываем модальное окно
   // }
-  //
+
   // const handleChange = (e) => {
   //   const { name, value, type, checked } = e.target;
   //   setFormData(prev => ({

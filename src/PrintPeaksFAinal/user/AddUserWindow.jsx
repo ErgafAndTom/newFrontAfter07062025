@@ -1,5 +1,5 @@
 // import "AddUserWindow.css"
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import PropTypes from "prop-types";
 import axios from "../../api/axiosInstance";
 import {useNavigate} from "react-router-dom";
@@ -12,7 +12,7 @@ import AddCompanyModal from "../company/AddCompanyModal";
 // ключ: используем те же стили и геометрию, что у ClientSelectionModal
 import "../userInNewUiArtem/ClientSelectionModal.css";
 
-function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder, setThisOrder}) {
+function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder, setThisOrder, presetCompany }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -22,18 +22,15 @@ function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder
   const userr = useSelector(state => state.auth.user);
 
   const [user, setUser] = useState({
-    firstName: '',
-    lastName: '',
-    familyName: '',
-    phoneNumber: '',
-    email: '',
-    companyId: '',
-    companyName: '',
-    telegram: '',
-    address: '',
-    notes: '',
-    discount: 0
+    firstName:'', lastName:'', familyName:'', phoneNumber:'', email:'',
+    companyId: presetCompany?.id || '', companyName: presetCompany?.name || '',
+    telegram:'', address:'', notes:'', discount:0
   });
+  useEffect(()=>{
+    if (presetCompany?.id) {
+      setUser(prev=>({ ...prev, companyId: presetCompany.id, companyName: presetCompany.name }));
+    }
+  }, [presetCompany]);
 
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/[^+\d]/g, '');
@@ -222,26 +219,32 @@ function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder
                 </Form.Group>
 
                 <div>Місце роботи</div>
-                <div>
-                  <DropDownList
+                {presetCompany?.id ? (
+                  <div className="d-flex align-items-center" style={{gap:"0.5rem"}}>
+                    <span className="badge bg-success">Компанія: {presetCompany.name} (id: {presetCompany.id})</span>
+                  </div>
+                ) : (
+                  <div>
+                    <DropDownList
                     formData={user}
                     setFormData={setUser}
                     user={user}
                     data={data}
                     setData={setData}
                   />
-                  <div className="d-flex flex-row align-items-center" style={{width:"30vw"}}>
-                    <div>Якщо у списку немає компанії, то можна ось тут</div>
-                    <button
-                      type="button"
-                      className="adminButtonAdd"
-                      style={{marginLeft:"0.3vw"}}
-                      onClick={handleAddCompany}
-                    >
-                      Додати компанію
-                    </button>
+                    <div className="d-flex flex-row align-items-center" style={{width:"30vw"}}>
+                      <div>Якщо у списку немає компанії, то можна ось тут</div>
+                      <button
+                        type="button"
+                        className="adminButtonAdd"
+                        style={{marginLeft:"0.3vw"}}
+                        onClick={handleAddCompany}
+                      >
+                        Додати компанію
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </Col>
 
               <Col md={6}>

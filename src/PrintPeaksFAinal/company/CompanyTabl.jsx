@@ -248,7 +248,7 @@ const CompanyTabl = () => {
               {/*</div>*/}
 
               <div className="summary-cell action d-flex justify-content-center">
-                <Link to={`/Orders/${order.id}`}
+                <Link to={`/Companys/${order.id}`}
                       style={{textDecoration: 'none', outline: 'none'}}>
                   <button className="adminButtonAddOrder"><RiCalculatorLine size={20}/></button>
                 </Link>

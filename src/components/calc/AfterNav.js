@@ -40,6 +40,7 @@ import TrelloBoardAI from "../../PrintPeaksFAinal/trelloLikeBoards/TrelloBoardAI
 import Graph3D from "../../PrintPeaksFAinal/Graph3D";
 import CompanyTabl from "../../PrintPeaksFAinal/company/CompanyTabl";
 import Graph3D_with_comments from "../../PrintPeaksFAinal/Graph3D_with_comments";
+import CompanyPage from "../../PrintPeaksFAinal/company/CompanyPage";
 
 
 
@@ -95,6 +96,7 @@ const AfterNav = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/Users" element={<UsersCustomTable />} />
                 <Route path="/Companys" element={<CompanyTabl />} />
+                <Route path="/Companys/:id" element={<CompanyPage  />} />
                 <Route path="/currentUser" element={<Profile />} />
                 <Route path="/client/:id" element={<ClientUserProfile />} />
                 <Route path="/myFiles" element={<UserFiles />} />
