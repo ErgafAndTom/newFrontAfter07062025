@@ -138,6 +138,7 @@ const UsersOrdersLikeTable = () => {
         <div className="summary-cell phoneNumber">company</div>
         <div className="summary-cell phoneNumber">discount</div>
         <div className="summary-cell phoneNumber">contragents</div>
+        <div className="summary-cell phoneNumber">Заказів</div>
         <div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20} style={{ color: '#000' }}/></div>
         <div className="summary-cell telegram d-flex justify-content-center">
           <FaTelegramPlane size={20} style={{ color: '#000' }} />
@@ -147,10 +148,10 @@ const UsersOrdersLikeTable = () => {
         {/*</div>*/}
 
 
-        <div className="summary-cell action d-flex justify-content-center">Прорахунок</div>
-        <div className="summary-cell documents d-flex justify-content-center">Документи</div>
-        <div className="summary-cell files d-flex justify-content-sm-around ">Файли</div>
-        <div className="summary-cell barcode-orders d-flex justify-content-center" style={{opacity:"1"}}>Штрих-код</div>
+        <div className="summary-cell phoneNumber d-flex justify-content-center">Детально</div>
+        {/*<div className="summary-cell documents d-flex justify-content-center">Документи</div>*/}
+        {/*<div className="summary-cell files d-flex justify-content-sm-around ">Файли</div>*/}
+        {/*<div className="summary-cell barcode-orders d-flex justify-content-center" style={{opacity:"1"}}>Штрих-код</div>*/}
       </div>
       {/* data rows */}
 
@@ -224,7 +225,7 @@ const UsersOrdersLikeTable = () => {
               </div>
               <div className="summary-cell phoneNumber fontSize1-3VH">{order.discount || '—'}</div>
               <div className="summary-cell phoneNumber d-flex justify-content-center UsersOrdersLikeTable-contract-text-multiline">
-                {order.Contractors
+                {order.Contractors.length > 0
                   ? <div className="UsersOrdersLikeTable-contract-text-multiline">
                       {order.Contractors.map((contr, iter) => {
                         return (
@@ -239,6 +240,7 @@ const UsersOrdersLikeTable = () => {
                     </div>
                   : '—'}
               </div>
+              <div className="summary-cell phoneNumber fontSize1-3VH">{order.Orders?.length || '—'}</div>
               <div className="summary-cell phoneNumber fontSize1-3VH">{order.phoneNumber || '—'}</div>
               <div className="summary-cell telegram d-flex justify-content-center">
                 {order.telegram
@@ -252,48 +254,48 @@ const UsersOrdersLikeTable = () => {
               {/*    : '—'}*/}
               {/*</div>*/}
 
-              <div className="summary-cell action d-flex justify-content-center">
-                <Link to={`/Orders/${order.id}`}
+              <div className="summary-cell phoneNumber d-flex justify-content-center">
+                <Link to={`/Users/${order.id}`}
                       style={{ textDecoration: 'none', outline: 'none' }}>
                   <button className="adminButtonAddOrder" > <RiCalculatorLine size={20} /></button>
                 </Link>
               </div>
-              <div className="summary-cell documents d-flex justify-content-center">
-                <Link to={`/Orders/${order.id}`}
-                      style={{ textDecoration: 'none', outline: 'none' }}>
-                  <button className="adminButtonAddOrder" ><FiFile size={19} /></button>
-                </Link>
-              </div>
-              <div className="summary-cell files d-flex justify-content-center">
-                <Link to={`/Orders/${order.id}`}
-                      style={{ textDecoration: 'none', outline: 'none',  }}>
-                  <button className="adminButtonAddOrder"> <FiFolder size={18} /></button>
+              {/*<div className="summary-cell documents d-flex justify-content-center">*/}
+              {/*  <Link to={`/Orders/${order.id}`}*/}
+              {/*        style={{ textDecoration: 'none', outline: 'none' }}>*/}
+              {/*    <button className="adminButtonAddOrder" ><FiFile size={19} /></button>*/}
+              {/*  </Link>*/}
+              {/*</div>*/}
+              {/*<div className="summary-cell files d-flex justify-content-center">*/}
+              {/*  <Link to={`/Orders/${order.id}`}*/}
+              {/*        style={{ textDecoration: 'none', outline: 'none',  }}>*/}
+              {/*    <button className="adminButtonAddOrder"> <FiFolder size={18} /></button>*/}
 
-                </Link>
-              </div>
+              {/*  </Link>*/}
+              {/*</div>*/}
 
-              <div
-                className={`summary-cell barcode-orders ${
-                  activeBarcodeId === order.id ? 'active' : ''
-                }`}
-                onClick={e => {
-                  e.stopPropagation();
-                  setActiveBarcodeId(prev =>
-                    prev === order.id ? null : order.id
-                  );
-                }}
-              >
-                {order.barcode ? (
-                  <Barcode
-                    value={order.barcode.toString()}
-                    width={1.1}
-                    height={34}
-                    background={'transparent'}
-                    fontSize={14}
-                    displayValue={false}
-                  />
-                ) : '—'}
-              </div>
+              {/*<div*/}
+              {/*  className={`summary-cell barcode-orders ${*/}
+              {/*    activeBarcodeId === order.id ? 'active' : ''*/}
+              {/*  }`}*/}
+              {/*  onClick={e => {*/}
+              {/*    e.stopPropagation();*/}
+              {/*    setActiveBarcodeId(prev =>*/}
+              {/*      prev === order.id ? null : order.id*/}
+              {/*    );*/}
+              {/*  }}*/}
+              {/*>*/}
+              {/*  {order.barcode ? (*/}
+              {/*    <Barcode*/}
+              {/*      value={order.barcode.toString()}*/}
+              {/*      width={1.1}*/}
+              {/*      height={34}*/}
+              {/*      background={'transparent'}*/}
+              {/*      fontSize={14}*/}
+              {/*      displayValue={false}*/}
+              {/*    />*/}
+              {/*  ) : '—'}*/}
+              {/*</div>*/}
             </div>
 
             {isExpanded && (
@@ -305,14 +307,6 @@ const UsersOrdersLikeTable = () => {
                 <div className="ExpandedRow-details">
                   <p><strong>Дата створення:</strong> {new Date(order.createdAt).toLocaleString()}</p>
                   <p><strong>Дата оновлення:</strong> {order.updatedAt ? new Date(order.updatedAt).toLocaleString() : '—'}</p>
-                  <p><strong>Час початку виготовлення:</strong> {order.manufacturingStartTime ? new Date(order.manufacturingStartTime).toLocaleString() : '—'}</p>
-                  <p><strong>Час виготовлення:</strong> {
-                    order.finalManufacturingTime
-                      ? `${order.finalManufacturingTime.days}д ${order.finalManufacturingTime.hours}год ${order.finalManufacturingTime.minutes}хв ${order.finalManufacturingTime.seconds}сек`
-                      : order.manufacturingStartTime ? 'В процесі' : '—'
-                  }</p>
-                  <p><strong>Дедлайн:</strong> {order.deadline ? new Date(order.deadline).toLocaleString() : '—'}</p>
-                  <p><strong>Виконавець:</strong> {order.executor ? `${order.executor.firstName} ${order.executor.lastName}` : '—'}</p>
 
                   <button
                     className="btn pastel-delete"
@@ -324,14 +318,25 @@ const UsersOrdersLikeTable = () => {
                     Видалити
                   </button>
                 </div>
-
+                <div className="d-flex">Контрагенти:
+                  {order.Contractors &&
+                    <p style={{marginLeft: "0.1vw"}}>Немає</p>
+                  }
+                </div>
                 <div className="OrderRow-units d-flex flex-row">
-                  {order.OrderUnits.map((unit, i) => (
+                  {order.Contractors?.map((unit, i) => (
                     <div key={i} className="OrderUnit-card">
-                      <div><strong>Назва:</strong> {unit.name}</div>
-                      <div><strong>Кількість:</strong> {unit.newField5}</div>
-                      <div><strong>Ціна:</strong> {unit.priceForThis} грн</div>
-                      <div><strong>Розмір:</strong> {unit.newField2} x {unit.newField3} мм</div>
+                      <div className="UsersOrdersLikeTable-contract-text"><strong>id:</strong>{unit.name}</div>
+                      <div className="UsersOrdersLikeTable-contract-text"><strong>Назва:</strong> {unit.name}</div>
+                      <div className="UsersOrdersLikeTable-contract-text"><strong>тип:</strong> {unit.type}</div>
+                      <div className="UsersOrdersLikeTable-contract-text"><strong>Адреса:</strong> {unit.address}</div>
+                      <div className="UsersOrdersLikeTable-contract-text"><strong>Банк:</strong> {unit.bankName}</div>
+                      <div className="UsersOrdersLikeTable-contract-text"><strong>iban:</strong> {unit.iban}</div>
+                      <div className="UsersOrdersLikeTable-contract-text"><strong>edrpou:</strong> {unit.edrpou}</div>
+                      <div className="UsersOrdersLikeTable-contract-text"><strong>email:</strong> {unit.email}</div>
+                      <div className="UsersOrdersLikeTable-contract-text"><strong>phone:</strong> {unit.phone}</div>
+                      <div className="UsersOrdersLikeTable-contract-text"><strong>taxSystem:</strong> {unit.taxSystem}</div>
+                      <div className="UsersOrdersLikeTable-contract-text"><strong>pdv:</strong> {unit.pdv}</div>
                     </div>
                   ))}
                 </div>

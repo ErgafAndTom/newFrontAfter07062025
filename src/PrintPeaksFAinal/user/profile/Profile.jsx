@@ -7,6 +7,7 @@ import ContrAgentsInUserProfile from '../profile/ContrAgentsInUserProfile';
 import {buttonStyles, containerStyles, formStyles, avatarStyles, tabStyles} from '../profile/styles';
 import TelegramAvatar from "../../Messages/TelegramAvatar";
 import PaysInOrderRestoredForAdmin from "../../userInNewUiArtem/pays/PaysInOrderRestoredForAdmin";
+import UserPageDetails from "../UserPageDetails";
 
 function ClientUserProfile() {
   const dispatch = useDispatch();
@@ -254,6 +255,7 @@ function ClientUserProfile() {
             </Link>
           </div>
         </div>
+        // <UserPageDetails user={thisUser} />
       )}
 
       {activeTab === 'counterparties' && (

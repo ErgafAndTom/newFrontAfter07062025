@@ -582,12 +582,15 @@ body {
   white-space: normal;
   word-break: break-word;
 }
-.summary-cell.phoneNumber     { width: 10vw; max-width: 10vw;
+.summary-cell.phoneNumber     {
+  width: 10vw;
+  max-width: 10vw;
+  /*border: black solid 1px;*/
 }
 .summary-cell.telegram        { width: 5vw; }
-.summary-cell.action          { width: 7vw; }
-.summary-cell.documents       { width: 7vw; }
-.summary-cell.files           { width: 7vw; }
+.summary-cell.action          { width: 5vw; }
+.summary-cell.documents       { width: 5vw; }
+.summary-cell.files           { width: 5vw; }
 .summary-cell.barcode-orders  { width: 11vw; opacity: 0; }
 .OrderRow-header .barcode-orders {
   opacity: 1 !important;
