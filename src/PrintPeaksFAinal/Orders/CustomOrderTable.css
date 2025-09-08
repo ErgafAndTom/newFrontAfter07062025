@@ -582,7 +582,8 @@ body {
   white-space: normal;
   word-break: break-word;
 }
-.summary-cell.phoneNumber     { width: 10vw; }
+.summary-cell.phoneNumber     { width: 10vw; max-width: 10vw;
+}
 .summary-cell.telegram        { width: 5vw; }
 .summary-cell.action          { width: 7vw; }
 .summary-cell.documents       { width: 7vw; }
@@ -678,6 +679,24 @@ display: flex;
   /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/
 
 
+}
+
+.UsersOrdersLikeTable-contract-text {
+  font-size: 0.6vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* для одной строки */
+  max-width: 10vw; /* ограничь ширину по контейнеру */
+}
+
+.UsersOrdersLikeTable-contract-text-multiline {
+  font-size: 0.6vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* число строк до "..." */
+  -webkit-box-orient: vertical;
+  max-width: 10vw;
 }
 
 .adminButtonAddOrder:hover {
