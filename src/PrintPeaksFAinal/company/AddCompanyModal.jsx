@@ -80,8 +80,8 @@ function AddCompanyModal({ user, showAddCompany, setShowAddCompany, onCompanyAdd
           inset: 0,
           left: "-31.5vw",
           top:"-2vh",
-          width: "100vw",
-          height: "100vh",
+          width: "200vw",
+          height: "200vh",
           backgroundColor: "rgba(15,15,15,0.45)",
           backdropFilter: "blur(2px)",
           WebkitBackdropFilter: "blur(2px)",
@@ -90,7 +90,10 @@ function AddCompanyModal({ user, showAddCompany, setShowAddCompany, onCompanyAdd
         }}
       />
       {/* контейнер того ж розміру й позиції */}
-      <div className="modalContainer animate-slide-up" style={{bottom:"0", left:"0"}}>
+      <div className="modalContainer animate-slide-up" style={{
+        bottom:"25%",
+        left:"35%"
+      }}>
         {/* header */}
         <div
           className="d-flex justify-content-between align-items-center"

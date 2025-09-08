@@ -14,6 +14,7 @@ import Pagination from "../tools/Pagination";
 import FiltrOrders from "../Orders/FiltrOrders";
 import {searchChange} from "../../actions/searchAction";
 import Loader from "../../components/calc/Loader";
+import AddCompanyModal from "./AddCompanyModal";
 
 
 
@@ -31,6 +32,8 @@ const CompanyTabl = () => {
   const search = useSelector((state) => state.search.search);
   const navigate = useNavigate();
   const [limit, setLimit] = useState(50);
+  const [showAddCompany, setShowAddCompany] = useState(false);
+  const user = useSelector(state => state.auth.user);
 
   const [typeSelect, setTypeSelect] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -43,6 +46,11 @@ const CompanyTabl = () => {
     status4: true,
     status5: true
   });
+
+  const handleAddCompany = (e) => {
+    e.preventDefault();
+    setShowAddCompany(true);
+  };
 
   const toggleOrder = (orderId) => {
     setExpandedOrderId(prevId => (prevId === orderId ? null : orderId));
@@ -315,6 +323,21 @@ const CompanyTabl = () => {
         setData={setData}
         url={"/api/company/OneOrder"}
       />
+      {showAddCompany &&
+        <AddCompanyModal
+          user={user}
+          setShowAddCompany={setShowAddCompany}
+          showAddCompany={showAddCompany}
+        />
+      }
+      <button
+        type="button"
+        className="adminButtonAdd"
+        style={{marginLeft:"0.3vw"}}
+        onClick={handleAddCompany}
+      >
+        Додати компанію
+      </button>
       {data?.count > 1 && (
         <Pagination
           currentPage={currentPage}
