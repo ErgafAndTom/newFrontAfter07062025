@@ -254,13 +254,13 @@ const CompanyTabl = () => {
                 </Link>
               </div>
               <div className="summary-cell documents d-flex justify-content-center">
-                <Link to={`/Orders/${order.id}`}
+                <Link to={`/Companys/${order.id}`}
                       style={{textDecoration: 'none', outline: 'none'}}>
                   <button className="adminButtonAddOrder"><FiFile size={19}/></button>
                 </Link>
               </div>
               <div className="summary-cell files d-flex justify-content-center">
-                <Link to={`/Orders/${order.id}`}
+                <Link to={`/Companys/${order.id}`}
                       style={{textDecoration: 'none', outline: 'none',}}>
                   <button className="adminButtonAddOrder"><FiFolder size={18}/></button>
 
