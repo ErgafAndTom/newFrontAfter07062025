@@ -111,8 +111,8 @@ function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder
         style={{
           position: 'fixed',
           inset: 0,
-          width: '100vw',
-          height: '100vh',
+          width: '200vw',
+          height: '200vh',
           left: "-31.5vw",
           top:"-2vh",
           backgroundColor: 'rgba(15,15,15,0.45)',
@@ -123,7 +123,11 @@ function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder
         }}
       />
       {/* Контейнер в том же месте и размере */}
-      <div className="modalContainer animate-slide-up" style={{left:"0%", bottom:"0", borderRadius: '12px'}}>
+      <div className="modalContainer animate-slide-up" style={{
+        bottom:"25%",
+        left:"35%",
+        borderRadius: '12px',
+      }}>
         {/* Заголовок */}
 
 

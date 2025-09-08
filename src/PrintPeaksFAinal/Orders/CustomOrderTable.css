@@ -633,10 +633,10 @@ body {
 }
 .ExpandedRow-details{
   display: flex;
-  gap: 1vw;
+  /*gap: 1vw;*/
   align-items: center;
   justify-content: space-between;
-  margin-top: 1vh;
+  /*margin-top: 1vh;*/
   font-size: 0.7rem;
 }
 /*.btn.pastel-action {*/

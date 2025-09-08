@@ -157,7 +157,7 @@ const Nav = () => {
         </span>
             </NavLink>
 
-            <NavLink to="/Company" className="btn">
+            <NavLink to="/Companys" className="btn">
               <span className="flip-front">Компанії</span>
               <span className="flip-back">
           {/* building */}

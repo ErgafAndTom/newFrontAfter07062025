@@ -15,6 +15,7 @@ import FiltrOrders from "../Orders/FiltrOrders";
 import {searchChange} from "../../actions/searchAction";
 import Loader from "../../components/calc/Loader";
 import AddCompanyModal from "./AddCompanyModal";
+import Vishichka from "../poslugi/Vishichka";
 
 
 
@@ -79,6 +80,7 @@ const CompanyTabl = () => {
 
           setLoading(true);
           const res = await axios.post(url, postData);
+          console.log(res.data);
           setData(res.data);
           setLoading(false);
         } catch (err) {
@@ -143,13 +145,14 @@ const CompanyTabl = () => {
         <div className="summary-cell address">Адреса</div>
         {/*<div className="summary-cell phoneNumber">Контактна особа</div>*/}
         <div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20} style={{ color: '#000' }}/></div>
-        {/*<div className="summary-cell telegram d-flex justify-content-center">*/}
-        {/*  <FaTelegramPlane size={20} style={{ color: '#000' }} />*/}
-        {/*</div>*/}
+        <div className="summary-cell telegram d-flex justify-content-center">
+          <FaTelegramPlane size={20} style={{ color: '#000' }} />
+        </div>
         {/*<div className="summary-cell viber d-flex justify-content-center">*/}
         {/*  <FaViber size={20} style={{ color: '#000' }} />*/}
         {/*</div>*/}
-        <div className="summary-cell action d-flex justify-content-center">Кількість замовлень</div>
+        <div className="summary-cell action d-flex justify-content-center">Кількість users</div>
+        <div className="summary-cell action d-flex justify-content-center">Керування</div>
         <div className="summary-cell documents d-flex justify-content-center">Баланс</div>
         <div className="summary-cell files d-flex justify-content-sm-around ">Файли</div>
         <div className="summary-cell barcode-orders d-flex justify-content-center" style={{opacity:"1"}}>Штрих-код</div>
@@ -201,7 +204,7 @@ const CompanyTabl = () => {
                  onClick={() => toggleOrder(order.id)}>
 
               <div className="summary-cell id d-flex justify-content-center">{order.id}</div>
-              <div className="summary-cell d-flex name justify-content-center">{order.name}</div>
+              <div className="summary-cell d-flex name justify-content-center">{order.companyName}</div>
               <div className="summary-cell d-flex edropu justify-content-center">{order.edropu}</div>
               <div className="summary-cell d-flex discount justify-content-center">{order.discount}</div>
               {/*<div className="summary-cell price">*/}
@@ -218,6 +221,8 @@ const CompanyTabl = () => {
                   ? <TelegramAvatar link={order.client.telegram} size={45} defaultSrc="" />
                   : '—'}
               </div>
+
+              <div className="summary-cell d-flex action justify-content-center">{order.Users.length}</div>
 
               {/*<div className="summary-cell viber d-flex justify-content-center">*/}
               {/*  {order.client?.phoneNumber*/}
@@ -271,42 +276,59 @@ const CompanyTabl = () => {
 
             {isExpanded && (
               <div
-                className="OrderRow-expanded pastel-panel"
+                className="OrderRow-expanded"
 
               >
 
                 <div className="ExpandedRow-details">
-                  <p><strong>Дата створення:</strong> {new Date(order.createdAt).toLocaleString()}</p>
-                  <p><strong>Дата оновлення:</strong> {order.updatedAt ? new Date(order.updatedAt).toLocaleString() : '—'}</p>
-                  <p><strong>Час початку виготовлення:</strong> {order.manufacturingStartTime ? new Date(order.manufacturingStartTime).toLocaleString() : '—'}</p>
-                  <p><strong>Час виготовлення:</strong> {
-                    order.finalManufacturingTime
-                      ? `${order.finalManufacturingTime.days}д ${order.finalManufacturingTime.hours}год ${order.finalManufacturingTime.minutes}хв ${order.finalManufacturingTime.seconds}сек`
-                      : order.manufacturingStartTime ? 'В процесі' : '—'
-                  }</p>
-                  <p><strong>Дедлайн:</strong> {order.deadline ? new Date(order.deadline).toLocaleString() : '—'}</p>
-                  <p><strong>Виконавець:</strong> {order.executor ? `${order.executor.firstName} ${order.executor.lastName}` : '—'}</p>
+                  <div><strong>Дата створення:</strong> {new Date(order.createdAt).toLocaleString()}</div>
+                  <div><strong>Дата оновлення:</strong> {order.updatedAt ? new Date(order.updatedAt).toLocaleString() : '—'}</div>
+                  {/*<p><strong>Час початку виготовлення:</strong> {order.manufacturingStartTime ? new Date(order.manufacturingStartTime).toLocaleString() : '—'}</p>*/}
+                  {/*<p><strong>Час виготовлення:</strong> {*/}
+                  {/*  order.finalManufacturingTime*/}
+                  {/*    ? `${order.finalManufacturingTime.days}д ${order.finalManufacturingTime.hours}год ${order.finalManufacturingTime.minutes}хв ${order.finalManufacturingTime.seconds}сек`*/}
+                  {/*    : order.manufacturingStartTime ? 'В процесі' : '—'*/}
+                  {/*}</p>*/}
+                  {/*<p><strong>Дедлайн:</strong> {order.deadline ? new Date(order.deadline).toLocaleString() : '—'}</p>*/}
+                  {/*<p><strong>Виконавець:</strong> {order.executor ? `${order.executor.firstName} ${order.executor.lastName}` : '—'}</p>*/}
 
-                  <button
-                    className="btn pastel-delete"
+                  <div
+                    className="btn"
+                    // style={{fontSize: "0.5vw", height: "0.3vh", background: "red"}}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleOrderClickDelete(order);
                     }}
                   >
                     Видалити
-                  </button>
+                  </div>
                 </div>
-
+                <div>Учасники: </div>
                 <div className="OrderRow-units d-flex flex-row">
-                  {order.OrderUnits.map((unit, i) => (
-                    <div key={i} className="OrderUnit-card">
-                      <div><strong>Назва:</strong> {unit.name}</div>
-                      <div><strong>Кількість:</strong> {unit.newField5}</div>
-                      <div><strong>Ціна:</strong> {unit.priceForThis} грн</div>
-                      <div><strong>Розмір:</strong> {unit.newField2} x {unit.newField3} мм</div>
+                  {order.Users.map((unit, i) => (
+                    <div>
+                      <div key={i} className="OrderUnit-card" style={{width: "20vw"}}>
+                        <TelegramAvatar
+                          link={unit.telegram}
+                          size={60}
+                          // defaultSrc="/default-avatar.png"
+                        />
+                        <div><strong>id:</strong> {unit.id}</div>
+                        <div><strong>username:</strong> {unit.username}</div>
+                        <div><strong>firstName:</strong> {unit.firstName}</div>
+                        <div><strong>lastName:</strong> {unit.lastName}</div>
+                        <div><strong>familyName:</strong> {unit.familyName}</div>
+                        <div><strong>email:</strong> {unit.email}</div>
+                        <div><strong>phoneNumber:</strong> {unit.phoneNumber}</div>
+                        <div><strong>telegram:</strong> {unit.telegram}</div>
+                        <div><strong>discount:</strong> {unit.discount}</div>
+                        <div><strong>address:</strong> {unit.address} грн</div>
+                      </div>
                     </div>
                   ))}
+                  {order.Users.length === 0 &&
+                    <div>Немає</div>
+                  }
                 </div>
               </div>
             )}
