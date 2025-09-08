@@ -82,7 +82,7 @@ const CompanyTabl = () => {
 
           setLoading(true);
           const res = await axios.post(url, postData);
-          console.log(res.data);
+          // console.log(res.data);
           setData(res.data);
           setLoading(false);
         } catch (err) {
