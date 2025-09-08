@@ -54,6 +54,8 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
   const [filteredUsers, setFilteredUsers] = useState([]);
   const user = thisOrder?.client || {};
 
+  const [thisUserIdToCabinet, setThisUserIdToCabinet] = useState(0);
+
   const [handleThisOrderChange, setHandleThisOrderChange] = useState(thisOrder);
   const [newThisOrder, setNewThisOrder] = useState(thisOrder);
   // Функція для закриття модального вікна
@@ -109,14 +111,14 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
       console.error(error.message);
     }
   };
-  useEffect(() => {
-    const handler = (e) => {
-      const btn = e.target.closest('.clientCabinetButton');
-      if (btn) setClientCabinetOpen(true);
-    };
-    document.addEventListener('click', handler, true); // capture = true
-    return () => document.removeEventListener('click', handler, true);
-  }, []);
+  // useEffect(() => {
+  //   const handler = (e) => {
+  //     const btn = e.target.closest('.clientCabinetButton');
+  //     if (btn) setClientCabinetOpen(true);
+  //   };
+  //   document.addEventListener('click', handler, true); // capture = true
+  //   return () => document.removeEventListener('click', handler, true);
+  // }, []);
 
   // Пошук користувачів при зміні запиту
   useEffect(() => {
@@ -195,6 +197,12 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
   // Додавання нового користувача
   const handleAddNewUser = () => {
     setShowAddUser(true);
+  };
+
+  const setThisUserToCabinetFunc = (open, user, e) => {
+    e.stopPropagation();
+    setThisUserIdToCabinet(user.id)
+    setClientCabinetOpen(open)
   };
 
   // Обробник успішного додавання нового користувача
@@ -313,12 +321,13 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
 
               <button
                 className="clientCabinetButton client-cabinet-icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // console.log("Кабінет клієнта:", user.id);
-                }}
+                // onClick={(e) => {
+                //   e.stopPropagation();
+                //   // console.log("Кабінет клієнта:", user.id);
+                // }}
+                onClick={(e) => setThisUserToCabinetFunc(true, thisOrder.client, e)}
                 title="Кабінет клієнта"
-                aria-label="Відкрити кабінет клієнта"
+                // aria-label="Відкрити кабінет клієнта"
               >
                 {/* user icon — stroke-based, uses currentColor */}
                 <FiUser size={30}  />
@@ -625,13 +634,9 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
       </Modal>
       </div>
       {/* Кабінет клієнта */}
-      {clientCabinetOpen && thisOrder?.client && (
+      {clientCabinetOpen && thisUserIdToCabinet && (
         <ClientCabinet
-          user={thisOrder.client}
-          thisOrder={thisOrder}
-          orders={[
-            thisOrder
-          ].filter(Boolean)}
+          userId={thisUserIdToCabinet}
           onCreateOrder={()=>{}}
           onOpenChat={()=>{}}
           onOpenProfile={()=>{}}

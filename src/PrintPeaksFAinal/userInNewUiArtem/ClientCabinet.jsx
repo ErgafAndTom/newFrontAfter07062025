@@ -1,16 +1,15 @@
 import React, {useEffect, useMemo, useState} from "react";
 import TelegramAvatar from "../Messages/TelegramAvatar";
-import { FiUser } from "react-icons/fi";
 import axios from "../../api/axiosInstance";
 import {Link} from "react-router-dom";
 import Loader from "../../components/calc/Loader";
 import {useSelector} from "react-redux";
-import Laminator from "../poslugi/Laminator";
 
 export default function ClientCabinet({
                                         user = {},
+                                        userId = 0,
                                         orders = [],
-                                        thisOrder,
+                                        thisOrder = {id: 0},
                                         // onCreateOrder,
                                         onOpenChat,
                                         onOpenProfile,
@@ -20,13 +19,14 @@ export default function ClientCabinet({
   const [clientOrders, setClientOrders] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [userInBase, setUserInBase] = useState(null);
   const currentUser = useSelector((state) => state.auth.user);
 
-  useEffect(() => {
-    const h = (e) => e.key === "Escape" && onClose?.();
-    document.addEventListener("keydown", h);
-    return () => document.removeEventListener("keydown", h);
-  }, [onClose]);
+  // useEffect(() => {
+  //   const h = (e) => e.key === "Escape" && onClose?.();
+  //   document.addEventListener("keydown", h);
+  //   return () => document.removeEventListener("keydown", h);
+  // }, [onClose]);
 
   const handleSearchChange = (e) => {
     // console.log(e.target.value);
@@ -36,7 +36,7 @@ export default function ClientCabinet({
   const onCreateOrder = () => {
     // Створюємо новий запит для створення замовлення
     const postData = {
-      userId: user.id,
+      userId: userInBase.id,
     };
     axios.post(`/orders/createForThisUser`, postData)
       .then(response => {
@@ -53,7 +53,7 @@ export default function ClientCabinet({
   };
 
   useEffect(() => {
-    if (user) {
+    if (userInBase) {
       const fetchData = async () => {
         try {
           // const url = user.role === 'admin' || user.role === 'operator' ? '/orders/all' : '/orders/my';
@@ -77,7 +77,7 @@ export default function ClientCabinet({
                 status4: true,
                 status5: true
               },
-              user: user.id,
+              user: userInBase.id,
             };
 
 
@@ -97,8 +97,31 @@ export default function ClientCabinet({
 
       fetchData();
     }
-  }, [user
-  ]);
+  }, [userInBase]);
+
+  useEffect(() => {
+    console.log(userId);
+    if (userId) {
+      const fetchData = async () => {
+        try {
+          // const url = user.role === 'admin' || user.role === 'operator' ? '/orders/all' : '/orders/my';
+          let url = `/user/getOneUser/${userId}`;
+          setLoading(true);
+          const res = await axios.get(url);
+          console.log(res.data);
+          setUserInBase(res.data);
+          setLoading(false);
+
+        } catch (err) {
+          // if (err.response?.status === 403) navigate('/login');
+          setError(err.message);
+          setLoading(false);
+        }
+      };
+
+      fetchData();
+    }
+  }, []);
 
   // const stats = useMemo(() => {
   //   const total = orders.reduce((s, o) => s + (+o.total || 0), 0);
@@ -107,9 +130,9 @@ export default function ClientCabinet({
   // }, [clientOrders]);
 
   const fullName = useMemo(() => {
-    const base = [user.firstName, user.lastName].filter(Boolean).join(" ");
-    return base || user.username || "Клієнт";
-  }, [user]);
+    const base = [userInBase?.firstName, userInBase?.lastName].filter(Boolean).join(" ");
+    return base || userInBase?.username || "Клієнт";
+  }, [userInBase]);
 
   const stats = useMemo(() => {
     const total = clientOrders.reduce((s, o) => s + (+o.allPrice || 0), 0);
@@ -124,16 +147,16 @@ export default function ClientCabinet({
       <div className="cc-panel" onClick={(e) => e.stopPropagation()}>
         <header className="cc-header">
           <div className="cc-avatar">
-            {user.telegram ? (
+            {userInBase?.telegram ? (
               <TelegramAvatar
-                link={user.telegram}
+                link={userInBase?.telegram}
                 size={50}
                 defaultSrc={
                   "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%20width%3D'70'%20height%3D'70'%20fill%3D'none'%20stroke%3D'currentColor'%20stroke-width%3D'1.6'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'12'%20cy%3D'8'%20r%3D'3.2'/%3E%3Cpath%20d%3D'M4%2020c0-3.3%203.6-6%208-6s8%202.7%208%206'/%3E%3C%2Fsvg%3E"
                 }
               />
-            ) : user.photoLink ? (
-              <img src={user.photoLink} alt={fullName} />
+            ) : userInBase?.photoLink ? (
+              <img src={userInBase?.photoLink} alt={fullName} />
             ) : (
               <div className="cc-avatar-fallback" aria-hidden="true">
                 {/* Inline SVG fallback */}
@@ -159,18 +182,18 @@ export default function ClientCabinet({
           <div className="cc-title d-flex flex-row gap-1 ">
             <div className="cc-name">{fullName}</div>
             <div className="cc-meta">
-             {user.company && <span className="cc-chip">{user.company}</span>}
-              {user.role && <span className="cc-chip">{user.role}</span>}
+             {userInBase?.company && <span className="cc-chip">{userInBase?.company}</span>}
+              {userInBase?.role && <span className="cc-chip">{userInBase?.role}</span>}
 
             </div>
             <section className="cc-contacts">
 
-              {user.phoneNumber && <a className="cc-contact" href={`tel:${user.phoneNumber}`}>{user.phoneNumber}</a>}
-              {user.email && <a className="cc-contact" href={`mailto:${user.email}`}>{user.email}</a>}
-              {user.telegram && (
+              {userInBase?.phoneNumber && <a className="cc-contact" href={`tel:${userInBase?.phoneNumber}`}>{userInBase?.phoneNumber}</a>}
+              {userInBase?.email && <a className="cc-contact" href={`mailto:${userInBase?.email}`}>{userInBase?.email}</a>}
+              {userInBase?.telegram && (
                 <a className="cc-contact" target="_blank" rel="noreferrer"
-                   href={`https://t.me/${String(user.telegram).replace("@","")}`}>
-                  {String(user.telegram).replace("@","")}
+                   href={`https://t.me/${String(userInBase?.telegram).replace("@","")}`}>
+                  {String(userInBase?.telegram).replace("@","")}
                 </a>
               )}
             </section>
@@ -180,9 +203,10 @@ export default function ClientCabinet({
         </header>
 
         <div className="cc-actions">
-          <button className="cc-btn" onClick={() => onCreateOrder?.(user)}>＋ Нове замовлення</button>
-          <button className="cc-btn" onClick={() => onOpenChat?.(user)}>💬 Чат</button>
-          <button className="cc-btn" onClick={() => onOpenProfile?.(user)}>↗ Профіль</button>
+          <button className="cc-btn" onClick={() => onCreateOrder?.(userInBase)}>＋ Нове замовлення</button>
+          <button className="cc-btn" onClick={() => onOpenChat?.(userInBase)}>💬 Чат</button>
+          <button className="cc-btn" onClick={() => onOpenProfile?.(userInBase)}>↗ Профіль</button>
+          <button className="cc-btn" onClick={() => onOpenProfile?.(userInBase)}> Компанія ({userInBase?.Company?.companyName} )</button>
         </div>
 
 

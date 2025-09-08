@@ -23,6 +23,8 @@ const ClientSelectionModal = ({
   const [expandedThingIndex, setExpandedThingIndex] = useState(null);
 
   const [isClosing, setIsClosing] = useState(false); // ✅ тут
+  const [thisUserIdToCabinet2, setThisUserIdToCabinet2] = useState(0);
+  const [clientCabinetOpen2, setClientCabinetOpen2] = useState(false);
 
   const filteredUsers = users.rows || []
   // const filteredUsers = users.rows?.filter(u => u.firstName || u.lastName) || [];
@@ -37,6 +39,12 @@ const ClientSelectionModal = ({
   const handleSearchChangeId = (e) => {
     // console.log(e);
     setSearchId(e);
+  };
+
+  const setThisUserToCabinetFunc2 = (open, user, e) => {
+    e.stopPropagation();
+    setThisUserIdToCabinet2(user.id)
+    setClientCabinetOpen2(open)
   };
 
   const handleChooseUser = (userId) => {
@@ -91,13 +99,7 @@ const ClientSelectionModal = ({
 
                              <button
                                className="clientCabinetButton client-cabinet-icon"
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 // console.log("Кабінет клієнта:", user.id);
-                                 //   <ClientCabinet />
-                               }}
-                               title="Кабінет клієнта"
-                               aria-label="Відкрити кабінет клієнта"
+                               onClick={(e) => setThisUserToCabinetFunc2(true, user, e)}
                              >
                              <FiUser />
                             </button>
@@ -195,6 +197,15 @@ const ClientSelectionModal = ({
           {/*<AddUserButton fetchUsers={() => dispatch(fetchUser())} thisOrder={thisOrder} setThisOrder={setThisOrder} />*/}
         </div>
       </div>
+      {clientCabinetOpen2 && thisUserIdToCabinet2 && (
+        <ClientCabinet
+          userId={thisUserIdToCabinet2}
+          onCreateOrder={()=>{}}
+          onOpenChat={()=>{}}
+          onOpenProfile={()=>{}}
+          onClose={()=>setClientCabinetOpen2(false)}
+        />
+      )}
     </>
   );
 };

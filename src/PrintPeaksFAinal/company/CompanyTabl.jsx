@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import '../Orders/CustomOrderTable.css';
 import axios from "../../api/axiosInstance";
 import StatusBar from "../Orders/StatusBar";
-import { Link, useNavigate } from "react-router-dom";
+import {Link, NavLink, useNavigate} from "react-router-dom";
 import ModalDeleteOrder from "../Orders/ModalDeleteOrder";
 import Barcode from 'react-barcode';
 import {useDispatch, useSelector} from "react-redux";
-import { FiFile, FiFolder, FiPhone} from 'react-icons/fi';
-import { RiCalculatorLine } from 'react-icons/ri';
+import {FiFile, FiFolder, FiPhone} from 'react-icons/fi';
+import {RiCalculatorLine} from 'react-icons/ri';
 import TelegramAvatar from "../Messages/TelegramAvatar";
 import {FaTelegramPlane, FaViber} from 'react-icons/fa';
 import Pagination from "../tools/Pagination";
@@ -16,7 +16,7 @@ import {searchChange} from "../../actions/searchAction";
 import Loader from "../../components/calc/Loader";
 import AddCompanyModal from "./AddCompanyModal";
 import Vishichka from "../poslugi/Vishichka";
-
+import ClientCabinet from "../userInNewUiArtem/ClientCabinet";
 
 
 const CompanyTabl = () => {
@@ -35,6 +35,8 @@ const CompanyTabl = () => {
   const [limit, setLimit] = useState(50);
   const [showAddCompany, setShowAddCompany] = useState(false);
   const user = useSelector(state => state.auth.user);
+  const [clientCabinetOpen, setClientCabinetOpen] = useState(false);
+  const [thisUserIdToCabinet, setThisUserIdToCabinet] = useState(0);
 
   const [typeSelect, setTypeSelect] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -105,12 +107,18 @@ const CompanyTabl = () => {
     if (isCancelled) return '#ee3c23'; // червоний для скасованих
 
     switch (parseInt(status)) {
-      case 0: return '#fbfaf6';       // сірий — оформлення
-      case 4: return '#008249';       // зелений — друк
-      case 1: return '#8b4513';       // коричневий — постпрес
-      case 2: return '#3c60a6';       // синій — готове
-      case 3: return '#f075aa';       // рожевий — віддали
-      default: return '#fbfaf6';      // дефолтний
+      case 0:
+        return '#fbfaf6';       // сірий — оформлення
+      case 4:
+        return '#008249';       // зелений — друк
+      case 1:
+        return '#8b4513';       // коричневий — постпрес
+      case 2:
+        return '#3c60a6';       // синій — готове
+      case 3:
+        return '#f075aa';       // рожевий — віддали
+      default:
+        return '#fbfaf6';      // дефолтний
     }
   };
 
@@ -121,6 +129,11 @@ const CompanyTabl = () => {
     const g = (bigint >> 8) & 255;
     const b = bigint & 255;
     return `rgba(${r},${g},${b},${alpha})`;
+  };
+
+  const setThisUserToCabinetFunc = (open, user) => {
+    setThisUserIdToCabinet(user.id)
+    setClientCabinetOpen(open)
   };
 
   // if (loading) {
@@ -144,9 +157,10 @@ const CompanyTabl = () => {
 
         <div className="summary-cell address">Адреса</div>
         {/*<div className="summary-cell phoneNumber">Контактна особа</div>*/}
-        <div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20} style={{ color: '#000' }}/></div>
+        <div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20}
+                                                                                         style={{color: '#000'}}/></div>
         <div className="summary-cell telegram d-flex justify-content-center">
-          <FaTelegramPlane size={20} style={{ color: '#000' }} />
+          <FaTelegramPlane size={20} style={{color: '#000'}}/>
         </div>
         {/*<div className="summary-cell viber d-flex justify-content-center">*/}
         {/*  <FaViber size={20} style={{ color: '#000' }} />*/}
@@ -155,7 +169,8 @@ const CompanyTabl = () => {
         <div className="summary-cell action d-flex justify-content-center">Керування</div>
         <div className="summary-cell documents d-flex justify-content-center">Баланс</div>
         <div className="summary-cell files d-flex justify-content-sm-around ">Файли</div>
-        <div className="summary-cell barcode-orders d-flex justify-content-center" style={{opacity:"1"}}>Штрих-код</div>
+        <div className="summary-cell barcode-orders d-flex justify-content-center" style={{opacity: "1"}}>Штрих-код
+        </div>
       </div>
       {/* data rows */}
 
@@ -170,11 +185,12 @@ const CompanyTabl = () => {
           statuses={statuses}
           setStatuses={setStatuses}
         />
-        <div className="d-flex" style={{opacity: "0.5", margin: "auto", marginTop: "0.1vw"}}>Знайдено ({data?.count})</div>
+        <div className="d-flex" style={{opacity: "0.5", margin: "auto", marginTop: "0.1vw"}}>Знайдено ({data?.count})
+        </div>
       </div>
 
       {loading &&
-        <div className="d-flex justify-content-center align-items-center" style={{ height: "100%" }}>
+        <div className="d-flex justify-content-center align-items-center" style={{height: "100%"}}>
           <h1 className="d-flex justify-content-center align-items-center">
             <Loader/>
           </h1>
@@ -197,7 +213,8 @@ const CompanyTabl = () => {
                    e.currentTarget.style.backgroundColor =
                      order.status === '0'
                        ? '#fbfaf6'
-                       : hexToRgba(baseColor, 0.3);                 }}
+                       : hexToRgba(baseColor, 0.3);
+                 }}
                  onMouseLeave={(e) => {
                    e.currentTarget.style.backgroundColor = hexToRgba(baseColor, 0.2);
                  }}
@@ -218,7 +235,7 @@ const CompanyTabl = () => {
               <div className="summary-cell phoneNumber">{order.client?.phoneNumber || '—'}</div>
               <div className="summary-cell telegram d-flex justify-content-center">
                 {order.client?.telegram
-                  ? <TelegramAvatar link={order.client.telegram} size={45} defaultSrc="" />
+                  ? <TelegramAvatar link={order.client.telegram} size={45} defaultSrc=""/>
                   : '—'}
               </div>
 
@@ -232,20 +249,20 @@ const CompanyTabl = () => {
 
               <div className="summary-cell action d-flex justify-content-center">
                 <Link to={`/Orders/${order.id}`}
-                      style={{ textDecoration: 'none', outline: 'none' }}>
-                  <button className="adminButtonAddOrder" > <RiCalculatorLine size={20} /></button>
+                      style={{textDecoration: 'none', outline: 'none'}}>
+                  <button className="adminButtonAddOrder"><RiCalculatorLine size={20}/></button>
                 </Link>
               </div>
               <div className="summary-cell documents d-flex justify-content-center">
                 <Link to={`/Orders/${order.id}`}
-                      style={{ textDecoration: 'none', outline: 'none' }}>
-                  <button className="adminButtonAddOrder" ><FiFile size={19} /></button>
+                      style={{textDecoration: 'none', outline: 'none'}}>
+                  <button className="adminButtonAddOrder"><FiFile size={19}/></button>
                 </Link>
               </div>
               <div className="summary-cell files d-flex justify-content-center">
                 <Link to={`/Orders/${order.id}`}
-                      style={{ textDecoration: 'none', outline: 'none',  }}>
-                  <button className="adminButtonAddOrder"> <FiFolder size={18} /></button>
+                      style={{textDecoration: 'none', outline: 'none',}}>
+                  <button className="adminButtonAddOrder"><FiFolder size={18}/></button>
 
                 </Link>
               </div>
@@ -282,7 +299,8 @@ const CompanyTabl = () => {
 
                 <div className="ExpandedRow-details">
                   <div><strong>Дата створення:</strong> {new Date(order.createdAt).toLocaleString()}</div>
-                  <div><strong>Дата оновлення:</strong> {order.updatedAt ? new Date(order.updatedAt).toLocaleString() : '—'}</div>
+                  <div><strong>Дата
+                    оновлення:</strong> {order.updatedAt ? new Date(order.updatedAt).toLocaleString() : '—'}</div>
                   {/*<p><strong>Час початку виготовлення:</strong> {order.manufacturingStartTime ? new Date(order.manufacturingStartTime).toLocaleString() : '—'}</p>*/}
                   {/*<p><strong>Час виготовлення:</strong> {*/}
                   {/*  order.finalManufacturingTime*/}
@@ -303,10 +321,10 @@ const CompanyTabl = () => {
                     Видалити
                   </div>
                 </div>
-                <div>Учасники: </div>
+                <div>Учасники:</div>
                 <div className="OrderRow-units d-flex flex-row">
                   {order.Users.map((unit, i) => (
-                    <div>
+                    <div onClick={(e) => setThisUserToCabinetFunc(true, unit)}>
                       <div key={i} className="OrderUnit-card" style={{width: "20vw"}}>
                         <TelegramAvatar
                           link={unit.telegram}
@@ -343,7 +361,7 @@ const CompanyTabl = () => {
         setThisOrderForDelete={setThisOrderForDelete}
         data={data}
         setData={setData}
-        url={"/api/company/OneOrder"}
+        url={"/api/company/all"}
       />
       {showAddCompany &&
         <AddCompanyModal
@@ -352,10 +370,19 @@ const CompanyTabl = () => {
           showAddCompany={showAddCompany}
         />
       }
+      {clientCabinetOpen && thisUserIdToCabinet && (
+        <ClientCabinet
+          userId={thisUserIdToCabinet}
+          onCreateOrder={()=>{}}
+          onOpenChat={()=>{}}
+          onOpenProfile={()=>{}}
+          onClose={()=>setClientCabinetOpen(false)}
+        />
+      )}
       <button
         type="button"
         className="adminButtonAdd"
-        style={{marginLeft:"0.3vw"}}
+        style={{marginLeft: "0.3vw"}}
         onClick={handleAddCompany}
       >
         Додати компанію
