@@ -321,33 +321,59 @@ const CompanyTabl = () => {
                     Видалити
                   </div>
                 </div>
-                <div>Учасники:</div>
-                <div className="OrderRow-units d-flex flex-row">
-                  {order.Users.map((unit, i) => (
-                    <div onClick={(e) => setThisUserToCabinetFunc(true, unit)}>
-                      <div key={i} className="OrderUnit-card" style={{width: "20vw"}}>
-                        <TelegramAvatar
-                          link={unit.telegram}
-                          size={60}
-                          // defaultSrc="/default-avatar.png"
-                        />
-                        <div><strong>id:</strong> {unit.id}</div>
-                        <div><strong>username:</strong> {unit.username}</div>
-                        <div><strong>firstName:</strong> {unit.firstName}</div>
-                        <div><strong>lastName:</strong> {unit.lastName}</div>
-                        <div><strong>familyName:</strong> {unit.familyName}</div>
-                        <div><strong>email:</strong> {unit.email}</div>
-                        <div><strong>phoneNumber:</strong> {unit.phoneNumber}</div>
-                        <div><strong>telegram:</strong> {unit.telegram}</div>
-                        <div><strong>discount:</strong> {unit.discount}</div>
-                        <div><strong>address:</strong> {unit.address} грн</div>
-                      </div>
-                    </div>
-                  ))}
-                  {order.Users.length === 0 &&
-                    <div>Немає</div>
-                  }
-                </div>
+                {/*<div>Учасники:</div>*/}
+                {/*<div className="OrderRow-units d-flex flex-row">*/}
+                {/*  {order.Users.map((unit, i) => (*/}
+                {/*    <div onClick={(e) => setThisUserToCabinetFunc(true, unit)}>*/}
+                {/*      <div key={i} className="OrderUnit-card" style={{width: "20vw"}}>*/}
+                {/*        <TelegramAvatar*/}
+                {/*          link={unit.telegram}*/}
+                {/*          size={60}*/}
+                {/*          // defaultSrc="/default-avatar.png"*/}
+                {/*        />*/}
+                {/*        <div><strong>id:</strong> {unit.id}</div>*/}
+                {/*        <div><strong>username:</strong> {unit.username}</div>*/}
+                {/*        <div><strong>firstName:</strong> {unit.firstName}</div>*/}
+                {/*        <div><strong>lastName:</strong> {unit.lastName}</div>*/}
+                {/*        <div><strong>familyName:</strong> {unit.familyName}</div>*/}
+                {/*        <div><strong>email:</strong> {unit.email}</div>*/}
+                {/*        <div><strong>phoneNumber:</strong> {unit.phoneNumber}</div>*/}
+                {/*        <div><strong>telegram:</strong> {unit.telegram}</div>*/}
+                {/*        <div><strong>discount:</strong> {unit.discount}</div>*/}
+                {/*        <div><strong>address:</strong> {unit.address} грн</div>*/}
+                {/*      </div>*/}
+                {/*    </div>*/}
+                {/*  ))}*/}
+                {/*  {order.Users.length === 0 &&*/}
+                {/*    <div>Немає</div>*/}
+                {/*  }*/}
+                {/*</div>*/}
+
+
+
+                {/*<div className="d-flex flex-wrap mt-3" style={{gap:"0.8rem"}}>*/}
+                {/*  {order.Users.map(u=>(*/}
+                {/*    <div key={u.id} className="p-2" style={{*/}
+                {/*      width:"22vw", border:"1px solid #ddd", borderRadius:8, background:"#fbfaf6"*/}
+                {/*    }}>*/}
+                {/*      <div className="d-flex align-items-center" style={{gap:"0.6rem"}}>*/}
+                {/*        <TelegramAvatar link={u.telegram} size={48}/>*/}
+                {/*        <div>*/}
+                {/*          <div style={{fontWeight:600}}>{u.firstName} {u.familyName}</div>*/}
+                {/*          <div style={{fontSize:12, opacity:0.75}}>id: {u.id}</div>*/}
+                {/*        </div>*/}
+                {/*      </div>*/}
+                {/*      <div style={{fontSize:14, marginTop:6}}>*/}
+                {/*        {u.phoneNumber || "—"} · {u.email || "—"}*/}
+                {/*      </div>*/}
+                {/*      <div style={{fontSize:12, opacity:0.8}}>{u.address || " "}</div>*/}
+                {/*      <div className="d-flex mt-2" style={{gap:"0.5rem"}}>*/}
+                {/*        <Link to={`/Users/${u.id}`} className="adminButtonAddOrder" style={{textDecoration:"none"}}>Профіль</Link>*/}
+                {/*        <Link to={`/Orders/create?userId=${u.id}`} className="adminButtonAddOrder" style={{textDecoration:"none"}}>Нове замовлення</Link>*/}
+                {/*      </div>*/}
+                {/*    </div>*/}
+                {/*  ))}*/}
+                {/*</div>*/}
               </div>
             )}
           </div>
