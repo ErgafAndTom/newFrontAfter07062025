@@ -127,17 +127,17 @@ const CompanyTabl = () => {
     <div className="OrderList">
       <div className="OrderRow-summary OrderRow-header">
         <div className="summary-cell id d-flex justify-content-center">ID</div>
-        <div className="summary-cell status d-flex justify-content-center">Назва</div>
-        <div className="summary-cell client">ЄДРОПУ</div>
+        <div className="summary-cell name d-flex justify-content-center">Назва</div>
+        <div className="summary-cell edropu justify-content-center">ЄДРОПУ</div>
 
-        <div className="summary-cell price">Знижка</div>
+        <div className="summary-cell discount justify-content-center">Знижка</div>
 
-        <div className="summary-cell company">Юзери</div>
-        <div className="summary-cell pay">Контактна особа</div>
+        <div className="summary-cell address">Адреса</div>
+        {/*<div className="summary-cell phoneNumber">Контактна особа</div>*/}
         <div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20} style={{ color: '#000' }}/></div>
-        <div className="summary-cell telegram d-flex justify-content-center">
-          <FaTelegramPlane size={20} style={{ color: '#000' }} />
-        </div>
+        {/*<div className="summary-cell telegram d-flex justify-content-center">*/}
+        {/*  <FaTelegramPlane size={20} style={{ color: '#000' }} />*/}
+        {/*</div>*/}
         {/*<div className="summary-cell viber d-flex justify-content-center">*/}
         {/*  <FaViber size={20} style={{ color: '#000' }} />*/}
         {/*</div>*/}
@@ -192,40 +192,18 @@ const CompanyTabl = () => {
                  }}
                  onClick={() => toggleOrder(order.id)}>
 
-              <div className="summary-cell id  d-flex justify-content-center">{order.id}</div>
-              <div className="summary-cell status "><StatusBar item={order} style={{borderRadius:"none"}}/></div>
-              {order.Payment?.status === 'CREATED' &&
-                <div className={`adminButtonAddOrder wait`} style={{}}>
-                  {"Очікування️"}
-                </div>
-              }
-              {order.Payment?.status === 'PAID' &&
-                <div className={`adminButtonAddOrder pay`} style={{}}>
-                  {"Оплата за посиланням"}
-                </div>
-              }
-              {order.Payment?.status === 'CANCELLED' &&
-                <button className={`adminButtonAddOrder cancel`} style={{}}>
-                  {"Відміна"}
-                </button>
-              }
-              {order.Payment?.status === 'EXPIRED' &&
-                <button className={`adminButtonAddOrder nopay`} style={{}}>
-                  -
-                </button>
-              }
-              {order.Payment === null &&
-                <button className={`adminButtonAddOrder nopay`} style={{color:'#000000'}}>
-                  {"-"}
-                </button>
-              }
-              <div className="summary-cell price">
-                {order.allPrice === order.price || order.allPrice === 0 || order.allPrice === "0.00"
-                  ? <span style={{color: "red"}}>{order.allPrice}</span>
-                  : <span style={{color: "green"}}>{order.allPrice}</span>}&nbsp;грн
-              </div>
-              <div className="summary-cell client">{order.client?.firstName} {order.client?.lastName}</div>
-              <div className="summary-cell company">{order.client?.company || '—'} </div>
+              <div className="summary-cell id d-flex justify-content-center">{order.id}</div>
+              <div className="summary-cell d-flex name justify-content-center">{order.name}</div>
+              <div className="summary-cell d-flex edropu justify-content-center">{order.edropu}</div>
+              <div className="summary-cell d-flex discount justify-content-center">{order.discount}</div>
+              {/*<div className="summary-cell price">*/}
+              {/*  {order.allPrice === order.price || order.allPrice === 0 || order.allPrice === "0.00"*/}
+              {/*    ? <span style={{color: "red"}}>{order.allPrice}</span>*/}
+              {/*    : <span style={{color: "green"}}>{order.allPrice}</span>}&nbsp;грн*/}
+              {/*</div>*/}
+              {/*<div className="summary-cell client">{order.client?.firstName} {order.client?.lastName}</div>*/}
+              {/*<div className="summary-cell company">{order.client?.company || '—'} </div>*/}
+              <div className="summary-cell address">{order.address || '—'}</div>
               <div className="summary-cell phoneNumber">{order.client?.phoneNumber || '—'}</div>
               <div className="summary-cell telegram d-flex justify-content-center">
                 {order.client?.telegram

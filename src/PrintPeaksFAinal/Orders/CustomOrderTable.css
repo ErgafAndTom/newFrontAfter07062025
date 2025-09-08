@@ -566,6 +566,10 @@ body {
 .summary-cell.id              { width: 3.5vw; }
 .summary-cell.status          { width: 9vw; background: transparent;}
 .summary-cell.pay             { width: 9vw; }
+.summary-cell.name             { width: 9vw; }
+.summary-cell.edropu             { width: 9vw; }
+.summary-cell.address             { width: 9vw; }
+.summary-cell.discount             { width: 9vw; }
 .summary-cell.price           { width: 7vw; }
 .summary-cell.client          {
   width: 13vw;
