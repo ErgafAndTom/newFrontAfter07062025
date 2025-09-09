@@ -155,7 +155,7 @@ const CompanyTabl = () => {
 
         <div className="summary-cell discount justify-content-center">Знижка</div>
 
-        <div className="summary-cell address">Адреса</div>
+        <div className="summary-cell address" style={{width: "17vw", maxWidth: "17vw"}}>Адреса</div>
         {/*<div className="summary-cell phoneNumber">Контактна особа</div>*/}
         <div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20}
                                                                                          style={{color: '#000'}}/></div>
@@ -221,9 +221,9 @@ const CompanyTabl = () => {
                  onClick={() => toggleOrder(order.id)}>
 
               <div className="summary-cell id d-flex justify-content-center">{order.id}</div>
-              <div className="summary-cell d-flex name justify-content-center fontSize1-3VH">{order.companyName || '—'}</div>
-              <div className="summary-cell d-flex edropu justify-content-center">{order.edropu || '—'}</div>
-              <div className="summary-cell d-flex discount justify-content-center">{order.discount || '—'}</div>
+              <div className="summary-cell d-flex name justify-content-center fontSize1-3VH UsersOrdersLikeTable-contract-text-multiline">{order.companyName || '—'}</div>
+              <div className="summary-cell d-flex edropu justify-content-center UsersOrdersLikeTable-contract-text-multiline">{order.edropu || '—'}</div>
+              <div className="summary-cell d-flex discount justify-content-center UsersOrdersLikeTable-contract-text-multiline">{order.discount || '—'}</div>
               {/*<div className="summary-cell price">*/}
               {/*  {order.allPrice === order.price || order.allPrice === 0 || order.allPrice === "0.00"*/}
               {/*    ? <span style={{color: "red"}}>{order.allPrice}</span>*/}
@@ -231,9 +231,11 @@ const CompanyTabl = () => {
               {/*</div>*/}
               {/*<div className="summary-cell client">{order.client?.firstName} {order.client?.lastName}</div>*/}
               {/*<div className="summary-cell company">{order.client?.company || '—'} </div>*/}
-              <div className="summary-cell address fontSize1-3VH">{order.address || '—'}</div>
-              <div className="summary-cell phoneNumber fontSize1-3VH">{order.client?.phoneNumber || '—'}</div>
-              <div className="summary-cell telegram d-flex justify-content-center">
+              <div className="summary-cell address UsersOrdersLikeTable-contract-text-multiline" style={{width: "17vw", maxWidth: "17vw"}}>
+                <p className="UsersOrdersLikeTable-contract-text" style={{hyphens: "auto", width: "17vw", maxWidth: "17vw"}}>{order.address || '—'}</p>
+              </div>
+              <div className="summary-cell phoneNumber fontSize1-3VH UsersOrdersLikeTable-contract-text-multiline">{order.client?.phoneNumber || '—'}</div>
+              <div className="summary-cell telegram d-flex justify-content-center UsersOrdersLikeTable-contract-text-multiline">
                 {order.client?.telegram
                   ? <TelegramAvatar link={order.client.telegram} size={45} defaultSrc=""/>
                   : '—'}

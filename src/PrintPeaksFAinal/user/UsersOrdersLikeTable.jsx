@@ -319,7 +319,7 @@ const UsersOrdersLikeTable = () => {
                   </button>
                 </div>
                 <div className="d-flex">Контрагенти:
-                  {order.Contractors &&
+                  {order.Contractors.length < 1 &&
                     <p style={{marginLeft: "0.1vw"}}>Немає</p>
                   }
                 </div>
