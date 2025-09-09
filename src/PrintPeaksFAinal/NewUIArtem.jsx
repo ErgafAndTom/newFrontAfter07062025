@@ -70,7 +70,6 @@ const NewUIArtem = () => {
   const [showWide, setShowWide] = useState(false);
 
 
-
   const [showNewSheetCutBw, setShowNewSheetCutBw] = useState(false);
   const [showNewSheetCut, setShowNewSheetCut] = useState(false);
   const [showNewSheetSheet, setShowNewSheetSheet] = useState(false);
@@ -212,7 +211,8 @@ const NewUIArtem = () => {
               <p onClick={() => setShowNewSheetCutBw(true)}>
                 <div className="tileContent">
                   <span className="verticalText">BLACK & WHITE</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"
+                       strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                     <rect className="draw" pathLength="1" x="10" y="18" width="44" height="10" rx="2"/>
                     <rect className="draw" pathLength="1" x="14" y="28" width="36" height="22" rx="3"/>
                     <rect className="draw" pathLength="1" x="20" y="10" width="24" height="8" rx="1"/>
@@ -239,11 +239,10 @@ const NewUIArtem = () => {
                     strokeLinejoin="round"
                   >
 
-                    <rect className="sheetTop" x="16" y="12" width="32" height="20" rx="2" />
+                    <rect className="sheetTop" x="16" y="12" width="32" height="20" rx="2"/>
 
-                    <rect className="sheetBottom" x="16" y="32" width="32" height="20" rx="2" />
+                    <rect className="sheetBottom" x="16" y="32" width="32" height="20" rx="2"/>
                   </svg>
-
 
 
                 </div>
@@ -295,10 +294,13 @@ const NewUIArtem = () => {
 
                 <div className="tileContent">
                   <span className="verticalText">WIDE PHOTO</span>
-                  <svg className="icon64 wide CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f" strokeWidth="1"
+                  <svg className="icon64 wide CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"
+                       strokeWidth="1"
                        strokeLinecap="round" strokeLinejoin="round">
                     <rect x="10" y="12" width="44" height="10" rx="1"/>
-                    <g className="moveHead"><rect x="12" y="12" width="12" height="10" rx="1"/></g>
+                    <g className="moveHead">
+                      <rect x="12" y="12" width="12" height="10" rx="1"/>
+                    </g>
                     <rect x="14" y="26" width="36" height="22" rx="1"/>
                     <rect className="trace" x="16" y="50" width="4" height="4" rx="0.5"/>
                     <rect className="trace" x="22" y="50" width="4" height="4" rx="0.5"/>
@@ -315,19 +317,19 @@ const NewUIArtem = () => {
                     <span className="verticalText">WIDE</span>
                     <span className="verticalText">FACTORY</span>
                   </div>
-                  <svg className="icon64 ind CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="icon64 ind CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"
+                       strokeLinecap="round" strokeLinejoin="round">
                     <rect x="8" y="12" width="48" height="8" rx="2"/>
-                    <g className="gantry"><rect x="26" y="12" width="12" height="8" rx="1"/></g>
+                    <g className="gantry">
+                      <rect x="26" y="12" width="12" height="8" rx="1"/>
+                    </g>
                     <rect className="dry" x="12" y="24" width="40" height="16" rx="2"/>
                     <path className="trace" d="M16 36l10-6 8 5 8-5"/>
                   </svg>
 
 
-
-
                 </div>
               </p>
-
 
 
               {/* 5) POSTPRESS */}
@@ -345,18 +347,16 @@ const NewUIArtem = () => {
                   </svg>
 
 
-
-
-
                 </div>
               </p>
 
               {/* 6) BINDING */}
               <p onClick={() => setShowPerepletMet(true)}>
 
-              <div className="tileContent">
+                <div className="tileContent">
                   <span className="verticalText">BINDING</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"
+                       strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                     <rect className="draw" pathLength="1" x="14" y="14" width="36" height="36" rx="2"/>
                     <line className="draw" pathLength="1" x1="22" y1="14" x2="22" y2="50"/>
                     <path className="draw" pathLength="1" d="M18 18h6M18 24h6M18 30h6M18 36h6M18 42h6"/>
@@ -365,13 +365,12 @@ const NewUIArtem = () => {
               </p>
 
 
-
-
               {/* 9) LAMINATION */}
               <p onClick={() => setShowLaminator(true)}>
                 <div className="tileContent">
                   <span className="verticalText">LAMINATION</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"
+                       strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                     <rect className="draw" pathLength="1" x="10" y="18" width="44" height="10" rx="5"/>
                     <rect className="draw" pathLength="1" x="10" y="32" width="44" height="10" rx="5"/>
                     <rect className="draw" pathLength="1" x="18" y="26" width="28" height="8" rx="2"/>
@@ -382,8 +381,8 @@ const NewUIArtem = () => {
             </div>
 
           </div>
-            {/* Третя група */}
-            <div className="d-flex justify-content-end align-items-end" style={{bottom:"19vh", position:"absolute"}} >
+          {/* Третя група */}
+          <div className="d-flex justify-content-end align-items-end" style={{bottom: "19vh", position: "absolute"}}>
             <div className="CardPrintersPoslugi">
               <p onClick={() => setShowNewNote(true)}>
                 <div className="tileContent">
@@ -469,11 +468,10 @@ const NewUIArtem = () => {
           </div>
 
 
-
           <div className="d-flex flex-column " style={{width: "37.5vw",}}>
             <div className="order-panel d-flex " style={{width: "37.5vw", marginTop: "0.5vh"}}>
               {selectedThings2 && selectedThings2.length !== 0 ? (
-                <div className="order-list" style={{overflowX: "hidden", height:"78vh" }}>
+                <div className="order-list" style={{overflowX: "hidden", height: "78vh"}}>
                   {selectedThings2.map((thing, index) => (
                     <div
                       key={index}
@@ -531,7 +529,8 @@ const NewUIArtem = () => {
                                 <div className={"d-flex flex-row align-items-center"}
                                      style={{maxWidth: "33vw", background: "transparent"}}>
                                   <div>
-                                    <div className="adminTextBig" style={{fontSize:"1vw", maxWidth:"33vw"}}>{thing.name}</div>
+                                    <div className="adminTextBig"
+                                         style={{fontSize: "1vw", maxWidth: "33vw"}}>{thing.name}</div>
                                     <div
                                       style={{
                                         marginTop: '0.5rem',
@@ -547,10 +546,12 @@ const NewUIArtem = () => {
                                   {/*</div>*/}
                                 </div>
                                 {/* Основна ціна з кількістю */}
-                                <div className="d-flex adminTextBig align-items-center justify-content-start BasePriceWithQuantity">
+                                <div
+                                  className="d-flex adminTextBig align-items-center justify-content-start BasePriceWithQuantity">
                                   <span className="" style={{color: "rgba(0, 0, 0, 0.6)"}}>{thing.amount}<span
                                     className="BasePriceWithQuantitySmall "> шт</span></span>
-                                  <span className="" style={{color: "rgba(0, 0, 0, 0.6)"}}>× {parseFloat(thing.priceForThis / thing.amount).toFixed(2)}<span
+                                  <span className=""
+                                        style={{color: "rgba(0, 0, 0, 0.6)"}}>× {parseFloat(thing.priceForThis / thing.amount).toFixed(2)}<span
                                     className="BasePriceWithQuantitySmall"> грн</span></span>
 
                                   <span style={{color: "rgba(0, 0, 0, 0.6)"}}>=</span>

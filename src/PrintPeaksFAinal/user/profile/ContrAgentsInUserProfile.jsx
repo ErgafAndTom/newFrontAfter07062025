@@ -6,6 +6,7 @@ import axios from "../../../api/axiosInstance";
 import {useNavigate} from "react-router-dom";
 import {Spinner} from "react-bootstrap";
 import AddContrAgentInProfile from "./AddContrAgentInProfile";
+import TelegramAvatar from "../../Messages/TelegramAvatar";
 
 /**
  * RESTORED VERSION — 04 May 2025
@@ -160,6 +161,7 @@ function ContrAgentsInUserProfile({user}) {
         axios
             .post(`/api/contractorsN/getContractors`, payload)
             .then((response) => {
+                console.log(response.data.rows);
                 setData(response.data.rows);
                 setPageCount(Math.ceil(response.data.count / inPageCount));
                 setError(null);
@@ -245,7 +247,9 @@ function ContrAgentsInUserProfile({user}) {
                                 <th>Тел</th>
                                 <th>E-mail</th>
                                 <th>НДС/ПДВ</th>
+                              {/*<th>company</th>*/}
                                 <th>юзер/клієнт</th>
+
                                 <th>last оновл.</th>
                                 <th></th>
                             </tr>
@@ -259,6 +263,11 @@ function ContrAgentsInUserProfile({user}) {
                                     <td className="ContractorCell">{item.phone}</td>
                                     <td className="ContractorCell">{item.email}</td>
                                     <td className="ContractorCell">{item.pdv ? '+' : '-'}</td>
+                                    {/*<td className="ContractorCell">*/}
+                                    {/*  {user.Company*/}
+                                    {/*    ? `${user.Company?.companyName} ${user.Company?.edrpou}`*/}
+                                    {/*    : '—'}*/}
+                                    {/*</td>*/}
                                     <td className="ContractorCell">{`${user.firstName} ${user.lastName} ${user.familyName} (${user.phoneNumber})`}</td>
                                     <td className="ContractorCell">{`${new Date(item.updatedAt).toLocaleDateString()} ${new Date(item.updatedAt).toLocaleTimeString()}`}</td>
                                     <td className="ContractorCell ContractorActions">
