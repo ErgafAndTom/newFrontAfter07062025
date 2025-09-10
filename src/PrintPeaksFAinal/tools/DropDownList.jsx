@@ -42,11 +42,11 @@ function DropDownList({ showAddPay, setShowAddPay, formData, setFormData, data, 
 
   // Обробники вибору контрагента зі списку
   const handleSelectContrAgents = (company) => {
-    setContrAgentSearch(company.name);
+    setContrAgentSearch(company.companyName);
     setFormData({
       ...formData,
       companyId: company.id,
-      companyName: company.name
+      companyName: company.companyName
     });
     setShowContrAgentDropdown(false);
   };
@@ -208,17 +208,17 @@ function DropDownList({ showAddPay, setShowAddPay, formData, setFormData, data, 
                   onClick={() => handleSelectContrAgents(item)}
                   style={{ cursor: 'pointer', padding: '8px 12px' }}
                 >
-                  <div style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>{item.name}</div>
+                  <div style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>{item.companyName}</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', fontSize: '0.75rem', color: '#555' }}>
                     <div style={{ marginRight: '8px' }}>ID: {item.id}</div>
-                    {item.edrpou && <div style={{ marginRight: '8px' }}>ЄДРПОУ: {item.edrpou}</div>}
-                    {item.taxSystem && <div style={{ marginRight: '8px' }}>Система оподаткування: {item.taxSystem}</div>}
+                    {/*{item.edrpou && <div style={{ marginRight: '8px' }}>ЄДРПОУ: {item.edrpou}</div>}*/}
+                    {/*{item.taxSystem && <div style={{ marginRight: '8px' }}>Система оподаткування: {item.taxSystem}</div>}*/}
                   </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', fontSize: '0.75rem', color: '#555' }}>
-                    {item.address && <div style={{ marginRight: '8px' }}>Адреса: {item.address}</div>}
-                    {item.phone && <div style={{ marginRight: '8px' }}>Тел.: {item.phone}</div>}
-                    {item.email && <div style={{ marginRight: '8px' }}>Email: {item.email}</div>}
-                  </div>
+                  {/*<div style={{ display: 'flex', flexWrap: 'wrap', fontSize: '0.75rem', color: '#555' }}>*/}
+                  {/*  {item.address && <div style={{ marginRight: '8px' }}>Адреса: {item.address}</div>}*/}
+                  {/*  {item.phone && <div style={{ marginRight: '8px' }}>Тел.: {item.phone}</div>}*/}
+                  {/*  {item.email && <div style={{ marginRight: '8px' }}>Email: {item.email}</div>}*/}
+                  {/*</div>*/}
                 </ListGroup.Item>
               ))
             ) : (

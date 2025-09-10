@@ -202,7 +202,7 @@ const UsersOrdersLikeTable = () => {
               <div className="summary-cell id d-flex justify-content-center">{order.id}</div>
               <div className="summary-cell phoneNumber d-flex justify-content-center UsersOrdersLikeTable-contract-text-multiline" style={{width: "10vw", maxWidth: "10vw"}}>
                 <div className=" d-flex flex-column UsersOrdersLikeTable-contract-text">
-                  <div className="UsersOrdersLikeTable-contract-text">[{order.username || '—'}]</div>
+                  {/*<div className="UsersOrdersLikeTable-contract-text">[{order.username || '—'}]</div>*/}
                   <div className="d-flex">
                     <div className="UsersOrdersLikeTable-contract-text">{order.firstName || '—'}</div>
                     <div className="UsersOrdersLikeTable-contract-text">{order.lastName || '—'}</div>
@@ -218,8 +218,8 @@ const UsersOrdersLikeTable = () => {
                 {order.Company
                   ? <div className="UsersOrdersLikeTable-contract-text-multiline">
                     <div className="UsersOrdersLikeTable-contract-text" style={{fontSize: "0.7vw"}}>{order.Company.companyName || 'noName'}</div>
-                    <div className="UsersOrdersLikeTable-contract-text" style={{fontSize: "0.7vw"}}>{order.Company.address || 'noAddress'}</div>
-                    <div className="UsersOrdersLikeTable-contract-text" style={{fontSize: "0.7vw"}}>{order.Company.edrpou || 'noEdrpou'}</div>
+                    {/*<div className="UsersOrdersLikeTable-contract-text" style={{fontSize: "0.7vw"}}>{order.Company.address || 'noAddress'}</div>*/}
+                    {/*<div className="UsersOrdersLikeTable-contract-text" style={{fontSize: "0.7vw"}}>{order.Company.edrpou || 'noEdrpou'}</div>*/}
                   </div>
                   : '—'}
               </div>
