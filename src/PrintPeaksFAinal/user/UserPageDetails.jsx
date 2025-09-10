@@ -219,6 +219,25 @@ export default function UserPageDetails({thisUser = null}) {
     } finally { setLoading(false); }
   };
 
+  const triggerNewOrder = (userId) => {
+    // Створюємо новий запит для створення замовлення
+    let toSend = {
+      userId: userId
+    }
+    axios.post(`/orders/createForThisUser`, toSend)
+      .then(response => {
+        // Сповіщаємо всіх про створення замовлення
+        // const event = new CustomEvent('orderCreated', { detail: response.data });
+        // event.log = 'orderCreated';
+        // window.orderEvents.dispatchEvent(event);
+
+        window.location.href = `/Orders/${response.data.id}`;
+      })
+      .catch(error => {
+        console.log(error.message);
+      });
+  };
+
   useEffect(()=>{ load(); /* eslint-disable-next-line */}, [id]);
 
   const detach = async () => {
@@ -265,12 +284,17 @@ export default function UserPageDetails({thisUser = null}) {
           <div style={{opacity:0.7}}>id: {user.id} · роль: {user.role}</div>
         </div>
         <div className="ms-auto d-flex" style={{gap:"0.6rem"}}>
-          <Link to={`/Orders/create?userId=${user.id}`} className="adminButtonAddOrder" style={{textDecoration:"none"}}>Нове замовлення</Link>
-          <Link to={`/Users`} className="adminButtonAddOrder" style={{textDecoration:"none"}}>До списку</Link>
+          <div className="adminButtonAdd" onClick={(e) => triggerNewOrder(user.id)} style={{textDecoration:"none"}}>Нове замовлення</div>
+          <Link to={`/Users`} className="adminButtonAdd" style={{textDecoration:"none"}}>До списку</Link>
         </div>
       </div>
 
-      <div className="mt-3" style={{display:"grid", gridTemplateColumns:"1fr", gap:"0.6rem", maxWidth:"60vw"}}>
+      <div className="mt-2" style={{
+        display:"grid",
+        gridTemplateColumns:"1fr",
+        // gap:"0.6rem",
+        maxWidth:"60vw"
+      }}>
         <FieldEdit label="Ім'я"         field="firstName"  value={user.firstName}  userId={user.id}/>
         <FieldEdit label="Прізвище"     field="familyName" value={user.familyName} userId={user.id}/>
         <FieldEdit label="По батькові"  field="lastName"   value={user.lastName}   userId={user.id}/>

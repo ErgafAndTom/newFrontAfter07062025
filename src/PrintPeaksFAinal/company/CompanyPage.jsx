@@ -23,8 +23,13 @@ const FieldEdit = ({ label, field, value, companyId, type="text", as="input" }) 
 
   const InputTag = as === "textarea" ? "textarea" : "input";
   return (
-    <div className="mb-2 d-flex align-items-center" style={{gap:"0.6rem"}}>
-      <div style={{minWidth:140, fontWeight:600}}>{label}</div>
+    <div className="mb-2 d-flex align-items-center" style={{
+      gap:"0.6rem"
+    }}>
+      <div style={{
+        minWidth:140,
+        fontWeight:600
+      }}>{label}</div>
       <InputTag
         className="form-control"
         value={val}
@@ -162,12 +167,17 @@ export default function CompanyPage() {
           <Button className="adminButtonAdd" onClick={()=>setShowAttachModal(true)}>
             Додати існуючого
           </Button>
-          <Button className="adminButtonAdd" onClick={()=>setShowAddUser(true)}>Додати клієнта</Button>
-          <Link to="/Companys" className="adminButtonAddOrder" style={{textDecoration:"none"}}>До списку</Link>
+          <Button className="adminButtonAdd" onClick={()=>setShowAddUser(true)}>Додати нового клієнта</Button>
+          <Link to="/Companys" className="adminButtonAdd" style={{textDecoration:"none"}}>До списку</Link>
         </div>
       </div>
 
-      <div className="mt-3" style={{display:"grid", gridTemplateColumns:"1fr", gap:"0.6rem", maxWidth:"60vw"}}>
+      <div className="mt-3" style={{
+        display:"grid",
+        gridTemplateColumns:"1fr",
+        // gap:"0.6rem",
+        maxWidth:"60vw"
+      }}>
         <FieldEdit label="Назва"        field="companyName" value={company.companyName} companyId={company.id}/>
         <FieldEdit label="ЄДРПОУ"       field="edrpou"      value={company.edrpou}      companyId={company.id}/>
         <FieldEdit label="E-mail"       field="email"       value={company.email}       companyId={company.id} type="email"/>
