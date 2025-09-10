@@ -13,12 +13,14 @@ import colorPrintIcon from "../components/newUIArtem/printers/46.png";
 import plotterCutIcon from "../components/newUIArtem/printers/ComponentTMP_0-image4.png";
 import photoIcon from "../components/newUIArtem/printers/ComponentTMP_0-image3.png";
 import wideIcon from "../components/newUIArtem/printers/ComponentTMP_0-image2.png";
-import wideFactoryIcon from "../components/newUIArtem/printers/ComponentTMP_0-image2.png";
+import wideFactoryIcon from "../components/newUIArtem/printers/Без назви-4.png";
 import postpressIcon from "../components/newUIArtem/printers/creo.png";
 import laminationIcon from "../components/newUIArtem/printers/üÑº ¡áºó¿-1.png";
 import bindingIcon from "../components/newUIArtem/printers/1996 (1).png";
 import noteIcon from "../components/newUIArtem/printers/group-1468.svg";
 import bookletIcon from "./evroscoba.png";
+import scansIcon from "../components/newUIArtem/printers/group-1468.svg";
+import deliveryIcon from "../components/newUIArtem/printers/delivery.png";
 
 
 
@@ -468,7 +470,7 @@ const NewUIArtem = () => {
               <p onClick={() => setShowNewScans(true)}>
                 <div className="tileContent">
                   <span className="verticalText">SCANS</span>
-                  {/*<img className="icon64 CardPrintersPoslugiImg" src={colorPrint} alt=""/>*/}
+                  {/*<img className="icon64 CardPrintersPoslugiImg" src={scansIcon} alt=""/>*/}
                   <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
                        stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="14" y="28" width="36" height="12" rx="2"/>
@@ -482,14 +484,14 @@ const NewUIArtem = () => {
               <p onClick={() => setShowDelivery(true)}>
                 <div className="tileContent">
                   <span className="verticalText">DELIVERY</span>
-                  {/*<img className="icon64 CardPrintersPoslugiImg" src={colorPrint} alt=""/>*/}
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
-                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="12" y="28" width="40" height="12" rx="2"/>
-                    <path className="draw" pathLength="1" d="M12 28l8-8h24l8 8"/>
-                    <circle cx="20" cy="44" r="4"/>
-                    <circle cx="44" cy="44" r="4"/>
-                  </svg>
+                  <img className="icon64 CardPrintersPoslugiImg" src={deliveryIcon} alt=""/>
+                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
+                  {/*     stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
+                  {/*  <rect x="12" y="28" width="40" height="12" rx="2"/>*/}
+                  {/*  <path className="draw" pathLength="1" d="M12 28l8-8h24l8 8"/>*/}
+                  {/*  <circle cx="20" cy="44" r="4"/>*/}
+                  {/*  <circle cx="44" cy="44" r="4"/>*/}
+                  {/*</svg>*/}
                 </div>
               </p>
 
