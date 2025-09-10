@@ -8,8 +8,17 @@ import './MainWindow.css';
 import {useNavigate, useParams} from "react-router-dom";
 import axios from '../api/axiosInstance';
 
-import blackWhitePrint from "../components/newUIArtem/printers/Untitled (3).png";
-import colorPrint from "../components/newUIArtem/printers/46.png";
+import blackWhitePrintIcon from "../components/newUIArtem/printers/ComponentTMP_0-image5.png";
+import colorPrintIcon from "../components/newUIArtem/printers/46.png";
+import plotterCutIcon from "../components/newUIArtem/printers/ComponentTMP_0-image4.png";
+import photoIcon from "../components/newUIArtem/printers/ComponentTMP_0-image3.png";
+import wideIcon from "../components/newUIArtem/printers/ComponentTMP_0-image2.png";
+import wideFactoryIcon from "../components/newUIArtem/printers/ComponentTMP_0-image2.png";
+import postpressIcon from "../components/newUIArtem/printers/creo.png";
+import laminationIcon from "../components/newUIArtem/printers/üÑº ¡áºó¿-1.png";
+import bindingIcon from "../components/newUIArtem/printers/1996 (1).png";
+import noteIcon from "../components/newUIArtem/printers/group-1468.svg";
+import bookletIcon from "./evroscoba.png";
 
 
 
@@ -220,14 +229,15 @@ const NewUIArtem = () => {
               <p onClick={() => setShowNewSheetCutBw(true)}>
                 <div className="tileContent">
                   <span className="verticalText">BLACK & WHITE</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"
-                       strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <rect className="draw" pathLength="1" x="10" y="18" width="44" height="10" rx="2"/>
-                    <rect className="draw" pathLength="1" x="14" y="28" width="36" height="22" rx="3"/>
-                    <rect className="draw" pathLength="1" x="20" y="10" width="24" height="8" rx="1"/>
-                    <rect className="draw" pathLength="1" x="22" y="42" width="20" height="8"/>
-                    <line className="draw" pathLength="1" x1="18" y1="34" x2="46" y2="34"/>
-                  </svg>
+                  <img className="icon64 CardPrintersPoslugiImg" src={blackWhitePrintIcon} alt=""/>
+                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"*/}
+                  {/*     strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
+                  {/*  <rect className="draw" pathLength="1" x="10" y="18" width="44" height="10" rx="2"/>*/}
+                  {/*  <rect className="draw" pathLength="1" x="14" y="28" width="36" height="22" rx="3"/>*/}
+                  {/*  <rect className="draw" pathLength="1" x="20" y="10" width="24" height="8" rx="1"/>*/}
+                  {/*  <rect className="draw" pathLength="1" x="22" y="42" width="20" height="8"/>*/}
+                  {/*  <line className="draw" pathLength="1" x1="18" y1="34" x2="46" y2="34"/>*/}
+                  {/*</svg>*/}
                 </div>
               </p>
 
@@ -238,18 +248,19 @@ const NewUIArtem = () => {
                     <span className="verticalText">DIGITAL PRINT</span>
                     <span className="verticalText">CUTING</span>
                   </div>
-                  <svg
-                    className="icon64 CardPrintersPoslugiImg"
-                    viewBox="0 0 64 64"
-                    fill="none"
-                    stroke="#2f2f2f"
-                    strokeWidth="1"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect className="sheetTop" x="16" y="12" width="32" height="20" rx="2"/>
-                    <rect className="sheetBottom" x="16" y="32" width="32" height="20" rx="2"/>
-                  </svg>
+                  <img className="icon64 CardPrintersPoslugiImg" src={colorPrintIcon} alt=""/>
+                  {/*<svg*/}
+                  {/*  className="icon64 CardPrintersPoslugiImg"*/}
+                  {/*  viewBox="0 0 64 64"*/}
+                  {/*  fill="none"*/}
+                  {/*  stroke="#2f2f2f"*/}
+                  {/*  strokeWidth="1"*/}
+                  {/*  strokeLinecap="round"*/}
+                  {/*  strokeLinejoin="round"*/}
+                  {/*>*/}
+                  {/*  <rect className="sheetTop" x="16" y="12" width="32" height="20" rx="2"/>*/}
+                  {/*  <rect className="sheetBottom" x="16" y="32" width="32" height="20" rx="2"/>*/}
+                  {/*</svg>*/}
                 </div>
               </p>
 
@@ -258,16 +269,17 @@ const NewUIArtem = () => {
               <p onClick={() => setShowVishichka(true)}>
                 <div className="tileContent">
                   <span className="verticalText">PLOTTER CUT</span>
-                  <svg className="icon64 thin CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
-                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="12" y="12" width="40" height="40" rx="2"/>
-                    <circle className="cutPath" cx="32" cy="32" r="10"/>
-                    <line x1="16" y1="18" x2="48" y2="18"/>
-                    <g className="head">
-                      <rect x="18" y="14" width="6" height="6" rx="1"/>
-                      <line x1="21" y1="14" x2="21" y2="10"/>
-                    </g>
-                  </svg>
+                  <img className="icon64 CardPrintersPoslugiImg" src={plotterCutIcon} alt=""/>
+                  {/*<svg className="icon64 thin CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
+                  {/*     stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
+                  {/*  <rect x="12" y="12" width="40" height="40" rx="2"/>*/}
+                  {/*  <circle className="cutPath" cx="32" cy="32" r="10"/>*/}
+                  {/*  <line x1="16" y1="18" x2="48" y2="18"/>*/}
+                  {/*  <g className="head">*/}
+                  {/*    <rect x="18" y="14" width="6" height="6" rx="1"/>*/}
+                  {/*    <line x1="21" y1="14" x2="21" y2="10"/>*/}
+                  {/*  </g>*/}
+                  {/*</svg>*/}
                 </div>
               </p>
 
@@ -276,25 +288,26 @@ const NewUIArtem = () => {
               <p onClick={() => setShowNewPhoto?.(true)}>
                 <div className="tileContent">
                   <span className="verticalText">PHOTO</span>
-                  <svg
-                    className="icon64 CardPrintersPoslugiImg"
-                    viewBox="0 0 64 64"
-                    fill="none"
-                    stroke="#2f2f2f"
-                    strokeWidth="1"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    {/* рамка полароїда з великим нижнім полем */}
-                    <rect className="draw" pathLength="1" x="16" y="11" width="33" height="40" rx="1"/>
-                    {/* вікно фото всередині */}
-                    <rect className="draw" pathLength="1" x="20" y="14" width="24" height="22" rx="2"/>
-                    {/* пейзаж: гора + сонце */}
-                    <path className="draw" pathLength="1" d="M22 34l8-8 6 5 8-7"/>
-                    <circle className="draw" pathLength="1" cx="38" cy="20" r="3"/>
-                    {/* підпис під фото */}
-                    <line className="draw" pathLength="1" x1="24" y1="42" x2="40" y2="42"/>
-                  </svg>
+                  <img className="icon64 CardPrintersPoslugiImg" src={photoIcon} alt=""/>
+                  {/*<svg*/}
+                  {/*  className="icon64 CardPrintersPoslugiImg"*/}
+                  {/*  viewBox="0 0 64 64"*/}
+                  {/*  fill="none"*/}
+                  {/*  stroke="#2f2f2f"*/}
+                  {/*  strokeWidth="1"*/}
+                  {/*  strokeLinecap="round"*/}
+                  {/*  strokeLinejoin="round"*/}
+                  {/*>*/}
+                  {/*  /!* рамка полароїда з великим нижнім полем *!/*/}
+                  {/*  <rect className="draw" pathLength="1" x="16" y="11" width="33" height="40" rx="1"/>*/}
+                  {/*  /!* вікно фото всередині *!/*/}
+                  {/*  <rect className="draw" pathLength="1" x="20" y="14" width="24" height="22" rx="2"/>*/}
+                  {/*  /!* пейзаж: гора + сонце *!/*/}
+                  {/*  <path className="draw" pathLength="1" d="M22 34l8-8 6 5 8-7"/>*/}
+                  {/*  <circle className="draw" pathLength="1" cx="38" cy="20" r="3"/>*/}
+                  {/*  /!* підпис під фото *!/*/}
+                  {/*  <line className="draw" pathLength="1" x1="24" y1="42" x2="40" y2="42"/>*/}
+                  {/*</svg>*/}
                 </div>
               </p>
 
@@ -304,19 +317,20 @@ const NewUIArtem = () => {
 
                 <div className="tileContent">
                   <span className="verticalText">WIDE PHOTO</span>
-                  <svg className="icon64 wide CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"
-                       strokeWidth="1"
-                       strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="10" y="12" width="44" height="10" rx="1"/>
-                    <g className="moveHead">
-                      <rect x="12" y="12" width="12" height="10" rx="1"/>
-                    </g>
-                    <rect x="14" y="26" width="36" height="22" rx="1"/>
-                    <rect className="trace" x="16" y="50" width="4" height="4" rx="0.5"/>
-                    <rect className="trace" x="22" y="50" width="4" height="4" rx="0.5"/>
-                    <rect className="trace" x="28" y="50" width="4" height="4" rx="0.5"/>
-                    <rect className="trace" x="34" y="50" width="4" height="4" rx="0.5"/>
-                  </svg>
+                  <img className="icon64 CardPrintersPoslugiImg" src={wideIcon} alt=""/>
+                  {/*<svg className="icon64 wide CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"*/}
+                  {/*     strokeWidth="1"*/}
+                  {/*     strokeLinecap="round" strokeLinejoin="round">*/}
+                  {/*  <rect x="10" y="12" width="44" height="10" rx="1"/>*/}
+                  {/*  <g className="moveHead">*/}
+                  {/*    <rect x="12" y="12" width="12" height="10" rx="1"/>*/}
+                  {/*  </g>*/}
+                  {/*  <rect x="14" y="26" width="36" height="22" rx="1"/>*/}
+                  {/*  <rect className="trace" x="16" y="50" width="4" height="4" rx="0.5"/>*/}
+                  {/*  <rect className="trace" x="22" y="50" width="4" height="4" rx="0.5"/>*/}
+                  {/*  <rect className="trace" x="28" y="50" width="4" height="4" rx="0.5"/>*/}
+                  {/*  <rect className="trace" x="34" y="50" width="4" height="4" rx="0.5"/>*/}
+                  {/*</svg>*/}
                 </div>
               </p>
 
@@ -328,15 +342,16 @@ const NewUIArtem = () => {
                     <span className="verticalText">WIDE</span>
                     <span className="verticalText">FACTORY</span>
                   </div>
-                  <svg className="icon64 ind CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"
-                       strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="8" y="12" width="48" height="8" rx="2"/>
-                    <g className="gantry">
-                      <rect x="26" y="12" width="12" height="8" rx="1"/>
-                    </g>
-                    <rect className="dry" x="12" y="24" width="40" height="16" rx="2"/>
-                    <path className="trace" d="M16 36l10-6 8 5 8-5"/>
-                  </svg>
+                  <img className="icon64 CardPrintersPoslugiImg" src={wideFactoryIcon} alt=""/>
+                  {/*<svg className="icon64 ind CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"*/}
+                  {/*     strokeLinecap="round" strokeLinejoin="round">*/}
+                  {/*  <rect x="8" y="12" width="48" height="8" rx="2"/>*/}
+                  {/*  <g className="gantry">*/}
+                  {/*    <rect x="26" y="12" width="12" height="8" rx="1"/>*/}
+                  {/*  </g>*/}
+                  {/*  <rect className="dry" x="12" y="24" width="40" height="16" rx="2"/>*/}
+                  {/*  <path className="trace" d="M16 36l10-6 8 5 8-5"/>*/}
+                  {/*</svg>*/}
                 </div>
               </p>
 
@@ -346,14 +361,15 @@ const NewUIArtem = () => {
 
                 <div className="tileContent">
                   <span className="verticalText">POSTPRESS</span>
-                  <svg className="icon64 post CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
-                       stroke="#2f2f2f" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="14" y="16" width="36" height="32" rx="2"/>
-                    <rect className="move armsL" x="14" y="16" width="12" height="32"/>
-                    <rect className="move armsR" x="38" y="16" width="12" height="32"/>
-                    <line className="trace" x1="26" y1="16" x2="26" y2="48"/>
-                    <line className="trace" x1="38" y1="16" x2="38" y2="48"/>
-                  </svg>
+                  <img className="icon64 CardPrintersPoslugiImg" src={postpressIcon} alt=""/>
+                  {/*<svg className="icon64 post CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
+                  {/*     stroke="#2f2f2f" strokeLinecap="round" strokeLinejoin="round">*/}
+                  {/*  <rect x="14" y="16" width="36" height="32" rx="2"/>*/}
+                  {/*  <rect className="move armsL" x="14" y="16" width="12" height="32"/>*/}
+                  {/*  <rect className="move armsR" x="38" y="16" width="12" height="32"/>*/}
+                  {/*  <line className="trace" x1="26" y1="16" x2="26" y2="48"/>*/}
+                  {/*  <line className="trace" x1="38" y1="16" x2="38" y2="48"/>*/}
+                  {/*</svg>*/}
                 </div>
               </p>
 
@@ -361,12 +377,13 @@ const NewUIArtem = () => {
               <p onClick={() => setShowPerepletMet(true)}>
                 <div className="tileContent">
                   <span className="verticalText">BINDING</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"
-                       strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <rect className="draw" pathLength="1" x="14" y="14" width="36" height="36" rx="2"/>
-                    <line className="draw" pathLength="1" x1="22" y1="14" x2="22" y2="50"/>
-                    <path className="draw" pathLength="1" d="M18 18h6M18 24h6M18 30h6M18 36h6M18 42h6"/>
-                  </svg>
+                  <img className="icon64 CardPrintersPoslugiImg" src={bindingIcon} alt=""/>
+                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"*/}
+                  {/*     strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
+                  {/*  <rect className="draw" pathLength="1" x="14" y="14" width="36" height="36" rx="2"/>*/}
+                  {/*  <line className="draw" pathLength="1" x1="22" y1="14" x2="22" y2="50"/>*/}
+                  {/*  <path className="draw" pathLength="1" d="M18 18h6M18 24h6M18 30h6M18 36h6M18 42h6"/>*/}
+                  {/*</svg>*/}
                 </div>
               </p>
 
@@ -375,12 +392,13 @@ const NewUIArtem = () => {
               <p onClick={() => setShowLaminator(true)}>
                 <div className="tileContent">
                   <span className="verticalText">LAMINATION</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"
-                       strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <rect className="draw" pathLength="1" x="10" y="18" width="44" height="10" rx="5"/>
-                    <rect className="draw" pathLength="1" x="10" y="32" width="44" height="10" rx="5"/>
-                    <rect className="draw" pathLength="1" x="18" y="26" width="28" height="8" rx="2"/>
-                  </svg>
+                  <img className="icon64 CardPrintersPoslugiImg" src={laminationIcon} alt=""/>
+                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"*/}
+                  {/*     strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
+                  {/*  <rect className="draw" pathLength="1" x="10" y="18" width="44" height="10" rx="5"/>*/}
+                  {/*  <rect className="draw" pathLength="1" x="10" y="32" width="44" height="10" rx="5"/>*/}
+                  {/*  <rect className="draw" pathLength="1" x="18" y="26" width="28" height="8" rx="2"/>*/}
+                  {/*</svg>*/}
                 </div>
               </p>
             </div>
@@ -392,14 +410,15 @@ const NewUIArtem = () => {
               <p onClick={() => setShowNewNote(true)}>
                 <div className="tileContent">
                   <span className="verticalText">NOTE</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
-                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="18" y="12" width="28" height="40" rx="2"/>
-                    <line className="draw" pathLength="1" x1="22" y1="16" x2="22" y2="48"/>
-                    <circle className="draw" pathLength="1" cx="22" cy="20" r="1"/>
-                    <circle className="draw" pathLength="1" cx="22" cy="26" r="1"/>
-                    <circle className="draw" pathLength="1" cx="22" cy="32" r="1"/>
-                  </svg>
+                  <img className="icon64 CardPrintersPoslugiImg" src={noteIcon} alt=""/>
+                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
+                  {/*     stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
+                  {/*  <rect x="18" y="12" width="28" height="40" rx="2"/>*/}
+                  {/*  <line className="draw" pathLength="1" x1="22" y1="16" x2="22" y2="48"/>*/}
+                  {/*  <circle className="draw" pathLength="1" cx="22" cy="20" r="1"/>*/}
+                  {/*  <circle className="draw" pathLength="1" cx="22" cy="26" r="1"/>*/}
+                  {/*  <circle className="draw" pathLength="1" cx="22" cy="32" r="1"/>*/}
+                  {/*</svg>*/}
                 </div>
               </p>
 
@@ -407,11 +426,12 @@ const NewUIArtem = () => {
               <p onClick={() => setShowNewBooklet(true)}>
                 <div className="tileContent">
                   <span className="verticalText">BOOKLET</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
-                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="16" y="14" width="32" height="36" rx="2"/>
-                    <line className="draw" pathLength="1" x1="32" y1="14" x2="32" y2="50"/>
-                  </svg>
+                  <img className="icon64 CardPrintersPoslugiImg" src={bookletIcon} alt=""/>
+                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
+                  {/*     stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
+                  {/*  <rect x="16" y="14" width="32" height="36" rx="2"/>*/}
+                  {/*  <line className="draw" pathLength="1" x1="32" y1="14" x2="32" y2="50"/>*/}
+                  {/*</svg>*/}
                 </div>
               </p>
 
@@ -419,13 +439,14 @@ const NewUIArtem = () => {
               <p onClick={() => setShowNewCup(true)}>
                 <div className="tileContent">
                   <span className="verticalText">MUG</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64"
-                       fill="none" stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <rect className="draw" pathLength="1" x="20" y="24" width="20" height="16" rx="2"/>
-                    <circle className="draw" pathLength="1" cx="42" cy="28" r="5"/>
-                    <path className="draw" pathLength="1" d="M26 20c0-4 4-4 4-8"/>
-                    <path className="draw" pathLength="1" d="M34 20c0-4 4-4 4-8"/>
-                  </svg>
+                  <img className="icon64 CardPrintersPoslugiImg" src={MUG} alt=""/>
+                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64"*/}
+                  {/*     fill="none" stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
+                  {/*  <rect className="draw" pathLength="1" x="20" y="24" width="20" height="16" rx="2"/>*/}
+                  {/*  <circle className="draw" pathLength="1" cx="42" cy="28" r="5"/>*/}
+                  {/*  <path className="draw" pathLength="1" d="M26 20c0-4 4-4 4-8"/>*/}
+                  {/*  <path className="draw" pathLength="1" d="M34 20c0-4 4-4 4-8"/>*/}
+                  {/*</svg>*/}
 
 
                 </div>
@@ -435,10 +456,11 @@ const NewUIArtem = () => {
               <p onClick={() => setShowNewMagnets(true)}>
                 <div className="tileContent">
                   <span className="verticalText">MAGNETS</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
-                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <path className="draw" pathLength="1" d="M20 20h8v12h-8a12 12 0 0 0 24 0h-8V20h8"/>
-                  </svg>
+                  <img className="icon64 CardPrintersPoslugiImg" src={magnets} alt=""/>
+                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
+                  {/*     stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
+                  {/*  <path className="draw" pathLength="1" d="M20 20h8v12h-8a12 12 0 0 0 24 0h-8V20h8"/>*/}
+                  {/*</svg>*/}
                 </div>
               </p>
 
@@ -446,6 +468,7 @@ const NewUIArtem = () => {
               <p onClick={() => setShowNewScans(true)}>
                 <div className="tileContent">
                   <span className="verticalText">SCANS</span>
+                  {/*<img className="icon64 CardPrintersPoslugiImg" src={colorPrint} alt=""/>*/}
                   <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
                        stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="14" y="28" width="36" height="12" rx="2"/>
@@ -459,6 +482,7 @@ const NewUIArtem = () => {
               <p onClick={() => setShowDelivery(true)}>
                 <div className="tileContent">
                   <span className="verticalText">DELIVERY</span>
+                  {/*<img className="icon64 CardPrintersPoslugiImg" src={colorPrint} alt=""/>*/}
                   <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
                        stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="12" y="28" width="40" height="12" rx="2"/>

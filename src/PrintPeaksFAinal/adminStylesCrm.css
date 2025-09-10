@@ -327,8 +327,12 @@
 .CardPrintersPoslugi .tileContent > svg,
 .CardPrintersPoslugi .tileContent > img,
 .CardPrintersPoslugiImg{
-  margin-top:auto; align-self:center; width:3vw; height:4vh;
-  transform-origin:center bottom; transition:transform .35s ease;
+  margin-top:auto;
+  align-self:center;
+  width:3vw;
+  /*height:4vh;*/
+  transform-origin:center bottom;
+  transition:transform .35s ease;
 }
 .CardPrintersPoslugi  > svg,
 .CardPrintersPoslugi p:hover .tileContent > img{ transform:scale(3); }
