@@ -403,7 +403,6 @@ const CompanyTabl = () => {
           userId={thisUserIdToCabinet}
           onCreateOrder={()=>{}}
           onOpenChat={()=>{}}
-          onOpenProfile={()=>{}}
           onClose={()=>setClientCabinetOpen(false)}
         />
       )}

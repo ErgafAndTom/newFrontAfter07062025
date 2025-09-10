@@ -8,6 +8,14 @@ import './MainWindow.css';
 import {useNavigate, useParams} from "react-router-dom";
 import axios from '../api/axiosInstance';
 
+import blackWhitePrint from "../components/newUIArtem/printers/Untitled (3).png";
+import colorPrint from "../components/newUIArtem/printers/46.png";
+
+
+
+
+
+
 import MUG from "../components/newUIArtem/printers/mug.png";
 import magnets from "./magnetsIcon.png";
 import Scans from "./scan.png";
@@ -126,7 +134,8 @@ const NewUIArtem = () => {
     setNewThisOrder(newThisOrderToSend)
   };
 
-  const handleThingClickDelete2 = (OrderUnit) => {
+  const handleThingClickDelete2 = (OrderUnit, e) => {
+    e.stopPropagation()
     setShowDeleteOrderUnitModal(true)
     setThisOrderUnit(OrderUnit)
   };
@@ -238,18 +247,15 @@ const NewUIArtem = () => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-
                     <rect className="sheetTop" x="16" y="12" width="32" height="20" rx="2"/>
-
                     <rect className="sheetBottom" x="16" y="32" width="32" height="20" rx="2"/>
                   </svg>
-
-
                 </div>
               </p>
+
+
               {/* 7) CUTTING */}
               <p onClick={() => setShowVishichka(true)}>
-
                 <div className="tileContent">
                   <span className="verticalText">PLOTTER CUT</span>
                   <svg className="icon64 thin CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
@@ -264,6 +270,8 @@ const NewUIArtem = () => {
                   </svg>
                 </div>
               </p>
+
+
               {/* 4) PHOTO */}
               <p onClick={() => setShowNewPhoto?.(true)}>
                 <div className="tileContent">
@@ -289,6 +297,8 @@ const NewUIArtem = () => {
                   </svg>
                 </div>
               </p>
+
+
               {/* 3) WIDE */}
               <p onClick={() => setShowNewWide(true)}>
 
@@ -310,6 +320,7 @@ const NewUIArtem = () => {
                 </div>
               </p>
 
+
               {/* 8) WIDE FACTORY */}
               <p onClick={() => setShowWideFactory?.(true)}>
                 <div className="tileContent">
@@ -326,8 +337,6 @@ const NewUIArtem = () => {
                     <rect className="dry" x="12" y="24" width="40" height="16" rx="2"/>
                     <path className="trace" d="M16 36l10-6 8 5 8-5"/>
                   </svg>
-
-
                 </div>
               </p>
 
@@ -345,14 +354,11 @@ const NewUIArtem = () => {
                     <line className="trace" x1="26" y1="16" x2="26" y2="48"/>
                     <line className="trace" x1="38" y1="16" x2="38" y2="48"/>
                   </svg>
-
-
                 </div>
               </p>
 
               {/* 6) BINDING */}
               <p onClick={() => setShowPerepletMet(true)}>
-
                 <div className="tileContent">
                   <span className="verticalText">BINDING</span>
                   <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"
@@ -377,7 +383,6 @@ const NewUIArtem = () => {
                   </svg>
                 </div>
               </p>
-
             </div>
 
           </div>
@@ -486,7 +491,7 @@ const NewUIArtem = () => {
                       }}
                     >
                       <div
-                        onClick={(e) => handleThingClickDelete2(thing)}
+                        onClick={(e) => handleThingClickDelete2(thing, e)}
                         className="battonClosed">
                         ✕
                       </div>

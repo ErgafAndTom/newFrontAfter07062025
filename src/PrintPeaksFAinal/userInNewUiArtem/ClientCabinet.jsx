@@ -12,7 +12,6 @@ export default function ClientCabinet({
                                         thisOrder = {id: 0},
                                         // onCreateOrder,
                                         onOpenChat,
-                                        onOpenProfile,
                                         onClose,
                                       }) {
 
@@ -31,6 +30,20 @@ export default function ClientCabinet({
   const handleSearchChange = (e) => {
     // console.log(e.target.value);
     setSearchQuery(e.target.value);
+  };
+
+  const onOpenProfile = (userInBase) => {
+    if(userInBase.id){
+      window.location.href = `/Users/${userInBase.id}`;
+    }
+    // console.log(e.target.value);
+  };
+
+  const onOpenCompanyProfile = (userInBase) => {
+    if(userInBase.Company?.id){
+      window.location.href = `/Companys/${userInBase.Company?.id}`;
+    }
+    // console.log(e.target.value);
   };
 
   const onCreateOrder = () => {
@@ -206,7 +219,7 @@ export default function ClientCabinet({
           <button className="cc-btn" onClick={() => onCreateOrder?.(userInBase)}>＋ Нове замовлення</button>
           <button className="cc-btn" onClick={() => onOpenChat?.(userInBase)}>💬 Чат</button>
           <button className="cc-btn" onClick={() => onOpenProfile?.(userInBase)}>↗ Профіль</button>
-          <button className="cc-btn" onClick={() => onOpenProfile?.(userInBase)}> Компанія ({userInBase?.Company?.companyName} )</button>
+          <button className="cc-btn" onClick={() => onOpenCompanyProfile?.(userInBase)}>↗ Компанія ({userInBase?.Company?.companyName})</button>
         </div>
 
 
