@@ -143,3 +143,39 @@
     min-width: 250px;
     font-weight: 500;
 }
+
+
+
+/* колонки для модального списку контрагентів у стилі OrderList */
+.contractors-like-cols {
+  display: grid;
+  grid-template-columns:
+    4rem         /* № */
+    18rem        /* Найменування */
+    14rem        /* Система оподаткування */
+    12rem        /* Банк */
+    16rem        /* IBAN */
+    6rem         /* ПДВ */
+    16rem        /* Клієнт */
+    12rem        /* ЄДРПОУ */
+    12rem        /* Тел. */
+    12rem        /* Документи */
+    14rem;       /* Дії */
+  gap: 0.4rem;
+  align-items: center;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid #eee;
+  background: #fbfaf6;
+}
+
+/* з попереднього блоку, якщо ще не додано */
+.OrderRow-header { font-weight: 600; background: #f1f1f1; }
+.OrderRow-hover:hover { background: #f6f6f6; cursor: pointer; }
+.summary-cell { min-width: 0; }
+.UsersOrdersLikeTable-contract-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.UsersOrdersLikeTable-contract-text-multiline {
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.OrderBlock { border-radius: 10px; margin-bottom: 6px; overflow: hidden; }
+.OrderRow-expanded { padding: 0.6rem 0.8rem; background: rgba(0,0,0,0.03); border-left: 2px solid #e3e3e3; }
+.OrderUnit-card { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 0.6rem 0.8rem; min-width: 22rem; }

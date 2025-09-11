@@ -587,6 +587,60 @@ body {
   max-width: 10vw;
   /*border: black solid 1px;*/
 }
+.summary-cell.contragentName     {
+  width: 10vw;
+  max-width: 10vw;
+  /*border: black solid 1px;*/
+}
+.summary-cell.contragentGrupa     {
+  width: 7vw;
+  max-width: 7vw;
+  /*border: black solid 1px;*/
+}
+.summary-cell.contragentBank     {
+  width: 5vw;
+  max-width: 5vw;
+  /*border: black solid 1px;*/
+}
+.summary-cell.contragentIBAN     {
+  width: 13vw;
+  max-width: 13vw;
+  /*border: black solid 1px;*/
+}
+.summary-cell.contragentPDV     {
+  width: 3vw;
+  max-width: 3vw;
+  /*border: black solid 1px;*/
+}
+.summary-cell.contragentClient     {
+  width: 8vw;
+  max-width: 8vw;
+  /*border: black solid 1px;*/
+}
+.summary-cell.contragentEDRPOU     {
+  width: 7vw;
+  max-width: 7vw;
+  /*border: black solid 1px;*/
+}
+.summary-cell.contragentTelephone     {
+  width: 7vw;
+  max-width: 7vw;
+  /*border: black solid 1px;*/
+}
+.summary-cell.contragentDocu     {
+  width: 10vw;
+  max-width: 10vw;
+  /*border: black solid 1px;*/
+}
+.summary-cell.contragentDii     {
+  width: 15vw;
+  max-width: 15vw;
+  /*border: black solid 1px;*/
+}.summary-cell.contragentId     {
+  width: 2vw;
+  max-width: 2vw;
+  /*border: black solid 1px;*/
+}
 .summary-cell.telegram        { width: 5vw; }
 .summary-cell.action          { width: 5vw; }
 .summary-cell.documents       { width: 5vw; }

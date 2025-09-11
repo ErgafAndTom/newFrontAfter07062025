@@ -268,7 +268,7 @@ function ContrAgentsInUserProfile({user}) {
                                     {/*    ? `${user.Company?.companyName} ${user.Company?.edrpou}`*/}
                                     {/*    : '—'}*/}
                                     {/*</td>*/}
-                                    <td className="ContractorCell">{`${user.firstName} ${user.lastName} ${user.familyName} (${user.phoneNumber})`}</td>
+                                  <td className="ContractorCell">{`${item.User.firstName} ${item.User.lastName} ${item.User.familyName} (${item.User.phoneNumber})`}</td>
                                     <td className="ContractorCell">{`${new Date(item.updatedAt).toLocaleDateString()} ${new Date(item.updatedAt).toLocaleTimeString()}`}</td>
                                     <td className="ContractorCell ContractorActions">
                                         {/*<button className="ContractorViewBtn" style={{background: "green"}}*/}

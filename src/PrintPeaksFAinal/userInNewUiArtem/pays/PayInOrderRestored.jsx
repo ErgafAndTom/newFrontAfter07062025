@@ -6,6 +6,7 @@ import axios from "../../../api/axiosInstance";
 import {useNavigate} from "react-router-dom";
 import {Spinner} from "react-bootstrap";
 import PaysInOrderRestoredForOurC from "./PaysInOrderRestoredForOurC";
+import Vishichka from "../../poslugi/Vishichka";
 
 /**
  * RESTORED VERSION — 04 May 2025
@@ -255,24 +256,29 @@ function PaysInOrderRestored({showPays, setShowPays, thisOrder, setThisOrder}) {
                             <Spinner animation="border" variant="dark"/>
                         </div>
                     ) : (
-                        <table className="ContractorTable">
+                      <div className="d-flex flex-column">
+                        <div>
+                          <h5 className="d-flex m-auto fw-bold">Особисті Контрагенти</h5>
+                          <table className="ContractorTable">
                             <thead>
                             <tr className="ContractorRow ">
-                                <th>№</th>
-                                <th>Найменування</th>
-                                <th>Система оподаткування</th>
-                                <th>Банк</th>
-                                <th>IBAN</th>
-                                <th>ПДВ</th>
-                                <th>Клієнт</th>
-                                <th>ЄДРОПУ</th>
-                               <th>Тел.</th>
-                                <th>Документи</th>
+                              <th>№</th>
+                              <th>Найменування</th>
+                              <th>Система оподаткування</th>
+                              <th>Банк</th>
+                              <th>IBAN</th>
+                              <th>ПДВ</th>
+                              <th>Клієнт</th>
+                              <th>ЄДРОПУ</th>
+                              <th>Тел.</th>
+                              <th>Документи</th>
                             </tr>
                             </thead>
                             <tbody>
                             {data?.map((item, idx) => (
-                                <tr className="ContractorRow" key={item.id}>
+                              <>
+                                {item.isClientOwner &&
+                                  <tr className="ContractorRow" key={item.id}>
                                     <td className="ContractorCell">{idx + 1}</td>
                                     <td className="ContractorCell ContractorName">{item.name}</td>
                                     <td className="ContractorCell">{item.taxSystem}</td>
@@ -280,40 +286,173 @@ function PaysInOrderRestored({showPays, setShowPays, thisOrder, setThisOrder}) {
                                     <td className="ContractorCell">{item.bankName}</td>
                                     <td className="ContractorCell">{item.iban}</td>
                                     <td className="ContractorCell">{item.pdv === "true" ? '+' : '-'}</td>
-                                    <td className="ContractorCell">{`${thisOrder.client.firstName} ${thisOrder.client.lastName} ${thisOrder.client.familyName} (${thisOrder.client.phoneNumber})`}</td>
-                                  <td className="ContractorCell">{item.edrpou}</td>
-                                  {/*<td className="ContractorCell">{`${new Date(thisOrder.updatedAt).toLocaleDateString()} ${new Date(thisOrder.updatedAt).toLocaleTimeString()}`}</td>*/}
-                                  <td className="ContractorCell">{item.phone}</td>
-                                  <td className="ContractorCell ContractorActions">
-                                        <button className="adminButtonAdd" style={{}}
-                                                onClick={(e) => generateInvoice(e, item)}>
-                                            Завантажити
-                                        </button>
-                                        {/*<button className="ContractorViewBtn" style={{background: "green"}}*/}
-                                        {/*        onClick={(e) => generateDoc1(e, item)}>*/}
-                                        {/*    Рахунок*/}
-                                        {/*</button>*/}
-                                        <button className="adminButtonAdd" onClick={(e) => openSeePay(e, item)}>
-                                            Редагувати
-                                        </button>
-                                        <button
-                                            // className="ContractorMoreBtn"
-                                            className="adminButtonAdd"
-                                            style={{background: "#ee3c23"}}
-                                            onClick={(e) => openDeletePay(e, item)}
-                                        >
-                                            {/*⋮*/}
-                                            Видалити
-                                        </button>
+                                    <td
+                                      className="ContractorCell">{`${item.User.firstName} ${item.User.lastName} ${item.User.familyName} (${item.User.phoneNumber})`}</td>
+                                    <td className="ContractorCell">{item.edrpou}</td>
+                                    {/*<td className="ContractorCell">{`${new Date(thisOrder.updatedAt).toLocaleDateString()} ${new Date(thisOrder.updatedAt).toLocaleTimeString()}`}</td>*/}
+                                    <td className="ContractorCell">{item.phone}</td>
+                                    <td className="ContractorCell ContractorActions">
+                                      <button className="adminButtonAdd" style={{}}
+                                              onClick={(e) => generateInvoice(e, item)}>
+                                        Завантажити
+                                      </button>
+                                      {/*<button className="ContractorViewBtn" style={{background: "green"}}*/}
+                                      {/*        onClick={(e) => generateDoc1(e, item)}>*/}
+                                      {/*    Рахунок*/}
+                                      {/*</button>*/}
+                                      <button className="adminButtonAdd" onClick={(e) => openSeePay(e, item)}>
+                                        Редагувати
+                                      </button>
+                                      <button
+                                        // className="ContractorMoreBtn"
+                                        className="adminButtonAdd"
+                                        style={{background: "#ee3c23"}}
+                                        onClick={(e) => openDeletePay(e, item)}
+                                      >
+                                        {/*⋮*/}
+                                        Видалити
+                                      </button>
                                     </td>
-                                </tr>
+                                  </tr>
+                                }
+                              </>
                             ))}
                             </tbody>
-                        </table>
+                          </table>
+                        </div>
+                        <hr className="my-2"/>
+                        <div>
+                          <h5 className="d-flex m-auto fw-bold">Контрагенти спільні у компанії</h5>
+                          <table className="ContractorTable">
+                            <thead>
+                            <tr className="ContractorRow ">
+                              <th>№</th>
+                              <th>Найменування</th>
+                              <th>Система оподаткування</th>
+                              <th>Банк</th>
+                              <th>IBAN</th>
+                              <th>ПДВ</th>
+                              <th>Клієнт</th>
+                              <th>ЄДРОПУ</th>
+                              <th>Тел.</th>
+                              <th>Документи</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {data?.map((item, idx) => (
+                              <>
+                                {item.isCompanyOwner &&
+                                  <tr className="ContractorRow" key={item.id}>
+                                    <td className="ContractorCell">{idx + 1}</td>
+                                    <td className="ContractorCell ContractorName">{item.name}</td>
+                                    <td className="ContractorCell">{item.taxSystem}</td>
+
+                                    <td className="ContractorCell">{item.bankName}</td>
+                                    <td className="ContractorCell">{item.iban}</td>
+                                    <td className="ContractorCell">{item.pdv === "true" ? '+' : '-'}</td>
+                                    <td
+                                      className="ContractorCell">{`${item.User.firstName} ${item.User.lastName} ${item.User.familyName} (${item.User.phoneNumber})`}</td>
+                                    <td className="ContractorCell">{item.edrpou}</td>
+                                    {/*<td className="ContractorCell">{`${new Date(thisOrder.updatedAt).toLocaleDateString()} ${new Date(thisOrder.updatedAt).toLocaleTimeString()}`}</td>*/}
+                                    <td className="ContractorCell">{item.phone}</td>
+                                    <td className="ContractorCell ContractorActions">
+                                      <button className="adminButtonAdd" style={{}}
+                                              onClick={(e) => generateInvoice(e, item)}>
+                                        Завантажити
+                                      </button>
+                                      {/*<button className="ContractorViewBtn" style={{background: "green"}}*/}
+                                      {/*        onClick={(e) => generateDoc1(e, item)}>*/}
+                                      {/*    Рахунок*/}
+                                      {/*</button>*/}
+                                      <button className="adminButtonAdd" onClick={(e) => openSeePay(e, item)}>
+                                        Редагувати
+                                      </button>
+                                      <button
+                                        // className="ContractorMoreBtn"
+                                        className="adminButtonAdd"
+                                        style={{background: "#ee3c23"}}
+                                        onClick={(e) => openDeletePay(e, item)}
+                                      >
+                                        {/*⋮*/}
+                                        Видалити
+                                      </button>
+                                    </td>
+                                  </tr>
+                                }
+                              </>
+                            ))}
+                            </tbody>
+                          </table>
+                        </div>
+                        <hr className="my-2"/>
+                        <div>
+                          <h5 className="d-flex m-auto fw-bold">Особисті контрагенти інших учасників компанії</h5>
+                          <table className="ContractorTable">
+                            <thead>
+                            <tr className="ContractorRow ">
+                              <th>№</th>
+                              <th>Найменування</th>
+                              <th>Система оподаткування</th>
+                              <th>Банк</th>
+                              <th>IBAN</th>
+                              <th>ПДВ</th>
+                              <th>Клієнт</th>
+                              <th>ЄДРОПУ</th>
+                              <th>Тел.</th>
+                              <th>Документи</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {data?.map((item, idx) => (
+                              <>
+                                {item.isColleagueOwner &&
+                                  <tr className="ContractorRow" key={item.id}>
+                                    <td className="ContractorCell">{idx + 1}</td>
+                                    <td className="ContractorCell ContractorName">{item.name}</td>
+                                    <td className="ContractorCell">{item.taxSystem}</td>
+
+                                    <td className="ContractorCell">{item.bankName}</td>
+                                    <td className="ContractorCell">{item.iban}</td>
+                                    <td className="ContractorCell">{item.pdv === "true" ? '+' : '-'}</td>
+                                    <td
+                                      className="ContractorCell">{`${item.User.firstName} ${item.User.lastName} ${item.User.familyName} (${item.User.phoneNumber})`}</td>
+                                    <td className="ContractorCell">{item.edrpou}</td>
+                                    {/*<td className="ContractorCell">{`${new Date(thisOrder.updatedAt).toLocaleDateString()} ${new Date(thisOrder.updatedAt).toLocaleTimeString()}`}</td>*/}
+                                    <td className="ContractorCell">{item.phone}</td>
+                                    <td className="ContractorCell ContractorActions">
+                                      <button className="adminButtonAdd" style={{}}
+                                              onClick={(e) => generateInvoice(e, item)}>
+                                        Завантажити
+                                      </button>
+                                      {/*<button className="ContractorViewBtn" style={{background: "green"}}*/}
+                                      {/*        onClick={(e) => generateDoc1(e, item)}>*/}
+                                      {/*    Рахунок*/}
+                                      {/*</button>*/}
+                                      <button className="adminButtonAdd" onClick={(e) => openSeePay(e, item)}>
+                                        Редагувати
+                                      </button>
+                                      <button
+                                        // className="ContractorMoreBtn"
+                                        className="adminButtonAdd"
+                                        style={{background: "#ee3c23"}}
+                                        onClick={(e) => openDeletePay(e, item)}
+                                      >
+                                        {/*⋮*/}
+                                        Видалити
+                                      </button>
+                                    </td>
+                                  </tr>
+                                }
+                              </>
+                            ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
                     )}
 
                     <button className="adminButtonAdd" style={{marginTop:'2vh'}} onClick={openAddPay}>
-                        Додати контрагента
+                        Додати особистого контрагента
                     </button>
 
                     {/* Nested modals */}

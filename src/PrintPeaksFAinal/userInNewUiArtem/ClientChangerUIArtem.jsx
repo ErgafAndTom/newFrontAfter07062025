@@ -31,6 +31,7 @@ import {FiUser} from "react-icons/fi";
 import {FiFolder} from "react-icons/fi";
 
 import "./ClientCabinet.css";
+import PaysInOrderRestored_OrdersLike from "./pays/PaysInOrderRestored_OrdersLike";
 
 const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -485,8 +486,20 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
         {/* Інші модальні вікна, які можуть бути потрібні */}
         {/*{showNP && <NP show={showNP} onHide={() => setShowNP(false)}/>}*/}
 <div style={{zIndex: 2000}}>
-        {showPays && <PaysInOrderRestored showPays={showPays} setShowPays={setShowPays} thisOrder={thisOrder}
-                                          setThisOrder={setThisOrder}/>}
+        {showPays &&
+          // <PaysInOrderRestored
+          //   showPays={showPays}
+          //   setShowPays={setShowPays}
+          //   thisOrder={thisOrder}
+          //   setThisOrder={setThisOrder}
+          // />
+          <PaysInOrderRestored_OrdersLike
+            showPays={showPays}
+            setShowPays={setShowPays}
+            thisOrder={thisOrder}
+            setThisOrder={setThisOrder}
+          />
+        }
 </div>
       </div>
       {/* Модальне вікно для генерації документів */}

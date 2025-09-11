@@ -256,7 +256,9 @@ function PaysInOrderRestoredForAdmin({user}) {
                                     <td className="ContractorCell fontSize1VH">{item.Contractor.phone}</td>
                                     <td className="ContractorCell fontSize1VH">{item.Contractor.email}</td>
                                     <td className="ContractorCell fontSize1VH">{item.Contractor.pdv ? '+' : '-'}</td>
-                                    <td className="ContractorCell fontSize1VH">{`${item.Contractor.User.firstName} ${item.Contractor.User.lastName} ${item.Contractor.User.familyName} (${item.Contractor.User.phoneNumber})`}</td>
+                                    <td className="ContractorCell fontSize1VH">
+                                      {`${item.Contractor.User.firstName} ${item.Contractor.User.lastName} ${item.Contractor.User.familyName} (${item.Contractor.User.phoneNumber})`}
+                                    </td>
                                     <td className="ContractorCell fontSize1VH">{`${new Date(item.updatedAt).toLocaleDateString()} ${new Date(item.updatedAt).toLocaleTimeString()}`}</td>
                                     <td className="ContractorCell ContractorActions fontSize1VH">
                                         {/*<button className="ContractorViewBtn" style={{background: "green"}}*/}
