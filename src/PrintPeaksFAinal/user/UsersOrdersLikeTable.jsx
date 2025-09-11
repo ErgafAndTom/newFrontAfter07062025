@@ -205,8 +205,8 @@ const UsersOrdersLikeTable = () => {
                   {/*<div className="UsersOrdersLikeTable-contract-text">[{order.username || '—'}]</div>*/}
                   <div className="d-flex">
                     <div className="UsersOrdersLikeTable-contract-text">{order.firstName || '—'}</div>
-                    <div className="UsersOrdersLikeTable-contract-text">{order.lastName || '—'}</div>
-                    <div className="UsersOrdersLikeTable-contract-text">{order.familyName || '—'}</div>
+                    <div className="UsersOrdersLikeTable-contract-text">{order.lastName || ''}</div>
+                    <div className="UsersOrdersLikeTable-contract-text">{order.familyName || ''}</div>
                   </div>
                 </div>
               </div>
@@ -217,7 +217,7 @@ const UsersOrdersLikeTable = () => {
               <div className="summary-cell phoneNumber d-flex justify-content-center UsersOrdersLikeTable-contract-text-multiline">
                 {order.Company
                   ? <div className="UsersOrdersLikeTable-contract-text-multiline">
-                    <div className="UsersOrdersLikeTable-contract-text" style={{fontSize: "0.7vw"}}>{order.Company.companyName || 'noName'}</div>
+                    <div className="UsersOrdersLikeTable-contract-text">{order.Company.companyName || `Компанія#${order.Company.id} noName`}</div>
                     {/*<div className="UsersOrdersLikeTable-contract-text" style={{fontSize: "0.7vw"}}>{order.Company.address || 'noAddress'}</div>*/}
                     {/*<div className="UsersOrdersLikeTable-contract-text" style={{fontSize: "0.7vw"}}>{order.Company.edrpou || 'noEdrpou'}</div>*/}
                   </div>
@@ -243,7 +243,7 @@ const UsersOrdersLikeTable = () => {
               <div className="summary-cell phoneNumber fontSize1-3VH">{order.Orders?.length || '—'}</div>
               <div className="summary-cell phoneNumber fontSize1-3VH">{
                 <div>
-                  {order.phoneNumber}
+                  {order.phoneNumber || '—'}
                   {/*{order.phoneNumber && (*/}
                   {/*  <ViberAvatar link={order.phoneNumber} size={64}/>*/}
                   {/*)}*/}

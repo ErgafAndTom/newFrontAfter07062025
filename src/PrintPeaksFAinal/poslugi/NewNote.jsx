@@ -211,7 +211,7 @@ const NewNote = ({
 
     const addNewOrderUnit = e => {
         let toCalcData = {
-            nameOrderUnit: `Друк ${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
+            nameOrderUnit: `${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
             type: "Note",
             size: size,
             material: material,

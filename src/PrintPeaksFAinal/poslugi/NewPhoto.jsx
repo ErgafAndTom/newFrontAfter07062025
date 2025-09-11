@@ -86,7 +86,7 @@ const NewPhoto = ({
         let dataToSend = {
             orderId: thisOrder.id,
             toCalc: {
-                nameOrderUnit: `Друк ${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
+                nameOrderUnit: `${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
                 type: "Photo",
                 size: size,
                 material: {

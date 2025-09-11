@@ -3,7 +3,6 @@ import { Spinner, Button, Form, Modal } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import axios from "../../api/axiosInstance";
 import TelegramAvatar from "../Messages/TelegramAvatar";
-import ViberAvatar from "../Messages/ViberAvatar";
 
 const FieldEdit = ({ label, field, value, userId, type="text", as="input" }) => {
   const [val, setVal] = useState(value ?? "");
