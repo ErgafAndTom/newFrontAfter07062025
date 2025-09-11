@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <clipPath id="circle">
+      <circle cx="128" cy="128" r="120"/>
+    </clipPath>
+  </defs>
+
+  <!-- base background -->
+  <circle cx="128" cy="128" r="128" fill="#F3F4F6"/>
+<!--  <circle cx="128" cy="128" r="120" fill="#D1D5DB"/>-->
+
+  <!-- silhouette -->
+<!--  <g clip-path="url(#circle)" fill="#6B7280">-->
+<!--    <circle cx="128" cy="96" r="38"/>-->
+<!--    <path d="M64 184c0-34 32-56 64-56s64 22 64 56v28H64z"/>-->
+<!--  </g>-->
+
+  <!-- subtle ring -->
+<!--  <circle cx="128" cy="128" r="120" fill="none" stroke="#E5E7EB" stroke-width="2"/>-->
+
+  <!-- telegram crossed-out overlay -->
+  <g opacity="0.4">
+    <!-- soft pastel circle -->
+    <circle cx="128" cy="128" r="80" fill="#60A5FA"/>
+    <!-- paper-plane shape (Telegram logo simplified) -->
+    <path d="M180 96L92 132l26 10 10 35 14-18 30 22 8-82z" fill="#fff"/>
+    <!-- diagonal strike-through -->
+    <line x1="0" y1="256" x2="256" y2="0" stroke="red" stroke-width="30" stroke-linecap="round"/>
+  </g>
+</svg>

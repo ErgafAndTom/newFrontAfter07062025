@@ -104,25 +104,42 @@ const UsersList = ({ companyId, reloadSignal = 0 }) => {
       ) : (
         <div className="d-flex flex-wrap mt-3" style={{gap:"0.8rem"}}>
           {rows.map(u=>(
-            <div key={u.id} className="p-2" style={{
-              width:"22vw", border:"1px solid #ddd", borderRadius:8, background:"#fbfaf6"
-            }}>
-              <div className="d-flex align-items-center" style={{gap:"0.6rem"}}>
-                <TelegramAvatar link={u.telegram} size={48}/>
-                <div>
-                  <div style={{fontWeight:600}}>{u.firstName} {u.familyName}</div>
-                  <div style={{fontSize:12, opacity:0.75}}>id: {u.id}</div>
+            <Link to={`/Users/${u.id}`} style={{textDecoration: "none"}}>
+              <div key={u.id} className="p-2" style={{
+                width: "24vw",
+                border: "1px solid #ddd",
+                borderRadius: 8,
+                background: "#fbfaf6",
+                padding: "1vw",
+              }}>
+                <div className="d-flex align-items-center" style={{gap: "0.6rem"}}>
+                  <TelegramAvatar link={u.telegram} size={48}/>
+                  <div>
+                    <div style={{fontWeight: 600}}>{u.firstName} {u.lastName} {u.familyName}</div>
+                    <div className="d-flex">
+                      <div style={{fontSize: 12, opacity: 0.75}}>id: {u.id}</div>
+                    </div>
+                    <div style={{ fontSize: "0.6vw", opacity: 0.7 }}>
+                      телефон: {u.phoneNumber || "—"}
+                    </div>
+                    <div style={{ fontSize: "0.6vw", opacity: 0.7 }}>
+                      email: {u.email || "—"}
+                    </div>
+                    <div style={{ fontSize: "0.6vw", opacity: 0.7 }}>
+                      адреса: {u.address || "—"}
+                    </div>
+                  </div>
                 </div>
+                {/*<div style={{fontSize: 14, marginTop: 6}}>*/}
+                {/*  {u.phoneNumber || "—"} · {u.email || "—"}*/}
+                {/*</div>*/}
+                {/*<div style={{fontSize: 12, opacity: 0.8}}>{u.address || " "}</div>*/}
+                {/*<div className="d-flex mt-2" style={{gap: "0.5rem"}}>*/}
+                {/*  <Link to={`/Orders/create?userId=${u.id}`} className="adminButtonAddOrder"*/}
+                {/*        style={{textDecoration: "none"}}>Нове замовлення</Link>*/}
+                {/*</div>*/}
               </div>
-              <div style={{fontSize:14, marginTop:6}}>
-                {u.phoneNumber || "—"} · {u.email || "—"}
-              </div>
-              <div style={{fontSize:12, opacity:0.8}}>{u.address || " "}</div>
-              <div className="d-flex mt-2" style={{gap:"0.5rem"}}>
-                <Link to={`/Users/${u.id}`} className="adminButtonAddOrder" style={{textDecoration:"none"}}>Профіль</Link>
-                <Link to={`/Orders/create?userId=${u.id}`} className="adminButtonAddOrder" style={{textDecoration:"none"}}>Нове замовлення</Link>
-              </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}
@@ -165,10 +182,10 @@ export default function CompanyPage() {
         <div style={{opacity:0.7}}>Клієнтів: {company.usersCount}</div>
         <div className="ms-auto d-flex" style={{gap:"0.6rem"}}>
           <Button className="adminButtonAdd" onClick={()=>setShowAttachModal(true)}>
-            Додати існуючого
+            ＋ Додати існуючого
           </Button>
-          <Button className="adminButtonAdd" onClick={()=>setShowAddUser(true)}>Додати нового клієнта</Button>
-          <Link to="/Companys" className="adminButtonAdd" style={{textDecoration:"none"}}>До списку</Link>
+          <Button className="adminButtonAdd" onClick={()=>setShowAddUser(true)}>＋＋ Додати нового клієнта</Button>
+          <Link to="/Companys" className="adminButtonAdd" style={{textDecoration:"none"}}>↗ До списку</Link>
         </div>
       </div>
 

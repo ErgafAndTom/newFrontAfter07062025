@@ -103,9 +103,7 @@ const ClientSelectionModal = ({
                              >
                              <FiUser />
                             </button>
-                            {user.telegram && (
-                              <TelegramAvatar link={user.telegram} size={50} />
-                            )}
+                            <TelegramAvatar link={user.telegram} size={50} />
 
 
                             </span>

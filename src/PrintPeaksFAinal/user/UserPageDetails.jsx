@@ -3,6 +3,7 @@ import { Spinner, Button, Form, Modal } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import axios from "../../api/axiosInstance";
 import TelegramAvatar from "../Messages/TelegramAvatar";
+import ViberAvatar from "../Messages/ViberAvatar";
 
 const FieldEdit = ({ label, field, value, userId, type="text", as="input" }) => {
   const [val, setVal] = useState(value ?? "");
@@ -254,9 +255,17 @@ export default function UserPageDetails({thisUser = null}) {
 
   const fullName = [user.firstName, user.familyName].filter(Boolean).join(" ");
   const companyBlock = user.Company
-    ? (<div className="d-flex align-items-center" style={{gap:"0.6rem"}}>
+    ? (<div className="d-flex align-items-center" style={{
+      gap:"0.6rem",
+      // background: "gray"
+      // width:"22vw",
+      border:"1px solid #ddd",
+      borderRadius:8,
+      background:"#fbfaf6",
+      padding: "1vw"
+    }}>
       <img src={user.Company.photoLink || "/noimg.png"} alt="" style={{width:28, height:28, objectFit:"cover", borderRadius:6}}/>
-      <Link to={`/Company/${user.Company.id}`} className="" style={{textDecoration:"none"}}>
+      <Link to={`/Companys/${user.Company.id}`} className="" style={{textDecoration:"none"}}>
         {/*{user.Company.companyName || `Компанія #${user.Company.id}`}*/}
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 600 }}>{user.Company.companyName || `Компанія #${user.Company.id} noCompanyName`}</div>
@@ -271,52 +280,66 @@ export default function UserPageDetails({thisUser = null}) {
           </div>
         </div>
       </Link>
-      <Button variant="outline-danger" onClick={detach}>Від’єднати</Button>
+      <div className="adminButtonAdd" onClick={detach}>– Від’єднати</div>
     </div>)
-    : (<Button className="adminButtonAdd" onClick={()=>setShowAttach(true)}>Прикріпити до компанії</Button>);
+    : (<div className="adminButtonAdd" onClick={()=>setShowAttach(true)}>＋ Прикріпити до компанії</div>);
 
   return (
     <div className="container-fluid" style={{padding:"1rem"}}>
       <div className="d-flex align-items-center" style={{gap:"1rem"}}>
         <TelegramAvatar link={user.telegram} size={64}/>
+        {/*{user.phoneNumber && (*/}
+        {/*  <ViberAvatar link={user.phoneNumber} size={64}/>*/}
+        {/*)}*/}
+
         <div>
           <h3 style={{margin:0}}>{fullName || `User #${user.id}`}</h3>
           <div style={{opacity:0.7}}>id: {user.id} · роль: {user.role}</div>
         </div>
         <div className="ms-auto d-flex" style={{gap:"0.6rem"}}>
-          <div className="adminButtonAdd" onClick={(e) => triggerNewOrder(user.id)} style={{textDecoration:"none"}}>Нове замовлення</div>
-          <Link to={`/Users`} className="adminButtonAdd" style={{textDecoration:"none"}}>До списку</Link>
+          <div className="adminButtonAdd" onClick={(e) => triggerNewOrder(user.id)} style={{textDecoration:"none"}}>＋ Нове замовлення</div>
+          <Link to={`/Users`} className="adminButtonAdd" style={{textDecoration:"none"}}>↗ До списку</Link>
         </div>
       </div>
 
-      <div className="mt-2" style={{
-        display:"grid",
-        gridTemplateColumns:"1fr",
-        // gap:"0.6rem",
-        maxWidth:"60vw"
-      }}>
-        <FieldEdit label="Ім'я"         field="firstName"  value={user.firstName}  userId={user.id}/>
-        <FieldEdit label="Прізвище"     field="familyName" value={user.familyName} userId={user.id}/>
-        <FieldEdit label="По батькові"  field="lastName"   value={user.lastName}   userId={user.id}/>
-        <FieldEdit label="Нікнейм"      field="username"   value={user.username}   userId={user.id}/>
-        <FieldEdit label="Телефон"      field="phoneNumber" value={user.phoneNumber} userId={user.id}/>
-        <FieldEdit label="E-mail"       field="email"      value={user.email}      userId={user.id} type="email"/>
-        <FieldEdit label="Адреса"       field="address"    value={user.address}    userId={user.id}/>
-        <FieldEdit label="Компанія (текст)" field="company" value={user.company}   userId={user.id}/>
-        <FieldEdit label="Telegram"     field="telegram"   value={user.telegram}   userId={user.id}/>
-        <FieldEdit label="Viber"        field="viber"      value={user.viber}      userId={user.id}/>
-        <FieldEdit label="WhatsApp"     field="whatsapp"   value={user.whatsapp}   userId={user.id}/>
-        <FieldEdit label="Signal"       field="signal"     value={user.signal}     userId={user.id}/>
-        <FieldEdit label="Знижка (%)"   field="discount"   value={user.discount}   userId={user.id} type="number"/>
-        <FieldEdit label="Фото (URL)"   field="photoLink"  value={user.photoLink}  userId={user.id}/>
-        <FieldEdit label="Роль"         field="role"       value={user.role}       userId={user.id}/>
-        <FieldEdit label="Роль 2"       field="role2"      value={user.role2}      userId={user.id}/>
+      <hr className="my-1"/>
+
+      <div className="d-flex">
+        <div className="mt-2" style={{
+          display: "grid",
+          gridTemplateColumns: "1fr",
+          // gap:"0.6rem",
+          maxWidth: "50vw"
+        }}>
+          <FieldEdit label="Ім'я" field="firstName" value={user.firstName} userId={user.id}/>
+          <FieldEdit label="Прізвище" field="familyName" value={user.familyName} userId={user.id}/>
+          <FieldEdit label="По батькові" field="lastName" value={user.lastName} userId={user.id}/>
+          <FieldEdit label="Нікнейм" field="username" value={user.username} userId={user.id}/>
+          <FieldEdit label="Телефон" field="phoneNumber" value={user.phoneNumber} userId={user.id}/>
+          <FieldEdit label="E-mail" field="email" value={user.email} userId={user.id} type="email"/>
+          <FieldEdit label="Адреса" field="address" value={user.address} userId={user.id}/>
+          <FieldEdit label="Компанія (текст)" field="company" value={user.company} userId={user.id}/>
+          <FieldEdit label="Telegram" field="telegram" value={user.telegram} userId={user.id}/>
+          <FieldEdit label="Viber" field="viber" value={user.viber} userId={user.id}/>
+          <FieldEdit label="WhatsApp" field="whatsapp" value={user.whatsapp} userId={user.id}/>
+          <FieldEdit label="Signal" field="signal" value={user.signal} userId={user.id}/>
+          <FieldEdit label="Знижка (%)" field="discount" value={user.discount} userId={user.id} type="number"/>
+          <FieldEdit label="Фото (URL)" field="photoLink" value={user.photoLink} userId={user.id}/>
+          <FieldEdit label="Роль" field="role" value={user.role} userId={user.id}/>
+          <FieldEdit label="Роль 2" field="role2" value={user.role2} userId={user.id}/>
+        </div>
+
+        <div className="mt-2" style={{
+          borderLeft: "1px solid white",
+          marginLeft: "1vw",
+          paddingLeft: "1vw",
+        }}>
+          <h5 className="d-flex align-items-center justify-content-center">Компанія</h5>
+          {companyBlock}
+        </div>
       </div>
 
-      <hr className="my-4"/>
-
-      <h5>Компанія</h5>
-      {companyBlock}
+      <hr className="my-1"/>
 
       {showAttach && (
         <AttachCompanyModal

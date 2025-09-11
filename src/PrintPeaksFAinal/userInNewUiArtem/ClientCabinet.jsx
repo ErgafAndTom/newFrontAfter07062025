@@ -164,9 +164,9 @@ export default function ClientCabinet({
               <TelegramAvatar
                 link={userInBase?.telegram}
                 size={50}
-                defaultSrc={
-                  "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%20width%3D'70'%20height%3D'70'%20fill%3D'none'%20stroke%3D'currentColor'%20stroke-width%3D'1.6'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'12'%20cy%3D'8'%20r%3D'3.2'/%3E%3Cpath%20d%3D'M4%2020c0-3.3%203.6-6%208-6s8%202.7%208%206'/%3E%3C%2Fsvg%3E"
-                }
+                // defaultSrc={
+                //   "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%20width%3D'70'%20height%3D'70'%20fill%3D'none'%20stroke%3D'currentColor'%20stroke-width%3D'1.6'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'12'%20cy%3D'8'%20r%3D'3.2'/%3E%3Cpath%20d%3D'M4%2020c0-3.3%203.6-6%208-6s8%202.7%208%206'/%3E%3C%2Fsvg%3E"
+                // }
               />
             ) : userInBase?.photoLink ? (
               <img src={userInBase?.photoLink} alt={fullName} />

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100">
+  <!-- полупрозрачный фон, чтобы не считалось пустым -->
+  <rect width="100" height="100" fill="#000" fill-opacity="0.08"/>
+
+  <!-- шар в шаре в шаре, смещённые и неровные -->
+  <circle cx="54" cy="48" r="38" fill="#111" fill-opacity="0.15"/>
+  <circle cx="50" cy="45" r="26" fill="#111" fill-opacity="0.28"/>
+  <circle cx="46" cy="43" r="15" fill="#111" fill-opacity="0.5"/>
+
+  <!-- лёгкие блики для объёма -->
+  <circle cx="38" cy="36" r="6" fill="#fff" fill-opacity="0.25"/>
+  <circle cx="58" cy="52" r="3.5" fill="#fff" fill-opacity="0.18"/>
+</svg>

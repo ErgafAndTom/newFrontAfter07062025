@@ -334,7 +334,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
               </button>
 
               <TelegramAvatar
-                link={thisOrder.client.telegram}
+                link={thisOrder.client?.telegram}
                 size={60}
                 // defaultSrc="/default-avatar.png"
               />

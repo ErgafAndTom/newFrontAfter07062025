@@ -1,5 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import noAvatar from "./noAvatar.svg";
+import noLinkAvatar from "./noLinkAvatar.svg";
+import errorAvatarTelegram from "./errorAvatarTelegram.svg";
+import notTrueTelegramNoAcc from "./notTrueTelegramNoAcc.svg";
 
 /**
  * Компонент для відображення аватарки Telegram або контактного телефону.
@@ -11,7 +15,26 @@ import PropTypes from 'prop-types';
  * @param {string} defaultSrc - Посилання на дефолтне зображення при помилці (або для телефону).
  */
 const TelegramAvatar = ({ link, size = 32, defaultSrc = '/default-avatar.png' }) => {
-  if (!link) return null;
+  if (!link) return (
+    <div
+      rel="noopener noreferrer"
+      style={{ display: 'inline-block', width: size, height: size }}
+    >
+      <img
+        src={noLinkAvatar}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: '50%',
+          objectFit: 'cover'
+        }}
+        onError={e => {
+          e.target.onerror = null;
+          e.target.src = errorAvatarTelegram;
+        }}
+      />
+    </div>
+  );
 
   // Визначаємо, чи це телефон (складається тільки з цифр та +)
   const phonePattern = /^\+?\d+$/;
@@ -74,7 +97,7 @@ const TelegramAvatar = ({ link, size = 32, defaultSrc = '/default-avatar.png' })
         }}
         onError={e => {
           e.target.onerror = null;
-          // e.target.src = defaultSrc;
+          e.target.src = errorAvatarTelegram;
         }}
       />
     </a>

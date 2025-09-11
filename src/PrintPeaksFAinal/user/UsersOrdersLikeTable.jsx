@@ -241,11 +241,18 @@ const UsersOrdersLikeTable = () => {
                   : '—'}
               </div>
               <div className="summary-cell phoneNumber fontSize1-3VH">{order.Orders?.length || '—'}</div>
-              <div className="summary-cell phoneNumber fontSize1-3VH">{order.phoneNumber || '—'}</div>
+              <div className="summary-cell phoneNumber fontSize1-3VH">{
+                <div>
+                  {order.phoneNumber}
+                  {/*{order.phoneNumber && (*/}
+                  {/*  <ViberAvatar link={order.phoneNumber} size={64}/>*/}
+                  {/*)}*/}
+                </div> || '—'}</div>
               <div className="summary-cell telegram d-flex justify-content-center">
                 {order.telegram
                   ? <TelegramAvatar link={order.telegram} size={45} defaultSrc="" />
                   : '—'}
+                {/*<TelegramAvatar link={order.telegram} size={45} defaultSrc="" />*/}
               </div>
 
               {/*<div className="summary-cell viber d-flex justify-content-center">*/}
