@@ -19,6 +19,8 @@
   position: absolute;
   cursor: pointer;
   inset: 0;
+  width: 4vw;
+  height: 4.5vh;
   background-color: #ebebe6;
   box-shadow: inset 0px 2px 4px rgba(0,0,0,0.2);
   transition: .4s;
@@ -28,11 +30,11 @@
 .slider:before {
   position: absolute;
   content: "";
-  height: 1.6em;
+  height: 3vh;
   border-radius: 2px;
-  width: 0.2em;
-  left: 0.6em;
-  bottom: 0.3em;
+  width: 0.5vw;
+  left: 0.6vw;
+  bottom: 0.6vh;
   background-color: gray;
   transition: .4s;
 }
@@ -51,7 +53,7 @@
 }
 
 .switch input:checked + .slider:before {
-  transform: translateX(2.8em) rotate(360deg);
+  transform: translateX(2.3vw) rotate(360deg);
 }
 
 /* прибери старе:

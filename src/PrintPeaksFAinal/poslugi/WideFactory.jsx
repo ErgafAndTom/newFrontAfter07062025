@@ -122,7 +122,7 @@ const WideFactory = ({
   const [count, setCount] = useState(1);
   const [prices, setPrices] = useState(null);
   const [pricesThis, setPricesThis] = useState(null);
-  const [selectedService, setSelectedService] = useState("Плаката");
+  const [selectedService, setSelectedService] = useState("Плакат");
   const [selectedDruk, setSelectedDruk] = useState("Екосольвентний друк");
 
   let handleClickWideFactory = (e) => {
@@ -132,11 +132,11 @@ const WideFactory = ({
     })
     setSelectWideFactory(e)
     if(e === "Баннер FactoryWide"){
-      setArrOfTops(["Банера"])
+      setArrOfTops(["Баннер"])
     } else if(e === "Плівка FactoryWide"){
-      setArrOfTops([ "Наліпки", "Стікера", "Графіка роботи",  ])
+      setArrOfTops([ "Наліпки", "Стікера", "Графік роботи",  ])
     } else if(e === "Папір FactoryWide"){
-      setArrOfTops(["Афіші", "Плаката", "Реклами", ])
+      setArrOfTops(["Афіша", "Плакат", "Реклама", ])
     } else if(e === "ПВХ FactoryWide"){
       setArrOfTops(["Таблички"])
     }

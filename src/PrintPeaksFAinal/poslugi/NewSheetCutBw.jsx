@@ -74,13 +74,13 @@ const NewSheetCutBw = ({
     const [count, setCount] = useState(1);
     const [prices] = useState(null);
     const [pricesThis, setPricesThis] = useState(null);
-    const [selectedService, setSelectedService] = useState("Документа");
+    const [selectedService, setSelectedService] = useState("Документ");
 
     const addNewOrderUnit = () => {
         let dataToSend = {
             orderId: thisOrder?.id,
             toCalc: {
-                nameOrderUnit: `${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
+                nameOrderUnit: `${selectedService.toLowerCase() ? selectedService + " " : ""}`,
                 type: "SheetCutBW",
                 size: size || { x: 210, y: 297 },
                 material: material,
@@ -216,7 +216,7 @@ const NewSheetCutBw = ({
                                 {/*    ))}*/}
                                 {/*</div>*/}
                               <div className="d-flex flex-wrap justify-content-center">
-                                    {["Документ", "Договор", "Дипломна робота", "Курсова робота", "Реферат", "Креслення", "Аналізи", "Квиток"].map((service, index) => (
+                                    {["Документ", "Договір", "Дипломна робота", "Курсова робота", "Реферат", "Креслення", "Аналізи", "Квиток"].map((service, index) => (
                                         <button
                                             key={index}
                                             className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}

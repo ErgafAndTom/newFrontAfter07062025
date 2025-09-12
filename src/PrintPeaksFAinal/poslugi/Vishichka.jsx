@@ -256,7 +256,7 @@ const Vishichka = ({
                                     {/*    ))}*/}
                                     {/*</div>*/}
                                   <div className="d-flex flex-wrap justify-content-center">
-                                        {["Наліпки", "Стікери", "Стікерпак", "Стікерсет", "Бірки", "Листівки", "Коробочки", "Фішки", "Цінники", "Меню"].map((service, index) => (
+                                        {["Наліпки", "Стікери", "Стікерпак", "Стікерсет", "Бірки", "Листівки", "Коробочки", "Фішки", "Цінник", "Меню"].map((service, index) => (
                                             <button
                                                 key={index}
                                                 className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}

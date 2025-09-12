@@ -48,7 +48,7 @@ const NewBooklet = ({
     const [count, setCount] = useState(1);
     const [prices, setPrices] = useState([]);
     const [pricesThis, setPricesThis] = useState(null);
-    const [selectedService, setSelectedService] = useState("Буклета");
+    const [selectedService, setSelectedService] = useState("Буклет");
 
     const [material, setMaterial] = useState({
         type: "Не потрібно",

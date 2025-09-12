@@ -164,7 +164,7 @@ const NewNote = ({
     const [count, setCount] = useState(1);
     const [prices, setPrices] = useState([]);
     const [pricesThis, setPricesThis] = useState(null);
-    const [selectedService, setSelectedService] = useState("Блокнота");
+    const [selectedService, setSelectedService] = useState("Блокнот");
     const [pereplet, setPereplet] = useState({
         type: "",
         thickness: "Тонкі",

@@ -103,21 +103,21 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
                                     transition:
                                         "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
                                     borderRadius: "0.3vw",
-                                    width: "35vw",
+                                    width: "70vw",
                                     padding: "0.5vw",
                                 }}
                             >
                                 <div className="d-flex flex-column">
                                     <div className="d-flex align-items-center">
-                                        <div
-                                            className={`toggleContainer ${isEnabledDataSearch ? 'enabledCont' : 'disabledCont'}`}
-                                            onClick={handleToggleDataSearch}
-                                            style={{ transform: "scale(0.4)" }}
-                                        >
-                                            <div className={`toggle-button ${isEnabledDataSearch ? 'enabledd' : 'disabled'}`}>
-                                            </div>
-                                        </div>
-                                        <div className="d-flex adminFontTable">Фільтр дати</div>
+                                      <label className="switch scale04ForButtonToggle" style={{ marginRight: '0.633vw' }}>
+                                        <input
+                                          type="checkbox"
+                                          checked={isEnabledDataSearch}
+                                          onChange={handleToggleDataSearch}
+                                        />
+                                        <span className="slider" />
+                                      </label>
+                                        <div className="d-flex adminFontTable">Фільтр дати (last оновлення)</div>
 
                                         {isEnabledDataSearch && (
                                             <div className="d-flex align-items-center" style={{ marginLeft: "auto" }}>
@@ -147,15 +147,14 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
                                     {/* Відображення datePicker при увімкненому фільтрі дати */}
                                     <div className="d-flex flex-column mt-3">
                                         <div className="d-flex align-items-center">
-                                            <div
-                                                className={`toggleContainer ${isEnabledStatusSearch ? 'enabledCont' : 'disabledCont'}`}
-                                                onClick={handleToggleStatusSearch}
-                                                style={{transform: "scale(0.4)"}}
-                                            >
-                                                <div
-                                                    className={`toggle-button ${isEnabledStatusSearch ? 'enabledd' : 'disabled'}`}>
-                                                </div>
-                                            </div>
+                                          <label className="switch scale04ForButtonToggle" style={{ marginRight: '0.633vw' }}>
+                                            <input
+                                              type="checkbox"
+                                              checked={isEnabledStatusSearch}
+                                              onChange={handleToggleStatusSearch}
+                                            />
+                                            <span className="slider" />
+                                          </label>
                                             <div className="d-flex adminFontTable">Фільтр статусу</div>
                                         </div>
 

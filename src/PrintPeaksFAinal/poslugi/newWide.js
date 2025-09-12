@@ -75,7 +75,7 @@ const NewWide = ({
     const [count, setCount] = useState(1);
     const [prices, setPrices] = useState(null);
     const [pricesThis, setPricesThis] = useState(null);
-    const [selectedService, setSelectedService] = useState("Плаката");
+    const [selectedService, setSelectedService] = useState("Плакат");
 
     const addNewOrderUnit = e => {
         let dataToSend = {
