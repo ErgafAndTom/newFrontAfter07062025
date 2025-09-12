@@ -243,8 +243,20 @@ const Vishichka = ({
                         }}>
                             <div className="d-flex">
                                 <div className="m-auto text-center fontProductName">
-                                    <div className="d-flex flex-wrap justify-content-center">
-                                        {["Наліпки", "Стікерів", "Стікерпака", "Стікерсета", "Бірки", "Листівки", "Коробочки", "Фішки", "Цінника", "Меню"].map((service, index) => (
+                                    {/*<div className="d-flex flex-wrap justify-content-center">*/}
+                                    {/*    {["Наліпки", "Стікерів", "Стікерпака", "Стікерсета", "Бірки", "Листівки", "Коробочки", "Фішки", "Цінника", "Меню"].map((service, index) => (*/}
+                                    {/*        <button*/}
+                                    {/*            key={index}*/}
+                                    {/*            className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}*/}
+                                    {/*            style={{minWidth: "5vw"}}*/}
+                                    {/*            onClick={() => setSelectedService(service)}*/}
+                                    {/*        >*/}
+                                    {/*            {service}*/}
+                                    {/*        </button>*/}
+                                    {/*    ))}*/}
+                                    {/*</div>*/}
+                                  <div className="d-flex flex-wrap justify-content-center">
+                                        {["Наліпки", "Стікери", "Стікерпак", "Стікерсет", "Бірки", "Листівки", "Коробочки", "Фішки", "Цінники", "Меню"].map((service, index) => (
                                             <button
                                                 key={index}
                                                 className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}

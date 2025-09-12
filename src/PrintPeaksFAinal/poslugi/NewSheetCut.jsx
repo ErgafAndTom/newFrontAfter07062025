@@ -268,8 +268,20 @@ const NewSheetCut = ({
 
             <div className="d-flex">
               <div className="m-auto text-center fontProductName">
+                {/*<div className="d-flex flex-wrap justify-content-center  ">*/}
+                {/*  {["Листівки", "Візитки", "Флаєра", "Буклета", "Картки", "Диплома", "Сертифіката", "Подяки", "Зіна", "Презентації", "Бланка", "Афіши", "Календаря", "Плаката", "Візуалізації", "Меню", "Документа", "Бейджів","Холдера"].map((service, index) => (*/}
+                {/*    <button*/}
+                {/*      key={index}*/}
+                {/*      className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}*/}
+                {/*      style={{minWidth: "4vw"}}*/}
+                {/*      onClick={() => setSelectedService(service)}*/}
+                {/*    >*/}
+                {/*      {service}*/}
+                {/*    </button>*/}
+                {/*  ))}*/}
+                {/*</div>*/}
                 <div className="d-flex flex-wrap justify-content-center  ">
-                  {["Листівки", "Візитки", "Флаєра", "Буклета", "Картки", "Диплома", "Сертифіката", "Подяки", "Зіна", "Презентації", "Бланка", "Афіши", "Календаря", "Плаката", "Візуалізації", "Меню", "Документа", "Бейджів","Холдера"].map((service, index) => (
+                  {["Листівка", "Візитка", "Флаєр", "Буклет", "Картка", "Диплом", "Сертифікат", "Подяка", "Зін", "Презентація", "Бланк", "Афіша", "Календарь", "Плакат", "Візуалізація", "Меню", "Документ", "Бейджі","Холдер"].map((service, index) => (
                     <button
                       key={index}
                       className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}

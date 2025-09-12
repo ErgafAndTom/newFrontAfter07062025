@@ -203,8 +203,20 @@ const NewSheetCutBw = ({
                     }}>
                         <div className="d-flex">
                             <div className="m-auto text-center fontProductName ">
-                                <div className="d-flex flex-wrap justify-content-center">
-                                    {["Документа", "Договору", "Дипломної роботи", "Курсової роботи", "Реферата", "Креслення", "Аналізів", "Квитка"].map((service, index) => (
+                                {/*<div className="d-flex flex-wrap justify-content-center">*/}
+                                {/*    {["Документа", "Договору", "Дипломної роботи", "Курсової роботи", "Реферата", "Креслення", "Аналізів", "Квитка"].map((service, index) => (*/}
+                                {/*        <button*/}
+                                {/*            key={index}*/}
+                                {/*            className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}*/}
+                                {/*            style={{minWidth: "5vw"}}*/}
+                                {/*            onClick={() => setSelectedService(service)}*/}
+                                {/*        >*/}
+                                {/*            {service}*/}
+                                {/*        </button>*/}
+                                {/*    ))}*/}
+                                {/*</div>*/}
+                              <div className="d-flex flex-wrap justify-content-center">
+                                    {["Документ", "Договор", "Дипломна робота", "Курсова робота", "Реферат", "Креслення", "Аналізи", "Квиток"].map((service, index) => (
                                         <button
                                             key={index}
                                             className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}

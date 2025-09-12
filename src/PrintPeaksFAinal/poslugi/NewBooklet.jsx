@@ -352,8 +352,20 @@ const NewBooklet = ({
                     }}>
                         <div className="d-flex">
                             <div className="m-auto text-center fontProductName">
-                                <div className="d-flex flex-wrap justify-content-center">
-                                    {["Буклета", "Автореферата", "Конспекта", "Звіта", "Журнала", "Зіна", "Брошури", "Методички"].map((service, index) => (
+                                {/*<div className="d-flex flex-wrap justify-content-center">*/}
+                                {/*    {["Буклета", "Автореферата", "Конспекта", "Звіта", "Журнала", "Зіна", "Брошури", "Методички"].map((service, index) => (*/}
+                                {/*        <button*/}
+                                {/*            key={index}*/}
+                                {/*            className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}*/}
+                                {/*            style={{minWidth: "5vw"}}*/}
+                                {/*            onClick={() => setSelectedService(service)}*/}
+                                {/*        >*/}
+                                {/*            {service}*/}
+                                {/*        </button>*/}
+                                {/*    ))}*/}
+                                {/*</div>*/}
+                              <div className="d-flex flex-wrap justify-content-center">
+                                    {["Буклет", "Автореферат", "Конспект", "Звіт", "Журнал", "Зін", "Брошура", "Методичка"].map((service, index) => (
                                         <button
                                             key={index}
                                             className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}

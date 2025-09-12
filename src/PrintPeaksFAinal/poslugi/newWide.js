@@ -196,8 +196,20 @@ const NewWide = ({
                     }}>
                         <div className="d-flex">
                             <div className="m-auto text-center fontProductName">
-                                <div className="d-flex flex-wrap justify-content-center">
-                                    {["Плаката", "Креслення", "Фотографії", "Афіши", "Лекала", "Холста"].map((service, index) => (
+                                {/*<div className="d-flex flex-wrap justify-content-center">*/}
+                                {/*    {["Плаката", "Креслення", "Фотографії", "Афіши", "Лекала", "Холста"].map((service, index) => (*/}
+                                {/*        <button*/}
+                                {/*            key={index}*/}
+                                {/*            className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}*/}
+                                {/*            style={{minWidth: "5vw"}}*/}
+                                {/*            onClick={() => setSelectedService(service)}*/}
+                                {/*        >*/}
+                                {/*            {service}*/}
+                                {/*        </button>*/}
+                                {/*    ))}*/}
+                                {/*</div>*/}
+                              <div className="d-flex flex-wrap justify-content-center">
+                                    {["Плакат", "Креслення", "Фотографія", "Афіша", "Лекала", "Холст"].map((service, index) => (
                                         <button
                                             key={index}
                                             className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}
