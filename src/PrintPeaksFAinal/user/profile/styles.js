@@ -8,7 +8,7 @@ import { buttonStyles as baseButtonStyles, containerStyles as baseContainerStyle
 // Розширені стилі для кнопок
 export const buttonStyles = {
   ...baseButtonStyles,
-  
+
   // Стиль для кнопок у профілі користувача
   profileButton: {
     ...baseButtonStyles.base,
@@ -22,7 +22,7 @@ export const buttonStyles = {
       backgroundColor: '#e9e7e0',
     }
   },
-  
+
   // Стиль для кнопки "Мої файли"
   filesButton: {
     ...baseButtonStyles.base,
@@ -30,7 +30,7 @@ export const buttonStyles = {
     margin: '5px',
     width: '12vw',
   },
-  
+
   // Стиль для кнопки "Мої замовлення"
   ordersButton: {
     ...baseButtonStyles.base,
@@ -38,7 +38,7 @@ export const buttonStyles = {
     margin: '5px',
     width: '12vw',
   },
-  
+
   // Стиль для кнопки "Мої способи оплати"
   paymentsButton: {
     ...baseButtonStyles.base,
@@ -46,7 +46,7 @@ export const buttonStyles = {
     margin: '5px',
     width: '12vw',
   },
-  
+
   // Стиль для кнопки "Вийти"
   logoutButton: {
     ...baseButtonStyles.base,
@@ -59,25 +59,25 @@ export const buttonStyles = {
 // Розширені стилі для контейнерів
 export const containerStyles = {
   ...baseContainerStyles,
-  
+
   // Стиль для контейнера профілю
   profileContainer: {
     ...baseContainerStyles.base,
     padding: '2vw',
-    maxWidth: '90vw',
+    maxWidth: '98vw',
     margin: 'auto',
     border: '1px solid #ccc',
     borderRadius: '8px',
     backgroundColor: '#f9f9f9',
   },
-  
+
   // Стиль для контейнера вкладок
   tabsContainer: {
     display: 'flex',
     marginBottom: '20px',
     borderBottom: '1px solid #ddd',
   },
-  
+
   // Стиль для контейнера контенту профілю
   contentContainer: {
     padding: '15px 0',
@@ -87,13 +87,13 @@ export const containerStyles = {
 // Розширені стилі для форм
 export const formStyles = {
   ...baseFormStyles,
-  
+
   // Стиль для полів вводу у профілі
   profileInput: {
     ...baseFormStyles.input,
     margin: '5px 0',
   },
-  
+
   // Стиль для селектів у профілі
   profileSelect: {
     ...baseFormStyles.input,
@@ -125,7 +125,7 @@ export const tabStyles = {
     fontSize: '14px',
     transition: 'background-color 0.3s',
   },
-  
+
   activeTab: {
     backgroundColor: '#FFC107',
     color: 'black',

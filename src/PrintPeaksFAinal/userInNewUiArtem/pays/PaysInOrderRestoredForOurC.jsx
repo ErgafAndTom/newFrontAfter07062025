@@ -1,385 +1,300 @@
+// PaysInOrderRestoredForOurC_OrdersLike.jsx
 import "./styles.css";
-import AddPaysInOrder from "./AddPayInOrder";
-import ModalDeleteOrder from "../../Orders/ModalDeleteOrder";
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import axios from "../../../api/axiosInstance";
-import {useNavigate} from "react-router-dom";
-import {Spinner} from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { Spinner } from "react-bootstrap";
 
-/**
- * RESTORED VERSION — 04 May 2025
- * Оригінальна логіка на «showPays / setShowPays» із плавною анімацією, списком реквізитів
- * та генерацією документів (накладна / акт, рахунок).
- */
-function PaysInOrderRestoredForOurC({showPays, setShowPays, thisOrder, setThisOrder, buyerId}) {
-    const navigate = useNavigate();
-
-    // ──────────────────────────── STATE ────────────────────────────
-    const [load, setLoad] = useState(false);
-    const [data, setData] = useState(null);
-    const [error, setError] = useState(null);
-
-    const [showAllsOurContragents, setShowAllsOurContragents] = useState(false);
-
-    // Delete‑flow
-    const [thisOrderForDelete, setThisOrderForDelete] = useState(null);
-    const [showDeleteOrderModal, setShowDeleteOrderModal] = useState(false);
-
-    // Add / view contractor
-    const [showAddPay, setShowAddPay] = useState(false);
-    const [showAddPayView, setShowAddPayView] = useState(false);
-    const [showAddPayWriteId, setShowAddPayWriteId] = useState(false);
-    const [formData, setFormData] = useState({
-        name: "",
-        type: "",
-        address: "",
-        bankName: "",
-        iban: "",
-        edrpou: "",
-        email: "",
-        phone: "",
-        taxSystem: "",
-        pdv: "",
-        comment: "",
-    });
-
-    // Pagination & filters
-    const [inPageCount, setInPageCount] = useState(500);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [pageCount, setPageCount] = useState(null);
-    const [typeSelect, setTypeSelect] = useState("");
-    const [thisColumn, setThisColumn] = useState({column: "id", reverse: true});
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
-
-    // Modal animation flags
-    const [isVisible, setIsVisible] = useState(false);
-    const [isAnimating, setIsAnimating] = useState(false);
-
-    // ──────────────────────────── HELPERS ────────────────────────────
-    const handleClose = () => {
-        setIsAnimating(false);
-        setTimeout(() => {
-            setIsVisible(false);
-            setShowPays(false);
-        }, 300);
-    };
-
-    const openAddPay = () => {
-        setShowAddPay(!showAddPay);
-        setShowAddPayView(false);
-        setFormData({
-            name: "",
-            type: "",
-            address: "",
-            bankName: "",
-            iban: "",
-            edrpou: "",
-            email: "",
-            phone: "",
-            taxSystem: "",
-            pdv: "",
-            comment: "",
-        });
-    };
-
-    const openSeePay = (e, item) => {
-        setShowAddPay(!showAddPay);
-        setShowAddPayView(true);
-        setShowAddPayWriteId(item.id);
-        setFormData({
-            name: item.name,
-            type: item.type,
-            address: item.address,
-            bankName: item.bankName,
-            iban: item.iban,
-            edrpou: item.edrpou,
-            email: item.email,
-            phone: item.phone,
-            taxSystem: item.taxSystem,
-            pdv: item.pdv,
-            comment: item.comment,
-        });
-    };
-
-    const openDeletePay = (e, item) => {
-        setShowDeleteOrderModal(true);
-        setThisOrderForDelete(item);
-    };
-
-    const generateDocInZip = (e, item) => {
-        // setShowAllsOurContragents(true)
-        e.preventDefault();
-        setLoad(true);
-        axios
-            .post(
-                `/api/invoices/from-order/${thisOrder.id}/docInZip`,
-                { supplierId: item.Contractor.id, buyerId: buyerId },
-                { responseType: "blob" }
-            )
-            // .then(resp => {
-            //     // Отримуємо ім’я файлу з заголовка
-            //     const disposition = resp.headers['content-disposition'];
-            //     let filename = 'download.zip';
-            //
-            //     if (disposition && disposition.includes('filename=')) {
-            //         const fileNameMatch = disposition.match(/filename="?(.+?)"?$/);
-            //         if (fileNameMatch.length > 1) {
-            //             filename = decodeURIComponent(fileNameMatch[1]);
-            //         }
-            //     }
-            //
-            //     downloadBlob(resp, filename);
-            // })
-            .then((response) => downloadBlob(response, "doc.zip"))
-            .catch(handleAxiosError)
-            .finally(() => setLoad(false));
-    };
-
-    // const generateInvoice = (e, item) => {
-    //     // setShowAllsOurContragents(true)
-    //     e.preventDefault();
-    //     setLoad(true);
-    //     let dataToSend = {
-    //         supplierId: item.Contractor.id, buyerId: buyerId
-    //     }
-    //     axios.post(`/api/invoices/from-order/${thisOrder.id}/invoice`, dataToSend)
-    //         .then(response => {
-    //             console.log(response.data);
-    //             // setData(prevData =>
-    //             //     prevData.map(obj =>
-    //             //         obj.id === response.data.id ? response.data : obj
-    //             //     )
-    //             // );
-    //             // setPageCount(Math.ceil(response.data.count / inPageCount));
-    //         })
-    //         .catch(handleAxiosError)
-    //         .finally(() => setLoad(false));
-    // };
-
-    // const generateDoc = (e, item) => {
-    //     let dataToSend = {
-    //         supplierId: 1,
-    //         buyerId: thisOrder.clientId
-    //     }
-    //     axios
-    //         .post(`/api/invoices/from-order/${thisOrder.id}/document`, dataToSend, {responseType: "blob"})
-    //         .then((response) => downloadBlob(response, "invoice.docx"))
-    //         .catch(handleAxiosError);
-    // };
-
-    const downloadBlob = (response, fallbackName) => {
-        const contentDisposition = response.headers["content-disposition"];
-        let fileName = fallbackName;
-        if (contentDisposition) {
-            const match = contentDisposition.match(/filename="(.+)"/);
-            if (match?.length === 2) fileName = match[1];
-        }
-
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", fileName);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-    };
-
-    const handleAxiosError = (error) => {
-        if (error.response?.status === 403) navigate("/login");
-        setError(error.message);
-        setLoad(false);
-    };
-
-    // ──────────────────────────── DATA FETCH ────────────────────────────
-    useEffect(() => {
-        const payload = {
-            inPageCount,
-            currentPage,
-            search: typeSelect,
-            columnName: thisColumn,
-            startDate,
-            endDate,
-            clientId: thisOrder.clientId,
-            buyerId: buyerId
-        };
-
-        setLoad(true);
-        axios
-            .post(`/api/contractorsN/getPPContractorsForDoc`, payload)
-            .then((response) => {
-                setData(response.data.rows);
-                setPageCount(Math.ceil(response.data.count / inPageCount));
-                setError(null);
-                setLoad(false);
-            })
-            .catch(handleAxiosError);
-    }, [typeSelect, thisColumn, startDate, endDate]);
-
-    // ──────────────────────────── MODAL ANIMATION ──────────────────────
-    useEffect(() => {
-        if (showPays) {
-            setIsVisible(true);
-            setTimeout(() => setIsAnimating(true), 100);
-        } else {
-            setIsAnimating(false);
-            setTimeout(() => setIsVisible(false), 300);
-        }
-        // console.log(showPays);
-    }, [showPays]);
-
-    // ──────────────────────────── RENDER ───────────────────────────────
-    if (!isVisible) return null;
-
-    return (
-        <div>
-            {/* Overlay */}
-            <div
-                onClick={handleClose}
-                style={{
-                    width: "150vw",
-                    height: "150vh",
-                    position: "fixed",
-                    left: "-5vw",
-                    top: "-5vh",
-                    background: "rgba(0,0,0,0.2)",
-                    opacity: isAnimating ? 1 : 0,
-                    transition: "opacity .3s ease-in-out",
-                    zIndex: 100,
-                }}
-            />
-
-            {/* Modal */}
-            <div
-                style={{
-                    position: "fixed",
-                    left: "50%",
-                    top: "50%",
-                    transform: isAnimating
-                        ? "translate(-50%, -50%) scale(1)"
-                        : "translate(-50%, -50%) scale(0.8)",
-                    opacity: isAnimating ? 1 : 0,
-                    transition: "opacity .3s, transform .3s",
-                    backgroundColor: "#FBFAF6",
-                    width: "80vw",
-                    height: "90vh",
-                    borderRadius: "1vw",
-                    zIndex: 101,
-                    display: "flex",
-                    flexDirection: "column",
-                }}
-            >
-                {/* Header */}
-                <div className="d-flex">
-                    <div className="m-auto text-center fontProductName">Реквізити Постачальник/Виконавець(PrintPeaks?)</div>
-                    <button className="btn btn-close btn-lg" style={{margin: "0.5vw"}} onClick={handleClose}/>
-                </div>
-
-                {/* Body */}
-                <div style={{padding: "1vw", overflow: "auto"}}>
-                    {error && <div className="text-danger mb-2">{error}</div>}
-
-                    {load ? (
-                        <div className="d-flex justify-content-center align-items-center" style={{height: "100%"}}>
-                            <Spinner animation="border" variant="dark"/>
-                        </div>
-                    ) : (
-                        <table className="ContractorTable w-100">
-                            <thead>
-                            <tr className="ContractorRow">
-                                <th className="fontSize1VH">№</th>
-                                {/*<th className="fontSize1VH">ID (Contractor)</th>*/}
-                                <th className="fontSize1VH">Найменування</th>
-                                <th className="fontSize1VH">Найменування Contractor</th>
-                                <th className="fontSize1VH">Податкова система</th>
-                                <th className="fontSize1VH">Тел</th>
-                                <th className="fontSize1VH">E-mail</th>
-                                <th className="fontSize1VH">НДС/ПДВ</th>
-                                <th className="fontSize1VH">юзер/клієнт</th>
-                                <th className="fontSize1VH">last оновл.</th>
-                                <th className="fontSize1VH">Дії</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {data?.map((item, idx) => (
-                                <tr className="ContractorRow" key={item.id}>
-                                    <td className="ContractorCell fontSize1VH">{idx + 1}</td>
-                                    {/*<td className="ContractorCell fontSize1VH">{item.Contractor.id}</td>*/}
-                                    <td className="ContractorCell ContractorName fontSize1VH">{item.name}</td>
-                                    <td className="ContractorCell fontSize1VH">{item.Contractor.name}</td>
-                                    <td className="ContractorCell fontSize1VH">{item.Contractor.taxSystem}</td>
-                                    <td className="ContractorCell fontSize1VH">{item.Contractor.phone}</td>
-                                    <td className="ContractorCell fontSize1VH">{item.Contractor.email}</td>
-                                    <td className="ContractorCell fontSize1VH">{item.Contractor.pdv ? '+' : '-'}</td>
-                                    <td className="ContractorCell fontSize1VH">{`${item.Contractor.User.firstName} ${item.Contractor.User.lastName} ${item.Contractor.User.familyName} (${item.Contractor.User.phoneNumber})`}</td>
-                                    <td className="ContractorCell fontSize1VH">{`${new Date(item.updatedAt).toLocaleDateString()} ${new Date(item.updatedAt).toLocaleTimeString()}`}</td>
-                                    <td className="ContractorCell ContractorActions fontSize1VH">
-                                        {/*<button className="ContractorViewBtn" style={{background: "green"}}*/}
-                                        {/*        onClick={(e) => generateInvoice(e, item)}>*/}
-                                        {/*    Генерим инвойс + получаем*/}
-                                        {/*</button>*/}
-                                        {/*<button className="ContractorViewBtn" style={{background: "green"}}*/}
-                                        {/*        onClick={(e) => generateDoc1(e, item)}>*/}
-                                        {/*    Рахунок*/}
-                                        {/*</button>*/}
-                                        <button className="adminButtonAdd"
-                                                // onClick={(e) => openSeePay(e, item)}
-                                                onClick={(e) => generateDocInZip(e, item)}
-                                        >
-                                            Отримати доки zip з цим Постачальник/Виконавець
-                                        </button>
-                                        {/*<button*/}
-                                        {/*    // className="ContractorMoreBtn"*/}
-                                        {/*    className="adminButtonAdd"*/}
-                                        {/*    style={{background: '#ff5d5d',}}*/}
-                                        {/*    onClick={(e) => openDeletePay(e, item)}*/}
-                                        {/*>*/}
-                                        {/*    /!*⋮*!/*/}
-                                        {/*    Видалити*/}
-                                        {/*</button>*/}
-                                    </td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    )}
-
-                    {/*<button className="adminButtonAdd mt-3" style={{background: "lightgray", fontSize: "1.2vh"}} onClick={openAddPay}>*/}
-                    {/*    Додати контрагента*/}
-                    {/*</button>*/}
-
-                    {/* Nested modals */}
-                    {/*{showAddPay && (*/}
-                    {/*    <AddPaysInOrder*/}
-                    {/*        showAddPay={showAddPay}*/}
-                    {/*        setShowAddPay={setShowAddPay}*/}
-                    {/*        formData={formData}*/}
-                    {/*        setFormData={setFormData}*/}
-                    {/*        thisOrder={thisOrder}*/}
-                    {/*        setThisOrder={setThisOrder}*/}
-                    {/*        data={data}*/}
-                    {/*        setData={setData}*/}
-                    {/*        showAddPayView={showAddPayView}*/}
-                    {/*        setShowAddPayView={setShowAddPayView}*/}
-                    {/*        showAddPayWriteId={showAddPayWriteId}*/}
-                    {/*        setShowAddPayWriteId={setShowAddPayWriteId}*/}
-                    {/*    />*/}
-                    {/*)}*/}
-
-                    {/*<ModalDeleteOrder*/}
-                    {/*    showDeleteOrderModal={showDeleteOrderModal}*/}
-                    {/*    setShowDeleteOrderModal={setShowDeleteOrderModal}*/}
-                    {/*    thisOrderForDelete={thisOrderForDelete}*/}
-                    {/*    setThisOrderForDelete={setThisOrderForDelete}*/}
-                    {/*    data={data}*/}
-                    {/*    setData={setData}*/}
-                    {/*    url="/api/contractorsN/deleteContractor"*/}
-                    {/*/>*/}
-                </div>
-            </div>
+function RowExpanded({ item }) {
+  const c = item?.Contractor || {};
+  const u = c?.User || {};
+  return (
+    <div className="OrderRow-expanded pastel-panel" onClick={(e) => e.stopPropagation()}>
+      <div className="OrderRow-units d-flex flex-row" style={{ gap: "0.8vw", flexWrap: "wrap" }}>
+        <div className="ExpandedRow-details">
+          <p><strong>Дата створення:</strong> {new Date(item.createdAt).toLocaleString()}</p>
+          <p><strong>Дата оновлення:</strong> {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : '—'}</p>
         </div>
-    );
+        {/*<div className="OrderUnit-card">*/}
+        {/*  <div className="UsersOrdersLikeTable-contract-text"><strong>ID (row):</strong> {item.id}</div>*/}
+        {/*  <div className="UsersOrdersLikeTable-contract-text"><strong>Відображене імʼя:</strong> {item.name || "—"}</div>*/}
+        {/*  <div className="UsersOrdersLikeTable-contract-text"><strong>ID (Contractor):</strong> {c.id ?? "—"}</div>*/}
+        {/*  <div className="UsersOrdersLikeTable-contract-text"><strong>Назва Contractor:</strong> {c.name || "—"}</div>*/}
+        {/*  <div className="UsersOrdersLikeTable-contract-text"><strong>Тип:</strong> {c.type || "—"}</div>*/}
+        {/*  <div className="UsersOrdersLikeTable-contract-text"><strong>Система оподаткування:</strong> {c.taxSystem || "—"}</div>*/}
+        {/*  <div className="UsersOrdersLikeTable-contract-text"><strong>ПДВ:</strong> {c.pdv ? "так" : "ні"}</div>*/}
+        {/*  <div className="UsersOrdersLikeTable-contract-text"><strong>Банк:</strong> {c.bankName || "—"}</div>*/}
+        {/*  <div className="UsersOrdersLikeTable-contract-text"><strong>IBAN:</strong> {c.iban || "—"}</div>*/}
+        {/*  <div className="UsersOrdersLikeTable-contract-text"><strong>ЄДРПОУ/ІПН:</strong> {c.edrpou || "—"}</div>*/}
+        {/*  <div className="UsersOrdersLikeTable-contract-text"><strong>Телефон:</strong> {c.phone || "—"}</div>*/}
+        {/*  <div className="UsersOrdersLikeTable-contract-text"><strong>Email:</strong> {c.email || "—"}</div>*/}
+        {/*  <div className="UsersOrdersLikeTable-contract-text"><strong>Адреса:</strong> {c.address || "—"}</div>*/}
+        {/*  <div className="UsersOrdersLikeTable-contract-text">*/}
+        {/*    <strong>Оновлено:</strong>{" "}*/}
+        {/*    {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : "—"}*/}
+        {/*  </div>*/}
+        {/*  <div className="UsersOrdersLikeTable-contract-text">*/}
+        {/*    <strong>Користувач:</strong>{" "}*/}
+        {/*    {u ? `${u.firstName || ""} ${u.lastName || ""} ${u.familyName || ""} (${u.phoneNumber || "—"})` : "—"}*/}
+        {/*  </div>*/}
+        {/*  {c.comment && (*/}
+        {/*    <div className="UsersOrdersLikeTable-contract-text"><strong>Коментар:</strong> {c.comment}</div>*/}
+        {/*  )}*/}
+        {/*</div>*/}
+      </div>
+    </div>
+  );
 }
 
-export default PaysInOrderRestoredForOurC;
+export default function PaysInOrderRestoredForOurC({
+                                                     showPays,
+                                                     setShowPays,
+                                                     thisOrder,
+                                                     setThisOrder, // не використовується тут, лишаю для сумісності API
+                                                     buyerId,
+                                                   }) {
+  const navigate = useNavigate();
+
+  // state
+  const [load, setLoad] = useState(false);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+
+  // пагінація/фільтри як у вихідному компоненті
+  const [inPageCount] = useState(500);
+  const [currentPage] = useState(1);
+  const [typeSelect] = useState("");
+  const [thisColumn] = useState({ column: "id", reverse: true });
+  const [startDate] = useState("");
+  const [endDate] = useState("");
+
+  // анімація модалки
+  const [isVisible, setIsVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  // розгортання
+  const [expandedId, setExpandedId] = useState(null);
+
+  const handleClose = () => {
+    setIsAnimating(false);
+    setTimeout(() => {
+      setIsVisible(false);
+      setShowPays(false);
+    }, 300);
+  };
+
+  const handleAxiosError = (err) => {
+    if (err.response?.status === 403) navigate("/login");
+    setError(err.message || "Помилка запиту");
+    setLoad(false);
+  };
+
+  const downloadBlob = (response, fallbackName) => {
+    const cd = response.headers?.["content-disposition"];
+    let fileName = fallbackName;
+    if (cd) {
+      const m = cd.match(/filename="(.+)"/);
+      if (m?.[1]) fileName = m[1];
+    }
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const a = document.createElement("a");
+    a.href = url;
+    a.setAttribute("download", fileName);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const generateDocInZip = (e, item) => {
+    e.preventDefault();
+    const supplierId = item?.Contractor?.id;
+    if (!supplierId || !buyerId) return;
+
+    setLoad(true);
+    axios
+      .post(
+        `/api/invoices/from-order/${thisOrder.id}/docInZip`,
+        { supplierId, buyerId },
+        { responseType: "blob" }
+      )
+      .then((resp) => downloadBlob(resp, "documents.zip"))
+      .catch(handleAxiosError)
+      .finally(() => setLoad(false));
+  };
+
+  // fetch
+  useEffect(() => {
+    const payload = {
+      inPageCount,
+      currentPage,
+      search: typeSelect,
+      columnName: thisColumn,
+      startDate,
+      endDate,
+      clientId: thisOrder.clientId,
+      buyerId,
+    };
+
+    setLoad(true);
+    axios
+      .post(`/api/contractorsN/getPPContractorsForDoc`, payload)
+      .then((resp) => {
+        setData(resp.data?.rows || []);
+        setError(null);
+        setLoad(false);
+      })
+      .catch(handleAxiosError);
+  }, [typeSelect, thisColumn, startDate, endDate, thisOrder?.clientId, buyerId]);
+
+  // modal animation
+  useEffect(() => {
+    if (showPays) {
+      setIsVisible(true);
+      setTimeout(() => setIsAnimating(true), 100);
+    } else {
+      setIsAnimating(false);
+      setTimeout(() => setIsVisible(false), 300);
+    }
+  }, [showPays]);
+
+  if (!isVisible) return null;
+
+  return (
+    <div>
+      {/* overlay */}
+      <div
+        onClick={handleClose}
+        style={{
+          width: "150vw",
+          height: "150vh",
+          position: "fixed",
+          left: "-5vw",
+          top: "-5vh",
+          background: "rgba(0,0,0,0.2)",
+          opacity: isAnimating ? 1 : 0,
+          transition: "opacity .3s ease-in-out",
+          zIndex: 100,
+        }}
+      />
+
+      {/* modal */}
+      <div
+        style={{
+          position: "fixed",
+          left: "50%",
+          top: "50%",
+          transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)",
+          opacity: isAnimating ? 1 : 0,
+          transition: "opacity .3s, transform .3s",
+          backgroundColor: "#FBFAF6",
+          width: "95vw",
+          height: "90vh",
+          borderRadius: "1vw",
+          zIndex: 101,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {/* header */}
+        <div className="d-flex">
+          <div className="m-auto text-center fontProductName">
+            Реквізити Постачальник/Виконавець (для замовлення #{thisOrder?.id ?? "—"})
+          </div>
+          <button className="btn btn-close" style={{ margin: "0.8vw", width: "1vw", height: "1vw" }} onClick={handleClose} />
+        </div>
+
+        {/* body */}
+        <div style={{ padding: "1vw", overflow: "auto" }}>
+          {/* таблиця-шапка */}
+          <div className="OrderList" style={{ height: "auto" }}>
+            <div className="OrderRow-summary OrderRow-header contractors-like-cols">
+              <div className="summary-cell contragentId d-flex justify-content-center" style={{ fontSize: "0.7vw" }}>№</div>
+              <div className="summary-cell contragentName" style={{ fontSize: "0.7vw" }}>Найменування</div>
+              <div className="summary-cell contragentGrupa" style={{ fontSize: "0.7vw" }}>Система оподаткування</div>
+              <div className="summary-cell contragentBank" style={{ fontSize: "0.7vw" }}>Банк</div>
+              <div className="summary-cell contragentIBAN" style={{ fontSize: "0.7vw" }}>IBAN</div>
+              <div className="summary-cell contragentPDV" style={{ fontSize: "0.7vw" }}>ПДВ</div>
+              <div className="summary-cell contragentClient" style={{ fontSize: "0.7vw" }}>Клієнт</div>
+              <div className="summary-cell contragentEDRPOU" style={{ fontSize: "0.7vw" }}>ЄДРПОУ</div>
+              <div className="summary-cell contragentTelephone" style={{ fontSize: "0.7vw" }}>Тел.</div>
+              <div className="summary-cell contragentDocu d-flex justify-content-center" style={{ fontSize: "0.7vw" }}>Документи</div>
+            </div>
+
+            {error && <div className="text-danger mb-2">{error}</div>}
+
+            {load ? (
+              <div className="d-flex justify-content-center align-items-center" style={{ height: "50vh" }}>
+                <Spinner animation="border" variant="dark" />
+              </div>
+            ) : (
+              <div className="d-flex flex-column">
+                {(data || []).map((item, idx) => {
+                  const c = item?.Contractor || {};
+                  const u = c?.User || {};
+                  const isOpen = expandedId === item.id;
+
+                  return (
+                    <div key={item.id} className="OrderBlock">
+                      <div
+                        className="OrderRow-summary OrderRow-hover contractors-like-cols"
+                        onClick={() => setExpandedId(isOpen ? null : item.id)}
+                      >
+                        <div className="summary-cell d-flex justify-content-center contragentId" style={{ fontSize: "0.5vw" }}>
+                          {idx + 1}
+                        </div>
+
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentName" style={{ fontSize: "0.5vw" }}>
+                          {item.name || c.name || "—"}
+                        </div>
+
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentGrupa" style={{ fontSize: "0.5vw" }}>
+                          {c.taxSystem || "—"}
+                        </div>
+
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentBank" style={{ fontSize: "0.5vw" }}>
+                          {c.bankName || "—"}
+                        </div>
+
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentIBAN" style={{ fontSize: "0.5vw" }}>
+                          {c.iban || "—"}
+                        </div>
+
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentPDV" style={{ fontSize: "0.5vw" }}>
+                          {c.pdv ? "+" : "-"}
+                        </div>
+
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentClient" style={{ fontSize: "0.5vw" }}>
+                          {u ? `${u.firstName || ""} ${u.lastName || ""} ${u.familyName || ""} (${u.phoneNumber || "—"})` : "—"}
+                        </div>
+
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentEDRPOU" style={{ fontSize: "0.5vw" }}>
+                          {c.edrpou || "—"}
+                        </div>
+
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentTelephone" style={{ fontSize: "0.5vw" }}>
+                          {c.phone || "—"}
+                        </div>
+
+                        <div
+                          className="summary-cell contragentDocu d-flex justify-content-center"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button className="adminButtonAdd" onClick={(e) => generateDocInZip(e, item)}>
+                            Завантажити ZIP
+                          </button>
+                        </div>
+                      </div>
+
+                      {isOpen && <RowExpanded item={item} />}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

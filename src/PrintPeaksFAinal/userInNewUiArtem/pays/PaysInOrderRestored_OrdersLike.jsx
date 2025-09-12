@@ -11,6 +11,10 @@ import PaysInOrderRestoredForOurC from "./PaysInOrderRestoredForOurC";
 function RowExpanded({ item }) {
   return (
     <div className="OrderRow-expanded pastel-panel" onClick={(e) => e.stopPropagation()}>
+      <div className="ExpandedRow-details">
+        <p><strong>Дата створення:</strong> {new Date(item.createdAt).toLocaleString()}</p>
+        <p><strong>Дата оновлення:</strong> {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : '—'}</p>
+      </div>
       <div className="OrderRow-units d-flex flex-row" style={{ gap: "0.8vw", flexWrap: "wrap" }}>
         <div className="OrderUnit-card">
           <div className="UsersOrdersLikeTable-contract-text"><strong>ID:</strong> {item.id}</div>

@@ -4,18 +4,17 @@ import {logout} from '../../../actions/authActions';
 import {Link, useParams} from 'react-router-dom';
 import axios from '../../../api/axiosInstance';
 import ContrAgentsInUserProfile from '../profile/ContrAgentsInUserProfile';
-import {buttonStyles, containerStyles, formStyles, avatarStyles, tabStyles} from '../profile/styles';
+import {buttonStyles, containerStyles, formStyles, avatarStyles, tabStyles} from './styles';
 import TelegramAvatar from "../../Messages/TelegramAvatar";
 import PaysInOrderRestoredForAdmin from "../../userInNewUiArtem/pays/PaysInOrderRestoredForAdmin";
-import UserPageDetails from "../UserPageDetails";
 
 function ClientUserProfile() {
   const dispatch = useDispatch();
-  const user = useSelector(state => state.auth.user);
+  const thisUser = useSelector(state => state.auth.user);
   const {id} = useParams();
   const [activeTab, setActiveTab] = useState('profile');
   const [editMode, setEditMode] = useState(false);
-  const [thisUser, setThisUser] = useState(user);
+  // const [thisUser, setThisUser] = useState(user);
   const [isLoad, setIsLoad] = useState(false);
   const [isError, setIsError] = useState(null);
 
@@ -31,16 +30,16 @@ function ClientUserProfile() {
   const [discount, setDiscount] = useState('');
   const [photoLink, setPhotoLink] = useState('');
 
-  useEffect(() => {
-    setIsLoad(true);
-    axios.get(`/user/getOneUser/${thisUser.id}`)
-      .then(response => {
-        setThisUser(response.data);
-        setIsError(null);
-      })
-      .catch(err => setIsError(err.message))
-      .finally(() => setIsLoad(false));
-  }, [id]);
+  // useEffect(() => {
+  //   setIsLoad(true);
+  //   axios.get(`/user/getOneUser/${thisUser.id}`)
+  //     .then(response => {
+  //       setThisUser(response.data);
+  //       setIsError(null);
+  //     })
+  //     .catch(err => setIsError(err.message))
+  //     .finally(() => setIsLoad(false));
+  // }, [id]);
 
   const initEditFields = () => {
     setUsername(thisUser.username || '');
@@ -60,28 +59,28 @@ function ClientUserProfile() {
     setEditMode(true);
   };
 
-  const handleSave = () => {
-    setIsLoad(true);
-    axios.put(`/user/update/${id}`, {
-      username,
-      paymentMethod,
-      telegram,
-      email,
-      phoneNumber,
-      signal,
-      viber,
-      whatsapp,
-      discount,
-      photoLink
-    })
-      .then(response => {
-        setThisUser(response.data);
-        setEditMode(false);
-        setIsError(null);
-      })
-      .catch(err => setIsError(err.message))
-      .finally(() => setIsLoad(false));
-  };
+  // const handleSave = () => {
+  //   setIsLoad(true);
+  //   axios.put(`/user/update/${id}`, {
+  //     username,
+  //     paymentMethod,
+  //     telegram,
+  //     email,
+  //     phoneNumber,
+  //     signal,
+  //     viber,
+  //     whatsapp,
+  //     discount,
+  //     photoLink
+  //   })
+  //     .then(response => {
+  //       setThisUser(response.data);
+  //       setEditMode(false);
+  //       setIsError(null);
+  //     })
+  //     .catch(err => setIsError(err.message))
+  //     .finally(() => setIsLoad(false));
+  // };
 
   const handleCancel = () => {
     setEditMode(false);
@@ -90,9 +89,10 @@ function ClientUserProfile() {
 
   const handleLogout = () => dispatch(logout());
 
-  if (isLoad) return <li>Завантаження...</li>;
-  if (isError) return <li>Помилка: {isError}</li>;
-  if (!thisUser.role) return <li>Користувач не знайдений</li>;
+  if (isLoad) return <div>Завантаження...</div>;
+  if (isError) return <div>Помилка: {isError}</div>;
+  // if (!user) return <div>Користувач не знайдений</div>;
+  if (!thisUser) return <div>Користувач не знайдений</div>;
 
   return (
     <div style={containerStyles.profileContainer}>
@@ -119,8 +119,8 @@ function ClientUserProfile() {
           {/*  alt='Аватар'*/}
           {/*  style={avatarStyles.profileAvatar}*/}
           {/*/>*/}
-          {user.telegram
-            ? <TelegramAvatar link={user.telegram} size={100}
+          {thisUser.telegram
+            ? <TelegramAvatar link={thisUser.telegram} size={100}
                               // defaultSrc="/default-avatar.png"
             />
             : ''}
