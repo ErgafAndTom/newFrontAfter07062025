@@ -11,6 +11,8 @@ import PrroShiftBadge from "../prro/PrroShiftBadge";
 const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
   const [paymentState, setPaymentState] = useState('initial');
   const [invoiceId, setInvoiceId] = useState(null);
+  const [shift, setShift] = useState(null); // 👈 стан для зміни
+  const [showShiftManager, setShowShiftManager] = useState(false);
   const intervalRef = useRef(null);
   const currentUser = useSelector((state) => state.auth.user);
   // const socket = io('http://localhost:3000/'); // або просто '/'
@@ -36,7 +38,56 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
       createInvoice(totalUAH);
 
     }
+
+    if (method === 'terminal') {
+      const totalUAH = (thisOrder.OrderUnits || []).reduce(
+        (sum, u) => sum + parseFloat(u.priceForThis || 0), 0
+      );
+
+      if (totalUAH <= 0) {
+        console.error("Сума замовлення = 0. Термінальна оплата не буде створена.");
+        return;
+      }
+
+      createTerminalPayment(totalUAH);
+    }
     // TODO: додати обробку інших методів (cash, terminal, invoices)
+  };
+
+  // завантаження поточної зміни
+  const fetchCurrentShift = async () => {
+    try {
+      const { data } = await axios.get("/api/pos/current", {
+        params: { terminalId: "T001" }
+      });
+      setShift(data || null);
+    } catch (err) {
+      console.error("Помилка отримання зміни:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchCurrentShift();
+  }, []);
+
+  const createTerminalPayment = async (totalUAH) => {
+    try {
+      const response = await axios.post('/api/payment/pos/sale', {
+        orderId: thisOrder.id,
+        amount: Math.round(totalUAH * 100), // копійки
+        currency: 980,                      // UAH
+        terminalId: 'YOUR_TERMINAL_ID'      // можна підтягнути з Redux чи налаштувань
+      });
+
+      if (response.data) {
+        setThisOrder(prev => ({
+          ...prev,
+          Payment: response.data
+        }));
+      }
+    } catch (e) {
+      console.error('createTerminalPayment error:', e);
+    }
   };
 
 
@@ -172,6 +223,67 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
 
   return (
     <div className="payment-methods-panel adminTextBig" style={{}}>
+
+
+
+      {/* Якщо зміна закрита */}
+      {!shift || shift.status !== "OPEN" ? (
+        <div className="shift-closed">
+          <button
+            className="PayButtons adminTextBig shift-open"
+            onClick={() => setShowShiftManager(true)}
+          >
+            Відкрити зміну
+          </button>
+
+          {showShiftManager && (
+            <PrroShiftBadge
+              currentUser={currentUser}
+            />
+          )}
+        </div>
+      ) : (
+        <>
+          {/* Якщо зміна відкрита → показуємо кнопки оплати */}
+          {(!thisOrder.Payment || ['CANCELLED', 'EXPIRED'].includes(thisOrder.Payment.status)) && (
+            <div className="payment-methods-panel d-flex align-items-center ">
+              <button
+                className="PayButtons adminTextBig cash"
+                onClick={() => handleSelect('cash')}
+              >
+                Розрахунок готівкою
+              </button>
+
+              <button
+                className="PayButtons adminTextBig terminal"
+                onClick={() => handleSelect('terminal')}
+              >
+                Розрахунок карткою
+              </button>
+
+              <button
+                className="PayButtons adminTextBig online"
+                onClick={() => handleSelect('online')}
+              >
+                Платіж за посиланням
+              </button>
+
+              <button
+                onClick={() => setShowPays(true)}
+                title="Платежі"
+                className="PayButtons adminTextBig invoices"
+              >
+                Оплата на рахунок
+              </button>
+            </div>
+          )}
+
+          {/* ...тут залишаєш існуючі блоки CREATED / PAID */}
+        </>
+      )}
+
+
+
       {(!thisOrder.Payment || ['CANCELLED', 'EXPIRED'].includes(thisOrder.Payment.status)) && (
         <div className="payment-methods-panel d-flex align-items-center ">
           <button
@@ -205,43 +317,6 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
           </button>
         </div>
       )}
-
-      {/*{thisOrder.Payment === null && (*/}
-      {/*  <div className="payment-methods-panel d-flex align-items-center ">*/}
-      {/*    <button*/}
-      {/*      className="PayButtons cash"*/}
-      {/*      onClick={() => handleSelect('cash')}*/}
-      {/*    >*/}
-      {/*      Розрахунок готівкою*/}
-      {/*    </button>*/}
-
-      {/*    <button*/}
-      {/*      className="PayButtons terminal"*/}
-      {/*      onClick={() => handleSelect('terminal')}*/}
-      {/*    >*/}
-      {/*      Розрахунок карткою*/}
-      {/*    </button>*/}
-
-      {/*    <button*/}
-      {/*      className="PayButtons online"*/}
-      {/*      onClick={() => handleSelect('online')}*/}
-      {/*    >*/}
-      {/*      Платіж за посиланням*/}
-
-      {/*    </button>*/}
-
-      {/*    <button*/}
-      {/*      onClick={() => setShowPays(true)}*/}
-      {/*      title="Платежі"*/}
-      {/*      style={{...buttonStyles.base, ...buttonStyles.iconButton}}*/}
-      {/*      className="PayButtons invoices"*/}
-
-      {/*    >*/}
-      {/*      Оплата на рахунок*/}
-      {/*    </button>*/}
-
-      {/*  </div>*/}
-      {/*)}*/}
 
       {thisOrder.Payment?.status === 'CREATED' && (
         <div className={"payment-methods-panel d-flex align-items-center "}>
@@ -312,6 +387,17 @@ const PaidButtomProgressBar = ({thisOrder, setShowPays, setThisOrder}) => {
             </button>
           }
 
+        </div>
+      )}
+
+      {thisOrder.Payment?.method === 'terminal' && thisOrder.Payment?.status === 'PAID' && (
+        <div className="payment-methods-panel d-flex align-items-center ">
+          <button
+            className="PayButtons link"
+            style={{ background: "#008249", color: "white", width:"27vw" }}
+          >
+            Оплата через термінал успішна (RRN: {thisOrder.Payment.rrn})
+          </button>
         </div>
       )}
 

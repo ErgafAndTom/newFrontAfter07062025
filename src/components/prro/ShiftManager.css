@@ -1,0 +1,31 @@
+.shift-manager {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 12px;
+  background: #fbfaf6;
+  max-width: 400px;
+}
+
+.shift-info p {
+  margin: 0.2rem 0;
+  font-size: 0.9rem;
+}
+
+.open-btn, .close-btn {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.open-btn {
+  background: #008249;
+  color: white;
+}
+
+.close-btn {
+  background: #d9534f;
+  color: white;
+}
