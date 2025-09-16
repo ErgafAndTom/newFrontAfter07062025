@@ -5,12 +5,15 @@ import "./ShiftManager.css";
 const ShiftManager = ({ currentUser }) => {
   const [shift, setShift] = useState(null);
   const [loading, setLoading] = useState(false);
-  const terminalId = "T001"; // можна підставляти з налаштувань/Redux
+  const terminalId = "PQ012563"; // можна підставляти з налаштувань/Redux
 
   const fetchCurrentShift = async () => {
     try {
+      console.log(`lox`);
       const { data } = await axios.get("/api/pos/current", {
         params: { terminalId }
+      }).then({
+
       });
       setShift(data || null);
     } catch (err) {
@@ -64,9 +67,15 @@ const ShiftManager = ({ currentUser }) => {
           {shift.openedAt && <p><strong>Відкрито:</strong> {new Date(shift.openedAt).toLocaleString()}</p>}
           {shift.closedAt && <p><strong>Закрито:</strong> {new Date(shift.closedAt).toLocaleString()}</p>}
           {shift.status === "OPEN" && (
-            <button disabled={loading} onClick={closeShift} className="close-btn">
-              {loading ? "Закриваємо..." : "Закрити зміну"}
-            </button>
+            <>
+              <button disabled={loading} onClick={closeShift} className="close-btn">
+                {loading ? "Закриваємо..." : "Закрити зміну"}
+              </button>
+              <button disabled={loading} onClick={openShift} className="open-btn">
+                {loading ? "Відкриваємо..." : "Відкрити зміну"}
+              </button>
+            </>
+
           )}
         </div>
       ) : (
