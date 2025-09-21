@@ -2,19 +2,16 @@ import React, { useEffect, useState } from "react";
 import axios from "../../api/axiosInstance";
 import "./ShiftManager.css";
 
-const ShiftManager = ({ currentUser }) => {
+const ShiftManager = ({ currentUser , thisOrder, setShowPays, setThisOrder}) => {
   const [shift, setShift] = useState(null);
   const [loading, setLoading] = useState(false);
   const terminalId = "PQ012563"; // можна підставляти з налаштувань/Redux
+  const [shiftOpen, setShiftOpen] = useState(false);
 
   const fetchCurrentShift = async () => {
     try {
       console.log(`lox`);
-      const { data } = await axios.get("/api/pos/current", {
-        params: { terminalId }
-      }).then({
-
-      });
+      const { data } = await axios.get("/user/current");
       setShift(data || null);
     } catch (err) {
       console.error("Помилка отримання зміни:", err);
@@ -51,38 +48,104 @@ const ShiftManager = ({ currentUser }) => {
     }
   };
 
+  const createTerminalPayment = async () => {
+    // if (!thisOrder?.id || !thisOrder?.totalAmount) return;
+    console.log('Creating terminal payment for order:', thisOrder.id);
+    try {
+      const {data} = await axios.post("/api/pos/sale", {
+        orderId: thisOrder.id,
+        amount: Math.round(thisOrder.totalAmount * 100),
+        currency: 980,
+        terminalId: "PQ012563" // можна винести в .env чи Redux
+      });
+      console.log('Payment response:', data);
+      if (data?.payment) {
+        setThisOrder((prev) => ({ ...prev, Payment: data.payment }));
+      }
+    } catch (err) {
+      console.error("Помилка оплати через POS:", err);
+    }
+  };
+
   useEffect(() => {
-    fetchCurrentShift();
+    // fetchCurrentShift();
   }, []);
 
   return (
     <div className="shift-manager">
-      <h3>Стан зміни</h3>
-      {shift ? (
-        <div className="shift-info">
-          <p><strong>ID:</strong> {shift.shiftId}</p>
-          <p><strong>Термінал:</strong> {shift.terminalId}</p>
-          <p><strong>Касир:</strong> {shift.userId}</p>
-          <p><strong>Статус:</strong> {shift.status}</p>
-          {shift.openedAt && <p><strong>Відкрито:</strong> {new Date(shift.openedAt).toLocaleString()}</p>}
-          {shift.closedAt && <p><strong>Закрито:</strong> {new Date(shift.closedAt).toLocaleString()}</p>}
-          {shift.status === "OPEN" && (
-            <>
-              <button disabled={loading} onClick={closeShift} className="close-btn">
-                {loading ? "Закриваємо..." : "Закрити зміну"}
-              </button>
-              <button disabled={loading} onClick={openShift} className="open-btn">
-                {loading ? "Відкриваємо..." : "Відкрити зміну"}
-              </button>
-            </>
-
-          )}
-        </div>
+      {/*<h3>Стан зміни</h3>*/}
+      {shiftOpen ? (
+        <>
+          <button
+            className="PayButtons adminTextBig shift-open"
+            onClick={openShift}
+            disabled={loading}
+          >
+            Відкрити зміну
+          </button>
+          <button disabled={loading} onClick={closeShift} className="close-btn">
+            {loading ? "Закриваємо..." : "Закрити зміну"}
+          </button>
+        </>
       ) : (
-        <button disabled={loading} onClick={openShift} className="open-btn">
-          {loading ? "Відкриваємо..." : "Відкрити зміну"}
-        </button>
+        <>
+          {/* Якщо зміна відкрита */}
+          <button
+            className="PayButtons adminTextBig shift-close"
+            onClick={closeShift}
+            disabled={loading}
+          >
+            Закрити зміну
+          </button>
+
+          {/* Кнопки оплати доступні тільки коли зміна відкрита */}
+          <div className="payment-methods-panel d-flex align-items-center">
+            <button
+              className="PayButtons adminTextBig cash"
+              disabled={loading}
+              onClick={() => console.log("Готівкова оплата")}
+            >
+              Розрахунок готівкою
+            </button>
+
+            <button
+              className="PayButtons adminTextBig terminal"
+              disabled={loading}
+              onClick={createTerminalPayment}
+            >
+              Розрахунок карткою (t) rthjeor80uhtg
+            </button>
+
+            <button
+              className="PayButtons adminTextBig online"
+              disabled={loading}
+              onClick={() => console.log("Оплата онлайн")}
+            >
+              Платіж за посиланням
+            </button>
+
+            <button
+              className="PayButtons adminTextBig invoices"
+              disabled={loading}
+              onClick={() => setShowPays(true)}
+            >
+              Оплата на рахунок
+            </button>
+          </div>
+        </>
       )}
+      <>
+        {/*<button*/}
+        {/*  className="PayButtons adminTextBig shift-open"*/}
+        {/*  onClick={openShift}*/}
+        {/*  disabled={loading}*/}
+        {/*>*/}
+        {/*  Відкрити зміну*/}
+        {/*</button>*/}
+        {/*<button disabled={loading} onClick={closeShift} className="close-btn">*/}
+        {/*  {loading ? "Закриваємо..." : "Закрити зміну"}*/}
+        {/*</button>*/}
+      </>
     </div>
   );
 };
