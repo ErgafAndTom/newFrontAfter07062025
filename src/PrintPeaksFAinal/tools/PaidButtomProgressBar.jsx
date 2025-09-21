@@ -2,6 +2,8 @@ import React, {useState} from "react";
 import axios from "../../api/axiosInstance";
 import "./PaidButtomProgressBar.css";
 import ShiftManager from "../../components/prro/ShiftManager";
+import ShiftControl from "../checkbox/ShiftControl";
+import ShiftControlModal from "../checkbox/ShiftControlModal";
 
 const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   const [loading] = useState(false);
@@ -59,12 +61,13 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
 
   return (
     <div className="payment-methods-panel adminTextBig">
-      <ShiftManager
-        createTerminalPayment={createTerminalPayment}
-        thisOrder={thisOrder}
-        setShowPays={setShowPays}
-        setThisOrder={setThisOrder}
-      />
+      {/*<ShiftManager*/}
+      {/*  createTerminalPayment={createTerminalPayment}*/}
+      {/*  thisOrder={thisOrder}*/}
+      {/*  setShowPays={setShowPays}*/}
+      {/*  setThisOrder={setThisOrder}*/}
+      {/*/>*/}
+      <ShiftControlModal />
     </div>
   );
 };
