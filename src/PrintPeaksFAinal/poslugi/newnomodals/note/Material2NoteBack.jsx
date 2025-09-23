@@ -226,7 +226,7 @@ const Materials2NoteBack = ({
                     style={{
                         fontSize: "1vw",
                         width: "6vw",
-                        fontFamily: "inter",
+
                         fontWeight: "bold",
 
                     }}
@@ -237,7 +237,7 @@ const Materials2NoteBack = ({
                     style={{
                         fontSize: "1vw",
                         marginRight: "0.5vw",
-                        fontFamily: "inter",
+
                         whiteSpace: "nowrap",
 
                     }}
@@ -272,7 +272,6 @@ const Materials2NoteBack = ({
             <span
                 style={{
                     fontSize: "1vw",
-                    fontFamily: "inter",
                     marginRight: "0.5vw",
                     whiteSpace: "nowrap"
                 }}
@@ -346,7 +345,6 @@ const Materials2NoteBack = ({
             <span
                 style={{
                     fontSize: "1vw",
-                    fontFamily: "inter",
 
 
                     marginRight: "0.5vw",

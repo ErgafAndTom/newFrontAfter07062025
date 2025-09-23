@@ -36,8 +36,8 @@ input, select {
     border-radius: 8px 8px 0 0;
     cursor: pointer;
     margin-right: 5px;
-    font-family: var(--font-inter)
-, sans-serif;
+
+
     font-size: 14px;
     transition: background-color 0.3s;
 }

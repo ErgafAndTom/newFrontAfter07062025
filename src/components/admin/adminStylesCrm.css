@@ -139,7 +139,7 @@
 }
 
 .fontProductName {
-    font-style: var(--font-inter);
+
     font-size: var(--font-size-base);
     padding-bottom: 0.6vw;
     padding-top: 0.6vw;

@@ -7,49 +7,49 @@
 @import url("https://use.typekit.net/iro7gjn.css");
 
 @font-face {
-  font-family: "Inter";
-  src: url('./fonts/Inter_18pt-Regular.ttf') format('truetype');
-  font-weight: normal;
+  font-family: "Playpen_Sans", cursive;
+  src: url('./fonts/PlaypenSans-Regular.ttf') format('truetype');
+  /*font-optical-sizing: auto;*/
+  font-weight: 400;
   font-style: normal;
-  font-display: swap;
 
 
 
 }
 
-.fontSize0-7VW{
-  font-size: 0.7vw;
-}
-.fontSize1VW{
-  font-size: 1vw;
-}
-.fontSize1-3VW{
-  font-size: 1.3vw;
-}
-.fontSize1-5VW{
-  font-size: 1.5vw;
-}
-.fontSize0-7VH{
-  font-size: 0.7vh;
-}
-.fontSize1VH{
-  font-size: 1vh;
-}
-.fontSize1-3VH{
-  font-size: 1.3vh;
-}
-.fontSize1-5VH{
-  font-size: 1.5vh;
-}
-.fontSize1-7VH{
-  font-size: 1.7vh;
-}
-.fontSize2VH{
-  font-size: 2vh;
-}
-.fontSize2-5VH{
-  font-size: 2.5vh;
-}
+/*.fontSize0-7VW{*/
+/*  font-size: 0.7vw;*/
+/*}*/
+/*.fontSize1VW{*/
+/*  font-size: 1vw;*/
+/*}*/
+/*.fontSize1-3VW{*/
+/*  font-size: 1.3vw;*/
+/*}*/
+/*.fontSize1-5VW{*/
+/*  font-size: 1.5vw;*/
+/*}*/
+/*.fontSize0-7VH{*/
+/*  font-size: 0.7vh;*/
+/*}*/
+/*.fontSize1VH{*/
+/*  font-size: 1vh;*/
+/*}*/
+/*.fontSize1-3VH{*/
+/*  font-size: 1.3vh;*/
+/*}*/
+/*.fontSize1-5VH{*/
+/*  font-size: 1.5vh;*/
+/*}*/
+/*.fontSize1-7VH{*/
+/*  font-size: 1.7vh;*/
+/*}*/
+/*.fontSize2VH{*/
+/*  font-size: 2vh;*/
+/*}*/
+/*.fontSize2-5VH{*/
+/*  font-size: 2.5vh;*/
+/*}*/
 
 /*@font-face {*/
 /*    */
@@ -72,7 +72,7 @@ body {
 }
 :root {
   /* fonts */
-  --font-inter: 'Inter';
+  --font-inter: 'Playpen_Sans';
   --font-ink-free: 'Ink Free';
   /* font sizes */
   --font-size-3xs: 1vmin;

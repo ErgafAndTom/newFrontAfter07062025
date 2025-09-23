@@ -68,7 +68,7 @@ const ShiftManager = ({ currentUser , thisOrder, setShowPays, setThisOrder}) => 
   };
 
   useEffect(() => {
-    // fetchCurrentShift();
+    fetchCurrentShift();
   }, []);
 
   return (

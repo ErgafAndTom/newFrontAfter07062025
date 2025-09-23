@@ -13,7 +13,7 @@ const InputArtem = ({value, setValuem}) => {
     return (
         <select value={radius} onChange={handleChange} style={{
             backgroundColor: 'transparent',
-            fontFamily: "inter",
+             ,
 
 
             padding: '0.633vh 1.273vw',

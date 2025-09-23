@@ -284,7 +284,7 @@ const NewScans = ({
                                             style={{
                                                 width: "90vw",
                                                 marginLeft: "2.5vw",
-                                                fontFamily: "inter",
+
 
 
                                                 fontWeight: "bold",

@@ -348,7 +348,7 @@ const NewSheetCutBw = ({
                                   color: "red",
                                   width: "20vw",
                                   marginLeft: "2.5vw",
-                                  fontFamily: "inter",
+
                                   display: 'flex',
                                   justifyContent: 'center',
                                   alignItems: 'center',

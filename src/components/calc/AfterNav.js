@@ -43,6 +43,7 @@ import Graph3D_with_comments from "../../PrintPeaksFAinal/Graph3D_with_comments"
 import CompanyPage from "../../PrintPeaksFAinal/company/CompanyPage";
 import UsersOrdersLikeTable from "../../PrintPeaksFAinal/user/UsersOrdersLikeTable";
 import UserPageDetails from "../../PrintPeaksFAinal/user/UserPageDetails";
+import Cash from "../../PrintPeaksFAinal/checkbox/Cash/Cash";
 
 
 
@@ -105,6 +106,9 @@ const AfterNav = () => {
                 <Route path="/client/:id" element={<ClientUserProfile />} />
                 <Route path="/myFiles" element={<UserFiles />} />
                 <Route path="/myPayments" element={<Payments />} />
+
+              <Route path="/Cash" element={<Cash />} />
+              <Route path="/Cash/:id" element={<CompanyTabl />} />
 
                 <Route path="/Orders" element={<CustomOrderTable2 />} />
                 {/*<Route path="/OrdersOld" element={<CustomOrderTable />} />*/}

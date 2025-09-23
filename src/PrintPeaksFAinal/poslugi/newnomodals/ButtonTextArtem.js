@@ -26,7 +26,7 @@ const ButtonTextArtem = ({nameOfX, buttonsArr, choosed, setChoosed}) => {
                         alignItems: 'center',
                         transition: "all 0.3s ease",
                         fontSize: "1.3vw",
-                        fontFamily: "inter",
+                         ,
 
 
                     }}

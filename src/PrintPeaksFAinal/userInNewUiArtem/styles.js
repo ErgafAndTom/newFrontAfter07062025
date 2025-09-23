@@ -10,54 +10,54 @@ export const buttonStyles = {
     borderRadius: '1vw',
     border: 'none',
     cursor: 'pointer',
-    fontFamily: 'inter, sans-serif',
     fontSize: '0.7vw',
+
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F2F0E7',
   },
-  
+
   // Стиль для маленьких іконкових кнопок
   iconButton: {
     width: '2.5vw',
     height: '2.5vh',
     backgroundColor: '#F2F0E7',
   },
-  
+
   // Стиль для стандартних кнопок дій
   actionButton: {
     padding: '0.8vh',
     width: '11vw',
     height: '3vh',
   },
-  
+
   // Стилі для різних типів кнопок
   primary: {
     backgroundColor: '#3C60A6',
     color: 'white',
   },
-  
+
   secondary: {
     backgroundColor: '#F2F0E7',
     color: '#707070',
   },
-  
+
   success: {
     backgroundColor: '#008249',
     color: 'white',
   },
-  
+
   warning: {
     backgroundColor: '#FFC107',
     color: 'black',
   },
-  
+
   danger: {
     backgroundColor: '#ee3c23',
     color: 'white',
   },
-  
+
   // Стиль для кнопки "Взяти в роботу"
   takeWork: {
     backgroundColor: '#FFC107',
@@ -65,7 +65,7 @@ export const buttonStyles = {
     width: '11vw',
     height: '3vh',
   },
-  
+
   // Стиль для кнопки "Постпрес"
   postpress: {
     backgroundColor: '#8B4513',
@@ -73,7 +73,7 @@ export const buttonStyles = {
     width: '11vw',
     height: '3vh',
   },
-  
+
   // Стиль для кнопки "Виконане"
   done: {
     backgroundColor: '#3C60A6',
@@ -81,7 +81,7 @@ export const buttonStyles = {
     width: '11vw',
     height: '3vh',
   },
-  
+
   // Стиль для кнопки "Віддати"
   handover: {
     backgroundColor: '#F075AA',
@@ -89,7 +89,7 @@ export const buttonStyles = {
     width: '11vw',
     height: '3vh',
   },
-  
+
   // Стиль для кнопки "Оплатити"
   pay: {
     backgroundColor: '#008249',
@@ -97,7 +97,7 @@ export const buttonStyles = {
     width: '11vw',
     height: '3vh',
   },
-  
+
   // Стиль для кнопки "Скасувати"
   cancel: {
     backgroundColor: 'transparent',
@@ -109,7 +109,7 @@ export const buttonStyles = {
     transform: 'scale(0.5)',
     border: 'none',
   },
-  
+
   // Стиль для кнопки "Закрити"
   close: {
     backgroundColor: '#F2F0E7',
@@ -117,7 +117,7 @@ export const buttonStyles = {
     width: '8vw',
     height: '3vh',
   },
-  
+
   // Стиль для кнопки "Видалити вибір"
   delete: {
     backgroundColor: '#ee3c23',
@@ -125,7 +125,7 @@ export const buttonStyles = {
     width: '8vw',
     height: '3vh',
   },
-  
+
   // Стиль для кнопки "Створити нового клієнта"
   createNew: {
     backgroundColor: '#FFC107',
@@ -134,19 +134,19 @@ export const buttonStyles = {
     height: '3vh',
     margin: '0 auto',
   },
-  
+
   // Стиль для кнопки з іконкою
   withIcon: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  
+
   // Стиль для іконки в кнопці
   icon: {
     marginRight: '0.5vw',
   },
-  
+
   // Стиль для неактивної кнопки
   disabled: {
     opacity: 0.7,
@@ -162,21 +162,21 @@ export const containerStyles = {
     borderRadius: '1vw',
     backgroundColor: '#F2F0E7',
   },
-  
+
   // Стиль для модальних вікон
   modal: {
     backgroundColor: '#FBFAF6',
     borderRadius: '1vw',
     padding: '2vh',
   },
-  
+
   // Стиль для заголовків
   header: {
     fontSize: '1.5vw',
     fontWeight: 'bold',
     marginBottom: '2vh',
   },
-  
+
   // Стиль для підзаголовків
   subheader: {
     fontSize: '1vw',
@@ -195,13 +195,13 @@ export const formStyles = {
     fontSize: '0.7vw',
     width: '100%',
   },
-  
+
   // Стиль для міток
   label: {
     fontSize: '0.8vw',
     marginBottom: '0.5vh',
   },
-  
+
   // Стиль для групи полів
   group: {
     marginBottom: '1.5vh',

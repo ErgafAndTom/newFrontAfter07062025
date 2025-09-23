@@ -26,7 +26,7 @@
   border: 1px solid #dcd9ce;
   align-items:center;
   justify-content:center;
-  font:600 0.9rem/1 Inter, sans-serif;
+
   cursor:pointer;
   z-index:10;
   transition:background .15s;

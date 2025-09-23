@@ -9783,7 +9783,7 @@ ulation; }
 .mfp-close { width: 44px; height: 44px; line-height: 44px; position: absolu=
 te; right: 2px; top: 6px; text-decoration: none; text-align: center; opacit=
 y: 0.65; padding: 0px 0px 18px 10px; color: rgb(255, 255, 255); font-style:=
- normal; font-size: 28px; font-family: var(--font-inter), Arial, Baskerville, monospace; }
+ normal; font-size: 28px;  }
 
 .mfp-close:hover, .mfp-close:focus { opacity: 1; }
 
@@ -10282,7 +10282,7 @@ const FancyboxStyles = () => {
             }
             `}
             </style>
-            
+
             <div>
                 <div className="fancybox-title-over">Title Over</div>
                 <div id="fancybox-title-over">ID Fancybox Title Over</div>

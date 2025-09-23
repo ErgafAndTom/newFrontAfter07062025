@@ -97,17 +97,17 @@ const OrderForm = ({thisOrder}) => {
             <g onClick={handleWorkClick} style={{cursor: 'pointer'}}>
                 <rect width="146" height="47" rx="12" transform="translate(514 12)" fill="#fc0"
                       />
-                <text transform="translate(588 39)" fontSize="11" fontFamily="inter-Bold, inter"
+                <text transform="translate(588 39)" fontSize="11"
                       fontWeight="700">
                     <tspan x="-46.75" y="0">Взяти в роботу</tspan>
                 </text>
             </g>
             <text transform="translate(11.5 100.598)" fill="#212529" fontSize="16"
-                  fontFamily="inter, inter">
+                  >
                 <tspan x="0" y="15">Предоплата</tspan>
             </text>
             <text transform="translate(318 100.598)" fill="#212529" fontSize="16"
-                  fontFamily="inter, inter">
+                  >
             <tspan x="0" y="15">грн</tspan>
             </text>
             <g transform="translate(238.5 100.598)" fill="#e4e2da" stroke="#d3d3d3" strokeWidth="1">

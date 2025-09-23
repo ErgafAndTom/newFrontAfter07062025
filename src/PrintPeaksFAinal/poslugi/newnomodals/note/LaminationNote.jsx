@@ -115,7 +115,7 @@ const LaminationNote = ({materialAndDruk, setMaterialAndDruk, prices, buttonsArr
             </div>
             <div className="d-flex flex-column">
             <span style={{
-                fontSize: '1.273vw', marginRight: '0', fontFamily: "inter",
+                fontSize: '1.273vw', marginRight: '0',
 
  fontWeight: "bold"
             }}>{"Ламінація:"}</span>

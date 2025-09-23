@@ -728,7 +728,7 @@ const Graph3D = () => {
             isFrozen
               ? (node) => {
                 const label = new SpriteText(getDiagramLabel(node));
-                label.fontSize = 50;
+                label.fontSize = 550;
                 label.padding = 2;
                 label.backgroundColor = "rgba(0,0,0,0.55)";
                 label.borderRadius = 2;

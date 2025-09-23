@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import axios from "../../api/axiosInstance";
 import { useSelector } from "react-redux";
+import PerepletMet from "../poslugi/PerepletMet";
 
 const ShiftControlModal = () => {
+  const [data, setData] = useState(false);
   const [open, setOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const currentUser = useSelector((state) => state.auth.user);
@@ -12,7 +14,7 @@ const ShiftControlModal = () => {
   const [shift, setShift] = useState(null);
   const [error, setError] = useState(null);
 
-  const [loginForm, setLoginForm] = useState({ login: "", password: "" });
+  const [loginForm, setLoginForm] = useState({ login: "aiatomas03", password: "Artem0123" });
   const [pinForm, setPinForm] = useState({ pin_code: "" });
 
   function handleOpen() {
@@ -32,6 +34,7 @@ const ShiftControlModal = () => {
         ...loginForm,
         userId: currentUser?.id,
       });
+      console.log(resp);
       setCashier(resp.data.cashier);
       setError(null);
       await fetchShift();
@@ -96,12 +99,15 @@ const ShiftControlModal = () => {
     try {
       setLoading(true);
       const resp = await axios.get("/api/checkbox/shift/current");
+      const resp1 = await axios.get("/api/checkbox/cash-registers");
       console.log(resp.data);
+      setData(resp.data)
       if (resp.data.success) {
         setShift(resp.data.shift);
       }
     } catch (e) {
-      setError(e.response?.data?.error || e.message);
+      console.log(e);
+      setError(e.response?.data?.error?.message || e.message);
     } finally {
       setLoading(false);
     }
@@ -110,6 +116,9 @@ const ShiftControlModal = () => {
   return (
     <>
       <button onClick={handleOpen}>Керування зміною{shift}</button>
+      {error &&
+        <div>{error}</div>
+      }
 
       {open && (
         <div>
@@ -158,6 +167,9 @@ const ShiftControlModal = () => {
 
             {/* body */}
             <div style={{ flex: 1, overflow: "auto" }}>
+              {data &&
+                <div>data:{data.toString()}11111</div>
+              }
               {error && <div style={{ color: "red" }}>{error}</div>}
 
               {!cashier ? (

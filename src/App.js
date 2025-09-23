@@ -25,14 +25,14 @@ function App() {
                 // console.log('✅ Шрифт inter завантажено та готовий до використання!');
             } else {
                 console.warn('❌ Шрифт inter не завантажено або недоступний.');
-                const regularFont = new FontFace('Inter', 'url(./fonts/Inter_18pt-Regular.ttf)', { weight: '400' });
-
-                Promise.all([regularFont.load() ])
-                    .then(loadedFonts => {
-                        loadedFonts.forEach(font => document.fonts.add(font));
-                        // console.log('✅ Шрифти inter завантажено примусово!');
-                    })
-                    .catch(err => console.error('❌ Помилка при завантаженні шрифтів:', err));
+                // const regularFont = new FontFace('Playpen_Sans', 'url(./fonts/Inter_18pt-Regular.ttf)', { weight: '400' });
+                //
+                // Promise.all([regularFont.load() ])
+                //     .then(loadedFonts => {
+                //         loadedFonts.forEach(font => document.fonts.add(font));
+                //         // console.log('✅ Шрифти inter завантажено примусово!');
+                //     })
+                //     .catch(err => console.error('❌ Помилка при завантаженні шрифтів:', err));
             }
         });
     }, []);

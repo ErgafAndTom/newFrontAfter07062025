@@ -6,7 +6,7 @@
 
 .allArtemElem {
     margin-left: 2vw;
-    font-style: var(--font-inter);
+
     font-size: var(--font-size-base);
 
 }
@@ -85,7 +85,7 @@
     align-items: center;
     background-color: transparent;
     padding: 0.38vh 0.76vw;
-    font-style: var(--font-inter);
+
     /*font-size: var(--font-size-base);*/
     outline: none;
     width: auto;
@@ -100,7 +100,7 @@
 
 .optionInSelectArtem {
     display: flex;
-    font-style: var(--font-inter);
+
     font-size: var(--font-size-base);
     justify-content: center;
     align-items: center;
@@ -118,7 +118,7 @@
     /* border-radius: 0.627vw; */ /* если использовать, то 0.627vw * 0.6 ≈ 0.38vw */
     padding: 0.48vh 0.76vw; /* 0.8vh и 1.273vw умноженные на 0.6 */
     margin: 0.3vw; /* 0.323vw * 0.6 */
-    font-style: var(--font-inter);
+
     font-size: var(--font-size-base); /* 1.3vw * 0.6 */
     background: transparent;
     /* text-decoration:  overline line-through #ff0000; */
@@ -256,7 +256,7 @@
 
 .ArtemNewSelectContainer::before {
     content: "";
-    font-style: var(--font-inter);
+
     font-size: var(--font-size-base);
     border-left: 6px solid transparent; /* 10px * 0.6 */
     border-right: 6px solid transparent;

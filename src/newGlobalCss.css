@@ -25,13 +25,13 @@
     height: 15vh;
 }
 
-.interFont {
-    font-family: 'Inter', serif;
+/*.interFont {*/
+/*    font-family: 'Inter', serif;*/
 
-    font-weight: 400;
+/*    font-weight: 400;*/
 
 
-}
+/*}*/
 
 .allArtemElem, .inputsArtem, .inputsArtemx, .interFont, .selectArtem, .optionInSelectArtem {
 

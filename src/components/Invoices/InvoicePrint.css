@@ -2,12 +2,12 @@
     body * {
         visibility: hidden;
     }
-    
+
     .invoice-document,
     .invoice-document * {
         visibility: visible;
     }
-    
+
     .invoice-document {
         position: absolute;
         left: 0;
@@ -15,7 +15,7 @@
         width: 100%;
         padding: 20px;
     }
-    
+
     .print-controls {
         display: none !important;
     }
@@ -142,7 +142,7 @@
 }
 
 .invoice-document {
-    font-family: 'Inter', sans-serif;
+
     color: #333;
 }
 
@@ -221,7 +221,7 @@
 }
 
 .invoice-document {
-    font-family: 'Inter', sans-serif;
+
     color: #333;
 }
 
@@ -348,35 +348,35 @@
 
 /* Стилі для друку */
 @media print {
-    .print-controls, 
-    .modal-header, 
+    .print-controls,
+    .modal-header,
     .d-print-none {
         display: none !important;
     }
-    
+
     .invoice-print-wrapper {
         padding: 0;
         margin: 0;
     }
-    
+
     .invoice-print-container {
         max-width: 100%;
         padding: 0;
         margin: 0;
     }
-    
+
     .invoice-document {
         padding: 15px;
     }
-    
+
     body {
         background: white;
     }
-    
+
     .modal-content {
         border: none !important;
     }
-    
+
     .modal {
         position: absolute;
         left: 0;
@@ -441,35 +441,35 @@
 
 /* Стилі для друку */
 @media print {
-    .print-controls, 
-    .modal-header, 
+    .print-controls,
+    .modal-header,
     .d-print-none {
         display: none !important;
     }
-    
+
     .invoice-print-wrapper {
         padding: 0;
         margin: 0;
     }
-    
+
     .invoice-print-container {
         max-width: 100%;
         padding: 0;
         margin: 0;
     }
-    
+
     .invoice-document {
         padding: 15px;
     }
-    
+
     body {
         background: white;
     }
-    
+
     .modal-content {
         border: none !important;
     }
-    
+
     .modal {
         position: absolute;
         left: 0;

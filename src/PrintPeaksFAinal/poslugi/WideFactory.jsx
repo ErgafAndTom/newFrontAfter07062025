@@ -481,7 +481,7 @@ const WideFactory = ({
                       style={{
                         width: "90vw",
                         marginLeft: "2.5vw",
-                        fontFamily: "inter",
+
                         fontWeight: "bold",
                         display: 'flex',
                         justifyContent: 'center',
@@ -505,7 +505,7 @@ const WideFactory = ({
                     color: "red",
                     width: "20vw",
                     marginLeft: "2.5vw",
-                    fontFamily: "inter",
+
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',

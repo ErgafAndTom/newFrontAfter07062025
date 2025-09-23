@@ -370,8 +370,7 @@ const NewSheetSheet = ({
                                             style={{
                                                 width: "90vw",
                                                 marginLeft: "2.5vw",
-                                                fontFamily: "inter",
-                                                fontWeight: "bold",
+                                                                                                 fontWeight: "bold",
                                                 display: 'flex',
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
@@ -394,7 +393,7 @@ const NewSheetSheet = ({
                                         color: "red",
                                         width: "20vw",
                                         marginLeft: "2.5vw",
-                                        fontFamily: "inter",
+
                                         display: 'flex',
                                         justifyContent: 'center',
                                         alignItems: 'center',

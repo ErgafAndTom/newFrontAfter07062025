@@ -1,20 +1,6 @@
-body {
-  margin: 0;
-  font-family: 'Inter';
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  /*text-transform: uppercase;*/
-  /*font-weight: 600;*/
-  /*color: rgba(0, 0, 0, 0.6);*/
-  /*line-height:1;*/
-  /*letter-spacing:.06em;*/
 
-}
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
+
 
 .card-img-top-hover:hover {
   transform: scale(1.1);
@@ -45,38 +31,4 @@ code {
     text-align: center;
     padding: 20px;
 }
-
-
-/*form {*/
-/*  display: inline-block;*/
-/*  text-align: left;*/
-/*  background-color: #ffffff;*/
-/*  padding: 20px;*/
-/*  border-radius: 8px;*/
-/*}*/
-
-/*form div {*/
-/*  margin-bottom: 10px;*/
-/*}*/
-
-/*form label {*/
-/*  display: inline-block;*/
-/*  width: 100px;*/
-/*}*/
-
-/*form input {*/
-/*  padding: 5px;*/
-/*  margin-right: 10px;*/
-/*}*/
-
-/*form button {*/
-/*  padding: 5px 10px;*/
-/*  margin-top: 10px;*/
-/*}*/
-
-/*canvas {*/
-/*  display: block;*/
-/*  margin: auto;*/
-/*}*/
-
 

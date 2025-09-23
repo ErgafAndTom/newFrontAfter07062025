@@ -243,6 +243,19 @@ const Nav = () => {
           </svg>
         </span>
             </NavLink>
+
+            <NavLink to="/Cash" className="btn">
+              <span className="flip-front" >Каси</span>
+              <span className="flip-back"  >
+          {/* checklist */}
+                <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="6" y="3"  stroke="rgba(0,0,0,0.6)"
+                  width="12" height="18" rx="2" />
+            <path d="M9 7h6M9 11h6M9 15h6"  stroke="rgba(0,0,0,0.6)"
+            />
+          </svg>
+        </span>
+            </NavLink>
           </nav>
         </div>
       )}

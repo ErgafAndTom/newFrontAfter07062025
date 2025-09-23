@@ -233,7 +233,7 @@ const Materials2NoteFront = ({
                             fontSize: "1vw",
                             width: "9vw",
                             alignItems: "center",
-                            fontFamily: "inter",
+
 
 
                             fontWeight: "bold",
@@ -252,7 +252,7 @@ const Materials2NoteFront = ({
                         <div
                             style={{
                                 fontSize: "1vw",
-                                fontFamily: "inter",
+
 
 
                                 marginLeft: "1vw",
@@ -325,7 +325,7 @@ const Materials2NoteFront = ({
                         <div
                             style={{
                                 fontSize: "1vw",
-                                fontFamily: "inter",
+
 
 
                                 marginLeft: "1vw",

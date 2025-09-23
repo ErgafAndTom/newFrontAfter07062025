@@ -361,7 +361,6 @@ const ProgressBar = ({
             cursor: 'pointer',
             width: '11vw',
             height: '3vh',
-            fontFamily: 'inter, sans-serif',
             fontSize: '0.7vw',
             display: 'flex', // Використовуємо flex для центрованого контенту
             justifyContent: 'center', // Горизонтальне центрування тексту
@@ -374,7 +373,6 @@ const ProgressBar = ({
             cursor: 'pointer',
             width: '11vw',
             height: '3vh',
-            fontFamily: 'inter, sans-serif',
             justifyContent: 'center', // Горизонтальне центрування тексту
 
         },
@@ -385,7 +383,6 @@ const ProgressBar = ({
             cursor: 'pointer',
             width: '11vw',
             height: '3vh',
-            fontFamily: 'inter, sans-serif',
             fontSize: '0.7vw',
             display: 'flex', // Використовуємо flex для центрованого контенту
             justifyContent: 'center', // Горизонтальне центрування тексту
@@ -399,7 +396,7 @@ const ProgressBar = ({
             cursor: 'pointer',
             width: '11vw',
             height: '3vh',
-            fontFamily: 'inter, sans-serif',
+
             fontSize: '0.7vw',
             display: 'flex', // Використовуємо flex для центрованого контенту
             justifyContent: 'center', // Горизонтальне центрування тексту
@@ -413,7 +410,7 @@ const ProgressBar = ({
             cursor: 'pointer',
             width: '11vw',
             height: '3vh',
-            fontFamily: 'inter, sans-serif',
+
             fontSize: '0.7vw',
             display: 'flex', // Використовуємо flex для центрованого контенту
             justifyContent: 'center', // Горизонтальне центрування тексту

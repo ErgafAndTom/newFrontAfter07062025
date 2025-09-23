@@ -5825,7 +5825,7 @@
     --color-text: #333333;
     --color-accent: #EE3C23;
     --shadow: 0 0.5vmin 1vmin rgba(0, 0, 0, 0.05);
-    --font-family: 'Inter', sans-serif;
+    --font-family: 'Playpen_Sans';
 }
 
 /* Кнопка удаления позиции в списке OrderUnits */
