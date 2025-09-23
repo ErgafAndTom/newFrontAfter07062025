@@ -1,6 +1,6 @@
-import React from "react";
-import { Route, Routes } from "react-router-dom";
-import { useSelector } from "react-redux";
+import React, {useEffect, useState} from "react";
+import {Link, Route, Routes, useNavigate} from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
 import Loader from "./Loader";
 import Desktop from "../admin/crm/Desktop/Desktop";
 import Vimogi from "../admin/crm/Vimogi/Vimogi";
@@ -44,6 +44,17 @@ import CompanyPage from "../../PrintPeaksFAinal/company/CompanyPage";
 import UsersOrdersLikeTable from "../../PrintPeaksFAinal/user/UsersOrdersLikeTable";
 import UserPageDetails from "../../PrintPeaksFAinal/user/UserPageDetails";
 import Cash from "../../PrintPeaksFAinal/checkbox/Cash/Cash";
+import axios from "../../api/axiosInstance";
+import {searchChange} from "../../actions/searchAction";
+import {FiPhone} from "react-icons/fi";
+import {FaTelegramPlane} from "react-icons/fa";
+import FiltrOrders from "../../PrintPeaksFAinal/Orders/FiltrOrders";
+import TelegramAvatar from "../../PrintPeaksFAinal/Messages/TelegramAvatar";
+import {RiCalculatorLine} from "react-icons/ri";
+import ModalDeleteOrder from "../../PrintPeaksFAinal/Orders/ModalDeleteOrder";
+import AddCashModal from "../../PrintPeaksFAinal/checkbox/Cash/AddCashModal";
+import ClientCabinet from "../../PrintPeaksFAinal/userInNewUiArtem/ClientCabinet";
+import Pagination from "../../PrintPeaksFAinal/tools/Pagination";
 
 
 
@@ -107,7 +118,8 @@ const AfterNav = () => {
                 <Route path="/myFiles" element={<UserFiles />} />
                 <Route path="/myPayments" element={<Payments />} />
 
-              <Route path="/Cash" element={<Cash />} />
+              <Route path="/Cash" element={<Cash/>} />
+
               <Route path="/Cash/:id" element={<CompanyTabl />} />
 
                 <Route path="/Orders" element={<CustomOrderTable2 />} />

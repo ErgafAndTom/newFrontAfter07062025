@@ -526,7 +526,7 @@ body {
   background: #fbfaf6;
   /*padding: 0.6rem 1rem;*/
   /*border-radius: 1vh;*/
-  box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+  box-shadow: 0 5px 2px rgba(0,0,0,0.07);
   /*transition: all 0.2s ease;*/
 }
 
@@ -542,7 +542,7 @@ body {
 }
 .summary-cell {
   display: flex;
-  /*font-size: 0.7rem;*/
+  font-size: 1.8vh;
   align-items: center;
   justify-content: center;
   /*padding: 0 0.4vw;*/
@@ -566,10 +566,13 @@ body {
 .summary-cell.status          { width: 9vw; background: transparent;}
 .summary-cell.pay             { width: 9vw; }
 .summary-cell.name             { width: 9vw; }
+.summary-cell.namecompany             { width: 20vw; }
+
 .summary-cell.edropu             { width: 9vw; }
 .summary-cell.address             { width: 9vw; }
 .summary-cell.discount             { width: 9vw; }
 .summary-cell.price           { width: 7vw; }
+.summary-cell.settingclient   { width: 5vw; }
 .summary-cell.client          {
   width: 13vw;
   white-space: normal;
@@ -582,8 +585,8 @@ body {
   word-break: break-word;
 }
 .summary-cell.phoneNumber     {
-  width: 10vw;
-  max-width: 10vw;
+  width: 12vw;
+  max-width: 12vw;
   /*border: black solid 1px;*/
 }
 .summary-cell.contragentName     {
@@ -640,7 +643,7 @@ body {
   max-width: 2vw;
   /*border: black solid 1px;*/
 }
-.summary-cell.telegram        { width: 5vw; }
+.summary-cell.telegram        { width: 6vw; }
 .summary-cell.action          { width: 5vw; }
 .summary-cell.documents       { width: 5vw; }
 .summary-cell.files           { width: 5vw; }
@@ -682,7 +685,7 @@ body {
   padding: 0.5rem 0.75rem;
   margin-right: 0.5rem;
   width: 11vw;
-  font-size: 0.9rem;
+  font-size:  2vh;
 }
 .OrderUnit-card:hover {
   background: #fbfaf6;
@@ -694,7 +697,7 @@ body {
   align-items: center;
   justify-content: space-between;
   /*margin-top: 1vh;*/
-  font-size: 0.7rem;
+  font-size: 1.6vh;
 }
 /*.btn.pastel-action {*/
 /*  background: #bfecff;*/
@@ -738,7 +741,8 @@ display: flex;
 }
 
 .UsersOrdersLikeTable-contract-text {
-  font-size: 0.6vw;
+  font-size: 1.6vh;
+
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap; /* для одной строки */
@@ -746,7 +750,7 @@ display: flex;
 }
 
 .UsersOrdersLikeTable-contract-text-multiline {
-  font-size: 0.6vw;
+  font-size: 1.6vh;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;

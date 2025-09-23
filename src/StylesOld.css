@@ -59,7 +59,7 @@
 
 .displayTitle {
     padding: 1vw;
-    font-weight: 600;
+
 }
 
 .promoCodeInputsContainer {
@@ -188,7 +188,7 @@
     border: #000000 solid 0.1vw;
     width: 14vw;
     font-weight: 400;
-    font-style: normal;
+
     margin: 0.2vw;
 }
 
@@ -370,7 +370,7 @@
 
 .toBlackIfHover {
     color: #818181;
-    font-weight: bolder;
+
 }
 
 .toBlackIfHover:hover {
@@ -408,7 +408,7 @@
 }
 
 .lFont {
-    font-weight: lighter;
+
 }
 
 .phoneNDisplay {
@@ -677,7 +677,7 @@ input[type="number"].inputCount::-webkit-outer-spin-button {
         padding: 1vw;
         padding-left: 8vw;
         padding-top: 4vw;
-        font-weight: 600;
+
     }
 
     .navPanel {

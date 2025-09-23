@@ -1,7 +1,6 @@
 .buttonSkewedOrder {
   height: 3.5vh;
   width: 7vw;
-
   font-size: 0.7vw;
   background-color: #fbfaf6;
   color: black;
@@ -9,9 +8,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
   clip-path: polygon(0 0, 100% 0, calc(100% - 17px) 100%, 0 100%);
-
   position: relative;
   z-index: 1;
 }
@@ -19,7 +16,6 @@
   /*height: 2rem;*/
   width: 7vw;
   font-size: 0.7vw;
-
   border: none;
   display: flex;
   align-items: center;

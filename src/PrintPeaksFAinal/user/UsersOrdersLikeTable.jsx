@@ -18,6 +18,7 @@ import Vishichka from "../poslugi/Vishichka";
 import FiltrOrders from "../Orders/FiltrOrders";
 import {searchChange} from "../../actions/searchAction";
 import Loader from "../../components/calc/Loader";
+import {Settings} from "lucide-react";
 
 
 
@@ -130,32 +131,7 @@ const UsersOrdersLikeTable = () => {
 
   return (
     <div className="OrderList">
-      <div className="OrderRow-summary OrderRow-header">
-        <div className="summary-cell id d-flex justify-content-center">ID</div>
-        <div className="summary-cell phoneNumber d-flex justify-content-center">username</div>
-        <div className="summary-cell phoneNumber">email</div>
-        <div className="summary-cell phoneNumber">address</div>
-        <div className="summary-cell phoneNumber">company</div>
-        <div className="summary-cell phoneNumber">discount</div>
-        <div className="summary-cell phoneNumber">contragents</div>
-        <div className="summary-cell phoneNumber">Заказів</div>
-        <div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20} style={{ color: '#000' }}/></div>
-        <div className="summary-cell telegram d-flex justify-content-center">
-          <FaTelegramPlane size={20} style={{ color: '#000' }} />
-        </div>
-        {/*<div className="summary-cell viber d-flex justify-content-center">*/}
-        {/*  <FaViber size={20} style={{ color: '#000' }} />*/}
-        {/*</div>*/}
-
-
-        <div className="summary-cell phoneNumber d-flex justify-content-center">Детально</div>
-        {/*<div className="summary-cell documents d-flex justify-content-center">Документи</div>*/}
-        {/*<div className="summary-cell files d-flex justify-content-sm-around ">Файли</div>*/}
-        {/*<div className="summary-cell barcode-orders d-flex justify-content-center" style={{opacity:"1"}}>Штрих-код</div>*/}
-      </div>
-      {/* data rows */}
-
-      <div className="d-flex">
+      <div className="d-flex justify-content-start">
         <FiltrOrders
           typeSelect={typeSelect}
           setTypeSelect={setTypeSelect}
@@ -166,8 +142,36 @@ const UsersOrdersLikeTable = () => {
           statuses={statuses}
           setStatuses={setStatuses}
         />
-        <div className="d-flex" style={{opacity: "0.5", margin: "auto", marginTop: "0.1vw"}}>Знайдено ({data?.count})</div>
+        <div className="d-flex justify-content-center" style={{opacity: "0.5", fontSize: "1.5rem", margin: "auto",  position:"absolute", top:"0", right:"32%"}}>🤖: {data?.count}</div>
       </div>
+      <div className="OrderRow-summary OrderRow-header">
+
+        <div className="summary-cell id d-flex justify-content-center">ID</div>
+        <div className="summary-cell phoneNumber d-flex justify-content-center">Ім'я</div>
+        <div className="summary-cell telegram d-flex justify-content-center">
+          <FaTelegramPlane size={20} style={{ color: '#000' }} />
+        </div>
+        <div className="summary-cell phoneNumber">E-mail</div>
+        <div className="summary-cell phoneNumber">Адреса</div>
+        <div className="summary-cell phoneNumber">Компанія</div>
+        <div className="summary-cell phoneNumber">Знижка</div>
+        <div className="summary-cell phoneNumber">Реквізити</div>
+        <div className="summary-cell phoneNumber">К-ть замовлень</div>
+        <div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20} style={{ color: '#000' }}/></div>
+
+        {/*<div className="summary-cell viber d-flex justify-content-center">*/}
+        {/*  <FaViber size={20} style={{ color: '#000' }} />*/}
+        {/*</div>*/}
+
+
+        <div className="summary-cell  settingclientsummary-cell settingclient d-flex justify-content-center"><Settings size={20} /></div>
+        {/*<div className="summary-cell documents d-flex justify-content-center">Документи</div>*/}
+        {/*<div className="summary-cell files d-flex justify-content-sm-around ">Файли</div>*/}
+        {/*<div className="summary-cell barcode-orders d-flex justify-content-center" style={{opacity:"1"}}>Штрих-код</div>*/}
+      </div>
+      {/* data rows */}
+
+
 
       {loading &&
         <div className="d-flex justify-content-center align-items-center" style={{ height: "100%" }}>
@@ -200,19 +204,25 @@ const UsersOrdersLikeTable = () => {
                  onClick={() => toggleOrder(order.id)}>
 
               <div className="summary-cell id d-flex justify-content-center">{order.id}</div>
-              <div className="summary-cell phoneNumber d-flex justify-content-center UsersOrdersLikeTable-contract-text-multiline" style={{width: "10vw", maxWidth: "10vw"}}>
+              <div className="summary-cell phoneNumber d-flex justify-content-center UsersOrdersLikeTable-contract-text-multiline" style={{width: "12vw", maxWidth: "12vw"}}>
                 <div className=" d-flex flex-column UsersOrdersLikeTable-contract-text">
-                  {/*<div className="UsersOrdersLikeTable-contract-text">[{order.username || '—'}]</div>*/}
+                  {/*<div className="UsersOrdersLikeTable-contract-text">[{order.username || "···"}]</div>*/}
                   <div className="d-flex">
-                    <div className="UsersOrdersLikeTable-contract-text">{order.firstName || '—'}</div>
-                    <div className="UsersOrdersLikeTable-contract-text">{order.lastName || ''}</div>
-                    <div className="UsersOrdersLikeTable-contract-text">{order.familyName || ''}</div>
+                    <div className="UsersOrdersLikeTable-contract-text">{order.firstName }</div>
+                    <div className="UsersOrdersLikeTable-contract-text">{order.lastName }</div>
+                    <div className="UsersOrdersLikeTable-contract-text">{order.familyName }</div>
                   </div>
                 </div>
               </div>
-              <div className="summary-cell phoneNumber d-flex justify-content-center UsersOrdersLikeTable-contract-text">{order.email || '—'}</div>
+              <div className="summary-cell telegram d-flex justify-content-center">
+                {order.telegram
+                  ? <TelegramAvatar link={order.telegram} size={45} defaultSrc="" />
+                  : "···"}
+                {/*<TelegramAvatar link={order.telegram} size={45} defaultSrc="" />*/}
+              </div>
+              <div className="summary-cell phoneNumber d-flex justify-content-center UsersOrdersLikeTable-contract-text">{order.email || "···"}</div>
               <div className="summary-cell phoneNumber UsersOrdersLikeTable-contract-text-multiline UsersOrdersLikeTable-contract-text">
-                {order.address || '—'}
+                {order.address || "···"}
               </div>
               <div className="summary-cell phoneNumber d-flex justify-content-center UsersOrdersLikeTable-contract-text-multiline">
                 {order.Company
@@ -221,16 +231,16 @@ const UsersOrdersLikeTable = () => {
                     {/*<div className="UsersOrdersLikeTable-contract-text" style={{fontSize: "0.7vw"}}>{order.Company.address || 'noAddress'}</div>*/}
                     {/*<div className="UsersOrdersLikeTable-contract-text" style={{fontSize: "0.7vw"}}>{order.Company.edrpou || 'noEdrpou'}</div>*/}
                   </div>
-                  : '—'}
+                  : "···"}
               </div>
-              <div className="summary-cell phoneNumber fontSize1-3VH">{order.discount || '—'}</div>
+              <div className="summary-cell phoneNumber ">{order.discount || "···"}</div>
               <div className="summary-cell phoneNumber d-flex justify-content-center UsersOrdersLikeTable-contract-text-multiline">
                 {order.Contractors.length > 0
                   ? <div className="UsersOrdersLikeTable-contract-text-multiline">
                       {order.Contractors.map((contr, iter) => {
                         return (
                           <div className="d-flex">
-                            <div className="UsersOrdersLikeTable-contract-text fw-bold" style={{marginRight: "0.1vw"}}>{iter+1}) </div>
+                            <div className="UsersOrdersLikeTable-contract-text " style={{marginRight: "0.1vw"}}>{iter+1}) </div>
                             <div className="UsersOrdersLikeTable-contract-text">{contr.name || 'noName'}</div>
                             {/*<div style={{fontSize: "0.9vh"}}>{contr.address || 'noAddress'}</div>*/}
                             {/*<div style={{fontSize: "0.8vh"}}>{contr.edrpou || 'noEdrpou'}</div>*/}
@@ -238,33 +248,28 @@ const UsersOrdersLikeTable = () => {
                         )
                       })}
                     </div>
-                  : '—'}
+                  : "···"}
               </div>
-              <div className="summary-cell phoneNumber fontSize1-3VH">{order.Orders?.length || '—'}</div>
-              <div className="summary-cell phoneNumber fontSize1-3VH">{
+              <div className="summary-cell phoneNumber ">{order.Orders?.length || "···"}</div>
+              <div className="summary-cell phoneNumber ">{
                 <div>
-                  {order.phoneNumber || '—'}
+                  {order.phoneNumber || "···"}
                   {/*{order.phoneNumber && (*/}
                   {/*  <ViberAvatar link={order.phoneNumber} size={64}/>*/}
                   {/*)}*/}
-                </div> || '—'}</div>
-              <div className="summary-cell telegram d-flex justify-content-center">
-                {order.telegram
-                  ? <TelegramAvatar link={order.telegram} size={45} defaultSrc="" />
-                  : '—'}
-                {/*<TelegramAvatar link={order.telegram} size={45} defaultSrc="" />*/}
-              </div>
+                </div> || "···"}</div>
+
 
               {/*<div className="summary-cell viber d-flex justify-content-center">*/}
               {/*  {order.client?.phoneNumber*/}
               {/*    ? <ViberAvatar link={order.client.phoneNumber} size={32} defaultSrc="/viber-icon.png" />*/}
-              {/*    : '—'}*/}
+              {/*    : "···"}*/}
               {/*</div>*/}
 
-              <div className="summary-cell phoneNumber d-flex justify-content-center">
+              <div className="summary-cell settingclient d-flex justify-content-center">
                 <Link to={`/Users/${order.id}`}
                       style={{ textDecoration: 'none', outline: 'none' }}>
-                  <button className="adminButtonAddOrder" > <RiCalculatorLine size={20} /></button>
+                  <button className="adminButtonAddOrder" > <Settings size={20} /></button>
                 </Link>
               </div>
               {/*<div className="summary-cell documents d-flex justify-content-center">*/}
@@ -301,7 +306,7 @@ const UsersOrdersLikeTable = () => {
               {/*      fontSize={14}*/}
               {/*      displayValue={false}*/}
               {/*    />*/}
-              {/*  ) : '—'}*/}
+              {/*  ) : "···"}*/}
               {/*</div>*/}
             </div>
 
@@ -313,7 +318,7 @@ const UsersOrdersLikeTable = () => {
 
                 <div className="ExpandedRow-details">
                   <p><strong>Дата створення:</strong> {new Date(order.createdAt).toLocaleString()}</p>
-                  <p><strong>Дата оновлення:</strong> {order.updatedAt ? new Date(order.updatedAt).toLocaleString() : '—'}</p>
+                  <p><strong>Дата оновлення:</strong> {order.updatedAt ? new Date(order.updatedAt).toLocaleString() : "···"}</p>
 
                   <button
                     className="btn pastel-delete"

@@ -171,7 +171,9 @@
   box-shadow: 0 4px 0 var(--btn-edge), 0 10px 16px rgba(0,0,0,0.18);
   transition: transform .18s ease, box-shadow .18s ease, color .18s ease, filter .18s ease;
 }
-
+adminButtonAdd:hover {
+  color: white;
+}
 
 /* Блиск (“sheen”) */
 /*.adminButtonAdd::before {*/

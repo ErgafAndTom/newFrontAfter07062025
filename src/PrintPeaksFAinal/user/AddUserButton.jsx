@@ -34,9 +34,9 @@ function AddUserButton({ fetchUsers, addOrdOrOnlyClient, thisOrder, setThisOrder
                   onClick={handleAddUser}
                   style={{borderTopRightRadius:"0px", marginRight:"1vw", borderBottomLeftRadius:"0px", height:"3vh"}}
                 >
-                  <span
+                  <div
 
-                  >&nbsp;&nbsp;Створити клієнта</span>
+                  >&nbsp;&nbsp;Створити клієнта</div>
                 </button>
               )}
 

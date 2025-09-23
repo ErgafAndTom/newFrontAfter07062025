@@ -18,18 +18,18 @@ function RowExpanded({ item }) {
       <div className="OrderRow-units d-flex flex-row" style={{ gap: "0.8vw", flexWrap: "wrap" }}>
         <div className="OrderUnit-card">
           <div className="UsersOrdersLikeTable-contract-text"><strong>ID:</strong> {item.id}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Назва:</strong> {item.name || "—"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Тип:</strong> {item.type || "—"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Система оподаткування:</strong> {item.taxSystem || "—"}</div>
+          <div className="UsersOrdersLikeTable-contract-text"><strong>Назва:</strong> {item.name || "···"}</div>
+          <div className="UsersOrdersLikeTable-contract-text"><strong>Тип:</strong> {item.type || "···"}</div>
+          <div className="UsersOrdersLikeTable-contract-text"><strong>Система оподаткування:</strong> {item.taxSystem || "···"}</div>
           <div className="UsersOrdersLikeTable-contract-text"><strong>ПДВ:</strong> {item.pdv === "true" || item.pdv === true ? "так" : "ні"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Банк:</strong> {item.bankName || "—"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>IBAN:</strong> {item.iban || "—"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>ЄДРПОУ:</strong> {item.edrpou || "—"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Телефон:</strong> {item.phone || "—"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Email:</strong> {item.email || "—"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Адреса:</strong> {item.address || "—"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Оновлено:</strong> {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : "—"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Користувач:</strong> {item.User ? `${item.User.firstName || ""} ${item.User.lastName || ""} ${item.User.familyName || ""} (${item.User.phoneNumber || "—"})` : "—"}</div>
+          <div className="UsersOrdersLikeTable-contract-text"><strong>Банк:</strong> {item.bankName || "···"}</div>
+          <div className="UsersOrdersLikeTable-contract-text"><strong>IBAN:</strong> {item.iban || "···"}</div>
+          <div className="UsersOrdersLikeTable-contract-text"><strong>ЄДРПОУ:</strong> {item.edrpou || "···"}</div>
+          <div className="UsersOrdersLikeTable-contract-text"><strong>Телефон:</strong> {item.phone || "···"}</div>
+          <div className="UsersOrdersLikeTable-contract-text"><strong>Email:</strong> {item.email || "···"}</div>
+          <div className="UsersOrdersLikeTable-contract-text"><strong>Адреса:</strong> {item.address || "···"}</div>
+          <div className="UsersOrdersLikeTable-contract-text"><strong>Оновлено:</strong> {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : "···"}</div>
+          <div className="UsersOrdersLikeTable-contract-text"><strong>Користувач:</strong> {item.User ? `${item.User.firstName || ""} ${item.User.lastName || ""} ${item.User.familyName || ""} (${item.User.phoneNumber || "···"})` : "···"}</div>
           {item.comment && (
             <div className="UsersOrdersLikeTable-contract-text"><strong>Коментар:</strong> {item.comment}</div>
           )}
@@ -65,19 +65,19 @@ function Section({
               <div className="summary-cell d-flex justify-content-center contragentId" style={{fontSize: "0.5vw"}}>{idx + 1}</div>
 
               <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentName" style={{fontSize: "0.5vw"}}>
-                {item.name || "—"}
+                {item.name || "···"}
               </div>
 
               <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentGrupa" style={{fontSize: "0.5vw"}}>
-                {item.taxSystem || "—"}
+                {item.taxSystem || "···"}
               </div>
 
               <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentBank" style={{fontSize: "0.5vw"}}>
-                {item.bankName || "—"}
+                {item.bankName || "···"}
               </div>
 
               <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentIBAN" style={{fontSize: "0.5vw"}}>
-                {item.iban || "—"}
+                {item.iban || "···"}
               </div>
 
               <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentPDV" style={{fontSize: "0.5vw"}}>
@@ -90,16 +90,16 @@ function Section({
                 style={{fontSize: "0.5vw"}}
               >
                 {item.User
-                  ? `${item.User.firstName || ""} ${item.User.lastName || ""} ${item.User.familyName || ""} (${item.User.phoneNumber || "—"})`
-                  : "—"}
+                  ? `${item.User.firstName || ""} ${item.User.lastName || ""} ${item.User.familyName || ""} (${item.User.phoneNumber || "···"})`
+                  : "···"}
               </div>
 
               <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentEDRPOU"  style={{fontSize: "0.5vw"}}>
-                {item.edrpou || "—"}
+                {item.edrpou || "···"}
               </div>
 
               <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentTelephone"  style={{fontSize: "0.5vw"}}>
-                {item.phone || "—"}
+                {item.phone || "···"}
               </div>
 
               <div

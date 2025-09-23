@@ -1,0 +1,100 @@
+.CompanyTable {
+  width: 100%;
+}
+
+.CompanyTable-row,
+.CompanyTable-rowHover,
+.CompanyTable-cell {
+  font-size: 1.6vh;
+  color: #000;
+  display: flex;
+  align-items: center;
+  padding: 0.4vh 0.6vw;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.CompanyTable-rowHover:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.CompanyTable-header .CompanyTable-cell {
+  font-size: 1.8vh;
+  font-weight: 600;
+  color: #6e6f68;
+}
+
+/* --- Стовбці --- */
+.CompanyTable-cell.id { flex: 0.5; justify-content: center; }
+.CompanyTable-cell.name { flex: 2; max-width: 20vw; justify-content: center; text-align: center; }
+.CompanyTable-cell.edropu { flex: 1; justify-content: center; }
+.CompanyTable-cell.discount { flex: 1; justify-content: center; }
+.CompanyTable-cell.telephone1{flex: 2; max-width: 11vw; justify-content: center; text-align: center; }
+.CompanyTable-cell.address {
+  flex: 3;
+  max-width: 25vw;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.2;
+  justify-content: center;
+  text-align: center;
+}
+
+
+
+.CompanyTable-cell.telegram { flex: 1; justify-content: center; }
+.CompanyTable-cell.users { flex: 1; justify-content: center; }
+.CompanyTable-cell.settings { flex: 1; justify-content: center; }
+
+/* --- Розгорнутий блок --- */
+.CompanyTable-expanded {
+  background: #fbfaf6;
+  padding: 1.2vh 1vw;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; max-height: 0; }
+  to { opacity: 1; max-height: 800px; }
+}
+
+/* Сітка співробітників */
+.CompanyTable-usersGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Картка співробітника */
+.CompanyTable-userCard {
+  width: 15vw;
+  min-height: 18vh;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 1px 6px rgba(0,0,0,0.15);
+  padding: 1vw;
+  transition: transform 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.CompanyTable-userCard:hover {
+  transform: translateY(-2px);
+  background-color: #f9f9f9;
+}
+
+.CompanyTable-userHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.CompanyTable-userInfo {
+  font-size: 1.3vh;
+  opacity: 0.8;
+  line-height: 1.3;
+}

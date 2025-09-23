@@ -172,10 +172,15 @@
 .OrderRow-header { font-weight: 600; background: #f1f1f1; }
 .OrderRow-hover:hover { background: #f6f6f6; cursor: pointer; }
 .summary-cell { min-width: 0; }
-.UsersOrdersLikeTable-contract-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+LikeTable-contract-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .UsersOrdersLikeTable-contract-text-multiline {
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
 .OrderBlock { border-radius: 10px; margin-bottom: 6px; overflow: hidden; }
 .OrderRow-expanded { padding: 0.6rem 0.8rem; background: rgba(0,0,0,0.03); border-left: 2px solid #e3e3e3; }
 .OrderUnit-card { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 0.6rem 0.8rem; min-width: 22rem; }
+
+.summary-celluser
+{
+
+}

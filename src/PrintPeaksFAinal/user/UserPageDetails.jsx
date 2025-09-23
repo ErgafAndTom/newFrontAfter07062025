@@ -17,18 +17,18 @@ const FieldEdit = ({ label, field, value, userId, type="text", as="input" }) => 
 
   const InputTag = as === "textarea" ? "textarea" : "input";
   return (
-    <div className="mb-2 d-flex align-items-center" style={{gap:"0.6rem"}}>
-      <div style={{minWidth:160, fontWeight:600}}>{label}</div>
+    <div className="d-flex align-items-center justify-content-center gap-3" >
+      <div style={{minWidth:120, fontWeight:500, color:"#6e6f68"}}>{label}</div>
       <InputTag
         className="form-control"
         value={val}
         onChange={(e)=>setVal(e.target.value)}
         type={as==="textarea" ? undefined : type}
-        style={{maxWidth:"38vw"}}
+        style={{maxWidth:"25vw", height:"4vh"}}
         rows={as==="textarea" ? 3 : undefined}
       />
-      <Button variant="success" className="adminButtonAdd" onClick={save} disabled={saving}>
-        {saving ? "Зберігаю..." : "Зберегти"}
+      <Button variant="success" className="adminButtonAdd" onClick={save} disabled={saving} style={{fontSize:"2vh", gap:"1vw",color:"#f2f0e7", minWidth:"2vw", height:"4vh", padding:"0", borderRadius:"6px"}}>
+        {saving ? "💾" : "✓"}
       </Button>
     </div>
   );
@@ -111,7 +111,7 @@ function AttachCompanyModal({ userId, onClose, onAttached }) {
       {/* Container */}
       <div
         className="modalContainer animate-slide-up"
-        style={{ bottom: "25%", left: "35%", borderRadius: 12, overflow: "hidden" }}
+        style={{ bottom: "15%", height:"60vw", left: "35%", borderRadius: 12, overflow: "hidden" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -119,65 +119,74 @@ function AttachCompanyModal({ userId, onClose, onAttached }) {
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            padding: "0.6rem 0.8rem",
-            background: "#fbfaf6",
+            justifyContent: "center",
+            width: "100%",
+
+            padding: "0rem 0rem",
+            // background: "#fbfaf6",
             borderBottom: "1px solid rgba(0,0,0,0.06)",
           }}
         >
-          <div style={{ fontWeight: 700, fontSize: "1rem" }}>Додати до компанії</div>
-          <button
-            aria-label="Закрити"
-            onClick={onClose}
-            className="adminButtonAdd"
-            style={{ height: "2rem", lineHeight: "2rem", padding: "0 0.8rem", background: "#e9e7de", borderRadius: 8 }}
+          <div
+            style={{
+              fontWeight: 400,
+              fontSize: "1.5rem",
+              color: "#5f5e59",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+            }}
           >
-            ✕
-          </button>
+            Додати до компанії
+          </div>
         </div>
 
         {/* Body */}
-        <div className="noScrollbar" style={{ background: "#f2f0e7" }}>
-          <div style={{ padding: "0.8rem" }}>
+        <div className="noScrollbar" style={{ background: "#fbfaf6" }}>
+          <div style={{ padding: "0rem 1rem", opacity:"0.7",  background:"#fbfaf6"}}>
             <input
               ref={inputRef}
               className="form-control"
-              placeholder="Пошук компаній: назва, ЄДРПОУ, email"
+              placeholder="ПОШУК: НАЗВА/ТЕЛ/ЄДРПОУ/E-MAIL"
+              style={{fontSize:"1.5vh"}}
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />
           </div>
 
           {loading ? (
-            <div className="d-flex justify-content-center align-items-center" style={{ height: "20vh" }}>
+            <div className="d-flex justify-content-center align-items-center" style={{ height: "60vh" }}>
               <div className="spinner-border text-dark" role="status" />
             </div>
           ) : (
-            <div style={{ padding: "0 0.8rem 0.8rem" }}>
-              <div className="list-group" style={{ maxHeight: "50vh", overflowY: "auto" }}>
-                {rows.length === 0 && <div className="list-group-item">Нічого не знайдено</div>}
+            <div style={{ padding: "0rem 0.7rem" }}>
+              <div className="list-group noScrollbar" style={{ height: "65vh", overflowY: "auto" }}>
+                {rows.length === 0 && <div className="d-flex justify-content-center align-items-center list-group-item">Компанію не знайдено</div>}
                 {rows.map((c) => (
                   <div key={c.id} className="list-group-item d-flex align-items-center" style={{ gap: "0.6rem" }}>
-                    <img
-                      src={c.photoLink || "/noimg.png"}
-                      alt=""
-                      style={{ width: 34, height: 34, objectFit: "cover", borderRadius: 6 }}
-                    />
+                    {/*<img*/}
+                    {/*  src={c.photoLink || "/noimg.png"}*/}
+                    {/*  alt=""*/}
+                    {/*  style={{ width: 34, height: 34, objectFit: "cover", borderRadius: 6 }}*/}
+                    {/*/>*/}
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600 }}>{c.companyName}</div>
-                      <div style={{ fontSize: "0.6vw", opacity: 0.7 }}>
-                        ЄДРПОУ: {c.edrpou || "—"} · id: {c.id}
+                      <div style={{ fontWeight: 500 }}>{c.companyName}</div>
+                      <div style={{ fontSize: "0.8vw", opacity: 0.6 }}>
+                        ЄДРПОУ: {c.edrpou || "···"}    ·    Тел.: {c.phoneNumber|| "···"}
+                        {/*· id: {c.id}*/}
                       </div>
-                      <div style={{ fontSize: "0.6vw", opacity: 0.7 }}>
-                        {c.address || "—"} · {c.phoneNumber}
+                      <div style={{ fontSize: "0.8vw", opacity: 0.6 }}>
+                        Адреса: {c.address || "···"}
                       </div>
                     </div>
                     <button
-                      className="adminButtonAdd btn btn-primary"
+                      className="adminButtonAdd"
+                      style={{fontSize:"2vh", color:"#f2f0e7", minWidth:"2vw",  padding:"0", borderRadius:"6px"}}
                       disabled={attachingId === c.id}
                       onClick={() => attach(c.id)}
                     >
-                      {attachingId === c.id ? "Додаю..." : "Додати"}
+                      {attachingId === c.id ? "✈" : "🞤"}
                     </button>
                   </div>
                 ))}
@@ -186,20 +195,7 @@ function AttachCompanyModal({ userId, onClose, onAttached }) {
           )}
         </div>
 
-        {/* Footer */}
-        <div
-          style={{
-            padding: "0.6rem 0.8rem",
-            background: "#fbfaf6",
-            borderTop: "1px solid rgba(0,0,0,0.06)",
-            display: "flex",
-            justifyContent: "flex-end",
-          }}
-        >
-          <button className="adminButtonAdd btn btn-secondary" onClick={onClose}>
-            Закрити
-          </button>
-        </div>
+
       </div>
     </>
   );
@@ -253,93 +249,128 @@ export default function UserPageDetails({thisUser = null}) {
   if (!user) return <div>Користувача не знайдено</div>;
 
   const fullName = [user.firstName, user.familyName].filter(Boolean).join(" ");
-  const companyBlock = user.Company
-    ? (<div className="d-flex align-items-center" style={{
-      gap:"0.6rem",
-      // background: "gray"
-      // width:"22vw",
-      border:"1px solid #ddd",
-      borderRadius:8,
-      background:"#fbfaf6",
-      padding: "1vw"
-    }}>
-      <img src={user.Company.photoLink || "/noimg.png"} alt="" style={{width:28, height:28, objectFit:"cover", borderRadius:6}}/>
-      <Link to={`/Companys/${user.Company.id}`} className="" style={{textDecoration:"none"}}>
-        {/*{user.Company.companyName || `Компанія #${user.Company.id}`}*/}
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 600 }}>{user.Company.companyName || `Компанія #${user.Company.id} noCompanyName`}</div>
-          <div style={{ fontSize: "0.6vw", opacity: 0.7 }}>
-            ЄДРПОУ: {user.Company.edrpou || "—"}
+  const companyBlock = user.Company ? (
+    <div
+      className="d-flex"
+      style={{
+        position: "relative",        // контейнер стає reference
+        maxWidth: "100vw",
+        boxShadow: "0px 2px 7px 0px rgba(0,0,0,0.2)",
+        border: "white",
+        borderRadius: 8,
+        background: "#fbfaf6",
+        padding: "1.5Vw",
+        minWidth:"25vw"
+      }}
+    >
+      <Link
+        to={`/Companys/${user.Company.id}`}
+        style={{ textDecoration: "none" }}
+      >
+        <div className="d-flex gap-2 flex-column" >
+          <div style={{ fontWeight: 600, color: "#6e6f68", fontSize: "1.5rem" }}>
+            {user.Company.companyName || `Компанія #${user.Company.id} noCompanyName`}
           </div>
-          <div style={{ fontSize: "0.6vw", opacity: 0.7 }}>
-            id: {user.Company.id}
+          <div style={{ fontSize: "0.9vw", opacity: 0.5 }}>
+            ЄДРПОУ: {user.Company.edrpou || "···"}
           </div>
-          <div style={{ fontSize: "0.6vw", opacity: 0.7 }}>
-            {user.Company.address || "—"} · {user.Company.phoneNumber}
+          <div style={{ fontSize: "0.9vw", opacity: 0.5 }}>
+            Тел.: {user.Company.phoneNumber || "···"}
+          </div>
+          <div style={{ fontSize: "0.9vw", opacity: 0.5 }}>
+            Адреса: {user.Company.address || "···"}
           </div>
         </div>
       </Link>
-      <div className="adminButtonAdd" onClick={detach}>– Від’єднати</div>
-    </div>)
-    : (<div className="adminButtonAdd" onClick={()=>setShowAttach(true)}>＋ Прикріпити до компанії</div>);
+
+      <div
+        style={{
+          position: "absolute",
+          bottom: "1rem",   // відступ знизу
+          right: "1rem",
+
+        }}
+      >
+        <div className="adminButtonAdd" onClick={detach}>
+          Від’єднати від компанії
+        </div>
+      </div>
+    </div>
+  ) : (
+    <div className="adminButtonAdd" style={{fontSize:"3vh", fontWeight:"500", padding:"1.3vw"}} onClick={() => setShowAttach(true)}>
+      Прикріпити до компанії
+    </div>
+  );
+
 
   return (
     <div className="container-fluid" style={{padding:"1rem"}}>
-      <div className="d-flex align-items-center" style={{gap:"1rem"}}>
+      <div className="d-flex align-items-center justify-content-center" style={{gap:"2rem"}}>
         <TelegramAvatar link={user.telegram} size={64}/>
         {/*{user.phoneNumber && (*/}
         {/*  <ViberAvatar link={user.phoneNumber} size={64}/>*/}
         {/*)}*/}
 
-        <div>
-          <h3 style={{margin:0}}>{fullName || `User #${user.id}`}</h3>
-          <div style={{opacity:0.7}}>id: {user.id} · роль: {user.role}</div>
+        <div className="d-flex flex-row">
+          <div style={{fontSize:"2.6vh", marginRight:"-0.1vw"}}>🤖</div> <h4 style={{margin:0, color:"#6e6f68"}}>: {user.id} {fullName || `User #${user.id}`}</h4>
+          {/*<div style={{opacity:0.7}}>id: {user.id}*/}
+          {/*  /!*· роль: {user.role}*!/*/}
+          {/*</div>*/}
         </div>
-        <div className="ms-auto d-flex" style={{gap:"0.6rem"}}>
-          <div className="adminButtonAdd" onClick={(e) => triggerNewOrder(user.id)} style={{textDecoration:"none"}}>＋ Нове замовлення</div>
-          <Link to={`/Users`} className="adminButtonAdd" style={{textDecoration:"none"}}>↗ До списку</Link>
-        </div>
-      </div>
-
-      <hr className="my-1"/>
-
-      <div className="d-flex">
-        <div className="mt-2" style={{
-          display: "grid",
-          gridTemplateColumns: "1fr",
-          // gap:"0.6rem",
-          maxWidth: "50vw"
-        }}>
-          <FieldEdit label="Ім'я" field="firstName" value={user.firstName} userId={user.id}/>
-          <FieldEdit label="Прізвище" field="familyName" value={user.familyName} userId={user.id}/>
-          <FieldEdit label="По батькові" field="lastName" value={user.lastName} userId={user.id}/>
-          <FieldEdit label="Нікнейм" field="username" value={user.username} userId={user.id}/>
-          <FieldEdit label="Телефон" field="phoneNumber" value={user.phoneNumber} userId={user.id}/>
-          <FieldEdit label="E-mail" field="email" value={user.email} userId={user.id} type="email"/>
-          <FieldEdit label="Адреса" field="address" value={user.address} userId={user.id}/>
-          <FieldEdit label="Компанія (текст)" field="company" value={user.company} userId={user.id}/>
-          <FieldEdit label="Telegram" field="telegram" value={user.telegram} userId={user.id}/>
-          <FieldEdit label="Viber" field="viber" value={user.viber} userId={user.id}/>
-          <FieldEdit label="WhatsApp" field="whatsapp" value={user.whatsapp} userId={user.id}/>
-          <FieldEdit label="Signal" field="signal" value={user.signal} userId={user.id}/>
-          <FieldEdit label="Знижка (%)" field="discount" value={user.discount} userId={user.id} type="number"/>
-          <FieldEdit label="Фото (URL)" field="photoLink" value={user.photoLink} userId={user.id}/>
-          <FieldEdit label="Роль" field="role" value={user.role} userId={user.id}/>
-          <FieldEdit label="Роль 2" field="role2" value={user.role2} userId={user.id}/>
-        </div>
-
-        <div className="mt-2" style={{
+        <div className="" style={{
           borderLeft: "1px solid white",
           marginLeft: "1vw",
           paddingLeft: "1vw",
+
+
         }}>
-          <h5 className="d-flex align-items-center justify-content-center">Компанія</h5>
-          {companyBlock}
+
+
+        </div>
+        <div className="ms-auto d-flex" >
+          <div className="adminButtonAdd" onClick={(e) => triggerNewOrder(user.id)} style={{textDecoration:"none"}}>Створити замовлення на цього клієнта</div>
+
         </div>
       </div>
 
-      <hr className="my-1"/>
+      <hr className="my-4" style={{boxShadow: "0px 2px 0px 2px rgba(0,0,0,0.15)", border: "white"}}/>
 
+      <div>
+        <div
+          className="mt-2"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gridAutoFlow: "row",
+            justifyContent:"center",
+            gap: "0.6rem",
+            width: "100%",
+          }}
+        >
+          <FieldEdit label="Ім'я" field="firstName" value={user.firstName} userId={user.id} />
+          <FieldEdit label="По батькові" field="lastName" value={user.lastName} userId={user.id} />
+          <FieldEdit label="Прізвище" field="familyName" value={user.familyName} userId={user.id} />
+          <FieldEdit label="Логін" field="username" value={user.username} userId={user.id} />
+          <FieldEdit label="Пароль" field="password" value={user.username} userId={user.id} />
+          <FieldEdit label="Тел.:" field="phoneNumber" value={user.phoneNumber} userId={user.id} />
+          <FieldEdit label="E-mail" field="email" value={user.email} userId={user.id} type="email" />
+          <FieldEdit label="Адреса" field="address" value={user.address} userId={user.id} />
+          <FieldEdit label="Компанія" field="company" value={user.company} userId={user.id} />
+          <FieldEdit label="Telegram" field="telegram" value={user.telegram} userId={user.id} />
+          <FieldEdit label="Viber" field="viber" value={user.viber} userId={user.id} />
+          <FieldEdit label="WhatsApp" field="whatsapp" value={user.whatsapp} userId={user.id} />
+          <FieldEdit label="Signal" field="signal" value={user.signal} userId={user.id} />
+          <FieldEdit label="Знижка" field="discount" value={user.discount} userId={user.id} type="number" />
+          <FieldEdit label="Фото" field="photoLink" value={user.photoLink} userId={user.id} />
+          <FieldEdit label="Доступ" field="role" value={user.role} userId={user.id} />
+          <FieldEdit label="Права" field="role2" value={user.role2} userId={user.id} />
+          <FieldEdit label="Права" field="role2" value={user.role2} userId={user.id} />
+        </div>
+      </div>
+
+
+      <hr className="my-4" style={{boxShadow: "0px 2px 0px 2px rgba(0,0,0,0.15)", border: "white"}}/>
+      <h5 className="d-flex align-items-center justify-content-center" style={{color: "#6e6f68"}}>   {companyBlock}</h5>
       {showAttach && (
         <AttachCompanyModal
           userId={user.id}

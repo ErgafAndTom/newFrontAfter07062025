@@ -49,11 +49,11 @@
     --bs-black-rgb: 0, 0, 0;
     --bs-body-color-rgb: 33, 37, 41;
     --bs-body-bg-rgb: 255, 255, 255;
-    --bs-font-sans-serif: inter, Playpen_Sans, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    --bs-font-monospace: Playpen_Sans, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --bs-font-sans-serif:  Shantell Sans, Caveat, inter, Playpen_Sans, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --bs-font-coursive:  Shantell Sans, Caveat, Playpen_Sans, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
     --bs-body-font-family: var(--bs-font-sans-serif);
-    --bs-body-font-size: 1rem;
+    --bs-body-font-size: 1.2rem;
     --bs-body-font-weight: 400;
     --bs-body-line-height: 1.5;
     --bs-body-color: #212529;
@@ -261,7 +261,7 @@ pre,
 code,
 kbd,
 samp {
-    font-family: var(--bs-font-monospace);
+
     font-size: 1em;
 }
 
@@ -356,10 +356,10 @@ button,
 select,
 optgroup,
 textarea {
-    margin: 0;
-    font-family: inherit;
-    font-size: inherit;
-    line-height: inherit;
+
+  font-family: var(--bs-btn-font-family);
+
+
 }
 
 button,
@@ -2361,6 +2361,16 @@ progress {
 
 .form-control:hover:not(:disabled):not([readonly])::file-selector-button {
     background-color: #dde0e3;
+}
+.list-group-item {
+  background-color: #ffffff; /* базовий фон */
+  transition: background-color 0.2s ease, transform 0.15s ease;
+  cursor: pointer;
+}
+
+.list-group-item:hover {
+  background-color: #fbfaf6; /* твій потрібний колір */
+  transform: translateX(2px); /* легкий рух для "живості" */
 }
 
 .form-control-plaintext {
@@ -8767,7 +8777,7 @@ textarea.form-control-lg {
 }
 
 .font-monospace {
-    font-family: var(--bs-font-monospace) !important;
+
 }
 
 .fs-1 {

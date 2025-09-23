@@ -310,7 +310,7 @@ const CustomOrderTable2 = () => {
 
               >
 
-              <div className="ExpandedRow-details">
+                <div className="ExpandedRow-details">
                   <p><strong>Дата створення:</strong> {new Date(order.createdAt).toLocaleString()}</p>
                   <p><strong>Дата оновлення:</strong> {order.updatedAt ? new Date(order.updatedAt).toLocaleString() : '—'}</p>
                   <p><strong>Час початку виготовлення:</strong> {order.manufacturingStartTime ? new Date(order.manufacturingStartTime).toLocaleString() : '—'}</p>

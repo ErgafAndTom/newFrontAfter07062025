@@ -6,7 +6,7 @@
 /*}*/
 @font-face {
 
-  src: url('https://fonts.googleapis.com/css2?family=Playpen+Sans:wght@100..800&display=swap');
+  src: url('https://fonts.googleapis.com/css2?family=Shantell+Sans:ital,wght@0,300..800;1,300..800&display=swap');
   font-weight: normal;
   font-style: normal;
 }
@@ -41,7 +41,7 @@
 }
 
 body {
-  background: #F2F0E7;
+  background: #faf9f5;
 }
 
 @keyframes App-logo-spin {

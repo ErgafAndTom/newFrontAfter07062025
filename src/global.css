@@ -4,14 +4,15 @@
 @import url("https://fonts.googleapis.com/css2?family=Adobe+Clean:wght@400&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap");
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+@import url('https://fonts.googleapis.com/css2?family=Shantell+Sans:wght@0,300..800;1,300..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import url("https://use.typekit.net/iro7gjn.css");
 
 @font-face {
-  font-family: "Playpen_Sans", cursive;
-  src: url('./fonts/PlaypenSans-Regular.ttf') format('truetype');
-  /*font-optical-sizing: auto;*/
-  font-weight: 400;
-  font-style: normal;
+  font-family: "Montserrat Alternates", sans-serif;;
+  /*src: url('./fonts/ShantellSans.ttf') format('truetype');*/
+  font-weight: 200;
+  font-style: italic;
 
 
 
@@ -72,7 +73,7 @@ body {
 }
 :root {
   /* fonts */
-  --font-inter: 'Playpen_Sans';
+  --font-inter: 'ShantellSans';
   --font-ink-free: 'Ink Free';
   /* font sizes */
   --font-size-3xs: 1vmin;
@@ -110,7 +111,7 @@ body {
   --color-gold-200: #ffc107;
   --color-lightgray-100: #d3d3d3;
   --color-lightgray-200: #cacaca;
-
+  --font: #5f5e59;
   /* Border radiuses */
   --br-xs: 12px;
   --br-21xl: 40px;

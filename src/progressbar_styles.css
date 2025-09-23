@@ -15,13 +15,13 @@
 
 .status-label {
     font-size: 1.3vh;
-    font-weight: normal;
+
     color: #ffc107;
 }
 
 .timer {
     font-size: 1vh;
-    font-weight: bold;
+
     color: #3c60a6;
     text-align: right;
     margin-bottom: 1vh;

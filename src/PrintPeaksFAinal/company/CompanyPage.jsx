@@ -23,11 +23,12 @@ const FieldEdit = ({ label, field, value, companyId, type="text", as="input" }) 
 
   const InputTag = as === "textarea" ? "textarea" : "input";
   return (
-    <div className="mb-1 d-flex align-items-center" style={{
+    <div className="mb-1 d-flex justify-content-center align-items-center" style={{
       gap:"1rem"
     }}>
       <div style={{
-        minWidth:100,
+        minWidth:100, fontWeight:500,
+         color:"#6e6f68"
         // fontWeight:400
       }}>{label}</div>
       <InputTag
@@ -35,20 +36,19 @@ const FieldEdit = ({ label, field, value, companyId, type="text", as="input" }) 
         value={val}
         onChange={(e)=>setVal(e.target.value)}
         type={as==="textarea" ? undefined : type}
-        style={{maxWidth:"30vw", height:"3.6vh", fontSize:"1.5vh"}}
+        style={{maxWidth:"30vw", height:"4vh", fontSize:"1.5vh"}}
         rows={as==="textarea" ? 3 : undefined}
       />
       <Button variant="success" className="adminButtonAdd" style={{fontSize:"2vh", color:"#f2f0e7", minWidth:"2vw",  padding:"0", borderRadius:"6px"}}
               onClick={save} disabled={saving}>
-        {saving ? "💾" : "✔"}
+        {saving ? "💾" : "✓"}
       </Button>
     </div>
   );
 };
-
-const UsersList = ({ companyId, reloadSignal = 0 }) => {
+const UsersList = ({ companyId, reloadSignal = 0, onAddUser, onAttachUser }) => {
   const [q, setQ] = useState("");
-  const [rows, setRows] = useState([2]);
+  const [rows, setRows] = useState([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(25);
@@ -58,7 +58,9 @@ const UsersList = ({ companyId, reloadSignal = 0 }) => {
     setLoading(true);
     try {
       const { data } = await axios.post(`/api/company/${companyId}/users`, {
-        currentPage: page, inPageCount: limit, search: q
+        currentPage: page,
+        inPageCount: limit,
+        search: q,
       });
       setRows(data.rows || []);
       setCount(data.count || 0);
@@ -67,96 +69,99 @@ const UsersList = ({ companyId, reloadSignal = 0 }) => {
     }
   };
 
-  useEffect(()=>{ load(); /* eslint-disable-next-line */}, [page, limit, reloadSignal]);
-  useEffect(()=>{
-    const id = setTimeout(()=>{ setPage(1); load(); }, 350);
-    return ()=>clearTimeout(id);
+  useEffect(() => {
+    load(); // перша загрузка
+    // eslint-disable-next-line
+  }, [page, limit, reloadSignal]);
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setPage(1);
+      load();
+    }, 350);
+    return () => clearTimeout(id);
     // eslint-disable-next-line
   }, [q]);
 
-  const totalPages = useMemo(()=>Math.max(1, Math.ceil(count/limit)), [count, limit]);
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(count / limit)), [count, limit]);
 
   return (
     <div className="mt-1">
-      <div className="d-flex align-items-center" style={{gap:"0.6rem" }}>
-        <div className="d-flex align-items-center justify-content-between" style={{gap:"0.6rem", minWidth:"100%"}}>
-          <h4 style={{margin:0, display:"flex", alignItems:"center", gap:"0.5rem"}}>
-
-            В компанії <span style={{fontSize:"2.5vh", marginRight:"-0.5vw"}}>🤖</span>: {count} шт
+      <div className="d-flex align-items-center" style={{ gap: "0.6rem" }}>
+        <div
+          className="d-flex align-items-center justify-content-between"
+          style={{ gap: "0.6rem", minWidth: "100%" }}
+        >
+          <h4
+            style={{
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              color: "#6e6f68",
+            }}
+          >
+            В компанії <span style={{ fontSize: "2.5vh", marginRight: "-0.5vw" }}>🤖</span>: {count}
           </h4>
-          <div className=" d-flex justify-content-end" style={{gap:"2rem"}}>
-            <Button className="adminButtonAdd" onClick={()=>setShowAttachModal(true)}>
-              Додати в компанію існуючого <div style={{fontSize:"1.8vh"}}>🤖</div>
+          <div className="d-flex justify-content-end" style={{ gap: "2rem", fontSize:"2.5vh" }}>
+            <Button className="adminButtonAdd" style={{  fontSize:"2vh", padding:"2vh" }} onClick={onAttachUser}>
+              Додати в компанію існуючого <div style={{ fontSize: "3vh" }}>🤖</div>
             </Button>
-            <Button className="adminButtonAdd" onClick={()=>setShowAddUser(true)}>
-              Додати в компанію нового <div style={{fontSize:"1.8vh"}}>🤖</div>
+            <Button className="adminButtonAdd" style={{  fontSize:"2vh", padding:"2vh" }} onClick={onAddUser}>
+              Додати в компанію нового <div style={{ fontSize: "3vh" }}>🤖</div>
             </Button>
-            {/*<Link to="/Companys" className="adminButtonAdd" style={{textDecoration:"none"}}>*/}
-            {/*  ↗ До списку*/}
-            {/*</Link>*/}
           </div>
           <Form.Control
             placeholder="Пошук 🤖"
             value={q}
-            onChange={e=>setQ(e.target.value)}
-            style={{width:"20vw", opacity:0.5}}
+            onChange={(e) => setQ(e.target.value)}
+            style={{ width: "20vw", background: "#ffffff" }}
           />
         </div>
-
-
-        {/*<div className="ms-auto d-flex align-items-center" style={{gap:"0.6rem"}}>*/}
-        {/*  /!*<Form.Select value={limit} onChange={e=>setLimit(Number(e.target.value))} style={{width:90}}>*!/*/}
-        {/*  /!*  <option>10</option><option>25</option><option>50</option><option>100</option>*!/*/}
-        {/*  /!*</Form.Select>*!/*/}
-        {/*  <Button disabled={page<=1} onClick={()=>setPage(p=>p-1)}>‹</Button>*/}
-        {/*  <div>{page}/{totalPages}</div>*/}
-        {/*  <Button disabled={page>=totalPages} onClick={()=>setPage(p=>p+1)}>›</Button>*/}
-        {/*</div>*/}
       </div>
 
       {loading ? (
-        <div className="d-flex justify-content-center align-items-center" style={{height:"20vh"}}>
+        <div className="d-flex justify-content-center align-items-center" style={{ height: "20vh" }}>
           <Spinner animation="border" variant="dark" />
         </div>
       ) : rows.length === 0 ? (
-        <div className="mt-3">Немає клієнтів</div>
+        <div className="mt-3" style={{ color: "#6e6f68" }}>
+          Немає клієнтів
+        </div>
       ) : (
-        <div className="d-flex flex-wrap mt-2" style={{gap:"0.8rem"}}>
-          {rows.map(u=>(
-            <Link to={`/Users/${u.id}`} style={{textDecoration: "none"}}>
-              <div key={u.id} className="" style={{
-                width: "15vw",
-                border: "none",
-                borderRadius: 8,
-                background: "#fbfaf6",
-                padding: "1vw",
-              }}>
-                <div className="d-flex align-items-center" style={{gap: "0.6rem"}}>
-                  <TelegramAvatar link={u.telegram} size={48}/>
+        <div className="d-flex flex-wrap mt-2" style={{ gap: "0.8rem" }}>
+          {rows.map((u) => (
+            <Link key={u.id} to={`/Users/${u.id}`} style={{ textDecoration: "none" }}>
+              <div
+                style={{
+                  width: "15vw",
+                  border: "1px",
+                  borderRadius: 8,
+                  background: "#fbfaf6",
+                  boxShadow: "0px 1px 6px 0px rgba(0,0,0,0.15)", border: "white",
+                  padding: "1vw",
+                  transition: "background-color 0.2s ease, transform 0.15s ease",
+                }}
+                className="user-card"
+              >
+                <div className="d-flex align-items-center" style={{ gap: "0.6rem" }}>
+                  <TelegramAvatar link={u.telegram} size={48} />
                   <div>
-                    <div style={{fontWeight: 600}}>{u.firstName} {u.lastName} {u.familyName}</div>
-                    <div className="d-flex">
-                      <div style={{fontSize: "1.3vh", opacity: 0.75}}>Id: {u.id}</div>
+                    <div style={{ fontWeight: 600 }}>
+                      {u.firstName} {u.lastName} {u.familyName}
+                    </div>
+                    <div style={{ fontSize: "1.3vh", opacity: 0.75 }}>Id: {u.id}</div>
+                    <div style={{ fontSize: "1.3vh", opacity: 0.7 }}>
+                      Тел.: {u.phoneNumber || "···"}
                     </div>
                     <div style={{ fontSize: "1.3vh", opacity: 0.7 }}>
-                      Тел.: {u.phoneNumber || "—"}
+                      E-mail: {u.email || "···"}
                     </div>
                     <div style={{ fontSize: "1.3vh", opacity: 0.7 }}>
-                      E-mail: {u.email || "—"}
-                    </div>
-                    <div style={{ fontSize: "1.3vh", opacity: 0.7 }}>
-                      Адреса: {u.address || "—"}
+                      Адреса: {u.address || "···"}
                     </div>
                   </div>
                 </div>
-                {/*<div style={{fontSize: 14, marginTop: 6}}>*/}
-                {/*  {u.phoneNumber || "—"} · {u.email || "—"}*/}
-                {/*</div>*/}
-                {/*<div style={{fontSize: 12, opacity: 0.8}}>{u.address || " "}</div>*/}
-                {/*<div className="d-flex mt-2" style={{gap: "0.5rem"}}>*/}
-                {/*  <Link to={`/Orders/create?userId=${u.id}`} className="adminButtonAddOrder"*/}
-                {/*        style={{textDecoration: "none"}}>Нове замовлення</Link>*/}
-                {/*</div>*/}
               </div>
             </Link>
           ))}
@@ -165,6 +170,7 @@ const UsersList = ({ companyId, reloadSignal = 0 }) => {
     </div>
   );
 };
+
 
 export default function CompanyPage() {
   const { id } = useParams(); // route: /Company/:id
@@ -195,13 +201,13 @@ export default function CompanyPage() {
   if (!company) return <div>Компанію не знайдено</div>;
 
   return (
-    <div className="" style={{padding:"1rem"}}>
-      <div className="d-flex align-items-center " style={{gap:"1rem"}}>
-        <h4 style={{margin:0}}>Компанія: №{company.id}</h4>
+    <div className="" style={{padding:"2rem"}}>
+      <div className="d-flex align-items-center " style={{gap:"1rem", }}>
+        <h3 style={{margin:0, color:"#6e6f68"}}>Компанія: {company.companyName} (№{company.id}) </h3>
         {/*<div style={{opacity:0.7}}>Клієнтів: {company.usersCount}</div>*/}
 
       </div>
-
+      <hr className="my-4" style={{boxShadow: "0px 2px 0px 2px rgba(0,0,0,0.15)", border: "white"}}/>
       <div className="" style={{
         display:"grid",
         gridTemplateColumns:"1fr 1fr",  // два стовпчики
@@ -223,11 +229,16 @@ export default function CompanyPage() {
         <FieldEdit label="Нотатки"  field="notes"       value={company.notes}       companyId={company.id} as="textarea"/>
       </div>
 
+      <hr className="my-4" style={{boxShadow: "0px 2px 0px 2px rgba(0,0,0,0.15)", border: "white"}}/>
 
-      <hr className="my-4"/>
 
+      <UsersList
+        companyId={company.id}
+        reloadSignal={reloadUsersSignal}
+        onAddUser={() => setShowAddUser(true)}
+        onAttachUser={() => setShowAttachModal(true)}
+      />
 
-      <UsersList companyId={company.id} reloadSignal={reloadUsersSignal} />
 
       {showAttachModal && (
         <AttachExistingUserModal
@@ -236,6 +247,7 @@ export default function CompanyPage() {
           onAttached={()=>{
             setShowAttachModal(false);
             setReloadUsersSignal(s=>s+1);
+
           }}
         />
       )}

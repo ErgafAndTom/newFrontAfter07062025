@@ -1,10 +1,11 @@
 import React, { useRef, useEffect } from 'react';
 import './Pagination.css';
 
-const Pagination = ({ currentPage, totalPages, onPageChange, onLimitChange, limit }) => {
+const Pagination = ({ currentPage, totalPages, onPageChange, onLimitChange, handleAddCompany, sethandleAddCompany, limit }) => {
   const listWrapperRef = useRef(null);
   const activeItemRef = useRef(null);
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+
 
   // При смене currentPage — прокручиваем активный элемент в центр
   useEffect(() => {

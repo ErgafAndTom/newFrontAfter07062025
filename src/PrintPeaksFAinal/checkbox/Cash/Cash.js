@@ -1,10 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import '../../Orders/CustomOrderTable.css';
 import axios from "../../../api/axiosInstance";
-import StatusBar from "../../Orders/StatusBar";
 import {Link, NavLink, useNavigate} from "react-router-dom";
 import ModalDeleteOrder from "../../Orders/ModalDeleteOrder";
-import Barcode from 'react-barcode';
 import {useDispatch, useSelector} from "react-redux";
 import {FiFile, FiFolder, FiPhone} from 'react-icons/fi';
 import {RiCalculatorLine} from 'react-icons/ri';
@@ -14,10 +12,8 @@ import Pagination from "../../tools/Pagination";
 import FiltrOrders from "../../Orders/FiltrOrders";
 import {searchChange} from "../../../actions/searchAction";
 import Loader from "../../../components/calc/Loader";
-import Vishichka from "../../poslugi/Vishichka";
 import ClientCabinet from "../../userInNewUiArtem/ClientCabinet";
 import AddCashModal from "./AddCashModal";
-
 
 const Cash = () => {
   const [data, setData] = useState(null);
@@ -243,7 +239,7 @@ const Cash = () => {
                   : '—'}
               </div>
 
-              <div className="summary-cell d-flex phoneNumber justify-content-center">{order.Users.length}</div>
+              <div className="summary-cell d-flex phoneNumber justify-content-center">{order.Users?.length}</div>
 
               {/*<div className="summary-cell viber d-flex justify-content-center">*/}
               {/*  {order.client?.phoneNumber*/}
@@ -309,7 +305,7 @@ const Cash = () => {
                   {/*<p><strong>Час виготовлення:</strong> {*/}
                   {/*  order.finalManufacturingTime*/}
                   {/*    ? `${order.finalManufacturingTime.days}д ${order.finalManufacturingTime.hours}год ${order.finalManufacturingTime.minutes}хв ${order.finalManufacturingTime.seconds}сек`*/}
-                  {/*    : order.manufacturingStartTime ? 'В процесі' : '—'*/}
+                  {/*    : order.manufacturingStartTime ? 'В процесі': ' - '*/}
                   {/*}</p>*/}
                   {/*<p><strong>Дедлайн:</strong> {order.deadline ? new Date(order.deadline).toLocaleString() : '—'}</p>*/}
                   {/*<p><strong>Виконавець:</strong> {order.executor ? `${order.executor.firstName} ${order.executor.lastName}` : '—'}</p>*/}
@@ -429,4 +425,5 @@ const Cash = () => {
   );
 };
 
-export default Cash;
+
+ export default Cash
