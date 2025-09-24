@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import "./PrintPeaks.css";
-import "../../global.css";
+
 
 const PrintPeaks = () => {
     const [isClientPipOpen, setClientPipOpen] = useState(false);

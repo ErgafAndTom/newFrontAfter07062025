@@ -13,7 +13,7 @@ import Materials2 from "./newnomodals/Materials2";
 import {useNavigate} from "react-router-dom";
 import PhotoPosluga from "./newnomodals/photo/PhotoPosluga";
 import Porizka from "./newnomodals/Porizka";
-import "../global.css"
+
 import PerepletPereplet from "./newnomodals/PerepletPereplet";
 import NewNoModalProkleyka from "./newnomodals/NewNoModalProkleyka";
 

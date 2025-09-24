@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import axios from '../../../api/axiosInstance';
 import {Navigate, useNavigate} from "react-router-dom";
-import "../../global.css"
+
 
 const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, selectArr, size, type, isVishichka}) => {
     const [thisLaminationSizes, setThisLaminationSizes] = useState([]);

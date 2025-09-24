@@ -138,7 +138,7 @@ const UsersList = ({ companyId, reloadSignal = 0, onAddUser, onAttachUser }) => 
                   border: "1px",
                   borderRadius: 8,
                   background: "#fbfaf6",
-                  boxShadow: "0px 1px 6px 0px rgba(0,0,0,0.15)", border: "white",
+                  boxShadow: "0px 1px 6px 0px rgba(0,0,0,0.15)",
                   padding: "1vw",
                   transition: "background-color 0.2s ease, transform 0.15s ease",
                 }}

@@ -106,7 +106,7 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
     <div className="d-flex allArtemElem">
       <div style={{ display: 'flex', alignItems: 'center' }}>
         {/* NEW SWITCH */}
-        <label className="switch scale04ForButtonToggle" style={{ marginRight: '0.633vw' }} aria-label="Скруглення кутів">
+        <label className="switch scale04ForButtonToggle"  aria-label="Скруглення кутів">
           <input
             type="checkbox"
             checked={cute !== "Не потрібно"}
@@ -115,9 +115,8 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
           <span className="slider" />
         </label>
 
-        <div className="d-flex flex-column">
-          <span style={{ width: '10vw', marginRight: '0.633vw' }}>Скруглення кутів:</span>
-
+        <div className="d-flex flex-column align-items-center"  >
+          <span style={{whiteSpace: "nowrap", marginLeft:"0.7vw"}}>Скруглення кутів:</span>
           {cute !== "Не потрібно" ? (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <div className="ArtemNewSelectContainer">

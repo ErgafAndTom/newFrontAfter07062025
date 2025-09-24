@@ -13,7 +13,7 @@ import Materials2 from "./newnomodals/Materials2";
 import {useNavigate} from "react-router-dom";
 import NewNoModalLyuversy  from "./newnomodals/NewNoModalLyuversy";
 import Porizka from "./newnomodals/Porizka";
-import "../global.css"
+
 import "./isoButtons.css"
 import IsoButtons from "./IsoButtons";
 
@@ -280,7 +280,9 @@ const NewSheetCut = ({
                 {/*    </button>*/}
                 {/*  ))}*/}
                 {/*</div>*/}
-                <div className="d-flex flex-wrap justify-content-center  ">
+                <div className="d-flex flex-wrap justify-content-center  fontInfoForPricingsmall {
+}
+">
                   {["Листівка", "Візитка", "Флаєр", "Буклет", "Картка", "Диплом", "Сертифікат", "Подяка", "Зін", "Презентація", "Бланк", "Афіша", "Календар", "Плакат", "Візуалізація", "Меню", "Документ", "Бейджі","Холдер"].map((service, index) => (
                     <button
                       key={index}
@@ -373,6 +375,7 @@ const NewSheetCut = ({
                     />
 
                     <NewNoModalLamination
+                      className="d-flex justify-content-start align-items-center"
                       lamination={lamination}
                       setLamination={setLamination}
                       prices={prices}
@@ -384,6 +387,7 @@ const NewSheetCut = ({
                       selectArr={["30", "80", "100", "125", "250"]}
                     />
                     <NewNoModalCornerRounding
+                      className="d-flex justify-content-start align-items-center"
                       big={big}
                       setBig={setBig}
                       prices={prices}
@@ -392,6 +396,8 @@ const NewSheetCut = ({
                       selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
                     />
                     <NewNoModalCute
+                      className="d-flex justify-content-start align-items-center"
+
                       cute={cute}
                       setCute={setCute}
                       cuteLocal={cuteLocal}
@@ -402,6 +408,7 @@ const NewSheetCut = ({
                       selectArr={["3", "6", "8", "10", "13"]}
                     />
                     <NewNoModalHoles
+                      className="d-flex justify-content-start align-items-center"
                       holes={holes}
                       setHoles={setHoles}
                       holesR={holesR}
@@ -413,6 +420,7 @@ const NewSheetCut = ({
                     />
 
                     <NewNoModalProkleyka
+                      className="d-flex justify-content-start align-items-center"
                       prokleyka={prokleyka}
                       setProkleyka={setProkleyka}
                       prices={prices}
@@ -421,6 +429,7 @@ const NewSheetCut = ({
                       selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
                     />
                     <NewNoModalLyuversy
+                      className="d-flex justify-content-start align-items-center"
                       lyuversy={lyuversy}
                       setLyuversy={setLyuversy}
                       type={"SheetCut"}
@@ -428,6 +437,7 @@ const NewSheetCut = ({
                       selectArr={["", "1","2","3","4","5","6","7","8","9"]}
                     />
                     <Porizka
+                      className="d-flex justify-content-start align-items-center"
                       porizka={porizka}
                       setPorizka={setPorizka}
                       prices={prices}

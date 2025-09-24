@@ -6,7 +6,7 @@ import ClientFull from "../components/ClientFull";
 import OrderFull from "../components/OrderFull";
 import {useNavigate} from "react-router-dom";
 import "./Artboard.css";
-import "../../global.css";
+
 
 const Artboard = () => {
     const [isClientPipOpen, setClientPipOpen] = useState(false);

@@ -220,8 +220,8 @@ const Cash = () => {
 
               <div className="summary-cell id d-flex justify-content-center">{order.id}</div>
               <div className="summary-cell d-flex name justify-content-center fontSize1-3VH UsersOrdersLikeTable-contract-text-multiline">{order.companyName || '—'}</div>
-              <div className="summary-cell d-flex edropu justify-content-center UsersOrdersLikeTable-contract-text-multiline">{order.edropu || '—'}</div>
-              <div className="summary-cell d-flex discount justify-content-center UsersOrdersLikeTable-contract-text-multiline">{order.discount || '—'}</div>
+              <div className="summary-cell d-flex edropu justify-content-center UsersOrdersLikeTable-contract-text-multiline">{order.fiscalNumber || '—'}</div>
+              <div className="summary-cell d-flex discount justify-content-center UsersOrdersLikeTable-contract-text-multiline">{order.number || '—'}</div>
               {/*<div className="summary-cell price">*/}
               {/*  {order.allPrice === order.price || order.allPrice === 0 || order.allPrice === "0.00"*/}
               {/*    ? <span style={{color: "red"}}>{order.allPrice}</span>*/}

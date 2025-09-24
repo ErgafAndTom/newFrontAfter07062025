@@ -32,7 +32,7 @@ function AddUserButton({ fetchUsers, addOrdOrOnlyClient, thisOrder, setThisOrder
                 <button
                   className="adminButtonAdd buttonSkewedOrderClient"
                   onClick={handleAddUser}
-                  style={{borderTopRightRadius:"0px", marginRight:"1vw", borderBottomLeftRadius:"0px", height:"3vh"}}
+                  style={{borderTopRightRadius:"0px", marginRight:"1vw", borderBottomLeftRadius:"0px", height:"4vh", width:"10vw", fontWeight:700}}
                 >
                   <div
 

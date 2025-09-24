@@ -114,7 +114,7 @@ const PopupLeftNotification = () => {
                 border: 'none',
                 borderRadius: '0.5vh',
                 padding: '0.5vh 0.8vw',
-                fontWeight: 'bold',
+                fontWeight: 'normal',
                 cursor: 'pointer'
               }}
 

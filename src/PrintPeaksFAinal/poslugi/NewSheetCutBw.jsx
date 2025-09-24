@@ -6,7 +6,7 @@ import NewNoModalSize from "./newnomodals/NewNoModalSize";
 import NewNoModalLamination from "./newnomodals/NewNoModalLamination";
 import Materials2 from "./newnomodals/Materials2";
 import {useNavigate} from "react-router-dom";
-import "../global.css";
+
 import PropTypes from "prop-types";
 // import Loader from "../../components/calc/Loader";
 import versantIcon from "../../components/newUIArtem/printers/group-1468.svg";
@@ -219,7 +219,7 @@ const NewSheetCutBw = ({
                                     {["Документ", "Договір", "Дипломна робота", "Курсова робота", "Реферат", "Креслення", "Аналізи", "Квиток"].map((service, index) => (
                                         <button
                                             key={index}
-                                            className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}
+                                            className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} --font-size-base; m-1`}
                                             style={{minWidth: "5vw"}}
                                             onClick={() => setSelectedService(service)}
                                         >
@@ -229,9 +229,8 @@ const NewSheetCutBw = ({
                                 </div>
                             </div>
                             <div
-                                className="btn btn-close btn-lg"
+                                className="btn btn-close"
                                 style={{
-                                    fontSize: "var(--font-size-base)",
                                     margin: "0.5vw",
                                 }}
                                 onClick={handleClose}
@@ -274,6 +273,7 @@ const NewSheetCutBw = ({
                                             </div>
                                         </div>
                                         <NewNoModalSize
+                                          className="d-flex justify-content-start align-items-center"
                                             size={size || { x: 210, y: 297 }}
                                             setSize={setSize}
                                             prices={prices}
@@ -285,7 +285,7 @@ const NewSheetCutBw = ({
                                             setCount={setCount}
                                             defaultt={"A4 (210 x 297 мм)"}
                                         />
-                                        <div className="d-flex" style={{marginLeft: "-0.8vw"}}>
+                                      <div className="d-flex justify-content-start align-items-center">
                                             <Materials2
                                                 material={material}
                                                 setMaterial={setMaterial}
@@ -299,7 +299,7 @@ const NewSheetCutBw = ({
                                                 typeUse={null}
                                             />
                                         </div>
-                                        <div className="d-flex" style={{marginLeft: "-1vw"}}>
+                                        <div className="d-flex justify-content-start align-items-center">
                                             <NewNoModalLamination
                                                 lamination={lamination}
                                                 setLamination={setLamination}
@@ -395,7 +395,7 @@ const NewSheetCutBw = ({
                                             </div>
 
                                             {/* Підсумкова вартість замовлення */}
-                                            <div className="fontInfoForPricing1">
+                                            <div className="fontInfoForPricing1red" >
                                                 Загалом: {pricesThis?.price || 0} грн
                                             </div>
 
@@ -413,7 +413,7 @@ const NewSheetCutBw = ({
                                             </div>
 
                                             {/* Розрахунок ціни за виріб (зі всіма допами) */}
-                                            <div className="fontInfoForPricing1">
+                                            <div className="fontInfoForPricing1" >
                                                 {/*Загалом: {(pricesThis.priceForItemWithExtras * count).toFixed(2)} грн*/}
                                                 Ціна за виріб: {(pricesThis?.priceForItemWithExtras || 0).toFixed(2)} грн
                                             </div>

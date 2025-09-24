@@ -6,6 +6,28 @@ import AddUserButton from "../user/AddUserButton";
 import { FiUser } from "react-icons/fi";
 import ClientCabinet from "./ClientCabinet.jsx";
 
+/* 🔹 Додали нормалізатор */
+const norm = v => {
+  const n = Number(v);
+  return isNaN(n) ? 0 : n;
+};
+
+/* Головна функція */
+export const getEffectiveDiscount = order => {
+  if (!order) return 0;
+
+  /* якщо бекенд уже віддав готове поле */
+  if (order.effectiveDiscount !== undefined && order.effectiveDiscount !== null)
+    return norm(order.effectiveDiscount);
+
+  /* fallback */
+  const server  = norm(order.discount ?? order.prepayment);
+  const client  = norm(order.client?.discount);
+  const company = norm(order.client?.Company?.discount ?? order.client?.company?.discount);
+
+  return Math.max(server, client, company);
+};
+
 const ClientSelectionModal = ({
                                 showVisible,
                                 handleClose,
@@ -75,6 +97,10 @@ const ClientSelectionModal = ({
               <ul className="userList">
                 {filteredUsers.map((user, index) => {
                   const isExpanded = index === expandedThingIndex;
+                  const personalDiscount = user?.discount;
+                  const companyDiscount = user?.Company?.discount ?? user?.companyDiscount;
+                  const effectiveDiscount = Math.max(personalDiscount ?? 0, companyDiscount ?? 0);
+                  const hasDiscount = personalDiscount != null || companyDiscount != null;
                   return (
 
                     <li
@@ -91,7 +117,7 @@ const ClientSelectionModal = ({
                               {user.lastName} {user.firstName} 🤖:{user.id}
                             </div>
                             <div className="discount">
-                              Знижка: {user.discount != null ? `${user.discount}` : '—'}
+                              Знижка: {hasDiscount ? `${effectiveDiscount}` : '—'}
                             </div>
                           </div>
 
@@ -121,7 +147,7 @@ const ClientSelectionModal = ({
                               <div className="userDetail">Компанія: {user.company || '—'}</div>
                               <div className="userBarcode">Штрих-код: {user.barcode || '—'}</div>
                               <div className="discount">
-                                Знижка: {user.discount != null ? `${user.discount}` : '—'}
+                                Знижка: {hasDiscount ? `${effectiveDiscount}` : '—'}
                               </div>
                             </div>
 
@@ -169,8 +195,8 @@ const ClientSelectionModal = ({
             />
             <div
               style={{
-                opacity: searchId ? 1 : 0.2, // прозорий якщо не натиснутий
-                transition: "opacity 0.4s",
+                opacity: searchId ? 1 : 0.6, // прозорий якщо не натиснутий
+                transition: "opacity 0.3s",
                 height: "35px",
                 lineHeight: "35px",
               }}

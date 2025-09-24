@@ -149,10 +149,11 @@
   min-width: 8vw;
   padding: 10px 18px;
   gap: 0.3em;
+
   /* пропорційний font-size: від ширини екрана */
   /*font-size: clamp(14px, 2vw - 1.5vw, 22px);*/
-  font-size: 0.55vw; font-weight:600; color: rgba(0, 0, 0, 0.8);
-  line-height: 1;
+  font-size: 0.65vw;  color: rgba(0, 0, 0, 0.8);
+  line-height:2;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   border-radius: 12px;
@@ -172,7 +173,7 @@
   transition: transform .18s ease, box-shadow .18s ease, color .18s ease, filter .18s ease;
 }
 adminButtonAdd:hover {
-  color: white;
+  color: white !important;
 }
 
 /* Блиск (“sheen”) */
@@ -442,12 +443,23 @@ adminButtonAdd:hover {
     font-size: 2vmin;
     font-weight: bold;
 }
+.fontInfoForPricing1red {
+  font-size: 1.3vw;
+  font-weight: bold;
+  color: #d30719;
+  margin: 0.5vw
+}
 
 .fontInfoForPricing {
 
     font-size: var(--font-size-base);
 
     /*font-size: clamp(10px, 1.5vmin, 14px);*/
+}
+.fontInfoForPricingsmall {
+
+  font-size: var(--font-size-xl);
+
 }
 
 .fontProductName {

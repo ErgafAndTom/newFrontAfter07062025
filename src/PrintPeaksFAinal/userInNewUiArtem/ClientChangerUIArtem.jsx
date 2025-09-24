@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from "react";
 import SlideInModal from './SlideInModal';
-import './../../global.css';
+
 import './ClientArtem.css';
 import './ClientsMenuu.css';
 import www from "./www.svg";
@@ -29,9 +29,10 @@ import ClientSelectionModal from "./ClientSelectionModal";
 import ClientCabinet from "./ClientCabinet";
 import {FiUser} from "react-icons/fi";
 import {FiFolder} from "react-icons/fi";
-
+import getEffectiveDiscount from "./getEffectiveDiscount.js";
 import "./ClientCabinet.css";
 import PaysInOrderRestored_OrdersLike from "./pays/PaysInOrderRestored_OrdersLike";
+import "./getEffectiveDiscount"
 
 const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -39,7 +40,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
   const [showAddUser, setShowAddUser] = useState(false);
   // додай біля інших useState:
   const [clientCabinetOpen, setClientCabinetOpen] = useState(false);
-
+  const effectiveDiscount = getEffectiveDiscount(thisOrder);
   const [showDocGenerate, setShowDocGenerate] = useState(false);
   const currentUser = useSelector((state) => state.auth.user);
   const [showNP, setShowNP] = useState(false);
@@ -55,6 +56,13 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
   const [filteredUsers, setFilteredUsers] = useState([]);
   const user = thisOrder?.client || {};
 
+
+
+
+  const personalDiscount = user?.discount;
+  const companyDiscount = user?.Company?.discount ?? user?.companyDiscount;
+  // const effectiveDiscount = Math.max(personalDiscount ?? 0, companyDiscount ?? 0);
+  const hasDiscount = personalDiscount != null || companyDiscount != null;
   const [thisUserIdToCabinet, setThisUserIdToCabinet] = useState(0);
 
   const [handleThisOrderChange, setHandleThisOrderChange] = useState(thisOrder);
@@ -245,7 +253,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
 
           {thisOrder.client ? (
             <div className="" style={{ position: "relative"}}>
-              <div className="adminTextBig" style={{flexcolumn: 'row', fontSize: '1vw',}}
+              <div className="" style={{flexcolumn: 'row', fontSize: '1vw',}}
 
               >
                 {thisOrder.client.lastName} {thisOrder.client.firstName} {thisOrder.client.familyName} 🤖:{thisOrder.client.id}
@@ -259,10 +267,9 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
                 />
               </div>
 
-              <strong className="adminTextBig" style={{position: "fixed", bottom: "8vh", marginLeft:"-1vw", fontSize: '0.6vw',}}>
+              <strong className="adminTextBig" style={{position: "fixed", bottom: "8vh",  fontSize: '0.6vw',}}>
             <span
-              className="adminTextBig">     Знижка: {thisOrder.client.discount}</span></strong>
-
+              className="adminTextBig">    </span></strong>
             </div>
 
           ) : (
@@ -346,7 +353,7 @@ const ClientChangerUIArtem = ({thisOrder, setThisOrder, setSelectedThings2}) => 
         </div>
         <div>
           {thisOrder?.client?.phoneNumber && (
-            <span className="adminTextBig" style={{ fontSize:"2vh" }}>{thisOrder.client.phoneNumber}</span>
+            <span className="" style={{ fontSize:"2.3vh" }}>{thisOrder.client.phoneNumber}</span>
           )}
 
         </div>

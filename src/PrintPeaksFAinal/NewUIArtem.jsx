@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import './userInNewUiArtem/StyleArtem.css';
 import './CPM.css';
-import './global.css';
 import './adminStylesCrm.css';
 import './Wide.css';
 import './MainWindow.css';
@@ -593,19 +592,19 @@ const NewUIArtem = () => {
                                 {/* Знижка, якщо є */}
                                 {parseFloat(thing.priceForOneThis).toFixed(2) !== parseFloat(thing.priceForOneThisDiscount).toFixed(2) && (
                                   <div
-                                    className="d-flex flex-row"
+                                    className="d-flex flex-row" style={{color: "#008249"}}
                                   >
 
 
                                     <div
-                                      className="d-flex align-items-center justify-content-start BasePriceWithQuantity ">
+                                      className="d-flex adminTextBig align-items-center justify-content-start BasePriceWithQuantity" style={{color: "#008249"}}>
 
 
-                                      <span>{thing.amount}<span className="BasePriceWithQuantitySmall"> шт</span></span>
+                                      <span style={{color: "#008249"}}>{thing.amount}<span className="BasePriceWithQuantitySmall" style={{color: "#008249"}}> шт</span></span>
 
                                       <span
-                                        className="">  × {parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)}<span
-                                        className="BasePriceWithQuantitySmall"> грн</span></span>
+                                        className="" style={{color: "#008249"}}>  × {parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)}<span
+                                        className="BasePriceWithQuantitySmall" style={{color: "#008249"}}> грн</span></span>
                                       {/*{parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(3)}*/}
                                       {/*<span style={{ fontSize: "1rem", opacity: 0.5 }}><div className="BasePriceWithQuantitySmall ">грн</div></span>*/}
                                       =
@@ -616,7 +615,7 @@ const NewUIArtem = () => {
                                     </div>
 
                                     <div className="BasePriceWithQuantityDiscountword">
-                                      Знижка {thisOrder.prepayment}
+                                      {/*Знижка {thisOrder.prepayment}*/}
                                     </div>
                                   </div>
                                 )}

@@ -8,14 +8,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import url("https://use.typekit.net/iro7gjn.css");
 
+/*@font-face {*/
+/*  font-family: "Comfortaa-VariableFont", sans-serif;;*/
+/*  src: url('./fonts/Comfortaa-VariableFont_wght.ttf') format('truetype');*/
+/*  font-weight: 200;*/
+/*  font-style: italic;*/
 @font-face {
-  font-family: "Montserrat Alternates", sans-serif;;
-  /*src: url('./fonts/ShantellSans.ttf') format('truetype');*/
-  font-weight: 200;
-  font-style: italic;
+  font-family: 'MontserratAlternates';
+  src: url('./fonts/MontserratAlternates-Medium.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
 
 
+@font-face {
+  font-family: 'MontserratAlternates';
+  src: url('./fonts/MontserratAlternates-SemiBold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
 
+
+@font-face {
+  font-family: 'MontserratAlternates';
+  src: url('./fonts/MontserratAlternates-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
 }
 
 /*.fontSize0-7VW{*/
@@ -62,7 +80,7 @@
 body {
   margin: 0;
   line-height: normal;
-
+  font-family: 'MontserratAlternates', sans-serif;
 }
 
 .popup-overlay {
@@ -73,7 +91,7 @@ body {
 }
 :root {
   /* fonts */
-  --font-inter: 'ShantellSans';
+  --font-Comfortaa: 'Comfortaa';
   --font-ink-free: 'Ink Free';
   /* font sizes */
   --font-size-3xs: 1vmin;

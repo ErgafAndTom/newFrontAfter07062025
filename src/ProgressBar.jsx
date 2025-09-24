@@ -1,673 +1,459 @@
-import React, {useState, useEffect} from 'react';
-import rozrahuvImage from './rozrahuv.png';
-// import './progressbar_styles.css';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import DiscountCalculator from './DiscountCalculator';
-import axios from "./api/axiosInstance";
-import ClientChangerUIArtem from "./PrintPeaksFAinal/userInNewUiArtem/ClientChangerUIArtem";
-import TimerDeadline from "./PrintPeaksFAinal/Orders/TimerDeadline";
-import PopupLeftNotification from "./components/nav/PopupLeftNotification";
-import {useSelector} from "react-redux";
+import axios from './api/axiosInstance';
+import { useSelector } from 'react-redux';
 
+const UI = {
+  fontFamily:
+    'Montserrat Alternates, Roboto, Ubuntu, Cantarell, "Noto Sans", "Helvetica Neue", Arial, sans-serif',
+  fs: { xs: '0.75rem', sm: '0.85rem', md: '0.95rem', lg: '1.05rem', xl: '1.35rem' },
+  color: {
+    bg: '#FFFFFF',
+    panel: '#F8F7F4',
+    panelAccent: '#F1EFE7',
+    text: '#111827',
+    textMuted: '#6B7280',
+    textSubtle: '#9CA3AF',
+    track: '#E5E7EB',
+    warn: '#FBBF24',
+    brown: '#8B4513',
+    blue: '#3C60A6',
+    pink: '#F075AA',
+    green: '#008249',
+    danger: '#EE3C23',
+    border: '#E2E8F0',
+    shadow: '0 20px 60px rgba(17, 24, 39, 0.12)',
+    gradient: 'linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(249, 247, 240, 0.9) 100%)',
+  },
+  radius: { md: '18px', lg: '24px', full: '999px' },
+  space: { xs: '0.35rem', sm: '0.6rem', md: '0.9rem', lg: '1.2rem', xl: '1.6rem' },
+};
 
-const stages = [
-    {id: 1, label: 'Сектор 1', color: '#FFC107'},
-    {id: 2, label: 'Сектор 2', color: '#F2F0E7'},
-    {id: 3, label: 'Сектор 3', color: '#F2F0E7'},
-    {id: 4, label: 'Сектор 4', color: '#F2F0E7'},
-    {id: 5, label: 'Сектор 5', color: '#F2F0E7'},
-    {id: 6, label: 'Сектор 6', color: '#F2F0E7'}
+const STAGES = [
+  { id: 0, title: 'Оформлення', subtitle: 'Замовлення створене', color: UI.color.warn },
+  { id: 1, title: 'Друк', subtitle: 'Виріб друкується', color: UI.color.brown },
+  { id: 2, title: 'Постпрес', subtitle: 'Постобробка', color: UI.color.blue },
+  { id: 3, title: 'Готово', subtitle: 'Виріб готовий', color: UI.color.pink },
+  { id: 4, title: 'Передача', subtitle: 'Очікує видачі', color: UI.color.green },
+  { id: 5, title: 'Завершено', subtitle: 'Замовлення передано', color: UI.color.green },
 ];
 
+const PAYMENT_STATUS = {
+  pay: { label: 'Оплачено', color: UI.color.green, bg: 'rgba(0, 130, 73, 0.12)' },
+  pending: { label: 'Очікує оплату', color: UI.color.warn, bg: 'rgba(251, 191, 36, 0.14)' },
+};
+
+const getStageTitle = (stage) => {
+  if (stage == null) return 'Статус невідомий';
+  const value = Number(stage);
+  if (Number.isNaN(value)) return 'Статус невідомий';
+  switch (value) {
+    case -1:
+      return 'Скасоване замовлення';
+    case 0:
+      return 'Оформлення замовлення';
+    case 1:
+      return 'Замовлення друкується';
+    case 2:
+      return 'Замовлення у постпресі';
+    case 3:
+      return 'Готове замовлення';
+    default:
+      return 'Замовлення передано клієнту';
+  }
+};
 
 const ProgressBar = ({
-                         thisOrder,
-                         setThisOrder,
-                         setNewThisOrder,
-                         handleThisOrderChange,
-                         selectedThings2,
-                         setSelectedThings2
+                       thisOrder,
+                       setThisOrder,
+                       setNewThisOrder,
+                       handleThisOrderChange,
+                       selectedThings2,
+                       setSelectedThings2,
                      }) => {
-    const [isVisible, setIsVisible] = useState(true);
   const currentUser = useSelector((state) => state.auth.user);
-    const [currentStage, setCurrentStage] = useState(thisOrder?.status ? parseInt(thisOrder.status) : 0);
-    const [isPaid, setIsPaid] = useState(false);
-    const [isCancelled, setIsCancelled] = useState(false);
-    const [paymentDate, setPaymentDate] = useState(null);
-    const [startTime, setStartTime] = useState(null);
-    const [error, setError] = useState(null);
-    const [load, setLoad] = useState(false);
-    const [elapsedTime, setElapsedTime] = useState({days: 0, hours: 0, minutes: 0, seconds: 0});
-    const [remainingTime, setRemainingTime] = useState(null);
-    const [amount, setAmount] = useState(0);
-    const [discount, setDiscount] = useState('');
-    const [total, setTotal] = useState(0);
-    const [discountType, setDiscountType] = useState('%');
-    const [deadline, setDeadline] = useState(null);
-    const [isFocused, setIsFocused] = useState(false);
-    const [showPlaceholder, setShowPlaceholder] = useState(true);
-    const [placeholderIndex, setPlaceholderIndex] = useState(0);
-    const [manufacturingStartTime, setManufacturingStartTime] = useState(null);
-    const [finalManufacturingTime, setFinalManufacturingTime] = useState(null);
-  const getBackgroundColorByStatus = (status) => {
-    switch (status) {
-      case '0': return 'rgba(251, 250, 246, 0.5)';
-      case '1': return 'rgba(255,217,174,0.8)';
-      case '2': return 'rgba(211, 189, 167, 0.5)';
-      case '3': return 'rgba(187, 197, 211, 0.5)';
-      case '4': return 'rgba(241, 203, 212, 0.5)';
-      case '5': return 'rgba(169, 207, 183, 0.5)';
-      case 'Відміна': return 'rgba(238, 60, 35, 0.5)';
-      default: return 'rgba(251, 250, 246, 0.5)';
+
+  const [currentStage, setCurrentStage] = useState(thisOrder?.status ? parseInt(thisOrder.status, 10) : 0);
+  const [isPaid, setIsPaid] = useState(false);
+  const [isCancelled, setIsCancelled] = useState(false);
+  const [error, setError] = useState(null);
+  const [elapsedTime, setElapsedTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [manufacturingStartTime, setManufacturingStartTime] = useState(null);
+  const [finalManufacturingTime, setFinalManufacturingTime] = useState(null);
+
+  const norm = useCallback((value) => {
+    if (value == null) return 0;
+    const stringified = String(value).trim();
+    const numeric = parseFloat(stringified.endsWith('%') ? stringified.slice(0, -1) : stringified);
+    return Number.isFinite(numeric) ? numeric : 0;
+  }, []);
+
+  const getEffectiveDiscount = useCallback(
+    (order) => {
+      if (!order) return 0;
+      const fromApi = norm(order.effectiveDiscount ?? order.discount ?? order.prepayment);
+      const clientDiscount = norm(order?.client?.discount);
+      const companyDiscount = norm(
+        order?.client?.Company?.discount ??
+        order?.client?.company?.discount ??
+        order?.Company?.discount ??
+        order?.company?.discount,
+      );
+      return Math.max(fromApi, clientDiscount, companyDiscount);
+    },
+    [norm],
+  );
+
+  const effectiveDiscountNum = useMemo(() => getEffectiveDiscount(thisOrder), [getEffectiveDiscount, thisOrder]);
+
+  const orderWithEffectiveDiscount = useMemo(() => {
+    if (!thisOrder) return thisOrder;
+    const effectiveDiscount = getEffectiveDiscount(thisOrder);
+    return {
+      ...thisOrder,
+      effectiveDiscount,
+      discount: thisOrder.discount ?? effectiveDiscount,
+      prepayment: typeof thisOrder.prepayment === 'string' ? thisOrder.prepayment : `${effectiveDiscount}%`,
+    };
+  }, [getEffectiveDiscount, thisOrder]);
+
+  useEffect(() => {
+    if (!thisOrder) return;
+    const statusValue = thisOrder.status ? parseInt(thisOrder.status, 10) : 0;
+    setCurrentStage(Number.isFinite(statusValue) ? statusValue : 0);
+    const paid = thisOrder.payStatus === 'pay';
+    setIsPaid(paid);
+    setIsCancelled(thisOrder.status === 'Відміна' || statusValue === -1);
+    if (thisOrder.manufacturingStartTime) {
+      setManufacturingStartTime(thisOrder.manufacturingStartTime);
     }
+    if (thisOrder.finalManufacturingTime) {
+      setFinalManufacturingTime(thisOrder.finalManufacturingTime);
+    }
+  }, [thisOrder]);
+
+  useEffect(() => {
+    let timer;
+    if (manufacturingStartTime && currentStage >= 1 && currentStage <= 3 && !isCancelled) {
+      timer = setInterval(() => {
+        const now = Date.now();
+        const diff = now - new Date(manufacturingStartTime).getTime();
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        setElapsedTime({ days, hours, minutes, seconds });
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [currentStage, isCancelled, manufacturingStartTime]);
+
+  const getSegmentColor = (stageId) => {
+    if (isCancelled) return UI.color.danger;
+    if (stageId < 0) return UI.color.track;
+    const paletteColor = STAGES[stageId]?.color ?? UI.color.track;
+    const isCompleted = currentStage > stageId;
+    const isActive = currentStage === stageId;
+    if (isPaid && stageId === STAGES.length - 1) return UI.color.green;
+    if (currentStage >= STAGES.length && stageId === STAGES.length - 1) return UI.color.green;
+    if (isCompleted) return paletteColor;
+    if (isActive) return paletteColor;
+    return UI.color.track;
   };
 
-    const formats = [
-        "Д|",
-        "Де|",
-        "Дед|",
-        "Дедл|",
-        "Дедла|",
-        "Дедлай|",
-        "Дедлайн|",
-        "Дедлайн |",
-        "Дедлайн н|",
-        "Дедлайн на|",
-        "Дедлайн на |",
-        "Дедлайн на з|",
-        "Дедлайн на за|",
-        "Дедлайн на зам|",
-        "Дедлайн на замо|",
-        "Дедлайн на замов|",
-        "Дедлайн на замовл|",
-        "Дедлайн на замовле|",
-        "Дедлайн на замовлен|",
-        "Дедлайн на замовленн|",
-        "Дедлайн на замовлення|",
-        "                     "
-    ];
-    const minDateTime = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}T${String(new Date().getHours()).padStart(2, '0')}:${String(new Date().getMinutes()).padStart(2, '0')}`;
-    // const getCurrentDateTimeLocal = () => {
-    //     const now = new Date();
-    //     const year = now.getFullYear();
-    //     const month = String(now.getMonth() + 1).padStart(2, '0');
-    //     const day = String(now.getDate()).padStart(2, '0');
-    //     const hours = String(now.getHours()).padStart(2, '0');
-    //     const minutes = String(now.getMinutes()).padStart(2, '0');
-    //
-    //     return `${year}-${month}-${day}T${hours}:${minutes}`;
-    // };
+  const currentStageDescriptor = useMemo(() => {
+    if (isCancelled) {
+      return {
+        title: 'Скасоване замовлення',
+        subtitle: 'Замовлення було скасоване',
+        accent: UI.color.danger,
+      };
+    }
+    const normalized = Math.min(Math.max(currentStage, 0), STAGES.length - 1);
+    const stage = STAGES[normalized];
+    return {
+      title: getStageTitle(currentStage),
+      subtitle: stage?.subtitle ?? 'Статус уточнюється',
+      accent: stage?.color ?? UI.color.text,
+    };
+  }, [currentStage, isCancelled]);
 
+  const paymentState = isPaid ? PAYMENT_STATUS.pay : PAYMENT_STATUS.pending;
 
-    const AnimatedPlaceholderInput = ({onChange}) => {
-        useEffect(() => {
-            if (!isFocused) {
-                const interval = setInterval(() => {
-                    setPlaceholderIndex((prevIndex) => (prevIndex + 1) % formats.length);
-                }, 100); // Інтервал переходу між форматами
+  const formatCurrency = useCallback((value) => {
+    if (value == null || value === '') return '-';
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue)) return `${value}`;
+    return new Intl.NumberFormat('uk-UA', {
+      style: 'currency',
+      currency: 'UAH',
+      minimumFractionDigits: 2,
+    }).format(numericValue);
+  }, []);
 
-                return () => clearInterval(interval);
-            }
-        }, [isFocused]);
+  const stageProgressLabel = isCancelled
+    ? '—'
+    : `${Math.min(Math.max(currentStage, 0), STAGES.length - 1) + 1}/${STAGES.length}`;
 
-        return (
-            <div style={{display: 'flex', alignItems: 'center',  position: 'relative'}}>
-                <input
-                    type={isFocused ? "datetime-local" : formats[placeholderIndex]}
-                    value={isFocused ? "datetime-local" : formats[placeholderIndex]}
-                    onChange={(e) => onChange(new Date(e.target.value))}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={(e) => setIsFocused(e.target.value !== '')}
-                    style={{
-                        padding: '0.5vh',
-                        justifyContent: 'center',
-                        display: 'flex',
-                        alignItems: 'center',
-                        fontSize: '0.7vw',
-                        width: '100%',
-                        backgroundColor: isFocused ? 'white' : '#F2F0E7',
-                        // position: 'relative',
-                        border: 'none',
-                        borderRadius: '1vw',
-                        zIndex: 0,
-                        color: isFocused ? 'black' : '#707070',
-                        paddingLeft: '1vw',
-                        textAlign: 'center'
-                    }}
-                    min={minDateTime}
-                />
-            </div>
-        );
+  const actionConfig = useMemo(() => {
+    const config = {
+      0: { label: 'Взяти в роботу', next: 1, bg: UI.color.warn, color: UI.color.text },
+      1: { label: 'На постпрес', next: 2, bg: UI.color.brown, color: '#FFFFFF' },
+      2: { label: 'Виконано', next: 3, bg: UI.color.blue, color: '#FFFFFF' },
+      3: { label: 'Віддати', next: 4, bg: UI.color.pink, color: '#FFFFFF' },
+    };
+    if (isCancelled) return null;
+    const key = Number.isFinite(currentStage) ? currentStage : 0;
+    return config[key] ?? null;
+  }, [currentStage, isCancelled]);
+
+  const handleStageUpdate = (newStatus) => {
+    if (!thisOrder?.id) return;
+    const payload = {
+      newStatus,
+      thisOrderId: thisOrder.id,
     };
 
-    const formatTimeDisplay = (time) => {
-        if (!time) return '';
-        const {days, hours, minutes, seconds} = time;
-        return `Час виготовлення замовлення: ${days}д ${hours}год ${minutes}хв ${seconds}сек`;
-    };
+    if (newStatus === 1 && !thisOrder?.manufacturingStartTime) {
+      const start = new Date().toISOString();
+      payload.manufacturingStartTime = start;
+    }
 
-    useEffect(() => {
-        let timer;
-        if (manufacturingStartTime && currentStage >= 1 && currentStage <= 3) {
-            timer = setInterval(() => {
-                const now = new Date();
-                const diff = now - new Date(manufacturingStartTime);
+    if (newStatus === 3) {
+      const totalSeconds =
+        elapsedTime.days * 24 * 60 * 60 +
+        elapsedTime.hours * 60 * 60 +
+        elapsedTime.minutes * 60 +
+        elapsedTime.seconds;
+      payload.finalManufacturingTime = { ...elapsedTime };
+      payload.totalManufacturingTimeInSeconds = totalSeconds;
+    }
 
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-                setElapsedTime({days, hours, minutes, seconds});
-            }, 1000);
+    axios
+      .put('/orders/OneOrder/statusUpdate', payload)
+      .then((response) => {
+        setThisOrder((prev) => ({
+          ...prev,
+          status: response.data.status,
+          manufacturingStartTime: payload.manufacturingStartTime ?? prev?.manufacturingStartTime,
+          finalManufacturingTime: payload.finalManufacturingTime ?? prev?.finalManufacturingTime,
+        }));
+        if (payload.manufacturingStartTime) {
+          setManufacturingStartTime(payload.manufacturingStartTime);
         }
-        return () => {
-            if (timer) {
-                clearInterval(timer);
-            }
-        };
-    }, [manufacturingStartTime, currentStage]);
-
-    useEffect(() => {
-        // console.log(isCancelled);
-    }, [isCancelled]);
-
-    useEffect(() => {
-        let timer;
-        if (deadline && currentStage < 4) {
-            timer = setInterval(() => {
-                const now = new Date();
-                const diff = deadline - now;
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                const minutes = Math.floor((diff / (1000 * 60)) % 60);
-                const seconds = Math.floor((diff / 1000) % 60);
-                setRemainingTime({days, hours, minutes, seconds});
-            }, 1000);
-        } else {
-            setRemainingTime(null);
+        if (payload.finalManufacturingTime) {
+          setFinalManufacturingTime(payload.finalManufacturingTime);
+          setManufacturingStartTime(null);
         }
-        return () => clearInterval(timer);
-    }, [deadline, currentStage]);
+        setError(null);
+      })
+      .catch((err) => {
+        setError(err);
+      });
+  };
 
-    useEffect(() => {
-        if (!thisOrder) return;
+  return (
+    <div
+      style={{
 
-        if (thisOrder.payStatus === "pay") {
-            setIsPaid(true);
-        } else {
-            setIsPaid(false);
-            setPaymentDate(new Date());
-        }
-        setDeadline(thisOrder.deadline);
-        setCurrentStage(thisOrder.status ? parseInt(thisOrder.status) : 0);
-    }, [thisOrder?.payStatus, thisOrder?.status, thisOrder?.deadline]);
-
-
-    const handleStageChange = (stage) => {
-        if (stage === 'pay') {
-            setIsPaid(true);
-            setPaymentDate(new Date());
-            return;
-        }
-
-        if (stage === 'cancel') {
-            setIsCancelled(true);
-            setCurrentStage(-1);
-            return;
-        }
-
-        if (stage === 1) {
-            setStartTime(new Date());
-        }
-
-        setCurrentStage(stage);
-    };
-
-    const handleStageChangeServer = (stage) => {
-        if (!thisOrder?.id) return;
-
-        let dataToSend = {
-            newStatus: stage,
-            thisOrderId: thisOrder.id,
-        }
-
-        // Додаємо час виготовлення до даних
-        if (stage === 1) {
-            dataToSend.manufacturingStartTime = new Date().toISOString();
-        }
-
-        if (stage === 3) {
-            const finalTime = {
-                days: elapsedTime.days,
-                hours: elapsedTime.hours,
-                minutes: elapsedTime.minutes,
-                seconds: elapsedTime.seconds
-            };
-            dataToSend.finalManufacturingTime = finalTime;
-            dataToSend.totalManufacturingTimeInSeconds =
-                (finalTime.days * 24 * 60 * 60) +
-                (finalTime.hours * 60 * 60) +
-                (finalTime.minutes * 60) +
-                finalTime.seconds;
-        }
-
-        axios.put(`/orders/OneOrder/statusUpdate`, dataToSend)
-            .then(response => {
-                // console.log(response.data);
-                if (stage === 'pay') {
-                    setThisOrder(prevState => ({
-
-                        payStatus: "pay",
-                      OrderId: thisOrder.id
-                    }));
-                    setIsPaid(true);
-                } else {
-                    setThisOrder(prevState => ({
-                        ...prevState,
-                        status: response.data.status,
-                        manufacturingStartTime: stage === 1 ? dataToSend.manufacturingStartTime : prevState.manufacturingStartTime,
-                        finalManufacturingTime: stage === 3 ? dataToSend.finalManufacturingTime : prevState.finalManufacturingTime
-                    }));
-
-                    if (stage === 1) {
-                        const currentTime = new Date().toISOString();
-                        setManufacturingStartTime(currentTime);
-                    }
-                    if (stage === 3) {
-                        setFinalManufacturingTime({...elapsedTime});
-                        setManufacturingStartTime(null); // Зупиняємо таймер
-                    }
-                }
-            })
-            .catch(error => {
-              if (error.response?.status === 403) {
-                    // navigate('/login');
-                }
-              setError(error)
-              console.log(error.message);
-            });
-    };
-
-    const handleDeadlineChangeServer = (deadlineNew) => {
-        let dataToSend = {
-            deadlineNew: deadlineNew,
-            thisOrderId: thisOrder.id,
-        }
-        // setLoad(true)
-        axios.put(`/orders/OneOrder/deadlineUpdate`, dataToSend)
-            .then(response => {
-                // console.log(response.data);
-                setThisOrder({...thisOrder, deadline: response.data.deadline})
-                // setLoad(false)
-                // setThisOrder(response.data)
-                // handleClose()
-            })
-            .catch(error => {
-                if (error.response.status === 403) {
-                    // navigate('/login');
-                }
-                // setError(error)
-                // setLoad(false)
-                console.log(error.message);
-            })
-        // console.log(deadlineNew);
-        // setDeadline(deadlineNew);
-    };
+        background: UI.color.gradient,
+        width: '36.5vw',
+        height: '17vh',
+        padding: "0.4vw",
+        borderRadius: "12px",
+        boxShadow: UI.color.shadow,
+        position: 'fixed',
+        right: '1vw',
+        bottom: '0.1vw',
 
 
-    const getSegmentColor = (id) => {
-        if (isCancelled) return '#ee3c23';
-        if (id === stages[4].id && thisOrder.payStatus === "pay") return '#008249';
-        if (currentStage === 1 && [1, 2].includes(id)) return '#8B4513';
-        if (currentStage === 2 && [1, 2, 3].includes(id)) return '#3C60A6';
-        if (currentStage === 3 && [1, 2, 3, 4].includes(id)) return '#F075AA';
-        if (currentStage === 4 && [1, 2, 3, 4, 5, 6].includes(id)) return '#008249';
-        if (currentStage === 0 && id === 0) return '#FFC107';
-        return '#F2F0E7';
-    };
-
-    const formatDate = (date) => {
-        const options = {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        };
-
-
-        return new Intl.DateTimeFormat('uk-UA', options).format(date);
-    };
-
-    const buttonStyles = {
-        base: {
-            padding: '1vh',
-            borderRadius: '1vw',
-            border: 'none',
-            cursor: 'pointer',
-            width: '11vw',
-            height: '3vh',
-            fontSize: '1vh',
-            display: 'flex', // Використовуємо flex для центрованого контенту
-            justifyContent: 'center', // Горизонтальне центрування тексту
-            alignItems: 'center', // Вертикальне центрування тексту
-            marginLeft: 'auto'
-        },
-        takeWork: {
-            backgroundColor: '#FFC107',
-            color: 'black',
-            border: 'none',
-            cursor: 'pointer',
-            width: '11vw',
-            height: '3vh',
-            fontSize: '0.7vw',
-            display: 'flex', // Використовуємо flex для центрованого контенту
-            justifyContent: 'center', // Горизонтальне центрування тексту
-            alignItems: 'center', // Вертикальне центрування тексту
-            marginLeft: 'auto'
-        },
-        postpress: {
-            backgroundColor: '#8B4513',
-            color: 'white',
-            cursor: 'pointer',
-            width: '11vw',
-            height: '3vh',
-            justifyContent: 'center', // Горизонтальне центрування тексту
-
-        },
-        done: {
-            backgroundColor: '#3C60A6',
-            color: 'white',
-            border: 'none',
-            cursor: 'pointer',
-            width: '11vw',
-            height: '3vh',
-            fontSize: '0.7vw',
-            display: 'flex', // Використовуємо flex для центрованого контенту
-            justifyContent: 'center', // Горизонтальне центрування тексту
-            alignItems: 'center', // Вертикальне центрування тексту
-            marginLeft: 'auto'
-        },
-        handover: {
-            backgroundColor: '#F075AA',
-            color: 'white',
-            border: 'none',
-            cursor: 'pointer',
-            width: '11vw',
-            height: '3vh',
-
-            fontSize: '0.7vw',
-            display: 'flex', // Використовуємо flex для центрованого контенту
-            justifyContent: 'center', // Горизонтальне центрування тексту
-            alignItems: 'center', // Вертикальне центрування тексту
-            marginLeft: 'auto'
-        },
-        pay: {
-            backgroundColor: '#008249',
-            color: 'white',
-            border: 'none',
-            cursor: 'pointer',
-            width: '11vw',
-            height: '3vh',
-
-            fontSize: '0.7vw',
-            display: 'flex', // Використовуємо flex для центрованого контенту
-            justifyContent: 'center', // Горизонтальне центрування тексту
-            alignItems: 'center', // Вертикальне центрування тексту
-            marginLeft: 'auto'
-
-        },
-        cancel: {
-            backgroundColor: 'transparent',
-            fontSize: '1.2vw',
-            position: 'absolute',
-            top: '0vh',
-            right: '-0.1vw',
-            cursor: 'pointer',
-            transform: 'scale(0.5)',
-            border: 'none'
-        }
-    };
-
-    return (
-
-        <div style={{  marginTop: "-0.8vh",
-          backgroundColor: getBackgroundColorByStatus(thisOrder?.status),
-          position: "fixed",
-          right: "1vw",
-          bottom: "1vh",
-          width: "36.5vw",
-          padding:"1.5vh",
-          height:"15vh",
-          borderRadius: '1vh'}}
-        className="adminTextBig"
+      }}>
+      <div
+        style={{
+          fontSize: "1.3vw",
+          fontWeight: 500,
+          whiteSpace: 'nowrap',
+          color: currentStageDescriptor.accent,
+          transition: 'color 0.3s ease',
+        }}
+      >
+        {currentStageDescriptor.title} #{thisOrder?.id ?? '-'}
+      </div>
+      <div style={{ display: 'flex', gap: UI.space.sm, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+        <div
+          style={{
+            padding: `${UI.space.xs} ${UI.space.md}`,
+            borderRadius: UI.radius.full,
+            background: paymentState.bg,
+            color: paymentState.color,
+            fontWeight: 600,
+            fontSize: UI.fs.sm,
+          }}
         >
+          {paymentState.label}
+        </div>
 
-            <button onClick={() => handleStageChange('cancel')} style={buttonStyles.cancel}>
-
+        <div style={{ display: 'flex',  justifyContent: 'flex-end', alignItems: 'start', justifyItems:"start", marginTop:"-2.5vh" }}>
+          {actionConfig && (
+            <button
+              type="button"
+              className=" "
+              onClick={() => handleStageUpdate(actionConfig.next)}
+              style={{
+                padding: `${UI.space.sm} ${UI.space.lg}`,
+                borderRadius: "12px",
+                border: 'none',
+                background: actionConfig.bg,
+                color: "#6a6a66",
+                whiteSpace: 'nowrap',
+                fontSize: "1.9vh" ,
+                fontWeight: 600,
+                cursor: 'pointer',
+                boxShadow: '0 8px 16px rgba(0,0,0,0.12)',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              }}
+              onMouseEnter={(event) => {
+                event.currentTarget.style.transform = 'translateY(-2px)';
+                event.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.14)';
+                event.currentTarget.style.color = '#f7f5ee';
+              }}
+              onMouseLeave={(event) => {
+                event.currentTarget.style.transform = 'translateY(0)';
+                event.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.12)';
+                event.currentTarget.style.color = 'fdfbf9';
+              }}
+            >
+              {actionConfig.label}
             </button>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1vh'}}>
+          )}
+        </div>
+      </div>
+
+      <div>
+
+          <div style={{ display: 'flex',alignItems: 'center', width: '100%', margin:"0.6vw" }}>
+            {STAGES.map((stage, index) => {
+              const isLast = index === STAGES.length - 1;
+              const isCompleted = currentStage > stage.id && !isCancelled;
+              const isActive = currentStage === stage.id && !isCancelled;
+              const indicatorColor = getSegmentColor(stage.id);
+
+              return (
                 <div
-                    style={{
-                        fontSize: '1vw',
-                        color: isCancelled ? '#ee3c23' : '#63625f'
-                    }}
-                >
-                    {isCancelled
-                        ? 'Скасоване замовлення'
-                        : currentStage === 0
-                            ? 'Оформлення замовлення'
-                            : currentStage === 1
-                                ? 'Замовлення друкується'
-                                : currentStage === 2
-                                    ? 'Замовлення у постпресі'
-                                    : currentStage === 3
-                                        ? 'Готове замовлення'
-                                        : 'Віддали замовлення'}
-                </div>
-                <div style={{display: 'flex',}}>
-                  {error && (
-                    <div className="alert alert-danger alert-dismissible fade show" role="alert">
-                      {error?.message} {error?.response?.data?.error}
-                      <div className="btn-close" onClick={() => setError(null)}></div>
-                    </div>
-                  )}
-                    {thisOrder?.status && parseInt(thisOrder.status) === 0 && (
-                        <button
-                            className="adminButtonAdd"
-                            onClick={() => handleStageChangeServer(1)}
-                            style={{
-                                position: 'absolute',
-                                top: '1vh',
-                                right: '0.5vw',
-                            }}
-                        >
-                            Взяти в роботу
-                        </button>
-                    )}
-                    {thisOrder?.status && parseInt(thisOrder.status) === 1 && (
-                        <button
-                            className="adminButtonAdd"
-                            onClick={() => handleStageChangeServer(2)}
-                            style={{
-                                position: 'absolute',
-                                top: '1vh',
-                                right: '0.5vw',
-                                backgroundColor: '#8B4513',
-                            }}
-                        >
-                            Відправити на постпрес
-                        </button>
-                    )}
-                    {thisOrder?.status && parseInt(thisOrder.status) === 2 && (
-                        <button
-                            className="adminButtonAdd"
-                            onClick={() => handleStageChangeServer(3)}
-                            style={{
-                                position: 'absolute',
-                                top: '1vh',
-                                right: '0.5vw',
-                                backgroundColor: '#3C60A6',
-                            }}
-                        >
-                            Виконане
-                        </button>
-                    )}
-                    {thisOrder?.status && parseInt(thisOrder.status) === 3 && (
-                        <button
-                            className="adminButtonAdd"
-                            onClick={() => handleStageChangeServer(4)}
-                            style={{
-                                position: 'absolute',
-                                top: '1vh',
-                                right: '0.5vw',
-                                backgroundColor: '#F075AA',
-                            }}
-                        >
-                            Віддати
-                        </button>
-                    )}
-                </div>
-            </div>
-            <div style={{display: 'flex', gap: '0.5vw', marginBottom: '2vh'}}>
-                {stages.map((segment) => (
-                    <div
-                        key={segment.id}
-                        style={{
-                            flex: 1,
-                            height: '1vh',
-                            backgroundColor: getSegmentColor(segment.id),
-                            borderRadius: '1vw'
-                        }}
-                    ></div>
-                ))}
-            </div>
-
-            <div style={{marginBottom: '0.5vh'}}>
-                <DiscountCalculator thisOrder={thisOrder} setThisOrder={setThisOrder} selectedThings2={selectedThings2}
-                                    setSelectedThings2={setSelectedThings2}/>
-            </div>
-          {/*<div style={{ position: 'absolute', right: '0.5vw', bottom: '0.5vh'}}>*/}
-          {/*  {deadline === null && (*/}
-          {/*      <div >*/}
-          {/*          <AnimatedPlaceholderInput onChange={handleDeadlineChangeServer}/>*/}
-          {/*      </div>*/}
-          {/*  )}*/}
-          {/*  {deadline && (*/}
-          {/*      <div>*/}
-          {/*          /!*<div className="d-flex align-items-center"*!/*/}
-          {/*          /!*     style={{marginTop: '0.5vh', fontSize: '0.7vw', color: '#707070', marginBottom: '0.5vh'}}>*!/*/}
-          {/*          /!*    /!*Обраний дедлайн: {deadline.toString()} &*!/*!/*/}
-          {/*          /!*    {`Обраний дедлайн: ${new Date(deadline).toLocaleDateString()} ${new Date(deadline).toLocaleTimeString()}`}*!/*/}
-
-          {/*          /!*    {currentStage === 0 && (*!/*/}
-          {/*          /!*        <div style={{marginLeft: "0.5vw"}} onClick={() => handleDeadlineChangeServer(null)}>❌</div>*!/*/}
-          {/*          /!*    )}*!/*/}
-          {/*          /!*    /!*Обраний дедлайн: {deadline.toLocaleString('uk-UA', {*!/*!/*/}
-          {/*          /!*    /!*day: '2-digit',*!/*!/*/}
-          {/*          /!*    /!*month: 'long',*!/*!/*/}
-          {/*          /!*    /!*year: 'numeric',*!/*!/*/}
-          {/*          /!*    /!*hour: '2-digit',*!/*!/*/}
-          {/*          /!*    /!*minute: '2-digit',*!/*!/*/}
-          {/*          /!*    /!*})}*!/*!/*/}
-          {/*          /!*</div>*!/*/}
-          {/*      </div>*/}
-
-          {/*  )}*/}
-          {/*</div>*/}
-            {/* <TimerDeadline deadline={deadline} thisOrder={thisOrder} /> */}
-
-            {/*{!isPaid && (*/}
-            {/*  <>*/}
-            {/*    {currentUser?.role === "admin" &&*/}
-            {/*      <div style={{*/}
-            {/*        justifyContent: 'flex-end',*/}
-            {/*        alignItems: 'flex-end', marginTop: '-10vh',*/}
-            {/*      }}>*/}
-            {/*        <button*/}
-            {/*          onClick={() => handleStageChangeServer('pay')}*/}
-            {/*          className="adminButtonAdd"*/}
-            {/*          style={{*/}
-            {/*            background: "#008249",*/}
-            {/*            position: 'absolute',*/}
-            {/*            right: '0.5vw',*/}
-            {/*            top: '8.3vh',*/}
-            {/*          }}*/}
-            {/*        >*/}
-            {/*          Оплатити*/}
-            {/*        </button>*/}
-            {/*      </div>*/}
-            {/*    }*/}
-            {/*  </>*/}
-            {/*)}*/}
-
-            {/*{isPaid && (*/}
-            {/*    <div style={{*/}
-
-            {/*        justifyContent: 'flex-end',*/}
-            {/*        alignItems: 'flex-end',*/}
-
-            {/*    }}>*/}
-
-            {/*        <div style={{*/}
-            {/*            // position: 'relative',*/}
-            {/*            width: '45%',*/}
-            {/*            transform: 'rotate(-30deg)'*/}
-            {/*        }}>*/}
-            {/*            <img*/}
-            {/*                src={rozrahuvImage}*/}
-            {/*                alt="Розрахувались"*/}
-            {/*                style={{width: '100%', height: 'auto', marginTop: "8vh", marginLeft: "19vw"}}*/}
-            {/*            />*/}
-            {/*            {paymentDate && (*/}
-            {/*                <div style={{*/}
-            {/*                    position: 'absolute',*/}
-            {/*                    top: '11.1vh',*/}
-            {/*                    // marginBottom: "19vw",*/}
-            {/*                    right: '-13vw',*/}
-            {/*                    fontSize: '0.5vw',*/}
-            {/*                    color: '#008249'*/}
-            {/*                }}>*/}
-            {/*                    {formatDate(paymentDate)}*/}
-
-            {/*                </div>*/}
-            {/*            )}*/}
-            {/*        </div>*/}
-
-            {/*    </div>*/}
-            {/*)}*/}
-
-            {(currentStage >= 1 && currentStage <= 3 ? elapsedTime : finalManufacturingTime) && (
-                <div style={{
-                    fontSize: '1.1vh',
-
-                    marginBottom: '1vh',
+                  key={stage.id}
+                  style={{
+                    flex: 1,
                     display: 'flex',
                     alignItems: 'center',
-                    position: 'relative',
-                    top: '14vh',
-                    opacity: '0.5'
-                }}>
-                    {currentStage === 3 ? "Фінальний час виготовлення: " : "Час виготовлення замовлення: "}
-                    <span style={{
-
-                        marginLeft: '0.35vw'
-                    }}>{currentStage <= 3 ? elapsedTime.days : finalManufacturingTime.days}</span>
-                    <span style={{ marginRight: '0.35vw'}}>д</span>
-                    <span
-                        style={{fontWeight: 'bold'}}>{currentStage <= 3 ? elapsedTime.hours : finalManufacturingTime.hours}</span>
-                    <span style={{ marginRight: '0.35vw'}}>год</span>
-                    <span
-                        style={{fontWeight: 'bold'}}>{currentStage <= 3 ? elapsedTime.minutes : finalManufacturingTime.minutes}</span>
-                    <span style={{ marginRight: '0.35vw'}}>хв</span>
-                    <span
-                        style={{fontWeight: 'bold'}}>{currentStage <= 3 ? elapsedTime.seconds : finalManufacturingTime.seconds}</span>
-                    <span style={{fontWeight: 'bold'}}>сек</span>
+                    gap: UI.space.sm,
+                  }}
+                >
+                  <div
+                    style={{
+                      height: '14px',
+                      width: '14px',
+                      borderRadius: UI.radius.full,
+                      background: isCancelled ? UI.color.danger : indicatorColor,
+                      border: `3px solid ${isActive ? indicatorColor : 'transparent'}`,
+                      boxShadow: isActive ? `0 0 0 6px rgba(60, 96, 166, 0.12)` : 'none',
+                      transition: 'all 0.3s ease',
+                      display: 'flex',
+                      alignItems: 'start',
+                      justifyContent: 'center',
+                    }}
+                  />
+                  {!isLast && (
+                    <div
+                      style={{
+                        flex: 1,
+                        height: '7px',
+                        borderRadius: UI.radius.full,
+                        background: isCompleted ? indicatorColor : UI.color.track,
+                        transition: 'background 0.3s ease',
+                      }}
+                    />
+                  )}
                 </div>
-            )}
-        </div>
-    );
+              );
+            })}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: UI.fs.xs, color: UI.color.textSubtle }}>
+            {STAGES.map((stage) => {
+              const isActive = currentStage === stage.id && !isCancelled;
+              const isCompleted = currentStage > stage.id && !isCancelled;
+              return (
+                <div
+                  key={stage.id}
+                  style={{
+                    marginTop:"-0.8vh",
+                    width:"28vw",
+
+                    // textAlign: 'center',
+                    // fontWeight: isActive ? 600 : 500,
+                    color: isActive || isCompleted ? UI.color.text : UI.color.textSubtle,
+                    // transition: 'color 0.3s ease, font-weight 0.3s ease',
+                  }}
+                >
+                  {stage.title}
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: UI.color.textSubtle, fontSize: UI.fs.xs }}>
+
+
+          </div>
+
+
+
+
+          {/*<div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'baseline', gap:"1vh" }}>*/}
+          {/*  */}
+          {/*  <div style={{ fontSize: UI.fs.xl, fontWeight: 500 }}>{formatCurrency(thisOrder?.price)}</div>*/}
+          {/*  <div style={{ fontSize: UI.fs.xl, color: UI.color.textMuted }}>*/}
+          {/*  </div>*/}
+          {/*</div>*/}
+
+          {/*<div style={{ display: 'flex', flexDirection: 'column', gap: UI.space.xs, fontSize: UI.fs.xs, color: UI.color.textMuted }}>*/}
+          {/*  {thisOrder?.client?.name && (*/}
+          {/*    <div>*/}
+          {/*      Клієнт: <span style={{ color: UI.color.text }}>{thisOrder.client.name}</span>*/}
+          {/*    </div>*/}
+          {/*  )}*/}
+          {/*  {thisOrder?.deadline && (*/}
+          {/*    <div>*/}
+          {/*      Дедлайн: <span style={{ color: UI.color.text }}>{new Date(thisOrder.deadline).toLocaleString('uk-UA')}</span>*/}
+          {/*    </div>*/}
+          {/*  )}*/}
+          {/*</div>*/}
+
+          <DiscountCalculator
+            thisOrder={orderWithEffectiveDiscount}
+            setThisOrder={setThisOrder}
+            selectedThings2={selectedThings2}
+            setSelectedThings2={setSelectedThings2}
+          />
+
+      </div>
+
+      {/*<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: UI.fs.xl }}>*/}
+      {/*  <div style={{ color: UI.color.textMuted }}>*/}
+      {/*    {isCancelled*/}
+      {/*      ? 'Замовлення скасоване'*/}
+      {/*      : currentStage >= 1 && currentStage <= 3*/}
+      {/*        ? `Час виготовлення: ${elapsedTime.days}д ${elapsedTime.hours}год ${elapsedTime.minutes}хв`*/}
+      {/*        : finalManufacturingTime*/}
+      {/*          ? `Фінальний час: ${finalManufacturingTime.days}д ${finalManufacturingTime.hours}год ${finalManufacturingTime.minutes ?? 0}хв`*/}
+      {/*          : ''}*/}
+      {/*  </div>*/}
+      {/*  {error && (*/}
+      {/*    <div style={{ color: UI.color.danger, fontSize: UI.fs.sm }}>{error?.message ?? 'Сталася помилка'}</div>*/}
+      {/*  )}*/}
+      {/*</div>*/}
+    </div>
+  );
 };
 
 export default ProgressBar;

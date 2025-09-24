@@ -97,7 +97,7 @@
 
 /* Имя */
 .userName {
-  font-weight: bold;
+  font-weight: 500;
   margin-bottom: 0vw;
 
 }
@@ -116,7 +116,7 @@
 .buttonRow {
   position: absolute;
   bottom: 0.8vw;
-  right: 1vw;
+  right: 2vw;
   display: flex;
   justify-content: flex-end;
   background: transparent;

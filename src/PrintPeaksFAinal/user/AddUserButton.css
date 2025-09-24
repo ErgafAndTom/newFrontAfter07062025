@@ -1,7 +1,8 @@
 .buttonSkewedUser {
   height: 3.5vh;
   width: 7.5vw;
-  font-size: 0.7vw;
+  font-weight: 700;
+  font-size: 0.65vw;
   margin-top: -0.4vh;
   background-color: #fab416;
   color: black;

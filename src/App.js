@@ -21,8 +21,8 @@ const globalStyles = css`
 function App() {
     useEffect(() => {
         document.fonts.ready.then(() => {
-            if (document.fonts.check('1.3vh "Inter"')) {
-                // console.log('✅ Шрифт inter завантажено та готовий до використання!');
+            if (document.fonts.check('1.3vh "Montserrat Alternates, sans-serif"')) {
+                console.log('✅ Шрифт inter завантажено та готовий до використання!');
             } else {
                 console.warn('❌ Шрифт inter не завантажено або недоступний.');
                 // const regularFont = new FontFace('Playpen_Sans', 'url(./fonts/Inter_18pt-Regular.ttf)', { weight: '400' });

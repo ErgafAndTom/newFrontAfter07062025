@@ -290,7 +290,7 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
                         // }}
                     >
                         <div className="" style={{
-                        fontSize: "var(--font-size-base)",
+
                             opacity: item === color.sides ? '100%' : '100%',
 
                         }}>
