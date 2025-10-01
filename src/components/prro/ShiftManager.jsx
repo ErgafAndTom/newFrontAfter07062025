@@ -67,6 +67,26 @@ const ShiftManager = ({ currentUser , thisOrder, setShowPays, setThisOrder}) => 
     }
   };
 
+  const createNotTerminalPayment = async (e) => {
+    // if (!thisOrder?.id || !thisOrder?.totalAmount) return;
+    console.log('Creating terminal payment for order:', thisOrder.id);
+    try {
+      const {data} = await axios.post("/api/payment/create-invoice", {
+        orderId: thisOrder.id,
+        amount: Math.round((thisOrder.totalAmount || 1) * 100),
+        currency: 980,
+        terminalId: "PQ012563" // можна винести в .env чи Redux
+      });
+      console.log('Payment response:', data);
+      // setThisOrder(data)
+      if (data?.payment) {
+        setThisOrder((prev) => ({ ...prev, Payment: data.payment }));
+      }
+    } catch (err) {
+      console.error("Помилка оплати через POS:", err);
+    }
+  };
+
   useEffect(() => {
     fetchCurrentShift();
   }, []);
@@ -119,7 +139,7 @@ const ShiftManager = ({ currentUser , thisOrder, setShowPays, setThisOrder}) => 
             <button
               className="PayButtons adminTextBig online"
               disabled={loading}
-              onClick={(e) => createTerminalPayment(e)}
+              onClick={(e) => createNotTerminalPayment(e)}
             >
               Платіж за посиланням
             </button>
