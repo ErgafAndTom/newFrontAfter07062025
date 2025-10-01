@@ -42,7 +42,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
   const [showDocGenerate, setShowDocGenerate] = useState(false);
   const currentUser = useSelector((state) => state.auth.user);
   const [showNP, setShowNP] = useState(false);
-  const [showPays, setShowPays] = useState(true);
+  const [showPays, setShowPays] = useState(false);
   const [load, setLoad] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchId, setSearchId] = useState(false);

@@ -130,9 +130,9 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
 
   return (
     <div className="d-flex allArtemElem">
-      <div style={{ display: 'flex', alignItems: 'center', marginTop: '1vw', marginLeft: '0vw' }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginTop: '1vw',  }}>
         {/* NEW SWITCH */}
-        <label className="switch scale04ForButtonToggle" style={{ marginRight: '0.633vw' }}>
+        <label className="switch scale04ForButtonToggle" >
           <input
             type="checkbox"
             checked={lamination.type !== "Не потрібно"}
@@ -141,8 +141,8 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
           <span className="slider" />
         </label>
 
-        <div className="d-flex flex-column">
-          <span style={{ marginRight: '0.633vw' }}>Ламінація:</span>
+        <div className="PostpressNames">
+          <span style={{  }}>Ламінація:</span>
 
           {lamination.type !== "Не потрібно" ? (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -155,9 +155,9 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
                   >
                     <div
                       style={{
-                        fontSize: "var(--font-size-base)",
+
                         opacity: item === lamination.material ? '100%' : '50%',
-                        width: "13vw"
+                        width: "15vw"
                       }}
                     >
                       {item}

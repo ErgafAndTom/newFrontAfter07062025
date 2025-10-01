@@ -309,17 +309,16 @@ const NewSheetCut = ({
             </div>
 
             <div className="d-flex flex-column">
-              <div className="d-flex flex-row inputsArtemkilk allArtemElem" style={{
+              <div className="d-flex flex-row inputsArtemkilk " style={{
                 marginLeft: "1.4vw",
                 border: "transparent",
                 justifyContent: "left",
                 marginTop: "1vw"
               }}> У кількості:
                 <input
-                  className="d-flex inputsArtemNumber inputsArtem"
+                  className="d-flex inputsArtem"
                   style={{
                     marginLeft: "1vw",
-                    width: "5vw",
                     alignItems: "center",
                     justifyContent: "center",
                     paddingLeft: "0.5vw",

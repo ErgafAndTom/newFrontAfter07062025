@@ -47,7 +47,7 @@ const Porizka = ({porizka, setPorizka, prices, buttonsArr, selectArr}) => {
     return (<div className="d-flex allArtemElem">
       <div style={{ display: 'flex', alignItems: 'center' }}>
         {/* NEW SWITCH */}
-        <label className="switch scale04ForButtonToggle" style={{ marginRight: '0.633vw' }} aria-label="Порізка">
+        <label className="switch scale04ForButtonToggle"  aria-label="Порізка">
           <input
             type="checkbox"
             checked={porizka.type !== "Не потрібно"}
@@ -57,7 +57,7 @@ const Porizka = ({porizka, setPorizka, prices, buttonsArr, selectArr}) => {
         </label>
 
         <div className="d-flex flex-row">
-    <span className="d-flex flex-row" style={{ marginRight: '0.633vw', width: '20vw' }}>
+    <span className="PostpressNames" style={{ marginRight: '0.633vw', width: '20vw' }}>
       Порізка (+15% к вартості):
     </span>
 

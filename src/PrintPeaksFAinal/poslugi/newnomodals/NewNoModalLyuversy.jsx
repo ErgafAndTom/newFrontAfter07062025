@@ -13,7 +13,7 @@ const NewNoModalLyuversy = ({ lyuversy, setLyuversy, selectArr = [] }) => {
     <div className="d-flex allArtemElem">
       <div style={{ display: "flex", alignItems: "center" }}>
         {/* NEW SWITCH */}
-        <label className="switch scale04ForButtonToggle" style={{ marginRight: "0.633vw" }}>
+        <label className="switch scale04ForButtonToggle" >
           <input
             type="checkbox"
             checked={lyuversy !== "Не потрібно"}
@@ -22,8 +22,8 @@ const NewNoModalLyuversy = ({ lyuversy, setLyuversy, selectArr = [] }) => {
           <span className="slider" />
         </label>
 
-        <div className="d-flex flex-column">
-          <span style={{ marginRight: "0.633vw" }}>Люверси:</span>
+        <div className="PostpressNames">
+          <span >Люверси:</span>
 
           {lyuversy !== "Не потрібно" && (
             <div

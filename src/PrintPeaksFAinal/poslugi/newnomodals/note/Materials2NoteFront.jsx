@@ -219,14 +219,22 @@ const Materials2NoteFront = ({
             {/* Блок "Друк" (або, якщо потрібно, "Кількість аркушів") */}
             <div style={{display: "flex", marginTop: "1vh"}}>
                 <div className="d-flex">
-                    <div
-                        className={`toggleContainer scale04ForButtonToggle ${materialAndDrukFront.materialAndDrukFront === "Не потрібно" ? 'disabledCont' : 'enabledCont'}`}
-                        onClick={handleToggleAll}
-                    >
-                        <div
-                            className={`toggle-button ${materialAndDrukFront.materialAndDrukFront === "Не потрібно" ? 'disabled' : 'enabledd'}`}>
-                        </div>
-                    </div>
+                    {/*<div*/}
+                    {/*    className={`toggleContainer scale04ForButtonToggle ${materialAndDrukFront.materialAndDrukFront === "Не потрібно" ? 'disabledCont' : 'enabledCont'}`}*/}
+                    {/*    onClick={handleToggleAll}*/}
+                    {/*>*/}
+                    {/*    <div*/}
+                    {/*        className={`toggle-button ${materialAndDrukFront.materialAndDrukFront === "Не потрібно" ? 'disabled' : 'enabledd'}`}>*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
+                  <label className="switch scale04ForButtonToggle" >
+                    <input
+                      type="checkbox"
+                      checked={materialAndDrukFront.materialAndDrukFront !== "Не потрібно"}
+                      onChange={handleToggleAll}
+                    />
+                    <span className="slider" />
+                  </label>
                     <div
                         className="d-flex "
                         style={{

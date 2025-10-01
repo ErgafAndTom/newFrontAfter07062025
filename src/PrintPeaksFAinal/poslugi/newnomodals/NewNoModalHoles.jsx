@@ -46,7 +46,7 @@ const NewNoModalHoles = ({holes, setHoles, holesR, setHolesR, prices, buttonsArr
         {/* NEW SWITCH */}
         <label
           className="switch scale04ForButtonToggle"
-          style={{ marginRight: '0.7vw', display: 'inline-flex', alignItems: 'center' }}
+          style={{  display: 'inline-flex', alignItems: 'center' }}
           aria-label="Свердління отворів"
         >
           <input
@@ -57,7 +57,7 @@ const NewNoModalHoles = ({holes, setHoles, holesR, setHolesR, prices, buttonsArr
           <span className="slider" />
         </label>
 
-        <div className="d-flex flex-column">
+        <div className="PostpressNames">
           <span style={{  whiteSpace: "nowrap" }}>Cвердління отворів:</span>
 
           {holes !== "Не потрібно" && (

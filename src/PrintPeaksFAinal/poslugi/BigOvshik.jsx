@@ -376,8 +376,8 @@ const BigOvshik = ({
               />
             <div className="">
               <div className="d-flex flex-row allArtemElem"  >
-                {/* NEW SWITCH */}
-                <label className="switch scale04ForButtonToggle" style={{ marginRight: "-2vw" }} aria-label="Дизайн">
+
+                <label className="switch scale04ForButtonToggle" aria-label="Дизайн">
                   <input
                     type="checkbox"
                     checked={design !== "Не потрібно"}
@@ -386,20 +386,18 @@ const BigOvshik = ({
                   <span className="slider" />
                 </label>
 
-                <div className="d-flex flex-row align-items-center">
-
-
+                <div className="PostpressNames">
+Дизайн:
                   {design !== "Не потрібно" && (
-                    <div className="d-flex align-items-center" style={{marginLeft:"2vw"}}>
-                      Дизайн
+                    <div className="d-flex align-items-center" >
                       <input
                         type="number"
                         min={0}
                         value={design}
                         onChange={(e) => setDesign(e.target.value)}
-                        className="inputsArtem designInput"
+                        className="d-flex inputsArtemNumber inputsArtem"
                       />
-                      <span className="inputsArtemx">грн</span>
+                      <span className="inputsArtemx allArtemElem">грн</span>
                     </div>
                   )}
                 </div>

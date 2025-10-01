@@ -18,7 +18,7 @@ const NewNoModalBig = ({big, setBig, prices, buttonsArr, selectArr}) => {
     <div className="d-flex allArtemElem">
       <div style={{ display: 'flex', alignItems: 'center' }}>
         {/* NEW SWITCH */}
-        <label className="switch scale04ForButtonToggle" style={{ marginRight: '0.633vw' }}>
+        <label className="switch scale04ForButtonToggle" >
           <input
             type="checkbox"
             checked={big !== "Не потрібно"}
@@ -27,8 +27,8 @@ const NewNoModalBig = ({big, setBig, prices, buttonsArr, selectArr}) => {
           <span className="slider" />
         </label>
 
-        <div className="d-flex flex-column">
-          <span style={{ marginRight: '0.633vw' }}>Згинання:</span>
+        <div className="PostpressNames">
+          <span style={{  }}>Згинання:</span>
 
           {big !== "Не потрібно" ? (
             <div className="ArtemNewSelectContainer" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

@@ -18,7 +18,7 @@ const NewNoModalProkleyka = ({prokleyka, setProkleyka, selectArr}) => {
     <div className="d-flex allArtemElem">
       <div style={{ display: 'flex', alignItems: 'center' }}>
         {/* NEW SWITCH */}
-        <label className="switch scale04ForButtonToggle" style={{ marginRight: '0.633vw' }}>
+        <label className="switch scale04ForButtonToggle" >
           <input
             type="checkbox"
             checked={prokleyka !== "Не потрібно"}
@@ -27,8 +27,8 @@ const NewNoModalProkleyka = ({prokleyka, setProkleyka, selectArr}) => {
           <span className="slider" />
         </label>
 
-        <div className="d-flex flex-column">
-          <span style={{ marginRight: '0.633vw' }}>Проклейка:</span>
+        <div className="PostpressNames" >
+          <span >Проклейка:</span>
 
           {prokleyka !== "Не потрібно" && (
             <div

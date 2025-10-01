@@ -115,8 +115,8 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
           <span className="slider" />
         </label>
 
-        <div className="d-flex flex-column align-items-center"  >
-          <span style={{whiteSpace: "nowrap", marginLeft:"0.7vw"}}>Скруглення кутів:</span>
+        <div className="PostpressNames"  >
+          <span style={{whiteSpace: "nowrap"}}>Скруглення кутів:</span>
           {cute !== "Не потрібно" ? (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <div className="ArtemNewSelectContainer">

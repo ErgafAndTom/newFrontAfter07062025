@@ -95,11 +95,14 @@ const PlotterCutting = ({plotterCutting, setPlotterCutting, plivkaOrPVH, prices,
 
   return (<div className="d-flex allArtemElem" >
     <div style={{display: 'flex', alignItems: 'center', marginTop: "1vw", marginLeft: "0vw"}}>
-      <div className={`toggleContainer scale04ForButtonToggle ${plotterCutting.type === "Не потрібно" ? 'disabledCont' : 'enabledCont'}`}
-           onClick={handleToggle}>
-        <div className={`toggle-button ${plotterCutting.type === "Не потрібно" ? 'disabled' : 'enabledd'}`}>
-        </div>
-      </div>
+      <label className="switch scale04ForButtonToggle" >
+        <input
+          type="checkbox"
+          checked={plotterCutting.type !== "Не потрібно"}
+          onChange={handleToggle}
+        />
+        <span className="slider" />
+      </label>
       <div className="d-flex flex-column">
             <span style={{
               marginRight: '0.633vw'

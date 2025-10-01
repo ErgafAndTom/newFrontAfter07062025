@@ -386,7 +386,7 @@ export default function UserPageDetails({thisUser = null}) {
           className="mt-2"
           style={{
             display: "grid",
-            gridTemplateRows: `repeat(${1}}, 1fr)`,
+            gridTemplateRows: `repeat(8, 1fr)`,
             gridAutoFlow: "column",
             justifyContent:"center",
             gap: "0.6rem",
