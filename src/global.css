@@ -24,7 +24,7 @@
 @font-face {
   font-family: 'MontserratAlternates';
   src: url('./fonts/MontserratAlternates-SemiBold.ttf') format('truetype');
-  font-weight: 700;
+  font-weight: 550;
   font-style: normal;
 }
 
@@ -36,6 +36,18 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'MontserratAlternates';
+  src: url('./fonts/MontserratAlternates-Light.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'MontserratAlternates';
+  src: url('./fonts/MontserratAlternates-Thin.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+}
 /*.fontSize0-7VW{*/
 /*  font-size: 0.7vw;*/
 /*}*/

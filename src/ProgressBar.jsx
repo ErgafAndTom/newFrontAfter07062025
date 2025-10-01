@@ -2,25 +2,33 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import DiscountCalculator from './DiscountCalculator';
 import axios from './api/axiosInstance';
 import { useSelector } from 'react-redux';
+import "./progressbar_styles.css"
+import {useNavigate} from "react-router-dom";
 
+function formatNumber(num) {
+  const s = num == null ? '0' : String(num).replace(/\s+/g, '').replace(/,/g, '.');
+  const n = Number(s);
+  if (!Number.isFinite(n)) return '0.00';
+  return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
 const UI = {
   fontFamily:
     'Montserrat Alternates, Roboto, Ubuntu, Cantarell, "Noto Sans", "Helvetica Neue", Arial, sans-serif',
   fs: { xs: '0.75rem', sm: '0.85rem', md: '0.95rem', lg: '1.05rem', xl: '1.35rem' },
   color: {
-    bg: '#FFFFFF',
+    bg: '#f7f5ee',
     panel: '#F8F7F4',
     panelAccent: '#F1EFE7',
     text: '#111827',
     textMuted: '#6B7280',
     textSubtle: '#9CA3AF',
     track: '#E5E7EB',
-    warn: '#FBBF24',
-    brown: '#8B4513',
-    blue: '#3C60A6',
-    pink: '#F075AA',
-    green: '#008249',
-    danger: '#EE3C23',
+    warn: '#62625d',
+    brown: '#fdb40e',
+    blue: '#3c60a6',
+    pink: '#ef77a8',
+    green: '#008f53',
+    danger: '#db0f21',
     border: '#E2E8F0',
     shadow: '0 20px 60px rgba(17, 24, 39, 0.12)',
     gradient: 'linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(249, 247, 240, 0.9) 100%)',
@@ -30,7 +38,7 @@ const UI = {
 };
 
 const STAGES = [
-  { id: 0, title: 'Оформлення', subtitle: 'Замовлення створене', color: UI.color.warn },
+  { id: 0, title: '_          ', subtitle: 'Замовлення створене', color: UI.color.warn },
   { id: 1, title: 'Друк', subtitle: 'Виріб друкується', color: UI.color.brown },
   { id: 2, title: 'Постпрес', subtitle: 'Постобробка', color: UI.color.blue },
   { id: 3, title: 'Готово', subtitle: 'Виріб готовий', color: UI.color.pink },
@@ -43,25 +51,26 @@ const PAYMENT_STATUS = {
   pending: { label: 'Очікує оплату', color: UI.color.warn, bg: 'rgba(251, 191, 36, 0.14)' },
 };
 
-const getStageTitle = (stage) => {
+const getStageTitle = (stage, orderId) => {
   if (stage == null) return 'Статус невідомий';
   const value = Number(stage);
   if (Number.isNaN(value)) return 'Статус невідомий';
   switch (value) {
     case -1:
-      return 'Скасоване замовлення';
+      return `Скасоване замовлення №${orderId ?? '—'}`;
     case 0:
-      return 'Оформлення замовлення';
+      return `Оформлення замовлення №${orderId ?? '—'}`;
     case 1:
-      return 'Замовлення друкується';
+      return `Замовлення №${orderId ?? '—'} друкується`;
     case 2:
-      return 'Замовлення у постпресі';
+      return `Замовлення №${orderId ?? '—'} у постпресі`;
     case 3:
-      return 'Готове замовлення';
+      return `Готове замовлення №${orderId ?? '—'}`;
     default:
-      return 'Замовлення передано клієнту';
+      return `Замовлення №${orderId ?? '—'} віддали`;
   }
 };
+
 
 const ProgressBar = ({
                        thisOrder,
@@ -71,38 +80,123 @@ const ProgressBar = ({
                        selectedThings2,
                        setSelectedThings2,
                      }) => {
+
+  const navigate = useNavigate();
+
   const currentUser = useSelector((state) => state.auth.user);
+  function formatNumber(num) {
+    const s = num == null ? '0' : String(num).replace(/\s+/g, '').replace(/,/g, '.');
+    const n = Number(s);
+    if (!Number.isFinite(n)) return '0.00';
+    return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  }
+
+  function parseNumber(v) {
+    if (v == null) return 0;
+    const s = String(v).replace(/\s+/g, '').replace(/,/g, '.');
+    const n = Number(s);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+
+  const [discount, setDiscount] = useState('0%'); // рядок з %
+  const [total, setTotal] = useState(thisOrder?.allPrice ?? thisOrder?.price ?? 0);
+  const [error, setError] = useState(null);
+  const [load, setLoad] = useState(false);
+
+  const norm = useCallback((v) => {
+    if (v == null) return 0;
+    const s = String(v).trim();
+    const n = parseFloat(s.endsWith('%') ? s.slice(0, -1) : s);
+    return Number.isFinite(n) ? n : 0;
+  }, []);
+
+  const getEffectiveDiscount = useCallback((order) => {
+    if (!order) return 0;
+    const serverRaw = order.effectiveDiscount ?? order.discount ?? order.prepayment;
+    const serverNum = norm(serverRaw);
+
+    const clientNum = norm(order.client?.discount);
+    const compNum = norm(order.client?.Company?.discount ?? order.client?.company?.discount);
+
+    if (serverNum > 0) {
+      if ((order.client && (order.client.Company || order.client.company)) && compNum > clientNum) {
+        return Math.max(serverNum, compNum, clientNum);
+      }
+      return serverNum;
+    }
+
+    return Math.max(clientNum, compNum, 0);
+  }, [norm]);
+
+  const recalcTotal = useCallback((order, overrideEff) => {
+    const eff = typeof overrideEff === 'number' ? overrideEff : getEffectiveDiscount(order);
+    const basePrice = parseNumber(order?.price ?? order?.allPrice ?? 0);
+    const totalNum = Math.round((basePrice * (1 - eff / 100)) * 100) / 100;
+    return totalNum;
+  }, [getEffectiveDiscount]);
+
+
+  const handleAmountChange = (value) => {
+    const numeric = String(value).replace(/[^0-9.]/g, '');
+    const formatted = numeric ? formatNumber(numeric) : '0.00';
+    setAmount(formatted);
+  };
+
+  const sanitizePercentInput = (value) => {
+    if (!value) return '0%';
+    const numeric = String(value).replace(/[^\d.]/g, '');
+    const n = norm(numeric);
+    return `${n}%`;
+  };
+
+
+
+    // Оновлюємо total одразу тут (якщо треба, бо знизу useEffect теж є)
+
+
+
+  // const handleDiscountChange = async (value) => {
+  //   if (currentUser?.role !== "admin") return;
+  //   const dataToSend = {
+  //     newDiscount: value,
+  //     orderId: thisOrder.id,
+  //   };
+  //
+  //   try {
+  //     setError(null);
+  //     setLoad(true);
+  //     const { data } = await axios.put(`/orders/OneOrder/discount`, dataToSend);
+  //
+  //     setThisOrder(data);
+  //     setSelectedThings2(data.OrderUnits);
+  //
+  //
+  //   } catch (err) {
+  //     if (err?.response?.status === 403) {
+  //       navigate('/login');
+  //       return;
+  //     }
+  //     setError(err.message || 'Помилка');
+  //   } finally {
+  //     setLoad(false);
+  //   }
+  // };
 
   const [currentStage, setCurrentStage] = useState(thisOrder?.status ? parseInt(thisOrder.status, 10) : 0);
   const [isPaid, setIsPaid] = useState(false);
   const [isCancelled, setIsCancelled] = useState(false);
-  const [error, setError] = useState(null);
+
   const [elapsedTime, setElapsedTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [manufacturingStartTime, setManufacturingStartTime] = useState(null);
   const [finalManufacturingTime, setFinalManufacturingTime] = useState(null);
+  const [amount, setAmount] = useState(() => formatNumber(thisOrder?.price ?? 0));
 
-  const norm = useCallback((value) => {
-    if (value == null) return 0;
-    const stringified = String(value).trim();
-    const numeric = parseFloat(stringified.endsWith('%') ? stringified.slice(0, -1) : stringified);
-    return Number.isFinite(numeric) ? numeric : 0;
-  }, []);
 
-  const getEffectiveDiscount = useCallback(
-    (order) => {
-      if (!order) return 0;
-      const fromApi = norm(order.effectiveDiscount ?? order.discount ?? order.prepayment);
-      const clientDiscount = norm(order?.client?.discount);
-      const companyDiscount = norm(
-        order?.client?.Company?.discount ??
-        order?.client?.company?.discount ??
-        order?.Company?.discount ??
-        order?.company?.discount,
-      );
-      return Math.max(fromApi, clientDiscount, companyDiscount);
-    },
-    [norm],
-  );
+
+
+
+
 
   const effectiveDiscountNum = useMemo(() => getEffectiveDiscount(thisOrder), [getEffectiveDiscount, thisOrder]);
 
@@ -166,7 +260,7 @@ const ProgressBar = ({
   const currentStageDescriptor = useMemo(() => {
     if (isCancelled) {
       return {
-        title: 'Скасоване замовлення',
+        title: `Скасоване замовлення №${thisOrder?.id ?? '—'}`,
         subtitle: 'Замовлення було скасоване',
         accent: UI.color.danger,
       };
@@ -174,11 +268,11 @@ const ProgressBar = ({
     const normalized = Math.min(Math.max(currentStage, 0), STAGES.length - 1);
     const stage = STAGES[normalized];
     return {
-      title: getStageTitle(currentStage),
+      title: getStageTitle(currentStage, thisOrder?.id),
       subtitle: stage?.subtitle ?? 'Статус уточнюється',
       accent: stage?.color ?? UI.color.text,
     };
-  }, [currentStage, isCancelled]);
+  }, [currentStage, isCancelled, thisOrder?.id ]);
 
   const paymentState = isPaid ? PAYMENT_STATUS.pay : PAYMENT_STATUS.pending;
 
@@ -253,79 +347,132 @@ const ProgressBar = ({
         setError(err);
       });
   };
+  // useEffect(() => {
+  //   if (!thisOrder) return;
+  //   const eff = getEffectiveDiscount(thisOrder);
+  //   setDiscount(`${eff}%`);
+  //   setAmount(formatNumber(thisOrder.price ?? 0));
+  //   const totalAfter = recalcTotal(thisOrder, eff);
+  //   setTotal(totalAfter);
+  // }, [thisOrder]);
 
-  return (
-    <div
+
+return (
+
+  <div
       style={{
-
-        background: UI.color.gradient,
+        background: "#f7f5ee",
         width: '36.5vw',
         height: '17vh',
-        padding: "0.4vw",
+        padding: "0vw",
         borderRadius: "12px",
-        boxShadow: UI.color.shadow,
+        boxShadow: "0 5px 5px 3px rgba(0, 0, 0, 0.15)",
         position: 'fixed',
         right: '1vw',
         bottom: '0.1vw',
 
-
       }}>
       <div
         style={{
-          fontSize: "1.3vw",
-          fontWeight: 500,
+          bottom:"0vh",
+          position: 'absolute',
+          textTransform:"uppercase",
+          fontSize: "1.6vw",
+          fontWeight: 200,
           whiteSpace: 'nowrap',
+          marginLeft: "4.7vw",
           color: currentStageDescriptor.accent,
           transition: 'color 0.3s ease',
+          justifyContent: 'end',
+          // marginTop:"-1vh",
+          overflow: 'hidden',
+          boxSizing: 'border-box',
+          maxWidth: '100%',
+          whitespace: 'nowrap',
+          textOverflow: 'ellipsis',
+          // opacity:"0.5"
+
         }}
       >
-        {currentStageDescriptor.title} #{thisOrder?.id ?? '-'}
+        {currentStageDescriptor.title}
       </div>
-      <div style={{ display: 'flex', gap: UI.space.sm, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+      <DiscountCalculator
+        thisOrder={thisOrder}
+        setThisOrder={setThisOrder}
+        selectedThings2={selectedThings2}
+        setSelectedThings2={setSelectedThings2}
+      />
+
+      <div className="d-flex justify-content-center flex-column" style={{position: 'absolute', top:"0vh", left:"4.7vw", }}>
         <div
           style={{
-            padding: `${UI.space.xs} ${UI.space.md}`,
-            borderRadius: UI.radius.full,
-            background: paymentState.bg,
-            color: paymentState.color,
-            fontWeight: 600,
-            fontSize: UI.fs.sm,
-          }}
-        >
-          {paymentState.label}
-        </div>
 
-        <div style={{ display: 'flex',  justifyContent: 'flex-end', alignItems: 'start', justifyItems:"start", marginTop:"-2.5vh" }}>
+
+            display: 'flex',
+            alignItems: 'center',
+
+            whiteSpace: 'normal',
+            wordBreak: 'break-word',
+          }}>
+          <label style={{fontSize: '1.5rem', lineHeight:"1", fontWeight: 400,  color: '#707070', width:"10vw" , alignItems:"start"}}>ВАРТІСТЬ:</label>
+          <input
+            disabled
+            type="text"
+            value={thisOrder.price}
+            onChange={(e) => handleAmountChange(e.target.value)}
+            style={{
+              fontSize: '2.8vh',
+              width: '10vw',
+              fontWeight: 400,
+             background:"#ebebe6",
+              border: 'none',
+              textAlign: 'center',
+              borderRadius: '10px',
+              color: '#707070',
+            }}
+          />
+        </div>
+      <div style={{
+        // position: 'absolute',
+
+        display: 'flex',
+        alignItems: 'center',
+       marginTop:"-0.5vh",
+        whiteSpace: 'normal',
+        wordBreak: 'break-word',
+      }}>
+        <label style={{fontSize: '1.5rem', lineHeight:"1", fontWeight: 400,  color: currentStageDescriptor.accent, width:"10vw" }}>ДО СПЛАТИ:</label>
+        <input
+          disabled
+          type="text"
+          value={thisOrder.allPrice}
+          readOnly
+          style={{
+            // padding: '0.5vh',
+            // justifyContent: "center",
+            fontSize: '2.8vh',
+            width: '10vw',
+            fontWeight: 400,
+            backgroundColor: '#ebebe6',
+            border: 'none',
+            textAlign: 'center',
+            borderRadius: '10px',
+            color: currentStageDescriptor.accent,
+          }}
+        />
+      </div>
+      </div>
+      <div style={{ display: 'flex', gap: UI.space.sm, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex',  justifyContent: 'flex-end', alignItems: 'start', justifyItems:"start",  }}>
           {actionConfig && (
             <button
               type="button"
-              className=" "
+              className=" buttonProgressWork"
               onClick={() => handleStageUpdate(actionConfig.next)}
               style={{
-                padding: `${UI.space.sm} ${UI.space.lg}`,
-                borderRadius: "12px",
-                border: 'none',
                 background: actionConfig.bg,
-                color: "#6a6a66",
-                whiteSpace: 'nowrap',
-                fontSize: "1.9vh" ,
-                fontWeight: 600,
-                cursor: 'pointer',
-                boxShadow: '0 8px 16px rgba(0,0,0,0.12)',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-              }}
-              onMouseEnter={(event) => {
-                event.currentTarget.style.transform = 'translateY(-2px)';
-                event.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.14)';
-                event.currentTarget.style.color = '#f7f5ee';
-              }}
-              onMouseLeave={(event) => {
-                event.currentTarget.style.transform = 'translateY(0)';
-                event.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.12)';
-                event.currentTarget.style.color = 'fdfbf9';
-              }}
-            >
-              {actionConfig.label}
+              }}>
+              <div className="buttonProgressWorkName"> {actionConfig.label}</div>
             </button>
           )}
         </div>
@@ -333,7 +480,7 @@ const ProgressBar = ({
 
       <div>
 
-          <div style={{ display: 'flex',alignItems: 'center', width: '100%', margin:"0.6vw" }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent:"flex-end",  width: '100%', position: 'absolute', bottom: '4.5vh', left: '4.8vw' }}>
             {STAGES.map((stage, index) => {
               const isLast = index === STAGES.length - 1;
               const isCompleted = currentStage > stage.id && !isCancelled;
@@ -341,13 +488,14 @@ const ProgressBar = ({
               const indicatorColor = getSegmentColor(stage.id);
 
               return (
+
                 <div
                   key={stage.id}
                   style={{
                     flex: 1,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: UI.space.sm,
+                    gap: UI.space.xs,
                   }}
                 >
                   <div
@@ -361,14 +509,14 @@ const ProgressBar = ({
                       transition: 'all 0.3s ease',
                       display: 'flex',
                       alignItems: 'start',
-                      justifyContent: 'center',
+                      justifyContent: 'flex-end',
                     }}
                   />
                   {!isLast && (
                     <div
                       style={{
                         flex: 1,
-                        height: '7px',
+                        height: '3px',
                         borderRadius: UI.radius.full,
                         background: isCompleted ? indicatorColor : UI.color.track,
                         transition: 'background 0.3s ease',
@@ -379,79 +527,21 @@ const ProgressBar = ({
               );
             })}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: UI.fs.xs, color: UI.color.textSubtle }}>
-            {STAGES.map((stage) => {
-              const isActive = currentStage === stage.id && !isCancelled;
-              const isCompleted = currentStage > stage.id && !isCancelled;
-              return (
-                <div
-                  key={stage.id}
-                  style={{
-                    marginTop:"-0.8vh",
-                    width:"28vw",
+        <div
+          style={{position:"absolute", right:"0.8vw", bottom:"-0.6vw"}}
+        >
 
-                    // textAlign: 'center',
-                    // fontWeight: isActive ? 600 : 500,
-                    color: isActive || isCompleted ? UI.color.text : UI.color.textSubtle,
-                    // transition: 'color 0.3s ease, font-weight 0.3s ease',
-                  }}
-                >
-                  {stage.title}
-                </div>
-              );
-            })}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: UI.color.textSubtle, fontSize: UI.fs.xs }}>
-
-
+          <div style={{ display: 'flex', justifyContent: 'end', color: UI.color.textSubtle, fontSize: UI.fs.xs }}>
           </div>
 
 
+        </div>
 
 
-          {/*<div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'baseline', gap:"1vh" }}>*/}
-          {/*  */}
-          {/*  <div style={{ fontSize: UI.fs.xl, fontWeight: 500 }}>{formatCurrency(thisOrder?.price)}</div>*/}
-          {/*  <div style={{ fontSize: UI.fs.xl, color: UI.color.textMuted }}>*/}
-          {/*  </div>*/}
-          {/*</div>*/}
-
-          {/*<div style={{ display: 'flex', flexDirection: 'column', gap: UI.space.xs, fontSize: UI.fs.xs, color: UI.color.textMuted }}>*/}
-          {/*  {thisOrder?.client?.name && (*/}
-          {/*    <div>*/}
-          {/*      Клієнт: <span style={{ color: UI.color.text }}>{thisOrder.client.name}</span>*/}
-          {/*    </div>*/}
-          {/*  )}*/}
-          {/*  {thisOrder?.deadline && (*/}
-          {/*    <div>*/}
-          {/*      Дедлайн: <span style={{ color: UI.color.text }}>{new Date(thisOrder.deadline).toLocaleString('uk-UA')}</span>*/}
-          {/*    </div>*/}
-          {/*  )}*/}
-          {/*</div>*/}
-
-          <DiscountCalculator
-            thisOrder={orderWithEffectiveDiscount}
-            setThisOrder={setThisOrder}
-            selectedThings2={selectedThings2}
-            setSelectedThings2={setSelectedThings2}
-          />
 
       </div>
 
-      {/*<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: UI.fs.xl }}>*/}
-      {/*  <div style={{ color: UI.color.textMuted }}>*/}
-      {/*    {isCancelled*/}
-      {/*      ? 'Замовлення скасоване'*/}
-      {/*      : currentStage >= 1 && currentStage <= 3*/}
-      {/*        ? `Час виготовлення: ${elapsedTime.days}д ${elapsedTime.hours}год ${elapsedTime.minutes}хв`*/}
-      {/*        : finalManufacturingTime*/}
-      {/*          ? `Фінальний час: ${finalManufacturingTime.days}д ${finalManufacturingTime.hours}год ${finalManufacturingTime.minutes ?? 0}хв`*/}
-      {/*          : ''}*/}
-      {/*  </div>*/}
-      {/*  {error && (*/}
-      {/*    <div style={{ color: UI.color.danger, fontSize: UI.fs.sm }}>{error?.message ?? 'Сталася помилка'}</div>*/}
-      {/*  )}*/}
-      {/*</div>*/}
+
     </div>
   );
 };

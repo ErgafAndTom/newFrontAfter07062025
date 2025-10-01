@@ -219,9 +219,10 @@ const NewUIArtem = () => {
 
   if (thisOrder) {
     return (
-      <div>
+      <div style={{}}>
         <div className="d-flex">
           <div className="containerForContNewUI">
+
             {/* Перша група */}
             {/* === GRID OF SERVICE TILES === */}
             <div className="CardPrintersPoslugi">
@@ -609,7 +610,9 @@ const NewUIArtem = () => {
                                       {/*<span style={{ fontSize: "1rem", opacity: 0.5 }}><div className="BasePriceWithQuantitySmall ">грн</div></span>*/}
                                       =
                                       <span className="booooold " style={{color: "#008249"}}>
-          {thing.priceForThisDiscount}<span className="BasePriceWithQuantitySmall"
+
+                        {thing.priceForThisDiscount}
+                                        <span className="BasePriceWithQuantitySmall"
                                             style={{color: "#008249"}}> грн</span>
         </span>
                                     </div>
@@ -945,14 +948,13 @@ const NewUIArtem = () => {
             setSelectedThings2={setSelectedThings2}
           />
         }
-
         {thisOrder ? (
 
           <div className="ClientsMenuAll" style={{
             width: "36.5vw", position: "fixed", bottom: "0vh", height: "15vh", right: "0"
           }}>
-
             <ProgressBar thisOrder={thisOrder} setThisOrder={setThisOrder}
+                         newThisOrder={newThisOrder}
                          setNewThisOrder={setNewThisOrder}
                          handleThisOrderChange={handleThisOrderChange}
                          setSelectedThings2={setSelectedThings2}
@@ -968,12 +970,15 @@ const NewUIArtem = () => {
           //                       handleThisOrderChange={handleThisOrderChange}/>
           // <ClientChangerUIArtem client={{email: "null", id: 0, phone: "+00000000",}}/>
         )}
-        <div className="d-flex flex-row" style={{position: "absolute", bottom: "0",}}>
+        <div className="d-flex flex-row" style={{position: "absolute", bottom: "-0.7vh", }}>
           <div className="containerNewUI"
-               style={{height: "15vh", width: "30vw", position: "relative", padding: '0.3rem'}}>
+               style={{height: "17vh", width: "30vw", position: "relative", padding: '1rem', boxShadow: "0 5px 5px 3px rgba(0, 0, 0, 0.15)"}}>
             <OrderFilesPanel thisOrder={thisOrder}/>
           </div>
-          <div className="containerNewUI" style={{height: "15vh", width: "30vw", position: "relative",}}>
+          <div className="containerNewUI" style={{height: "17vh", width: "30vw", position: "relative", boxShadow: "0 5px 5px 3px rgba(0, 0, 0, 0.15)",
+
+
+          }}>
             <ClientChangerUIArtem
               thisOrder={thisOrder}
               setThisOrder={setThisOrder}

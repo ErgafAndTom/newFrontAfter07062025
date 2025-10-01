@@ -24,7 +24,7 @@ function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder
   const [user, setUser] = useState({
     firstName:'', lastName:'', familyName:'', phoneNumber:'', email:'',
     companyId: presetCompany?.id || '', companyName: presetCompany?.name || '',
-    telegram:'', address:'', notes:'', discount:0
+    telegram:'', address:'', notes:'', discount: 0
   });
   useEffect(()=>{
     if (presetCompany?.id) {

@@ -61,12 +61,12 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
 
   return (
     <div className="payment-methods-panel adminTextBig">
-      {/*<ShiftManager*/}
-      {/*  createTerminalPayment={createTerminalPayment}*/}
-      {/*  thisOrder={thisOrder}*/}
-      {/*  setShowPays={setShowPays}*/}
-      {/*  setThisOrder={setThisOrder}*/}
-      {/*/>*/}
+      <ShiftManager
+        createTerminalPayment={createTerminalPayment}
+        thisOrder={thisOrder}
+        setShowPays={setShowPays}
+        setThisOrder={setThisOrder}
+      />
       <ShiftControlModal />
     </div>
   );

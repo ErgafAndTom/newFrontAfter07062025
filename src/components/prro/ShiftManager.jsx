@@ -48,13 +48,13 @@ const ShiftManager = ({ currentUser , thisOrder, setShowPays, setThisOrder}) => 
     }
   };
 
-  const createTerminalPayment = async () => {
+  const createTerminalPayment = async (e) => {
     // if (!thisOrder?.id || !thisOrder?.totalAmount) return;
     console.log('Creating terminal payment for order:', thisOrder.id);
     try {
       const {data} = await axios.post("/api/pos/sale", {
         orderId: thisOrder.id,
-        amount: Math.round(thisOrder.totalAmount * 100),
+        amount: Math.round((thisOrder.totalAmount || 1) * 100),
         currency: 980,
         terminalId: "PQ012563" // можна винести в .env чи Redux
       });
@@ -113,13 +113,13 @@ const ShiftManager = ({ currentUser , thisOrder, setShowPays, setThisOrder}) => 
               disabled={loading}
               onClick={createTerminalPayment}
             >
-              Розрахунок карткою (t) rthjeor80uhtg
+              Розрахунок карткою
             </button>
 
             <button
               className="PayButtons adminTextBig online"
               disabled={loading}
-              onClick={() => console.log("Оплата онлайн")}
+              onClick={(e) => createTerminalPayment(e)}
             >
               Платіж за посиланням
             </button>

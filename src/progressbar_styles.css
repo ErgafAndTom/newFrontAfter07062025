@@ -1,5 +1,93 @@
+.buttonProgressWork{
+  text-transform: uppercase;
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0.5vw;
+  border-bottom-left-radius: 12px;
+  border-top-left-radius: 12px;
+  border: none;
+  /*transform: rotate(270deg);*/
+  white-space: normal;
+  word-break: break-word;
+  text-align: center;
+  /*font-size: 20px;*/
+  height: 17vh;
+  width: 80px;
+  font-weight: 600;
+  cursor: pointer;
+  /*box-shadow: 0 8px 16px rgba(0,0,0,0.12);*/
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+.status-badge {
+  position: absolute;
+  top: 1vh;
+  left: 1vw;
+  padding: 0.6vh 1.4vw;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1.1vw;
+  color: white;
+  white-space: nowrap;
+  animation: slideFadeIn 0.6s ease forwards;
+  opacity: 0;
+  transform: translateX(-20px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+/* Плавна поява */
+@keyframes slideFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Варіанти статусу */
+.status-draft    { background-color: #fbbf24; } /* Оформлення */
+.status-print    { background-color: #f59e0b; }
+.status-post     { background-color: #3c60a6; }
+.status-ready    { background-color: #ef77a8; }
+.status-done     { background-color: #008f53; }
+.status-cancel   { background-color: #db0f21; }
 
 
+.buttonProgressWork:hover .buttonProgressWorkName{
+  /*transform: rotate(270deg) scale(1.05);*/
+  /*box-shadow: 0 12px 20px rgba(0,0,0,0.2);*/
+  font-size: 21px;
+
+}
+.buttonProgressWorkName{
+  writing-mode: vertical-rl;  /* вертикальний напрямок */
+  color: #faf9f5;
+  /*transform: rotate(90deg);*/
+  display: flex;
+  /*line-height: 2;*/
+  font-size: 1.2rem;
+  align-items: center;
+  justify-content: center;
+  white-space: normal;    /* дозволяємо перенос */
+  word-break: break-word; /* перенос довгих слів */
+  text-align: center;
+  width: 100%;                /* займає ширину кнопки */
+  height: 100%;
+  letter-spacing: 1px;
+  text-shadow:
+    3px 1px #686864,
+    /*-0.2px 0 #686864,*/
+    /*0 0.2px #686864,*/
+    /*0 -0.2px #686864;*/
+}
 .progress-segment {
     /*flex: 1;*/
     height: 0.5vh;
@@ -49,7 +137,7 @@
 
 .button-take-work {
     background-color: #ffc107;
-    color: black;
+    color: #686864;
 }
 
 .button-postpress {

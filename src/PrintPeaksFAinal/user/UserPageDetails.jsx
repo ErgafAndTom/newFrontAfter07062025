@@ -4,18 +4,46 @@ import { Link, useParams } from "react-router-dom";
 import axios from "../../api/axiosInstance";
 import TelegramAvatar from "../Messages/TelegramAvatar";
 
-const FieldEdit = ({ label, field, value, userId, type="text", as="input" }) => {
+const FieldEdit = ({ label, field, value, userId, type="text", as="input", load, setUser,  user }) => {
   const [val, setVal] = useState(value ?? "");
   const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState(false);
   useEffect(()=>{ setVal(value ?? ""); }, [value]);
+  const InputTag = as === "textarea" ? "textarea" : "input";
+
+  if(field === "username" || field === "password" || field === "Company"){
+    return (
+      <div className="d-flex align-items-center justify-content-center gap-3" >
+        <div style={{minWidth:120, fontWeight:500, color:"#6e6f68"}}>{label}</div>
+        <InputTag
+          className="form-control disabled"
+          value={val}
+          disabled
+          type={as==="textarea" ? undefined : type}
+          style={{maxWidth:"25vw", height:"4vh"}}
+          rows={as==="textarea" ? 3 : undefined}
+        />
+        <Button variant="success" className="adminButtonAdd disabled" disabled={saving} style={{fontSize:"2vh", gap:"1vw",color:"#f2f0e7", minWidth:"2vw", height:"4vh", padding:"0", borderRadius:"6px"}}>
+          {saving ? "💾" : "✓"}
+        </Button>
+      </div>
+    );
+  }
 
   const save = async () => {
     setSaving(true);
-    try { await axios.patch(`/api/users/${userId}/field`, { field, value: val }); }
+    try {
+      let res = await axios.patch(`/api/users/${userId}/field`, { field, value: val });
+      setErr(false);
+      console.log(res.data);
+      setUser(res.data);
+      // load()
+    } catch (err) {
+      setErr(err.response.data);
+    }
     finally { setSaving(false); }
   };
 
-  const InputTag = as === "textarea" ? "textarea" : "input";
   return (
     <div className="d-flex align-items-center justify-content-center gap-3" >
       <div style={{minWidth:120, fontWeight:500, color:"#6e6f68"}}>{label}</div>
@@ -30,6 +58,24 @@ const FieldEdit = ({ label, field, value, userId, type="text", as="input" }) => 
       <Button variant="success" className="adminButtonAdd" onClick={save} disabled={saving} style={{fontSize:"2vh", gap:"1vw",color:"#f2f0e7", minWidth:"2vw", height:"4vh", padding:"0", borderRadius:"6px"}}>
         {saving ? "💾" : "✓"}
       </Button>
+      {err ? <div style={{
+        transition: "all 0.3s ease",
+        color: "red",
+
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: "1vh",
+        marginBottom: "1vh",
+        border: "1px solid red",
+        borderRadius: "10px",
+        backgroundColor: "rgba(255, 0, 0, 0.2)",
+        fontSize: "1.3vw",
+        fontWeight: "bold",
+        textAlign: "center",
+        cursor: "pointer",
+
+      }}>{err}</div> : null}
     </div>
   );
 };
@@ -301,7 +347,7 @@ export default function UserPageDetails({thisUser = null}) {
       Прикріпити до компанії
     </div>
   );
-
+  console.log(user.hasOwnProperty);
 
   return (
     <div className="container-fluid" style={{padding:"1rem"}}>
@@ -340,31 +386,32 @@ export default function UserPageDetails({thisUser = null}) {
           className="mt-2"
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gridAutoFlow: "row",
+            gridTemplateRows: `repeat(${1}}, 1fr)`,
+            gridAutoFlow: "column",
             justifyContent:"center",
             gap: "0.6rem",
             width: "100%",
           }}
         >
-          <FieldEdit label="Ім'я" field="firstName" value={user.firstName} userId={user.id} />
-          <FieldEdit label="По батькові" field="lastName" value={user.lastName} userId={user.id} />
-          <FieldEdit label="Прізвище" field="familyName" value={user.familyName} userId={user.id} />
-          <FieldEdit label="Логін" field="username" value={user.username} userId={user.id} />
-          <FieldEdit label="Пароль" field="password" value={user.username} userId={user.id} />
-          <FieldEdit label="Тел.:" field="phoneNumber" value={user.phoneNumber} userId={user.id} />
-          <FieldEdit label="E-mail" field="email" value={user.email} userId={user.id} type="email" />
-          <FieldEdit label="Адреса" field="address" value={user.address} userId={user.id} />
-          <FieldEdit label="Компанія" field="company" value={user.company} userId={user.id} />
-          <FieldEdit label="Telegram" field="telegram" value={user.telegram} userId={user.id} />
-          <FieldEdit label="Viber" field="viber" value={user.viber} userId={user.id} />
-          <FieldEdit label="WhatsApp" field="whatsapp" value={user.whatsapp} userId={user.id} />
-          <FieldEdit label="Signal" field="signal" value={user.signal} userId={user.id} />
-          <FieldEdit label="Знижка" field="discount" value={user.discount} userId={user.id} type="number" />
-          <FieldEdit label="Фото" field="photoLink" value={user.photoLink} userId={user.id} />
-          <FieldEdit label="Доступ" field="role" value={user.role} userId={user.id} />
-          <FieldEdit label="Права" field="role2" value={user.role2} userId={user.id} />
-          <FieldEdit label="Права" field="role2" value={user.role2} userId={user.id} />
+          <FieldEdit label="Логін" field="username" value={user.username} userId={user.id} load={load}  setUser={setUser} user={user} />
+          <FieldEdit label="Ім'я" field="firstName" value={user.firstName} userId={user.id} load={load} setUser={setUser} user={user} />
+          <FieldEdit label="По батькові" field="lastName" value={user.lastName} userId={user.id} load={load}  setUser={setUser} user={user} />
+          <FieldEdit label="Прізвище" field="familyName" value={user.familyName} userId={user.id} load={load}  setUser={setUser} user={user} />
+          <FieldEdit label="Пароль" field="password" value={user.password} userId={user.id} load={load}  setUser={setUser} user={user} />
+          <FieldEdit label="Тел.:" field="phoneNumber" value={user.phoneNumber} userId={user.id} load={load}  setUser={setUser} user={user} />
+          <FieldEdit label="E-mail" field="email" value={user.email} userId={user.id} type="email" load={load}  setUser={setUser} user={user} />
+          <FieldEdit label="Адреса" field="address" value={user.address} userId={user.id} load={load}  setUser={setUser} user={user} />
+          {/*<FieldEdit label="Компанія" field="company" value={user.company} userId={user.id} load={load}  setUser={setUser} user={user} />*/}
+          {/*<FieldEdit label="Компанія" field="Company" value={`(${user.Company?.id}) ${user.Company?.companyName}`} userId={user.id} load={load}  setUser={setUser} user={user} />*/}
+          <FieldEdit label="Telegram" field="telegram" value={user.telegram} userId={user.id} load={load}  setUser={setUser} user={user} />
+          <FieldEdit label="Viber" field="viber" value={user.viber} userId={user.id} load={load}  setUser={setUser} user={user} />
+          <FieldEdit label="WhatsApp" field="whatsapp" value={user.whatsapp} userId={user.id} load={load}  setUser={setUser} user={user} />
+          <FieldEdit label="Signal" field="signal" value={user.signal} userId={user.id} load={load}  setUser={setUser} user={user} />
+          <FieldEdit label="Знижка (%)" field="discount" value={parseInt(String(user.discount).replace(/\D/g, ''), 10) || 0} userId={user.id} type="number" load={load}  setUser={setUser} user={user} />
+          <FieldEdit label="Фото" field="photoLink" value={user.photoLink} userId={user.id} load={load}  setUser={setUser} user={user} />
+          <FieldEdit label="Доступ(Права)" field="role" value={user.role} userId={user.id} load={load}  setUser={setUser} user={user} />
+          {/*<FieldEdit label="Права" field="role2" value={user.role2} userId={user.id} load={load}  setUser={setUser} user={user} />*/}
+          {/*<FieldEdit label="Права" field="role2" value={user.role2} userId={user.id} load={load}  setUser={setUser} user={user} />*/}
         </div>
       </div>
 

@@ -38,8 +38,8 @@
   border-bottom-right-radius: 12px;
   border-bottom-left-radius: 0;
   border: none;
-  width: 36px;
-  height: 15vh;
+  width: 70px;
+  height: 17vh;
   background:
     radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.25), transparent 42%),
     linear-gradient(
@@ -63,6 +63,7 @@
 }
 .AddButtonFilesOrder:hover {
   color: white;
+  font-size: 30px;
 }
 /* scroll container */
 .files-grid-scroll {
