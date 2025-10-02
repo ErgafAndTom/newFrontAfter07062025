@@ -378,7 +378,7 @@ return (
           position: 'absolute',
           textTransform:"uppercase",
           fontSize: "1.6vw",
-          fontWeight: 200,
+          fontWeight: 100,
           whiteSpace: 'nowrap',
           marginLeft: "4.7vw",
           color: currentStageDescriptor.accent,
@@ -403,63 +403,56 @@ return (
         setSelectedThings2={setSelectedThings2}
       />
 
-      <div className="d-flex justify-content-center flex-column" style={{position: 'absolute', top:"0vh", left:"4.7vw", }}>
+      <div className="d-flex justify-content-center flex-column" style={{position: 'absolute', top:".5vh", left:"4.7vw", gap:"1vh" }}>
         <div
           style={{
-
-
             display: 'flex',
             alignItems: 'center',
-
             whiteSpace: 'normal',
             wordBreak: 'break-word',
           }}>
-          <label style={{fontSize: '1.5rem', lineHeight:"1", fontWeight: 400,  color: '#707070', width:"10vw" , alignItems:"start"}}>ВАРТІСТЬ:</label>
-          <input
-            disabled
-            type="text"
-            value={thisOrder.price}
-            onChange={(e) => handleAmountChange(e.target.value)}
+          <label style={{fontSize: '1.3rem', lineHeight:"1", fontWeight: 400,  color: currentStageDescriptor.accent, width:"10vw" , alignItems:"start"}}>ВАРТІСТЬ:</label>
+          <div
             style={{
-              fontSize: '2.8vh',
+              fontSize: '1.3rem',
               width: '10vw',
-              fontWeight: 400,
-             background:"#ebebe6",
+              fontWeight: 600,
+              backgroundColor: '#ebebe6',
               border: 'none',
               textAlign: 'center',
               borderRadius: '10px',
-              color: '#707070',
+              color: currentStageDescriptor.accent,
+              padding: '0.4vh',
             }}
-          />
+          >
+            {thisOrder.price} <span style={{ fontSize: '0.9rem', color: currentStageDescriptor.accent }}>грн</span>
+          </div>
+
         </div>
       <div style={{
         // position: 'absolute',
-
         display: 'flex',
         alignItems: 'center',
-       marginTop:"-0.5vh",
+        marginTop:"-0.5vh",
         whiteSpace: 'normal',
         wordBreak: 'break-word',
       }}>
-        <label style={{fontSize: '1.5rem', lineHeight:"1", fontWeight: 400,  color: currentStageDescriptor.accent, width:"10vw" }}>ДО СПЛАТИ:</label>
-        <input
-          disabled
-          type="text"
-          value={thisOrder.allPrice}
-          readOnly
+        <label style={{fontSize: '1.3rem', lineHeight:"1", fontWeight: 400,  color: '#707070', width:"10vw" }}>ДО СПЛАТИ:</label>
+        <div
           style={{
-            // padding: '0.5vh',
-            // justifyContent: "center",
-            fontSize: '2.8vh',
+            fontSize: '1.3rem',
             width: '10vw',
-            fontWeight: 400,
+            fontWeight: 600,
             backgroundColor: '#ebebe6',
             border: 'none',
             textAlign: 'center',
             borderRadius: '10px',
-            color: currentStageDescriptor.accent,
+            color: '#707070',
+            padding: '0.4vh',
           }}
-        />
+        >
+          {thisOrder.allPrice} <span style={{ fontSize: '0.9rem', color: '#707070' }}>грн</span>
+        </div>
       </div>
       </div>
       <div style={{ display: 'flex', gap: UI.space.sm, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
@@ -496,6 +489,7 @@ return (
                     display: 'flex',
                     alignItems: 'center',
                     gap: UI.space.xs,
+
                   }}
                 >
                   <div
@@ -509,7 +503,8 @@ return (
                       transition: 'all 0.3s ease',
                       display: 'flex',
                       alignItems: 'start',
-                      justifyContent: 'flex-end',
+                      justifyContent: 'flex-end'
+
                     }}
                   />
                   {!isLast && (

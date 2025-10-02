@@ -2,8 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../../api/axiosInstance';
 import { saveAs } from 'file-saver';
+import { useNavigate } from 'react-router-dom';
 
 const TableManager = () => {
+    const navigate = useNavigate();
     const [tables, setTables] = useState([]);
     const [selectedTable, setSelectedTable] = useState('');
     const [file, setFile] = useState(null);
@@ -45,7 +47,7 @@ const TableManager = () => {
             .catch(error => {
                 console.log(error);
                 if (error.response.status === 403) {
-                    // navigate('/login');
+                    navigate('/login');
                 }
                 // setError(error)
                 // setLoad(false)

@@ -6,6 +6,7 @@ import './calendartheme.css'; // тема
 import {addDays} from 'date-fns';
 import axios from "../api/axiosInstance";
 import uk from 'date-fns/locale/uk';
+import { useNavigate } from 'react-router-dom';
 import TimeSeriesChart from "../PrintPeaksFAinal/timeSeriesChart/TimeSeriesChart";
 import DatabaseSchemaVisualizer from "../PrintPeaksFAinal/timeSeriesChart/DatabaseSchemaVisualizer";
 
@@ -57,6 +58,7 @@ const ukrainianStaticRanges = defaultStaticRanges.map(range => {
 });
 
 const App = () => {
+    const navigate = useNavigate();
     const [state, setState] = useState([
         {
             startDate: new Date(),
@@ -87,7 +89,7 @@ const App = () => {
             })
             .catch(error => {
                 if (error.response.status === 403) {
-                    // navigate('/login');
+                    navigate('/login');
                 }
                 console.log(error.message);
             })
@@ -106,7 +108,7 @@ const App = () => {
             })
             .catch(error => {
                 if (error.response.status === 403) {
-                    // navigate('/login');
+                    navigate('/login');
                 }
                 console.log(error.message);
             })

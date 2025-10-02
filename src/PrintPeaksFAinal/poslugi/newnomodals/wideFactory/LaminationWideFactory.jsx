@@ -96,13 +96,16 @@ const LaminationWideFactory = ({lamination, setLamination, prices, buttonsArr, s
     }
   }, [lamination.type, size]);
 
-  return (<div className="d-flex allArtemElem" >
+  return (<div className="d-flex allArtemElem">
     <div style={{display: 'flex', alignItems: 'center', marginTop: "1vw", marginLeft: "0vw"}}>
-      <div className={`toggleContainer scale04ForButtonToggle ${lamination.type === "Не потрібно" ? 'disabledCont' : 'enabledCont'}`}
-           onClick={handleToggle}>
-        <div className={`toggle-button ${lamination.type === "Не потрібно" ? 'disabled' : 'enabledd'}`}>
-        </div>
-      </div>
+      <label className="switch scale04ForButtonToggle" >
+        <input
+          type="checkbox"
+          checked={lamination.type !== "Не потрібно"}
+          onChange={handleToggle}
+        />
+        <span className="slider" />
+      </label>
       <div className="d-flex flex-column">
             <span style={{
               marginRight: '0.633vw'
@@ -126,7 +129,7 @@ const LaminationWideFactory = ({lamination, setLamination, prices, buttonsArr, s
                   opacity: item.id === lamination.materialId ? '100%' : '50%',
                   whiteSpace: "nowrap",
                   // width:"13vw"
-                  }} data-id={item.id}
+                }} data-id={item.id}
                 >
                   {item.name}
                 </div>
@@ -154,6 +157,11 @@ const LaminationWideFactory = ({lamination, setLamination, prices, buttonsArr, s
         </div>)}
       </div>
     </div>
+
+
+    <>
+
+    </>
   </div>)
 };
 

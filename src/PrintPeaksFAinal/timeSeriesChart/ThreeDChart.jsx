@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const ThreeDChart = ({ state }) => {
+    const navigate = useNavigate();
     const mountRef = useRef(null);
     const [chartData, setChartData] = useState(null);
 
@@ -66,7 +68,7 @@ const ThreeDChart = ({ state }) => {
             } catch (error) {
                 if (error.response && error.response.status === 403) {
                     // Перенаправление на страницу логина или другая логика
-                    // navigate('/login');
+                    navigate('/login');
                 }
                 console.error(error.message);
             }
