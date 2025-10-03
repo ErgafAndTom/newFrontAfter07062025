@@ -153,18 +153,17 @@ const CustomOrderTable2 = () => {
         <div className="summary-cell price">Ціна</div>
         <div className="summary-cell client">Клієнт</div>
         <div className="summary-cell company">Компанія</div>
-        <div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20} style={{ color: '#000' }}/></div>
+        <div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20}/></div>
         <div className="summary-cell telegram d-flex justify-content-center">
-          <FaTelegramPlane size={20} style={{ color: '#000' }} />
+          <FaTelegramPlane size={20}  />
         </div>
         {/*<div className="summary-cell viber d-flex justify-content-center">*/}
         {/*  <FaViber size={20} style={{ color: '#000' }} />*/}
         {/*</div>*/}
 
-
-        <div className="summary-cell action d-flex justify-content-center">Прорахунок</div>
-        <div className="summary-cell documents d-flex justify-content-center">Документи</div>
-        <div className="summary-cell files d-flex justify-content-sm-around ">Файли</div>
+        <div className="summary-cell action d-flex justify-content-center"><RiCalculatorLine size={20} /></div>
+        <div className="summary-cell documents d-flex justify-content-center"><FiFile size={19} /></div>
+        <div className="summary-cell files d-flex justify-content-sm-around "><FiFolder size={18} /></div>
         <div className="summary-cell barcode-orders d-flex justify-content-center" style={{opacity:"1"}}>Штрих-код</div>
       </div>
       {/* data rows */}

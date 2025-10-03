@@ -163,7 +163,7 @@ export default function ClientCabinet({
             {userInBase?.telegram ? (
               <TelegramAvatar
                 link={userInBase?.telegram}
-                size={50}
+                size={70}
                 // defaultSrc={
                 //   "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%20width%3D'70'%20height%3D'70'%20fill%3D'none'%20stroke%3D'currentColor'%20stroke-width%3D'1.6'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'12'%20cy%3D'8'%20r%3D'3.2'/%3E%3Cpath%20d%3D'M4%2020c0-3.3%203.6-6%208-6s8%202.7%208%206'/%3E%3C%2Fsvg%3E"
                 // }
@@ -176,8 +176,8 @@ export default function ClientCabinet({
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
-                  width="34"
-                  height="34"
+                  width="45"
+                  height="45"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={1.6}
@@ -196,7 +196,7 @@ export default function ClientCabinet({
             <div className="cc-name">{fullName}</div>
             <div className="cc-meta">
              {userInBase?.company && <span className="cc-chip">{userInBase?.company}</span>}
-              {userInBase?.role && <span className="cc-chip">{userInBase?.role}</span>}
+
 
             </div>
             <section className="cc-contacts">
@@ -216,8 +216,8 @@ export default function ClientCabinet({
         </header>
 
         <div className="cc-actions">
-          <button className="cc-btn" onClick={() => onCreateOrder?.(userInBase)}>＋ Нове замовлення</button>
-          <button className="cc-btn" onClick={() => onOpenChat?.(userInBase)}>💬 Чат</button>
+          <button className="cc-btn" onClick={() => onCreateOrder?.(userInBase)}>Нове замовлення</button>
+          {/*<button className="cc-btn" onClick={() => onOpenChat?.(userInBase)}>💬 Чат</button>*/}
           <button className="cc-btn" onClick={() => onOpenProfile?.(userInBase)}>↗ Профіль</button>
           <button className="cc-btn" onClick={() => onOpenCompanyProfile?.(userInBase)}>↗ Компанія ({userInBase?.Company?.companyName})</button>
         </div>
@@ -225,14 +225,14 @@ export default function ClientCabinet({
 
 
         <section className="cc-stats">
-          <div className="cc-stat"><div className="cc-stat-v">{stats.count}</div><div className="cc-stat-l">Замовл.</div></div>
-          <div className="cc-stat"><div className="cc-stat-v">{stats.total.toFixed(2)}</div><div className="cc-stat-l">Нарах.</div></div>
+          <div className="cc-stat"><div className="cc-stat-v">{stats.count}</div><div className="cc-stat-l">Кількість замовлень</div></div>
+          <div className="cc-stat"><div className="cc-stat-v">{stats.total.toFixed(2)}</div><div className="cc-stat-l">нараховано</div></div>
           <div className="cc-stat"><div className="cc-stat-v">{stats.paid.toFixed(2)}</div><div className="cc-stat-l">Оплачено</div></div>
           <div className="cc-stat"><div className="cc-stat-v">{stats.balance.toFixed(2)}</div><div className="cc-stat-l">Баланс</div></div>
         </section>
 
         <section className="cc-orders">
-          <div className="cc-orders-head">Замовлення</div>
+          {/*<div className="cc-orders-head">Замовлення</div>*/}
           <div className="cc-order-list">
             {loading &&
               <div className="d-flex justify-content-center align-items-center" style={{ height: "100%" }}>
@@ -248,16 +248,16 @@ export default function ClientCabinet({
                   <div key={o.id || o._id}>
                     <div className="cc-order-top">
                       {thisOrder.id === o.id &&
-                        <div className="cc-order-title" style={{color: "red"}}>{o.title || o.name || `Замовлення #${o.id}`}</div>
+                        <div className="cc-order-title" style={{color: "red"}}>{o.title || o.name || `Замовлення №${o.id}`}</div>
                       }
                       {thisOrder.id !== o.id &&
-                        <div className="cc-order-title">{o.title || o.name || `Замовлення #${o.id}`}</div>
+                        <div className="cc-order-title">{o.title || o.name || `Замовлення №${o.id}`}</div>
                       }
                     </div>
-                    <div className="cc-order-meta">
-                      <span>ID: {o.id || o._id}</span>
-                      {o.createdAt && <span>{formatDate(o.createdAt)}</span>}
-                    </div>
+                    {/*<div className="cc-order-meta">*/}
+                    {/*  <span>ID: {o.id || o._id}</span>*/}
+                    {/*  {o.createdAt && <span>{formatDate(o.createdAt)}</span>}*/}
+                    {/*</div>*/}
                     <div className="cc-order-sum">💳 {fmtMoney(o.allPrice, o.currency)}
                       {o.paid != null && <span className="cc-paid"> • Опл.: {fmtMoney(o.paid, o.currency)}</span>}
                     </div>
@@ -284,13 +284,13 @@ export default function ClientCabinet({
                       </button>
                     }
                     {o.Payment === null &&
-                      <button className={`adminButtonAddOrder nopay`} style={{color: '#000000'}}>
+                      <button className={`adminButtonAddOrder nopay`} >
                         {"Не оплачено"}
                       </button>
                     }
                   </div>
                   {/*<div className="cc-order-status">{o.status || "—"}</div>*/}
-                  <div className="adminFontTable d-flex align-content-center justify-content-center m-auto" style={{}}>
+                  <div className="adminFontTable d-flex align-content-center justify-content-center m-auto" style={{fontWeight:"200", textTransform:"uppercase", fontSize:"20px" }}>
                     {/*{item.status}*/}
                     {o.status === "-1"
                       ? 'Скасоване'

@@ -27,7 +27,7 @@ const FieldEdit = ({ label, field, value, companyId, type="text", as="input" }) 
       gap:"1rem"
     }}>
       <div style={{
-        minWidth:100, fontWeight:500,
+        minWidth:140, fontWeight:200,
          color:"#6e6f68"
         // fontWeight:400
       }}>{label}</div>
@@ -99,15 +99,30 @@ const UsersList = ({ companyId, reloadSignal = 0, onAddUser, onAttachUser }) => 
               alignItems: "center",
               gap: "0.5rem",
               color: "#6e6f68",
+              fontWeight:"200",
+              letterSpacing: "0.08em",
+              textTransform:"uppercase"
             }}
           >
-            В компанії <span style={{ fontSize: "2.5vh", marginRight: "-0.5vw" }}>🤖</span>: {count}
+            В компанії загалом<span style={{ fontSize: "2.5vh", marginRight: "-0.5vw", }}>🤖</span>: {count}
           </h4>
           <div className="d-flex justify-content-end" style={{ gap: "2rem", fontSize:"2.5vh" }}>
-            <Button className="adminButtonAdd" style={{  fontSize:"2vh", padding:"2vh" }} onClick={onAttachUser}>
+            <Button className="adminButtonAdd" style={{
+              fontSize:"2vh",
+              padding:"2vh",
+              fontWeight:"200",
+              letterSpacing: "0.08em",
+              textTransform:"uppercase"
+            }} onClick={onAttachUser}>
               Додати в компанію існуючого <div style={{ fontSize: "3vh" }}>🤖</div>
             </Button>
-            <Button className="adminButtonAdd" style={{  fontSize:"2vh", padding:"2vh" }} onClick={onAddUser}>
+            <Button className="adminButtonAdd" style={{
+              fontSize:"2vh",
+              padding:"2vh",
+              fontWeight:"200",
+              letterSpacing: "0.08em",
+              textTransform:"uppercase"
+            }} onClick={onAddUser}>
               Додати в компанію нового <div style={{ fontSize: "3vh" }}>🤖</div>
             </Button>
           </div>
@@ -115,7 +130,7 @@ const UsersList = ({ companyId, reloadSignal = 0, onAddUser, onAttachUser }) => 
             placeholder="Пошук 🤖"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            style={{ width: "20vw", background: "#ffffff" }}
+            style={{ width: "20vw", height:"4vh", background: "#ffffff", fontSize:"1.5vh" }}
           />
         </div>
       </div>
@@ -125,7 +140,9 @@ const UsersList = ({ companyId, reloadSignal = 0, onAddUser, onAttachUser }) => 
           <Spinner animation="border" variant="dark" />
         </div>
       ) : rows.length === 0 ? (
-        <div className="mt-3" style={{ color: "#6e6f68" }}>
+        <div className="mt-3" style={{ color: "#fe3547",      fontWeight:"200",
+          letterSpacing: "0.08em",
+          textTransform:"uppercase" }}>
           Немає клієнтів
         </div>
       ) : (
@@ -141,16 +158,24 @@ const UsersList = ({ companyId, reloadSignal = 0, onAddUser, onAttachUser }) => 
                   boxShadow: "0px 1px 6px 0px rgba(0,0,0,0.15)",
                   padding: "1vw",
                   transition: "background-color 0.2s ease, transform 0.15s ease",
+                  color: '#646462'
                 }}
                 className="user-card"
               >
-                <div className="d-flex align-items-center" style={{ gap: "0.6rem" }}>
-                  <TelegramAvatar link={u.telegram} size={48} />
-                  <div>
-                    <div style={{ fontWeight: 600 }}>
+                <div className="d-flex align-items-end" style={{ gap: "0.6rem", position: "relative" }}>
+
+                  <div style={{ position: "relative" }}>
+                    <div style={{      fontWeight:"500",
+                      letterSpacing: "0.08em",
+                      width:"12vw",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                      overflowX: "hidden",
+                      // textTransform:"uppercase"
+                    }}>
                       {u.firstName} {u.lastName} {u.familyName}
                     </div>
-                    <div style={{ fontSize: "1.3vh", opacity: 0.75 }}>Id: {u.id}</div>
+                    <div style={{ fontSize: "1.3vh", opacity: 0.75, marginTop:"1vh" }}>Id: {u.id}</div>
                     <div style={{ fontSize: "1.3vh", opacity: 0.7 }}>
                       Тел.: {u.phoneNumber || "···"}
                     </div>
@@ -159,6 +184,15 @@ const UsersList = ({ companyId, reloadSignal = 0, onAddUser, onAttachUser }) => 
                     </div>
                     <div style={{ fontSize: "1.3vh", opacity: 0.7 }}>
                       Адреса: {u.address || "···"}
+                    </div>
+                    <div  style={{
+                      position: "absolute",
+                      bottom: 0,
+                      right: 0,
+                    }}>
+                    <TelegramAvatar link={u.telegram} size={48}
+
+                    />
                     </div>
                   </div>
                 </div>
@@ -203,7 +237,9 @@ export default function CompanyPage() {
   return (
     <div className="" style={{padding:"2rem"}}>
       <div className="d-flex align-items-center " style={{gap:"1rem", }}>
-        <h3 style={{margin:0, color:"#6e6f68"}}>Компанія: {company.companyName} (№{company.id}) </h3>
+        <h3 style={{margin:0, color:"#6e6f68",      fontWeight:"200",
+          letterSpacing: "0.08em",
+          textTransform:"uppercase"}}>Компанія: {company.companyName} (№{company.id}) </h3>
         {/*<div style={{opacity:0.7}}>Клієнтів: {company.usersCount}</div>*/}
 
       </div>

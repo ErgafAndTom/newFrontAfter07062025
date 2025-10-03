@@ -68,20 +68,24 @@
 
 }
 .buttonProgressWorkName{
-  writing-mode: vertical-rl;  /* вертикальний напрямок */
+  writing-mode: vertical-rl;
+  text-orientation: mixed;   /* вертикальний напрямок */
   color: #faf9f5;
   /*transform: rotate(90deg);*/
   display: flex;
   /*line-height: 2;*/
+  width: 5px;
+  font-weight: 400;
   font-size: 1.2rem;
   align-items: center;
   justify-content: center;
-  white-space: normal;    /* дозволяємо перенос */
+  white-space: pre-wrap;    /* дозволяємо перенос */
   word-break: break-word; /* перенос довгих слів */
   text-align: center;
-  width: 100%;                /* займає ширину кнопки */
+  /*width: 100%;                !* займає ширину кнопки *!*/
   height: 100%;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  column-count: 2;
   text-shadow:
     3px 1px #686864,
     /*-0.2px 0 #686864,*/

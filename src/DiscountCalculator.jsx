@@ -67,8 +67,8 @@ function DiscountCalculator({ thisOrder, setThisOrder, selectedThings2, setSelec
   return (
     <div className="d-flex flex-row" style={{ width: "36vw", whiteSpace: 'nowrap', }}>
 
-      <div className="d-flex justify-content-end align-items-center " style={{position: 'absolute', top:"0vh", right:"0vh", }}>
-        <div   style={{ fontSize: '1rem',  marginRight:"1vw", color: "#008b50", fontWeight: 400,}}>
+      <div className="d-flex justify-content-end align-items-center flex-column " style={{position: 'absolute', top:"1vh", right:"0vh", }}>
+        <div   style={{   marginRight:"1vw", color: "#008b50", fontWeight: 200, fontSize: 'clamp(1vh, 3vw, 2.5vh)', letterSpacing: '0.07em'}}>
           ЗНИЖКА:
         </div>
         <div>
@@ -78,10 +78,11 @@ function DiscountCalculator({ thisOrder, setThisOrder, selectedThings2, setSelec
             onChange={e => handleDiscountChange(e.target.value)}
             disabled={currentUser?.role !== "admin"}
             style={{
+              fontSize: 'clamp(1vh, 3vw, 2.5vh)',
               width: '4.5vw',
               padding: '0.1vh',
               position: 'relative',
-              fontSize: '1rem',
+
               fontWeight: 600,
               color: '#008b50',
               backgroundColor: '#ebebe6',

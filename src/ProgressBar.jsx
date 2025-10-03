@@ -12,8 +12,6 @@ function formatNumber(num) {
   return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 const UI = {
-  fontFamily:
-    'Montserrat Alternates, Roboto, Ubuntu, Cantarell, "Noto Sans", "Helvetica Neue", Arial, sans-serif',
   fs: { xs: '0.75rem', sm: '0.85rem', md: '0.95rem', lg: '1.05rem', xl: '1.35rem' },
   color: {
     bg: '#f7f5ee',
@@ -374,24 +372,25 @@ return (
       }}>
       <div
         style={{
-          bottom:"0vh",
           position: 'absolute',
-          textTransform:"uppercase",
-          fontSize: "1.6vw",
-          fontWeight: 100,
-          whiteSpace: 'nowrap',
-          marginLeft: "4.7vw",
+          bottom: '0.7vh',
+          left:"6.5rem",
+          textTransform: 'uppercase',
+          width: '32vw',     // ширина 30vw
+          height: '3vh',     // висота 2vh
+          maxHeight: '4vh',
+          fontWeight: 200,
           color: currentStageDescriptor.accent,
           transition: 'color 0.3s ease',
-          justifyContent: 'end',
-          // marginTop:"-1vh",
+          textAlign: 'start',
+          /* підбір шрифту */
+          fontSize: 'clamp(1vh, 3vw, 2.5vh)',
+          letterSpacing:"0.25em",
+          lineHeight: '3vh',     // щоб текст ставав рівно в блок
           overflow: 'hidden',
-          boxSizing: 'border-box',
-          maxWidth: '100%',
-          whitespace: 'nowrap',
+          whiteSpace: 'nowrap',
           textOverflow: 'ellipsis',
-          // opacity:"0.5"
-
+          boxSizing: 'border-box',
         }}
       >
         {currentStageDescriptor.title}
@@ -403,58 +402,85 @@ return (
         setSelectedThings2={setSelectedThings2}
       />
 
-      <div className="d-flex justify-content-center flex-column" style={{position: 'absolute', top:".5vh", left:"4.7vw", gap:"1vh" }}>
+    <div className="d-flex justify-content-center flex-column" style={{position: 'absolute', top:"1vh",  fontSize: 'clamp(1vh, 3vw, 2.5vh)', gap:"1vh", left: '6.5rem' }}>
+      {/* ВАРТІСТЬ */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          whiteSpace: 'normal',
+          wordBreak: 'break-word',
+          width: '33vw',
+        }}>
+        <label style={{
+          fontWeight: 200,
+          color: currentStageDescriptor.accent,
+          width: "10vw",
+          height: "3vh",
+          alignItems: "start",
+          fontSize: 'clamp(1vh, 3vw, 2.5vh)',
+          letterSpacing: '0.07em'
+        }}>
+          ВАРТІСТЬ:
+        </label>
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            whiteSpace: 'normal',
-            wordBreak: 'break-word',
-          }}>
-          <label style={{fontSize: '1.3rem', lineHeight:"1", fontWeight: 400,  color: currentStageDescriptor.accent, width:"10vw" , alignItems:"start"}}>ВАРТІСТЬ:</label>
-          <div
-            style={{
-              fontSize: '1.3rem',
-              width: '10vw',
-              fontWeight: 600,
-              backgroundColor: '#ebebe6',
-              border: 'none',
-              textAlign: 'center',
-              borderRadius: '10px',
-              color: currentStageDescriptor.accent,
-              padding: '0.4vh',
-            }}
-          >
-            {thisOrder.price} <span style={{ fontSize: '0.9rem', color: currentStageDescriptor.accent }}>грн</span>
-          </div>
-
-        </div>
-      <div style={{
-        // position: 'absolute',
-        display: 'flex',
-        alignItems: 'center',
-        marginTop:"-0.5vh",
-        whiteSpace: 'normal',
-        wordBreak: 'break-word',
-      }}>
-        <label style={{fontSize: '1.3rem', lineHeight:"1", fontWeight: 400,  color: '#707070', width:"10vw" }}>ДО СПЛАТИ:</label>
-        <div
-          style={{
-            fontSize: '1.3rem',
+            fontSize: 'clamp(1vh, 3vw, 2.5vh)',
             width: '10vw',
-            fontWeight: 600,
+            fontWeight: 200,
+            backgroundColor: '#ebebe6',
+            border: 'none',
+            textAlign: 'center',
+            borderRadius: '10px',
+            color: currentStageDescriptor.accent,
+            padding: '0.4vh',
+            letterSpacing: '0.05em'
+          }}
+        >
+          {thisOrder.price} <span style={{ fontSize: '0.8rem', color: currentStageDescriptor.accent, fontWeight: 200, }}>грн</span>
+        </div>
+      </div>
+
+      {/* ДО СПЛАТИ */}
+      <div
+        style={{
+          display: 'flex',              // ← виправлення
+          alignItems: 'center',         // ← виправлення
+          whiteSpace: 'normal',
+          wordBreak: 'break-word',
+          width: '33vw',
+        }}
+      >
+        <label style={{
+          fontWeight: 200,
+          color: '#707070',
+          width:"10vw",
+          fontSize: 'clamp(1vh, 3vw, 2.5vh)',
+
+          letterSpacing: '0.07em'
+        }}>
+          ДО СПЛАТИ:
+        </label>
+        <div
+          style={{
+            fontSize: 'clamp(1vh, 3vw, 2.5vh)',
+            width: '10vw',
+            fontWeight: 700,
             backgroundColor: '#ebebe6',
             border: 'none',
             textAlign: 'center',
             borderRadius: '10px',
             color: '#707070',
             padding: '0.4vh',
+            letterSpacing: '0.05em'
           }}
         >
-          {thisOrder.allPrice} <span style={{ fontSize: '0.9rem', color: '#707070' }}>грн</span>
+          {thisOrder.allPrice} <span style={{ fontSize: '0.8rem', color: '#707070', fontWeight: 200, }}>грн</span>
         </div>
       </div>
-      </div>
+
+
+  </div>
       <div style={{ display: 'flex', gap: UI.space.sm, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
         <div style={{ display: 'flex',  justifyContent: 'flex-end', alignItems: 'start', justifyItems:"start",  }}>
           {actionConfig && (
@@ -473,7 +499,7 @@ return (
 
       <div>
 
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent:"flex-end",  width: '100%', position: 'absolute', bottom: '4.5vh', left: '4.8vw' }}>
+          <div style={{ display: 'flex',   width: '100%', position: 'absolute', bottom: '4.5vh', left: '6.5rem' }}>
             {STAGES.map((stage, index) => {
               const isLast = index === STAGES.length - 1;
               const isCompleted = currentStage > stage.id && !isCancelled;
@@ -523,7 +549,7 @@ return (
             })}
           </div>
         <div
-          style={{position:"absolute", right:"0.8vw", bottom:"-0.6vw"}}
+
         >
 
           <div style={{ display: 'flex', justifyContent: 'end', color: UI.color.textSubtle, fontSize: UI.fs.xs }}>

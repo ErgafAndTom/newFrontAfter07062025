@@ -12,23 +12,25 @@
   /*padding: 6px 6px 4px 6px;*/
   background: transparent;
   /*height: auto;*/
+
 }
 
 /* header */
 .drop-hint {
   align-items:center;
   justify-content: flex-start;
-  font-size: 1.5rem;
   padding: 0px 6px;
   margin-top: -6px;
   /*margin-bottom: 6px;*/
+  height: 17vh;
 }
 .left-hint {
   display:flex;
   align-items:center;
   opacity: 0.5;
-
-  font-size: 1rem;
+  white-space: nowrap;
+  font-weight: 200;
+  font-size: clamp(1.5rem, 2vh, 3vh);
   color: rgba(0,0,0,0.8); }
 
 .AddButtonFilesOrder{
@@ -53,7 +55,8 @@
   background-position: 30% 18%, 0% 50%;
   animation: btnGlow 4s ease-in-out infinite;
   color: black;
-  font-size: 1.7rem;
+  font-weight: 100;
+  font-size: 4rem;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -63,7 +66,7 @@
 }
 .AddButtonFilesOrder:hover {
   color: white;
-  font-size: 30px;
+  font-size: 5rem;
 }
 /* scroll container */
 .files-grid-scroll {
@@ -202,7 +205,7 @@
 .drag-overlay-box {
   pointer-events: none;
   width: 30vw;
-  height: 15vh;
+  height: 17vh;
   background: #f2f0e7;
   border: 2px dashed rgba(0,0,0,0.12);
   padding: 0;
@@ -215,7 +218,7 @@
   min-width: 220px;
 }
 .drag-overlay-icon svg { stroke-width: 1.2; color: #111; opacity: 0.9; }
-.drag-overlay-text { font-size: 1rem; color: #111; font-weight: 600; }
+.drag-overlay-text { font-size: 1rem; color: #646462; font-weight: 600; }
 .drag-overlay-hint { font-size: .86rem; color: rgba(0,0,0,0.6); }
 
 /* Uploading tile visual */

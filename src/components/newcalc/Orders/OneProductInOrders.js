@@ -18,13 +18,13 @@ function OneProductInOrders({item, thisOrder}) {
                             <span className="BasePriceWithQuantityDetals">{idx + 1}. </span>
                             <span className="BasePriceWithQuantityDetals">{unit.name}</span>
                         </div>
-                        <div className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center justify-content-end">
-                            <span className="">{unit.newField5}<span className="BasePriceWithQuantitySmall">шт</span></span>
+                        <div className=" BasePriceWithQuantityDetals d-flex align-items-center justify-content-end">
+                            <span className="BasePriceWithQuantityBig">{unit.newField5}<span className="BasePriceWithQuantitySmall">шт</span></span>
 
-                            <span className="">×</span>
-                            <span className="">{parseFloat(unit.priceForOneThis).toFixed(2)}<span className="BasePriceWithQuantitySmall">грн</span></span>
+                            <span className="BasePriceWithQuantityBig">×</span>
+                            <span className="BasePriceWithQuantityBig">{parseFloat(unit.priceForOneThis).toFixed(2)}<span className="BasePriceWithQuantitySmall">грн</span></span>
 
-                          <span className="">=</span>
+                          <span className="BasePriceWithQuantityBig">=</span>
                             <span className="booooold"
                                   style={{
                                       color: "#ef5223",
@@ -39,14 +39,14 @@ function OneProductInOrders({item, thisOrder}) {
                     {/*{thisOrder.prepayment.includes('%') && !parseFloat(unit.priceForOneThis) === parseFloat(unit.priceForOneThisDiscount) && (*/}
                     {parseFloat(unit.priceForOneThis) !== parseFloat(unit.priceForOneThisDiscount) && (
                         <div className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center justify-content-end">
-                            <span className="">{unit.newField5}<span className="BasePriceWithQuantitySmall">шт</span></span>
+                            <span className="BasePriceWithQuantityBig">{unit.newField5}<span className="BasePriceWithQuantitySmall">шт</span></span>
 
-                          <span className="">×</span>
+                          <span className="BasePriceWithQuantityBig">×</span>
 
                             <span
-                                className=""> {parseFloat(unit.priceForOneThisDiscount).toFixed(2)}<span className="BasePriceWithQuantitySmall">грн</span></span>
+                                className="BasePriceWithQuantityBig"> {parseFloat(unit.priceForOneThisDiscount).toFixed(2)}<span className="BasePriceWithQuantitySmall">грн</span></span>
 
-                            <span className="">=</span>
+                            <span className="BasePriceWithQuantityBig">=</span>
                             {/*<span*/}
                             {/*    className="booooold" style={{color:"#008249"}}>{parseFloat(unit.priceForAllThisDiscount).toFixed(2)} <span className="BasePriceWithQuantitySmall" style={{color:"#008249"}}>грн</span></span>*/}
                           <span className="booooold"

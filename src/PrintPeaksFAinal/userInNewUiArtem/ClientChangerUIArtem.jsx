@@ -194,16 +194,28 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
     <>
       <div
         onClick={handleShow}
-        style={{
-
-        }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1vw' }}>
+        <div style={{ display: 'flex', alignItems: 'start', justifyContent:"start", gap: '1vw', padding: '0vw' }}>
           {thisOrder.client ? (
-            <div style={{ position: "relative" }}>
-              <div style={{ flexcolumn: 'row', fontSize: '1vw' }}>
-                {thisOrder.client.lastName} {thisOrder.client.firstName} {thisOrder.client.familyName} 🤖:{thisOrder.client.id}
-                <div style={{ marginTop: '00rem', height: '1px', background: 'transparent', boxShadow: '0 1px 2px rgba(0,0,0,0.2)' }} />
+            <div  style={{ position: "relative", padding:"0"}}>
+              <div
+
+                style={{
+                flexColumn: 'row',
+                fontSize: 'clamp(1rem, 2.5vh, 3.5vh)',
+                textTransform: 'uppercase',
+                color: '#646462',
+                whiteSpace: 'nowrap',
+                textOverflow: 'ellipsis',
+                fontWeight: '200',
+                letterSpacing: '0.1em',
+                width: '29vw',
+                overflow: 'hidden',
+                maxWidth: '30vw',
+                  marginTop:'-0.5vh',
+              }}>
+                🤖:{thisOrder.client.id} – {thisOrder.client.lastName} {thisOrder.client.firstName} {thisOrder.client.familyName}
+                <div style={{ marginTop: '0.5rem', height: '10px', background: 'transparent', boxShadow: '0 1px 3px rgba(0,0,0,0.5)' }} />
               </div>
               <strong className="adminTextBig" style={{ position: "fixed", bottom: "8vh", fontSize: '0.6vw' }}>
                 <span className="adminTextBig">    </span>
@@ -222,11 +234,27 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
           )}
         </div>
 
-        <div className="d-flex adminTextBig align-items-center" style={{ position: "absolute", right: '0vw', top: '1vh' }}>
+        <div className="d-flex flex-row justify-content-between" >
+        <div>
+          {thisOrder?.client?.phoneNumber && (
+            <span className="" style={{
+
+              fontSize: 'clamp(1rem, 2.5vh, 3.5vh)',
+              textTransform: 'uppercase',
+              color: '#646462',
+              whiteSpace: 'nowrap',
+              textOverflow: 'ellipsis',
+              fontWeight: '200',
+            }}>{thisOrder.client.phoneNumber}</span>
+          )}
+        </div>
+        <div className="d-flex flex-row align-items-center justify-content-end" style={{  }}>
           {thisOrder.client && (
-            <div className="d-flex align-items-center gap-2" style={{ position: 'absolute', right: '1vw', top: '0vh', cursor: 'pointer' }}
+
+            <div className="d-flex align-items-center gap-3" style={{  right: '1vw', top: '0vh', cursor: 'pointer' }}
                  title={`@${thisOrder.client?.telegram?.replace(/^@/, '')}`}
                  onClick={() => openMessenger('telegram')}>
+
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -251,16 +279,12 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
                 <FiUser size={30} />
               </button>
 
-              <TelegramAvatar link={thisOrder.client?.telegram} size={60} />
+              <TelegramAvatar link={thisOrder.client?.telegram} size={70} />
             </div>
           )}
         </div>
-
-        <div>
-          {thisOrder?.client?.phoneNumber && (
-            <span className="" style={{ fontSize: "2.3vh" }}>{thisOrder.client.phoneNumber}</span>
-          )}
         </div>
+
       </div>
 
       {error && (

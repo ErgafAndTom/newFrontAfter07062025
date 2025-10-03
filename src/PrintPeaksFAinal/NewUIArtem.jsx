@@ -521,16 +521,7 @@ const NewUIArtem = () => {
                         className="battonClosed">
                         ✕
                       </div>
-                      {/*<span className="battonClosed" style={{*/}
-                      {/*    // float: "right",*/}
-                      {/*    // // color: "#EE3C23",*/}
-                      {/*    // fontSize: "2vh",*/}
-                      {/*    // marginRight: "1vw",*/}
-                      {/*    // marginTop: "0.5vh",*/}
-                      {/*    // marginBottom: "0.5vh",*/}
-                      {/*    zIndex: "1000",*/}
-                      {/*}}*/}
-                      {/*      onClick={(e) => handleThingClickDelete2(thing)}>✕</span>*/}
+
                       <div className="containerOrderUnits" style={{
                         // width: "30vw",
                         // overflow: "hidden"
@@ -561,13 +552,13 @@ const NewUIArtem = () => {
                                      style={{maxWidth: "33vw", background: "transparent"}}>
                                   <div>
                                     <div className="adminTextBig"
-                                         style={{fontSize: "1vw", maxWidth: "33vw"}}>{thing.name}</div>
+                                         style={{ maxWidth: "33vw"}}>{thing.name}</div>
                                     <div
                                       style={{
                                         marginTop: '0.5rem',
                                         height: '1px',
                                         background: 'transparent',
-                                        boxShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                                        boxShadow: '0 1px 2px rgba(0,0,0,0.3)'
                                       }}
                                     />
                                   </div>
@@ -578,7 +569,7 @@ const NewUIArtem = () => {
                                 </div>
                                 {/* Основна ціна з кількістю */}
                                 <div
-                                  className="d-flex adminTextBig align-items-center justify-content-start BasePriceWithQuantity">
+                                  className="d-flex align-items-center justify-content-start BasePriceWithQuantity">
                                   <span className="" style={{color: "rgba(0, 0, 0, 0.6)"}}>{thing.amount}<span
                                     className="BasePriceWithQuantitySmall "> шт</span></span>
                                   <span className=""
@@ -598,7 +589,7 @@ const NewUIArtem = () => {
 
 
                                     <div
-                                      className="d-flex adminTextBig align-items-center justify-content-start BasePriceWithQuantity" style={{color: "#008249"}}>
+                                      className="d-flex align-items-center justify-content-start BasePriceWithQuantity" style={{color: "#008249"}}>
 
 
                                       <span style={{color: "#008249"}}>{thing.amount}<span className="BasePriceWithQuantitySmall" style={{color: "#008249"}}> шт</span></span>
@@ -655,32 +646,32 @@ const NewUIArtem = () => {
 
                                   <div className="col ">
                                     <div className="adminFontTable BasePriceWithQuantityDetals pricesRow">
-                                      <div>За 1 аркуш:</div>
-                                      <span className="booooold money" style={{color: "#ee3c23"}}>
+                                      <div className="BasePriceWithQuantityBig"> За 1 аркуш:</div>
+                                      <span className="booooold money " style={{color: "#ee3c23"}}>
     {parseFloat(thing.priceForOneThis).toFixed(2)}
-                                        <span className="BasePriceWithQuantitySmall">грн</span>
+                                        <span className="BasePriceWithQuantitySmall" style={{color: "#ee3c23"}}>грн</span>
   </span>
                                       <span>/</span>
-                                      <div>За 1 шт:</div>
+                                      <div className="BasePriceWithQuantityBig">За 1 шт:</div>
                                       <span className="money booooold" style={{color: "#ee3c23"}}>
     {parseFloat(thing.priceForThis / thing.amount).toFixed(2)}
-                                        <span className="BasePriceWithQuantitySmall">грн</span>
+                                        <span className="BasePriceWithQuantitySmall" style={{color: "#ee3c23"}}>грн</span>
   </span>
                                     </div>
 
                                     {(+parseFloat(thing.priceForOneThis).toFixed(2)) !==
                                       (+parseFloat(thing.priceForOneThisDiscount || 0).toFixed(2)) && (
                                         <div className="adminFontTable BasePriceWithQuantityDetals pricesRow">
-                                          <div>За 1 аркуш:</div>
+                                          <div className="BasePriceWithQuantityBig">За 1 аркуш:</div>
                                           <span className="money booooold" style={{color: "#008249"}}>
       {thing.priceForOneThisDiscount}
-                                            <span className="BasePriceWithQuantitySmall">грн</span>
+                                            <span className="BasePriceWithQuantitySmall" style={{color: "#008249"}}>грн</span>
     </span>
                                           <span>/</span>
-                                          <div>За 1 шт:</div>
+                                          <div className="BasePriceWithQuantityBig">За 1 шт:</div>
                                           <span className="money booooold" style={{color: "#008249"}}>
       {(thing.priceForThisDiscount / thing.amount).toFixed(2)}
-                                            <span className="BasePriceWithQuantitySmall">грн</span>
+                                            <span className="BasePriceWithQuantitySmall" style={{color: "#008249"}}>грн</span>
     </span>
                                         </div>
                                       )}

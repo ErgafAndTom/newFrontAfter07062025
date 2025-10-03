@@ -13,6 +13,12 @@ function StatusBar({item}) {
         whiteSpace: "nowrap",
       width: '9vw',
       height: '5.5vh',
+
+      fontWeight: '400',
+      fontSize: '1.3vh',
+      letterSpacing: '0.1rem',
+      textTransform: 'uppercase',
+
         // textOverflow: "ellipsis",
       clipPath: 'polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%)',
       // borderRadius: "1vh",
@@ -22,7 +28,7 @@ function StatusBar({item}) {
         // height: "1.2vw",
 
         // fontSize: "0.5vw",
-        color: "black",
+
         index: "1",
         backgroundColor:
             item.status === '0' ? '#FBFAF6' :

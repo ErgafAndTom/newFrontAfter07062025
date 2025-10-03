@@ -169,9 +169,9 @@
 }
 
 /* з попереднього блоку, якщо ще не додано */
-.OrderRow-header { font-weight: 600; background: #f1f1f1; }
+
 .OrderRow-hover:hover { background: #f6f6f6; cursor: pointer; }
-.summary-cell { min-width: 0; }
+
 LikeTable-contract-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .UsersOrdersLikeTable-contract-text-multiline {
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;

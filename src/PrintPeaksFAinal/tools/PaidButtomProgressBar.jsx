@@ -199,15 +199,16 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
 
   // --- POS Monobank оплата (логіка другого коду) ---
   const createTerminalPayment = async () => {
-    if (!thisOrder?.id || !thisOrder?.totalAmount) return;
+    if (!thisOrder?.id || !thisOrder?.allPrice) return;
     console.log("Creating terminal payment for order:", thisOrder.id);
     try {
       const { data } = await axios.post("/api/pos/sale", {
         orderId: thisOrder.id,
-        amount: Math.round(thisOrder.totalAmount * 100),
+        amount: Math.round(thisOrder.allPrice * 100),
         currency: 980,
         terminalId: "PQ012563",
       });
+      console.log(data);
       if (data?.payment) {
         setThisOrder((prev) => ({ ...prev, Payment: data.payment }));
       }
@@ -268,30 +269,29 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
         ["CANCELLED", "EXPIRED"].includes(thisOrder.Payment.status)) && (
         <div className="payment-methods-panel d-flex align-items-center">
           <button
-            className="PayButtons adminTextBig cash"
+            className="PayButtons adminTextBigPay cash"
             onClick={() => handleSelect("cash")}
           >
-            Розрахунок готівкою
+            Готівка
           </button>
           <button
-            className="PayButtons adminTextBig terminal"
+            className="PayButtons adminTextBigPay terminal"
             onClick={() => handleSelect("terminal")}
           >
-            Розрахунок карткою
+            Картка
           </button>
           <button
-            className="PayButtons adminTextBig online"
+            className="PayButtons adminTextBigPay online"
             onClick={() => handleSelect("online")}
           >
-            Платіж за посиланням
-          </button>
+Посилання          </button>
           <button
             onClick={() => setShowPays(true)}
             title="Платежі"
             style={{ ...buttonStyles.base, ...buttonStyles.iconButton }}
-            className="PayButtons adminTextBig invoices"
+            className="PayButtons adminTextBigPay invoices"
           >
-            Оплата на рахунок
+            Рахунок
           </button>
         </div>
       )}
