@@ -4,6 +4,7 @@ import PaymentCalculator from "../DiscountCalculator";
 import App from "../components/Calendar";
 import NewUIArtem from "../PrintPeaksFAinal/NewUIArtem";
 import {Router} from "react-router-dom";
+import ClientChangerUIArtem from "../PrintPeaksFAinal/userInNewUiArtem/ClientChangerUIArtem";
 
 const ComponentPreviews = () => {
     return (
@@ -19,6 +20,9 @@ const ComponentPreviews = () => {
 
                 </Router>
                 <NewUIArtem/>
+            </ComponentPreview>
+            <ComponentPreview path="/ClientChangerUIArtem">
+                <ClientChangerUIArtem/>
             </ComponentPreview>
         </Previews>
     )

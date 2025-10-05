@@ -60,41 +60,73 @@ const Cash = () => {
     setThisOrderForDelete(order);
   };
 
-  useEffect(() => {
-    if (currentUser) {
-      const fetchData = async () => {
-        try {
-          const url = '/api/cashRouts/all'
-          const postData = {
-            inPageCount: limit,
-            currentPage: currentPage,
-            search: search,
-            columnName: {column: 'id', reverse: true},
-            startDate: startDate,
-            endDate: endDate,
-            statuses: statuses
-          };
-
-
-          setLoading(true);
-          const res = await axios.post(url, postData);
-          console.log(res.data);
-          setData(res.data);
-          setLoading(false);
-        } catch (err) {
-          if (err.response?.status === 403) navigate('/login');
-          setError(err.message);
-          setLoading(false);
-        }
-      };
-
-      fetchData();
+  async function fetchShift() {
+    try {
+      setLoading(true);
+      const resp = await axios.get("/api/checkbox/shift/current");
+      console.log(resp.data);
+      setData(resp.data)
+      if (resp.data.success) {
+        // setShift(resp.data.shift);
+      }
+    } catch (e) {
+      console.log(e);
+      setError(e.response?.data?.error?.message || e.message);
+    } finally {
+      setLoading(false);
     }
-  }, [search, currentPage, limit, currentUser?.role, startDate, endDate, statuses.status0, statuses.status1, statuses.status2, statuses.status3, statuses.status4, statuses.status5,
-  ]);
+  }
+
+  async function login() {
+    try {
+      setLoading(true);
+      const resp = await axios.post('/api/checkbox/auth/login', loginForm);
+      console.log(resp);
+      fetchShift()
+      setError(null);
+    } catch (e) {
+      setError(e.response?.data?.error || e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // useEffect(() => {
+  //   if (currentUser) {
+  //     const fetchData = async () => {
+  //       try {
+  //         const url = '/api/cashRouts/all'
+  //         const postData = {
+  //           inPageCount: limit,
+  //           currentPage: currentPage,
+  //           search: search,
+  //           columnName: {column: 'id', reverse: true},
+  //           startDate: startDate,
+  //           endDate: endDate,
+  //           statuses: statuses
+  //         };
+  //
+  //
+  //         setLoading(true);
+  //         const res = await axios.post(url, postData);
+  //         console.log(res.data);
+  //         setData(res.data);
+  //         setLoading(false);
+  //       } catch (err) {
+  //         if (err.response?.status === 403) navigate('/login');
+  //         setError(err.message);
+  //         setLoading(false);
+  //       }
+  //     };
+  //
+  //     fetchData();
+  //   }
+  // }, [search, currentPage, limit, currentUser?.role, startDate, endDate, statuses.status0, statuses.status1, statuses.status2, statuses.status3, statuses.status4, statuses.status5,
+  // ]);
 
   useEffect(() => {
     // console.log(document.location.pathname);
+    login()
     dispatch(searchChange(""))
   }, [])
 
