@@ -64,8 +64,8 @@ const Cash = () => {
     try {
       setLoading(true);
       const resp = await axios.get("/api/checkbox/shift/current");
-      console.log(resp.data);
-      setData(resp.data)
+      console.log(resp.data.data);
+      setData(resp.data.data)
       if (resp.data.success) {
         // setShift(resp.data.shift);
       }
@@ -80,7 +80,7 @@ const Cash = () => {
   async function login() {
     try {
       setLoading(true);
-      const resp = await axios.post('/api/checkbox/auth/login', loginForm);
+      const resp = await axios.post('/api/checkbox/auth/login');
       console.log(resp);
       fetchShift()
       setError(null);
@@ -178,24 +178,26 @@ const Cash = () => {
     <div className="OrderList">
       <div className="OrderRow-summary OrderRow-header">
         <div className="summary-cell id d-flex justify-content-center">ID</div>
-        <div className="summary-cell name d-flex justify-content-center">Назва</div>
-        <div className="summary-cell edropu justify-content-center">fiscalNumber </div>
+        <div className="summary-cell name d-flex justify-content-center">status</div>
+        <div className="summary-cell edropu justify-content-center">serial</div>
 
-        <div className="summary-cell discount justify-content-center">number</div>
+        <div className="summary-cell shiftId justify-content-center">shiftId</div>
+        <div className="summary-cell discount justify-content-center">openedAt</div>
+        <div className="summary-cell discount justify-content-center">closedAt</div>
 
-        <div className="summary-cell address" style={{width: "17vw", maxWidth: "17vw"}}>Адреса</div>
-        <div className="summary-cell phoneNumber">isTest</div>
-        <div className="summary-cell phoneNumber">active</div>
-        <div className="summary-cell phoneNumber">shift</div>
-        <div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20}
-                                                                                         style={{color: '#000'}}/></div>
-        <div className="summary-cell telegram d-flex justify-content-center">
-          <FaTelegramPlane size={20} style={{color: '#000'}}/>
-        </div>
+        {/*<div className="summary-cell address" style={{width: "17vw", maxWidth: "17vw"}}>Адреса</div>*/}
+        {/*<div className="summary-cell phoneNumber">isTest</div>*/}
+        {/*<div className="summary-cell phoneNumber">active</div>*/}
+        {/*<div className="summary-cell phoneNumber">shift</div>*/}
+        {/*<div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20}*/}
+        {/*                                                                                 style={{color: '#000'}}/></div>*/}
+        {/*<div className="summary-cell telegram d-flex justify-content-center">*/}
+        {/*  <FaTelegramPlane size={20} style={{color: '#000'}}/>*/}
+        {/*</div>*/}
         {/*<div className="summary-cell viber d-flex justify-content-center">*/}
         {/*  <FaViber size={20} style={{ color: '#000' }} />*/}
         {/*</div>*/}
-        <div className="summary-cell phoneNumber d-flex justify-content-center">Members(users)</div>
+        {/*<div className="summary-cell phoneNumber d-flex justify-content-center">Members(users)</div>*/}
         <div className="summary-cell phoneNumber d-flex justify-content-center">Керування</div>
         {/*<div className="summary-cell documents d-flex justify-content-center">Баланс</div>*/}
         {/*<div className="summary-cell files d-flex justify-content-sm-around ">Файли</div>*/}
@@ -226,34 +228,44 @@ const Cash = () => {
           </h1>
         </div>
       }
-      {data?.rows.map(order => {
+      {data?.map(order => {
         const isExpanded = expandedOrderId === order.id;
-        const isCancelled = parseInt(order.status) === 5; // або адаптуй під свою логіку
-        const baseColor = getStatusColor(order.status, isCancelled);
-        const expandedStyle = {
-          backgroundColor: hexToRgba(baseColor, 0.15)
-        };
+        // const isCancelled = parseInt(order.status) === 5; // або адаптуй під свою логіку
+        // const baseColor = getStatusColor(order.status, isCancelled);
+        // const expandedStyle = {
+        //   backgroundColor: hexToRgba(baseColor, 0.15)
+        // };
+
+        // return (
+        //   <div key={order.id} className="OrderBlock">
+        //
+        //
+        //
+        //   </div>
+        // );
 
 
         return (
           <div key={order.id} className="OrderBlock">
             <div className="OrderRow-summary OrderRow-hover"
-                 style={expandedStyle}
+                 // style={expandedStyle}
                  onMouseEnter={(e) => {
                    e.currentTarget.style.backgroundColor =
                      order.status === '0'
                        ? '#fbfaf6'
-                       : hexToRgba(baseColor, 0.3);
+                       : hexToRgba("#fbfaf6", 0.3);
                  }}
                  onMouseLeave={(e) => {
-                   e.currentTarget.style.backgroundColor = hexToRgba(baseColor, 0.2);
+                   e.currentTarget.style.backgroundColor = hexToRgba("#fbfaf6", 0.2);
                  }}
                  onClick={() => toggleOrder(order.id)}>
 
               <div className="summary-cell id d-flex justify-content-center">{order.id}</div>
-              <div className="summary-cell d-flex name justify-content-center fontSize1-3VH UsersOrdersLikeTable-contract-text-multiline">{order.companyName || '—'}</div>
-              <div className="summary-cell d-flex edropu justify-content-center UsersOrdersLikeTable-contract-text-multiline">{order.fiscalNumber || '—'}</div>
-              <div className="summary-cell d-flex discount justify-content-center UsersOrdersLikeTable-contract-text-multiline">{order.number || '—'}</div>
+              <div className="summary-cell d-flex name justify-content-center fontSize1-3VH UsersOrdersLikeTable-contract-text-multiline">{order.status || '—'}</div>
+              <div className="summary-cell d-flex edropu justify-content-center UsersOrdersLikeTable-contract-text-multiline">{order.serial || '—'}</div>
+              <div className="summary-cell d-flex shiftId justify-content-center UsersOrdersLikeTable-contract-text">{`${order.shiftId}` || '—'}</div>
+              <div className="summary-cell d-flex discount justify-content-center UsersOrdersLikeTable-contract-text-multiline">{order.openedAt || '—'}</div>
+              <div className="summary-cell d-flex discount justify-content-center UsersOrdersLikeTable-contract-text-multiline">{order.closedAt || '—'}</div>
               {/*<div className="summary-cell price">*/}
               {/*  {order.allPrice === order.price || order.allPrice === 0 || order.allPrice === "0.00"*/}
               {/*    ? <span style={{color: "red"}}>{order.allPrice}</span>*/}
@@ -261,17 +273,17 @@ const Cash = () => {
               {/*</div>*/}
               {/*<div className="summary-cell client">{order.client?.firstName} {order.client?.lastName}</div>*/}
               {/*<div className="summary-cell company">{order.client?.company || '—'} </div>*/}
-              <div className="summary-cell address UsersOrdersLikeTable-contract-text-multiline" style={{width: "17vw", maxWidth: "17vw"}}>
-                <p className="UsersOrdersLikeTable-contract-text" style={{hyphens: "auto", width: "17vw", maxWidth: "17vw"}}>{order.address || '—'}</p>
-              </div>
-              <div className="summary-cell phoneNumber fontSize1-3VH UsersOrdersLikeTable-contract-text-multiline">{order.client?.phoneNumber || '—'}</div>
-              <div className="summary-cell telegram d-flex justify-content-center UsersOrdersLikeTable-contract-text-multiline">
-                {order.client?.telegram
-                  ? <TelegramAvatar link={order.client.telegram} size={45} defaultSrc=""/>
-                  : '—'}
-              </div>
+              {/*<div className="summary-cell address UsersOrdersLikeTable-contract-text-multiline" style={{width: "17vw", maxWidth: "17vw"}}>*/}
+              {/*  <p className="UsersOrdersLikeTable-contract-text" style={{hyphens: "auto", width: "17vw", maxWidth: "17vw"}}>{order.address || '—'}</p>*/}
+              {/*</div>*/}
+              {/*<div className="summary-cell phoneNumber fontSize1-3VH UsersOrdersLikeTable-contract-text-multiline">{order.client?.phoneNumber || '—'}</div>*/}
+              {/*<div className="summary-cell telegram d-flex justify-content-center UsersOrdersLikeTable-contract-text-multiline">*/}
+              {/*  {order.client?.telegram*/}
+              {/*    ? <TelegramAvatar link={order.client.telegram} size={45} defaultSrc=""/>*/}
+              {/*    : '—'}*/}
+              {/*</div>*/}
 
-              <div className="summary-cell d-flex phoneNumber justify-content-center">{order.Users?.length}</div>
+              {/*<div className="summary-cell d-flex phoneNumber justify-content-center">{order.Users?.length}</div>*/}
 
               {/*<div className="summary-cell viber d-flex justify-content-center">*/}
               {/*  {order.client?.phoneNumber*/}
@@ -279,12 +291,12 @@ const Cash = () => {
               {/*    : '—'}*/}
               {/*</div>*/}
 
-              <div className="summary-cell phoneNumber d-flex justify-content-center">
-                <Link to={`/Companys/${order.id}`}
-                      style={{textDecoration: 'none', outline: 'none'}}>
-                  <button className="adminButtonAddOrder"><RiCalculatorLine size={20}/></button>
-                </Link>
-              </div>
+              {/*<div className="summary-cell phoneNumber d-flex justify-content-center">*/}
+              {/*  <Link to={`/Companys/${order.id}`}*/}
+              {/*        style={{textDecoration: 'none', outline: 'none'}}>*/}
+              {/*    <button className="adminButtonAddOrder"><RiCalculatorLine size={20}/></button>*/}
+              {/*  </Link>*/}
+              {/*</div>*/}
               {/*<div className="summary-cell documents d-flex justify-content-center">*/}
               {/*  <Link to={`/Companys/${order.id}`}*/}
               {/*        style={{textDecoration: 'none', outline: 'none'}}>*/}

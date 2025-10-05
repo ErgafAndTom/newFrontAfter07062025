@@ -346,7 +346,7 @@ export default function UserPageDetails({thisUser = null}) {
       Прикріпити до компанії
     </div>
   );
-  console.log(user.hasOwnProperty);
+  // console.log(user.hasOwnProperty);
 
   return (
     <div className="container-fluid" style={{padding:"1rem"}}>
@@ -392,7 +392,7 @@ export default function UserPageDetails({thisUser = null}) {
           className="mt-2"
           style={{
             display: "grid",
-            gridTemplateRows: `repeat(8, 1fr)`,
+            gridTemplateRows: `repeat(10, 1fr)`,
             gridAutoFlow: "column",
             justifyContent:"space-around",
             alignItems: "center",
@@ -419,7 +419,9 @@ export default function UserPageDetails({thisUser = null}) {
           <FieldEdit label="Знижка (%)"  field="discount" value={parseInt(String(user.discount).replace(/\D/g, ''), 10) || 0} userId={user.id} type="number" load={load} style={{ background: "#008249" }}  setUser={setUser} user={user} />
           <FieldEdit label="Фото" field="photoLink" value={user.photoLink} userId={user.id} load={load}  setUser={setUser} user={user} />
           <FieldEdit label="Доступ(Права)" field="role" value={user.role} userId={user.id} load={load}  setUser={setUser} user={user} />
-          {/*<FieldEdit label="Права" field="role2" value={user.role2} userId={user.id} load={load}  setUser={setUser} user={user} />*/}
+          <FieldEdit label="Касир(пин)" field="role2" value={user.role2} userId={user.id} load={load}  setUser={setUser} user={user} />
+          <FieldEdit label="loginCashier" field="loginCashier" value={user.loginCashier} userId={user.id} load={load}  setUser={setUser} user={user} />
+          <FieldEdit label="passwordCashier" field="passwordCashier" value={user.passwordCashier} userId={user.id} load={load}  setUser={setUser} user={user} />
           {/*<FieldEdit label="Права" field="role2" value={user.role2} userId={user.id} load={load}  setUser={setUser} user={user} />*/}
         </div>
       </div>

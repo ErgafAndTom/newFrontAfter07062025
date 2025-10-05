@@ -555,6 +555,7 @@ body {
 .summary-cell.pay             { width: 9vw; }
 .summary-cell.name             { width: 9vw; }
 .summary-cell.namecompany             { width: 20vw; }
+.summary-cell.shiftId             { width: 25vw; }
 .summary-cell.edropu             { width: 9vw; }
 .summary-cell.address             { width: 9vw; }
 .summary-cell.discount             { width: 9vw; }

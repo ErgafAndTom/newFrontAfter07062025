@@ -268,6 +268,11 @@ function ClientUserProfile() {
           <PaysInOrderRestoredForAdmin user={thisUser}/>
         </div>
       )}
+      {activeTab === 'cashierAdmin' && (
+        <div style={containerStyles.contentContainer}>
+          <PaysInOrderRestoredForAdmin user={thisUser}/>
+        </div>
+      )}
     </div>
   );
 }
