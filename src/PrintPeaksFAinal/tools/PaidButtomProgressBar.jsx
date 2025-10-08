@@ -198,11 +198,12 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   };
 
   // --- POS Monobank оплата (логіка другого коду) ---
+// --- POS Monobank оплата (через Checkbox backend)
   const createTerminalPayment = async () => {
     if (!thisOrder?.id || !thisOrder?.allPrice) return;
     console.log("Creating terminal payment for order:", thisOrder.id);
     try {
-      const { data } = await axios.post("/api/pos/sale", {
+      const { data } = await axios.post("/api/checkbox/shift/sale", { // 👈 змінив шлях
         orderId: thisOrder.id,
         amount: Math.round(thisOrder.allPrice * 100),
         currency: 980,
@@ -216,6 +217,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
       console.error("Помилка оплати через POS:", err);
     }
   };
+
 
   // --- Анімація "В очікуванні оплати" ---
   const [index, setIndex] = useState(0);
@@ -252,6 +254,21 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
       checkStatus();
     }
   }, [thisOrder.id]);
+  useEffect(() => {
+    if (thisOrder?.Invoice?.id && thisOrder?.Payment?.status === "CREATED") {
+      const interval = setInterval(async () => {
+        const { data } = await axios.get(`/api/v1/invoices/status/${thisOrder.Invoice.id}`);
+        if (data.status === "PAID") {
+          setThisOrder((prev) => ({
+            ...prev,
+            Payment: { ...prev.Payment, status: "PAID" },
+          }));
+          clearInterval(interval);
+        }
+      }, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [thisOrder]);
 
   return (
     <div className="payment-methods-panel adminTextBig">
