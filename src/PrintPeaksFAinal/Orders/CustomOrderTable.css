@@ -735,7 +735,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap; /* для одной строки */
-  max-width: 10vw; /* ограничь ширину по контейнеру */
+  /*max-width: 10vw; !* ограничь ширину по контейнеру *!*/
 }
 
 .UsersOrdersLikeTable-contract-text-multiline {

@@ -244,8 +244,8 @@ const Nav = () => {
         </span>
             </NavLink>
 
-            <NavLink to="/Cash" className="btn">
-              <span className="flip-front" >Каси</span>
+            <NavLink to="/Shifts" className="btn">
+              <span className="flip-front" >Зміни</span>
               <span className="flip-back"  >
           {/* checklist */}
                 <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">

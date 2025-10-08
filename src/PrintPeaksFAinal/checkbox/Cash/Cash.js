@@ -82,7 +82,6 @@ const Cash = () => {
       setLoading(true);
       const resp = await axios.post('/api/checkbox/auth/login');
       console.log(resp);
-      fetchShift()
       setError(null);
     } catch (e) {
       setError(e.response?.data?.error || e.message);
@@ -126,7 +125,8 @@ const Cash = () => {
 
   useEffect(() => {
     // console.log(document.location.pathname);
-    login()
+    // login()
+    fetchShift()
     dispatch(searchChange(""))
   }, [])
 
@@ -182,8 +182,8 @@ const Cash = () => {
         <div className="summary-cell edropu justify-content-center">serial</div>
 
         <div className="summary-cell shiftId justify-content-center">shiftId</div>
-        <div className="summary-cell discount justify-content-center">openedAt</div>
-        <div className="summary-cell discount justify-content-center">closedAt</div>
+        <div className="summary-cell client justify-content-center">openedAt</div>
+        <div className="summary-cell client justify-content-center">closedAt</div>
 
         {/*<div className="summary-cell address" style={{width: "17vw", maxWidth: "17vw"}}>Адреса</div>*/}
         {/*<div className="summary-cell phoneNumber">isTest</div>*/}
@@ -261,11 +261,11 @@ const Cash = () => {
                  onClick={() => toggleOrder(order.id)}>
 
               <div className="summary-cell id d-flex justify-content-center">{order.id}</div>
-              <div className="summary-cell d-flex name justify-content-center fontSize1-3VH UsersOrdersLikeTable-contract-text-multiline">{order.status || '—'}</div>
-              <div className="summary-cell d-flex edropu justify-content-center UsersOrdersLikeTable-contract-text-multiline">{order.serial || '—'}</div>
+              <div className="summary-cell d-flex name justify-content-center fontSize1-3VH UsersOrdersLikeTable-contract-text">{order.status || '—'}</div>
+              <div className="summary-cell d-flex edropu justify-content-center UsersOrdersLikeTable-contract-text">{order.serial || '—'}</div>
               <div className="summary-cell d-flex shiftId justify-content-center UsersOrdersLikeTable-contract-text">{`${order.shiftId}` || '—'}</div>
-              <div className="summary-cell d-flex discount justify-content-center UsersOrdersLikeTable-contract-text-multiline">{order.openedAt || '—'}</div>
-              <div className="summary-cell d-flex discount justify-content-center UsersOrdersLikeTable-contract-text-multiline">{order.closedAt || '—'}</div>
+              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text">{order.openedAt ? new Date(order.openedAt).toLocaleString() : '—'}</div>
+              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text">{order.closedAt ? new Date(order.closedAt).toLocaleString() : '—'}</div>
               {/*<div className="summary-cell price">*/}
               {/*  {order.allPrice === order.price || order.allPrice === 0 || order.allPrice === "0.00"*/}
               {/*    ? <span style={{color: "red"}}>{order.allPrice}</span>*/}
