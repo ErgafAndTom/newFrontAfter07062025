@@ -67,7 +67,7 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder }) {
 
     // Деталі відправлення (обов'язкові)
     ServiceType: 'WarehouseWarehouse', // Обов'язкове: тип сервісу (наприклад, "WarehouseWarehouse")
-    PaymentMethod: 'Cash',             // Обов'язкове: спосіб оплати ("Cash" або "NonCash")
+    PaymentMethod: 'Shifts',             // Обов'язкове: спосіб оплати ("shifts" або "NonCash")
     PayerType: 'Recipient',               // Обов'язкове: хто оплачує доставку ("Sender", "Recipient", "ThirdPerson")
     Cost: '1',                          // Обов'язкове: оголошена вартість (наприклад, "1000")
     CargoType: 'Cargo',                // Обов'язкове: тип вантажу ("Cargo" або "Documents")
@@ -389,7 +389,7 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder }) {
 
                                         <select className="selectArtem" name="PaymentMethod" style={styles.select1}
                                                 value={formData.PaymentMethod} onChange={handleChange}>
-                                            <option className="optionInSelectArtem" value="Cash">Готівка</option>
+                                            <option className="optionInSelectArtem" value="Shifts">Готівка</option>
                                             <option className="optionInSelectArtem" value="NonCash">Безготівка</option>
                                         </select>
                                     </div>

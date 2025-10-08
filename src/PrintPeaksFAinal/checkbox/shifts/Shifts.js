@@ -15,7 +15,7 @@ import Loader from "../../../components/calc/Loader";
 import ClientCabinet from "../../userInNewUiArtem/ClientCabinet";
 import AddCashModal from "./AddCashModal";
 
-const Cash = () => {
+const Shifts = () => {
   const [data, setData] = useState(null);
   const dispatch = useDispatch();
   const [error, setError] = useState(null);
@@ -470,4 +470,4 @@ const Cash = () => {
 };
 
 
- export default Cash
+ export default Shifts

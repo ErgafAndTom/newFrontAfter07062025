@@ -43,7 +43,7 @@ import Graph3D_with_comments from "../../PrintPeaksFAinal/Graph3D_with_comments"
 import CompanyPage from "../../PrintPeaksFAinal/company/CompanyPage";
 import UsersOrdersLikeTable from "../../PrintPeaksFAinal/user/UsersOrdersLikeTable";
 import UserPageDetails from "../../PrintPeaksFAinal/user/UserPageDetails";
-import Cash from "../../PrintPeaksFAinal/checkbox/Cash/Cash";
+import Shifts from "../../PrintPeaksFAinal/checkbox/shifts/Shifts";
 import axios from "../../api/axiosInstance";
 import {searchChange} from "../../actions/searchAction";
 import {FiPhone} from "react-icons/fi";
@@ -52,9 +52,10 @@ import FiltrOrders from "../../PrintPeaksFAinal/Orders/FiltrOrders";
 import TelegramAvatar from "../../PrintPeaksFAinal/Messages/TelegramAvatar";
 import {RiCalculatorLine} from "react-icons/ri";
 import ModalDeleteOrder from "../../PrintPeaksFAinal/Orders/ModalDeleteOrder";
-import AddCashModal from "../../PrintPeaksFAinal/checkbox/Cash/AddCashModal";
+import AddCashModal from "../../PrintPeaksFAinal/checkbox/shifts/AddCashModal";
 import ClientCabinet from "../../PrintPeaksFAinal/userInNewUiArtem/ClientCabinet";
 import Pagination from "../../PrintPeaksFAinal/tools/Pagination";
+import Cash from "../../PrintPeaksFAinal/checkbox/CashCash/Cash";
 
 
 
@@ -118,9 +119,11 @@ const AfterNav = () => {
                 <Route path="/myFiles" element={<UserFiles />} />
                 <Route path="/myPayments" element={<Payments />} />
 
-              <Route path="/Shifts" element={<Cash/>} />
+                <Route path="/Shifts" element={<Shifts/>} />
+                <Route path="/Shifts/:id" element={<CompanyTabl />} />
 
-              <Route path="/Shifts/:id" element={<CompanyTabl />} />
+                <Route path="/Cashs" element={<Cash/>} />
+                <Route path="/Cashs/:id" element={<CompanyTabl />} />
 
                 <Route path="/Orders" element={<CustomOrderTable2 />} />
                 {/*<Route path="/OrdersOld" element={<CustomOrderTable />} />*/}
