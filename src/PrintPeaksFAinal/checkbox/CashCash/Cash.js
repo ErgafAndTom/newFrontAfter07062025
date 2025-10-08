@@ -177,16 +177,16 @@ const Cash = () => {
   return (
     <div className="OrderList">
       <div className="OrderRow-summary OrderRow-header">
-        <div className="summary-cell client d-flex justify-content-center">ID</div>
-        <div className="summary-cell client d-flex justify-content-center">address</div>
-        <div className="summary-cell client justify-content-center">fiscal_number</div>
+        <div className="summary-cell client d-flex justify-content-center" style={{border: "solid black 1px"}}>ID</div>
+        <div className="summary-cell client d-flex justify-content-center" style={{border: "solid black 1px"}}>address</div>
+        <div className="summary-cell client justify-content-center" style={{border: "solid black 1px"}}>fiscal_number</div>
 
-        <div className="summary-cell settingclient justify-content-center">number</div>
-        <div className="summary-cell settingclient justify-content-center">offline_mode</div>
-        <div className="summary-cell settingclient justify-content-center">is_test</div>
-        <div className="summary-cell client justify-content-center">created_at</div>
-        <div className="summary-cell client justify-content-center">openedAt</div>
-        <div className="summary-cell client justify-content-center">closedAt</div>
+        <div className="summary-cell settingclient justify-content-center" style={{border: "solid black 1px"}}>number</div>
+        <div className="summary-cell settingclient justify-content-center" style={{border: "solid black 1px"}}>offline_mode</div>
+        <div className="summary-cell settingclient justify-content-center" style={{border: "solid black 1px"}}>is_test</div>
+        <div className="summary-cell client justify-content-center" style={{border: "solid black 1px"}}>created_at</div>
+        <div className="summary-cell client justify-content-center" style={{border: "solid black 1px"}}>openedAt</div>
+        <div className="summary-cell client justify-content-center" style={{border: "solid black 1px"}}>closedAt</div>
 
         {/*<div className="summary-cell address" style={{width: "17vw", maxWidth: "17vw"}}>Адреса</div>*/}
         {/*<div className="summary-cell phoneNumber">isTest</div>*/}
@@ -263,15 +263,15 @@ const Cash = () => {
                  }}
                  onClick={() => toggleOrder(order.id)}>
 
-              <div className="summary-cell client d-flex justify-content-center">{order.id}</div>
-              <div className="summary-cell d-flex client justify-content-center fontSize1-3VH UsersOrdersLikeTable-contract-text">{order.address || '—'}</div>
-              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text">{order.fiscal_number || '—'}</div>
-              <div className="summary-cell d-flex settingclient justify-content-center UsersOrdersLikeTable-contract-text">{`${order.number}` || '—'}</div>
-              <div className="summary-cell d-flex settingclient justify-content-center UsersOrdersLikeTable-contract-text">{`${order.offline_mode}` || '—'}</div>
-              <div className="summary-cell d-flex settingclient justify-content-center UsersOrdersLikeTable-contract-text">{`${order.is_test}` || '—'}</div>
-              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text">{order.created_at ? new Date(order.created_at).toLocaleString() : '—'}</div>
-              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text">{order.openedAt ? new Date(order.openedAt).toLocaleString() : '—'}</div>
-              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text">{order.closedAt ? new Date(order.closedAt).toLocaleString() : '—'}</div>
+              <div className="summary-cell client d-flex justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{order.id}</div>
+              <div className="summary-cell d-flex client justify-content-center fontSize1-3VH UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{order.address || '—'}</div>
+              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{order.fiscal_number || '—'}</div>
+              <div className="summary-cell d-flex settingclient justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{`${order.number}` || '—'}</div>
+              <div className="summary-cell d-flex settingclient justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{`${order.offline_mode}` || '—'}</div>
+              <div className="summary-cell d-flex settingclient justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{`${order.is_test}` || '—'}</div>
+              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{order.created_at ? new Date(order.created_at).toLocaleString() : '—'}</div>
+              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{order.openedAt ? new Date(order.openedAt).toLocaleString() : '—'}</div>
+              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{order.closedAt ? new Date(order.closedAt).toLocaleString() : '—'}</div>
               {/*<div className="summary-cell price">*/}
               {/*  {order.allPrice === order.price || order.allPrice === 0 || order.allPrice === "0.00"*/}
               {/*    ? <span style={{color: "red"}}>{order.allPrice}</span>*/}
