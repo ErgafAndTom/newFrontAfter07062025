@@ -217,15 +217,26 @@ const Shifts = () => {
           statuses={statuses}
           setStatuses={setStatuses}
         />
-        <div className="d-flex" style={{opacity: "0.5", margin: "auto", marginTop: "0.1vw"}}>Знайдено ({data?.count})
+        <div className="d-flex" style={{opacity: "0.5", margin: "auto", marginTop: "0.1vw"}}>
+          Зміни користувача. Знайдено: {data?.count} ({data?.length})
         </div>
       </div>
 
       {loading &&
-        <div className="d-flex justify-content-center align-items-center" style={{height: "100%"}}>
+        <div className="d-flex justify-content-center align-items-center">
           <h1 className="d-flex justify-content-center align-items-center">
             <Loader/>
           </h1>
+        </div>
+      }
+      {data?.length < 1 &&
+        <div className="d-flex  flex-column justify-content-center align-items-center">
+          <h1 className="d-flex justify-content-center align-items-center">
+            Зміна закрита
+          </h1>
+          <div className="d-flex justify-content-center align-items-center adminButtonAdd">
+            Відкрити зміну
+          </div>
         </div>
       }
       {data?.map(order => {

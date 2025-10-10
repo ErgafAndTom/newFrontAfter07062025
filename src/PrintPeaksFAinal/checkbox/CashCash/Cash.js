@@ -177,16 +177,16 @@ const Cash = () => {
   return (
     <div className="OrderList">
       <div className="OrderRow-summary OrderRow-header">
-        <div className="summary-cell client d-flex justify-content-center" style={{border: "solid black 1px"}}>ID</div>
-        <div className="summary-cell client d-flex justify-content-center" style={{border: "solid black 1px"}}>address</div>
-        <div className="summary-cell client justify-content-center" style={{border: "solid black 1px"}}>fiscal_number</div>
+        <div className="summary-cell client d-flex justify-content-center adminFont">ID</div>
+        <div className="summary-cell client d-flex justify-content-center adminFont">address</div>
+        <div className="summary-cell client justify-content-center adminFont">fiscal_number</div>
 
-        <div className="summary-cell settingclient justify-content-center" style={{border: "solid black 1px"}}>number</div>
-        <div className="summary-cell settingclient justify-content-center" style={{border: "solid black 1px"}}>offline_mode</div>
-        <div className="summary-cell settingclient justify-content-center" style={{border: "solid black 1px"}}>is_test</div>
-        <div className="summary-cell client justify-content-center" style={{border: "solid black 1px"}}>created_at</div>
-        <div className="summary-cell client justify-content-center" style={{border: "solid black 1px"}}>openedAt</div>
-        <div className="summary-cell client justify-content-center" style={{border: "solid black 1px"}}>closedAt</div>
+        <div className="summary-cell settingclient justify-content-center adminFont">number</div>
+        <div className="summary-cell settingclient justify-content-center adminFont">offline_mode</div>
+        <div className="summary-cell settingclient justify-content-center adminFont">is_test</div>
+        <div className="summary-cell client justify-content-center adminFont">created_at</div>
+        <div className="summary-cell client justify-content-center adminFont">openedAt</div>
+        <div className="summary-cell client justify-content-center adminFont">closedAt</div>
 
         {/*<div className="summary-cell address" style={{width: "17vw", maxWidth: "17vw"}}>Адреса</div>*/}
         {/*<div className="summary-cell phoneNumber">isTest</div>*/}
@@ -201,7 +201,7 @@ const Cash = () => {
         {/*  <FaViber size={20} style={{ color: '#000' }} />*/}
         {/*</div>*/}
         {/*<div className="summary-cell phoneNumber d-flex justify-content-center">Members(users)</div>*/}
-        <div className="summary-cell phoneNumber d-flex justify-content-center">Керування</div>
+        {/*<div className="summary-cell phoneNumber d-flex justify-content-center">Керування</div>*/}
         {/*<div className="summary-cell documents d-flex justify-content-center">Баланс</div>*/}
         {/*<div className="summary-cell files d-flex justify-content-sm-around ">Файли</div>*/}
         {/*<div className="summary-cell barcode-orders d-flex justify-content-center" style={{opacity: "1"}}>Штрих-код*/}
@@ -220,7 +220,8 @@ const Cash = () => {
           statuses={statuses}
           setStatuses={setStatuses}
         />
-        <div className="d-flex" style={{opacity: "0.5", margin: "auto", marginTop: "0.1vw"}}>Знайдено ({data?.count})
+        <div className="d-flex" style={{opacity: "0.5", margin: "auto", marginTop: "0.1vw"}}>
+          Касси. Знайдено: {data?.count} ({data?.length})
         </div>
       </div>
 
@@ -263,15 +264,15 @@ const Cash = () => {
                  }}
                  onClick={() => toggleOrder(order.id)}>
 
-              <div className="summary-cell client d-flex justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{order.id}</div>
-              <div className="summary-cell d-flex client justify-content-center fontSize1-3VH UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{order.address || '—'}</div>
-              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{order.fiscal_number || '—'}</div>
-              <div className="summary-cell d-flex settingclient justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{`${order.number}` || '—'}</div>
-              <div className="summary-cell d-flex settingclient justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{`${order.offline_mode}` || '—'}</div>
-              <div className="summary-cell d-flex settingclient justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{`${order.is_test}` || '—'}</div>
-              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{order.created_at ? new Date(order.created_at).toLocaleString() : '—'}</div>
-              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{order.openedAt ? new Date(order.openedAt).toLocaleString() : '—'}</div>
-              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text" style={{border: "solid black 1px"}}>{order.closedAt ? new Date(order.closedAt).toLocaleString() : '—'}</div>
+              <div className="summary-cell d-flex client d-flex justify-content-center UsersOrdersLikeTable-contract-text">{order.id}</div>
+              <div className="summary-cell d-flex client justify-content-center fontSize1-3VH UsersOrdersLikeTable-contract-text">{order.address || '—'}</div>
+              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text">{order.fiscal_number || '—'}</div>
+              <div className="summary-cell d-flex settingclient justify-content-center UsersOrdersLikeTable-contract-text">{`${order.number}` || '—'}</div>
+              <div className="summary-cell d-flex settingclient justify-content-center UsersOrdersLikeTable-contract-text">{`${order.offline_mode}` || '—'}</div>
+              <div className="summary-cell d-flex settingclient justify-content-center UsersOrdersLikeTable-contract-text">{`${order.is_test}` || '—'}</div>
+              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text">{order.created_at ? new Date(order.created_at).toLocaleString() : '—'}</div>
+              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text">{order.openedAt ? new Date(order.openedAt).toLocaleString() : '—'}</div>
+              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text">{order.closedAt ? new Date(order.closedAt).toLocaleString() : '—'}</div>
               {/*<div className="summary-cell price">*/}
               {/*  {order.allPrice === order.price || order.allPrice === 0 || order.allPrice === "0.00"*/}
               {/*    ? <span style={{color: "red"}}>{order.allPrice}</span>*/}
