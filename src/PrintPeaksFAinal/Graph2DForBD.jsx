@@ -365,7 +365,7 @@ const Graph2DForBD = () => {
       </div>
 
       {loading ? (
-        <div style={{ height: `95vh`, backgroundColor: "#000000", textAlign: "center", paddingTop: "40vh" }}>
+        <div style={{ height: `95vh`, backgroundColor: "#000422", textAlign: "center", paddingTop: "40vh" }}>
           {/*Loading graph...*/}
           <Loader/>
         </div>
@@ -391,7 +391,7 @@ const Graph2DForBD = () => {
           onLinkHover={setHoverLink}
           onNodeClick={handleSelectNode}
           cooldownTicks={isFrozen ? 0 : 80}
-          backgroundColor="#000000"
+          backgroundColor="#000422"
           nodeCanvasObject={(node, ctx, globalScale) => {
             const size = 5;
             ctx.beginPath();
@@ -408,7 +408,7 @@ const Graph2DForBD = () => {
             }
           }}
           style={{
-            backgroundColor: "#000000",
+            backgroundColor: "#000422",
           }}
         />
       )}
