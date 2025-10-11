@@ -375,7 +375,7 @@ const Graph2DForBD = () => {
           width={dims.width}
           height={dims.height}
           graphData={safeGraph}
-          nodeRelSize={5}
+          // nodeRelSize={5}
           linkColor={linkColor}
           linkWidth={linkWidth}
           linkOpacity={linkOpacity}
@@ -393,7 +393,7 @@ const Graph2DForBD = () => {
           cooldownTicks={isFrozen ? 0 : 80}
           backgroundColor="#000000"
           nodeCanvasObject={(node, ctx, globalScale) => {
-            const size = 6;
+            const size = 5;
             ctx.beginPath();
             ctx.arc(node.x, node.y, size, 0, 2 * Math.PI, false);
             ctx.fillStyle = nodeColor(node);
@@ -401,10 +401,10 @@ const Graph2DForBD = () => {
 
             if (showLabels) {
               const label = getDiagramLabel(node);
-              const fontSize = 14 / globalScale;
-              ctx.font = `${fontSize}px Sans-Serif`;
+              const fontSize = 0.7 / globalScale;
+              ctx.font = `${fontSize}vw Sans-Serif`;
               ctx.fillStyle = "#fff";
-              ctx.fillText(label, node.x + 8, node.y + 4);
+              ctx.fillText(label, node.x + 6, node.y + 2);
             }
           }}
           style={{
