@@ -56,6 +56,7 @@ import AddCashModal from "../../PrintPeaksFAinal/checkbox/shifts/AddCashModal";
 import ClientCabinet from "../../PrintPeaksFAinal/userInNewUiArtem/ClientCabinet";
 import Pagination from "../../PrintPeaksFAinal/tools/Pagination";
 import Graph2DForBD from "../../PrintPeaksFAinal/Graph2DForBD";
+import Cash from "../../PrintPeaksFAinal/checkbox/CashCash/Cash";
 
 
 
@@ -123,7 +124,7 @@ const AfterNav = () => {
                 <Route path="/Shifts" element={<Shifts/>} />
                 <Route path="/Shifts/:id" element={<CompanyTabl />} />
 
-                <Route path="/Cashs" element={<Shifts/>} />
+                <Route path="/Cashs" element={<Cash/>} />
                 <Route path="/Cashs/:id" element={<CompanyTabl />} />
 
                 <Route path="/Orders" element={<CustomOrderTable2 />} />

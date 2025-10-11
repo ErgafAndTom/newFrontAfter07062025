@@ -90,8 +90,8 @@ const TableManager = () => {
     };
 
     return (
-        <div>
-            <h1>Управление Таблицами</h1>
+        <div className="">
+            {/*<h1>Управление Таблицами</h1>*/}
 
             {/*<div>*/}
             {/*    <label>Таблица:</label>*/}
@@ -102,13 +102,17 @@ const TableManager = () => {
             {/*    </select>*/}
             {/*</div>*/}
 
-            <div style={{ marginTop: '20px' }}>
-                <button onClick={handleExport}>Экспортировать в Excel Material(Склад).</button>
+            <div
+              // style={{ marginTop: '20px' }}
+            >
+                <div className=" d-flex justify-content-center align-items-center adminButtonAddNav" style={{color: "white", borderRadius: 0}} onClick={handleExport}>Экспортировать.</div>
             </div>
 
-            <div style={{ marginTop: '20px' }}>
-                <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
-                <button onClick={handleImport}>Импортировать из Excel Material(Склад)</button>
+            <div
+              // style={{ marginTop: '20px' }}
+            >
+                <input className=" d-flex justify-content-center align-items-center adminButtonAddNav" style={{color: "white", borderRadius: 0}} type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
+                {/*<button className="adminButtonAddNav" onClick={handleImport}>Импортировать</button>*/}
             </div>
         </div>
     );
