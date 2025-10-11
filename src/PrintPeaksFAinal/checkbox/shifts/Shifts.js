@@ -66,9 +66,6 @@ const Shifts = () => {
       const resp = await axios.get("/api/checkbox/shift/current");
       console.log(resp.data.data);
       setData(resp.data.data)
-      if (resp.data.success) {
-        // setShift(resp.data.shift);
-      }
     } catch (e) {
       console.log(e);
       setError(e.response?.data?.error?.message || e.message);
@@ -85,6 +82,20 @@ const Shifts = () => {
       setError(null);
     } catch (e) {
       setError(e.response?.data?.error || e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function openShift() {
+    try {
+      setLoading(true);
+      const resp = await axios.post('/api/checkbox/shift/open');
+      fetchShift()
+      console.log(resp);
+      setError(null);
+    } catch (e) {
+      setError(e.response?.data?.error?.message || e.message);
     } finally {
       setLoading(false);
     }
@@ -234,7 +245,7 @@ const Shifts = () => {
           <h1 className="d-flex justify-content-center align-items-center">
             Зміна закрита
           </h1>
-          <div className="d-flex justify-content-center align-items-center adminButtonAdd">
+          <div onClick={openShift} className="d-flex justify-content-center align-items-center adminButtonAdd">
             Відкрити зміну
           </div>
         </div>

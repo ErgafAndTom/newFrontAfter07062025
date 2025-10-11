@@ -55,7 +55,7 @@ import ModalDeleteOrder from "../../PrintPeaksFAinal/Orders/ModalDeleteOrder";
 import AddCashModal from "../../PrintPeaksFAinal/checkbox/shifts/AddCashModal";
 import ClientCabinet from "../../PrintPeaksFAinal/userInNewUiArtem/ClientCabinet";
 import Pagination from "../../PrintPeaksFAinal/tools/Pagination";
-import Cash from "../../PrintPeaksFAinal/checkbox/CashCash/Cash";
+import Graph2DForBD from "../../PrintPeaksFAinal/Graph2DForBD";
 
 
 
@@ -103,6 +103,7 @@ const AfterNav = () => {
                 <Route path="/TG" element={<TelegramBot />} />
                 <Route path="/db3" element={<TableManager />} />
                 <Route path="/dbGraph" element={<Graph3D_with_comments />} />
+                <Route path="/dbGraph2" element={<Graph2DForBD />} />
                 <Route path="/Trello" element={<TrelloBoardAI />} />
                 <Route path="/Trello2" element={<LifeHackLikeBoards2 />} />
                 <Route path="/Vimogi" element={<Vimogi />} />
@@ -122,7 +123,7 @@ const AfterNav = () => {
                 <Route path="/Shifts" element={<Shifts/>} />
                 <Route path="/Shifts/:id" element={<CompanyTabl />} />
 
-                <Route path="/Cashs" element={<Cash/>} />
+                <Route path="/Cashs" element={<Shifts/>} />
                 <Route path="/Cashs/:id" element={<CompanyTabl />} />
 
                 <Route path="/Orders" element={<CustomOrderTable2 />} />

@@ -203,11 +203,12 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
     if (!thisOrder?.id || !thisOrder?.allPrice) return;
     console.log("Creating terminal payment for order:", thisOrder.id);
     try {
-      const { data } = await axios.post("/api/checkbox/shift/sale", { // 👈 змінив шлях
+      // const { data } = await axios.post("/api/checkbox/shift/sale", { // 👈 змінив шлях
+      const { data } = await axios.post("/api/checkbox/payments/pos/sale", { // 👈 змінив шлях
         orderId: thisOrder.id,
         amount: Math.round(thisOrder.allPrice * 100),
         currency: 980,
-        terminalId: "PQ012563",
+        // terminalId: "PQ012563",
       });
       console.log(data);
       if (data?.payment) {
