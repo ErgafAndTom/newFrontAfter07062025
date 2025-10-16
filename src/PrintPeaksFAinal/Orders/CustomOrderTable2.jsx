@@ -214,15 +214,35 @@ const CustomOrderTable2 = () => {
 
               <div className="summary-cell id  d-flex justify-content-center">{order.id}</div>
               <div className="summary-cell status "><StatusBar item={order} style={{borderRadius:"none"}}/></div>
+
               {order.Payment?.status === 'CREATED' &&
                 <div className={`adminButtonAddOrder wait`} style={{}}>
                   {"Очікування️"}
                 </div>
               }
               {order.Payment?.status === 'PAID' &&
-                <div className={`adminButtonAddOrder pay`} style={{}}>
-                  {"Оплата за посиланням"}
-                </div>
+                <>
+                  {order.Payment && order.Payment.method === 'terminal' && (
+                    <div className={`adminButtonAddOrder pay`} style={{}}>
+                      {"Оплата карткою"}
+                    </div>
+                  )}
+                  {order.Payment && order.Payment.method === 'link' && (
+                    <div className={`adminButtonAddOrder pay`} style={{}}>
+                      {"Оплата за посиланням"}
+                    </div>
+                  )}
+                  {order.Payment && order.Payment.method === 'cash' && (
+                    <div className={`adminButtonAddOrder pay`} style={{}}>
+                      {"Оплата готівкрю"}
+                    </div>
+                  )}
+                  {order.Payment && order.Payment.method === null && (
+                    <div className={`adminButtonAddOrder pay`} style={{}}>
+                      {"Оплата за посиланням"}
+                    </div>
+                  )}
+                </>
               }
               {order.Payment?.status === 'CANCELLED' &&
                 <button className={`adminButtonAddOrder cancel`} style={{}}>
@@ -241,6 +261,11 @@ const CustomOrderTable2 = () => {
               }
 
               {order.Payment === null &&
+                <button className={`adminButtonAddOrder nopay`} style={{color:'#000000'}}>
+                  {"-"}
+                </button>
+              }
+              {order.Payment?.status === null &&
                 <button className={`adminButtonAddOrder nopay`} style={{color:'#000000'}}>
                   {"-"}
                 </button>

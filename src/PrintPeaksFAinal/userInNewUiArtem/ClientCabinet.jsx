@@ -269,9 +269,23 @@ export default function ClientCabinet({
                       </div>
                     }
                     {o.Payment?.status === 'PAID' &&
-                      <div className={`adminButtonAddOrder pay`} style={{}}>
-                        {"Оплата за посиланням"}
-                      </div>
+                      <>
+                        {o.Payment && o.Payment.method === 'terminal' && (
+                          <div className={`adminButtonAddOrder pay`} style={{}}>
+                            {"Оплата карткою"}
+                          </div>
+                        )}
+                        {o.Payment && o.Payment.method === 'link' && (
+                          <div className={`adminButtonAddOrder pay`} style={{}}>
+                            {"Оплата за посиланням"}
+                          </div>
+                        )}
+                        {o.Payment && o.Payment.method === 'cash' && (
+                          <div className={`adminButtonAddOrder pay`} style={{}}>
+                            {"Оплата готівкрю"}
+                          </div>
+                        )}
+                      </>
                     }
                     {o.Payment?.status === 'CANCELLED' &&
                       <button className={`adminButtonAddOrder cancel`} style={{}}>

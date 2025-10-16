@@ -284,6 +284,11 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                   onClick={() => handleSelect("cash")}
                 >
                   Готівка
+                  {thisOrder.Payment && thisOrder.Payment.method === 'cash' && (
+                    <div style={{color: "red",  fontSize: "0.5vw"}}>
+                      {thisOrder.Payment.status}
+                    </div>
+                  )}
                 </button>
                 <button
                   className="PayButtons adminTextBigPay terminal"
