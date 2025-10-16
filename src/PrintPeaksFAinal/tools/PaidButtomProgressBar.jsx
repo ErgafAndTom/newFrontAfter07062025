@@ -1,92 +1,15 @@
-// import React, {useState} from "react";
-// import axios from "../../api/axiosInstance";
-// import "./PaidButtomProgressBar.css";
-// import ShiftManager from "../../components/prro/ShiftManager";
-// import ShiftControl from "../checkbox/ShiftControl";
-// import ShiftControlModal from "../checkbox/ShiftControlModal";
-//
-// const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
-//   const [loading] = useState(false);
-//
-//
-//   // useEffect(() => {
-//   //   fetchShift();
-//   // }, []);
-//
-//   // --- Відкрити зміну ---
-//   // const openShift = async () => {
-//   //   setLoading(true);
-//   //   try {
-//   //     await axios.post("/api/shifts/open");
-//   //     setShiftOpen(true);
-//   //   } catch (err) {
-//   //     console.error("Помилка відкриття зміни:", err);
-//   //   } finally {
-//   //     setLoading(false);
-//   //   }
-//   // };
-//   //
-//   // // --- Закрити зміну ---
-//   // const closeShift = async () => {
-//   //   setLoading(true);
-//   //   try {
-//   //     await axios.post("/api/shifts/close");
-//   //     setShiftOpen(false);
-//   //   } catch (err) {
-//   //     console.error("Помилка закриття зміни:", err);
-//   //   } finally {
-//   //     setLoading(false);
-//   //   }
-//   // };
-//
-//   // --- Створити оплату через POS Monobank ---
-//   const createTerminalPayment = async () => {
-//     if (!thisOrder?.id || !thisOrder?.totalAmount) return;
-//     console.log('Creating terminal payment for order:', thisOrder.id);
-//     try {
-//       const {data} = await axios.post("/api/pos/sale", {
-//         orderId: thisOrder.id,
-//         amount: Math.round(thisOrder.totalAmount * 100),
-//         currency: 980,
-//         terminalId: "PQ012563" // можна винести в .env чи Redux
-//       });
-//       console.log('Payment response:', data);
-//       if (data?.payment) {
-//         setThisOrder((prev) => ({ ...prev, Payment: data.payment }));
-//       }
-//     } catch (err) {
-//       console.error("Помилка оплати через POS:", err);
-//     }
-//   };
-//
-//
-//   return (
-//     <div className="payment-methods-panel adminTextBig">
-//       <ShiftManager
-//         createTerminalPayment={createTerminalPayment}
-//         thisOrder={thisOrder}
-//         setShowPays={setShowPays}
-//         setThisOrder={setThisOrder}
-//       />
-//       <ShiftControlModal />
-//     </div>
-//   );
-// };
-//
-// export default PaidButtomProgressBar;
-
 
 import React, { useState, useEffect, useRef } from "react";
 import axios from "../../api/axiosInstance";
 import "./PaidButtomProgressBar.css";
 import AwaitPays from "./AwaitPays";
 import { useSelector } from "react-redux";
-import ShiftManager from "../../components/prro/ShiftManager";
-import ShiftControlModal from "../checkbox/ShiftControlModal";
+import Loader from "../../components/calc/Loader";
 
 const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   const [paymentState, setPaymentState] = useState("initial");
   const [invoiceId, setInvoiceId] = useState(null);
+  const [oplata, setOplata] = useState(false);
   const intervalRef = useRef(null);
   const currentUser = useSelector((state) => state.auth.user);
   const buttonStyles = {};
@@ -102,7 +25,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
       console.error("Сума замовлення = 0. Рахунок не буде створено.");
       return;
     }
-    if (method === "online" || method === "cash") {
+    if (method === "online") {
       createInvoice(totalUAH);
     }
     if (method === "terminal") {
@@ -114,6 +37,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   // --- Створити рахунок (invoice) ---
   const createInvoice = async (totalUAH) => {
     try {
+      setOplata(true);
       const response = await axios.post("/api/payment/create-invoice", {
         orderId: thisOrder.id,
         payload: {
@@ -129,6 +53,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
       });
 
       if (response.data) {
+        setOplata(false);
         setThisOrder((prev) => ({
           ...prev,
           Payment: response.data,
@@ -141,18 +66,25 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
 
   // --- Перевірка статусу рахунку ---
   const checkStatus = async () => {
-    if (!thisOrder.Payment?.invoiceId) return;
-    const invoiceId = thisOrder.Payment.invoiceId;
-    try {
-      const { data } = await axios.get("/api/payment/invoice-status", {
-        params: { invoiceId },
-      });
-      setThisOrder((prev) => ({
-        ...prev,
-        Payment: data,
-      }));
-    } catch (err) {
-      console.error("Помилка перевірки статусу:", err);
+    if (!thisOrder.Payment){
+      return
+    }
+    if (thisOrder.Payment.invoiceId) {
+      const invoiceId = thisOrder.Payment.invoiceId;
+      try {
+        const { data } = await axios.get("/api/payment/invoice-status", {
+          params: { invoiceId },
+        });
+        console.log(data);
+        setThisOrder((prev) => ({
+          ...prev,
+          Payment: data,
+        }));
+      } catch (err) {
+        console.error("Помилка перевірки статусу:", err);
+      }
+    } else {
+
     }
   };
 
@@ -198,19 +130,25 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   };
 
   // --- POS Monobank оплата (логіка другого коду) ---
-// --- POS Monobank оплата (через Checkbox backend)
   const createTerminalPayment = async () => {
     if (!thisOrder?.id || !thisOrder?.allPrice) return;
     console.log("Creating terminal payment for order:", thisOrder.id);
     try {
-      // const { data } = await axios.post("/api/checkbox/shift/sale", { // 👈 змінив шлях
-      const { data } = await axios.post("/api/checkbox/payments/pos/sale", { // 👈 змінив шлях
+      setOplata(true);
+      const response = await axios.post("/api/payment/create-invoice-mono", { // 👈 змінив шлях
         orderId: thisOrder.id,
         amount: Math.round(thisOrder.allPrice * 100),
         currency: 980,
         // terminalId: "PQ012563",
       });
-      console.log(data);
+      console.log(response.data);
+      if (response.data) {
+        setOplata(false);
+        setThisOrder((prev) => ({
+          ...prev,
+          Payment: response.data,
+        }));
+      }
       if (data?.payment) {
         setThisOrder((prev) => ({ ...prev, Payment: data.payment }));
       }
@@ -255,6 +193,29 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
       checkStatus();
     }
   }, [thisOrder.id]);
+
+
+  const checkStatusAll = async () => {
+    const orderId = thisOrder.id;
+    try {
+      const { data } = await axios.get("/api/payment/invoice-status-without-invoiceId", {
+        params: { orderId },
+      });
+      console.log(data);
+      setThisOrder((prev) => ({
+        ...prev,
+        Payment: data,
+      }));
+    } catch (err) {
+      console.error("Помилка перевірки статусу:", err);
+    }
+  };
+
+  useEffect(() => {
+    checkStatusAll()
+  }, [thisOrder.id]);
+
+
   useEffect(() => {
     if (thisOrder?.Invoice?.id && thisOrder?.Payment?.status === "CREATED") {
       const interval = setInterval(async () => {
@@ -285,76 +246,174 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
       {/* Блок вибору методів оплати */}
       {(!thisOrder.Payment ||
         ["CANCELLED", "EXPIRED"].includes(thisOrder.Payment.status)) && (
-        <div className="payment-methods-panel d-flex align-items-center">
-          <button
-            className="PayButtons adminTextBigPay cash"
-            onClick={() => handleSelect("cash")}
-          >
-            Готівка
-          </button>
-          <button
-            className="PayButtons adminTextBigPay terminal"
-            onClick={() => handleSelect("terminal")}
-          >
-            Картка
-          </button>
-          <button
-            className="PayButtons adminTextBigPay online"
-            onClick={() => handleSelect("online")}
-          >
-Посилання          </button>
-          <button
-            onClick={() => setShowPays(true)}
-            title="Платежі"
-            style={{ ...buttonStyles.base, ...buttonStyles.iconButton }}
-            className="PayButtons adminTextBigPay invoices"
-          >
-            Рахунок
-          </button>
-        </div>
+          <>
+            {oplata && (
+              <div className="payment-methods-panel d-flex align-items-center">
+                <button
+                  className="PayButtons adminTextBigPay cash"
+                  // onClick={() => handleSelect("cash")}
+                >
+                  Готівка
+                </button>
+                <button
+                  className="PayButtons adminTextBigPay terminal"
+                  // onClick={() => handleSelect("terminal")}
+                >
+                  <Loader/>
+                </button>
+                <button
+                  className="PayButtons adminTextBigPay online"
+                  // onClick={() => handleSelect("online")}
+                >
+                  Посилання
+                </button>
+                <button
+                  onClick={() => setShowPays(true)}
+                  title="Платежі"
+                  style={{ ...buttonStyles.base, ...buttonStyles.iconButton }}
+                  className="PayButtons adminTextBigPay invoices"
+                >
+                  Рахунок
+                </button>
+              </div>
+            )}
+            {!oplata && (
+              <div className="payment-methods-panel d-flex align-items-center">
+                <button
+                  className="PayButtons adminTextBigPay cash"
+                  onClick={() => handleSelect("cash")}
+                >
+                  Готівка
+                </button>
+                <button
+                  className="PayButtons adminTextBigPay terminal"
+                  onClick={() => handleSelect("terminal")}
+                >
+                  Картка
+                  {thisOrder.Payment && thisOrder.Payment.method === 'terminal' && (
+                    <div style={{color: "red",  fontSize: "0.5vw"}}>
+                      {thisOrder.Payment.status}
+                    </div>
+                  )}
+                </button>
+                <button
+                  className="PayButtons adminTextBigPay online"
+                  onClick={() => handleSelect("online")}
+                >
+                  Посилання
+                  {thisOrder.Payment && thisOrder.Payment.method === 'link' && (
+                    <div style={{color: "red",  fontSize: "0.5vw"}}>
+                      {thisOrder.Payment.status}
+                    </div>
+                  )}
+                  {thisOrder.Payment && thisOrder.Payment.method === null && (
+                    <div style={{color: "red",  fontSize: "0.5vw"}}>
+                      {thisOrder.Payment.status}
+                    </div>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowPays(true)}
+                  title="Платежі"
+                  style={{ ...buttonStyles.base, ...buttonStyles.iconButton }}
+                  className="PayButtons adminTextBigPay invoices"
+                >
+                  Рахунок
+                </button>
+              </div>
+            )}
+          </>
       )}
 
       {thisOrder.Payment?.status === "CREATED" && (
-        <div className="payment-methods-panel d-flex align-items-center">
-          <button
-            className="PayButtons link"
-            style={{
-              backgroundColor: "#008249",
-              color: "white",
-              width: "3vw",
-            }}
-            onClick={() => {
-              window.open(thisOrder.Payment.pageUrl, "_blank");
-            }}
-          >
-            +&nbsp;
-          </button>
-          <div
-            className="PayButtons wait"
-            style={{
-              background: "#f2f0e7",
-              height: "6vh",
-              width: "25vw",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              textAlign: "center",
-              fontSize: "1vw",
-              fontWeight: 400,
-              borderRadius: "0vw",
-              color: "#9f9e9d",
-            }}
-          >
-            {formats[index]}
-          </div>
-          <button
-            className="PayButtons end"
-            style={{ backgroundColor: "red", color: "white", width: "3vw" }}
-            onClick={invalidateInvoice}
-          >
-            &nbsp;x
-          </button>
-        </div>
+        <>
+          {thisOrder.Payment?.method === 'terminal' && (
+            <>
+              <div className="payment-methods-panel d-flex align-items-center">
+                <button
+                  className="PayButtons link"
+                  style={{
+                    backgroundColor: "#008249",
+                    color: "white",
+                    width: "3vw",
+                  }}
+                >
+                  <Loader/>
+                </button>
+                <div
+                  className="PayButtons wait"
+                  style={{
+                    background: "#f2f0e7",
+                    height: "6vh",
+                    width: "25vw",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                    fontSize: "1vw",
+                    fontWeight: 400,
+                    borderRadius: "0vw",
+                    color: "#9f9e9d",
+                  }}
+                >
+                  {formats[index]}
+                </div>
+                <button
+                  className="PayButtons end"
+                  style={{ backgroundColor: "red", color: "white", width: "3vw" }}
+                  // onClick={invalidateInvoice}
+                >
+                  &nbsp;x
+                </button>
+              </div>
+            </>
+          )}
+          {thisOrder.Payment?.method === 'link' && (
+            <>
+              <div className="payment-methods-panel d-flex align-items-center">
+                <button
+                  className="PayButtons link"
+                  style={{
+                    backgroundColor: "#008249",
+                    color: "white",
+                    width: "3vw",
+                  }}
+                  onClick={() => {
+                    window.open(thisOrder.Payment.pageUrl, "_blank");
+                  }}
+                >
+                  +&nbsp;
+                </button>
+                <div
+                  className="PayButtons wait"
+                  style={{
+                    background: "#f2f0e7",
+                    height: "6vh",
+                    width: "25vw",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                    fontSize: "1vw",
+                    fontWeight: 400,
+                    borderRadius: "0vw",
+                    color: "#9f9e9d",
+                  }}
+                >
+                  {formats[index]}
+                </div>
+                <button
+                  className="PayButtons end"
+                  style={{ backgroundColor: "red", color: "white", width: "3vw" }}
+                  onClick={invalidateInvoice}
+                >
+                  &nbsp;x
+                </button>
+              </div>
+            </>
+          )}
+        </>
+
       )}
 
       {thisOrder.Payment?.status === "PAID" && (
@@ -375,7 +434,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
               color: "#f2f0e7",
             }}
           >
-            Замовлення оплачене
+            Замовлення оплачене method: {thisOrder.Payment?.method}
           </button>
           {currentUser.role === "admin" && (
             <button
@@ -388,6 +447,12 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
           )}
         </div>
       )}
+
+      {/*{thisOrder.Payment.status && (*/}
+      {/*  <div className="payment-methods-panel d-flex align-items-center">*/}
+      {/*    thisOrder.Payment.status = {thisOrder.Payment.status}*/}
+      {/*  </div>*/}
+      {/*)}*/}
 
       {showAwaitPays && (
         <AwaitPays

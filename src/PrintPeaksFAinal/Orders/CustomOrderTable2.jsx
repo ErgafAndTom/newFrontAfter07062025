@@ -231,9 +231,15 @@ const CustomOrderTable2 = () => {
               }
               {order.Payment?.status === 'EXPIRED' &&
                 <button className={`adminButtonAddOrder nopay`} style={{}}>
-                  -
+                  {"Прострочено"}
                 </button>
               }
+              {order.Payment?.status === 'FAILED' &&
+                <button className={`adminButtonAddOrder nopay`} style={{}}>
+                  {"Помилка або відмова"}
+                </button>
+              }
+
               {order.Payment === null &&
                 <button className={`adminButtonAddOrder nopay`} style={{color:'#000000'}}>
                   {"-"}
