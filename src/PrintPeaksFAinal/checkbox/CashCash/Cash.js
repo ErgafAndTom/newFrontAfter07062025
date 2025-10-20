@@ -72,6 +72,22 @@ const Cash = () => {
     } catch (e) {
       console.log(e);
       setError(e.response?.data?.error?.message || e.message);
+      if (e.message === "Request failed with status code 401"){
+        login()
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function login() {
+    try {
+      setLoading(true);
+      const resp = await axios.post('/api/checkbox/auth/login');
+      console.log(resp);
+      setError(null);
+    } catch (e) {
+      setError(e.response?.data?.error || e.message);
     } finally {
       setLoading(false);
     }
@@ -187,6 +203,7 @@ const Cash = () => {
         <div className="summary-cell client justify-content-center adminFont">created_at</div>
         <div className="summary-cell client justify-content-center adminFont">openedAt</div>
         <div className="summary-cell client justify-content-center adminFont">closedAt</div>
+        <div className="summary-cell client justify-content-center adminFont">Зміна</div>
 
         {/*<div className="summary-cell address" style={{width: "17vw", maxWidth: "17vw"}}>Адреса</div>*/}
         {/*<div className="summary-cell phoneNumber">isTest</div>*/}
@@ -232,7 +249,8 @@ const Cash = () => {
           </h1>
         </div>
       }
-      {data?.map(order => {
+
+      {data && data[0]?.results.map(order => {
         const isExpanded = expandedOrderId === order.id;
         // const isCancelled = parseInt(order.status) === 5; // або адаптуй під свою логіку
         // const baseColor = getStatusColor(order.status, isCancelled);
@@ -252,7 +270,7 @@ const Cash = () => {
         return (
           <div key={order.id} className="OrderBlock">
             <div className="OrderRow-summary OrderRow-hover"
-                 // style={expandedStyle}
+              // style={expandedStyle}
                  onMouseEnter={(e) => {
                    e.currentTarget.style.backgroundColor =
                      order.status === '0'
@@ -273,6 +291,7 @@ const Cash = () => {
               <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text">{order.created_at ? new Date(order.created_at).toLocaleString() : '—'}</div>
               <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text">{order.openedAt ? new Date(order.openedAt).toLocaleString() : '—'}</div>
               <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text">{order.closedAt ? new Date(order.closedAt).toLocaleString() : '—'}</div>
+              <div className="summary-cell d-flex client justify-content-center UsersOrdersLikeTable-contract-text">{order.shift ? "✅" : '❌'}</div>
               {/*<div className="summary-cell price">*/}
               {/*  {order.allPrice === order.price || order.allPrice === 0 || order.allPrice === "0.00"*/}
               {/*    ? <span style={{color: "red"}}>{order.allPrice}</span>*/}
@@ -372,33 +391,61 @@ const Cash = () => {
                     Видалити
                   </div>
                 </div>
-                {/*<div>Учасники:</div>*/}
-                {/*<div className="OrderRow-units d-flex flex-row">*/}
-                {/*  {order.Users.map((unit, i) => (*/}
-                {/*    <div onClick={(e) => setThisUserToCabinetFunc(true, unit)}>*/}
-                {/*      <div key={i} className="OrderUnit-card" style={{width: "20vw"}}>*/}
-                {/*        <TelegramAvatar*/}
-                {/*          link={unit.telegram}*/}
-                {/*          size={60}*/}
-                {/*          // defaultSrc="/default-avatar.png"*/}
-                {/*        />*/}
-                {/*        <div><strong>id:</strong> {unit.id}</div>*/}
-                {/*        <div><strong>username:</strong> {unit.username}</div>*/}
-                {/*        <div><strong>firstName:</strong> {unit.firstName}</div>*/}
-                {/*        <div><strong>lastName:</strong> {unit.lastName}</div>*/}
-                {/*        <div><strong>familyName:</strong> {unit.familyName}</div>*/}
-                {/*        <div><strong>email:</strong> {unit.email}</div>*/}
-                {/*        <div><strong>phoneNumber:</strong> {unit.phoneNumber}</div>*/}
-                {/*        <div><strong>telegram:</strong> {unit.telegram}</div>*/}
-                {/*        <div><strong>discount:</strong> {unit.discount}</div>*/}
-                {/*        <div><strong>address:</strong> {unit.address} грн</div>*/}
-                {/*      </div>*/}
-                {/*    </div>*/}
-                {/*  ))}*/}
-                {/*  {order.Users.length === 0 &&*/}
-                {/*    <div>Немає</div>*/}
-                {/*  }*/}
-                {/*</div>*/}
+                <div>Учасники:</div>
+                <div className="OrderRow-units d-flex flex-row">
+                  {/*{order.Users.map((unit, i) => (*/}
+                  {/*  <div onClick={(e) => setThisUserToCabinetFunc(true, unit)}>*/}
+                  {/*    <div key={i} className="OrderUnit-card" style={{width: "20vw"}}>*/}
+                  {/*      <TelegramAvatar*/}
+                  {/*        link={unit.telegram}*/}
+                  {/*        size={60}*/}
+                  {/*        // defaultSrc="/default-avatar.png"*/}
+                  {/*      />*/}
+                  {/*      <div><strong>id:</strong> {unit.id}</div>*/}
+                  {/*      <div><strong>username:</strong> {unit.username}</div>*/}
+                  {/*      <div><strong>firstName:</strong> {unit.firstName}</div>*/}
+                  {/*      <div><strong>lastName:</strong> {unit.lastName}</div>*/}
+                  {/*      <div><strong>familyName:</strong> {unit.familyName}</div>*/}
+                  {/*      <div><strong>email:</strong> {unit.email}</div>*/}
+                  {/*      <div><strong>phoneNumber:</strong> {unit.phoneNumber}</div>*/}
+                  {/*      <div><strong>telegram:</strong> {unit.telegram}</div>*/}
+                  {/*      <div><strong>discount:</strong> {unit.discount}</div>*/}
+                  {/*      <div><strong>address:</strong> {unit.address} грн</div>*/}
+                  {/*    </div>*/}
+                  {/*  </div>*/}
+                  {/*))}*/}
+                  {/*{order.Users.length === 0 &&*/}
+                  {/*  <div>Немає</div>*/}
+                  {/*}*/}
+                  {order.shift &&
+                    <div className="OrderUnit-card" style={{width: "20vw"}}>
+                      {/*<TelegramAvatar*/}
+                      {/*  link={unit.telegram}*/}
+                      {/*  size={60}*/}
+                      {/*  // defaultSrc="/default-avatar.png"*/}
+                      {/*/>*/}
+                      <div><strong>Shift id:</strong> {order.shift?.id}</div>
+                      <div><strong>Shift serial:</strong> {order.shift?.serial}</div>
+                      <div><strong>Shift created_at:</strong> {order.shift?.created_at}</div>
+                      <div><strong>opened_at:</strong> {order.shift?.opened_at}</div>
+                      <div><strong>status:</strong> {order.shift?.status}</div>
+                      <div><strong>updated_at:</strong> {order.shift?.updated_at}</div>
+                      <div><strong>cashier:</strong>
+                        <div><strong>id: {order.shift?.cashier.id}</strong>
+                          <div><strong>full_name: {order.shift?.cashier.full_name}</strong>
+                            <div><strong>nin: {order.shift?.cashier.nin}</strong>
+                              <div><strong>updated_at: {order.shift?.cashier.updated_at}</strong>
+                                <div><strong>created_at: {order.shift?.cashier.created_at}</strong>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                </div>
 
 
 
@@ -477,4 +524,4 @@ const Cash = () => {
 };
 
 
- export default Cash
+export default Cash
