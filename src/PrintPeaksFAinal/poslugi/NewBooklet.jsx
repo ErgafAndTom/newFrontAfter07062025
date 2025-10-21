@@ -447,7 +447,7 @@ const NewBooklet = ({
                                         buttonsArrColor={["Не потрібно", "Чорнобілий", "Кольоровий"]}
                                         buttonsArrLamination={["З глянцевим ламінуванням",
                                             "З матовим ламінуванням",
-                                            "З ламінуванням Soft Touch",]}
+                                            "З ламінуванням SoftTouch",]}
                                         typeUse={null}
                                     />
 
@@ -465,9 +465,9 @@ const NewBooklet = ({
                                             "Цупкий"]}
                                         buttonsArrDruk={["односторонній", "двосторонній",]}
                                         buttonsArrColor={["Не потрібно", "Чорнобілий", "Кольоровий"]}
-                                        buttonsArrLamination={["З глянцевим ламінуванням",
-                                            "З матовим ламінуванням",
-                                            "З ламінуванням Soft Touch",]}
+                                        buttonsArrLamination={["з глянцевим ламінуванням",
+                                            "з матовим ламінуванням",
+                                            "з ламінуванням SoftTouch",]}
                                         typeUse={null}
                                     />
                                 </div>

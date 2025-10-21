@@ -1,16 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "../../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import {Spinner} from "react-bootstrap";
 import {Form} from "react-bootstrap";
 
-function AddPaysInOrder({ showAddPay, setShowAddPay, formData, setFormData, data, setData, showAddPayView, setShowAddPayView, showAddPayWriteId, setShowAddPayWriteId, thisOrder, setThisOrder }) {
+function AddPaysInOrder({ showAddPay, setShowAddPay,  data, setData, showAddPayView, setShowAddPayView, showAddPayWriteId, setShowAddPayWriteId, thisOrder, setThisOrder }) {
     const [load, setLoad] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
-
+   const dropdownRef = useRef(null);  // ✅ для доступу до контейнера селекта
+  const [open, setOpen] = useState(false);  // ✅ відкриття / закриття випадаючого списку
+  const [formData, setFormData] = useState({
+    taxSystem: "ФОП", //   ✅ обране значення системи оподаткування
+    // ...інші поля твоєї форми
+  });
     const handleClose = () => {
         setIsAnimating(false); // Начинаем анимацию закрытия
         setTimeout(() => {
@@ -133,22 +138,22 @@ function AddPaysInOrder({ showAddPay, setShowAddPay, formData, setFormData, data
                 opacity: isAnimating ? 1 : 0, // анимация прозрачности
                 transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out", // плавная анимация
                 borderRadius: "1vw",
-                width: "50vw",
+                width: "40vw",
                 // height: "50vh",
                 cursor: "auto",
             }}>
                 <div className="d-flex">
-                    <div className="m-auto text-center fontProductName ">
-                        <h2 className="AddContractorInOrderTitle">Додати контрагента</h2>
-                    </div>
-                    <div
-                        className="btn btn-close btn-lg"
-                        style={{
-                            margin: "0.5vw",
-                        }}
-                        onClick={handleClose}
-                    >
-                    </div>
+                    {/*<div className="m-auto text-center fontProductName ">*/}
+                    {/*    <h2 className="AddContractorInOrderTitle">Додати контрагента</h2>*/}
+                    {/*</div>*/}
+                    {/*<div*/}
+                    {/*    className="btn btn-close btn-lg"*/}
+                    {/*    style={{*/}
+                    {/*        margin: "0.5vw",*/}
+                    {/*    }}*/}
+                    {/*    onClick={handleClose}*/}
+                    {/*>*/}
+                    {/*</div>*/}
                 </div>
                 <div style={{
                     border: "none",
@@ -171,96 +176,141 @@ function AddPaysInOrder({ showAddPay, setShowAddPay, formData, setFormData, data
                                 {/*    <button className="AddContractorInOrderTab">Іноземна Компанія</button>*/}
                                 {/*</div>*/}
 
-                                <div className="AddContractorInOrderSubtitle">Банківські реквізити:</div>
+                                {/*<div className="AddContractorInOrderSubtitle">Банківські реквізити:</div>*/}
 
                                 <div className="AddContractorInOrderFieldGroup">
                                     <div className="AddContractorInOrderFieldRow">
-                                        <label className="adminFontTable">Найменування</label>
-                                        <input required value={formData.name} name="name" type="text" placeholder="Найменування ФОП або ТОВ" className="AddContractorInOrderInput" onChange={handleChange} />
+                                        <div className="adminFontTable">Контрагент </div>
+                                        <input required value={formData.name} name="name" type="text" placeholder="Назва ФОП / компанії / організації" className="AddContractorInOrderInput" onChange={handleChange} />
                                     </div>
                                     {/*<div className="AddContractorInOrderFieldRow">*/}
-                                    {/*    <label className="adminFontTable">Тип</label>*/}
+                                    {/*    <div className="adminFontTable">Тип</div>*/}
                                     {/*    <select value={formData.type} name="type" onChange={handleChange} className="AddContractorInOrderSelect">*/}
                                     {/*        <option value="Фізична особа">Фізична особа</option>*/}
                                     {/*        <option value="Юридична особа">Юридична особа</option>*/}
                                     {/*    </select>*/}
                                     {/*</div>*/}
+                                  <div className="AddContractorInOrderFieldGroup d-flex flex-row justify-content-start  ">
                                     <div className="AddContractorInOrderFieldRow">
-                                        <label className="adminFontTable">Адреса</label>
-                                        <input value={formData.address} name="address" type="text" placeholder="Адреса" className="AddContractorInOrderInput" onChange={handleChange} />
+                                      <div className="adminFontTable">Система оподаткування</div>
+                                      {/* CUSTOM SELECT: Система оподаткування */}
+                                      <div
+                                        className="custom-select-container-rah selectArtem-rah justify-content-start align-items-center"
+                                        ref={dropdownRef}
+                                        style={{  width: "18vw", fontSize: "1.5vh" }}
+                                      >
+                                        <div
+                                          className="custom-select-header-rah"
+                                          style={{  }}
+                                          onClick={() => setOpen(!open)}
+                                        >
+                                          {formData.taxSystem
+                                            ? formData.taxSystem
+                                            : "Оберіть систему оподаткування"}
+                                          <span
+                                            className={`arrow-rah ${open ? "up" : "down"}`}
+                                            style={{ color: "#f2a901", fontSize:"3vh", marginLeft:"1vh" }}
+                                          >
+      ▾                                  </span>
+                                        </div>
+
+                                        {open && (
+                                          <div className="custom-select-dropdown-rah">
+                                            {[
+                                              { value: "ФОП", label: "ФОП" },
+                                              { value: "ТОВ", label: "ТОВ" },
+                                              { value: "Неприбуткова організація", label: "Неприбуткова організація" },
+                                            ].map((option, i) => (
+                                              <div
+                                                key={i}
+                                                className={`custom-option-rah ${
+                                                  formData.taxSystem === option.value ? "active" : ""
+                                                }`}
+                                                onClick={() => {
+                                                  setFormData({ ...formData, taxSystem: option.value });
+                                                  setOpen(false);
+                                                }}
+                                              >
+                                                <span className="name">{option.label}</span>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        )}
+
+                                      </div>
+                                      <div className="AddContractorInOrderFieldRow" style={{
+                                        width: "4vw", position: "absolute", right: "3.2vw",
+                                      }}>
+                                        <div className="adminFontTable" >
+                                          ПДВ
+                                        </div>
+
+                                        <div className="checkbox-wrapper-10" >
+                                          <input
+                                            type="checkbox"
+                                            name="pdv"
+                                            id="pdv-checkbox"
+                                            // style={{ height: "2vw", width:"3vw"}}
+                                            className="tgl tgl-flip"
+                                            // checked={formData.pdv === "true"}
+                                            onChange={handleChange}
+                                            style={{
+                                              maxWidth: "2vw"
+                                            }}
+                                          />
+                                          <label
+                                            htmlFor="pdv-checkbox"
+                                            data-tg-on="Так"
+                                            data-tg-off="Ні"
+                                            className="tgl-btn"
+
+                                          ></label>
+                                        </div>
+                                      </div>
+
+
+                                    </div>
+
+
+
+                                  </div>
+                                    <div className="AddContractorInOrderFieldRow">
+                                        <div className="adminFontTable">Адреса</div>
+                                        <input value={formData.address} name="address" type="text" placeholder="Адреса ФОП / компанії / організації" className="AddContractorInOrderInput" onChange={handleChange} />
                                     </div>
                                     <div className="AddContractorInOrderFieldRow">
-                                        <label className="adminFontTable">Назва банку</label>
-                                        <input value={formData.bankName} name="bankName" type="text" placeholder="Назва банку" className="AddContractorInOrderInput" onChange={handleChange} />
+                                        <div className="adminFontTable">Банк</div>
+                                        <input value={formData.bankName} name="bankName" type="text" placeholder="Банк контрагента" className="AddContractorInOrderInput" onChange={handleChange} />
                                     </div>
                                     <div className="AddContractorInOrderFieldRow">
-                                        <label className="adminFontTable">IBAN</label>
+                                        <div className="adminFontTable">IBAN</div>
                                         <input value={formData.iban} name="iban" type="text" placeholder="UA 123456789 123456789123456" className="AddContractorInOrderInput" onChange={handleChange} />
                                     </div>
                                     <div className="AddContractorInOrderFieldRow">
-                                        <label className="adminFontTable">ЄДРПОУ</label>
+                                        <div className="adminFontTable">ЄДРПОУ</div>
                                         <input value={formData.edrpou} name="edrpou" type="text" placeholder="123456789" className="AddContractorInOrderInput" onChange={handleChange} />
                                     </div>
                                 </div>
 
-                                <h3 className="AddContractorInOrderSubtitle">Контакти:</h3>
+                                {/*<h3 className="AddContractorInOrderSubtitle">Контакти:</h3>*/}
 
                                 <div className="AddContractorInOrderFieldGroup">
                                     <div className="AddContractorInOrderFieldRow">
-                                        <label className="adminFontTable">E-mail</label>
+                                        <div className="adminFontTable">E-mail</div>
                                         <input value={formData.email} name="email" type="email" placeholder="example@mail.com" className="AddContractorInOrderInput" onChange={handleChange} />
                                     </div>
                                     <div className="AddContractorInOrderFieldRow">
-                                        <label className="adminFontTable">Номер телефону:</label>
+                                        <div className="adminFontTable">Номер телефону:</div>
                                         <input value={formData.phone} name="phone" type="text" placeholder="+380 111 111 111" className="AddContractorInOrderInput" onChange={handleChange} />
                                     </div>
                                 </div>
+                              <div className="AddContractorInOrderFieldRow">
+                                <div className="adminFontTable">Коментар</div>
+                                <textarea name="comment" placeholder="Залиште коментар" onChange={handleChange} className="AddContractorInOrderTextarea" />
+                              </div>
+                                {/*<h3 className="AddContractorInOrderSubtitle">Система оподаткування та Опис</h3>*/}
 
-                                <h3 className="AddContractorInOrderSubtitle">Система оподаткування та Опис</h3>
 
-                                <div className="AddContractorInOrderFieldGroup">
-                                    <div className="AddContractorInOrderFieldRow">
-                                        <label className="adminFontTable">Система оподаткування</label>
-                                        <select value={formData.taxSystem} name="taxSystem" onChange={handleChange} className="AddContractorInOrderSelect">
-                                            <option value="">Оберіть систему оподаткування</option>
-                                            <option value="ФОП">ФОП</option>
-                                            {/*<option value="ФОП 2 група">2 група</option>*/}
-                                            {/*<option value="ФОП 3 група">3 група</option>*/}
-                                            {/*<option value="3 група із ПДВ">3 група із ПДВ</option>*/}
-                                            {/*<option value="4 група">4 група</option>*/}
-                                            {/*<option value="загальна система без ПДВ">Загальна система</option>*/}
-                                            <option value="ТОВ">ТОВ</option>
-                                            {/*<option value="загальна система із ПДВ">загальна система із ПДВ</option>*/}
-                                            {/*<option value="Дія.Сіті">Дія.Сіті</option>*/}
-                                            <option value="Неприбуткова організація">Неприбуткова організація</option>
-                                        </select>
-                                    </div>
-                                    {/*<div className="AddContractorInOrderFieldRow">*/}
-                                    {/*    <label className="adminFontTable">ПДВ</label>*/}
-                                    {/*    <input*/}
-                                    {/*        name="pdv"*/}
-                                    {/*        type="checkbox"*/}
-                                    {/*        checked={formData.pdv === "true"}*/}
-                                    {/*        onChange={handleChange}*/}
-                                    {/*    />*/}
-                                    {/*</div>*/}
-                                    <div className="AddContractorInOrderFieldRow">
-                                        <label className="adminFontTable">ПДВ</label>
-                                        <Form.Check
-                                            type="checkbox"
-                                            name="pdv"
-                                            id="pdv-checkbox"
-                                            label=""
-                                            className="fontSize2-5VH"
-                                            checked={formData.pdv === "true"}
-                                            onChange={handleChange}
-                                        />
-                                    </div>
-                                    <div className="AddContractorInOrderFieldRow">
-                                        <label className="adminFontTable">Коментар</label>
-                                        <textarea name="comment" placeholder="Залиште коментар" onChange={handleChange} className="AddContractorInOrderTextarea" />
-                                    </div>
-                                </div>
 
                                 {showAddPayView &&
                                     <div className="AddContractorInOrderSubmitBlock">
@@ -269,12 +319,12 @@ function AddPaysInOrder({ showAddPay, setShowAddPay, formData, setFormData, data
                                 }
                                 {!showAddPayView &&
                                     <div className="AddContractorInOrderSubmitBlock">
-                                        <button type="submit" className="adminButtonAdd" style={{background: "lightgray", fontSize: "1.2vh"}} onClick={handleSubmitAdd}>Додати</button>
+                                        <button type="submit" className="adminButtonAdd" style={{marginTop:"1.5vh"}} onClick={handleSubmitAdd}>Додати</button>
                                     </div>
                                 }
 
                                 {error && (
-                                    <div>{error}</div>
+                                    <div>{error}v</div>
                                 )}
                             </form>
                         )}

@@ -33,9 +33,9 @@ const Materials2NoteFront = ({
 
     // Масив кнопок для вибору типу ламінування
     const buttonsArrLamination = [
-        "З глянцевим ламінуванням",
-        "З матовим ламінуванням",
-        "З ламінуванням Soft Touch"
+        "з глянцевим ламінуванням",
+        "з матовим ламінуванням",
+        "з ламінуванням Soft Touch"
     ];
 
     const handleSelectChange = (e) => {

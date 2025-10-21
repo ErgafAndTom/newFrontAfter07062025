@@ -29,9 +29,11 @@ const Materials2NoteBack = ({
 
     // Масив кнопок для вибору типу ламінування
     const buttonsArrLamination = [
-        "З глянцевим ламінуванням",
-        "З матовим ламінуванням",
-        "З ламінуванням Soft Touch"
+        "з глянцевим ламінуванням",
+        "з матовим ламінуванням",
+        "з ламінуванням SoftTouch",
+        "з холодним матовим ламінуванням"
+
     ];
 
     const handleSelectChange = (e) => {
@@ -179,7 +181,7 @@ const Materials2NoteBack = ({
     const handleToggleLamination = () => {
         setMaterialAndDrukBack((prev) => ({
             ...prev,
-            laminationType: prev.laminationType === "Не потрібно" ? "З глянцевим ламінуванням" : "Не потрібно",
+            laminationType: prev.laminationType === "Не потрібно" ? "з глянцевим ламінуванням" : "Не потрібно",
         }));
     };
 

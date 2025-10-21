@@ -550,7 +550,7 @@ const Nav = () => {
     </>
 
     {/* Права частина */}
-    <div className="d-flex align-items-start" style={{borderRadius:"0"}}>
+    <div className="d-flex align-items-start" style={{borderRadius:"0", zIndex:"0"}}>
       <div >
         {/*<LogoWithText />*/}
         {currentUser &&
@@ -567,7 +567,7 @@ const Nav = () => {
         type="text"
         placeholder=""
         value={search}
-        style={{borderRadius:'0', height:"3.5vh"}}
+        style={{borderRadius:'0', height:"3.5vh", zIndex:"0"}}
         onChange={(e) => {
           handleSearchChange(e)
         }}
@@ -620,17 +620,17 @@ const Nav = () => {
         </div>
       ) : (
         <Link to="/login" style={{ textDecoration: 'none' }}>
-          {/*<button*/}
-          {/*  className="adminButtonAddNav buttonSkewedOrderClient"*/}
-          {/*  style={{*/}
-          {/*    background: '#008249',*/}
-          {/*    // background: '#FFFFFF00',*/}
-          {/*    borderRadius: '0 0 9px 0',*/}
-          {/*    height: '3rem'*/}
-          {/*  }}*/}
-          {/*>*/}
-          {/*  Логін*/}
-          {/*</button>*/}
+          <button
+            className="adminButtonAddNav buttonSkewedOrderClient"
+            style={{
+              background: '#008249',
+              // background: '#FFFFFF00',
+              borderRadius: '0 0 9px 0',
+              height: '3rem'
+            }}
+          >
+            Логін
+          </button>
         </Link>
       )}
     </div>

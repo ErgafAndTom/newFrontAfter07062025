@@ -207,15 +207,16 @@ function PaysInOrderRestored({showPays, setShowPays, thisOrder, setThisOrder}) {
             <div
                 onClick={handleClose}
                 style={{
-                    width: "100vw",
-                    height: "100vh",
-                    position: "fixed",
-                    left: 0,
-                    top: 0,
-                    background: "rgba(0,0,0,0.2)",
-                    opacity: isAnimating ? 1 : 0,
-                    transition: "opacity .3s ease-in-out",
-                    zIndex: 100,
+                  position: 'fixed',
+                  inset: 0,
+                  width: '100vw',
+                  height: '100vh',
+                  backgroundColor: 'rgba(15, 15, 15, 0.45)',
+                  backdropFilter: 'blur(2px)',
+                  WebkitBackdropFilter: 'blur(2px)',
+                  zIndex: 99,
+                  opacity: isAnimating ? 1 : 0,
+                  transition: 'opacity 200ms ease'
                 }}
             />
 

@@ -157,7 +157,7 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
                       style={{
 
                         opacity: item === lamination.material ? '100%' : '50%',
-                        width: "15vw"
+                        width: "10vw"
                       }}
                     >
                       {item}

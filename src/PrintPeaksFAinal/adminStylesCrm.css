@@ -14,13 +14,14 @@
 }
 
 .adminFontTable {
-    font-size: 2vmin;
-    margin: 0.3vmin;
+    /*font-size: 2vmin;*/
+    /*margin: 0.3vmin;*/
     align-items: start;
+    width: 20vw;
     justify-content: start;
     transform: matrix(1, 0, 0, 1, 0, 0);
     color: #646462;
-
+    font-weight: 400;
     /* Вертикальне вирівнювання тексту */
 }
 
@@ -252,109 +253,230 @@
   .adminButtonAdd,
   .adminButtonAdd::before { animation: none !important; }
 }:root { --tile-w: 3.5vw; }
+.CardPrintersPoslugi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1vw;
+  justify-content: center;
+  padding-bottom: 1vh;
+  /*max-width: 66vw;*/
 
-/* як було */
-.CardPrintersPoslugi{ height:30vh; display:flex; gap:1vw; padding-top:1vh; padding-left:0.5vw; }
-.CardPrintersPoslugi p{
-  box-sizing:border-box; flex:0 0 var(--tile-w); height:30vh;
-  display:flex; justify-content:start; align-items:stretch;
-  box-shadow:  1px 1px 3px 1px rgba(0,0,0,0.1); border-radius:12px;
+  /*margin: 0 auto;*/
+}
+
+
+/* --- плитка --- */
+.CardPrintersPoslugi p {
+  flex: 0 0 11vw;
+  height: 8rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 10px;
+  padding: 0.4rem 0.5rem 0.7rem;
+  cursor: pointer;
+  transition: all 0.35s ease;
+  position: relative;
+  overflow: hidden;
+
+  /* 🩶 Новий фон */
+ background: #f7f5ee;
+  /*  radial-gradient(*/
+  /*    120% 180% at 10% 0%,*/
+  /*    rgba(255, 255, 255, 0.5),*/
+  /*    transparent 42%*/
+  /*  ),*/
+  /*  linear-gradient(*/
+  /*    140deg,*/
+  /*    #f8f5ee,*/
+  /*    #f1ebda,*/
+  /*    #ebe4cf,*/
+  /*    #f6f3e8*/
+  /*  );*/
+  /*background-size: 250% 250%, 320% 320%;*/
+  /*background-position: 30% 18%, 0% 50%;*/
+  /*animation: btnGlow 15s ease-in-out infinite;*/
+
+  /* 🩶 М’які теплі тіні */
+  box-shadow:
+   0 1px 3px 1px rgba(0, 0, 0, 0.15);
+    /*2px 2px 6px rgba(120, 90, 40, 0.08),*/
+    /*-3px -3px 8px rgba(255, 255, 255, 0.9);*/
+}
+
+@keyframes btnGlow {
+  0%   { background-position: 30% 18%, 0% 50%; }
+  50%  { background-position: 70% 82%, 100% 50%; }
+  100% { background-position: 30% 18%, 0% 50%; }
+}
+/*.CardPrintersPoslugi p:hover {*/
+/*  transform: translateY(-3px);*/
+/*  box-shadow:*/
+/*    6px 6px 14px rgba(180, 70, 255, 0.3),*/
+/*    -3px -3px 10px rgba(255, 255, 255, 0.9);*/
+/*  background:*/
+/*    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.3), transparent 42%),*/
+/*    linear-gradient(145deg, #ffb6f2, #ff93c9, #ff7a91, #ffb06a, #ffd66c, #b1ffb3, #80e3ff, #b7a2ff);*/
+/*  background-size: 400% 400%, 320% 320%;*/
+/*  animation: instaGlow 6s ease-in-out infinite alternate;*/
+/*}*/
+
+/*@keyframes instaGlow {*/
+/*  0%   { background-position: 0% 50%, 0% 50%; }*/
+/*  50%  { background-position: 100% 50%, 100% 50%; }*/
+/*  100% { background-position: 0% 50%, 0% 50%; }*/
+/*}*/
+
+/*.CardPrintersPoslugi p:hover {*/
+/*  transform: translateY(-3px);*/
+/*  box-shadow:*/
+/*    6px 6px 14px rgba(255, 100, 50, 0.3),*/
+/*    -3px -3px 10px rgba(255, 255, 255, 0.95);*/
+/*  background:*/
+/*    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.3), transparent 42%),*/
+/*    linear-gradient(145deg, #fff2cc, #ffd78a, #ff9e6f, #ff6a48);*/
+/*  background-size: 250% 250%, 320% 320%;*/
+/*  background-position: 70% 82%, 100% 50%;*/
+/*}*/
+.CardPrintersPoslugi p:hover {
+
+  transform: translateY(-3px);
+  box-shadow:
+    6px 6px 14px rgba(250, 180, 22, 0.35),
+    -3px -3px 10px rgba(255, 255, 255, 0.95);
   background:
     radial-gradient(
       120% 180% at 10% 0%,
-      rgba(251, 250, 246, 0.35),
+      rgba(255, 255, 255, 0.3),
       transparent 42%
     ),
     linear-gradient(
-      130deg,
-      #ffffff,
-      #fbfaf6,
-      #e4e2d3,
-      #fbfaf6
+      145deg,
+      #fff6dc,
+      #ffe8a3,
+      #ffd665,
+      #fab416,
+      #f1a10f
     );
   background-size: 250% 250%, 320% 320%;
-  background-position: 30% 18%, 0% 50%;
-  animation: btnGlow 5s ease-in-out infinite;
-
-  overflow:hidden; cursor:pointer; transition:flex-basis .35s ease;
+  background-position: 70% 82%, 100% 50%;
 }
-@keyframes btnGlow {
-  0% {
-    background-position: 30% 18%, 0% 50%;
+
+.CardPrintersPoslugi p:hover .verticalText {
+  font-weight: 500;
+  /*color: #faf9f5 ;*/
+}
+
+/* --- контент --- */
+.tileContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+/* --- текст --- */
+.verticalText {
+  font-weight: 400;
+  color: #62625d; /* темно-графітовий */
+  /*font-size: 0.95rem;*/
+  /*letter-spacing: 0.05em;*/
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: 0.2rem;
+  margin-bottom: 0.4rem;
+  /*flex: 0 0 auto;*/
+  /*line-height: 1.1;*/
+}
+
+/* --- іконки --- */
+.CardPrintersPoslugi .tileContent img {
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
+  opacity: 0.95;
+  filter: grayscale(1) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
+  margin-top: auto;
+}
+
+/* однаковий масштаб для візуального балансу */
+.CardPrintersPoslugi .tileContent img[src*="delivery"],
+.CardPrintersPoslugi .tileContent img[src*="note"],
+.CardPrintersPoslugi .tileContent img[src*="booklet"],
+.CardPrintersPoslugi .tileContent img[src*="magnets"],
+.CardPrintersPoslugi .tileContent img[src*="photo"] {
+  width: 3.2rem;
+  height: 3.2rem;
+
+}
+
+/* Hover ефект на іконці — легке світіння */
+.CardPrintersPoslugi p:hover .tileContent img {
+  transform: scale(2);
+  opacity: 1;
+  filter: drop-shadow(0 3px 6px rgba(255, 195, 80, 0.4));
+}
+
+/* --- адаптив --- */
+@media (max-width: 992px) {
+  .CardPrintersPoslugi {
+    max-width: 90vw;
   }
-  50% {
-    background-position: 70% 82%, 100% 50%;
+  .CardPrintersPoslugi p {
+    flex: 0 0 9.5rem;
+    height: 9rem;
   }
-  100% {
-    background-position: 30% 18%, 0% 50%;
+  .CardPrintersPoslugi .tileContent img {
+    width: 2.6rem;
+    height: 2.6rem;
   }
 }
-.CardPrintersPoslugi p:hover{ flex-basis:calc(var(--tile-w) * 3);
 
-  background:
-  radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.35), transparent 42%),
-  linear-gradient(130deg, #fff7c6, #f7f1a1, #e4d77d, #f7f1a1);
-
-  background-size: 250% 250%, 320% 320%;
-  background-position: 30% 18%, 0% 50%;
-  animation: btnGlow 5s ease-in-out infinite;}
-
-.tileContent{
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  width:100%; height:100%; padding:.35em .35em 0em;
+@media (max-width: 768px) {
+  .CardPrintersPoslugi p {
+    flex: 1 1 100%;
+    height: 6.5rem;
+  }
+  .verticalText {
+    /*font-size: 0.85rem;*/
+  }
 }
 
-/* ЗАГОЛОВОК — без rotate, не ріжеться */
-.verticalText,
-.verticalColumns{
-  /* позиція у потоці, зверху по центру */
-  /*align-items: start;*/
-  /*align-self:stretch;*/
-  justify-content: center;
-  justify-items: center;
-  margin-top:.15rem;
-  flex-direction:column;
-  /* вертикальне письмо замість transform */
-  writing-mode: sideways-rl;
-  /*text-orientation: upright;*/
-  /* вигляд */
-  white-space:normal;
-  line-height:1;
-  /*letter-spacing:.15em;*/
-  font-size:1.1vw; font-weight:400; color: rgba(0, 0, 0, 0.6);
-  text-align: start;
+@media (min-width: 2000px) {
+  .CardPrintersPoslugi p {
+    flex: 0 0 17rem;
+    height: 12rem;
+  }
+  .verticalText {
+    font-size: 1.7rem;
+  }
+  .CardPrintersPoslugi .tileContent img {
+    width: 5.5rem;
+    height: 4rem;
+
+  }
+  .CardPrintersPoslugi .tileContent img[src*="postpressIcon"]{
+    width: 5vw;
+    height: 10rem;
+
+  }
+
+  .CardPrintersPoslugi .tileContent img[src*="delivery"],
+  .CardPrintersPoslugi .tileContent img[src*="note"],
+  .CardPrintersPoslugi .tileContent img[src*="booklet"],
+  .CardPrintersPoslugi .tileContent img[src*="magnets"],
+  .CardPrintersPoslugi .tileContent img[src*="photo"] {
+
+    width: 6rem;
+    height: 5rem;
+  }
 }
-
-/* багато слів у ряд — рівно і щільно */
-.verticalColumns{ display:flex;  gap:.25em;  justify-content: flex-start }
-
-/* на hover робимо горизонтально (стрибком, без обрізання) */
-.CardPrintersPoslugi p:hover .verticalText,
-.CardPrintersPoslugi p:hover .verticalColumns{
-  writing-mode: horizontal-tb;
-  text-orientation:initial;
-
-}
-
-/* іконка завжди внизу */
-.CardPrintersPoslugi .tileContent > svg,
-.CardPrintersPoslugi .tileContent > img,
-.CardPrintersPoslugiImg{
-  opacity: 0.6;
-  margin-top:auto;
-  align-self:center;
-  width:3vw;
-  /*height:4vh;*/
-  transform-origin:center bottom;
-  transition:transform .35s ease;
-}
-.CardPrintersPoslugi  > svg,
-.CardPrintersPoslugi p:hover .tileContent > img{ transform:scale(3); }
-
-/* прибрати спадкові трансформації зі span */
-.CardPrintersPoslugi p span{ display:block; }
-
-
 
 
 
@@ -468,8 +590,8 @@
 }
 
 .fontProductName {
-    font-size: 1vw;
-    padding-bottom: 0.6vw;
+    /*font-size: 1vw;*/
+
     padding-top: 0.6vw;
 }
 
@@ -721,3 +843,378 @@
 .CardPrintersPoslugi p:hover .icon64.post .die { transform:translateY(4px); }
 .CardPrintersPoslugi p:hover .icon64.post .curve { stroke-dashoffset:0; }
 .CardPrintersPoslugi p:hover .icon64.post .dots2 { stroke-dashoffset:0; }
+
+
+/*!* From Uiverse.io by Dev-MdTuhin *!*/
+/*.checkbox-wrapper-10 .tgl {*/
+/*  display: none;*/
+/*}*/
+
+/*.checkbox-wrapper-10 .tgl,*/
+/*.checkbox-wrapper-10 .tgl:after,*/
+/*.checkbox-wrapper-10 .tgl:before,*/
+/*.checkbox-wrapper-10 .tgl *,*/
+/*.checkbox-wrapper-10 .tgl *:after,*/
+/*.checkbox-wrapper-10 .tgl *:before,*/
+/*.checkbox-wrapper-10 .tgl + .tgl-btn {*/
+/*  box-sizing: border-box;*/
+/*}*/
+
+/*.checkbox-wrapper-10 .tgl::-moz-selection,*/
+/*.checkbox-wrapper-10 .tgl:after::-moz-selection,*/
+/*.checkbox-wrapper-10 .tgl:before::-moz-selection,*/
+/*.checkbox-wrapper-10 .tgl *::-moz-selection,*/
+/*.checkbox-wrapper-10 .tgl *:after::-moz-selection,*/
+/*.checkbox-wrapper-10 .tgl *:before::-moz-selection,*/
+/*.checkbox-wrapper-10 .tgl + .tgl-btn::-moz-selection,*/
+/*.checkbox-wrapper-10 .tgl::selection,*/
+/*.checkbox-wrapper-10 .tgl:after::selection,*/
+/*.checkbox-wrapper-10 .tgl:before::selection,*/
+/*.checkbox-wrapper-10 .tgl *::selection,*/
+/*.checkbox-wrapper-10 .tgl *:after::selection,*/
+/*.checkbox-wrapper-10 .tgl *:before::selection,*/
+/*.checkbox-wrapper-10 .tgl + .tgl-btn::selection {*/
+/*  background: none;*/
+/*}*/
+
+/*.checkbox-wrapper-10 .tgl + .tgl-btn {*/
+/*  outline: 0;*/
+/*  display: flex;*/
+/*  width: 3vw;*/
+/*  height: 2em;*/
+/*  position: relative;*/
+/*  cursor: pointer;*/
+/*  -webkit-user-select: none;*/
+/*  -moz-user-select: none;*/
+/*  -ms-user-select: none;*/
+/*  user-select: none;*/
+/*}*/
+
+/*.checkbox-wrapper-10 .tgl + .tgl-btn:after,*/
+/*.checkbox-wrapper-10 .tgl + .tgl-btn:before {*/
+/*  position: relative;*/
+/*  display: block;*/
+/*  content: "";*/
+/*  width: 3vw;*/
+/*  height: 100%;*/
+/*}*/
+
+/*.checkbox-wrapper-10 .tgl + .tgl-btn:after {*/
+/*  left: 0;*/
+/*}*/
+
+/*.checkbox-wrapper-10 .tgl + .tgl-btn:before {*/
+/*  display: none;*/
+/*}*/
+
+/*.checkbox-wrapper-10 .tgl:checked + .tgl-btn:after {*/
+/*  left: 50%;*/
+/*}*/
+
+/*.checkbox-wrapper-10 .tgl-flip + .tgl-btn {*/
+/*  padding: 2px;*/
+/*  transition: all 1s ease;*/
+/*  !*font-family: sans-serif;*!*/
+/*  perspective: 150px;*/
+/*}*/
+
+/*.checkbox-wrapper-10 .tgl-flip + .tgl-btn:after,*/
+/*.checkbox-wrapper-10 .tgl-flip + .tgl-btn:before {*/
+/*  display: inline-block;*/
+/*  transition: all 0.4s ease;*/
+/*  width: 100%;*/
+/*  text-align: center;*/
+/*  position: absolute;*/
+/*  line-height: 2em;*/
+/*  font-weight: bold;*/
+/*  color: #fff;*/
+/*  position: absolute;*/
+/*  top: 0;*/
+/*  left: 0;*/
+/*  -webkit-backface-visibility: hidden;*/
+/*  backface-visibility: hidden;*/
+/*  border-radius: 4px;*/
+/*}*/
+
+/*.checkbox-wrapper-10 .tgl-flip + .tgl-btn:after {*/
+/*  content: attr(data-tg-on);*/
+/*  background: #02C66F;*/
+/*  transform: rotateY(-180deg);*/
+/*}*/
+
+/*.checkbox-wrapper-10 .tgl-flip + .tgl-btn:before {*/
+/*  background: #FF3A19;*/
+/*  content: attr(data-tg-off);*/
+/*}*/
+
+/*.checkbox-wrapper-10 .tgl-flip + .tgl-btn:active:before {*/
+/*  transform: rotateY(-20deg);*/
+/*}*/
+
+/*.checkbox-wrapper-10 .tgl-flip:checked + .tgl-btn:before {*/
+/*  transform: rotateY(180deg);*/
+/*}*/
+
+/*.checkbox-wrapper-10 .tgl-flip:checked + .tgl-btn:after {*/
+/*  transform: rotateY(0);*/
+/*  left: 0;*/
+/*  background: #7FC6A6;*/
+/*}*/
+
+/*.checkbox-wrapper-10 .tgl-flip:checked + .tgl-btn:active:after {*/
+/*  transform: rotateY(20deg);*/
+/*}*/
+/* Базовий контейнер */
+.checkbox-wrapper-10 {
+  position: relative;
+  display: inline-block;
+  max-width: 3vw;
+  width: 3vw;
+}
+
+/* Приховуємо стандартний чекбокс */
+.tgl {
+  display: none;
+
+}
+
+/* Основна форма тумблера */
+.tgl + .tgl-btn {
+  /*position: relative;*/
+  /*display: inline-block;*/
+  max-width: 3vw;
+  width: 3vw;
+  height: 3.5vh;
+  cursor: pointer;
+  border-radius: 10px;
+  background: transparent;
+  border: none;
+  transition: all 0.3s ease;
+  padding-left: 0.5vw ;
+  /*font-family: "Inter", sans-serif;*/
+}
+
+/* "Фліп" ефект */
+.tgl-flip + .tgl-btn::before,
+.tgl-flip + .tgl-btn::after {
+  content: attr(data-tg-off);
+  position: absolute;
+  /*top: 0;*/
+  /*left: 0;*/
+right: -0.6vw;
+  height: 3.5vh;
+
+  width: 3.5vw;
+  line-height: 1.7em;
+  text-align: center;
+  color: white;
+  border-radius: 10px;
+  background: #ee3c23;
+  transform: rotateY(0deg);
+  /*backface-visibility: hidden;*/
+  transition: all 0.4s ease;
+}
+
+/* "On" стан */
+.tgl-flip:checked + .tgl-btn::before {
+  content: attr(data-tg-on);
+  background: #208e5d;
+  transform: rotateY(180deg);
+}
+
+/* Ефект фліпу */
+.tgl-flip + .tgl-btn::after {
+  content: attr(data-tg-on);
+  background: #208e5d;
+  transform: rotateY(180deg);
+  opacity: 0;
+}
+
+.tgl-flip:checked + .tgl-btn::after {
+  opacity: 1;
+  transform: rotateY(0deg);
+}
+
+/* Тінь + плавність */
+.tgl + .tgl-btn {
+  /*box-shadow: inset 0 0 0 0.1em #999;*/
+}
+
+.tgl:checked + .tgl-btn {
+  /*box-shadow: inset 0 0 0 0em #5cb85c;*/
+}
+/* Контейнер */
+.custom-select-container-rah {
+  /*position: relative;*/
+  /*display: inline-block;*/
+  /*font-family: "Inter", sans-serif;*/
+  font-size: 0.7vw;
+  font-weight: 400;
+  color: #333;
+  display: flex;
+  justify-content: start;
+  position: absolute;
+  top: 0;
+  left: -19%;
+  width: 100%;
+}
+
+/* Заголовок (обраний пункт) */
+.custom-select-header-rah {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 0.7vw 1vw;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 2s ease;
+
+}
+
+.custom-select-header-rah:hover {
+  border-color: #f2a901;
+  box-shadow: 0 0 0 2px rgba(60, 96, 166, 0.1);
+}
+
+/* Стрілка */
+.arrow-rah {
+  height: 3vh;
+
+  /*color: chocolate;*/
+  transition: transform 0.3s ease;
+}
+.arrow-rah.up {
+  transform: rotate(180deg);
+}
+
+/* Випадаючий список */
+.custom-select-dropdown-rah {
+font-weight: 400;
+  background-color: #ebebe6;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  max-height: 35vh;
+  overflow-y: auto;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  animation: fadeIn 0.15s ease-out;
+}
+
+/* Елементи списку */
+.custom-option-rah {
+  padding: 0.7vw 1vw;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s ease;
+}
+
+.custom-option-rah:hover {
+  background-color: #f5f7fa;
+}
+
+.custom-option-rah.active {
+  background-color: #e8eefc;
+  font-weight: 400;
+  color: #faf8f3;
+}
+
+/* Анімація появи */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Скроллбар */
+.custom-select-dropdown-rah::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-select-dropdown-rah::-webkit-scrollbar-thumb {
+  background-color: #c3c8d4;
+  border-radius: 6px;
+}
+.custom-select-dropdown-rah::-webkit-scrollbar-thumb:hover {
+  background-color: #a2a8b6;
+}
+.custom-select-container-rah {
+  position: relative;
+  display: flex;
+  align-items: center; /* центрує контент по вертикалі */
+  height: 4.4vh; /* 🔹 така сама висота, як інші інпути */
+}
+
+/* Сам “інпут”-заголовок */
+.custom-select-header-rah {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0 1vw; /* 🔹 симетричні відступи */
+  height: 100%; /* робимо його рівним по висоті контейнеру */
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* 🔹 вирівнює текст “ФОП” посередині */
+  cursor: pointer;
+  width: 100%;
+  line-height: normal; /* прибирає зсув тексту вгору */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  font-size: 1.5vh;
+}
+
+/* Трохи затемнюємо рамку при hover */
+.custom-select-header-rah:hover {
+  border-color: #3c60a6;
+  box-shadow: 0 0 0 2px rgba(60, 96, 166, 0.1);
+}
+
+/* Стрілка */
+.arrow-rah {
+  font-size: 1.8vh;
+  margin-left: 0.5vw;
+  transition: transform 0.3s ease;
+}
+.arrow-rah.up {
+  transform: rotate(180deg);
+}
+
+/* Dropdown */
+.custom-select-dropdown-rah {
+  position: absolute;
+  top: calc(100% + 0.3vh);
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  max-height: 35vh;
+  overflow-y: auto;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+/* Пункти */
+.custom-option-rah {
+  padding: 0.7vw 1vw;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s ease;
+}
+.custom-option-rah:hover {
+  background-color: #f5f7fa;
+}
+.custom-option-rah.active {
+  background-color: #e8eefc;
+  font-weight: 600;
+  color: #3c60a6;
+}

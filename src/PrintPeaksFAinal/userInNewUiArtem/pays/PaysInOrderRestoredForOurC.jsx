@@ -199,9 +199,9 @@ export default function PaysInOrderRestoredForOurC({
         {/* header */}
         <div className="d-flex">
           <div className="m-auto text-center fontProductName">
-            Реквізити Постачальник/Виконавець (для замовлення #{thisOrder?.id ?? "—"})
+            Наші реквізити для виставлення рахунку для замовлення №{thisOrder?.id ?? "—"}
           </div>
-          <button className="btn btn-close" style={{ margin: "0.8vw", width: "1vw", height: "1vw" }} onClick={handleClose} />
+          {/*<button className="btn btn-close" style={{ margin: "0.8vw", width: "1vw", height: "1vw" }} onClick={handleClose} />*/}
         </div>
 
         {/* body */}
@@ -209,16 +209,16 @@ export default function PaysInOrderRestoredForOurC({
           {/* таблиця-шапка */}
           <div className="OrderList" style={{ height: "auto" }}>
             <div className="OrderRow-summary OrderRow-header contractors-like-cols">
-              <div className="summary-cell contragentId d-flex justify-content-center" style={{ fontSize: "0.7vw" }}>№</div>
-              <div className="summary-cell contragentName" style={{ fontSize: "0.7vw" }}>Найменування</div>
-              <div className="summary-cell contragentGrupa" style={{ fontSize: "0.7vw" }}>Система оподаткування</div>
-              <div className="summary-cell contragentBank" style={{ fontSize: "0.7vw" }}>Банк</div>
-              <div className="summary-cell contragentIBAN" style={{ fontSize: "0.7vw" }}>IBAN</div>
-              <div className="summary-cell contragentPDV" style={{ fontSize: "0.7vw" }}>ПДВ</div>
-              <div className="summary-cell contragentClient" style={{ fontSize: "0.7vw" }}>Клієнт</div>
-              <div className="summary-cell contragentEDRPOU" style={{ fontSize: "0.7vw" }}>ЄДРПОУ</div>
-              <div className="summary-cell contragentTelephone" style={{ fontSize: "0.7vw" }}>Тел.</div>
-              <div className="summary-cell contragentDocu d-flex justify-content-center" style={{ fontSize: "0.7vw" }}>Документи</div>
+              <div className="summary-cell contragentId d-flex justify-content-center" >№</div>
+              <div className="summary-cell contragentName" >Назва</div>
+              <div className="summary-cell contragentGrupa" >Опод.</div>
+              <div className="summary-cell contragentBank" >Банк</div>
+              <div className="summary-cell contragentIBAN" >IBAN</div>
+              <div className="summary-cell contragentPDV" >ПДВ</div>
+              <div className="summary-cell contragentClient" >Клієнт</div>
+              <div className="summary-cell contragentEDRPOU" >ЄДРПОУ</div>
+              <div className="summary-cell contragentTelephone" >Тел.</div>
+              <div className="summary-cell contragentDocu d-flex justify-content-center" >Документи</div>
             </div>
 
             {error && <div className="text-danger mb-2">{error}</div>}
@@ -240,39 +240,39 @@ export default function PaysInOrderRestoredForOurC({
                         className="OrderRow-summary OrderRow-hover contractors-like-cols"
                         onClick={() => setExpandedId(isOpen ? null : item.id)}
                       >
-                        <div className="summary-cell d-flex justify-content-center contragentId" style={{ fontSize: "0.5vw" }}>
+                        <div className="summary-cell d-flex justify-content-center contragentId" >
                           {idx + 1}
                         </div>
 
-                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentName" style={{ fontSize: "0.5vw" }}>
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentName" >
                           {item.name || c.name || "—"}
                         </div>
 
-                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentGrupa" style={{ fontSize: "0.5vw" }}>
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentGrupa" >
                           {c.taxSystem || "—"}
                         </div>
 
-                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentBank" style={{ fontSize: "0.5vw" }}>
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentBank" >
                           {c.bankName || "—"}
                         </div>
 
-                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentIBAN" style={{ fontSize: "0.5vw" }}>
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentIBAN" >
                           {c.iban || "—"}
                         </div>
 
-                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentPDV" style={{ fontSize: "0.5vw" }}>
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentPDV" >
                           {c.pdv ? "+" : "-"}
                         </div>
 
-                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentClient" style={{ fontSize: "0.5vw" }}>
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentClient" >
                           {u ? `${u.firstName || ""} ${u.lastName || ""} ${u.familyName || ""} (${u.phoneNumber || "—"})` : "—"}
                         </div>
 
-                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentEDRPOU" style={{ fontSize: "0.5vw" }}>
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentEDRPOU" >
                           {c.edrpou || "—"}
                         </div>
 
-                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentTelephone" style={{ fontSize: "0.5vw" }}>
+                        <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentTelephone" >
                           {c.phone || "—"}
                         </div>
 

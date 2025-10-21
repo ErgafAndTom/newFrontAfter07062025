@@ -312,9 +312,10 @@ const NewSheetSheet = ({
                                             size={size}
                                             type={"SheetCut"}
                                             buttonsArr={["з глянцевим ламінуванням",
-                                                "з матовим ламінуванням",
-                                                "з ламінуванням Soft Touch",]}
-                                            selectArr={["30", "80", "100", "125", "250"]}
+                                              "з матовим ламінуванням",
+                                              "з ламінуванням SoftTouch",,
+                                              "з холодним матовим ламінуванням",]}
+                                            selectArr={["30", "70", "80", "100", "125", "250"]}
                                         />
                                         <NewNoModalCornerRounding
                                             big={big}

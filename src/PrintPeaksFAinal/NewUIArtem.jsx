@@ -225,7 +225,7 @@ const NewUIArtem = () => {
 
             {/* Перша група */}
             {/* === GRID OF SERVICE TILES === */}
-            <div className="CardPrintersPoslugi">
+            <div className="CardPrintersPoslugi" style={{position: 'absolute',top:"5%",left:"0%", width:"36.5%"}} onClick={toggleExpandedThing}>
 
               {/* 1) BLACK */}
               <p onClick={() => setShowNewSheetCutBw(true)}>
@@ -246,9 +246,9 @@ const NewUIArtem = () => {
               {/* 2) COLOR PRODUCTS */}
               <p onClick={() => setShowNewSheetCut(true)}>
                 <div className="tileContent">
-                  <div className="verticalColumns">
-                    <span className="verticalText">DIGITAL PRINT</span>
-                    <span className="verticalText">CUTING</span>
+                  <div className="verticalColumns" style={{marginTop:"-0.2vh"}}>
+                    <span className="verticalText" >DIGITAL PRINT CUTING</span>
+                    {/*<span className="verticalText"></span>*/}
                   </div>
                   <img className="icon64 CardPrintersPoslugiImg" src={colorPrintIcon} alt=""/>
                   {/*<svg*/}
@@ -407,8 +407,8 @@ const NewUIArtem = () => {
 
           </div>
           {/* Третя група */}
-          <div className="d-flex justify-content-end align-items-end" style={{bottom: "19vh", position: "absolute"}}>
-            <div className="CardPrintersPoslugi">
+          <div className="d-flex justify-content-end align-items-end" >
+            <div className="CardPrintersPoslugi" style={{position:"absolute",bottom:"16%",right:"35%", width:"30%"}}>
               <p onClick={() => setShowNewNote(true)}>
                 <div className="tileContent">
                   <span className="verticalText">NOTE</span>

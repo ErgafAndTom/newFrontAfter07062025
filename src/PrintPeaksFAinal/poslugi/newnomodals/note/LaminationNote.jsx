@@ -22,8 +22,8 @@ const LaminationNote = ({materialAndDruk, setMaterialAndDruk, prices, buttonsArr
         if (materialAndDruk.laminationType === "Не потрібно") {
             setMaterialAndDruk({
                 ...materialAndDruk,
-                laminationType: "З глянцевим ламінуванням",
-                laminationmaterial: "З глянцевим ламінуванням",
+                laminationType: "з глянцевим ламінуванням",
+                laminationmaterial: "з глянцевим ламінуванням",
                 laminationmaterialId: "",
                 // size: "",
                 laminationTypeUse: "А3",

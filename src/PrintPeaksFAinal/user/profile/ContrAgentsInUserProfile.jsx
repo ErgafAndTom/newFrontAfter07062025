@@ -254,7 +254,7 @@ function ContrAgentsInUserProfile({ user }) {
       {/* header */}
       <div className="OrderRow-summary OrderRow-header contractors-like-cols">
         <div className="summary-cell contragentId d-flex justify-content-center" style={{fontSize: "0.7vw"}}>№</div>
-        <div className="summary-cell contragentName" style={{fontSize: "0.7vw"}}>Найменування</div>
+        <div className="summary-cell contragentName" style={{fontSize: "0.7vw"}}>Найменування1</div>
         <div className="summary-cell contragentGrupa" style={{fontSize: "0.7vw"}}>Система оподаткування</div>
         <div className="summary-cell contragentBank" style={{fontSize: "0.7vw"}}>Банк</div>
         <div className="summary-cell contragentIBAN" style={{fontSize: "0.7vw"}}>IBAN</div>

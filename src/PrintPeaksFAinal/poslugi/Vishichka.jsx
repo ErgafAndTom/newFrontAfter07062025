@@ -356,8 +356,9 @@ const Vishichka = ({
                                             isVishichka={true}
                                             buttonsArr={["з глянцевим ламінуванням",
                                               "з матовим ламінуванням",
-                                              "з ламінуванням Soft Touch",]}
-                                            selectArr={["30", "80", "100", "125"]}
+                                              "з ламінуванням SoftTouch",,
+                                              "з холодним матовим ламінуванням",]}
+                                            selectArr={["30", "70", "80", "100", "125", "250"]}
                                           />
                                           <PlivkaMontajna
                                             size={size}
