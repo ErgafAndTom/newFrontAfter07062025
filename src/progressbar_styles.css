@@ -14,7 +14,7 @@
   /*font-size: 20px;*/
   height: 17vh;
   width: 80px;
-  font-weight: 600;
+  /*font-weight: 400;*/
   cursor: pointer;
   /*box-shadow: 0 8px 16px rgba(0,0,0,0.12);*/
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -29,7 +29,7 @@
   left: 1vw;
   padding: 0.6vh 1.4vw;
   border-radius: 50px;
-  font-weight: 700;
+  font-weight: 400;
   font-size: 1.1vw;
   color: white;
   white-space: nowrap;
@@ -73,10 +73,10 @@
   color: #faf9f5;
   /*transform: rotate(90deg);*/
   display: flex;
-  /*line-height: 2;*/
+  font-size: clamp(1vh, 3vw, 2.5vh);
   width: 5px;
   font-weight: 400;
-  font-size: 1.2rem;
+
   align-items: center;
   justify-content: center;
   white-space: pre-wrap;    /* дозволяємо перенос */
@@ -84,7 +84,7 @@
   text-align: center;
   /*width: 100%;                !* займає ширину кнопки *!*/
   height: 100%;
-  letter-spacing: 2px;
+  /*letter-spacing: 2px;*/
   column-count: 2;
   text-shadow:
     3px 1px #686864,

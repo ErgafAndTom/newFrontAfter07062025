@@ -5,14 +5,15 @@
 
 .PayButtons {
   width: 7.87vw;
-  height: 6vh;
+  height: 4.5vh;
   padding: 0.5rem;
   border: 0.1vw;
   background: #f2f0e7;
-  font-size: 1.4vh;
+  font-size: 1.6vh;
   text-align: center;
   align-items: center;
   cursor: pointer;
+  font-weight: 500;
 }
 
 .PayButtons + .PayButtons {

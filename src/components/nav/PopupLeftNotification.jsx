@@ -101,7 +101,7 @@ const PopupLeftNotification = () => {
                         src={`/images/${photo.photoLink}`}
                         alt=""
                         style={{
-                          height: '3vh', objectFit: 'cover',
+                          height: '3.5vh', objectFit: 'cover',
                           borderRadius: '0.3vh', pointerEvents: 'none'
                         }}
                       />

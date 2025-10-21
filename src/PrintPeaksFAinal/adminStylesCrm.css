@@ -98,7 +98,7 @@
   line-height:1.2;
   /*letter-spacing:.06em;*/
   font-size:clamp(1.5rem, 2vh, 3vh);
-  font-weight:500;
+  font-weight:400;
   text-indent: 1em;   /* відступ на ширину двох літер "M" */
   /* відступ на ширину двох літер "M" */
   color: rgba(0, 0, 0, 0.6);
@@ -107,11 +107,11 @@
 }
 .adminTextBigPay {
   text-transform: uppercase;
-  line-height:1.2;
-  letter-spacing:.1em;
-  font-size:clamp(1.5rem, 2vh, 3vh);
-  font-weight:700;
-  text-indent: 1em;   /* відступ на ширину двох літер "M" */
+  /*line-height:1.2;*/
+  /*letter-spacing:.1em;*/
+  font-size:clamp(1rem, 2.5vh, 3.5vh);
+  font-weight:400;
+  /*text-indent: 1em;   !* відступ на ширину двох літер "M" *!*/
   /* відступ на ширину двох літер "M" */
   color: rgba(0, 0, 0, 0.6);
   text-align: justify;
@@ -155,7 +155,7 @@
 /* КНОПКА */
 .adminButtonAdd {
   text-transform: uppercase;
-  letter-spacing:.06em;
+  /*letter-spacing:.06em;*/
   text-align: start;
   border: none;
   position: relative;
@@ -166,12 +166,11 @@
   min-width: 8vw;
   padding: 10px 18px;
   gap: 0.3em;
-
   /* пропорційний font-size: від ширини екрана */
   /*font-size: clamp(14px, 2vw - 1.5vw, 22px);*/
-  font-size: 0.65vw;
+  font-size: 0.7vw;
   color: rgba(0, 0, 0, 0.7);
-  line-height:2;
+  /*line-height:2;*/
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   border-radius: 12px;
@@ -190,10 +189,11 @@
   box-shadow: 0 4px 0 var(--btn-edge), 0 10px 16px rgba(0,0,0,0.18);
   transition: transform .18s ease, box-shadow .18s ease, color .18s ease, filter .18s ease;
 }
-adminButtonAdd:hover {
-  color: white !important;
-}
 
+.adminButtonAdd:hover {
+  color: #f2f0e7;
+  background: #1d8e5b;
+}
 /* Блиск (“sheen”) */
 /*.adminButtonAdd::before {*/
 /*  content: "";*/
@@ -214,12 +214,7 @@ adminButtonAdd:hover {
 /*}*/
 
 /* Hover */
-.adminButtonAdd:hover {
-  color: #fff;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 var(--btn-edge), 0 14px 18px rgba(0,0,0,0.22);
-  filter: saturate(1.05);
-}
+
 
 /* Active */
 .adminButtonAdd:active {
@@ -228,10 +223,7 @@ adminButtonAdd:hover {
 }
 
 /* Focus */
-.adminButtonAdd:focus-visible {
-  outline: 3px solid rgba(250,180,22,0.45);
-  outline-offset: 2px;
-}
+
 
 /* Disabled */
 .adminButtonAdd:disabled {
@@ -328,8 +320,8 @@ adminButtonAdd:hover {
   /* вигляд */
   white-space:normal;
   line-height:1;
-  letter-spacing:.15em;
-  font-size:1.1vw; font-weight:200; color: rgba(0, 0, 0, 0.6);
+  /*letter-spacing:.15em;*/
+  font-size:1.1vw; font-weight:400; color: rgba(0, 0, 0, 0.6);
   text-align: start;
 }
 
@@ -364,13 +356,7 @@ adminButtonAdd:hover {
 
 
 
-/*.adminButtonAdd:disabled {*/
-/*    background: #F2F0E7;*/
-/*    cursor: not-allowed;*/
-/*    opacity: 0.7;*/
-/*    transform: none;*/
-/*    box-shadow: none;*/
-/*}*/
+
 
 .hoverOrange:hover {
     background: #FAB416;
@@ -455,12 +441,12 @@ adminButtonAdd:hover {
 }
 
 .adminFont2 {
-    font-size: 1.5vmin;
+    /*font-size: 1.5vmin;*/
 }
 
 .fontInfoForPricing1 {
-    font-size: 2vmin;
-    font-weight: bold;
+    /*font-size: 2vmin;*/
+    font-weight: 600;
 }
 .fontInfoForPricing1red {
   font-size: 1.3vw;
@@ -471,7 +457,7 @@ adminButtonAdd:hover {
 
 .fontInfoForPricing {
 
-    font-size: var(--font-size-base);
+    /*font-size: var(--font-size-base);*/
 
     /*font-size: clamp(10px, 1.5vmin, 14px);*/
 }
@@ -517,8 +503,8 @@ adminButtonAdd:hover {
 
 .BasePriceWithQuantity
 {
-  font-size:clamp(2rem, 2.5vh, 4vh);
-  text-indent: 0.2em;
+  /*font-size:clamp(2rem, 2.5vh, 4vh);*/
+  text-indent: 0.1em;
   margin-left: 0.7em;
   gap:0.8rem;
   color: #646462;

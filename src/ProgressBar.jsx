@@ -370,56 +370,64 @@ return (
         bottom: '0.1vw',
 
       }}>
+
       <div
         style={{
           position: 'absolute',
           bottom: '0.7vh',
           left:"6.5rem",
           textTransform: 'uppercase',
-          width: '32vw',     // ширина 30vw
+          width: '100%',     // ширина 30vw
           height: '3vh',     // висота 2vh
           maxHeight: '4vh',
-          fontWeight: 200,
+          fontWeight: 400,
           color: currentStageDescriptor.accent,
           transition: 'color 0.3s ease',
           textAlign: 'start',
           /* підбір шрифту */
           fontSize: 'clamp(1vh, 3vw, 2.5vh)',
-          letterSpacing:"0.25em",
+          // letterSpacing:"0.25em",
           lineHeight: '3vh',     // щоб текст ставав рівно в блок
           overflow: 'hidden',
           whiteSpace: 'nowrap',
           textOverflow: 'ellipsis',
           boxSizing: 'border-box',
         }}
-      >
-        {currentStageDescriptor.title}
-      </div>
-      <DiscountCalculator
-        thisOrder={thisOrder}
-        setThisOrder={setThisOrder}
-        selectedThings2={selectedThings2}
-        setSelectedThings2={setSelectedThings2}
-      />
 
-    <div className="d-flex justify-content-center flex-column" style={{position: 'absolute', top:"1vh",  fontSize: 'clamp(1vh, 3vw, 2.5vh)', gap:"1vh", left: '6.5rem' }}>
+      >
+
+        {currentStageDescriptor.title}
+
+      </div>
+    <div style={{position:"absolute", right:"0", top:"0"}}>
+    <DiscountCalculator
+      thisOrder={thisOrder}
+      setThisOrder={setThisOrder}
+      selectedThings2={selectedThings2}
+      setSelectedThings2={setSelectedThings2}
+    />
+    </div>
+
+    <div className="d-flex justify-content-center flex-column" style={{position: 'absolute',  paddingTop:"1vh", fontSize: 'clamp(1vh, 3vw, 2.5vh)', gap:"1vh", left: '6.5rem' }}>
       {/* ВАРТІСТЬ */}
+
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           whiteSpace: 'normal',
           wordBreak: 'break-word',
-          width: '33vw',
+
         }}>
         <label style={{
-          fontWeight: 200,
+          fontWeight: 400,
           color: currentStageDescriptor.accent,
           width: "10vw",
           height: "3vh",
+          opacity:"0.5",
           alignItems: "start",
           fontSize: 'clamp(1vh, 3vw, 2.5vh)',
-          letterSpacing: '0.07em'
+          // letterSpacing: '0.07em'
         }}>
           ВАРТІСТЬ:
         </label>
@@ -427,17 +435,18 @@ return (
           style={{
             fontSize: 'clamp(1vh, 3vw, 2.5vh)',
             width: '10vw',
-            fontWeight: 200,
+            fontWeight: 400,
+            opacity:"0.5",
             backgroundColor: '#ebebe6',
             border: 'none',
             textAlign: 'center',
             borderRadius: '10px',
             color: currentStageDescriptor.accent,
             padding: '0.4vh',
-            letterSpacing: '0.05em'
+            // letterSpacing: '0.05em'
           }}
         >
-          {thisOrder.price} <span style={{ fontSize: '0.8rem', color: currentStageDescriptor.accent, fontWeight: 200, }}>грн</span>
+          {thisOrder.price} <span style={{ fontSize: '0.8rem', color: currentStageDescriptor.accent, fontWeight: 400, }}>грн</span>
         </div>
       </div>
 
@@ -448,16 +457,16 @@ return (
           alignItems: 'center',         // ← виправлення
           whiteSpace: 'normal',
           wordBreak: 'break-word',
-          width: '33vw',
+
         }}
       >
         <label style={{
-          fontWeight: 200,
+          fontWeight: 400,
           color: '#707070',
           width:"10vw",
           fontSize: 'clamp(1vh, 3vw, 2.5vh)',
 
-          letterSpacing: '0.07em'
+          // letterSpacing: '0.07em'
         }}>
           ДО СПЛАТИ:
         </label>
@@ -465,17 +474,17 @@ return (
           style={{
             fontSize: 'clamp(1vh, 3vw, 2.5vh)',
             width: '10vw',
-            fontWeight: 700,
+            fontWeight: 500,
             backgroundColor: '#ebebe6',
             border: 'none',
             textAlign: 'center',
             borderRadius: '10px',
             color: '#707070',
             padding: '0.4vh',
-            letterSpacing: '0.05em'
+            // letterSpacing: '0.05em'
           }}
         >
-          {thisOrder.allPrice} <span style={{ fontSize: '0.8rem', color: '#707070', fontWeight: 200, }}>грн</span>
+          {thisOrder.allPrice} <span style={{ fontSize: '0.8rem', color: '#707070', fontWeight: 400, }}>грн</span>
         </div>
       </div>
 

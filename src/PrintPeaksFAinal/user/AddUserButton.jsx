@@ -19,29 +19,37 @@ function AddUserButton({ fetchUsers, addOrdOrOnlyClient, thisOrder, setThisOrder
 
     return (
         <div>
-            <div>
-              {thisOrder && (
-                <button
-                  className="adminButtonAdd " style={{marginLeft:"1vw"}}
-                  onClick={handleAddUser}
-                >
-                  Створити клієнта
-                </button>
-              )}
-              {!thisOrder && (
-                <button
-                  className="adminButtonAdd buttonSkewedOrderClient"
-                  onClick={handleAddUser}
-                  style={{borderTopRightRadius:"0px", marginRight:"1vw", borderBottomLeftRadius:"0px", height:"4vh", width:"10vw", fontWeight:700}}
-                >
-                  <div
 
-                  >&nbsp;&nbsp;Створити клієнта</div>
-                </button>
-              )}
+              {/*{thisOrder && (*/}
+              {/*  <button*/}
+              {/*    className="adminButtonAdd " style={{marginLeft:"1vw"}}*/}
+              {/*    onClick={handleAddUser}*/}
+              {/*  >*/}
+              {/*    Створити клієнта*/}
+              {/*  </button>*/}
+              {/*)}*/}
+              {/*{!thisOrder && (*/}
+              {/*  <button*/}
+              {/*    // className="buttonSkewedOrderClient adminButtonAdd  "*/}
+              {/*    className={`buttonSkewedOrderClient adminButtonAdd `}*/}
+              {/*    onClick={handleAddUser}*/}
+              {/*    style={{borderTopRightRadius:"0px", marginRight:"1vw", borderBottomLeftRadius:"0px", height:"4vh", width:"10vw", fontWeight:500, color:""}}*/}
+              {/*  >*/}
+              {/*    <div*/}
 
-            </div>
+              {/*    >&nbsp;&nbsp;Створити клієнта</div>*/}
+              {/*  </button>*/}
+              {/*)}*/}
 
+
+          <div
+            className={`buttonSkewedOrderClient adminButtonAdd`}
+            onClick={handleAddUser}
+
+            style={{marginLeft:'0.5vw', alignItems:'center', justifyContent:'center', borderTopLeftRadius:"0",  borderTopRightRadius:"0", borderBottomLeftRadius:"0", height:"4vh", width:"10vw", fontWeight:500, marginRight:"1vw"}}
+          >
+            Створити клієнта
+          </div>
             {showAddUser && (
                 <AddUserWindow
                     show={showAddUser}

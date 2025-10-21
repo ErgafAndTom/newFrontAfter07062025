@@ -60,7 +60,12 @@ body {
   font-weight: 400;
 
 }
-
+.form-control {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  color: inherit !important;
+}
 .popup-overlay {
   display: flex;
   flex-direction: column;

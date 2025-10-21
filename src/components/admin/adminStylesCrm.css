@@ -125,29 +125,27 @@
     background: #FBFAF6;
 }
 
-.adminFont2 {
-    font-size: 1.5vw;
-}
+
 
 .fontInfoForPricing1 {
-    font-size: 1.5vw;
+    /*font-size: 1.5vw;*/
 }
 
 .fontInfoForPricing11 {
-    font-size: 1vw;
-    margin: 0.5vw;
+    /*font-size: 1vw;*/
+    /*margin: 0.5vw;*/
 }
 
 .fontProductName {
 
-    font-size: var(--font-size-base);
-    padding-bottom: 0.6vw;
-    padding-top: 0.6vw;
+    /*font-size: var(--font-size-base);*/
+    padding-bottom: 0.3vw;
+    padding-top: 0.3vw;
 }
 
 .navbarMy {
     border-radius: 12px;
-    align-items: left;
+
     background: #F2F0E7;
     height: 1vw;
     order-top-left-radius: 12px;

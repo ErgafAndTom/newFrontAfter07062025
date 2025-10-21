@@ -549,7 +549,11 @@ const NewUIArtem = () => {
 
                               >
                                 <div className={"d-flex flex-row align-items-center"}
-                                     style={{maxWidth: "33vw", background: "transparent"}}>
+                                     style={{
+                                       maxWidth: "33vw",
+                                       background: "transparent",
+                                       // textTransform:"uppercase"
+                                }}>
                                   <div>
                                     <div className="adminTextBig"
                                          style={{ maxWidth: "33vw"}}>{thing.name}</div>
@@ -577,7 +581,7 @@ const NewUIArtem = () => {
                                     className="BasePriceWithQuantitySmall"> грн</span></span>
 
                                   <span style={{color: "rgba(0, 0, 0, 0.6)"}}>=</span>
-                                  <span className="booooold" style={{color: "red"}}>{thing.priceForThis}<span
+                                  <span className="" style={{color: "red", fontWeight:"400"}}>{thing.priceForThis}<span
                                     className="BasePriceWithQuantitySmall" style={{color: "red"}}> грн</span></span>
 
                                 </div>
@@ -600,7 +604,7 @@ const NewUIArtem = () => {
                                       {/*{parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(3)}*/}
                                       {/*<span style={{ fontSize: "1rem", opacity: 0.5 }}><div className="BasePriceWithQuantitySmall ">грн</div></span>*/}
                                       =
-                                      <span className="booooold " style={{color: "#008249"}}>
+                                      <span className=" " style={{color: "#008249"}}>
 
                         {thing.priceForThisDiscount}
                                         <span className="BasePriceWithQuantitySmall"
@@ -961,7 +965,7 @@ const NewUIArtem = () => {
           //                       handleThisOrderChange={handleThisOrderChange}/>
           // <ClientChangerUIArtem client={{email: "null", id: 0, phone: "+00000000",}}/>
         )}
-        <div className="d-flex flex-row" style={{position: "absolute", bottom: "-0.7vh", }}>
+        <div className="d-flex flex-row" style={{position: "fixed", bottom: "-0.7vh", }}>
           <div className="containerNewUI"
                style={{height: "17vh", width: "30vw", position: "relative", padding: '1rem', boxShadow: "0 5px 5px 3px rgba(0, 0, 0, 0.15)"}}>
             <OrderFilesPanel thisOrder={thisOrder}/>

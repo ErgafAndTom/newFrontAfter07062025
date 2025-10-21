@@ -363,7 +363,7 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
                     className="selectArtem"
                     onChange={handleSelectOption}
                     value={thisNameVal}
-                    // style={{marginLeft: "2vw"}}
+                    style={{}}
                 >
                     {/*<option disabled selected>Оберіть значення</option>*/}
                     {/*<option>Задати свій розмір</option>*/}
@@ -387,7 +387,6 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
                         onClick={() => handleClick(item)}
                          >
                         <div className="" style={{
-
 
                             opacity: item === color.sides ? '100%' : '60%',
 

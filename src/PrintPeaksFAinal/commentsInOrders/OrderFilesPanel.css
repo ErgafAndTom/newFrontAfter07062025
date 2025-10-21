@@ -27,11 +27,15 @@
 .left-hint {
   display:flex;
   align-items:center;
-  opacity: 0.5;
+
+  /*opacity: 0.5;*/
   white-space: nowrap;
-  font-weight: 200;
-  font-size: clamp(1.5rem, 2vh, 3vh);
-  color: rgba(0,0,0,0.8); }
+  font-weight: 400;
+  font-size: clamp(1.4rem, 1.7vh, 3vh);
+  color: #62625d;
+  text-transform: uppercase;
+}
+
 
 .AddButtonFilesOrder{
   position: absolute;
@@ -56,7 +60,7 @@
   animation: btnGlow 4s ease-in-out infinite;
   color: black;
   font-weight: 100;
-  font-size: 4rem;
+  font-size: 3rem;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -66,7 +70,7 @@
 }
 .AddButtonFilesOrder:hover {
   color: white;
-  font-size: 5rem;
+  font-size: 3.5rem;
 }
 /* scroll container */
 .files-grid-scroll {

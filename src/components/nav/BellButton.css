@@ -1,5 +1,5 @@
 .bell-button {
-  height: 3vh;
+  height: 3.5vh;
   /*z-index: 510;*/
   background:
     radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.35), transparent 42%),

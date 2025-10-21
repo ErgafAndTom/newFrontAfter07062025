@@ -342,13 +342,13 @@ const OrderFilesPanel = ({
       onDragLeave={onDragLeave}
       onDrop={onDrop}
       title="Перетягни файли або натисни «+»"
-      style={{ height:"1.5hv", fontWeight:"200" }}
+      style={{ height:"1.5hv", fontWeight:"400" }}
     >
       <div className="drop-hint">
         {uploads.length === 0 && (
           <div className="left-hint">
-            <FiUploadCloud style={{ marginRight: 10 }} />
-            <div>Перетягни файли або натисни "+"</div>
+            {/*<FiUploadCloud style={{ marginRight:12}} />*/}
+            <div style={{color:"#62625d"}}>Перетягни файли або натисни "+"</div>
           </div>
         )}
         <button

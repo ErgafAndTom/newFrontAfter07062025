@@ -207,8 +207,8 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
                 color: '#646462',
                 whiteSpace: 'nowrap',
                 textOverflow: 'ellipsis',
-                fontWeight: '200',
-                letterSpacing: '0.1em',
+                fontWeight: '400',
+                // letterSpacing: '0.1em',
                 width: '29vw',
                 overflow: 'hidden',
                 maxWidth: '30vw',
@@ -217,7 +217,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
                 🤖:{thisOrder.client.id} – {thisOrder.client.lastName} {thisOrder.client.firstName} {thisOrder.client.familyName}
                 <div style={{ marginTop: '0.5rem', height: '10px', background: 'transparent', boxShadow: '0 1px 3px rgba(0,0,0,0.5)' }} />
               </div>
-              <strong className="adminTextBig" style={{ position: "fixed", bottom: "8vh", fontSize: '0.6vw' }}>
+              <strong className="adminTextBig" style={{ position: "fixed", bottom: "8vh",  }}>
                 <span className="adminTextBig">    </span>
               </strong>
             </div>
@@ -228,7 +228,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
 
         <div style={{ position: "absolute", right: "0.5vw", top: "0.5vh" }}>
           {thisOrder.client && (
-            <div className="client-details adminTextBig" style={{ fontSize: '1.5vmin', marginLeft: "1vw" }}>
+            <div className="client-details adminTextBig" style={{  marginLeft: "1vw" }}>
               {thisOrder.client.address && <span className="adminTextBig">{thisOrder.client.address}</span>}
             </div>
           )}
@@ -244,14 +244,14 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
               color: '#646462',
               whiteSpace: 'nowrap',
               textOverflow: 'ellipsis',
-              fontWeight: '200',
+              fontWeight: '400',
             }}>{thisOrder.client.phoneNumber}</span>
           )}
         </div>
-        <div className="d-flex flex-row align-items-center justify-content-end" style={{  }}>
+        <div className="d-flex flex-row align-items-center justify-content-end" >
           {thisOrder.client && (
 
-            <div className="d-flex align-items-center gap-3" style={{  right: '1vw', top: '0vh', cursor: 'pointer' }}
+            <div className="d-flex align-items-center gap-3" style={{  right: '0vw', top: '0vh', cursor: 'pointer' }}
                  title={`@${thisOrder.client?.telegram?.replace(/^@/, '')}`}
                  onClick={() => openMessenger('telegram')}>
 
@@ -279,7 +279,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
                 <FiUser size={30} />
               </button>
 
-              <TelegramAvatar link={thisOrder.client?.telegram} size={70} />
+              <TelegramAvatar link={thisOrder.client?.telegram} size={80} />
             </div>
           )}
         </div>

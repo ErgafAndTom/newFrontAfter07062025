@@ -2,7 +2,6 @@
   height: 3.5vh;
   width: 7vw;
   font-size: 0.7vw;
-
   border: none;
   display: flex;
   align-items: center;
@@ -13,6 +12,7 @@
 }
 .buttonSkewedOrderClient{
   /*height: 2rem;*/
+  height: 3.5vh;
   width: 7vw;
   font-size: 0.7vw;
   border: none;
@@ -21,11 +21,16 @@
   justify-content: center;
   white-space: nowrap;
   clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%);
-  margin-right: 0;
+  margin-left: 0.4vw;
   border-bottom-right-radius: 9px;
+  border-bottom-left-radius: 0;
 }
 .buttonSkewedOrderClient:hover {
   color: #ffffff
+}
+
+.adminButtonAdd1111111:hover {
+  color: chartreuse;
 }
 
 .buttonSkewed.last {

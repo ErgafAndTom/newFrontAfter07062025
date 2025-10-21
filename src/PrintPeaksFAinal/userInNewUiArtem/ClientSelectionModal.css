@@ -97,8 +97,9 @@
 
 /* Имя */
 .userName {
-  font-weight: 500;
+  font-weight: 400;
   margin-bottom: 0vw;
+  text-transform: uppercase;
 
 }
 
@@ -296,14 +297,17 @@ gap: 0.3vw;
   background: transparent;
 }
 .client-cabinet-icon {
-  width: 60px;
-  height: 60px;
-  padding: 0;
-  display: inline-grid;
-  place-items: center;
+  width: 3.5vw;
+  height: 3.5vw;
+  /*position: absolute;*/
+  right: 3vw;
+  gap: 0.2vw;
+  padding: 1vh;
+  /*display: inline-grid;*/
+  /*place-items: center;*/
   border-radius: 50%;
   background: transparent;
-  border: 1px solid rgba(0,0,0,0.08); /* тонка сіра рамка, як у інших іконок */
+  border: 1.5px solid rgba(0,0,0,0.08); /* тонка сіра рамка, як у інших іконок */
   color: #000; /* іконка чорна */
 }
 

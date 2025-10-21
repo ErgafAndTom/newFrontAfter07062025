@@ -1,8 +1,4 @@
 
-.allArtemElem2 {
-  transform: scale(0.6);
-
-}
 
 .allArtemElem {
   margin-left: 2vw;
@@ -39,7 +35,6 @@
   background: transparent;
   margin-left: 0.5vw;
   margin-right: 0.5vw;
-
   justify-content: center;
   /* border: 0.15vw solid grey; */ /* если понадобится, масштабировать аналогично */
   width: 1vw; /* 10vw * 0.6 */
@@ -58,17 +53,17 @@
   border: none;
   background: transparent;
   white-space: nowrap;
-  padding: 0.3vh 0.3vw; /* 0.633vh и 1.273vw умноженные на 0.6 */
-
+  /*padding: 0.3vh 0.3vw; !* 0.633vh и 1.273vw умноженные на 0.6 *!*/
   justify-content: center;
   margin-left: 0.4vw;
   border: transparent;
-  width: 5vw;
-  display: flex
+  /*width: 5vw;*/
+  /*display: flex*/
 }
 
 .inputsArtem {
   display: flex;
+  font-size: clamp(1.2rem, 1.2vh, 2.5vh);
   justify-content: center;
   align-items: center;
   border: none;
@@ -76,7 +71,7 @@
   height: 4vh;
   background: #ebebe6;
   /*padding: 0.38vh 0.76vw; !* 0.633vh и 1.273vw умноженные на 0.6 *!*/
-  font-size: 1vw;
+  /*font-size: 1vw;*/
   border-radius: 0.3vw; /* 0.5vw * 0.6 */
   /* border: 0.15vw solid grey; */ /* если понадобится, масштабировать аналогично */
   width: 5vw; /* 10vw * 0.6 */
@@ -91,13 +86,13 @@
   justify-content: center;
   align-items: center;
   background-color: transparent;
-  padding: 0.38vh 0.76vw;
-  font-size: var(--font-size-base);
-  outline: none;
+  /*padding: 0.38vh 0.76vw;*/
+  font-size: clamp(1.2rem, 1.2vh, 2.5vh);
+  /*outline: none;*/
   width: auto;
   border: 3px solid transparent; /* 5px * 0.6 */
-  appearance: none;
-  -webkit-appearance: none;
+  /*appearance: none;*/
+  /*-webkit-appearance: none;*/
   /*-moz-appearance: none;*/
   border-bottom: 3px solid #FFA500; /* 5px * 0.6 */
 }
@@ -113,14 +108,15 @@
 }
 
 .buttonsArtem {
-  font-weight: normal;
+  font-weight: 400;
+  font-size: clamp(1.2rem, 1.2vh, 2.5vh);
   display: flex;
   justify-content: center;
   align-items: center;
   /* border-radius: 0.627vw; */ /* если использовать, то 0.627vw * 0.6 ≈ 0.38vw */
   padding: 0.48vh 0.76vw; /* 0.8vh и 1.273vw умноженные на 0.6 */
   margin: 0.3vw; /* 0.323vw * 0.6 */
-  font-size: var(--font-size-base);
+  /*font-size: var(--font-size-base);*/
   /* 1.3vw * 0.6 */
   background: transparent;
   /* text-decoration:  overline line-through #ff0000; */
@@ -188,7 +184,7 @@
 }
 
 .BWabout {
-  padding: 0.3vw; /* 0.5vw * 0.6 */
+  /*padding: 0.3vw; !* 0.5vw * 0.6 *!*/
 }
 
 .slider-container {
@@ -207,7 +203,7 @@
   height: 0.5vh; /* 0.5vh * 0.6 */
   background: #ccc;
   outline: none;
-  opacity: 0.7;
+  /*opacity: 0.7;*/
   transition: opacity 0.2s;
   margin: 0.6vh 0; /* 1vh * 0.6 */
 }
@@ -241,14 +237,13 @@
 }
 
 .ArtemNewSelectContainer {
-  position: relative;
-  display: inline-block;
+
 
 }
 
 .ArtemNewSelect {
 
-  padding: 3px 18px 3px 6px; /* верх/низ: 5px*0.6, правый: 30px*0.6, левый: 10px*0.6 */
+  /*padding: 3px 18px 3px 6px; !* верх/низ: 5px*0.6, правый: 30px*0.6, левый: 10px*0.6 *!*/
   border: none;
   outline: none;
   background: none;
@@ -326,8 +321,8 @@
 /* напис */
 .wf-caption{
   margin-top:.4rem;
-  font-size:.85rem;
-  font-weight:600;
+  /*font-size:.85rem;*/
+  /*font-weight:600;*/
   color:#444;
   transition:color .22s ease;
   user-select:none;
@@ -407,7 +402,7 @@
 }
 
 .gsm-sub {
-  font-size: 1em;
+  /*font-size: 1em;*/
   opacity: 0.8;
   margin-left: 2vh;
   color: #bbb;
@@ -427,4 +422,10 @@
 
 .arrow.up {
   transform: rotate(180deg);
+}
+.inputsArtem.form-control {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  color: inherit !important;
 }

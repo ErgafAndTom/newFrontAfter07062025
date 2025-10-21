@@ -47,24 +47,24 @@ function DiscountCalculator({ thisOrder, setThisOrder, selectedThings2, setSelec
 
   return (
     <div
-      className="d-flex flex-row"
-      style={{ width: "36vw", whiteSpace: 'nowrap' }}
+      className="d-flex justify-content-end align-items-end flex-column"
+      style={{ width: "100%", whiteSpace: 'nowrap', paddingTop:"1vh",  }}
     >
       <div
-        className="d-flex justify-content-end align-items-center flex-column"
-        style={{ position: 'absolute', top: "1vh", right: "0vh" }}
+        className="d-flex justify-content-end align-items-end flex-column"
+        // style={{ position: 'absolute', top: "1vh", right: "3vh" }}
       >
         <div
           style={{
             marginRight: "1vw",
             color: "#008b50",
-            fontWeight: 200,
+            fontWeight: 400,
             fontSize: 'clamp(1vh, 3vw, 2.5vh)',
             // marginTop: "-2vh",
             // letterSpacing: '0.07em'
           }}
         >
-          ЗНИЖКА:
+         ДИСКОНТ:
         </div>
 
         <div>
@@ -75,11 +75,11 @@ function DiscountCalculator({ thisOrder, setThisOrder, selectedThings2, setSelec
             onChange={e => handleDiscountChange(e.target.value)}
             style={{
               fontSize: 'clamp(1vh, 3vw, 2.5vh)',
-              width: '4.5vw',
+              width: '6.2vw',
               padding: '0.1vh',
               position: 'relative',
-              marginTop: "3vh",
-              cursor: currentUser?.role === "admin" ? 'pointer' : 'not-allowed',
+              marginTop: "1.7vh",
+              cursor: currentUser?.role === "admin" || "operator" || "user" ? 'pointer' : 'not-allowed',
               fontWeight: 600,
               color: '#008b50',
               backgroundColor: '#ebebe6',

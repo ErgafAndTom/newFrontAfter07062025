@@ -220,6 +220,9 @@ const NewSheetCut = ({
         console.log(err.message);
       });
   }, [size, material, color, lamination.materialId, big, cute, cuteLocal, holes, holesR, count, porizka, lyuversy, prokleyka, design]);
+  useEffect(() => {
+    if (error) setError(null);
+  }, [material]);
 
   useEffect(() => {
     if (showNewSheetCut) {
@@ -283,7 +286,7 @@ const NewSheetCut = ({
                 <div className="d-flex flex-wrap justify-content-center  fontInfoForPricingsmall {
 }
 ">
-                  {["Листівка", "Візитка", "Флаєр", "Буклет", "Картка", "Диплом", "Сертифікат", "Подяка", "Зін", "Презентація", "Бланк", "Афіша", "Календар", "Плакат", "Візуалізація", "Меню", "Документ", "Бейджі","Холдер"].map((service, index) => (
+                  {["Листівка", "Візитка", "Флаєр", "Буклет", "Брошура", "Картка", "Диплом", "Сертифікат", "Подяка", "Зін", "Презентація", "Бланк", "Афіша", "Календар", "Плакат", "Візуалізація", "Меню", "Документ", "Бейджі","Холдер"].map((service, index) => (
                     <button
                       key={index}
                       className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}
@@ -361,7 +364,8 @@ const NewSheetCut = ({
                     <Materials2
                       material={material}
                       setMaterial={setMaterial}
-                      count={count}
+                      setError={null}
+                    count={count}
                       setCount={setCount}
                       prices={prices}
                       size={size}
@@ -372,6 +376,36 @@ const NewSheetCut = ({
                         "Цупкий", "Самоклеючі"]}
                       typeUse={null}
                     />
+                    {error && (
+                      <div
+                        style={{
+                          transition: "all 0.3s ease",
+                          color: "#d00416",
+                          width: "40vw",
+                          display: "flex",
+                          justifyContent: "start",
+                          alignItems: "center",
+                          fontWeight: "700",
+                          border: "none",
+                          borderRadius: "10px",
+                          paddingLeft: "2vw",
+                          backgroundColor: "transparent",
+                          textAlign: "center",
+                          cursor: "pointer",
+                          animation: "blink 1s linear infinite",
+                        }}
+                      >
+                        {error.response?.data?.error || "Помилка"}
+                        <style>
+                          {`
+        @keyframes blink {
+          0%, 50%, 100% { opacity: 1; }
+          25%, 75% { opacity: 0; }
+        }
+      `}
+                        </style>
+                      </div>
+                    )}
 
                     <NewNoModalLamination
                       className="d-flex justify-content-start align-items-center"
@@ -487,7 +521,7 @@ const NewSheetCut = ({
 
                         marginLeft: "2.5vw",
                         //  ,
-                        fontWeight: "bold",
+                        fontWeight: "500",
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -504,30 +538,7 @@ const NewSheetCut = ({
                     </div>
                   )}
                 </div>
-                {error &&
-                  <div style={{
-                    transition: "all 0.3s ease",
-                    color: "red",
-                    width: "20vw",
-                    marginLeft: "2.5vw",
-                    //  ,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '3vw',
-                    marginTop: "1vh",
-                    marginBottom: "1vh",
-                    border: "1px solid red",
-                    borderRadius: "9px",
-                    padding: "10px",
-                    backgroundColor: "rgba(255, 0, 0, 0.2)",
-                    fontSize: "1.5vw",
-                    fontWeight: "bold",
-                    textAlign: "center",
-                    cursor: "pointer",
 
-                  }}>{error.response.data.error}</div>
-                }
                 {null === pricesThis ? (
                   <div style={{width: '50vw'}}>
 
@@ -604,7 +615,7 @@ const NewSheetCut = ({
                       {/*  за штуку~: {(pricesThis.priceForItemWithExtras/pricesThis.sheetsPerUnit).toFixed(2)} грн*/}
                       {/*</div>*/}
 
-                      <div className="fontInfoForPricing1" style={{marginTop: '0.5vw', color: '#ee3c23'}}>
+                      <div className="fontInfoForPricing1" style={{marginTop: '0.5vw', color: '#d5091b'}}>
                         Загалом =: {(parseFloat(pricesThis.price/count).toFixed(2)*count).toFixed(2)} грн
                       </div>
 
