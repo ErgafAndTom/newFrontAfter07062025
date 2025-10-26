@@ -11,7 +11,7 @@
     border: #F2F0E7 solid 0.1vw;
     color: #000000;
     font-weight: 600;
-    z-index: 33;
+    /*z-index: 3;*/
     border-radius: 7vw;
     transition: 0s;
 }

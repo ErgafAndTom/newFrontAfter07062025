@@ -3,7 +3,6 @@ import "./Nav.css";
 import { NavLink } from "react-router-dom";
 import {Link} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import {MDBContainer, MDBNavbar,} from "mdb-react-ui-kit";
 import { FiSettings, FiLogOut } from "react-icons/fi";
 // import find from "../find.svg";
 import {fetchUser, logout} from "../../actions/authActions";
@@ -12,13 +11,7 @@ import './logo/Logo.css';
 import AddNewOrder from "../../PrintPeaksFAinal/Orders/AddNewOrder";
 import AddUserButton from "../../PrintPeaksFAinal/user/AddUserButton.jsx";
 import { useNavigate } from "react-router-dom";
-import NavMess from "./NavMess";
 import PopupLeftNotification from "./PopupLeftNotification";
-import {fetchTrelloData} from "../../actions/trello_async_actions";
-import iii from './logo/logo.svg';
-import LogoWithText from './LogoWithText';
-import Laminator from "../../PrintPeaksFAinal/poslugi/Laminator";
-import NewSheetCut from "../../PrintPeaksFAinal/poslugi/NewSheetCut";
 import {searchChange} from "../../actions/searchAction";
 
 const Nav = () => {
@@ -572,23 +565,23 @@ const Nav = () => {
           handleSearchChange(e)
         }}
       />
-      <div >
-        <>
+      <div>
+        <div>
           {currentUser &&
-            <>
+            <div>
               {currentUser.role === "admin" &&
-                <>
+                <div>
                   <AddUserButton fetchUsers={() => dispatch(fetchUser())}/>
-                </>
+                </div>
               }
               {currentUser.role === "operator" &&
-                <>
+                <div>
                   <AddUserButton fetchUsers={() => dispatch(fetchUser())}/>
-                </>
+                </div>
               }
-            </>
+            </div>
           }
-        </>
+        </div>
       </div>
       {currentUser ? (
         <div className="d-flex align-items-center" >

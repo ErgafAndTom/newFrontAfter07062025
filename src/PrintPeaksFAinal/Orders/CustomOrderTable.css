@@ -723,7 +723,7 @@ body {
   /*width: auto;*/
   display: flex;
   font-weight: 200;
-
+  /*z-index: 1;*/
   width: 9vw;
   align-items: center;
   justify-content: center;
