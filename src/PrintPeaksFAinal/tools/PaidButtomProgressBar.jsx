@@ -5,6 +5,7 @@ import "./PaidButtomProgressBar.css";
 import AwaitPays from "./AwaitPays";
 import { useSelector } from "react-redux";
 import Loader from "../../components/calc/Loader";
+import AwaitPaysCash from "./AwaitPaysCash";
 
 const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   const [paymentState, setPaymentState] = useState("initial");
@@ -14,6 +15,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   const currentUser = useSelector((state) => state.auth.user);
   const buttonStyles = {};
   const [showAwaitPays, setShowAwaitPays] = useState(false);
+  const [showAwaitCashPays, setShowAwaitCashPays] = useState(false);
 
   // --- Обробка вибору способу оплати ---
   const handleSelect = (method) => {
@@ -164,28 +166,29 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   const createCashPayment = async () => {
     if (!thisOrder?.id || !thisOrder?.allPrice) return;
     console.log("Creating terminal payment for order:", thisOrder.id);
-    try {
-      setOplata(true);
-      const response = await axios.post("/api/payment/create-invoice-cash", { // 👈 змінив шлях
-        orderId: thisOrder.id,
-        amount: Math.round(thisOrder.allPrice * 100),
-        currency: 980,
-        // terminalId: "PQ012563",
-      });
-      console.log(response.data);
-      if (response.data) {
-        setOplata(false);
-        setThisOrder((prev) => ({
-          ...prev,
-          Payment: response.data,
-        }));
-      }
-      if (data?.payment) {
-        setThisOrder((prev) => ({ ...prev, Payment: data.payment }));
-      }
-    } catch (err) {
-      console.error("Помилка оплати через POS:", err);
-    }
+    setShowAwaitCashPays(true)
+    // try {
+    //   setOplata(true);
+    //   const response = await axios.post("/api/payment/create-invoice-cash", { // 👈 змінив шлях
+    //     orderId: thisOrder.id,
+    //     amount: Math.round(thisOrder.allPrice * 100),
+    //     currency: 980,
+    //     // terminalId: "PQ012563",
+    //   });
+    //   console.log(response.data);
+    //   if (response.data) {
+    //     setOplata(false);
+    //     setThisOrder((prev) => ({
+    //       ...prev,
+    //       Payment: response.data,
+    //     }));
+    //   }
+    //   if (data?.payment) {
+    //     setThisOrder((prev) => ({ ...prev, Payment: data.payment }));
+    //   }
+    // } catch (err) {
+    //   console.error("Помилка оплати через POS:", err);
+    // }
   };
 
 
@@ -265,6 +268,18 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
 
   return (
     <div className="payment-methods-panel adminTextBig">
+
+      {showAwaitCashPays && (
+        <AwaitPaysCash
+          thisOrder={thisOrder}
+          setThisOrder={setThisOrder}
+          setShowAwaitCashPays={setShowAwaitCashPays}
+          showAwaitCashPays={showAwaitCashPays}
+          setOplata={setOplata}
+          oplata={oplata}
+        />
+      )}
+
       {/* Інтеграція ShiftManager (з другого) */}
       {/*<ShiftManager*/}
       {/*  createTerminalPayment={createTerminalPayment}*/}
