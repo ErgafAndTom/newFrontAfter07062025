@@ -7,6 +7,8 @@ import ContrAgentsInUserProfile from '../profile/ContrAgentsInUserProfile';
 import {buttonStyles, containerStyles, formStyles, avatarStyles, tabStyles} from './styles';
 import TelegramAvatar from "../../Messages/TelegramAvatar";
 import PaysInOrderRestoredForAdmin from "../../userInNewUiArtem/pays/PaysInOrderRestoredForAdmin";
+import UserPageDetails from "../UserPageDetails";
+import UserPageDetailsSelf from "./UserPageDetailsSelf";
 
 function ClientUserProfile() {
   const dispatch = useDispatch();
@@ -95,9 +97,9 @@ function ClientUserProfile() {
   if (!thisUser) return <div>Користувач не знайдений</div>;
 
   return (
-    <div style={containerStyles.profileContainer}>
-      <h2 style={containerStyles.header}>Профіль користувача ({thisUser.id})</h2>
-      <div style={containerStyles.tabsContainer}>
+    <div style={{...containerStyles.profileContainer, margin: '0', padding: '0'}}>
+      {/*<h2 style={containerStyles.header}>Профіль користувача ({thisUser.id})</h2>*/}
+      <div style={{...containerStyles.tabsContainer, margin: '0'}}>
         <button
           style={{...tabStyles.tabButton, ...(activeTab === 'profile' ? tabStyles.activeTab : {})}}
           onClick={() => setActiveTab('profile')}
@@ -109,153 +111,13 @@ function ClientUserProfile() {
         <button
           style={{...tabStyles.tabButton, ...(activeTab === 'counterpartiesAdmin' ? tabStyles.activeTab : {})}}
           onClick={() => setActiveTab('counterpartiesAdmin')}
-        >Контрагенти</button>
+        >Контрагенти (спільні)</button>
       </div>
 
       {activeTab === 'profile' && (
-        <div style={containerStyles.contentContainer}>
-          {/*<img*/}
-          {/*  src={thisUser.photoLink || '/default-avatar.png'}*/}
-          {/*  alt='Аватар'*/}
-          {/*  style={avatarStyles.profileAvatar}*/}
-          {/*/>*/}
-          {thisUser.telegram
-            ? <TelegramAvatar link={thisUser.telegram} size={100}
-                              // defaultSrc="/default-avatar.png"
-            />
-            : ''}
-
-          {editMode ? (
-            <>
-              <div style={formStyles.group}>
-                <label style={formStyles.label}>Ім'я користувача:</label>
-                <input
-                  style={formStyles.profileInput}
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                />
-              </div>
-              <div style={formStyles.group}>
-                <label style={formStyles.label}>Спосіб оплати:</label>
-                <select
-                  style={formStyles.profileSelect}
-                  value={paymentMethod}
-                  onChange={e => setPaymentMethod(e.target.value)}
-                >
-                  <option value=''>Виберіть</option>
-                  <option value='card'>Банківська карта</option>
-                  <option value='paypal'>PayPal</option>
-                </select>
-              </div>
-              <div style={formStyles.group}>
-                <label style={formStyles.label}>Telegram:</label>
-                <input
-                  style={formStyles.profileInput}
-                  value={telegram}
-                  onChange={e => setTelegram(e.target.value)}
-                />
-              </div>
-              <div style={formStyles.group}>
-                <label style={formStyles.label}>Email:</label>
-                <input
-                  style={formStyles.profileInput}
-                  type='email'
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                />
-              </div>
-              <div style={formStyles.group}>
-                <label style={formStyles.label}>Phone:</label>
-                <input
-                  style={formStyles.profileInput}
-                  value={phoneNumber}
-                  onChange={e => setPhoneNumber(e.target.value)}
-                />
-              </div>
-              <div style={formStyles.group}>
-                <label style={formStyles.label}>Signal:</label>
-                <input
-                  style={formStyles.profileInput}
-                  value={signal}
-                  onChange={e => setSignal(e.target.value)}
-                />
-              </div>
-              <div style={formStyles.group}>
-                <label style={formStyles.label}>Viber:</label>
-                <input
-                  style={formStyles.profileInput}
-                  value={viber}
-                  onChange={e => setViber(e.target.value)}
-                />
-              </div>
-              <div style={formStyles.group}>
-                <label style={formStyles.label}>WhatsApp:</label>
-                <input
-                  style={formStyles.profileInput}
-                  value={whatsapp}
-                  onChange={e => setWhatsapp(e.target.value)}
-                />
-              </div>
-              <div style={formStyles.group}>
-                <label style={formStyles.label}>Discount (%):</label>
-                <input
-                  style={formStyles.profileInput}
-                  type='number'
-                  value={discount}
-                  onChange={e => setDiscount(e.target.value)}
-                />
-              </div>
-              <div style={formStyles.group}>
-                <label style={formStyles.label}>Photo URL:</label>
-                <input
-                  style={formStyles.profileInput}
-                  value={photoLink}
-                  onChange={e => setPhotoLink(e.target.value)}
-                />
-              </div>
-              <button
-                onClick={handleSave}
-                style={{...buttonStyles.base, ...buttonStyles.success, margin: '5px'}}
-              >Зберегти</button>
-              <button
-                onClick={handleCancel}
-                style={{...buttonStyles.base, ...buttonStyles.secondary, margin: '5px'}}
-              >Скасувати</button>
-            </>
-          ) : (
-            <>
-              <li>Ім'я користувача: {thisUser.username}</li>
-              <li>Роль: {thisUser.role}</li>
-              <li>Спосіб оплати: {thisUser.paymentMethod || 'Не вказано'}</li>
-              <li>Telegram: {thisUser.telegram || 'Не вказано'}</li>
-              <li>Email: {thisUser.email || 'Не вказано'}</li>
-              <li>Phone: {thisUser.phoneNumber || 'Не вказано'}</li>
-              <li>Signal: {thisUser.signal || 'Не вказано'}</li>
-              <li>Viber: {thisUser.viber || 'Не вказано'}</li>
-              <li>WhatsApp: {thisUser.whatsapp || 'Не вказано'}</li>
-              <li>Discount: {thisUser.discount || 'Не вказано'}</li>
-              <li>Photo URL: {thisUser.photoLink || 'Не вказано'}</li>
-              <button
-                onClick={handleEditClick}
-                style={{...buttonStyles.base, ...buttonStyles.primary, margin: '5px'}}
-              >Редагувати</button>
-            </>
-          )}
-
-          <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: '20px'}}>
-            <Link to={`/client/${thisUser.id}/files`} style={{textDecoration: 'none'}}>
-              <button style={{...buttonStyles.base, background: '#5d96ff', padding: '0.5vw', margin: '0.5vw'}}>
-                Файли
-              </button>
-            </Link>
-            <Link to={`/client/${thisUser.id}/orders`} style={{textDecoration: 'none'}}>
-              <button style={{...buttonStyles.base, padding: '0.5vw', margin: '0.5vw'}}>
-                Замовлення
-              </button>
-            </Link>
-          </div>
+        <div>
+          <UserPageDetailsSelf thisUser={thisUser}/>
         </div>
-        // <UserPageDetails user={thisUser} />
       )}
 
       {activeTab === 'counterparties' && (

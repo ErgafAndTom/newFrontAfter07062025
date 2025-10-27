@@ -112,8 +112,10 @@ const AfterNav = () => {
                 <Route path="/createOrder" element={<CreateOrder />} />
                 <Route path="/login" element={<Login />} />
                 {/*<Route path="/Users" element={<UsersCustomTable />} />*/}
+
                 <Route path="/Users" element={<UsersOrdersLikeTable />} />
                 <Route path="/Users/:id" element={<UserPageDetails />} />
+
                 <Route path="/Companys" element={<CompanyTabl />} />
                 <Route path="/Companys/:id" element={<CompanyPage  />} />
                 <Route path="/currentUser" element={<Profile />} />

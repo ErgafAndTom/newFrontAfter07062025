@@ -66,7 +66,7 @@ export const containerStyles = {
     padding: '2vw',
     maxWidth: '98vw',
     margin: 'auto',
-    border: '1px solid #ccc',
+    // border: '1px solid #ccc',
     borderRadius: '8px',
     backgroundColor: '#f9f9f9',
   },
