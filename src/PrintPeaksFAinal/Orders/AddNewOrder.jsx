@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Offcanvas from 'react-bootstrap/Offcanvas';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
-import Loader from "../../components/calc/Loader";
 import './AddNewOrder.css'
 
 // Створюємо глобальний об'єкт для зберігання подій

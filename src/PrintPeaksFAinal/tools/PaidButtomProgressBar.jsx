@@ -31,6 +31,9 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
     if (method === "terminal") {
       createTerminalPayment(); // POS Monobank
     }
+    if (method === "cash") {
+      createCashPayment(); // POS Monobank
+    }
     // TODO: інші методи
   };
 
@@ -136,6 +139,34 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
     try {
       setOplata(true);
       const response = await axios.post("/api/payment/create-invoice-mono", { // 👈 змінив шлях
+        orderId: thisOrder.id,
+        amount: Math.round(thisOrder.allPrice * 100),
+        currency: 980,
+        // terminalId: "PQ012563",
+      });
+      console.log(response.data);
+      if (response.data) {
+        setOplata(false);
+        setThisOrder((prev) => ({
+          ...prev,
+          Payment: response.data,
+        }));
+      }
+      if (data?.payment) {
+        setThisOrder((prev) => ({ ...prev, Payment: data.payment }));
+      }
+    } catch (err) {
+      console.error("Помилка оплати через POS:", err);
+    }
+  };
+
+
+  const createCashPayment = async () => {
+    if (!thisOrder?.id || !thisOrder?.allPrice) return;
+    console.log("Creating terminal payment for order:", thisOrder.id);
+    try {
+      setOplata(true);
+      const response = await axios.post("/api/payment/create-invoice-cash", { // 👈 змінив шлях
         orderId: thisOrder.id,
         amount: Math.round(thisOrder.allPrice * 100),
         currency: 980,

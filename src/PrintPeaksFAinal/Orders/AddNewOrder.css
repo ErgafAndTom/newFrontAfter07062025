@@ -8,7 +8,7 @@
   justify-content: center;
   clip-path: polygon(0 0, 100% 0, calc(100% - 17px) 100%, 0 100%);
   position: relative;
-  z-index: 1;
+  /*z-index: 1;*/
 }
 .buttonSkewedOrderClient{
   /*height: 2rem;*/

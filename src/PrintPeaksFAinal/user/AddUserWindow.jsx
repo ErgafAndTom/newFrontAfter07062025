@@ -147,7 +147,7 @@ function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder
   fontSize: "20vw",       // великий розмір
   opacity:"0.08",
   pointerEvents: "none",  // щоб не заважала клікам
-  zIndex: 0
+  // zIndex: 0
 }}>🤖
 </div>
           <Form noValidate validated={validated} onSubmit={handleSubmit} style={{padding: '0.8rem'}}>

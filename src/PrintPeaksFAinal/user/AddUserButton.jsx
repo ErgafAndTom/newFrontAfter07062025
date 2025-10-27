@@ -18,7 +18,7 @@ function AddUserButton({ fetchUsers, addOrdOrOnlyClient, thisOrder, setThisOrder
     };
 
     return (
-        <div>
+        <>
 
               {/*{thisOrder && (*/}
               {/*  <button*/}
@@ -50,19 +50,22 @@ function AddUserButton({ fetchUsers, addOrdOrOnlyClient, thisOrder, setThisOrder
           >
             Створити клієнта
           </div>
+          <div style={{  }}>
             {showAddUser && (
-                <AddUserWindow
-                    show={showAddUser}
-                    onHide={() => setShowAddUser(false)}
-                    addOrdOrOnlyClient={addOrdOrOnlyClient}
-                    thisOrder={thisOrder}
-                    setThisOrder={setThisOrder}
-                    onUserAdded={() => {
-                        handleUserAdded();
-                    }}
-                />
+              <AddUserWindow
+                show={showAddUser}
+                onHide={() => setShowAddUser(false)}
+                addOrdOrOnlyClient={addOrdOrOnlyClient}
+                thisOrder={thisOrder}
+                setThisOrder={setThisOrder}
+                onUserAdded={() => {
+                  handleUserAdded();
+                }}
+              />
             )}
-        </div>
+          </div>
+
+        </>
     );
 }
 

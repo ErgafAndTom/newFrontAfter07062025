@@ -565,24 +565,20 @@ const Nav = () => {
           handleSearchChange(e)
         }}
       />
-      <div>
-        <div>
-          {currentUser &&
-            <div>
-              {currentUser.role === "admin" &&
-                <div>
-                  <AddUserButton fetchUsers={() => dispatch(fetchUser())}/>
-                </div>
-              }
-              {currentUser.role === "operator" &&
-                <div>
-                  <AddUserButton fetchUsers={() => dispatch(fetchUser())}/>
-                </div>
-              }
-            </div>
+      {currentUser &&
+        <>
+          {currentUser.role === "admin" &&
+            <>
+              <AddUserButton fetchUsers={() => dispatch(fetchUser())}/>
+            </>
           }
-        </div>
-      </div>
+          {currentUser.role === "operator" &&
+            <>
+              <AddUserButton fetchUsers={() => dispatch(fetchUser())}/>
+            </>
+          }
+        </>
+      }
       {currentUser ? (
         <div className="d-flex align-items-center" >
           <Link to="/currentUser" style={{ textDecoration: 'none' }}>
