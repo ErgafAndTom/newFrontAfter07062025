@@ -111,11 +111,11 @@ function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder
           width: '200vw',
           height: '200vh',
           left: "-31.5vw",
-          top:"-2vh",
+          top:"0vh",
           backgroundColor: 'rgba(15,15,15,0.45)',
           backdropFilter: 'blur(2px)',
           WebkitBackdropFilter: 'blur(2px)',
-          zIndex: 999,
+          // zIndex: 999,
           transition: 'opacity 200ms ease'
         }}
       />
@@ -124,7 +124,7 @@ function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder
         bottom:"25%",
         left:"35%",
         borderRadius: '12px',
-        zIndex: 999,
+
       }}>
         {/* Заголовок */}
 
@@ -234,7 +234,7 @@ function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder
                     setData={setData}
                   />
                     <div className="d-flex flex-row align-items-center" style={{width:"30vw"}}>
-                      <div>Якщо у списку немає компанії, то можна ось тут</div>
+                      <div>Якщо у списку немає компанії, то можна:</div>
                       <button
                         type="button"
                         className="adminButtonAdd"

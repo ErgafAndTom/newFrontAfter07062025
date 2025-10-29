@@ -14,6 +14,8 @@
     "@mui/material": "^5.11.0",
     "@mui/x-date-pickers": "^5.0.0",
     "@react-buddy/ide-toolbox": "^2.4.0",
+
+    "@react-buddy/palette-mui": "^5.0.1",
     "@redux-devtools/extension": "^3.3.0",
     "@reduxjs/toolkit": "^2.8.1",
     "@testing-library/jest-dom": "^5.16.5",

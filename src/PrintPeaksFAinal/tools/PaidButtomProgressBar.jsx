@@ -6,10 +6,16 @@ import AwaitPays from "./AwaitPays";
 import { useSelector } from "react-redux";
 import Loader from "../../components/calc/Loader";
 import AwaitPaysCash from "./AwaitPaysCash";
+import ReceipGet from "./ReceipGet";
 
 const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   const [paymentState, setPaymentState] = useState("initial");
   const [invoiceId, setInvoiceId] = useState(null);
+
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [showReceiptViewer, setShowReceiptViewer] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const [oplata, setOplata] = useState(false);
   const intervalRef = useRef(null);
   const currentUser = useSelector((state) => state.auth.user);
@@ -191,6 +197,27 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
     // }
   };
 
+  const getPayment = async (id) => {
+    if (!thisOrder?.id || !thisOrder?.allPrice) return;
+    console.log("Creating terminal payment for order:", thisOrder.id);
+    setShowReceiptViewer(true)
+    // setLoading(true);
+    // try {
+    //   const response = await axios.get(`/api/payment/receipt/${id}/pdf`, {
+    //     responseType: 'blob'
+    //   });
+    //
+    //   const blob = new Blob([response.data], { type: 'application/pdf' });
+    //   const url = window.URL.createObjectURL(blob);
+    //   setPdfUrl(url);
+    // } catch (err) {
+    //   alert('Помилка при отриманні чеку');
+    //   console.error(err);
+    // } finally {
+    //   setLoading(false);
+    // }
+  };
+
 
   // --- Анімація "В очікуванні оплати" ---
   const [index, setIndex] = useState(0);
@@ -246,6 +273,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   };
 
   useEffect(() => {
+    // console.log(thisOrder);
     checkStatusAll()
   }, [thisOrder.id]);
 
@@ -474,7 +502,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
             style={{
               background: "#008249",
               height: "6vh",
-              width: "27vw",
+              width: "25vw",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -487,6 +515,19 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
           >
             Замовлення оплачене method: {thisOrder.Payment?.method}
           </button>
+          {thisOrder.Paymentts[0] && (
+            <>
+              {thisOrder.Paymentts[0].checkboxReceiptId && (
+                <button
+                  className="PayButtons end"
+                  style={{ backgroundColor: "blue", color: "white", width: "3vw" }}
+                  onClick={(event) => getPayment(thisOrder.Paymentts[0].checkboxReceiptId)}
+                >
+                  {loading ? <Loader/> : '📄'}
+                </button>
+              )}
+            </>
+          )}
           {currentUser.role === "admin" && (
             <button
               className="PayButtons end"
@@ -510,6 +551,14 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
           thisOrder={thisOrder}
           setShowAwaitPays={setShowAwaitPays}
           showAwaitPays={showAwaitPays}
+        />
+      )}
+
+      {showReceiptViewer && (
+        <ReceipGet
+          thisOrder={thisOrder}
+          showReceiptViewer={showReceiptViewer}
+          setShowReceiptViewer={setShowReceiptViewer}
         />
       )}
     </div>

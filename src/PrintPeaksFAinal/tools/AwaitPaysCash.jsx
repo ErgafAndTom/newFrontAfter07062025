@@ -61,28 +61,30 @@ const AwaitPaysCash = ({
   // }, []);
 
   const handleOk = async () => {
-    // try {
-    //   setOplata(true);
-    //   const response = await axios.post("/api/payment/create-invoice-cash", { // 👈 змінив шлях
-    //     orderId: thisOrder.id,
-    //     amount: Math.round(thisOrder.allPrice * 100),
-    //     currency: 980,
-    //     // terminalId: "PQ012563",
-    //   });
-    //   console.log(response.data);
-    //   if (response.data) {
-    //     setOplata(false);
-    //     setThisOrder((prev) => ({
-    //       ...prev,
-    //       Payment: response.data,
-    //     }));
-    //   }
-    //   if (data?.payment) {
-    //     setThisOrder((prev) => ({ ...prev, Payment: data.payment }));
-    //   }
-    // } catch (err) {
-    //   console.error("Помилка оплати через POS:", err);
-    // }
+    try {
+      setOplata(true);
+      const response = await axios.post("/api/payment/create-invoice-cash", { // 👈 змінив шлях
+        orderId: thisOrder.id,
+        amount: Math.round(thisOrder.allPrice * 100),
+        currency: 980,
+        // terminalId: "PQ012563",
+      });
+      console.log(response.data);
+      if (response.data) {
+        setOplata(false);
+        // setThisOrder((prev) => ({
+        //   ...prev,
+        //   Payment: response.data,
+        // }));
+        setThisOrder(response.data);
+        handleClose()
+      }
+      // if (data?.payment) {
+      //   setThisOrder((prev) => ({ ...prev, Payment: data.payment }));
+      // }
+    } catch (err) {
+      console.error("Помилка оплати через POS:", err);
+    }
   };
 
   useEffect(() => {
@@ -123,8 +125,8 @@ const AwaitPaysCash = ({
             opacity: isAnimating ? 1 : 0, // анимация прозрачности
             transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out", // плавная анимация
             borderRadius: "1vw",
-            width: "30vw",
-            height: "30vh",
+            width: "24vw",
+            height: "15vh",
             // padding: "20px"
           }}>
             <div className="d-flex">
@@ -146,7 +148,8 @@ const AwaitPaysCash = ({
               border: "transparent",
               justifyContent: "left",
               marginTop: "1vw"
-            }}> *працюєш з кешем*
+            }}>
+              <div>Оплата готівкою:</div>
 
             </div>
             <div className="d-flex flex-column" style={{marginLeft: "1vw", marginTop: "1vw"}}>
@@ -159,14 +162,15 @@ const AwaitPaysCash = ({
 
             <div>
               <button
-                className="PayButtons adminButtonAdd adminTextBigPay cash"
+                className="adminButtonAdd adminTextBigPay cash"
                 onClick={() => handleOk()}
               >
-                Ок
+                Оплатити
               </button>
 
               <button
-                className="PayButtons adminButtonAdd adminTextBigPay cash"
+                className="adminButtonAdd adminTextBigPay cash"
+                style={{background:'#d60a1c', marginLeft:"2vw"}}
                 onClick={() => handleClose()}
               >
                 Відміна

@@ -41,7 +41,7 @@
   background-color: #f2f0e7;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000; /* <= додати */
+  /*z-index: 1000; !* <= додати *!*/
   display: flex;
   padding-bottom: 1vh;
   padding-top: 1vh;

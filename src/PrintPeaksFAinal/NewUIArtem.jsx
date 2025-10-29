@@ -219,8 +219,8 @@ const NewUIArtem = () => {
 
   if (thisOrder) {
     return (
-      <div style={{}}>
-        <div className="d-flex">
+      <div >
+        <div className="d-flex" >
           <div className="containerForContNewUI">
 
             {/* Перша група */}

@@ -543,7 +543,7 @@ const Nav = () => {
     </>
 
     {/* Права частина */}
-    <div className="d-flex align-items-start" style={{borderRadius:"0", zIndex:"0"}}>
+    <div className="d-flex align-items-start" style={{borderRadius:"0"}}>
       <div >
         {/*<LogoWithText />*/}
         {currentUser &&
