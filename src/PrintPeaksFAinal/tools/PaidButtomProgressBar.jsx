@@ -273,7 +273,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   };
 
   useEffect(() => {
-    // console.log(thisOrder);
+    console.log(thisOrder);
     checkStatusAll()
   }, [thisOrder.id]);
 
@@ -439,10 +439,12 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 </div>
                 <button
                   className="PayButtons end"
-                  style={{ backgroundColor: "red", color: "white", width: "3vw" }}
+
                   // onClick={invalidateInvoice}
-                >
-                  &nbsp;x
+
+                  onClick={(event) => getPayment(thisOrder.Paymentts[0].checkboxReceiptId)}
+                  >
+                  {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
                 </button>
               </div>
             </>
@@ -483,10 +485,11 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 </div>
                 <button
                   className="PayButtons end"
-                  style={{ backgroundColor: "red", color: "white", width: "3vw" }}
-                  onClick={invalidateInvoice}
-                >
-                  &nbsp;x
+
+                  // onClick={invalidateInvoice}>
+                  onClick={(event) => getPayment(thisOrder.Paymentts[0].checkboxReceiptId)}
+                  >
+                  {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
                 </button>
               </div>
             </>
@@ -513,29 +516,33 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
               color: "#f2f0e7",
             }}
           >
-            Замовлення оплачене method: {thisOrder.Payment?.method}
+            Замовлення оплачене: {thisOrder.Payment?.method}
           </button>
           {thisOrder.Paymentts[0] && (
             <>
               {thisOrder.Paymentts[0].checkboxReceiptId && (
                 <button
                   className="PayButtons end"
-                  style={{ backgroundColor: "blue", color: "white", width: "3vw" }}
+
                   onClick={(event) => getPayment(thisOrder.Paymentts[0].checkboxReceiptId)}
                 >
-                  {loading ? <Loader/> : '📄'}
+                  {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
                 </button>
               )}
             </>
           )}
           {currentUser.role === "admin" && (
-            <button
-              className="PayButtons end"
-              style={{ backgroundColor: "red", color: "white", width: "3vw" }}
-              onClick={cancelPayment}
-            >
-              x
-            </button>
+            <>
+              {thisOrder.Payment?.method === "link" && (
+                <button
+                  className="PayButtons end"
+
+                  // onClick={(event) => getPayment(thisOrder.Paymentts[0].checkboxReceiptId)}
+                  >
+                  {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
+                </button>
+              )}
+            </>
           )}
         </div>
       )}

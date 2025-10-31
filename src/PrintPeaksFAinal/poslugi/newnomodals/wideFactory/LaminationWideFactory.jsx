@@ -42,15 +42,12 @@ const LaminationWideFactory = ({lamination, setLamination, prices, buttonsArr, s
 
   useEffect(() => {
     if (lamination.type !== "Не потрібно") {
-      let data = {
+      const data = {
         name: "MaterialsPrices",
         inPageCount: 999999,
         currentPage: 1,
         search: "",
-        columnName: {
-          column: "id",
-          reverse: false
-        },
+        columnName: { column: "id", reverse: false },
         type: type,
         material: {
           type: "Ламінація FactoryWide",
@@ -59,42 +56,44 @@ const LaminationWideFactory = ({lamination, setLamination, prices, buttonsArr, s
           thickness: lamination.size,
           typeUse: ""
         },
-        size: size,
-      }
-      // console.log(data);
-      setLoad(true)
-      setError(null)
+        size,
+      };
+
+      setLoad(true);
+      setError(null);
+
       axios.post(`/materials/NotAll`, data)
         .then(response => {
-          // console.log(response.data);
-          setLoad(false)
-          setThisLaminationSizes(response.data.rows)
-          if (response.data && response.data.rows && response.data.rows[0]) {
-            setLamination({
-              ...lamination,
-              // material: response.data.rows[0].name,
-              materialId: response.data.rows[0].id,
-              size: `${response.data.rows[0].thickness}`
-            })
+          setLoad(false);
+          const rows = response.data?.rows || [];
+          setThisLaminationSizes(rows);
+
+          if (rows.length > 0) {
+            const first = rows[0];
+            setLamination(prev => ({
+              ...prev,
+              material: first.name,
+              materialId: Number(first.id) || 0, // 👈 ключова правка
+              size: String(first.thickness || "")
+            }));
           } else {
-            setThisLaminationSizes([])
-            setLamination({
-              ...lamination,
-              materialId: 0,
-            })
+            setLamination(prev => ({
+              ...prev,
+              material: "",
+              materialId: 0
+            }));
           }
         })
         .catch(error => {
-          setLoad(false)
-          setError(error.message)
-          if (error.response.status === 403) {
-            navigate('/login');
-          }
-          setThisLaminationSizes([])
-          console.log(error.message);
-        })
+          setLoad(false);
+          setError(error.message);
+          if (error.response?.status === 403) navigate('/login');
+          console.error("Error loading lamination materials:", error.message);
+          setThisLaminationSizes([]);
+        });
     }
   }, [lamination.type, size]);
+
 
   return (<div className="d-flex allArtemElem">
     <div style={{display: 'flex', alignItems: 'center', marginTop: "1vw", marginLeft: "0vw"}}>

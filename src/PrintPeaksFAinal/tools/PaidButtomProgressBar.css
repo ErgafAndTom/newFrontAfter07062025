@@ -54,13 +54,25 @@
   font-weight: bold;
   font-size:  3vh;
 }
-.PayButtons.link .PayButtons.end{
+.PayButtons.link {
   /*font-weight: bold;*/
   /*font-size:  2vh;*/
   text-decoration: none;
   align-items: center;
   justify-content: center;
   display: flex;
+
+  /*background: #3c60a6;*/
+}
+.PayButtons.end{
+  /*font-weight: bold;*/
+  /*font-size:  2vh;*/
+  text-decoration: none;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  background: #3c60a6;
+  height: 6vh;
 }
 
 .PayButtons.end:hover {

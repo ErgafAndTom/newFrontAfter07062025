@@ -85,9 +85,10 @@ const ClientSelectionModal = ({
              backgroundColor: 'rgba(15, 15, 15, 0.45)',
              backdropFilter: 'blur(2px)',
              WebkitBackdropFilter: 'blur(2px)',
-             zIndex: 99,
+
              // opacity: isAnimating ? 1 : 0,
-             transition: 'opacity 200ms ease',
+             transition: 'opacity 200ms ease'
+
            }}
       />
       <div className="modalContainer animate-slide-up" >

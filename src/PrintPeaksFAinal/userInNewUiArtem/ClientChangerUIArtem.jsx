@@ -213,6 +213,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
                 overflow: 'hidden',
                 maxWidth: '30vw',
                   marginTop:'-0.5vh',
+
               }}>
                 🤖:{thisOrder.client.id} – {thisOrder.client.lastName} {thisOrder.client.firstName} {thisOrder.client.familyName}
                 <div style={{ marginTop: '0.5rem', height: '10px', background: 'transparent', boxShadow: '0 1px 3px rgba(0,0,0,0.5)' }} />

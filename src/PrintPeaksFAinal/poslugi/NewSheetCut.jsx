@@ -116,7 +116,7 @@ const NewSheetCut = ({
     holes: emptyPrice,
     design: { pricePerUnit: 0, totalPrice: 0 }
   });
-  const [selectedService, setSelectedService] = useState("Листівка");
+  const [selectedService, setSelectedService] = useState("Зображення");
 
   const addNewOrderUnit = e => {
     let dataToSend = {
@@ -286,7 +286,7 @@ const NewSheetCut = ({
                 <div className="d-flex flex-wrap justify-content-center  fontInfoForPricingsmall {
 }
 ">
-                  {["Листівка", "Візитка", "Флаєр", "Буклет", "Брошура", "Картка", "Диплом", "Сертифікат", "Подяка", "Зін", "Презентація", "Бланк", "Афіша", "Календар", "Плакат", "Візуалізація", "Меню", "Документ", "Бейджі","Холдер"].map((service, index) => (
+                  {["Зображення", "Листівка", "Візитка", "Флаєр", "Буклет", "Брошура", "Картка", "Диплом", "Сертифікат", "Подяка", "Зін", "Презентація", "Бланк", "Афіша", "Календар", "Плакат", "Візуалізація", "Меню", "Документ", "Бейджі","Холдер"].map((service, index) => (
                     <button
                       key={index}
                       className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}
