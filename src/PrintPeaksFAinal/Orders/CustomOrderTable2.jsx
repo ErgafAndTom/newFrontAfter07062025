@@ -263,12 +263,12 @@ const CustomOrderTable2 = () => {
               }
 
               {order.Payment === null &&
-                <button className={`adminButtonAddOrder nopay`} style={{color:'#000000'}}>
+                <button className={`adminButtonAddOrder`} style={{color:'#000000'}}>
                   {"-"}
                 </button>
               }
               {order.Payment?.status === null &&
-                <button className={`adminButtonAddOrder nopay`} style={{color:'#000000'}}>
+                <button className={`adminButtonAddOrder`} style={{color:'#000000'}}>
                   {"-"}
                 </button>
               }

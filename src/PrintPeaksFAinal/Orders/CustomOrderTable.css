@@ -818,11 +818,12 @@ background: #fbfaf6;
 .adminButtonAddOrder.nopay {
   font-weight: 400;
   text-transform: uppercase;
-  color: #646462;
-  font-size: 20px;
+  color: #ffffff;
+  font-size: 1.5vw;
   text-align: center;
   justify-content: center;
   justify-items: center;
+  background: #aa0000;
 }
 .adminButtonAddOrder.nopay:hover {
 

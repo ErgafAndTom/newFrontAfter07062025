@@ -39,7 +39,7 @@ const ActivatorCheckPaymentStatus = ({order}) => {
   return (
     <>
       {thisOrder.Payment?.status === 'FAILED' &&
-      <button className={`adminButtonAddOrder nopay`} style={{}}>
+      <button className={`adminButtonAddOrder adminFont nopay`} style={{}}>
         {"Помилка або відмова"}
       </button>
       }
@@ -48,17 +48,17 @@ const ActivatorCheckPaymentStatus = ({order}) => {
       {thisOrder.Payment?.status === 'PAID' &&
         <>
           {thisOrder.Payment && thisOrder.Payment.method === 'terminal' && (
-            <div className={`adminButtonAddOrder pay`} style={{}}>
+            <div className={`adminButtonAddOrder adminFont pay`} style={{}}>
               {"Оплата карткою"}
             </div>
           )}
           {thisOrder.Payment && thisOrder.Payment.method === 'link' && (
-            <div className={`adminButtonAddOrder pay`} style={{}}>
+            <div className={`adminButtonAddOrder adminFont pay`} style={{}}>
               {"Оплата за посиланням"}
             </div>
           )}
           {thisOrder.Payment && thisOrder.Payment.method === 'cash' && (
-            <div className={`adminButtonAddOrder pay`} style={{}}>
+            <div className={`adminButtonAddOrder adminFont pay`} style={{}}>
               {"Оплата готівкрю"}
             </div>
           )}
@@ -86,12 +86,12 @@ const ActivatorCheckPaymentStatus = ({order}) => {
       }
 
       {thisOrder.Payment === null &&
-        <button className={`adminButtonAddOrder nopay`} style={{color:'#000000'}}>
+        <button className={`adminButtonAddOrder`} style={{color:'#000000'}}>
           {"-"}
         </button>
       }
       {thisOrder.Payment?.status === null &&
-        <button className={`adminButtonAddOrder nopay`} style={{color:'#000000'}}>
+        <button className={`adminButtonAddOrder`} style={{color:'#000000'}}>
           {"-"}
         </button>
       }

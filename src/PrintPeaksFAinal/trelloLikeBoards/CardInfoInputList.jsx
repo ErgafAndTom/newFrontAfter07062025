@@ -1,7 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import axios from "../../api/axiosInstance";
-import { useDispatch, useSelector } from "react-redux";
 import {Form, ListGroup, Spinner} from "react-bootstrap";
 import { FiSearch } from "react-icons/fi";
 
