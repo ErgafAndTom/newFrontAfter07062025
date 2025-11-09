@@ -19,6 +19,7 @@ import Vishichka from "../poslugi/Vishichka";
 import FiltrOrders from "./FiltrOrders";
 import {searchChange} from "../../actions/searchAction";
 import Loader from "../../components/calc/Loader";
+import ActivatorCheckPaymentStatus from "./ActivatorCheckPaymentStatus";
 
 
 
@@ -216,9 +217,15 @@ const CustomOrderTable2 = () => {
               <div className="summary-cell status "><StatusBar item={order} style={{borderRadius:"none"}}/></div>
 
               {order.Payment?.status === 'CREATED' &&
-                <div className={`adminButtonAddOrder wait`} style={{}}>
-                  {"Очікування️"}
-                </div>
+                // <div className={`adminButtonAddOrder wait`} style={{}}>
+                //   {/*{"Очікування️"}*/}
+                //   <ActivatorCheckPaymentStatus
+                //     order={order}
+                //   />
+                // </div>
+                <ActivatorCheckPaymentStatus
+                  order={order}
+                />
               }
               {order.Payment?.status === 'PAID' &&
                 <>
