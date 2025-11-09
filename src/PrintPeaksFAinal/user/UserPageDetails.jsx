@@ -157,7 +157,7 @@ function AttachCompanyModal({ userId, onClose, onAttached }) {
       {/* Container */}
       <div
         className="modalContainer animate-slide-up"
-        style={{ bottom: "15%", height:"35vw", left: "35%", borderRadius: 12, overflow: "hidden" }}
+        style={{ bottom: "15%", height:"35vw", left: "35%", borderRadius: 12, overflow: "hidden", zIndex:"200" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

@@ -178,7 +178,7 @@ const TrelloBoard = () => {
       {/* Основна область дошки */}
 
         <div
-          className="d-flex flex-row flex-wrap-nowrap justify-content-center gap-3 align-items-start"
+          className="d-flex flex-row flex-wrap-nowrap justify-content-center gap-3 align-items-start "
           style={{marginLeft:"0.5vw", marginRight:"0.5vw", width: "99%"}}
         >
 

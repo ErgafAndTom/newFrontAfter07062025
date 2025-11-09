@@ -32,8 +32,8 @@
   clip-path: polygon(1.6vh 0, 100% 0, calc(100% - 1.6vh) 100%, 0 100%);
 }
 
-.PayButtons.invoices, .PayButtons.end{
-  clip-path: polygon(1.6vh 0, 100% 0, 100% 100%, 0 100%);
+.PayButtons.invoices, .PayButtons.end, .PayButtons.check {
+  clip-path: polygon(1.7vh 0, 100% 0, 100% 100%, 0 100%);
 
 }
 
@@ -51,6 +51,7 @@
   color: white;
 }
 .PayButtons.link:hover  {
+
   font-weight: bold;
   font-size:  3vh;
 }
@@ -64,7 +65,7 @@
 
   /*background: #3c60a6;*/
 }
-.PayButtons.end{
+.PayButtons.check{
   /*font-weight: bold;*/
   /*font-size:  2vh;*/
   text-decoration: none;
@@ -73,23 +74,44 @@
   display: flex;
   background: #3c60a6;
   height: 6vh;
-}
+  color: white;
 
+}
+.PayButtons.end{
+  /*font-weight: bold;*/
+  /*font-size:  2vh;*/
+  text-decoration: none;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  background: #e01729;
+  height: 6vh;
+  color: white;
+
+}
+.pay-button-end-x{
+  margin-left: -4vw;
+}
+.pay-button-end-x:hover{
+  color: #faf9f5;
+}
 .PayButtons.end:hover {
   font-weight: bold;
-  font-size:  2.5vh;
-  background:
-    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.25), transparent 42%),
-    linear-gradient(
-      130deg,
-      #007a43,
-      #008249,
-      #009054,
-      #008249
-    );
-  background-size: 250% 250%, 320% 320%;
-  background-position: 30% 18%, 0% 50%;
-  animation: btnGlow 4s ease-in-out infinite;
+  /*font-size:  2.5vh;*/
+  /*background: cornflowerblue;*/
+
+  /*background:*/
+  /*  radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.25), transparent 42%),*/
+  /*  linear-gradient(*/
+  /*    130deg,*/
+  /*    #007a43,*/
+  /*    #008249,*/
+  /*    #009054,*/
+  /*    #008249*/
+  /*  );*/
+  /*background-size: 250% 250%, 320% 320%;*/
+  /*background-position: 30% 18%, 0% 50%;*/
+  /*animation: btnGlow 4s ease-in-out infinite;*/
 }
 .pay-button-wait {
   background: #f2f0e7;

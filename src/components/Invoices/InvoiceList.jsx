@@ -42,7 +42,7 @@ const InvoiceList = () => {
             { id: 1, name: '', quantity: 1, price: 0, unit: 'шт.' }
         ]
     });
-    
+
     // Стан для управління товарними позиціями
     const [itemCount, setItemCount] = useState(1);
 
@@ -76,7 +76,7 @@ const InvoiceList = () => {
                 }
                 return;
             }
-            
+
             setLoading(true);
             const response = await axios.get(`/api/contractors/search?query=${encodeURIComponent(searchText)}`);
 
@@ -95,7 +95,7 @@ const InvoiceList = () => {
     // Посилання для обробки кліків поза випадаючими списками
     const supplierRef = useRef(null);
     const buyerRef = useRef(null);
-    
+
     // Обробник кліків поза випадаючими списками
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -106,7 +106,7 @@ const InvoiceList = () => {
                 setShowBuyerDropdown(false);
             }
         };
-        
+
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
@@ -162,7 +162,7 @@ const InvoiceList = () => {
         });
         setShowBuyerDropdown(false);
     };
-    
+
     const handlePrintInvoice = (invoice) => {
         setCurrentInvoice(invoice);
         setShowPrintModal(true);
@@ -197,14 +197,14 @@ const InvoiceList = () => {
     const handlePrepareEdit = (invoice) => {
         setCurrentInvoice(invoice);
         // Переконуємося, що у рахунку є масив товарів
-        const invoiceItems = invoice.items && invoice.items.length > 0 
-            ? invoice.items 
+        const invoiceItems = invoice.items && invoice.items.length > 0
+            ? invoice.items
             : [{ id: 1, name: '', quantity: 1, price: 0, unit: 'шт.' }];
-        
+
         // Встановлюємо лічильник елементів на основі найвищого ID
         const maxId = invoiceItems.reduce((max, item) => Math.max(max, item.id || 0), 0);
         setItemCount(maxId);
-        
+
         setFormData({
             invoiceNumber: invoice.invoiceNumber,
             invoiceDate: invoice.invoiceDate,
@@ -258,7 +258,7 @@ const InvoiceList = () => {
     const handleOpenAddModal = () => {
         // Скидаємо лічильник товарів
         setItemCount(1);
-        
+
         setFormData({
             invoiceNumber: '',
             invoiceDate: new Date().toISOString().split('T')[0],
@@ -296,7 +296,7 @@ const InvoiceList = () => {
             [name]: value
         });
     };
-    
+
     // Обробник для зміни полів товарів
     const handleItemChange = (e, index) => {
         const { name, value } = e.target;
@@ -305,17 +305,17 @@ const InvoiceList = () => {
             ...updatedItems[index],
             [name]: name === 'quantity' || name === 'price' ? parseFloat(value) || 0 : value
         };
-        
+
         // Перерахунок загальної суми на основі товарних позицій
         const totalSum = updatedItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
-        
+
         setFormData({
             ...formData,
             items: updatedItems,
             totalSum: totalSum.toFixed(2)
         });
     };
-    
+
     // Додавання нової товарної позиції
     const handleAddItem = () => {
         setItemCount(itemCount + 1);
@@ -327,7 +327,7 @@ const InvoiceList = () => {
             ]
         });
     };
-    
+
     // Видалення товарної позиції
     const handleRemoveItem = (index) => {
         if (formData.items.length <= 1) {
@@ -338,11 +338,11 @@ const InvoiceList = () => {
             });
             return;
         }
-        
+
         const updatedItems = formData.items.filter((_, i) => i !== index);
         // Перерахунок загальної суми на основі товарних позицій
         const totalSum = updatedItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
-        
+
         setFormData({
             ...formData,
             items: updatedItems,
@@ -389,7 +389,7 @@ const InvoiceList = () => {
             </Spinner>
         </div>
     );
-    
+
     if (error) return (
         <div className="alert alert-danger my-3" role="alert">
             <h4 className="alert-heading">Сталася помилка!</h4>
@@ -404,12 +404,12 @@ const InvoiceList = () => {
     return (
         <div className="">
 
-            
+
             {invoices.length === 0 ? (
                 <div className="text-center p-5 bg-light rounded">
                     <p className="mb-3 text-muted">Немає рахунків для відображення</p>
-                    <Button 
-                        variant="outline-primary" 
+                    <Button
+                        variant="outline-primary"
                         onClick={handleOpenAddModal}
                     >
                         Створити перший рахунок
@@ -584,15 +584,15 @@ const InvoiceList = () => {
                                     <ListGroup
                                         className="position-absolute w-100"
                                         style={{
-                                            maxHeight: '300px', 
-                                            overflowY: 'auto', 
+                                            maxHeight: '300px',
+                                            overflowY: 'auto',
                                             zIndex: 1000,
                                             boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
                                         }}
                                     >
                                         {filteredSuppliers.length > 0 ? (
                                             filteredSuppliers.map(contractor => (
-                                                <ListGroup.Item 
+                                                <ListGroup.Item
                                                     key={contractor.id}
                                                     action
                                                     onClick={() => handleSelectSupplier(contractor)}
@@ -633,15 +633,15 @@ const InvoiceList = () => {
                                     <ListGroup
                                         className="position-absolute w-100"
                                         style={{
-                                            maxHeight: '300px', 
-                                            overflowY: 'auto', 
+                                            maxHeight: '300px',
+                                            overflowY: 'auto',
                                             zIndex: 1000,
                                             boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
                                         }}
                                     >
                                         {filteredBuyers.length > 0 ? (
                                             filteredBuyers.map(contractor => (
-                                                <ListGroup.Item 
+                                                <ListGroup.Item
                                                     key={contractor.id}
                                                     action
                                                     onClick={() => handleSelectBuyer(contractor)}
@@ -683,12 +683,12 @@ const InvoiceList = () => {
                                 </Form.Text>
                             )}
                         </Form.Group>
-                        
+
                         {/* Управління товарами/послугами */}
                         <h5 className="mt-4 mb-3">Товари/Послуги</h5>
-                        
+
                         {formData.items.map((item, index) => (
-                            <InvoiceFormItem 
+                            <InvoiceFormItem
                                 key={index}
                                 item={item}
                                 index={index}
@@ -696,10 +696,10 @@ const InvoiceList = () => {
                                 onRemoveItem={handleRemoveItem}
                             />
                         ))}
-                        
+
                         <div className="d-flex justify-content-center mb-3">
-                            <Button 
-                                variant="outline-primary" 
+                            <Button
+                                variant="outline-primary"
                                 onClick={handleAddItem}
                             >
                                 + Додати товар/послугу
@@ -778,20 +778,20 @@ const InvoiceList = () => {
                                     onClick={() => setShowSupplierDropdown(true)}
                                     placeholder="Введіть назву постачальника або виберіть зі списку"
                                 />
-                                
+
                                 {showSupplierDropdown && (
                                     <ListGroup
                                         className="position-absolute w-100"
                                         style={{
-                                            maxHeight: '300px', 
-                                            overflowY: 'auto', 
+                                            maxHeight: '300px',
+                                            overflowY: 'auto',
                                             zIndex: 1000,
                                             boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
                                         }}
                                     >
                                         {filteredSuppliers.length > 0 ? (
                                             filteredSuppliers.map(contractor => (
-                                                <ListGroup.Item 
+                                                <ListGroup.Item
                                                     key={contractor.id}
                                                     action
                                                     onClick={() => handleSelectSupplier(contractor)}
@@ -832,15 +832,15 @@ const InvoiceList = () => {
                                     <ListGroup
                                         className="position-absolute w-100"
                                         style={{
-                                            maxHeight: '300px', 
-                                            overflowY: 'auto', 
+                                            maxHeight: '300px',
+                                            overflowY: 'auto',
                                             zIndex: 1000,
                                             boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
                                         }}
                                     >
                                         {filteredBuyers.length > 0 ? (
                                             filteredBuyers.map(contractor => (
-                                                <ListGroup.Item 
+                                                <ListGroup.Item
                                                     key={contractor.id}
                                                     action
                                                     onClick={() => handleSelectBuyer(contractor)}

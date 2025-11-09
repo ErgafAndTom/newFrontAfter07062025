@@ -174,6 +174,7 @@ function DropDownList({ showAddPay, setShowAddPay, formData, setFormData, data, 
             transform: 'translateY(-50%)',
             pointerEvents: 'none',
             marginLeft: "auto"
+
           }}>
             <Spinner animation="border" variant="dark" style={{ width: "1.5vw", height: "1.5vw"}}/>
           </div>
@@ -187,6 +188,7 @@ function DropDownList({ showAddPay, setShowAddPay, formData, setFormData, data, 
             transform: 'translateY(-50%)',
             pointerEvents: 'none',
             width: "1.4vw", height: "1.4vh", marginLeft: "auto"
+
           }} src={find} alt="Search Icon" className="Seaechicon"/>
         )}
 

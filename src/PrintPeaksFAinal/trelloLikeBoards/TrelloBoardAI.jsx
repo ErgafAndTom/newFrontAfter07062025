@@ -139,7 +139,7 @@ const TrelloBoard = () => {
 
   return (
     <div>
-      <div className="d-flex flex-row flex-wrap-nowrap justify-content-center gap-3 align-items-start" style={{ marginLeft:"0.5vw", marginRight:"0.5vw", width: "99%" }}>
+      <div className="d-flex flex-row flex-wrap-nowrap justify-content-center gap-3 align-items-start" style={{ marginLeft:"0.5vw", marginRight:"0.5vw", width: "99%" , fontFamily:"PlaypenSans-Regular"}}>
         {lists.map(list => (
           <div
             key={list.id}

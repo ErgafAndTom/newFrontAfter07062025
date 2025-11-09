@@ -116,7 +116,8 @@ function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder
           backdropFilter: 'blur(2px)',
           WebkitBackdropFilter: 'blur(2px)',
           // zIndex: 999,
-          transition: 'opacity 200ms ease'
+          transition: 'opacity 200ms ease',
+          zIndex:"20"
         }}
       />
       {/* Контейнер в том же месте и размере */}
@@ -124,6 +125,7 @@ function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder
         bottom:"25%",
         left:"35%",
         borderRadius: '12px',
+        zIndex:"20"
 
       }}>
         {/* Заголовок */}

@@ -85,14 +85,15 @@ function AddCompanyModal({ user, showAddCompany, setShowAddCompany, onCompanyAdd
           backgroundColor: "rgba(15,15,15,0.45)",
           backdropFilter: "blur(2px)",
           WebkitBackdropFilter: "blur(2px)",
-          zIndex: 100,
+          zIndex: 30,
           transition: "opacity 200ms ease"
         }}
       />
       {/* контейнер того ж розміру й позиції */}
       <div className="modalContainer animate-slide-up" style={{
         bottom:"25%",
-        left:"35%"
+        left:"35%",
+        zIndex: 30,
       }}>
         {/* header */}
         <div

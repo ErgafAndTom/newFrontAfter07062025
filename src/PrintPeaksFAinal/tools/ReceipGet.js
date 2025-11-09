@@ -8,6 +8,8 @@ const ReceipGet = ({
                              thisOrder,
                              showReceiptViewer,
                              setShowReceiptViewer,
+  receiptId,
+  setReceiptId,
                            }) => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -41,10 +43,37 @@ const ReceipGet = ({
 
   // 🧾 Завантажити чек
   const fetchReceipt = async () => {
-    if (!thisOrder?.Paymentts) return;
+    if (!receiptId && !receiptId.id) return;
     setLoading(true);
+    let response;
     try {
-      const response = await axios.get(`/api/payment/receipt/${thisOrder.Paymentts[0].checkboxReceiptId}/pdf`, {
+      response = await axios.get(`/api/payment/receipt/${receiptId.id}/pdf`, {
+        responseType: "blob",
+      });
+
+      console.log(response);
+
+      const blob = new Blob([response.data], { type: "application/pdf" });
+
+      console.log(blob);
+
+      const url = window.URL.createObjectURL(blob);
+      setPdfUrl(url);
+      setError(null);
+    } catch (err) {
+      console.error("❌ Помилка отримання чеку:", err);
+      setError("Не вдалося отримати чек");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchReceiptByMono = async () => {
+    if (!receiptId && !receiptId.id) return;
+    setLoading(true);
+    let response;
+    try {
+      response = await axios.get(`/api/payment/receiptForInvoiceId/${receiptId.id}/pdf`, {
         responseType: "blob",
       });
 
@@ -75,7 +104,11 @@ const ReceipGet = ({
   };
 
   useEffect(() => {
-    fetchReceipt()
+    if (receiptId && receiptId.by === "mono") {
+      fetchReceiptByMono()
+    } else {
+      fetchReceipt()
+    }
   }, []);
 
   return (
@@ -118,7 +151,7 @@ const ReceipGet = ({
             }}
           >
             <div className="d-flex">
-              <div className="m-auto text-center adminFont">Фіскальний чек №: {thisOrder.Paymentts[0].checkboxReceiptId}</div>
+              <div className="m-auto text-center adminFont">Фіскальний чек №: {receiptId.id}</div>
               <div
                 className="btn btn-close btn-lg"
                 style={{ margin: "0.1vw" }}

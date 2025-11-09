@@ -13,6 +13,10 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   const [invoiceId, setInvoiceId] = useState(null);
 
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [receiptId, setReceiptId] = useState({
+    id: null,
+    by: null
+  });
   const [showReceiptViewer, setShowReceiptViewer] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -197,9 +201,10 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
     // }
   };
 
-  const getPayment = async (id) => {
+  const getPayment = async (id, by) => {
     if (!thisOrder?.id || !thisOrder?.allPrice) return;
     console.log("Creating terminal payment for order:", thisOrder.id);
+    setReceiptId({...receiptId, id: id, by: by})
     setShowReceiptViewer(true)
     // setLoading(true);
     // try {
@@ -438,7 +443,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                   {formats[index]}
                 </div>
                 <button
-                  className="PayButtons end"
+                  className="PayButtons check"
 
                   // onClick={invalidateInvoice}
 
@@ -458,6 +463,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                     backgroundColor: "#008249",
                     color: "white",
                     width: "3vw",
+                    height:"6vh"
                   }}
                   onClick={() => {
                     window.open(thisOrder.Payment.pageUrl, "_blank");
@@ -485,11 +491,10 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 </div>
                 <button
                   className="PayButtons end"
+                  // style={{background:"#e01729"}}
+                  onClick={invalidateInvoice}>
 
-                  // onClick={invalidateInvoice}>
-                  onClick={(event) => getPayment(thisOrder.Paymentts[0].checkboxReceiptId)}
-                  >
-                  {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
+                  {loading ? <Loader/> : <div className="pay-button-end-x">X</div>}
                 </button>
               </div>
             </>
@@ -518,11 +523,11 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
           >
             Замовлення оплачене: {thisOrder.Payment?.method}
           </button>
-          {thisOrder.Paymentts[0] && (
+          {thisOrder.Paymentts[0] && thisOrder.Paymentts.length > 0 &&(
             <>
               {thisOrder.Paymentts[0].checkboxReceiptId && (
                 <button
-                  className="PayButtons end"
+                  className="PayButtons check"
 
                   onClick={(event) => getPayment(thisOrder.Paymentts[0].checkboxReceiptId)}
                 >
@@ -531,16 +536,29 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
               )}
             </>
           )}
-          {currentUser.role === "admin" && (
+          {currentUser && currentUser.role === "admin"  && (
             <>
               {thisOrder.Payment?.method === "link" && (
-                <button
-                  className="PayButtons end"
+                <>
+                  {thisOrder.Payment && thisOrder.Payment.invoiceId && (
+                    <button
+                      className="PayButtons check"
+                      onClick={(event) => getPayment(thisOrder.Payment.invoiceId, "mono")}
+                      // onClick={() => {
+                      //   const receiptId = thisOrder?.CheckboxPayment?.checkboxReceiptId;
+                      //   if (!receiptId) {
+                      //     alert("Чек ще не сформований або не фіскалізований");
+                      //     return;
+                      //   }
+                      //   getPayment(receiptId);
+                      // }}
 
-                  // onClick={(event) => getPayment(thisOrder.Paymentts[0].checkboxReceiptId)}
-                  >
-                  {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
-                </button>
+                      // onClick={(event) => getPayment(thisOrder.Paymentts[0].checkboxReceiptId)}
+                    >
+                      {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
+                    </button>
+                  )}
+                </>
               )}
             </>
           )}
@@ -563,6 +581,8 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
 
       {showReceiptViewer && (
         <ReceipGet
+          receiptId={receiptId}
+          setReceiptId={setReceiptId}
           thisOrder={thisOrder}
           showReceiptViewer={showReceiptViewer}
           setShowReceiptViewer={setShowReceiptViewer}

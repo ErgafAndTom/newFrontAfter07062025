@@ -2,7 +2,7 @@
   "name": "frontpp",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://127.0.0.1:5555",
+  "proxy": "http://localhost:5555",
   "dependencies": {
     "@babel/parser": "^7.22.5",
     "@babel/traverse": "^7.22.5",
@@ -12,7 +12,7 @@
     "@fontsource/montserrat": "^5.2.6",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.0",
-    "@mui/x-date-pickers": "^5.0.0",
+    "@mui/x-date-pickers": "^5NPM 5.0.0",
     "@react-buddy/ide-toolbox": "^2.4.0",
 
     "@react-buddy/palette-mui": "^5.0.1",

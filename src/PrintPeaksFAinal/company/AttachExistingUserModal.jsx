@@ -89,7 +89,8 @@ export default function AttachExistingUserWindow({ companyId, onClose, onAttache
           bottom: "25%",
           left: "35%",
           borderRadius: "12px",
-          overflow: "hidden",
+          overflow: "hidden"
+          , zIndex:"200"
         }}
         onClick={(e) => e.stopPropagation()}
       >

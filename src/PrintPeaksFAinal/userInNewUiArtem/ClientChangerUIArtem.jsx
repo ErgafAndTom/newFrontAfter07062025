@@ -172,7 +172,15 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
   };
 
   const handleAddNewUser = () => setShowAddUser(true);
+  const [copied, setCopied] = useState(false);
 
+  const handleCopy = (e) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText("🤖:").then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000); // прибрати через 3 секунди
+    });
+  };
   const setThisUserToCabinetFunc = (open, user, e) => {
     e.stopPropagation();
     setThisUserIdToCabinet(user.id);
@@ -199,25 +207,64 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
           {thisOrder.client ? (
             <div  style={{ position: "relative", padding:"0"}}>
               <div
-
+                onClick={handleCopy}
                 style={{
-                flexColumn: 'row',
-                fontSize: 'clamp(1rem, 2.5vh, 3.5vh)',
-                textTransform: 'uppercase',
-                color: '#646462',
-                whiteSpace: 'nowrap',
-                textOverflow: 'ellipsis',
-                fontWeight: '400',
-                // letterSpacing: '0.1em',
-                width: '29vw',
-                overflow: 'hidden',
-                maxWidth: '30vw',
-                  marginTop:'-0.5vh',
-
-              }}>
-                🤖:{thisOrder.client.id} – {thisOrder.client.lastName} {thisOrder.client.firstName} {thisOrder.client.familyName}
-                <div style={{ marginTop: '0.5rem', height: '10px', background: 'transparent', boxShadow: '0 1px 3px rgba(0,0,0,0.5)' }} />
+                  flexColumn: "row",
+                  fontSize: "clamp(1rem, 2.5vh, 3.5vh)",
+                  textTransform: "uppercase",
+                  color: "#646462",
+                  whiteSpace: "nowrap",
+                  textOverflow: "ellipsis",
+                  fontWeight: "400",
+                  width: "29vw",
+                  overflow: "hidden",
+                  maxWidth: "30vw",
+                  marginTop: "-0.5vh",
+                  cursor: "pointer",
+                  userSelect: "none",
+                }}
+                title="Натисни, щоб скопіювати 🤖:"
+              >
+                🤖:{thisOrder.client.id} – {thisOrder.client.lastName}{" "}
+                {thisOrder.client.firstName} {thisOrder.client.familyName}
+                <div
+                  style={{
+                    marginTop: "0.5rem",
+                    height: "10px",
+                    background: "transparent",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.5)",
+                  }}
+                />
               </div>
+
+              {/* Анімований текст підтвердження */}
+              {copied && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: "0",
+                    marginTop: "0.2rem",
+                    // fontSize: "0.9rem",
+                    color: "#62625d",
+                    opacity: copied ? 1 : 0,
+                    transition: "opacity 0.2s ease-in-out",
+                    animation: "fadeOut 3s forwards",
+                  }}
+                >
+                  Скопійовано до буферу обміну
+                </div>
+              )}
+
+              <style>
+                {`
+          @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 0.5; }
+            100% { opacity: 0; }
+          }
+        `}
+              </style>
               <strong className="adminTextBig" style={{ position: "fixed", bottom: "8vh",  }}>
                 <span className="adminTextBig">    </span>
               </strong>

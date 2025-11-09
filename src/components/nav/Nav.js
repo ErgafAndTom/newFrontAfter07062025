@@ -16,13 +16,17 @@ import {searchChange} from "../../actions/searchAction";
 
 const Nav = () => {
     const dispatch = useDispatch();
-    const navigate = useNavigate();
+
     const currentUser = useSelector((state) => state.auth.user);
     const search = useSelector((state) => state.search.search);
     // const [search, setSearch] = useState({search: ""});
     const [basicActive, setBasicActive] = useState('/');
     const newOrderButtonRef = useRef(null);
+  const navigate = useNavigate();
 
+  const handleClick = () => {
+    navigate("/login");
+  };
   // useEffect(() => {
   //   dispatch(fetchTrelloData());
   // }, [dispatch]);
@@ -608,19 +612,18 @@ const Nav = () => {
           </button>
         </div>
       ) : (
-        <Link to="/login" style={{ textDecoration: 'none' }}>
-          <button
-            className="adminButtonAddNav buttonSkewedOrderClient"
-            style={{
-              background: '#008249',
-              // background: '#FFFFFF00',
-              borderRadius: '0 0 9px 0',
-              height: '3rem'
-            }}
-          >
-            Логін
-          </button>
-        </Link>
+        <button
+          onClick={handleClick}
+          className="adminButtonAddNav buttonSkewedOrderClient"
+          style={{
+            background: '#008249',
+            borderRadius: '0 0 9px 0',
+            height: '3rem',
+            cursor: 'pointer'
+          }}
+        >
+          Логін
+        </button>
       )}
     </div>
   </div>

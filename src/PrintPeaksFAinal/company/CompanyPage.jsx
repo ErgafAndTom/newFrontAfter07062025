@@ -87,7 +87,7 @@ const UsersList = ({ companyId, reloadSignal = 0, onAddUser, onAttachUser }) => 
 
   return (
     <div className="mt-1">
-      <div className="d-flex align-items-center" style={{ gap: "0.6rem" }}>
+      <div className="d-flex align-items-center" style={{ gap: "0.6rem"}}>
         <div
           className="d-flex align-items-center justify-content-between"
           style={{ gap: "0.6rem", minWidth: "100%" }}
@@ -113,7 +113,7 @@ const UsersList = ({ companyId, reloadSignal = 0, onAddUser, onAttachUser }) => 
               fontWeight:"200",
               letterSpacing: "0.08em",
               textTransform:"uppercase"
-            }} onClick={onAttachUser}>
+              }} onClick={onAttachUser}>
               Додати в компанію існуючого <div style={{ fontSize: "3vh" }}>🤖</div>
             </Button>
             <Button className="adminButtonAdd" style={{
