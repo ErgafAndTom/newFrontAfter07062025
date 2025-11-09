@@ -1,27 +1,15 @@
 import React, { useEffect, useState, useCallback } from "react";
-import SlideInModal from './SlideInModal';
 
 import './ClientArtem.css';
 import './ClientsMenuu.css';
 import www from "./www.svg";
 import whiteSVG from "../../components/whiteSVG.svg";
-import pays from "../Pays.png";
 import axios from "../../api/axiosInstance";
-import Form from "react-bootstrap/Form";
-import ChangeClienticons from "./img/Group 1476.png";
 import barcode from "./public/mask-group-10.svg";
 import profile from "./public/mask-group-11@2x.png";
-import viberlogo from "./img/viber.png";
-import signallogo from "./img/signal.png";
-import whatsapplogo from "./img/whatsapp.png";
-import Email from "./img/email.svg";
-import telegram from "./img/Telegram-icon-on-transparent-background-PNG.png";
-import FilesButton from "./img/files-icon.png";
-import Tooltip from '../TooltipButton2';
 import { useNavigate } from "react-router-dom";
 import { Button, Modal, Spinner, ListGroup, InputGroup } from "react-bootstrap";
 import { buttonStyles, containerStyles, formStyles } from './styles';
-import PaysInOrderRestored from "./pays/PayInOrderRestored";
 import { useSelector } from "react-redux";
 import TelegramAvatar from "../../PrintPeaksFAinal/Messages/TelegramAvatar";
 import PaidButtomProgressBar from "../../PrintPeaksFAinal/tools/PaidButtomProgressBar";
@@ -29,7 +17,6 @@ import ClientSelectionModal from "./ClientSelectionModal";
 import ClientCabinet from "./ClientCabinet";
 import { FiUser } from "react-icons/fi";
 import { FiFolder } from "react-icons/fi";
-import getEffectiveDiscount from "./getEffectiveDiscount.js";
 import "./ClientCabinet.css";
 import PaysInOrderRestored_OrdersLike from "./pays/PaysInOrderRestored_OrdersLike";
 
@@ -38,7 +25,6 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
   const navigate = useNavigate();
   const [showAddUser, setShowAddUser] = useState(false);
   const [clientCabinetOpen, setClientCabinetOpen] = useState(true);
-  const effectiveDiscount = getEffectiveDiscount(thisOrder);
   const [showDocGenerate, setShowDocGenerate] = useState(false);
   const currentUser = useSelector((state) => state.auth.user);
   const [showNP, setShowNP] = useState(false);
@@ -52,8 +38,6 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
   const [showVisible, setShowVisible] = useState(false);
   const [error, setError] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const user = thisOrder?.client || {};
-  const currentClient = thisOrder?.client || null;
 
   const [bestDiscount, setBestDiscount] = useState(null);
   const [thisUserIdToCabinet, setThisUserIdToCabinet] = useState(0);
