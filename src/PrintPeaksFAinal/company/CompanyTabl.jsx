@@ -94,7 +94,7 @@ const CompanyTabl = () => {
           statuses={statuses}
           setStatuses={setStatuses}
         />
-        <div className="d-flex" style={{ opacity: "0.7", margin: "auto", position:"absolute", top:"0", right:"33%" }}>
+        <div className="d-flex" style={{ opacity: "0.7", margin: "auto", position:"unset", top:"0", right:"33%" }}>
           Знайдено {data?.count} шт
         </div>
       </div>

@@ -142,7 +142,7 @@ const UsersOrdersLikeTable = () => {
           statuses={statuses}
           setStatuses={setStatuses}
         />
-        <div className="d-flex justify-content-center" style={{opacity: "0.5", fontSize: "1.5rem", margin: "auto",  position:"absolute", top:"0", right:"32%"}}>🤖: {data?.count}</div>
+        <div className="d-flex justify-content-center" style={{opacity: "0.5", fontSize: "1.5rem", margin: "auto",  position:"unset", top:"0", right:"32%"}}>🤖: {data?.count}</div>
       </div>
       <div className="OrderRow-summary OrderRow-header">
 
