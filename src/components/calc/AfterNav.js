@@ -15,7 +15,6 @@ import UsersCustomTable from "../../PrintPeaksFAinal/user/UsersCustomTable";
 import CustomOrderTable2 from "../../PrintPeaksFAinal/Orders/CustomOrderTable2";
 import TableManager from "../../PrintPeaksFAinal/dataMenager/TableManager";
 import ExportImportComponent from "../../PrintPeaksFAinal/dataMenager/ExportImportComponent";
-import TelegramBot from "../admin/crm/chats/TelegramBot";
 import Colorprinthelpsmall from "../admin/crm/Vimogi/Colorprinthelpsmall";
 import Printphotohelpsmall from "../admin/crm/Vimogi/Printphotohelpsmall";
 import Layouthelpsmall from "../admin/crm/Vimogi/Layouthelpsmall";
@@ -57,6 +56,10 @@ import ClientCabinet from "../../PrintPeaksFAinal/userInNewUiArtem/ClientCabinet
 import Pagination from "../../PrintPeaksFAinal/tools/Pagination";
 import Graph2DForBD from "../../PrintPeaksFAinal/Graph2DForBD";
 import Cash from "../../PrintPeaksFAinal/checkbox/CashCash/Cash";
+import MockTelegramChat from "../../PrintPeaksFAinal/telegramIntergra/MockTelegramChat";
+import ContentTest from "../../PrintPeaksFAinal/telegram/ContentTest";
+
+import TelegramBot from "../../PrintPeaksFAinal/telegram/TelegramBot";
 
 
 
@@ -101,6 +104,8 @@ const AfterNav = () => {
             <Routes>
                 <Route path="/" element={<Desktop />} />
                 <Route path="/db2" element={<ExportImportComponent />} />
+                {/*<Route path="/TG" element={<TelegramBot />} />*/}
+                {/*<Route path="/TG" element={<MockTelegramChat />} />*/}
                 <Route path="/TG" element={<TelegramBot />} />
                 <Route path="/db3" element={<TableManager />} />
                 <Route path="/dbGraph" element={<Graph3D_with_comments />} />

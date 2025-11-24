@@ -7,21 +7,28 @@ import './StylesOld.css';
 import './index.css';
 import './global.css';
 import {Provider} from "react-redux";
-import store from "./stores/store";
+import {store} from "./stores/store";
 import {BrowserRouter as Router} from 'react-router-dom'
 import React, {useEffect} from "react";
 import AllWindow from "./components/AllWindow";
 // В App.tsx або іншому компоненті високого рівня
 import { Global, css } from '@emotion/react';
+import TelegramProvider from "./telegram";
+
+import { initWebSocket } from "./ws";
+import TelegramDrawer from "./components/Telegram/TelegramDrawer";
+import useTelegramNotifications from "./components/Telegram/useTelegramNotifications";
 
 const globalStyles = css`
   @import url('https://use.typekit.net/iro7gjn.css');
 `;
 
 function App() {
-    useEffect(() => {
+
+
+  useEffect(() => {
         document.fonts.ready.then(() => {
-            if (document.fonts.check('1.3vh "Montserrat Alternates, sans-serif"')) {
+            if (document.fonts.check) {
                 console.log('✅ Шрифт inter завантажено та готовий до використання!');
             } else {
                 console.warn('❌ Шрифт inter не завантажено або недоступний.');
@@ -36,18 +43,23 @@ function App() {
             }
         });
     }, []);
-    return (
-        <>
-            <Global styles={globalStyles} />
-            <div>
-                <Provider store={store}>
-                    <Router>
-                        <AllWindow/>
-                    </Router>
-                </Provider>
-            </div>
-        </>
-    )
+  // useEffect(() => {
+  //   initWebSocket();
+  // }, []);
+
+  return (
+    <Provider store={store}>          {/* ← ЭТО ДОЛЖНО БЫТЬ САМОЕ ВНЕШНЕЕ */}
+      <TelegramProvider>
+        <Router>
+          <AllWindow />
+        </Router>
+
+        {/* ВАЖЛИВО: Drawer стоїть ТУТ !!! */}
+        {/*<TelegramDrawer />*/}
+      </TelegramProvider>
+
+    </Provider>
+  );
 }
 
 export default App;

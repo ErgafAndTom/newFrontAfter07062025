@@ -1,8 +1,9 @@
 import React, {useEffect, useState, useRef} from "react";
-import "./Nav.css";
 import { NavLink } from "react-router-dom";
+import { useSelector } from "react-redux";
+import "./Nav.css";
 import {Link} from "react-router-dom";
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch} from "react-redux";
 import { FiSettings, FiLogOut } from "react-icons/fi";
 // import find from "../find.svg";
 import {fetchUser, logout} from "../../actions/authActions";
@@ -13,16 +14,29 @@ import AddUserButton from "../../PrintPeaksFAinal/user/AddUserButton.jsx";
 import { useNavigate } from "react-router-dom";
 import PopupLeftNotification from "./PopupLeftNotification";
 import {searchChange} from "../../actions/searchAction";
+import TermActiveWidget from "./TermActiveVidget";
+import TelegramDrawer from "..//Telegram/TelegramDrawer";
+import { openDrawer } from "../../telegram/telegramSlice";
+
+
 
 const Nav = () => {
     const dispatch = useDispatch();
-
+  const totalUnread = useSelector((s) => s.telegram.totalUnread);
+  // const openTelegramDrawer = (e) => {
+  //   e.preventDefault();
+  //   window.dispatchEvent(new CustomEvent("open-telegram"));
+  // };
     const currentUser = useSelector((state) => state.auth.user);
     const search = useSelector((state) => state.search.search);
     // const [search, setSearch] = useState({search: ""});
     const [basicActive, setBasicActive] = useState('/');
     const newOrderButtonRef = useRef(null);
   const navigate = useNavigate();
+  const openTelegramDrawer = (e) => {
+    e.preventDefault();
+    dispatch(openDrawer());
+  };
 
   const handleClick = () => {
     navigate("/login");
@@ -31,6 +45,11 @@ const Nav = () => {
   //   dispatch(fetchTrelloData());
   // }, [dispatch]);
 
+  useEffect(() => {
+    const handler = () => dispatch(openDrawer());
+    window.addEventListener("open-telegram", handler);
+    return () => window.removeEventListener("open-telegram", handler);
+  }, []);
 
     useEffect(() => {
         dispatch(fetchUser())
@@ -53,6 +72,7 @@ const Nav = () => {
         // console.log(searchValue);
         dispatch(fetchUser(searchValue))
     };
+
 
     const handleSearchChange = (e) => {
       dispatch(searchChange(e.target.value))
@@ -461,7 +481,44 @@ const Nav = () => {
             <path d="M5 11c0 1.7 3.1 3 7 3s7-1.3 7-3" />
           </svg>
         </span>
+
+
             </NavLink>
+
+            <NavLink to="/TG" className="btn">
+              <span className="flip-front">TG</span>
+              <span className="flip-back">
+          {/* database */}
+                <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <ellipse cx="12" cy="5" rx="7" ry="3" />
+            <path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5" />
+            <path d="M5 11c0 1.7 3.1 3 7 3s7-1.3 7-3" />
+          </svg>
+        </span>
+
+
+            </NavLink>
+
+      {/*      <NavLink*/}
+      {/*        to="/TG"*/}
+      {/*        className="btn"*/}
+      {/*        onClick={openTelegramDrawer}*/}
+
+      {/*      >*/}
+      {/*<span className="flip-front">*/}
+      {/*  TG*/}
+      {/*  {totalUnread > 0 && (*/}
+      {/*    <span className="tgNavBadge">{totalUnread}</span>*/}
+      {/*  )}*/}
+      {/*</span>*/}
+      {/*        <span className="flip-back">*/}
+      {/*  <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">*/}
+      {/*      <ellipse cx="12" cy="5" rx="7" ry="3" />*/}
+      {/*      <path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5" />*/}
+      {/*      <path d="M5 11c0 1.7 3.1 3 7 3s7-1.3 7-3" />*/}
+      {/*    </svg>*/}
+      {/*</span>*/}
+      {/*      </NavLink>*/}
 
         {/*    <NavLink to="/dbGraph" className="btn">*/}
         {/*      <span className="flip-front">База Graph</span>*/}
@@ -545,6 +602,8 @@ const Nav = () => {
         </div>
       )}
     </>
+
+    {/*<TermActiveWidget />*/}
 
     {/* Права частина */}
     <div className="d-flex align-items-start" style={{borderRadius:"0"}}>
