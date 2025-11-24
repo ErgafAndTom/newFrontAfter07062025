@@ -15,8 +15,8 @@ import { initWebSocket } from "../ws";
 
 // Хуки должны быть вызваны ТОЛЬКО внутри Provider !!!
 function TelegramHooksContainer() {
-  useTelegramWS();
-  useTelegramNotifications();
+  // useTelegramWS();
+  // useTelegramNotifications();
   return null;
 }
 

@@ -4,20 +4,17 @@ import React, { useEffect, useState, useRef } from "react";
 const API = "/api/telegram";
 
 export default function TelegramBot() {
-  const [status, setStatus] = useState("red");
   const [lastUpdate, setLastUpdate] = useState(0);
 
   const [chats, setChats] = useState([]);
   const [currentChat, setCurrentChat] = useState(null);
 
-  // инфо о боте (заполним фейково, пока нет API)
-  const [botInfo, setBotInfo] = useState({
-    name: "Telegram Bot",
-    username: "bot"
-  });
-
   const [searchInput, setSearchInput] = useState("");
   const [messageInput, setMessageInput] = useState("");
+
+  const [status, setStatus] = useState("green"); // 'green' | 'yellow' | 'red' | 'gray'
+  const [errorCount, setErrorCount] = useState(0);
+  const [lastErrorType, setLastErrorType] = useState(null); // 'timeout' | '5xx' | '4xx' | 'network' | 'other' | null
 
   const messagesEndRef = useRef(null);
 
@@ -26,40 +23,65 @@ export default function TelegramBot() {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
   };
 
-  // ===== LONGPOLL какая-то магия =====
+  // ================= INIT LOAD =================
+  useEffect(() => {
+    async function loadInitialChats() {
+      try {
+        const res = await fetch(`${API}/init`);
+        const json = await res.json();
+        if (json.chats) setChats(json.chats);
+      } catch (err) {
+        console.error("INIT load error:", err);
+      }
+    }
+    loadInitialChats();
+  }, []);
+
+
+  // ================= LONGPOLL =================
   useEffect(() => {
     let mounted = true;
 
     async function poll() {
       while (mounted) {
         try {
+          console.log("Как узнало что пришло сообщение? Не выажно делаем запрос на его получение?? Да!");
           const res = await fetch(`${API}/updates`);
+          console.log(res);
+
+          if (res.status < 200 || res.status >= 300) {
+            throw { response: { status: res.status } };
+          }
+
+          // УСПЕХ: зелёный
+          setStatus("green");
+          setErrorCount(0);
+          setLastErrorType(null);
+
           const json = await res.json();
 
           if (json.updates && json.updates.length > 0) {
             json.updates.forEach((u) => {
-              const username = u.username;
-              const text = u.text;
-
               setChats((prev) => {
-                let c = prev.find((x) => x.username === username);
+                let existing = prev.find((x) => x.username === u.username);
+                const newMsg = {
+                  text: u.text,
+                  mediaType: u.mediaType,
+                  mediaUrl: u.mediaUrl,
+                  sender: "them",
+                  timestamp: u.timestamp
+                };
 
-                if (!c) {
+                if (!existing) {
                   return [
                     ...prev,
-                    {
-                      username,
-                      messages: [{ sender: "them", text }]
-                    }
+                    { username: u.username, chatId: u.chatId, messages: [newMsg] }
                   ];
                 }
 
                 return prev.map((chat) =>
-                  chat.username === username
-                    ? {
-                      ...chat,
-                      messages: [...chat.messages, { sender: "them", text }]
-                    }
+                  chat.username === u.username
+                    ? { ...chat, messages: [...chat.messages, newMsg] }
                     : chat
                 );
               });
@@ -68,65 +90,67 @@ export default function TelegramBot() {
               scrollToBottom();
             });
           }
-        } catch (e) {
-          console.error("LongPoll error:", e);
-        }
+        } catch (err) {
+          console.error("LongPoll error:", err);
+          const type = detectErrorType(err);
 
-        await new Promise((r) => setTimeout(r, 500));
+          setErrorCount(prev => {
+            const next = prev + 1;
+
+            if (next === 1) {
+              // первая ошибка подряд → жёлтый
+              setStatus("yellow");
+            } else if (next >= 2 && next <= 10) {
+              // от 2 до 10 подряд → красный
+              setStatus("red");
+            } else {
+              // более 10 подряд → серый
+              setStatus("gray");
+            }
+
+            return next;
+          });
+
+          setLastErrorType(type);
+        }
+        await new Promise((r) => setTimeout(r, 10));
       }
     }
 
     poll();
-
-    return () => {
-      mounted = false;
-    };
+    return () => (mounted = false);
   }, []);
 
-  // ===== БЛОК СТАТУСА =====
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!lastUpdate) {
-        setStatus("red");
-        return;
-      }
-      const diff = Date.now() - lastUpdate;
-      if (diff < 1500) setStatus("green");
-      else if (diff < 5000) setStatus("yellow");
-      else setStatus("red");
-    }, 700);
 
-    return () => clearInterval(interval);
-  }, [lastUpdate]);
+  // ================= STATUS =================
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (!lastUpdate) return setStatus("red");
+  //
+  //     const diff = Date.now() - lastUpdate;
+  //     if (diff < 1500) setStatus("green");
+  //     else if (diff < 5000) setStatus("yellow");
+  //     else setStatus("red");
+  //   }, 700);
+  //   return () => clearInterval(interval);
+  // }, [lastUpdate]);
 
-  // ===== ПОИСК/ДОБАВЛЕНИЕ ЧАТА =====
-  const handleAddChat = (e) => {
-    e.preventDefault();
-    const username = searchInput.trim().toLowerCase();
-    if (!username) return;
 
-    setChats((prev) => {
-      if (prev.find((c) => c.username === username)) return prev;
-
-      return [...prev, { username, messages: [] }];
-    });
-
-    setCurrentChat(username);
-    setSearchInput("");
-  };
-
-  // ===== ОТПРАВКА СООБЩЕНИЯ =====
+  // ================= SEND MESSAGE =================
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!currentChat || !messageInput.trim()) return;
 
-    const text = messageInput;
+    const msg = {
+      sender: "me",
+      text: messageInput,
+      timestamp: Date.now()
+    };
 
-    // локально добавили
     setChats((prev) =>
       prev.map((c) =>
         c.username === currentChat
-          ? { ...c, messages: [...c.messages, { sender: "me", text }] }
+          ? { ...c, messages: [...c.messages, msg] }
           : c
       )
     );
@@ -137,7 +161,7 @@ export default function TelegramBot() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username: currentChat,
-          text
+          text: messageInput
         })
       });
     } catch (err) {
@@ -148,35 +172,121 @@ export default function TelegramBot() {
     scrollToBottom();
   };
 
-  const statusColor =
-    status === "green" ? "#4CAF50" : status === "yellow" ? "#FBC02D" : "#F44336";
+  // FORMAT TIME
+  const fmtTime = (t) => {
+    const d = new Date(t);
+    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
 
-  const botInitial = botInfo.name[0]?.toUpperCase() || "B";
 
+  function detectErrorType(error) {
+    // таймаут (axios / fetch с AbortController)
+    if (error.code === "ECONNABORTED" || error.name === "AbortError") {
+      return "timeout";
+    }
+
+    // есть HTTP-ответ
+    if (error.response && error.response.status) {
+      const status = error.response.status;
+
+      if (status >= 500) return "5xx";
+      if (status >= 400) return "4xx";
+      return String(status);
+    }
+
+    // запрос ушёл, но ответа нет (network error)
+    if (error.request) {
+      return "network";
+    }
+
+    // что-то странное
+    return "other";
+  }
+
+
+  // ================= RENDER MESSAGE =================
+  const renderMessage = (m) => {
+    return (
+      <div
+        style={{
+          ...styles.messageBubble,
+          alignSelf: m.sender === "me" ? "flex-end" : "flex-start",
+          background: m.sender === "me" ? "#D9FDD3" : "#FFFFFF",
+        }}
+      >
+        {/* PHOTO */}
+        {m.mediaType === "photo" && (
+          <img
+            src={m.mediaUrl}
+            alt="img"
+            style={{ maxWidth: "240px", borderRadius: 10 }}
+          />
+        )}
+
+        {/* DOCUMENT */}
+        {m.mediaType === "document" && (
+          <a
+            href={m.mediaUrl}
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: "#4C8BF5" }}
+          >
+            📄 Скачать файл
+          </a>
+        )}
+
+        {/* STICKER */}
+        {m.mediaType === "sticker" && (
+          <img
+            src={m.mediaUrl}
+            alt="sticker"
+            style={{ width: 120, height: 120 }}
+          />
+        )}
+
+        {/* TEXT */}
+        {m.text && <div>{m.text}</div>}
+
+        <div style={styles.timeLabel}>{fmtTime(m.timestamp)}</div>
+      </div>
+    );
+  };
+
+
+  // UI render
   return (
     <div style={styles.app}>
       {/* LEFT PANEL */}
       <div style={styles.leftPanel}>
         <div style={styles.leftHeader}>
-          <div style={styles.botAvatar}>{botInitial}</div>
-
-          <div style={styles.botMeta}>
-            <div style={styles.botName}>{botInfo.name}</div>
-            <div style={styles.botUsername}>@{botInfo.username}</div>
+          <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#4C8BF5", display:"flex",justifyContent:"center",alignItems:"center", color:"white", fontSize:18 }}>B</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 600 }}>Telegram Bot</div>
+            <div style={{ fontSize: 13, color: "#666" }}>@bot</div>
           </div>
-
-          <div style={{ ...styles.statusDot, background: statusColor }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                background:
+                  status === "green"
+                    ? "#4CAF50" // зелёный — последний запрос успешный
+                    : status === "yellow"
+                      ? "#FBC02D" // жёлтый — первая ошибка
+                      : status === "red"
+                        ? "#F44336" // красный — 2–10 ошибок подряд
+                        : "#9E9E9E", // серый — >10 ошибок подряд
+              }}
+            />
+            <span style={{ fontSize: 10, opacity: 0.8 }}>
+    {errorCount === 0 ? "OK" : lastErrorType || "error"}
+  </span>
+          </div>
         </div>
 
-        <form onSubmit={handleAddChat} style={styles.searchWrap}>
-          <input
-            style={styles.searchInput}
-            value={searchInput}
-            placeholder="Поиск или новый чат…"
-            onChange={(e) => setSearchInput(e.target.value)}
-          />
-        </form>
-
+        {/* CHATS LIST */}
         <div style={styles.chatList}>
           {chats.map((c) => (
             <div
@@ -184,14 +294,10 @@ export default function TelegramBot() {
               onClick={() => setCurrentChat(c.username)}
               style={{
                 ...styles.chatItem,
-                background:
-                  currentChat === c.username ? "#E3EDF7" : "transparent"
+                background: currentChat === c.username ? "#E3EDF7" : "transparent"
               }}
             >
-              <div style={styles.chatAvatar}>
-                {c.username[0]?.toUpperCase()}
-              </div>
-
+              <div style={styles.chatAvatar}>{c.username[0]?.toUpperCase()}</div>
               <div style={styles.chatMeta}>
                 <div style={styles.chatName}>@{c.username}</div>
                 <div style={styles.chatLastMessage}>
@@ -212,19 +318,8 @@ export default function TelegramBot() {
             <div style={styles.messageContainer}>
               {chats
                 .find((c) => c.username === currentChat)
-                ?.messages.map((m, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      ...styles.messageBubble,
-                      alignSelf: m.sender === "me" ? "flex-end" : "flex-start",
-                      background:
-                        m.sender === "me" ? "#D9FDD3" : "#FFFFFF"
-                    }}
-                  >
-                    {m.text}
-                  </div>
-                ))}
+                ?.messages.map((m, i) => <div key={i}>{renderMessage(m)}</div>)}
+
               <div ref={messagesEndRef} />
             </div>
 
