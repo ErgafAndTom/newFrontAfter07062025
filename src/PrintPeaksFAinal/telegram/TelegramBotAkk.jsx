@@ -4,6 +4,7 @@ import axios from "../../api/axiosInstance";
 import "./styles.css";
 import TelegramAvatar from "../Messages/TelegramAvatar";
 import Loader from "../../components/calc/Loader";
+import Laminator from "../poslugi/Laminator";
 
 const API = "/api/telegramAkk";
 
@@ -41,6 +42,7 @@ export default function TelegramBotAkk() {
 
         if (j.ready === true && j.state === "AUTHENTICATED") {
           setAuthState("ready");
+          setThisUser(j.me)
           await loadInitial();
           return;
         }
@@ -108,6 +110,12 @@ export default function TelegramBotAkk() {
     return () => (mounted = false);
   }, [authState]);
 
+  useEffect(() => {
+    if (authState === "ready") return;
+
+    loadInitial();
+  }, [authState, thisUser]);
+
   // ----------------------------------------------------------------------
   // 4) Отправка кода
   // ----------------------------------------------------------------------
@@ -139,7 +147,10 @@ export default function TelegramBotAkk() {
   // 6) Первичная загрузка чатов
   // ----------------------------------------------------------------------
   const loadInitial = async () => {
+    console.log("loadInitial start");
     const { data: json } = await axios.get(API + "/init");
+
+    console.log(json);
 
     if (json?.chats) {
       const normalized = json.chats.map((c) => ({
@@ -422,12 +433,21 @@ export default function TelegramBotAkk() {
       <div className="telegramIntegration_leftPanel">
         <div className="telegramIntegration_leftHeader">
           <div className="telegramIntegration_botAvatar">
-            <TelegramAvatar link={thisUser?.username} size={45} defaultSrc="" />
+            {thisUser && thisUser.username &&
+              <TelegramAvatar link={thisUser.username} size={45} defaultSrc={thisUser.username[0]?.toUpperCase()} />
+            }
           </div>
 
           <div className="telegramIntegration_botMeta">
             <div className="telegramIntegration_botName">Telegram Account</div>
-            <div className="telegramIntegration_botUsername">@me</div>
+            <div className="telegramIntegration_botUsername">
+              {/*@me*/}
+              {thisUser && thisUser.username &&
+                <div>
+                  @{thisUser.username}
+                </div>
+              }
+            </div>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
