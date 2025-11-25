@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import TelegramAvatar from "../Messages/TelegramAvatar";
+import "./styles.css";
 
 // backend proxied через package.json: "proxy": "http://localhost:5555"
 const API = "/api/telegram";
