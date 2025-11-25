@@ -9,66 +9,66 @@ export default function TelegramBot() {
   const [chats, setChats] = useState([]);
   const [currentChat, setCurrentChat] = useState(null);
 
-  const [searchInput, setSearchInput] = useState("");
   const [messageInput, setMessageInput] = useState("");
 
-  const [status, setStatus] = useState("green"); // 'green' | 'yellow' | 'red' | 'gray'
+  const [status, setStatus] = useState("green");
   const [errorCount, setErrorCount] = useState(0);
-  const [lastErrorType, setLastErrorType] = useState(null); // 'timeout' | '5xx' | '4xx' | 'network' | 'other' | null
+  const [lastErrorType, setLastErrorType] = useState(null);
 
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
-    if (messagesEndRef.current)
+    if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
-  // ================= INIT LOAD =================
+  // ====================================
+  // INIT LOAD
+  // ====================================
   useEffect(() => {
     async function loadInitialChats() {
       try {
         const res = await fetch(`${API}/init`);
         const json = await res.json();
+
         if (json.chats) setChats(json.chats);
-      } catch (err) {
-        console.error("INIT load error:", err);
+      } catch (e) {
+        console.error("INIT error:", e);
       }
     }
     loadInitialChats();
   }, []);
 
-
-  // ================= LONGPOLL =================
+  // ====================================
+  // FRONT LONGPOLL
+  // ====================================
   useEffect(() => {
     let mounted = true;
 
     async function poll() {
       while (mounted) {
         try {
-          console.log("Как узнало что пришло сообщение? Не выажно делаем запрос на его получение?? Да!");
           const res = await fetch(`${API}/updates`);
-          console.log(res);
 
-          if (res.status < 200 || res.status >= 300) {
-            throw { response: { status: res.status } };
-          }
+          if (!res.ok) throw { response: { status: res.status } };
 
-          // УСПЕХ: зелёный
           setStatus("green");
           setErrorCount(0);
           setLastErrorType(null);
 
           const json = await res.json();
 
-          if (json.updates && json.updates.length > 0) {
+          if (json.updates?.length > 0) {
             json.updates.forEach((u) => {
               setChats((prev) => {
                 let existing = prev.find((x) => x.username === u.username);
+
                 const newMsg = {
                   text: u.text,
                   mediaType: u.mediaType,
                   mediaUrl: u.mediaUrl,
-                  sender: "them",
+                  sender: u.sender,        // <<< ВАЖНО
                   timestamp: u.timestamp
                 };
 
@@ -79,10 +79,10 @@ export default function TelegramBot() {
                   ];
                 }
 
-                return prev.map((chat) =>
-                  chat.username === u.username
-                    ? { ...chat, messages: [...chat.messages, newMsg] }
-                    : chat
+                return prev.map((c) =>
+                  c.username === u.username
+                    ? { ...c, messages: [...c.messages, newMsg] }
+                    : c
                 );
               });
 
@@ -91,28 +91,21 @@ export default function TelegramBot() {
             });
           }
         } catch (err) {
-          console.error("LongPoll error:", err);
           const type = detectErrorType(err);
 
-          setErrorCount(prev => {
+          setErrorCount((prev) => {
             const next = prev + 1;
 
-            if (next === 1) {
-              // первая ошибка подряд → жёлтый
-              setStatus("yellow");
-            } else if (next >= 2 && next <= 10) {
-              // от 2 до 10 подряд → красный
-              setStatus("red");
-            } else {
-              // более 10 подряд → серый
-              setStatus("gray");
-            }
+            if (next === 1) setStatus("yellow");
+            else if (next <= 10) setStatus("red");
+            else setStatus("gray");
 
             return next;
           });
 
           setLastErrorType(type);
         }
+
         await new Promise((r) => setTimeout(r, 10));
       }
     }
@@ -121,22 +114,9 @@ export default function TelegramBot() {
     return () => (mounted = false);
   }, []);
 
-
-  // ================= STATUS =================
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     if (!lastUpdate) return setStatus("red");
-  //
-  //     const diff = Date.now() - lastUpdate;
-  //     if (diff < 1500) setStatus("green");
-  //     else if (diff < 5000) setStatus("yellow");
-  //     else setStatus("red");
-  //   }, 700);
-  //   return () => clearInterval(interval);
-  // }, [lastUpdate]);
-
-
-  // ================= SEND MESSAGE =================
+  // ====================================
+  // SEND MESSAGE
+  // ====================================
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!currentChat || !messageInput.trim()) return;
@@ -144,7 +124,9 @@ export default function TelegramBot() {
     const msg = {
       sender: "me",
       text: messageInput,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      mediaType: "text",
+      mediaUrl: null
     };
 
     setChats((prev) =>
@@ -155,6 +137,8 @@ export default function TelegramBot() {
       )
     );
 
+    scrollToBottom();
+
     try {
       await fetch(`${API}/send`, {
         method: "POST",
@@ -164,129 +148,120 @@ export default function TelegramBot() {
           text: messageInput
         })
       });
-    } catch (err) {
-      console.error("Send error:", err);
+    } catch (e) {
+      console.error("Send error:", e);
     }
 
     setMessageInput("");
-    scrollToBottom();
   };
 
-  // FORMAT TIME
+  const detectErrorType = (error) => {
+    if (error.name === "AbortError") return "timeout";
+    if (error.response?.status >= 500) return "5xx";
+    if (error.response?.status >= 400) return "4xx";
+    if (error.request) return "network";
+    return "other";
+  };
+
   const fmtTime = (t) => {
     const d = new Date(t);
     return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
-
-  function detectErrorType(error) {
-    // таймаут (axios / fetch с AbortController)
-    if (error.code === "ECONNABORTED" || error.name === "AbortError") {
-      return "timeout";
-    }
-
-    // есть HTTP-ответ
-    if (error.response && error.response.status) {
-      const status = error.response.status;
-
-      if (status >= 500) return "5xx";
-      if (status >= 400) return "4xx";
-      return String(status);
-    }
-
-    // запрос ушёл, но ответа нет (network error)
-    if (error.request) {
-      return "network";
-    }
-
-    // что-то странное
-    return "other";
-  }
-
-
-  // ================= RENDER MESSAGE =================
+  // ====================================
+  // RENDER MESSAGE
+  // ====================================
   const renderMessage = (m) => {
+    // Бот -> слева, Юзер -> справа
+    const isUser = m.sender === "me";
+
+
     return (
       <div
         style={{
-          ...styles.messageBubble,
-          alignSelf: m.sender === "me" ? "flex-end" : "flex-start",
-          background: m.sender === "me" ? "#D9FDD3" : "#FFFFFF",
+          display: "flex",
+          justifyContent: isUser ? "flex-end" : "flex-start",
+          width: "100%"
         }}
       >
-        {/* PHOTO */}
-        {m.mediaType === "photo" && (
-          <img
-            src={m.mediaUrl}
-            alt="img"
-            style={{ maxWidth: "240px", borderRadius: 10 }}
-          />
-        )}
+        <div
+          style={{
+            ...styles.messageBubble,
+            background: isUser ? "#D9FDD3" : "#FFFFFF",
+            borderBottomRightRadius: isUser ? 4 : 14,
+            borderBottomLeftRadius: isUser ? 14 : 4,
+            marginLeft: isUser ? 40 : 0,
+            marginRight: isUser ? 0 : 40
+          }}
+        >
+          {/* PHOTO */}
+          {m.mediaType === "photo" && (
+            <img
+              src={m.mediaUrl}
+              alt=""
+              style={{ width: "240px", borderRadius: 10 }}
+            />
+          )}
 
-        {/* DOCUMENT */}
-        {m.mediaType === "document" && (
-          <a
-            href={m.mediaUrl}
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: "#4C8BF5" }}
-          >
-            📄 Скачать файл
-          </a>
-        )}
+          {/* DOCUMENT */}
+          {m.mediaType === "document" && (
+            <a href={m.mediaUrl} target="_blank" rel="noreferrer">
+              📄 Скачать файл
+            </a>
+          )}
 
-        {/* STICKER */}
-        {m.mediaType === "sticker" && (
-          <img
-            src={m.mediaUrl}
-            alt="sticker"
-            style={{ width: 120, height: 120 }}
-          />
-        )}
+          {/* STICKER */}
+          {m.mediaType === "sticker" && (
+            <img
+              src={m.mediaUrl}
+              alt=""
+              style={{ width: 120, height: 120 }}
+            />
+          )}
 
-        {/* TEXT */}
-        {m.text && <div>{m.text}</div>}
+          {m.text && <div>{m.text}</div>}
 
-        <div style={styles.timeLabel}>{fmtTime(m.timestamp)}</div>
+          <div style={styles.timeLabel}>{fmtTime(m.timestamp)}</div>
+          <div style={styles.timeLabel}>{m.sender}</div>
+        </div>
       </div>
     );
   };
 
-
-  // UI render
   return (
     <div style={styles.app}>
-      {/* LEFT PANEL */}
+      {/* LEFT */}
       <div style={styles.leftPanel}>
         <div style={styles.leftHeader}>
-          <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#4C8BF5", display:"flex",justifyContent:"center",alignItems:"center", color:"white", fontSize:18 }}>B</div>
+          <div style={styles.avatar}>B</div>
+
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 600 }}>Telegram Bot</div>
-            <div style={{ fontSize: 13, color: "#666" }}>@bot</div>
+            <div style={{ fontWeight: 600, fontSize: 16 }}>Telegram Bot</div>
+            <div style={{ fontSize: 12, color: "#777" }}>@bot</div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div
               style={{
-                width: 10,
-                height: 10,
+                width: 12,
+                height: 12,
                 borderRadius: "50%",
                 background:
                   status === "green"
-                    ? "#4CAF50" // зелёный — последний запрос успешный
+                    ? "#4CAF50"
                     : status === "yellow"
-                      ? "#FBC02D" // жёлтый — первая ошибка
+                      ? "#FBC02D"
                       : status === "red"
-                        ? "#F44336" // красный — 2–10 ошибок подряд
-                        : "#9E9E9E", // серый — >10 ошибок подряд
+                        ? "#F44336"
+                        : "#888"
               }}
             />
-            <span style={{ fontSize: 10, opacity: 0.8 }}>
-    {errorCount === 0 ? "OK" : lastErrorType || "error"}
-  </span>
+            <div style={{ fontSize: 11, opacity: 0.7 }}>
+              {errorCount === 0 ? "OK" : lastErrorType}
+            </div>
           </div>
         </div>
 
-        {/* CHATS LIST */}
         <div style={styles.chatList}>
           {chats.map((c) => (
             <div
@@ -294,13 +269,17 @@ export default function TelegramBot() {
               onClick={() => setCurrentChat(c.username)}
               style={{
                 ...styles.chatItem,
-                background: currentChat === c.username ? "#E3EDF7" : "transparent"
+                background:
+                  currentChat === c.username ? "#E3EDF7" : "transparent"
               }}
             >
-              <div style={styles.chatAvatar}>{c.username[0]?.toUpperCase()}</div>
-              <div style={styles.chatMeta}>
-                <div style={styles.chatName}>@{c.username}</div>
-                <div style={styles.chatLastMessage}>
+              <div style={styles.chatAvatar}>
+                {c.username[0]?.toUpperCase()}
+              </div>
+
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 600 }}>@{c.username}</div>
+                <div style={{ color: "#777", fontSize: 12 }}>
                   {c.messages[c.messages.length - 1]?.text || ""}
                 </div>
               </div>
@@ -309,7 +288,7 @@ export default function TelegramBot() {
         </div>
       </div>
 
-      {/* RIGHT PANEL */}
+      {/* RIGHT */}
       <div style={styles.rightPanel}>
         {currentChat ? (
           <>
@@ -318,7 +297,9 @@ export default function TelegramBot() {
             <div style={styles.messageContainer}>
               {chats
                 .find((c) => c.username === currentChat)
-                ?.messages.map((m, i) => <div key={i}>{renderMessage(m)}</div>)}
+                ?.messages.map((m, i) => (
+                  <div key={i}>{renderMessage(m)}</div>
+                ))}
 
               <div ref={messagesEndRef} />
             </div>
@@ -351,22 +332,26 @@ const styles = {
   },
 
   leftPanel: {
-    width: 320,
-    borderRight: "1px solid #D6DEE5",
+    width: "20vw",
+    minWidth: "240px",
+    borderRight: "0.15vh solid #D6DEE5",
     display: "flex",
     flexDirection: "column",
     background: "#FFFFFF"
   },
+
   leftHeader: {
     display: "flex",
     alignItems: "center",
-    padding: "12px 14px",
-    borderBottom: "1px solid #D6DEE5",
-    gap: 10
+    padding: "1.2vh 1.4vw",
+    borderBottom: "0.15vh solid #D6DEE5",
+    gap: "1vw"
   },
   botAvatar: {
-    width: 40,
-    height: 40,
+    width: "3vw",
+    height: "3vw",
+    minWidth: "34px",
+    minHeight: "34px",
     borderRadius: "50%",
     background: "#4C8BF5",
     color: "#FFFFFF",
@@ -374,34 +359,35 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     fontWeight: 600,
-    fontSize: 18
+    fontSize: "clamp(12px, 1vw, 20px)"
   },
-  botMeta: {
-    flex: 1
-  },
+  botMeta: { flex: 1 },
   botName: {
     fontWeight: 600,
-    fontSize: 15
+    fontSize: "clamp(12px, 1vw, 18px)"
   },
   botUsername: {
-    fontSize: 13,
+    fontSize: "clamp(10px, 0.8vw, 16px)",
     color: "#7A8B9A"
   },
   statusDot: {
-    width: 10,
-    height: 10,
+    width: "0.9vw",
+    height: "0.9vw",
+    minWidth: "10px",
+    minHeight: "10px",
     borderRadius: "50%"
   },
 
   searchWrap: {
-    padding: "10px 16px"
+    padding: "1.2vh 1.4vw"
   },
   searchInput: {
     width: "100%",
-    padding: "10px",
-    borderRadius: 8,
-    border: "1px solid #D6DEE5",
-    background: "#F2F3F5"
+    padding: "1.2vh 1vw",
+    borderRadius: "1vh",
+    border: "0.15vh solid #D6DEE5",
+    background: "#F2F3F5",
+    fontSize: "clamp(12px, 0.9vw, 16px)"
   },
 
   chatList: {
@@ -410,33 +396,33 @@ const styles = {
   },
   chatItem: {
     display: "flex",
-    padding: "10px 16px",
+    padding: "1.2vh 1.4vw",
     cursor: "pointer",
-    borderBottom: "1px solid #F2F3F5"
+    borderBottom: "0.15vh solid #F2F3F5"
   },
   chatAvatar: {
-    width: 42,
-    height: 42,
+    width: "3.2vw",
+    height: "3.2vw",
+    minWidth: "40px",
+    minHeight: "40px",
     borderRadius: "50%",
     background: "#D0DAE3",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: 18,
+    fontSize: "clamp(14px, 1vw, 20px)",
     fontWeight: 600,
-    marginRight: 12
+    marginRight: "1vw"
   },
-  chatMeta: {
-    flex: 1
-  },
+  chatMeta: { flex: 1 },
   chatName: {
     fontWeight: 600,
-    fontSize: 15
+    fontSize: "clamp(12px, 1vw, 18px)"
   },
   chatLastMessage: {
     color: "#66788A",
-    fontSize: 13,
-    marginTop: 2
+    fontSize: "clamp(10px, 0.8vw, 16px)",
+    marginTop: "0.4vh"
   },
 
   rightPanel: {
@@ -445,55 +431,67 @@ const styles = {
     flexDirection: "column"
   },
   chatHeader: {
-    padding: "14px 16px",
+    padding: "1.6vh 1.6vw",
     fontWeight: 600,
-    fontSize: 18,
-    borderBottom: "1px solid #D6DEE5"
+    fontSize: "clamp(14px, 1.4vw, 22px)",
+    borderBottom: "0.15vh solid #D6DEE5"
   },
+
   messageContainer: {
     flex: 1,
     display: "flex",
     flexDirection: "column",
-    padding: 20,
+    padding: "2vh 2vw",
     overflowY: "auto",
-    gap: 10
+    gap: "1.2vh"
   },
   messageBubble: {
     maxWidth: "65%",
-    padding: "10px 14px",
-    borderRadius: 12,
-    fontSize: 15,
-    lineHeight: 1.4,
-    boxShadow: "0 1px 2px rgba(0,0,0,0.08)"
+    padding: "1vh 1vw",
+    borderRadius: "1.6vh",
+    fontSize: "clamp(12px, 1vw, 18px)",
+    lineHeight: 1.35,
+    boxShadow: "0 0.2vh 0.4vh rgba(0,0,0,0.08)",
+    borderTopLeftRadius: "1.4vh",
+    borderTopRightRadius: "1.4vh"
+  },
+
+  timeLabel: {
+    fontSize: "clamp(9px, 0.8vw, 14px)",
+    color: "#8A8A8A",
+    marginTop: "0.5vh",
+    textAlign: "right"
   },
 
   inputRow: {
     display: "flex",
-    padding: 12,
-    borderTop: "1px solid #D6DEE5",
+    padding: "1.6vh 1vw",
+    borderTop: "0.15vh solid #D6DEE5",
     background: "#FFFFFF",
-    gap: 8
+    gap: "0.8vw"
   },
   inputText: {
     flex: 1,
-    padding: "10px 14px",
-    borderRadius: 8,
-    border: "1px solid #D6DEE5",
-    fontSize: 15
+    padding: "1.2vh 1vw",
+    borderRadius: "1vh",
+    border: "0.15vh solid #D6DEE5",
+    fontSize: "clamp(12px, 1vw, 18px)"
   },
   sendButton: {
-    width: 52,
+    width: "4vw",
+    minWidth: "48px",
     background: "#4C8BF5",
     color: "white",
     border: "none",
-    borderRadius: 8,
-    fontSize: 18,
+    borderRadius: "1vh",
+    fontSize: "clamp(14px, 1.2vw, 20px)",
     cursor: "pointer"
   },
 
   emptyChat: {
     margin: "auto",
-    fontSize: 20,
+    fontSize: "clamp(16px, 1.4vw, 24px)",
     color: "#9AA5B1"
   }
 };
+
