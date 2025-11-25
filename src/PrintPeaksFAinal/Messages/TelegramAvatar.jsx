@@ -98,6 +98,7 @@ const TelegramAvatar = ({ link, size = 32, defaultSrc = '/default-avatar.png' })
         onError={e => {
           e.target.onerror = null;
           e.target.src = errorAvatarTelegram;
+          // e.target.alt = username[0]?.toUpperCase();
         }}
       />
     </a>

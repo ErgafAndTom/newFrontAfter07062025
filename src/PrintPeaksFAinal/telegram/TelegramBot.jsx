@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import TelegramAvatar from "../Messages/TelegramAvatar";
 
 // backend proxied через package.json: "proxy": "http://localhost:5555"
 const API = "/api/telegram";
@@ -22,6 +23,7 @@ export default function TelegramBot() {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
+
 
   // ====================================
   // INIT LOAD
@@ -174,6 +176,10 @@ export default function TelegramBot() {
   const renderMessage = (m) => {
     // Бот -> слева, Юзер -> справа
     const isUser = m.sender === "me";
+    console.log(m);
+
+    console.log(chats);
+    console.log(chats);
 
 
     return (
@@ -233,7 +239,9 @@ export default function TelegramBot() {
       {/* LEFT */}
       <div style={styles.leftPanel}>
         <div style={styles.leftHeader}>
-          <div style={styles.avatar}>B</div>
+          <div style={styles.avatar}>
+            <TelegramAvatar link={""} size={45} defaultSrc="" />
+          </div>
 
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 600, fontSize: 16 }}>Telegram Bot</div>
@@ -274,12 +282,14 @@ export default function TelegramBot() {
               }}
             >
               <div style={styles.chatAvatar}>
-                {c.username[0]?.toUpperCase()}
+                {/*{c.username[0]?.toUpperCase()}*/}
+                <TelegramAvatar link={c.username} size={45} defaultSrc="" />
               </div>
 
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600 }}>@{c.username}</div>
-                <div style={{ color: "#777", fontSize: 12 }}>
+                <div style={{ fontWeight: 600, height: "1.3vh", fontSize: "1.3vh" }}>{c.firstName}</div>
+                <div style={{ fontWeight: 600, fontSize: "0.7vh" }}>@{c.username}</div>
+                <div style={{ color: "#777", fontSize: "1vh" }}>
                   {c.messages[c.messages.length - 1]?.text || ""}
                 </div>
               </div>

@@ -499,6 +499,20 @@ const Nav = () => {
 
             </NavLink>
 
+            <NavLink to="/TG2" className="btn">
+              <span className="flip-front">TG AKK</span>
+              <span className="flip-back">
+          {/* database */}
+                <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+            <ellipse cx="12" cy="5" rx="7" ry="3" />
+            <path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5" />
+            <path d="M5 11c0 1.7 3.1 3 7 3s7-1.3 7-3" />
+          </svg>
+        </span>
+
+
+            </NavLink>
+
       {/*      <NavLink*/}
       {/*        to="/TG"*/}
       {/*        className="btn"*/}
