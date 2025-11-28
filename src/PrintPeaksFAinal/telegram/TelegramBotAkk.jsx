@@ -1,21 +1,28 @@
+// ===============================================================
+//   TelegramBotAkk — ПОЛНОСТЬЮ ИНТЕГРИРОВАННЫЙ КЛИЕНТ MTProto
+// ===============================================================
+
 import React, { useState, useEffect, useRef } from "react";
 import axios from "../../api/axiosInstance";
 
 import "./styles.css";
 import TelegramAvatar from "../Messages/TelegramAvatar";
 import Loader from "../../components/calc/Loader";
-import Laminator from "../poslugi/Laminator";
 
 const API = "/api/telegramAkk";
 
 export default function TelegramBotAkk() {
-  const [authState, setAuthState] = useState("loading"); // loading → phone → code → password → ready
+  // ===========================================================
+  // STATE
+  // ===========================================================
+  const [authState, setAuthState] = useState("loading"); // loading, phone, code, password, ready
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
+
   const [thisUser, setThisUser] = useState(null);
 
-  const [chats, setChats] = useState([]);
+  const [chats, setChats] = useState([]);            // [{ chatId, username, title, messages: [...] }]
   const [currentChatId, setCurrentChatId] = useState(null);
   const [messageInput, setMessageInput] = useState("");
 
@@ -29,24 +36,21 @@ export default function TelegramBotAkk() {
   const scrollToBottom = () =>
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
-  // ----------------------------------------------------------------------
-  // 1) ПРОВЕРКА СЕССИИ ПРИ ЗАГРУЗКЕ
-  // ----------------------------------------------------------------------
+  // ===========================================================
+  // 1) Проверка login при загрузке
+  // ===========================================================
   useEffect(() => {
     async function checkLogin() {
       try {
         const { data: j } = await axios.get(API + "/login/statusFull");
 
-
-        console.log(j);
-
         if (j.ready === true && j.state === "AUTHENTICATED") {
           setAuthState("ready");
-          setThisUser(j.me)
-          await loadInitial();
+          setThisUser(j.me);
           return;
         }
 
+        // клиент инициализируется — пробуем снова
         if (
           j.state === "CLIENT_NOT_READY" ||
           j.state === "NO_CLIENT" ||
@@ -56,21 +60,9 @@ export default function TelegramBotAkk() {
           return;
         }
 
-        if (
-          j.state === "NOT_AUTHENTICATED" ||
-          j.state === "UNKNOWN_AUTH_ERROR"
-        ) {
-          setAuthState("phone");
-          return;
-        }
-
-        if (j.state === "NO_DB_SESSION" || j.state === "DB_SESSION_EMPTY") {
-          setAuthState("phone");
-          return;
-        }
-
+        // авторизации нет
         setAuthState("phone");
-      } catch (e) {
+      } catch (err) {
         setAuthState("phone");
       }
     }
@@ -78,19 +70,9 @@ export default function TelegramBotAkk() {
     checkLogin();
   }, []);
 
-  // ----------------------------------------------------------------------
-  // 2) Отправка телефона
-  // ----------------------------------------------------------------------
-  const sendPhone = async () => {
-    const { data: j } = await axios.post(API + "/login/sendCode", { phone });
-
-    if (j.ok) setAuthState("code");
-    else alert(j.error);
-  };
-
-  // ----------------------------------------------------------------------
-  // 3) Поллинг логов
-  // ----------------------------------------------------------------------
+  // ===========================================================
+  // 2) Поллинг логов (до авторизации)
+  // ===========================================================
   useEffect(() => {
     if (authState === "ready") return;
 
@@ -100,8 +82,9 @@ export default function TelegramBotAkk() {
       while (mounted) {
         try {
           const { data: j } = await axios.get(API + "/login/status");
-          if (j.logs) setConnectionLogs(j.logs.slice(-200));
+          if (j?.logs) setConnectionLogs(j.logs.slice(-200));
         } catch (e) {}
+
         await new Promise((r) => setTimeout(r, 300));
       }
     }
@@ -110,60 +93,116 @@ export default function TelegramBotAkk() {
     return () => (mounted = false);
   }, [authState]);
 
+  const openChat = async (id) => {
+    setCurrentChatId(id);
+
+    // Загружаем историю
+    const { data: j } = await axios.get(API + "/history", {
+      params: { chatId: id, offsetId: 0, limit: 50 }
+    });
+
+    if (j.ok) {
+      setChats((prev) =>
+        prev.map((c) =>
+          c.chatId === id
+            ? {
+              ...c,
+              messages: j.messages  // ВСЕ сообщения из базы/Telegram
+            }
+            : c
+        )
+      );
+    }
+
+    scrollToBottom();
+  };
+
+  // ===========================================================
+  // 3) Загрузка диалогов (БД → init)
+  // ===========================================================
   useEffect(() => {
-    if (authState === "ready") return;
+    if (authState !== "ready") return;
 
-    loadInitial();
-  }, [authState, thisUser]);
+    async function load() {
+      try {
+        const { data: json } = await axios.get(API + "/init");
 
-  // ----------------------------------------------------------------------
-  // 4) Отправка кода
-  // ----------------------------------------------------------------------
-  const sendCodeVerify = async () => {
-    const { data: j } = await axios.post(API + "/login/enterCode", { code });
+        if (json?.chats) {
+          const normalized = json.chats.map((c) => ({
+            chatId: c.chatId,
+            username: c.username,
+            title: c.title,
+            messages: c.messages || [],
 
-    if (j.ok) {
-      setAuthState("ready");
-      loadInitial();
-    } else if (j.error === "PASSWORD_NEEDED") {
-      setAuthState("password");
-    } else alert(j.error);
-  };
+            // lastMessage пришёл из базы
+            lastMessage: c.lastMessage || null
+          }));
 
-  // ----------------------------------------------------------------------
-  // 5) Отправка пароля 2FA
-  // ----------------------------------------------------------------------
-  const sendPassword = async () => {
-    const { data: j } = await axios.post(API + "/login/password", { password });
+          setChats(normalized);
+        }
+      } catch (err) {
+        console.log("loadInitial error:", err);
+      }
+    }
 
-    if (j.ok) {
-      setAuthState("ready");
-      setThisUser(j.user)
-      loadInitial();
-    } else alert(j.error);
-  };
+    load();
+  }, [authState]);
 
-  // ----------------------------------------------------------------------
-  // 6) Первичная загрузка чатов
-  // ----------------------------------------------------------------------
-  const loadInitial = async () => {
-    console.log("loadInitial start");
-    const { data: json } = await axios.get(API + "/init");
 
-    console.log(json);
+  const onHistoryScroll = async (e) => {
+    if (e.target.scrollTop > 50) return; // догружаем только наверху
 
-    if (json?.chats) {
-      const normalized = json.chats.map((c) => ({
-        ...c,
-        messages: c.messages || []
-      }));
-      setChats(normalized);
+    const chat = chats.find((c) => c.chatId === currentChatId);
+    if (!chat || chat.messages.length === 0) return;
+
+    const oldestMessage = chat.messages[0];
+    const offsetId = oldestMessage.messageId;
+
+    const { data: j } = await axios.get(API + "/history", {
+      params: { chatId: currentChatId, offsetId, limit: 50 }
+    });
+
+    if (j.ok && j.messages.length > 0) {
+      setChats((prev) =>
+        prev.map((c) =>
+          c.chatId === currentChatId
+            ? {
+              ...c,
+              messages: [...j.messages, ...c.messages]
+            }
+            : c
+        )
+      );
     }
   };
 
-  // ----------------------------------------------------------------------
-  // 7) ЛОНГПОЛЛ ОБНОВЛЕНИЙ
-  // ----------------------------------------------------------------------
+  // ===========================================================
+  // 4) login flows
+  // ===========================================================
+  const sendPhone = async () => {
+    const { data: j } = await axios.post(API + "/login/sendCode", { phone });
+    if (j.ok) setAuthState("code");
+    else alert(j.error);
+  };
+
+  const sendCodeVerify = async () => {
+    const { data: j } = await axios.post(API + "/login/enterCode", { code });
+    if (j.ok) setAuthState("ready");
+    else if (j.error === "PASSWORD_NEEDED") setAuthState("password");
+    else alert(j.error);
+  };
+
+  const sendPassword = async () => {
+    const { data: j } = await axios.post(API + "/login/password", { password });
+    if (j.ok) {
+      setAuthState("ready");
+      setThisUser(j.user);
+    } else alert(j.error);
+  };
+
+  // ===========================================================
+  // 5) Long-poll /updates  → ВСЕГДА данные уже в БД
+  // ===========================================================
   useEffect(() => {
     if (authState !== "ready") return;
 
@@ -173,13 +212,15 @@ export default function TelegramBotAkk() {
       while (mounted) {
         try {
           const res = await axios.get(API + "/updates");
+          const json = res.data;
 
           setStatus("green");
           setErrorCount(0);
           setLastErrorType(null);
 
-          const json = res.data;
-
+          // --------------------------------------------
+          //  добавляем обновления в UI (данные уже в БД!)
+          // --------------------------------------------
           if (json?.updates?.length > 0) {
             json.updates.forEach((u) => {
               const newMsg = {
@@ -197,16 +238,22 @@ export default function TelegramBotAkk() {
                   return [
                     ...prev,
                     {
-                      username: u.username,
                       chatId: u.chatId,
-                      messages: [newMsg]
+                      username: u.username || "",
+                      title: u.username || "",
+                      messages: [newMsg],
+                      lastMessage: newMsg
                     }
                   ];
                 }
 
                 return prev.map((c) =>
                   c.chatId === u.chatId
-                    ? { ...c, messages: [...(c.messages || []), newMsg] }
+                    ? {
+                      ...c,
+                      messages: [...(c.messages || []), newMsg],
+                      lastMessage: newMsg
+                    }
                     : c
                 );
               });
@@ -230,7 +277,7 @@ export default function TelegramBotAkk() {
           setLastErrorType(type);
         }
 
-        await new Promise((r) => setTimeout(r, 10));
+        await new Promise((r) => setTimeout(r, 30));
       }
     }
 
@@ -248,13 +295,15 @@ export default function TelegramBotAkk() {
   const fmtTime = (t) =>
     new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-  // ----------------------------------------------------------------------
-  // 8) ОТПРАВКА СООБЩЕНИЯ
-  // ----------------------------------------------------------------------
+  // ===========================================================
+  // 6) Отправка сообщения
+  // ===========================================================
   const sendMessage = async (e) => {
     e.preventDefault();
+
     if (!currentChatId || !messageInput.trim()) return;
 
+    // локально сразу рисуем (UI responsive)
     const msg = {
       sender: "me",
       text: messageInput,
@@ -266,7 +315,7 @@ export default function TelegramBotAkk() {
     setChats((prev) =>
       prev.map((c) =>
         c.chatId === currentChatId
-          ? { ...c, messages: [...(c.messages || []), msg] }
+          ? { ...c, messages: [...(c.messages || []), msg], lastMessage: msg }
           : c
       )
     );
@@ -281,9 +330,9 @@ export default function TelegramBotAkk() {
     setMessageInput("");
   };
 
-  // ----------------------------------------------------------------------
-  // 9) РЕНДЕР МЕССЕДЖА
-  // ----------------------------------------------------------------------
+  // ===========================================================
+  // 7) рендер сообщений
+  // ===========================================================
   const renderMessage = (m) => {
     const isUser = m.sender === "me";
 
@@ -305,22 +354,7 @@ export default function TelegramBotAkk() {
             marginRight: isUser ? 0 : 40
           }}
         >
-          {m.mediaType === "photo" && (
-            <img src={m.mediaUrl} alt="" style={{ width: 240, borderRadius: 10 }} />
-          )}
-
-          {m.mediaType === "document" && (
-            <a href={m.mediaUrl} target="_blank" rel="noreferrer">
-              📄 Скачать файл
-            </a>
-          )}
-
-          {m.mediaType === "sticker" && (
-            <img src={m.mediaUrl} alt="" style={{ width: 120, height: 120 }} />
-          )}
-
           {m.text && <div>{m.text}</div>}
-
           <div className="telegramIntegration_timeLabel">
             {fmtTime(m.timestamp)}
           </div>
@@ -329,28 +363,22 @@ export default function TelegramBotAkk() {
     );
   };
 
-  // ----------------------------------------------------------------------
-  //                           AUTH UI
-  // ----------------------------------------------------------------------
-  if (authState === "loading") {
-    return (
-      <div className="telegramIntegration_app d-flex flex-column">
-        <div className="telegramIntegration_emptyChat" style={{ margin: "0" }}>
-          <h1 className="d-flex justify-content-center align-items-center">
-            <Loader/>
-          </h1>
-          <div className="telegramIntegration_connectLog" style={{ margin: "0", height: "100%" }}>
-            {connectionLogs?.join("\n")}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  // ===========================================================
+  //            AUTH UI
+  // ===========================================================
   if (authState !== "ready") {
     return (
       <div className="telegramIntegration_app">
         <div className="telegramIntegration_emptyChat">
+          {authState === "loading" && (
+            <>
+              <Loader />
+              <div className="telegramIntegration_connectLog">
+                {connectionLogs.join("\n")}
+              </div>
+            </>
+          )}
+
           {authState === "phone" && (
             <>
               <h3>Вход по номеру</h3>
@@ -360,27 +388,12 @@ export default function TelegramBotAkk() {
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+380…"
               />
-              <div className="d-flex align-content-between justify-content-between">
-                <div
-                  className="btn adminButtonAdd"
-                  onClick={() => setPhone("+380937370071")}
-                >
-                  >+380937370071
-                </div>
-                <div
-                  className="btn adminButtonAdd"
-                  onClick={() => setPhone("+380975629025")}
-                >
-                  >+380975629025
-                </div>
-                <div className="btn adminButtonAdd" onClick={sendPhone}>
-                  Отправить phone
-                </div>
+              <div className="btn adminButtonAdd" onClick={sendPhone}>
+                Отправить phone
               </div>
-
-              <div className="telegramIntegration_connectLog">
-                {connectionLogs?.join("\n")}
-              </div>
+              <pre className="telegramIntegration_connectLog">
+                {connectionLogs.join("\n")}
+              </pre>
             </>
           )}
 
@@ -395,10 +408,9 @@ export default function TelegramBotAkk() {
               <div className="btn adminButtonAdd" onClick={sendCodeVerify}>
                 Войти
               </div>
-
-              <div className="telegramIntegration_connectLog">
-                {connectionLogs?.join("\n")}
-              </div>
+              <pre className="telegramIntegration_connectLog">
+                {connectionLogs.join("\n")}
+              </pre>
             </>
           )}
 
@@ -411,12 +423,11 @@ export default function TelegramBotAkk() {
                 onChange={(e) => setPassword(e.target.value)}
               />
               <div className="btn adminButtonAdd" onClick={sendPassword}>
-                Отправить пароль
+                Отправить
               </div>
-
-              <div className="telegramIntegration_connectLog">
-                {connectionLogs?.join("\n")}
-              </div>
+              <pre className="telegramIntegration_connectLog">
+                {connectionLogs.join("\n")}
+              </pre>
             </>
           )}
         </div>
@@ -424,29 +435,30 @@ export default function TelegramBotAkk() {
     );
   }
 
-  // ----------------------------------------------------------------------
-  //                           MAIN UI
-  // ----------------------------------------------------------------------
+  // ===========================================================
+  //                    MAIN UI
+  // ===========================================================
+
   return (
     <div className="telegramIntegration_app">
-      {/* LEFT */}
+      {/* LEFT PANEL */}
       <div className="telegramIntegration_leftPanel">
+
         <div className="telegramIntegration_leftHeader">
           <div className="telegramIntegration_botAvatar">
-            {thisUser && thisUser.username &&
-              <TelegramAvatar link={thisUser.username} size={45} defaultSrc={thisUser.username[0]?.toUpperCase()} />
-            }
+            {thisUser && thisUser.username && (
+              <TelegramAvatar
+                link={thisUser.username}
+                size={45}
+                defaultSrc={thisUser.username[0]?.toUpperCase()}
+              />
+            )}
           </div>
 
           <div className="telegramIntegration_botMeta">
             <div className="telegramIntegration_botName">Telegram Account</div>
             <div className="telegramIntegration_botUsername">
-              {/*@me*/}
-              {thisUser && thisUser.username &&
-                <div>
-                  @{thisUser.username}
-                </div>
-              }
+              @{thisUser?.username}
             </div>
           </div>
 
@@ -464,9 +476,7 @@ export default function TelegramBotAkk() {
                         : "#888"
               }}
             />
-            <div style={{ fontSize: 11, opacity: 0.7 }}>
-              {errorCount === 0 ? "OK" : lastErrorType}
-            </div>
+            <div style={{ fontSize: 11 }}>{errorCount === 0 ? "OK" : lastErrorType}</div>
           </div>
         </div>
 
@@ -474,7 +484,8 @@ export default function TelegramBotAkk() {
           {chats.map((c) => (
             <div
               key={c.chatId}
-              onClick={() => setCurrentChatId(c.chatId)}
+              onClick={() => openChat(c.chatId)}
+              // onClick={() => setCurrentChatId(c.chatId)}
               className="telegramIntegration_chatItem"
               style={{
                 background: currentChatId === c.chatId ? "#E3EDF7" : "transparent"
@@ -485,9 +496,12 @@ export default function TelegramBotAkk() {
               </div>
 
               <div className="telegramIntegration_chatMeta">
-                <div className="telegramIntegration_chatName">{c.username}</div>
+                <div className="telegramIntegration_chatName">
+                  {c.username || c.title}
+                </div>
+
                 <div className="telegramIntegration_chatLastMessage UsersOrdersLikeTable-contract-text">
-                  {c.messages?.[c.messages?.length - 1]?.text || ""}
+                  {c.lastMessage?.text || ""}
                 </div>
               </div>
             </div>
@@ -495,7 +509,7 @@ export default function TelegramBotAkk() {
         </div>
       </div>
 
-      {/* RIGHT */}
+      {/* RIGHT PANEL */}
       <div className="telegramIntegration_rightPanel">
         {currentChatId ? (
           <>
@@ -504,6 +518,7 @@ export default function TelegramBotAkk() {
             </div>
 
             <div className="telegramIntegration_messageContainer">
+              onScroll={onHistoryScroll}
               {chats
                 .find((c) => c.chatId === currentChatId)
                 ?.messages?.map((m, i) => <div key={i}>{renderMessage(m)}</div>)}
