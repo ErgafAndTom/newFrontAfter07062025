@@ -165,6 +165,61 @@ export default function TelegramBotAkk() {
     setChats(normalized);
   };
 
+
+  const handleOpenChat = async (chatId) => {
+    setCurrentChatId(chatId);
+
+    // очищаем messages, чтобы не мигало
+    setChats((prev) =>
+      prev.map((c) =>
+        c.chatId === chatId ? { ...c, messages: [] } : c
+      )
+    );
+
+    await loadChatHistory(chatId);
+  };
+
+
+  const loadChatHistory = async (chatId) => {
+    try {
+      let dataToSend = {
+        chatId: chatId,
+      }
+      const { data: j } = await axios.post(
+        API + `/history`, dataToSend
+      );
+      console.log(j);
+
+      if (!j.ok) return;
+      const historyMsgs = (j.messages || []).map((m) => ({
+        text: m.message ?? "",
+        timestamp: (m.date ?? 0) * 1000,
+        sender:
+          m.out === true
+            ? "me"
+            : "them",
+        mediaType: "text",
+        mediaUrl: null
+      }));
+
+      // Вставляем историю в state
+      setChats((prev) =>
+        prev.map((c) =>
+          c.chatId === chatId
+            ? {
+              ...c,
+              messages: [...historyMsgs]
+            }
+            : c
+        )
+      );
+
+      scrollToBottom();
+    } catch (err) {
+      console.log("loadChatHistory error:", err);
+    }
+  };
+
   // =====================================================================
   // LONG POLLING UPDATES
   // =====================================================================
@@ -311,10 +366,11 @@ export default function TelegramBotAkk() {
             borderBottomRightRadius: isUser ? 4 : 14,
             borderBottomLeftRadius: isUser ? 14 : 4,
             marginLeft: isUser ? 40 : 0,
-            marginRight: isUser ? 0 : 40
+            marginRight: isUser ? 0 : 40,
+            // width: "9vw", maxWidth: "9vw"
           }}
         >
-          {m.text && <div>{m.text}</div>}
+          {m.text && <div className="UsersOrdersLikeTable-contract-text">{m.text}</div>}
           <div className="telegramIntegration_timeLabel">
             {fmtTime(m.timestamp)}
           </div>
@@ -446,9 +502,9 @@ export default function TelegramBotAkk() {
             <div className="telegramIntegration_botUsername">
               {thisUser?.username ? "@" + thisUser.username : ""}
             </div>
-            <div className="adminButtonAdd" onClick={() => loadInitial()}>
-              loadInitial()
-            </div>
+            {/*<div className="adminButtonAdd" onClick={() => loadInitial()}>*/}
+            {/*  loadInitial()*/}
+            {/*</div>*/}
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -471,16 +527,17 @@ export default function TelegramBotAkk() {
           </div>
         </div>
 
-        <div className="telegramIntegration_connectLog">
-          {connectionLogs?.join("\n")}
-        </div>
+        {/*<div className="telegramIntegration_connectLog">*/}
+        {/*  {connectionLogs?.join("\n")}*/}
+        {/*</div>*/}
 
         {/* CHAT LIST */}
         <div className="telegramIntegration_chatList">
           {chats.map((c) => (
             <div
               key={c.chatId}
-              onClick={() => setCurrentChatId(c.chatId)}
+              // onClick={() => setCurrentChatId(c.chatId)}
+              onClick={() => handleOpenChat(c.chatId)}
               className="telegramIntegration_chatItem"
               style={{
                 background:
@@ -502,10 +559,18 @@ export default function TelegramBotAkk() {
 
                 <div
                   className="telegramIntegration_chatLastMessage UsersOrdersLikeTable-contract-text"
+                  style={{
+                    width: "13vw"
+                  }}
                 >
                   {c.messages?.[c.messages.length - 1]?.text ??
                     c.lastMessage?.text ??
                     ""}
+                </div>
+
+                <div className="telegramIntegration_timeLabel">
+                  {new Date(c.lastMessage.date).toLocaleString()}
+                  {/*{fmtTime(c.lastMessage.date)}*/}
                 </div>
               </div>
             </div>
