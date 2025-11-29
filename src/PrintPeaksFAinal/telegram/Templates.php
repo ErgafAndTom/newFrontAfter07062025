@@ -1,0 +1,21 @@
+<MessageWrapper m={m}>
+    <ForwardHeader m={m}/>
+    <ReplyPreview m={m}/>
+    <SenderName m={m}/>
+    <MessageText m={m}/>
+    <MediaPhoto m={m}/>
+    <MediaVideo m={m}/>
+    <MediaVoice m={m}/>
+    <MediaVideoNote m={m}/>
+    <MediaDocument m={m}/>
+    <MediaSticker m={m}/>
+    <MediaGIF m={m}/>
+    <MediaPoll m={m}/>
+    <MediaLocation m={m}/>
+    <MediaContact m={m}/>
+    <MediaAlbum m={m}/>
+    <WebPagePreview m={m}/>
+    <ReactionBar m={m}/>
+    <EditedLabel m={m}/>
+    <TimeLabel m={m}/>
+</MessageWrapper>

@@ -61,6 +61,7 @@ import ContentTest from "../../PrintPeaksFAinal/telegram/ContentTest";
 
 import TelegramBot from "../../PrintPeaksFAinal/telegram/TelegramBot";
 import TelegramBotAkk from "../../PrintPeaksFAinal/telegram/TelegramBotAkk";
+import TelegramBotAkkAndMedias from "../../PrintPeaksFAinal/telegram/TelegramBotAkkAndMedias";
 
 
 
@@ -108,7 +109,8 @@ const AfterNav = () => {
                 {/*<Route path="/TG" element={<TelegramBot />} />*/}
                 {/*<Route path="/TG" element={<MockTelegramChat />} />*/}
                 <Route path="/TG" element={<TelegramBot />} />
-                <Route path="/TG2" element={<TelegramBotAkk />} />
+                {/*<Route path="/TG2" element={<TelegramBotAkk />} />*/}
+                <Route path="/TG2" element={<TelegramBotAkkAndMedias />} />
                 <Route path="/db3" element={<TableManager />} />
                 <Route path="/dbGraph" element={<Graph3D_with_comments />} />
                 <Route path="/dbGraph2" element={<Graph2DForBD />} />
