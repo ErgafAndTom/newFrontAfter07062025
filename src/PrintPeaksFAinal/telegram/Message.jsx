@@ -90,8 +90,8 @@ export default function Message({ msg }) {
         {renderMedia(msg)}
 
         {/* REACTIONS */}
-        {msg.raw?.reactions && (
-          <ReactionBar reactions={msg.raw.reactions} />
+        {msg.raw?.rawJson?.reactions && (
+          <ReactionBar reactions={msg.raw.rawJson.reactions} />
         )}
 
         {/* TIME + EDITED */}
@@ -113,41 +113,41 @@ export default function Message({ msg }) {
           <TimeLabel time={msg.timestamp} />
         </div>
 
-        {msg.raw && (
-          <>
-            {msg.raw.rawJson && (
-              <>
-                {msg.raw.rawJson.reactions && (
-                  <div className="UsersOrdersLikeTable-contract-text" style={{ display: "flex", gap: "4px" }}>
-                    {msg.raw.rawJson.reactions.results?.map((r, idx) => {
-                      const emoji = r.reaction?.emoticon;
-                      const count = r.count;
+        {/*{msg.raw && (*/}
+        {/*  <>*/}
+        {/*    {msg.raw.rawJson && (*/}
+        {/*      <>*/}
+        {/*        {msg.raw.rawJson.reactions && (*/}
+        {/*          <div className="UsersOrdersLikeTable-contract-text" style={{ display: "flex", gap: "4px" }}>*/}
+        {/*            {msg.raw.rawJson.reactions.results?.map((r, idx) => {*/}
+        {/*              const emoji = r.reaction?.emoticon;*/}
+        {/*              const count = r.count;*/}
 
-                      if (!emoji || !count) return null;
+        {/*              if (!emoji || !count) return null;*/}
 
-                      return (
-                        <div
-                          key={idx}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "1px",
-                            background: "rgba(110,110,110,0.1)",
-                            padding: "2px 4px",
-                            borderRadius: "8px",
-                          }}
-                        >
-                          <span style={{ fontSize: "16px" }}>{emoji}</span>
-                          <span style={{ fontSize: "14px", opacity: 0.8 }}>{count}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </>
-            )}
-          </>
-        )}
+        {/*              return (*/}
+        {/*                <div*/}
+        {/*                  key={idx}*/}
+        {/*                  style={{*/}
+        {/*                    display: "flex",*/}
+        {/*                    alignItems: "center",*/}
+        {/*                    gap: "1px",*/}
+        {/*                    background: "rgba(110,110,110,0.1)",*/}
+        {/*                    padding: "2px 4px",*/}
+        {/*                    borderRadius: "8px",*/}
+        {/*                  }}*/}
+        {/*                >*/}
+        {/*                  <span style={{ fontSize: "16px" }}>{emoji}</span>*/}
+        {/*                  <span style={{ fontSize: "14px", opacity: 0.8 }}>{count}</span>*/}
+        {/*                </div>*/}
+        {/*              );*/}
+        {/*            })}*/}
+        {/*          </div>*/}
+        {/*        )}*/}
+        {/*      </>*/}
+        {/*    )}*/}
+        {/*  </>*/}
+        {/*)}*/}
 
 
       </div>
