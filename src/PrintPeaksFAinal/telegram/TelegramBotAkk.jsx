@@ -182,27 +182,19 @@ export default function TelegramBotAkk() {
 
   const loadChatHistory = async (chatId) => {
     try {
-      let dataToSend = {
-        chatId: chatId,
-      }
-      const { data: j } = await axios.post(
-        API + `/history`, dataToSend
-      );
-      console.log(j);
+      const { data: j } = await axios.post(API + `/history`, { chatId });
 
       if (!j.ok) return;
+
       const historyMsgs = (j.messages || []).map((m) => ({
-        text: m.message ?? "",
-        timestamp: (m.date ?? 0) * 1000,
-        sender:
-          m.out === true
-            ? "me"
-            : "them",
-        mediaType: "text",
-        mediaUrl: null
+        text: m.text ?? "",
+        timestamp: m.timestamp ?? Date.now(),
+        sender: m.direction === "out" ? "me" : "them",
+        mediaType: m.mediaType ?? "text",
+        mediaUrl: m.mediaUrl ?? null,
+        messageId: m.messageId
       }));
 
-      // Вставляем историю в state
       setChats((prev) =>
         prev.map((c) =>
           c.chatId === chatId
@@ -219,6 +211,7 @@ export default function TelegramBotAkk() {
       console.log("loadChatHistory error:", err);
     }
   };
+
 
   // =====================================================================
   // LONG POLLING UPDATES
@@ -244,7 +237,8 @@ export default function TelegramBotAkk() {
                 mediaType: u.mediaType ?? "text",
                 mediaUrl: u.mediaUrl ?? null,
                 sender: u.sender ?? "them",
-                timestamp: u.timestamp ?? Date.now()
+                timestamp: u.timestamp ?? Date.now(),
+                messageId: u.messageId ?? Date.now()
               };
 
               setChats((prev) => {
