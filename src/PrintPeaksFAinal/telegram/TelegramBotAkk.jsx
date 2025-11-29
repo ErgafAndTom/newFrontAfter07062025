@@ -183,7 +183,8 @@ export default function TelegramBotAkk() {
   const loadChatHistory = async (chatId) => {
     try {
       const { data: j } = await axios.post(API + `/history`, { chatId });
-
+      console.log("loadChatHistory ");
+      console.log(j);
       if (!j.ok) return;
 
       const historyMsgs = (j.messages || []).map((m) => ({
@@ -216,76 +217,78 @@ export default function TelegramBotAkk() {
   // =====================================================================
   // LONG POLLING UPDATES
   // =====================================================================
-  useEffect(() => {
-    if (authState !== "ready") return;
-    let mounted = true;
-
-    async function poll() {
-      while (mounted) {
-        try {
-          const res = await axios.get(API + "/updates");
-          setStatus("green");
-          setErrorCount(0);
-          setLastErrorType(null);
-
-          const json = res.data;
-
-          if (json?.updates?.length > 0) {
-            json.updates.forEach((u) => {
-              const newMsg = {
-                text: u.text ?? "",
-                mediaType: u.mediaType ?? "text",
-                mediaUrl: u.mediaUrl ?? null,
-                sender: u.sender ?? "them",
-                timestamp: u.timestamp ?? Date.now(),
-                messageId: u.messageId ?? Date.now()
-              };
-
-              setChats((prev) => {
-                const exists = prev.find((c) => c.chatId === u.chatId);
-                if (!exists) {
-                  return [
-                    ...prev,
-                    {
-                      chatId: u.chatId,
-                      username: "",
-                      title: "",
-                      messages: [newMsg]
-                    }
-                  ];
-                }
-
-                return prev.map((c) =>
-                  c.chatId === u.chatId
-                    ? { ...c, messages: [...c.messages, newMsg] }
-                    : c
-                );
-              });
-
-              scrollToBottom();
-            });
-          }
-        } catch (err) {
-          const type = detectErrorType(err);
-
-          setErrorCount((prev) => {
-            const next = prev + 1;
-            if (next === 1) setStatus("yellow");
-            else if (next <= 10) setStatus("red");
-            else setStatus("gray");
-            return next;
-          });
-
-          setLastErrorType(type);
-        }
-
-        await new Promise((r) => setTimeout(r, 850));
-      }
-    }
-
-    poll();
-    return () => (mounted = false);
-  }, [authState]);
+  // useEffect(() => {
+  //   if (authState !== "ready") return;
+  //   let mounted = true;
+  //
+  //   async function poll() {
+  //     while (mounted) {
+  //       try {
+  //         const res = await axios.get(API + "/updates");
+  //         setStatus("green");
+  //         setErrorCount(0);
+  //         setLastErrorType(null);
+  //
+  //         const json = res.data;
+  //         console.log("/updates ");
+  //         console.log(json);
+  //
+  //         if (json?.updates?.length > 0) {
+  //           json.updates.forEach((u) => {
+  //             const newMsg = {
+  //               text: u.text ?? "",
+  //               mediaType: u.mediaType ?? "text",
+  //               mediaUrl: u.mediaUrl ?? null,
+  //               sender: u.sender ?? "them",
+  //               timestamp: u.timestamp ?? Date.now(),
+  //               messageId: u.messageId ?? Date.now()
+  //             };
+  //
+  //             setChats((prev) => {
+  //               const exists = prev.find((c) => c.chatId === u.chatId);
+  //               if (!exists) {
+  //                 return [
+  //                   ...prev,
+  //                   {
+  //                     chatId: u.chatId,
+  //                     username: "",
+  //                     title: "",
+  //                     messages: [newMsg]
+  //                   }
+  //                 ];
+  //               }
+  //
+  //               return prev.map((c) =>
+  //                 c.chatId === u.chatId
+  //                   ? { ...c, messages: [...c.messages, newMsg] }
+  //                   : c
+  //               );
+  //             });
+  //
+  //             scrollToBottom();
+  //           });
+  //         }
+  //       } catch (err) {
+  //         const type = detectErrorType(err);
+  //
+  //         setErrorCount((prev) => {
+  //           const next = prev + 1;
+  //           if (next === 1) setStatus("yellow");
+  //           else if (next <= 10) setStatus("red");
+  //           else setStatus("gray");
+  //           return next;
+  //         });
+  //
+  //         setLastErrorType(type);
+  //       }
+  //
+  //       await new Promise((r) => setTimeout(r, 850));
+  //     }
+  //   }
+  //
+  //   poll();
+  //   return () => (mounted = false);
+  // }, [authState]);
 
   const detectErrorType = (error) => {
     if (error?.code === "ECONNABORTED") return "timeout";
