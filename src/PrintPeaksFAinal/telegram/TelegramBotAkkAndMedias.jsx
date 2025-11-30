@@ -16,6 +16,7 @@ import { preloadMediaForMessages } from "./mediaLoader";
 import TelegramAvatar from "../Messages/TelegramAvatar";
 
 import Loader from "../../components/calc/Loader";
+import {normalizeTelegramMessage} from "./dop/tgNormalizeMessage";
 
 const API = "/api/telegramAkk";
 
@@ -201,7 +202,8 @@ export default function TelegramBotAkkAndMedias() {
       if (!j.ok) return;
 
       // PARSE ALL RAW MESSAGES
-      let parsed = j.messages.map((m) => parseMessage(m));
+      // let parsed = j.messages.map((m) => parseMessage(m));
+      let parsed = j.messages.map((m) => normalizeTelegramMessage(m.rawJson));
 
       // LOAD ALL MEDIA (MTProto file-loader)
       parsed = await preloadMediaForMessages(parsed);
@@ -298,42 +300,42 @@ export default function TelegramBotAkkAndMedias() {
   /**
    * Основная функция — обрабатывает массив сообщений
    */
-  async function preloadMediaForMessages(messages) {
-    const result = [];
-
-    for (const msg of messages) {
-      // если это текстовое сообщение — просто пропускаем
-      if (!msg.raw) {
-        result.push(msg);
-        continue;
-      }
-
-      const m = msg.raw;
-
-      const fileInfo = extractFileInfo(m);
-
-      if (!fileInfo) {
-        result.push(msg);
-        continue;
-      }
-
-      const url = await loadFileFromServer(fileInfo);
-
-      result.push({
-        ...msg,
-        mediaUrl: url,
-        mediaType: fileInfo.type === "photo"
-          ? "photo"
-          : (fileInfo.mimeType?.includes("video") ? "video"
-            : fileInfo.mimeType?.includes("audio") ? "audio"
-              : fileInfo.mimeType?.includes("gif") ? "gif"
-                : fileInfo.mimeType?.includes("webp") ? "sticker"
-                  : "file")
-      });
-    }
-
-    return result;
-  }
+  // async function preloadMediaForMessages(messages) {
+  //   const result = [];
+  //
+  //   for (const msg of messages) {
+  //     // если это текстовое сообщение — просто пропускаем
+  //     if (!msg.raw) {
+  //       result.push(msg);
+  //       continue;
+  //     }
+  //
+  //     const m = msg.raw;
+  //
+  //     const fileInfo = extractFileInfo(m);
+  //
+  //     if (!fileInfo) {
+  //       result.push(msg);
+  //       continue;
+  //     }
+  //
+  //     const url = await loadFileFromServer(fileInfo);
+  //
+  //     result.push({
+  //       ...msg,
+  //       mediaUrl: url,
+  //       mediaType: fileInfo.type === "photo"
+  //         ? "photo"
+  //         : (fileInfo.mimeType?.includes("video") ? "video"
+  //           : fileInfo.mimeType?.includes("audio") ? "audio"
+  //             : fileInfo.mimeType?.includes("gif") ? "gif"
+  //               : fileInfo.mimeType?.includes("webp") ? "sticker"
+  //                 : "file")
+  //     });
+  //   }
+  //
+  //   return result;
+  // }
 
   // =====================================================================
   // SEND MESSAGE

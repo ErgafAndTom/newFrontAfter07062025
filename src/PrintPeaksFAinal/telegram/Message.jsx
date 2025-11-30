@@ -26,6 +26,8 @@ import LocationMessage from "./dop/LocationMessage";
 import ContactMessage from "./dop/ContactMessage";
 import AlbumMessage from "./dop/AlbumMessage";
 
+import { preloadMediaForMessages } from "./mediaLoader";
+
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
@@ -112,42 +114,6 @@ export default function Message({ msg }) {
 
           <TimeLabel time={msg.timestamp} />
         </div>
-
-        {/*{msg.raw && (*/}
-        {/*  <>*/}
-        {/*    {msg.raw.rawJson && (*/}
-        {/*      <>*/}
-        {/*        {msg.raw.rawJson.reactions && (*/}
-        {/*          <div className="UsersOrdersLikeTable-contract-text" style={{ display: "flex", gap: "4px" }}>*/}
-        {/*            {msg.raw.rawJson.reactions.results?.map((r, idx) => {*/}
-        {/*              const emoji = r.reaction?.emoticon;*/}
-        {/*              const count = r.count;*/}
-
-        {/*              if (!emoji || !count) return null;*/}
-
-        {/*              return (*/}
-        {/*                <div*/}
-        {/*                  key={idx}*/}
-        {/*                  style={{*/}
-        {/*                    display: "flex",*/}
-        {/*                    alignItems: "center",*/}
-        {/*                    gap: "1px",*/}
-        {/*                    background: "rgba(110,110,110,0.1)",*/}
-        {/*                    padding: "2px 4px",*/}
-        {/*                    borderRadius: "8px",*/}
-        {/*                  }}*/}
-        {/*                >*/}
-        {/*                  <span style={{ fontSize: "16px" }}>{emoji}</span>*/}
-        {/*                  <span style={{ fontSize: "14px", opacity: 0.8 }}>{count}</span>*/}
-        {/*                </div>*/}
-        {/*              );*/}
-        {/*            })}*/}
-        {/*          </div>*/}
-        {/*        )}*/}
-        {/*      </>*/}
-        {/*    )}*/}
-        {/*  </>*/}
-        {/*)}*/}
 
 
       </div>
