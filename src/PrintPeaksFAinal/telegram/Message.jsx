@@ -111,8 +111,14 @@ export default function Message({ msg }) {
           {msg.edited && (
             <EditedLabel time={msg.edited} />
           )}
+          {!msg.edited && (
+            <>
+              {/*<EditedLabel time={msg.date}/>*/}
+              <TimeLabel time={msg.date} />
+            </>
+          )}
 
-          <TimeLabel time={msg.timestamp} />
+
         </div>
 
 
@@ -128,6 +134,24 @@ export default function Message({ msg }) {
 // ============================================================================
 
 function renderMedia(msg) {
+  // ============================================================
+  // 1) Групповые медиа (альбомы)
+  // ============================================================
+  // Если msg.media — массив (несколько медиа в одном сообщении)
+  if (Array.isArray(msg.media) && msg.media.length > 1) {
+    return <AlbumMessage msg={msg} />;
+  }
+
+  // Если Telegram прислал альбом через groupedId,
+  // но parseMessage вернул массив медиа (твой парсер может это делать),
+  // то обрабатываем так же:
+  if (msg.groupedId && Array.isArray(msg.media)) {
+    return <AlbumMessage msg={msg} />;
+  }
+
+  // ============================================================
+  // 2) Один единственный медиа-объект
+  // ============================================================
   switch (msg.mediaType) {
     case "photo":
       return <PhotoMessage msg={msg} />;
@@ -166,3 +190,4 @@ function renderMedia(msg) {
       return null;
   }
 }
+
