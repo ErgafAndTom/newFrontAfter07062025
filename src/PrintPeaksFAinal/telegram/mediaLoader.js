@@ -35,6 +35,14 @@ export async function preloadMediaForMessages(messages) {
 }
 
 
+export async function preloadMediaForMessage(msg) {
+  const url = await loadMedia(msg);
+  msg.mediaUrl = url;
+
+  return msg;
+}
+
+
 
 // ==========================================================================
 // needsMediaLoad
@@ -77,8 +85,9 @@ async function loadMedia(msg) {
 
   try {
     // Выполняем запрос к backend MTProto loader
+    const API = "/api/telegramAkk";
     const response = await axios.post(
-      "/api/telegramAkk/file",
+      API + "/file",
       filePayload,
       {
         responseType: "arraybuffer"

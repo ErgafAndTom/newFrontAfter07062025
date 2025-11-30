@@ -26,7 +26,7 @@ import LocationMessage from "./dop/LocationMessage";
 import ContactMessage from "./dop/ContactMessage";
 import AlbumMessage from "./dop/AlbumMessage";
 
-import { preloadMediaForMessages } from "./mediaLoader";
+import { preloadMediaForMessages, preloadMediaForMessage } from "./mediaLoader";
 
 // ============================================================================
 // MAIN COMPONENT
@@ -36,6 +36,8 @@ export default function Message({ msg }) {
 
   console.log(msg);
   if (!msg) return null;
+
+  // msgAndMedia = await preloadMediaForMessage(msg);
 
   // SERVICE MESSAGES (join, left, title changed, photo changed...)
   if (msg.mediaType === "service") {
@@ -71,20 +73,20 @@ export default function Message({ msg }) {
       <div style={bubbleStyle}>
 
         {/* Forward */}
-        {msg.forward && (
-          <ForwardHeader forward={msg.forward} />
+        {msg.raw?.rawJson?.forward && (
+          <ForwardHeader forward={msg.raw?.rawJson?.forward} />
         )}
 
         {/* Reply */}
-        {msg.replyTo && (
-          <ReplyPreview reply={msg.replyTo} />
+        {msg.raw?.rawJson?.replyTo && (
+          <ReplyPreview reply={msg.raw?.rawJson?.replyTo} />
         )}
 
         {/* TEXT */}
-        {msg.text && msg.text.trim() !== "" && (
+        {msg.raw?.rawJson?.message && msg.raw?.rawJson?.message.trim() !== "" && (
           <EntitiesText
-            text={msg.text}
-            entities={msg.entities}
+            text={msg.raw?.rawJson?.message}
+            entities={msg.raw?.rawJson?.entities}
           />
         )}
 
@@ -108,13 +110,13 @@ export default function Message({ msg }) {
             fontSize: 11
           }}
         >
-          {msg.edited && (
-            <EditedLabel time={msg.edited} />
+          {msg.raw?.rawJson?.edited && (
+            <EditedLabel time={msg.raw?.rawJson?.edited} />
           )}
-          {!msg.edited && (
+          {!msg.raw?.rawJson?.edited && (
             <>
               {/*<EditedLabel time={msg.date}/>*/}
-              <TimeLabel time={msg.date} />
+              <TimeLabel time={msg.raw?.rawJson?.date} />
             </>
           )}
 
@@ -138,6 +140,7 @@ function renderMedia(msg) {
   // 1) Групповые медиа (альбомы)
   // ============================================================
   // Если msg.media — массив (несколько медиа в одном сообщении)
+  console.log(msg);
   if (Array.isArray(msg.media) && msg.media.length > 1) {
     return <AlbumMessage msg={msg} />;
   }
@@ -154,7 +157,7 @@ function renderMedia(msg) {
   // ============================================================
   switch (msg.mediaType) {
     case "photo":
-      return <PhotoMessage msg={msg} />;
+      return <PhotoMessage msg={msg.raw} />;
 
     case "video":
       return <VideoMessage msg={msg} />;

@@ -10,7 +10,7 @@ import Message from "./Message";
 import { parseMessage } from "./messageParser";
 
 // LOADER MEDiA (файл №3)
-import { preloadMediaForMessages } from "./mediaLoader";
+import { preloadMediaForMessages, preloadMediaForMessage } from "./mediaLoader";
 
 // Аватарка
 import TelegramAvatar from "../Messages/TelegramAvatar";
@@ -203,14 +203,14 @@ export default function TelegramBotAkkAndMedias() {
 
       // PARSE ALL RAW MESSAGES
       // let parsed = j.messages.map((m) => parseMessage(m));
-      let parsed = j.messages.map((m) => normalizeTelegramMessage(m.rawJson));
+      let parsed = j.messages.map((m) => normalizeTelegramMessage(m));
 
       // LOAD ALL MEDIA (MTProto file-loader)
-      parsed = await preloadMediaForMessages(parsed);
+      let parsedAndMedia = await preloadMediaForMessages(parsed);
 
       setChats((prev) =>
         prev.map((c) =>
-          c.chatId === chatId ? { ...c, messages: parsed } : c
+          c.chatId === chatId ? { ...c, messages: parsedAndMedia } : c
         )
       );
 
