@@ -36,6 +36,13 @@ export default function TelegramBotAkkAndMedias() {
   const [lastErrorType, setLastErrorType] = useState(null);
 
   const [connectionLogs, setConnectionLogs] = useState([]);
+  const [initProgress, setInitProgress] = useState({
+    stage: "idle",
+    percent: 0,
+    details: "",
+    current: 0,
+    total: 0
+  });
 
   const messagesEndRef = useRef(null);
 
@@ -105,11 +112,33 @@ export default function TelegramBotAkkAndMedias() {
           const { data: j } = await axios.get(API + "/login/status");
           if (j.logs) setConnectionLogs(j.logs.slice(-200));
         } catch {}
-        await new Promise((r) => setTimeout(r, 3000));
+        await new Promise((r) => setTimeout(r, 2000));
       }
     }
 
     pollLogs();
+
+    async function pollLogs2() {
+      while (mounted) {
+        try {
+          const { data: j2 } = await axios.get(API + "/login/statusInitProgress");
+          if (j2.initProgress) {
+            setInitProgress({
+              ...initProgress,
+              stage: j2.initProgress.stage || initProgress.stage,         // название текущего этапа
+              current: j2.initProgress.current || initProgress.current,            // сколько итераций выполнено
+              total: j2.initProgress.total || initProgress.total,              // всего итераций
+              percent: j2.initProgress.percent || initProgress.percent,            // %
+              details: j2.initProgress.details || initProgress.details
+            });
+          }
+
+        } catch {}
+        await new Promise((r) => setTimeout(r, 30));
+      }
+    }
+
+    pollLogs2();
     return () => (mounted = false);
   }, [authState]);
 
@@ -480,6 +509,8 @@ export default function TelegramBotAkkAndMedias() {
   // MAIN UI (AFTER AUTH)
   // =====================================================================
 
+
+
   return (
     <div className="telegramIntegration_app">
 
@@ -526,6 +557,28 @@ export default function TelegramBotAkkAndMedias() {
             </div>
           </div>
         </div>
+
+        {/* GLOBAL INIT PROGRESS BAR */}
+        {initProgress.stage !== "finished" && (
+          <div  style={{ padding: 10, background: "#fafafa", borderBottom: "1px solid #ddd" }}>
+            {/* BAR */}
+            <div style={{ background: "#e0e0e0", height: 8, borderRadius: 4, overflow: "hidden" }}>
+              <div
+                style={{
+                  width: `${initProgress.percent}%`,
+                  height: "100%",
+                  background: "#4A90E2",
+                  transition: "width 0.25s"
+                }}
+              ></div>
+            </div>
+
+            {/* TEXT */}
+            <div style={{ marginTop: 6, fontSize: 12 }}>
+              {initProgress.stage} — {initProgress.details} ({initProgress.percent}%)
+            </div>
+          </div>
+        )}
 
         {/* CHAT LIST */}
         <div className="telegramIntegration_chatList">
