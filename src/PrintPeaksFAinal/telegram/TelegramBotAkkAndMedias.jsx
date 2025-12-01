@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "../../api/axiosInstance";
+import {Megaphone, Users, User} from "lucide-react";
 
 import "./styles.css";
 
@@ -195,6 +196,7 @@ export default function TelegramBotAkkAndMedias() {
 
     if (Array.isArray(json.chats)) {
       normalized = json.chats.map((c) => ({
+        ...c,
         chatId: c.chatId ?? null,
         username: c.username ?? null,
         title: c.title ?? "",
@@ -602,7 +604,22 @@ export default function TelegramBotAkkAndMedias() {
 
               <div className="telegramIntegration_chatMeta">
                 <div className="telegramIntegration_chatName">
-                  {c.username || c.title || "Chat " + c.chatId}
+                  {c.rawJson?.isChannel && (
+                    <>
+                      <Megaphone size={16} className="me-1"/>
+                    </>
+                  )}
+                  {c.rawJson?.isGroup && (
+                    <>
+                      <Users size={16} className="me-1"/>
+                    </>
+                  )}
+                  {c.rawJson?.isUser && (
+                    <>
+                      <User size={16} className="me-1"/>
+                    </>
+                  )}
+                  {c.rawJson?.name || c.rawJson?.title || "Chat " + c.chatId}
                 </div>
 
                 <div

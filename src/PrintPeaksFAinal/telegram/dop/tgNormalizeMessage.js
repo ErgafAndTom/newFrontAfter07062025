@@ -20,6 +20,7 @@ export function normalizeTelegramMessage(raw) {
   if (!raw) return null;
 
   const base = {
+    ...raw,
     id: raw.id ?? raw.messageId ?? null,
     date: raw.date ? raw.date * 1000 : Date.now(),
     editDate: raw.editDate ? raw.editDate * 1000 : null,
