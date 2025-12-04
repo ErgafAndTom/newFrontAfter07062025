@@ -135,8 +135,8 @@ const AfterNav = () => {
                 <Route path="/Shifts" element={<Shifts/>} />
                 <Route path="/Shifts/:id" element={<CompanyTabl />} />
 
-                <Route path="/Cashs" element={<Cash/>} />
-                <Route path="/Cashs/:id" element={<CompanyTabl />} />
+                {/*<Route path="/Cashs" element={<Cash/>} />*/}
+                {/*<Route path="/Cashs/:id" element={<CompanyTabl />} />*/}
 
                 <Route path="/Orders" element={<CustomOrderTable2 />} />
                 {/*<Route path="/OrdersOld" element={<CustomOrderTable />} />*/}

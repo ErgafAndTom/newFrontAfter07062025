@@ -193,7 +193,7 @@ const Cash = () => {
   return (
     <div className="OrderList">
       <div className="OrderRow-summary OrderRow-header">
-        <div className="summary-cell client d-flex justify-content-center adminFont">ID</div>
+        <div className="summary-cell client d-flex justify-content-center adminFont">ID (cashRegister)</div>
         <div className="summary-cell client d-flex justify-content-center adminFont">address</div>
         <div className="summary-cell client justify-content-center adminFont">fiscal_number</div>
 

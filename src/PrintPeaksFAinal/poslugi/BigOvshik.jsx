@@ -306,34 +306,6 @@ const BigOvshik = ({
                 </div>
               </div>
 
-              {/*<div className={"d-flex flex-row align-items-center justify-content-start" } >*/}
-
-              {/*  <NewNoModalLamination*/}
-              {/*    lamination={lamination}*/}
-              {/*    setLamination={setLamination}*/}
-              {/*    prices={prices}*/}
-              {/*    size={size}*/}
-              {/*    type={"BigOvshik"}*/}
-
-              {/*    buttonsArr={["з глянцевим ламінуванням",*/}
-              {/*      "з матовим ламінуванням",*/}
-              {/*      "з ламінуванням Soft Touch",]}*/}
-              {/*    selectArr={["30", "80", "100", "125", "250"]}*/}
-              {/*  />*/}
-
-              {/*<LaminationSize*/}
-              {/*  size={size}*/}
-              {/*  setSize={setSize}*/}
-              {/*  prices={prices}*/}
-              {/*  type={"BigOvshik"}*/}
-              {/*  buttonsArr={["односторонній", "двосторонній",]}*/}
-              {/*  color={color}*/}
-              {/*  setColor={setColor}*/}
-              {/*  count={count}*/}
-              {/*  setCount={setCount}*/}
-              {/*  defaultt={"А3 (297 х 420 мм)"}*/}
-              {/*/>*/}
-              {/*</div>*/}
               <NewNoModalCornerRounding
                 big={big}
                 setBig={setBig}

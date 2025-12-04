@@ -9,6 +9,8 @@ import TelegramAvatar from "../../Messages/TelegramAvatar";
 import PaysInOrderRestoredForAdmin from "../../userInNewUiArtem/pays/PaysInOrderRestoredForAdmin";
 import UserPageDetails from "../UserPageDetails";
 import UserPageDetailsSelf from "./UserPageDetailsSelf";
+import Cash from "../../checkbox/CashCash/Cash";
+import CodesOffline from "../../checkbox/codesOffline/CodesOffline";
 
 function ClientUserProfile() {
   const dispatch = useDispatch();
@@ -112,6 +114,14 @@ function ClientUserProfile() {
           style={{...tabStyles.tabButton, ...(activeTab === 'counterpartiesAdmin' ? tabStyles.activeTab : {})}}
           onClick={() => setActiveTab('counterpartiesAdmin')}
         >Контрагенти (спільні)</button>
+        <button
+          style={{...tabStyles.tabButton, ...(activeTab === 'Cashs' ? tabStyles.activeTab : {})}}
+          onClick={() => setActiveTab('Cashs')}
+        >Касси(Checkbox)</button>
+        <button
+          style={{...tabStyles.tabButton, ...(activeTab === 'OfflineCodes' ? tabStyles.activeTab : {})}}
+          onClick={() => setActiveTab('OfflineCodes')}
+        >Офлайн фиск. коди(Checkbox)</button>
       </div>
 
       {activeTab === 'profile' && (
@@ -133,6 +143,16 @@ function ClientUserProfile() {
       {activeTab === 'cashierAdmin' && (
         <div style={containerStyles.contentContainer}>
           <PaysInOrderRestoredForAdmin user={thisUser}/>
+        </div>
+      )}
+      {activeTab === 'Cashs' && (
+        <div style={containerStyles.contentContainer}>
+          <Cash/>
+        </div>
+      )}
+      {activeTab === 'OfflineCodes' && (
+        <div style={containerStyles.contentContainer}>
+          <CodesOffline/>
         </div>
       )}
     </div>
