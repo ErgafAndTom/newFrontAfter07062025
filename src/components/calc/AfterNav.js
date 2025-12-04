@@ -110,7 +110,7 @@ const AfterNav = () => {
                 {/*<Route path="/TG" element={<MockTelegramChat />} />*/}
                 <Route path="/TG" element={<TelegramBot />} />
                 {/*<Route path="/TG2" element={<TelegramBotAkk />} />*/}
-                <Route path="/TG2" element={<TelegramBotAkkAndMedias />} />
+                {/*<Route path="/TG2" element={<TelegramBotAkkAndMedias />} />*/}
                 <Route path="/db3" element={<TableManager />} />
                 <Route path="/dbGraph" element={<Graph3D_with_comments />} />
                 <Route path="/dbGraph2" element={<Graph2DForBD />} />

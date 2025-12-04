@@ -91,7 +91,7 @@ export default function Message({ msg }) {
         )}
 
         {/* MEDIA */}
-        {renderMedia(msg)}
+        {renderMedia(msg.raw)}
 
         {/* REACTIONS */}
         {msg.raw?.rawJson?.reactions && (

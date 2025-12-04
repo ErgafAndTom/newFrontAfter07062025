@@ -22,10 +22,6 @@ import scansIcon from "../components/newUIArtem/printers/group-1468.svg";
 import deliveryIcon from "../components/newUIArtem/printers/delivery.png";
 
 
-
-
-
-
 import MUG from "../components/newUIArtem/printers/mug.png";
 import magnets from "./magnetsIcon.png";
 import Scans from "./scan.png";
@@ -219,13 +215,14 @@ const NewUIArtem = () => {
 
   if (thisOrder) {
     return (
-      <div >
-        <div className="d-flex" >
+      <div>
+        <div className="d-flex">
           <div className="containerForContNewUI">
 
             {/* Перша група */}
             {/* === GRID OF SERVICE TILES === */}
-            <div className="CardPrintersPoslugi" style={{position: 'absolute',top:"5%",left:"0%", width:"36.5%"}} onClick={toggleExpandedThing}>
+            <div className="CardPrintersPoslugi" style={{position: 'absolute', top: "5%", left: "0%", width: "36.5%"}}
+                 onClick={toggleExpandedThing}>
 
               {/* 1) BLACK */}
               <p onClick={() => setShowNewSheetCutBw(true)}>
@@ -246,8 +243,8 @@ const NewUIArtem = () => {
               {/* 2) COLOR PRODUCTS */}
               <p onClick={() => setShowNewSheetCut(true)}>
                 <div className="tileContent">
-                  <div className="verticalColumns" style={{marginTop:"-0.2vh"}}>
-                    <span className="verticalText" >DIGITAL PRINT CUTING</span>
+                  <div className="verticalColumns" style={{marginTop: "-0.2vh"}}>
+                    <span className="verticalText">DIGITAL PRINT CUTING</span>
                     {/*<span className="verticalText"></span>*/}
                   </div>
                   <img className="icon64 CardPrintersPoslugiImg" src={colorPrintIcon} alt=""/>
@@ -407,8 +404,9 @@ const NewUIArtem = () => {
 
           </div>
           {/* Третя група */}
-          <div className="d-flex justify-content-end align-items-end" >
-            <div className="CardPrintersPoslugi" style={{position:"absolute",bottom:"16%",right:"35%", width:"30%"}}>
+          <div className="d-flex justify-content-end align-items-end">
+            <div className="CardPrintersPoslugi"
+                 style={{position: "absolute", bottom: "16%", right: "35%", width: "30%"}}>
               <p onClick={() => setShowNewNote(true)}>
                 <div className="tileContent">
                   <span className="verticalText">NOTE</span>
@@ -553,10 +551,10 @@ const NewUIArtem = () => {
                                        maxWidth: "33vw",
                                        background: "transparent",
                                        // textTransform:"uppercase"
-                                }}>
+                                     }}>
                                   <div>
                                     <div className="adminTextBig"
-                                         style={{ maxWidth: "33vw"}}>{thing.name}</div>
+                                         style={{maxWidth: "33vw"}}>{thing.name}</div>
                                     <div
                                       style={{
                                         marginTop: '0.5rem',
@@ -577,11 +575,11 @@ const NewUIArtem = () => {
                                   <span className="" style={{color: "rgba(0, 0, 0, 0.6)"}}>{thing.amount}<span
                                     className="BasePriceWithQuantitySmall "> шт</span></span>
                                   <span className=""
-                                        style={{color: "rgba(0, 0, 0, 0.6)"}}>× {parseFloat(thing.priceForThis / thing.amount).toFixed(2)}<span
+                                        style={{color: "rgba(0, 0, 0, 0.6)"}}>× {parseFloat(thing.priceForOneThis).toFixed(2)}<span
                                     className="BasePriceWithQuantitySmall"> грн</span></span>
 
                                   <span style={{color: "rgba(0, 0, 0, 0.6)"}}>=</span>
-                                  <span className="" style={{color: "red", fontWeight:"400"}}>{thing.priceForThis}<span
+                                  <span className="" style={{color: "red", fontWeight: "400"}}>{thing.priceForThis}<span
                                     className="BasePriceWithQuantitySmall" style={{color: "red"}}> грн</span></span>
 
                                 </div>
@@ -593,14 +591,19 @@ const NewUIArtem = () => {
 
 
                                     <div
-                                      className="d-flex align-items-center justify-content-start BasePriceWithQuantity" style={{color: "#008249"}}>
+                                      className="d-flex align-items-center justify-content-start BasePriceWithQuantity"
+                                      style={{color: "#008249"}}>
 
 
-                                      <span style={{color: "#008249"}}>{thing.amount}<span className="BasePriceWithQuantitySmall" style={{color: "#008249"}}> шт</span></span>
+                                      <span style={{color: "#008249"}}>{thing.amount}<span
+                                        className="BasePriceWithQuantitySmall"
+                                        style={{color: "#008249"}}> шт</span></span>
 
                                       <span
-                                        className="" style={{color: "#008249"}}>  × {parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)}<span
-                                        className="BasePriceWithQuantitySmall" style={{color: "#008249"}}> грн</span></span>
+                                        className=""
+                                        style={{color: "#008249"}}>  × {parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)}<span
+                                        className="BasePriceWithQuantitySmall"
+                                        style={{color: "#008249"}}> грн</span></span>
                                       {/*{parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(3)}*/}
                                       {/*<span style={{ fontSize: "1rem", opacity: 0.5 }}><div className="BasePriceWithQuantitySmall ">грн</div></span>*/}
                                       =
@@ -608,7 +611,7 @@ const NewUIArtem = () => {
 
                         {thing.priceForThisDiscount}
                                         <span className="BasePriceWithQuantitySmall"
-                                            style={{color: "#008249"}}> грн</span>
+                                              style={{color: "#008249"}}> грн</span>
         </span>
                                     </div>
 
@@ -637,9 +640,9 @@ const NewUIArtem = () => {
                                     <div
                                       className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
                                       На аркуші можна розмістити
-                                      <strong className="booooold" style={{color: "#3c60a6"}}>
+                                      <span className="booooold money" style={{color: "#3c60a6"}}>
                                         {thing.newField4}
-                                      </strong> виробів
+                                      </span> виробів
                                     </div>
                                     <div
                                       className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
@@ -648,40 +651,60 @@ const NewUIArtem = () => {
                                     </div>
                                   </div>
 
-                                  <div className="col ">
-                                    <div className="adminFontTable BasePriceWithQuantityDetals pricesRow">
-                                      <div className="BasePriceWithQuantityBig"> За 1 аркуш:</div>
-                                      <span className="booooold money " style={{color: "#ee3c23"}}>
-    {parseFloat(thing.priceForOneThis).toFixed(2)}
-                                        <span className="BasePriceWithQuantitySmall" style={{color: "#ee3c23"}}>грн</span>
-  </span>
-                                      <span>/</span>
-                                      <div className="BasePriceWithQuantityBig">За 1 шт:</div>
-                                      <span className="money booooold" style={{color: "#ee3c23"}}>
-    {parseFloat(thing.priceForThis / thing.amount).toFixed(2)}
-                                        <span className="BasePriceWithQuantitySmall" style={{color: "#ee3c23"}}>грн</span>
-  </span>
-                                    </div>
-
-                                    {(+parseFloat(thing.priceForOneThis).toFixed(2)) !==
-                                      (+parseFloat(thing.priceForOneThisDiscount || 0).toFixed(2)) && (
-                                        <div className="adminFontTable BasePriceWithQuantityDetals pricesRow">
-                                          <div className="BasePriceWithQuantityBig">За 1 аркуш:</div>
-                                          <span className="money booooold" style={{color: "#008249"}}>
-      {thing.priceForOneThisDiscount}
-                                            <span className="BasePriceWithQuantitySmall" style={{color: "#008249"}}>грн</span>
-    </span>
-                                          <span>/</span>
-                                          <div className="BasePriceWithQuantityBig">За 1 шт:</div>
-                                          <span className="money booooold" style={{color: "#008249"}}>
-      {(thing.priceForThisDiscount / thing.amount).toFixed(2)}
-                                            <span className="BasePriceWithQuantitySmall" style={{color: "#008249"}}>грн</span>
-    </span>
+                                  <div className="col d-flex flex-column" style={{paddingLeft: '4vw'}}>
+                                    <div className="d-flex flex-column align-items-end">
+                                      <div className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
+                                        <div className="BasePriceWithQuantityBig">
+                                          За 1 аркуш:
                                         </div>
-                                      )}
-
+                                        <span className="booooold money" style={{color: "#ee3c23"}}>
+                                          {parseFloat(thing.priceForThis / thing.newField5).toFixed(2)}
+                                          <span className="BasePriceWithQuantitySmall" style={{color: "#ee3c23"}}>
+                                            грн
+                                          </span>
+                                        </span>
+                                      </div>
+                                      <div className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
+                                        <div className="BasePriceWithQuantityBig">
+                                          За 1 шт:
+                                        </div>
+                                        <span className="booooold money" style={{color: "#ee3c23"}}>
+                                          {parseFloat(thing.priceForThis / thing.amount).toFixed(2)}
+                                          <span className="BasePriceWithQuantitySmall" style={{color: "#ee3c23"}}>
+                                            грн
+                                          </span>
+                                        </span>
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
+                                {(+parseFloat(thing.priceForOneThis).toFixed(2)) !==
+                                  (+parseFloat(thing.priceForOneThisDiscount || 0).toFixed(2)) && (
+                                    <div className="d-flex flex-column align-items-center" style={{fontSize: "0.7vw"}}>
+                                      <div className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
+                                        <div className="BasePriceWithQuantityBig">
+                                          За 1 аркуш:
+                                        </div>
+                                        <span className="booooold money" style={{color: "#008249"}}>
+                                          {parseFloat(thing.priceForThisDiscount / thing.newField5).toFixed(2)}
+                                          <span className="BasePriceWithQuantitySmall" style={{color: "#008249"}}>
+                                            грн
+                                          </span>
+                                        </span>
+                                      </div>
+                                      <div className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
+                                        <div className="BasePriceWithQuantityBig">
+                                          За 1 шт:
+                                        </div>
+                                        <span className="booooold money" style={{color: "#008249"}}>
+                                          {parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)}
+                                          <span className="BasePriceWithQuantitySmall" style={{color: "#008249"}}>
+                                            грн
+                                          </span>
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )}
                               </>
                             )}
 
@@ -965,12 +988,19 @@ const NewUIArtem = () => {
           //                       handleThisOrderChange={handleThisOrderChange}/>
           // <ClientChangerUIArtem client={{email: "null", id: 0, phone: "+00000000",}}/>
         )}
-        <div className="d-flex flex-row" style={{position: "fixed", bottom: "-0.7vh", }}>
+        <div className="d-flex flex-row" style={{position: "fixed", bottom: "-0.7vh",}}>
           <div className="containerNewUI"
-               style={{height: "17vh", width: "30vw", position: "relative", padding: '1rem', boxShadow: "0 5px 5px 3px rgba(0, 0, 0, 0.15)"}}>
+               style={{
+                 height: "17vh",
+                 width: "30vw",
+                 position: "relative",
+                 padding: '1rem',
+                 boxShadow: "0 5px 5px 3px rgba(0, 0, 0, 0.15)"
+               }}>
             <OrderFilesPanel thisOrder={thisOrder}/>
           </div>
-          <div className="containerNewUI" style={{height: "17vh", width: "30vw", position: "relative", boxShadow: "0 5px 5px 3px rgba(0, 0, 0, 0.15)",
+          <div className="containerNewUI" style={{
+            height: "17vh", width: "30vw", position: "relative", boxShadow: "0 5px 5px 3px rgba(0, 0, 0, 0.15)",
 
 
           }}>

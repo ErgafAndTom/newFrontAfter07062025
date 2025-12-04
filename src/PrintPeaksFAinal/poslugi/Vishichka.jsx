@@ -476,6 +476,9 @@ const Vishichka = ({
                                               <div className="fontInfoForPricing1">
                                                 За 1 аркуш: {pricesThis.priceForItemWithExtras} грн
                                               </div>
+                                              <div className="fontInfoForPricing1">
+                                                За 1 виріб: {pricesThis.priceForItemWithExtras} грн
+                                              </div>
                                             </div>
 
 
