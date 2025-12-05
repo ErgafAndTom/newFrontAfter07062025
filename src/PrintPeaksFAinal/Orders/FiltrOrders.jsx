@@ -2,14 +2,16 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../api/axiosInstance";
 import StatusBar from "./StatusBar";
+import  "./FiltrOrders.css";
 
-const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate, setStartDate, setStatuses, statuses }) => {
+const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate, setStartDate, setStatuses, statuses, payments, setPayments }) => {
     const navigate = useNavigate();
     const [load, setLoad] = useState(false);
     const [show, setShow] = useState(false);
     const [error, setError] = useState(false);
     const [isEnabledDataSearch, setIsEnabledDataSearch] = useState(false);
     const [isEnabledStatusSearch, setIsEnabledStatusSearch] = useState(false);
+    const [isEnabledPaymentsSearch, setIsEnabledPaymentsSearch] = useState(false);
 
     // Стани для збереження вибраних дат
 
@@ -28,6 +30,15 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
         }
         setIsEnabledStatusSearch(!isEnabledStatusSearch);
     };
+
+  const handleTogglePaymentsSearch = () => {
+    if (isEnabledPaymentsSearch) {
+      setPayments({...payments, payment0: true, payment1: true, payment2: true, payment3: true})
+    } else {
+      setPayments({...payments, payment0: false, payment1: false, payment2: false, payment3: false})
+    }
+    setIsEnabledPaymentsSearch(!isEnabledPaymentsSearch);
+  };
 
     const [isVisible, setIsVisible] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -58,10 +69,10 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
     }, []);
 
     return (
-        <div>
-            <div className="d-flex">
-                <button className="btn btn-sm btn-warning adminFont" onClick={handleClickFilter}>
-                    <i className="fas fa-search">filtres</i>
+        <div className="d-flex align-content-center justify-content-center">
+            <div className="d-flex flex-row">
+                <button className="adminButtonAdd" onClick={handleClickFilter}>
+                    <i className="fas fa-search">Фільтр</i>
                 </button>
                 {/*<>*/}
                 {/*    <input type="text" className="" placeholder="Search" />*/}
@@ -71,125 +82,123 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
                 {/*</button>*/}
             </div>
             {show && (
-                <div>
+                <div className="" style={{margin: "0"}}>
                     {isVisible && (
-                        <div style={{ position: "relative" }}>
-                            <div
-                                style={{
-                                    width: "100vw",
-                                    zIndex: "99",
-                                    height: "100vh",
-                                    background: "rgba(0, 0, 0, 0.5)",
-                                    opacity: isAnimating ? 1 : 0,
-                                    transition: "opacity 0.3s ease-in-out",
-                                    position: "fixed",
-                                    left: "0",
-                                    bottom: "0"
-                                }}
-                                onClick={handleClose}
-                            ></div>
-                            <div
-                                className="d-flex flex-column"
-                                style={{
-                                    zIndex: "100",
-                                    position: "absolute",
-                                    background: "#dcd9ce",
-                                    top: "0%",
-                                    left: "0%",
-                                    transform: isAnimating
-                                        ? "translate(0, 0) scale(1)"
-                                        : "translate(-10%, -10%) scale(0.8)",
-                                    opacity: isAnimating ? 1 : 0,
-                                    transition:
-                                        "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
-                                    borderRadius: "0.3vw",
-                                    width: "70vw",
-                                    padding: "0.5vw",
-                                }}
-                            >
-                                <div className="d-flex flex-column">
-                                    <div className="d-flex align-items-center">
-                                      <label className="switch scale04ForButtonToggle" style={{ marginRight: '0.633vw' }}>
-                                        <input
-                                          type="checkbox"
-                                          checked={isEnabledDataSearch}
-                                          onChange={handleToggleDataSearch}
-                                        />
-                                        <span className="slider" />
-                                      </label>
-                                        <div className="d-flex adminFontTable">Фільтр дати (last оновлення)</div>
+                      <div className="pp-filters-row">
 
-                                        {isEnabledDataSearch && (
-                                            <div className="d-flex align-items-center" style={{ marginLeft: "auto" }}>
-                                                <div className="d-flex align-items-center">
-                                                    <label htmlFor="start-date" className="adminFontTable">Від:</label>
-                                                    <input
-                                                        type="date"
-                                                        id="start-date"
-                                                        value={startDate}
-                                                        className="adminFontTable"
-                                                        onChange={(e) => setStartDate(e.target.value)}
-                                                    />
-                                                </div>
-                                                <div className="d-flex align-items-center">
-                                                    <label htmlFor="end-date" className="adminFontTable">До:</label>
-                                                    <input
-                                                        type="date"
-                                                        id="end-date"
-                                                        value={endDate}
-                                                        className="adminFontTable"
-                                                        onChange={(e) => setEndDate(e.target.value)}
-                                                    />
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                    {/* Відображення datePicker при увімкненому фільтрі дати */}
-                                    <div className="d-flex flex-column mt-3">
-                                        <div className="d-flex align-items-center">
-                                          <label className="switch scale04ForButtonToggle" style={{ marginRight: '0.633vw' }}>
-                                            <input
-                                              type="checkbox"
-                                              checked={isEnabledStatusSearch}
-                                              onChange={handleToggleStatusSearch}
-                                            />
-                                            <span className="slider" />
-                                          </label>
-                                            <div className="d-flex adminFontTable">Фільтр статусу</div>
-                                        </div>
+                        {/* ФІЛЬТР ДАТИ */}
+                        <div className="pp-inline-item">
+                          <label className="pp-toggle">
+                            <input
+                              type="checkbox"
+                              checked={isEnabledDataSearch}
+                              onChange={handleToggleDataSearch}
+                            />
+                            <span className="pp-toggle-slider" />
+                          </label>
 
-                                        {isEnabledStatusSearch && (
-                                            <div className="d-flex align-items-center" style={{ margin: "auto" }}>
-                                                <div className={`btn btn-lg ${statuses.status0 ? 'statusEnabled' : 'statusDisabled'}`} style={{}}
-                                                     onClick={statuses.status0 ? () => setStatuses({...statuses, status0: false}) : () => setStatuses({...statuses, status0: true})}>
-                                                    <StatusBar item={{status: "0"}}/>
-                                                </div>
-                                                <div className={`btn btn-lg ${statuses.status1 ? 'statusEnabled' : 'statusDisabled'}`} style={{}}
-                                                     onClick={statuses.status1 ? () => setStatuses({...statuses, status1: false}) : () => setStatuses({...statuses, status1: true})}>
-                                                    <StatusBar item={{status: "1"}}/>
-                                                </div>
-                                                <div className={`btn btn-lg ${statuses.status2 ? 'statusEnabled' : 'statusDisabled'}`} style={{}}
-                                                     onClick={statuses.status2 ? () => setStatuses({...statuses, status2: false}) : () => setStatuses({...statuses, status2: true})}>
-                                                    <StatusBar item={{status: "2"}}/>
-                                                </div>
-                                                <div className={`btn btn-lg ${statuses.status3 ? 'statusEnabled' : 'statusDisabled'}`} style={{}}
-                                                     onClick={statuses.status3 ? () => setStatuses({...statuses, status3: false}) : () => setStatuses({...statuses, status3: true})}>
-                                                    <StatusBar item={{status: "3"}}/>
-                                                </div>
-                                                <div className={`btn btn-lg ${statuses.status4 ? 'statusEnabled' : 'statusDisabled'}`} style={{}}
-                                                     onClick={statuses.status4 ? () => setStatuses({...statuses, status4: false}) : () => setStatuses({...statuses, status4: true})}>
-                                                    <StatusBar item={{status: "4"}}/>
-                                                </div>
-                                                <div className={`btn btn-lg ${statuses.status5 ? 'statusEnabled' : 'statusDisabled'}`} style={{}}
-                                                     onClick={statuses.status5 ? () => setStatuses({...statuses, status5: false}) : () => setStatuses({...statuses, status5: true})}>
-                                                    <StatusBar item={{status: 'Відміна'}}/>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
+                          <div className="pp-label-title">ФІЛЬТР ДАТИ</div>
                         </div>
+
+                        {/* ВІД/ДО — також в один рядок */}
+                        {isEnabledDataSearch && (
+                          <div className="pp-date-row">
+                            <div className="pp-date-item-inline">
+                              <label className="pp-label-small">ВІД:</label>
+                              <input
+                                type="date"
+                                className="pp-input"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                              />
+                            </div>
+
+                            <div className="pp-date-item-inline">
+                              <label className="pp-label-small">ДО:</label>
+                              <input
+                                type="date"
+                                className="pp-input"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* ФІЛЬТР СТАТУСІВ */}
+                        <div className="pp-inline-item">
+                          <label className="pp-toggle">
+                            <input
+                              type="checkbox"
+                              checked={isEnabledStatusSearch}
+                              onChange={handleToggleStatusSearch}
+                            />
+                            <span className="pp-toggle-slider" />
+                          </label>
+
+                          <div className="pp-label-title">СТАТУС ЗАМОВЛЕНЬ</div>
+                        </div>
+
+                        {isEnabledStatusSearch && (
+                          <div className="pp-status-row">
+                            {[
+                              ["status0", "ОФОРМЛЕННЯ"],
+                              ["status1", "ДРУКУЄТЬСЯ"],
+                              ["status2", "ПОСТПРЕСС"],
+                              ["status3", "ГОТОВЕ"],
+                              ["status4", "ВІДДАЛИ"],
+                              ["status5", "ВИДАЛЕНО"],
+                            ].map(([key, label]) => (
+                              <div
+                                key={key}
+                                className={`pp-status-tile ${statuses[key] ? "active" : ""}`}
+                                onClick={() => setStatuses({ ...statuses, [key]: !statuses[key] })}
+                              >
+                                {label}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {payments && (
+                          <>
+                            {/* ФІЛЬТР Payments */}
+                            <div className="pp-inline-item">
+                              <label className="pp-toggle">
+                                <input
+                                  type="checkbox"
+                                  checked={isEnabledPaymentsSearch}
+                                  onChange={handleTogglePaymentsSearch}
+                                />
+                                <span className="pp-toggle-slider" />
+                              </label>
+
+                              <div className="pp-label-title">СТАТУС Оплати</div>
+                            </div>
+
+                            {isEnabledPaymentsSearch && (
+                              <div className="pp-status-row">
+                                {[
+                                  ["payment0", "CREATED"],
+                                  ["payment1", "PAID"],
+                                  ["payment2", "CANCELLED"],
+                                  ["payment3", "EXPIRED"],
+                                ].map(([key, label]) => (
+                                  <div
+                                    key={key}
+                                    className={`pp-status-tile ${payments[key] ? "active" : ""}`}
+                                    onClick={() => setPayments({ ...payments, [key]: !payments[key] })}
+                                  >
+                                    {label}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                      </div>
+
                     )}
                 </div>
             )}

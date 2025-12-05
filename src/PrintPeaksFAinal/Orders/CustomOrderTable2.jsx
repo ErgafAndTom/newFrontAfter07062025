@@ -45,6 +45,13 @@ const CustomOrderTable2 = () => {
     status5: true
   });
 
+  const [payments, setPayments] = useState({
+    payment0: true,
+    payment1: true,
+    payment2: true,
+    payment3: true,
+  });
+
   const toggleOrder = (orderId) => {
     setExpandedOrderId(prevId => (prevId === orderId ? null : orderId));
   };
@@ -82,7 +89,8 @@ const CustomOrderTable2 = () => {
             columnName: {column: 'id', reverse: true},
             startDate: startDate,
             endDate: endDate,
-            statuses: statuses
+            statuses: statuses,
+            payments: payments
           };
 
 
@@ -100,6 +108,7 @@ const CustomOrderTable2 = () => {
       fetchData();
     }
   }, [search, currentPage, limit, currentUser?.role, startDate, endDate, statuses.status0, statuses.status1, statuses.status2, statuses.status3, statuses.status4, statuses.status5,
+    payments.payment0, payments.payment1, payments.payment2, payments.payment3
   ]);
 
   useEffect(() => {
@@ -174,8 +183,10 @@ const CustomOrderTable2 = () => {
           setEndDate={setEndDate}
           statuses={statuses}
           setStatuses={setStatuses}
+          payments={payments}
+          setPayments={setPayments}
         />
-        <div className="d-flex" style={{opacity: "0.5", margin: "auto", marginTop: "0.1vw"}}>Знайдено ({data?.count})</div>
+        {/*<div className="d-flex" style={{opacity: "0.5", margin: "auto", marginTop: "0.1vw"}}>Знайдено ({data?.count})</div>*/}
       </div>
 
       {loading &&
