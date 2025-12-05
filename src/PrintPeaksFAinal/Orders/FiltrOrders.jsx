@@ -179,7 +179,7 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
                             {isEnabledPaymentsSearch && (
                               <div className="pp-status-row">
                                 {[
-                                  ["payment0", "У процессі"],
+                                  ["payment0", "Очікування"],
                                   ["payment1", "Оплачено"],
                                   ["payment2", "Відміна/Просрочено"],
                                   // ["payment3", "Просрочено"],
