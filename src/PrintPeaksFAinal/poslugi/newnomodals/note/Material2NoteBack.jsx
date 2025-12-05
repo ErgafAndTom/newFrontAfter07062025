@@ -420,23 +420,14 @@ const Materials2NoteBack = ({
                 className="d-flex"
                 style={{display: "flex", marginTop: "0.5vh", marginLeft: "5.3vw", alignItems: "center"}}
             >
-                <div
-                    className={`toggleContainer scale04ForButtonToggle ${
-                        materialAndDrukBack.laminationType === "Не потрібно"
-                            ? "disabledCont"
-                            : "enabledCont"
-                    }`}
-
-                    onClick={handleToggleLamination}
-                >
-                    <div
-                        className={`toggle-button ${
-                            materialAndDrukBack.laminationType === "Не потрібно"
-                                ? "disabled"
-                                : "enabledd"
-                        }`}
-                    ></div>
-                </div>
+              <label className="switch scale04ForButtonToggle" >
+                <input
+                  type="checkbox"
+                  checked={materialAndDrukBack.laminationType !== "Не потрібно"}
+                  onChange={handleToggleLamination}
+                />
+                <span className="slider" />
+              </label>
                 <div>{"Ламінація:"}</div>
 
                 <div

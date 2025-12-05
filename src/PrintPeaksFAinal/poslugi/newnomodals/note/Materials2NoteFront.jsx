@@ -403,22 +403,14 @@ const Materials2NoteFront = ({
                     {/* Блок "Ламінація" */}
                     <div
                         style={{display: "flex", alignItems: "center", marginTop: "1vh", marginLeft: "9vw"}}>
-                        <div
-                            className={`toggleContainer scale04ForButtonToggle ${
-                                materialAndDrukFront.laminationType === "Не потрібно"
-                                    ? "disabledCont"
-                                    : "enabledCont"
-                            }`}
-                            onClick={handleToggleLamination}
-                        >
-                            <div
-                                className={`toggle-button ${
-                                    materialAndDrukFront.laminationType === "Не потрібно"
-                                        ? "disabled"
-                                        : "enabledd"
-                                }`}
-                            ></div>
-                        </div>
+                      <label className="switch scale04ForButtonToggle" >
+                        <input
+                          type="checkbox"
+                          checked={materialAndDrukFront.laminationType !== "Не потрібно"}
+                          onChange={handleToggleLamination}
+                        />
+                        <span className="slider" />
+                      </label>
                         <div>{"Ламінація:"}</div>
 
 
