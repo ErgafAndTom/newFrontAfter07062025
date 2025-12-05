@@ -226,6 +226,9 @@ export default function PaysInOrderRestored_OrdersLike({
 
   // data fetch
   useEffect(() => {
+    if (showAddPay || showDeleteOrderModal){
+      return;
+    }
     const payload = {
       inPageCount,
       currentPage,
@@ -245,7 +248,7 @@ export default function PaysInOrderRestored_OrdersLike({
         setLoad(false);
       })
       .catch(handleAxiosError);
-  }, [typeSelect, thisColumn, startDate, endDate]);
+  }, [typeSelect, thisColumn, startDate, endDate, showAddPay, showDeleteOrderModal]);
 
   // modal animation
   useEffect(() => {
@@ -337,45 +340,47 @@ export default function PaysInOrderRestored_OrdersLike({
                   <Spinner animation="border" variant="dark" />
                 </div>
               ) : (
-                <div className="d-flex flex-column" style={{border:"0px"}}>
-                  <Section
-                    title="Контрагенти клієнта"
-                    data={data}
-                    filterKey="isClientOwner"
-                    expandedId={expandedId}
-                    setExpandedId={setExpandedId}
-                    generateInvoice={generateInvoice}
-                    openSeePay={openSeePay}
-                    openDeletePay={openDeletePay}
+                <div className="d-flex" >
+                  <div className="d-flex flex-column" style={{border: "0px", overflow: "auto", height: "80vh"}}>
+                    <Section
+                      title="Контрагенти клієнта"
+                      data={data}
+                      filterKey="isClientOwner"
+                      expandedId={expandedId}
+                      setExpandedId={setExpandedId}
+                      generateInvoice={generateInvoice}
+                      openSeePay={openSeePay}
+                      openDeletePay={openDeletePay}
 
-                  />
+                    />
 
-                  <div style={{ margin: "5vh 0" }}></div>
+                    <div style={{margin: "5vh 0"}}></div>
 
-                  <Section
-                    title="Загальні контрагенти компанії"
-                    data={data}
-                    filterKey="isCompanyOwner"
-                    expandedId={expandedId}
-                    setExpandedId={setExpandedId}
-                    generateInvoice={generateInvoice}
-                    openSeePay={openSeePay}
-                    openDeletePay={openDeletePay}
-                  />
+                    <Section
+                      title="Загальні контрагенти компанії"
+                      data={data}
+                      filterKey="isCompanyOwner"
+                      expandedId={expandedId}
+                      setExpandedId={setExpandedId}
+                      generateInvoice={generateInvoice}
+                      openSeePay={openSeePay}
+                      openDeletePay={openDeletePay}
+                    />
 
-                  <div style={{ margin: "5vh " }}></div>
+                    <div style={{margin: "5vh "}}></div>
 
-                  <Section
-                    title="Контрагенти співробітників компанії"
-                    data={data}
-                    filterKey="isColleagueOwner"
-                    expandedId={expandedId}
-                    setExpandedId={setExpandedId}
-                    generateInvoice={generateInvoice}
-                    openSeePay={openSeePay}
-                    openDeletePay={openDeletePay}
-                    className="rahunkiline"
-                  />
+                    <Section
+                      title="Контрагенти співробітників компанії"
+                      data={data}
+                      filterKey="isColleagueOwner"
+                      expandedId={expandedId}
+                      setExpandedId={setExpandedId}
+                      generateInvoice={generateInvoice}
+                      openSeePay={openSeePay}
+                      openDeletePay={openDeletePay}
+                      className="rahunkiline"
+                    />
+                  </div>
                 </div>
               )}
             </div>

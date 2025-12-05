@@ -81,7 +81,8 @@ function AddPaysInOrder({ showAddPay, setShowAddPay,  data, setData, showAddPayV
         };
         axios.post(`/api/contractorsN/addContractor`, dataToSend)
             .then(response => {
-                // console.log(response.data);
+                console.log(response.data);
+                console.log(data);
                 setData([
                     ...data,
                     response.data
