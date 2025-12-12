@@ -151,6 +151,22 @@ const CustomOrderTable2 = () => {
 
   return (
     <div className="OrderList">
+      <div className="d-flex align-items-center"
+      style={{marginBottom: '1vh', marginTop: '0vh'}}>
+        <FiltrOrders
+          typeSelect={typeSelect}
+          setTypeSelect={setTypeSelect}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+          statuses={statuses}
+          setStatuses={setStatuses}
+          payments={payments}
+          setPayments={setPayments}
+        />
+        {/*<div className="d-flex" style={{opacity: "0.5", margin: "auto", marginTop: "0.1vw"}}>Знайдено ({data?.count})</div>*/}
+      </div>
       <div className="OrderRow-summary OrderRow-header">
         <div className="summary-cell id d-flex justify-content-center">ID</div>
         <div className="summary-cell status d-flex justify-content-center">Статус</div>
@@ -173,21 +189,7 @@ const CustomOrderTable2 = () => {
       </div>
       {/* data rows */}
 
-      <div className="d-flex">
-        <FiltrOrders
-          typeSelect={typeSelect}
-          setTypeSelect={setTypeSelect}
-          startDate={startDate}
-          setStartDate={setStartDate}
-          endDate={endDate}
-          setEndDate={setEndDate}
-          statuses={statuses}
-          setStatuses={setStatuses}
-          payments={payments}
-          setPayments={setPayments}
-        />
-        {/*<div className="d-flex" style={{opacity: "0.5", margin: "auto", marginTop: "0.1vw"}}>Знайдено ({data?.count})</div>*/}
-      </div>
+
 
       {loading &&
         <div className="d-flex justify-content-center align-items-center" style={{ height: "100%" }}>

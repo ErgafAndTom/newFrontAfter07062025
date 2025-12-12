@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.4vw;
+  gap: 0.6vw;
   /*padding: 0.2vw 0vw;*/
   background: #FAF8F2;
   flex-wrap: nowrap;
@@ -11,18 +11,22 @@
 
 /* Лейбли */
 .pp-label-title {
-  font-size: 0.9vw;
-  color: #000;
+  font-size: 1.4vw;
+  color: #62625d;
   font-weight: 400; /* НЕ ЖИРНИЙ */
   margin-left: 0.4vw;
   white-space: nowrap;
+  align-items: center;
+  filter: grayscale(100%);
 }
-
+.pp-label-title:hover {
+    font-size: 3.5vh;
+}
 .pp-label-small {
-  font-size: 0.75vw;
-  color: #003F57;
+  font-size: 1.2vw;
+  color: #62625d;
   font-weight: 400; /* НЕ ЖИРНИЙ */
-  margin-right: 0.3vw;
+  /*margin-right: 0.1vw;*/
   white-space: nowrap;
 }
 
@@ -30,7 +34,7 @@
 .pp-inline-item {
   display: flex;
   align-items: center;
-  gap: 0.4vw;
+  gap: 0.1vw;
   white-space: nowrap;
 }
 
@@ -56,7 +60,7 @@
   left: 2px;
   top: 2px;
   border-radius: 50%;
-  background: white;
+  background: #faf9f5;
   transition: 0.25s;
 }
 .pp-toggle input:checked + .pp-toggle-slider {
@@ -70,7 +74,7 @@
 .pp-date-row {
   display: flex;
   align-items: center;
-  gap: 1vw;
+  gap: 0.1vw;
   white-space: nowrap;
 }
 
@@ -82,42 +86,93 @@
 
 /* Input дати */
 .pp-input {
-  padding: 0.35vw 0.6vw;
-  border-radius: 12px;
-  border: 1px solid #E4E2DC;
-  font-size: 0.85vw;
+  padding: 0.2vw 0.6vw;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: none;
+  color: #62625d;
+  font-size: 0.7vw;
   font-weight: 400; /* НЕ ЖИРНИЙ */
-  background: white;
+  background: #faf9f5;
   white-space: nowrap;
+  text-transform: uppercase;
 }
 
 /* Статуси */
 .pp-status-row {
   display: flex;
   align-items: center;
-  gap: 0.8vw;
+  gap: 0.3vw;
   white-space: nowrap;
   margin: 0;
 }
 
 /* Плитка статусу */
 .pp-status-tile {
-  background: white;
-  padding: 0.55vw 1vw;
-  border-radius: 14px;
-  border: 1px solid #E4E2DC;
-  font-size: 0.85vw;
+  background: #faf9f5;
+  padding: 0.2vw 0.6vw;
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-size: 0.7vw;
   font-weight: 400; /* НЕ ЖИРНИЙ */
-  color: #003F57;
+  color: #62625d;
   cursor: pointer;
   transition: 0.2s;
   white-space: nowrap;
   margin: 0;
 }
-
+.pp-status-tile:hover {
+  font-weight: 500; /* НЕ ЖИРНИЙ */
+  font-size: 0.75vw;
+}
 .pp-status-tile.active {
   background: #FAB416;
-  border-color: #FAB416;
+
+  color: #4c4a46;
+  font-weight: 500; /* НЕ ЖИРНИЙ */
+  font-size: 0.75vw;
+
+}
+.pp-filters-strelka{
+  font-size: 2vh;
+  font-weight: 600;
+  color: #4c4a46
+}
+.pp-filters-button{
+  min-width: 2vw;
+  width: 3vw;
+  padding: 0.3vh 0.7vw;
+  margin: 0.3vh 0.5vw
+}
+/* Іконки (🗓, 🛒, ₴) */
+.pp-icon {
+  cursor: pointer;
+  filter: grayscale(100%);
+  transition: 0.25s;
+}
+
+.pp-icon.active-icon {
+  filter: none;
+  color: #FAB416;
+}
+
+.pp-icon.active-icon-green {
+  filter: none;
+  color: #008349;
+}
+
+
+/* Плитки статусів */
+.pp-status-tile.active-green {
+  background: #008349;
   color: white;
-  box-shadow: 0 2px 6px rgba(250,180,22,0.35);
+  font-weight: 500;
+  font-size: 0.75vw;
+}
+
+/* ₴ Активний */
+.pp-label-title.active-icon-green {
+  color: #008349;
+  filter: none;
 }

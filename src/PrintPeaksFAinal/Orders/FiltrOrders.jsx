@@ -71,8 +71,17 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
     return (
         <div className="d-flex align-content-center justify-content-center">
             <div className="d-flex flex-row">
-                <button className="adminButtonAdd" onClick={handleClickFilter}>
-                    <i className="fas fa-search">Фільтр</i>
+                <button
+                  className="adminButtonAdd"
+                  onClick={handleClickFilter}
+                  style={{
+                    minWidth:"2vw",
+                    margin:"0.2vh 0.5vw",
+
+                }}
+                >
+
+                  <t className="pp-filters-strelka">⇅</t>
                 </button>
                 {/*<>*/}
                 {/*    <input type="text" className="" placeholder="Search" />*/}
@@ -82,39 +91,31 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
                 {/*</button>*/}
             </div>
             {show && (
-                <div className="" style={{margin: "0"}}>
+                <div className="d-flex justify-content-center align-items-center" style={{margin: "0"}}>
                     {isVisible && (
                       <div className="pp-filters-row">
 
                         {/* ФІЛЬТР ДАТИ */}
-                        <div className="pp-inline-item">
-                          <label className="pp-toggle">
-                            <input
-                              type="checkbox"
-                              checked={isEnabledDataSearch}
-                              onChange={handleToggleDataSearch}
-                            />
-                            <span className="pp-toggle-slider" />
-                          </label>
-
-                          <div className="pp-label-title">ФІЛЬТР ДАТИ</div>
+                        {/* СИМВОЛ ДАТИ — АКТИВАЦІЯ ПО КЛІКУ */}
+                        <div className="pp-inline-item" onClick={handleToggleDataSearch}>
+                          <div
+                            className={`pp-label-title pp-icon ${isEnabledDataSearch ? "active-icon" : ""}`}
+                          >
+                            🗓
+                          </div>
                         </div>
 
-                        {/* ВІД/ДО — також в один рядок */}
+                        {/* БЛОК ДАТ */}
                         {isEnabledDataSearch && (
                           <div className="pp-date-row">
                             <div className="pp-date-item-inline">
-                              <label className="pp-label-small">ВІД:</label>
                               <input
                                 type="date"
                                 className="pp-input"
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
                               />
-                            </div>
-
-                            <div className="pp-date-item-inline">
-                              <label className="pp-label-small">ДО:</label>
+                              <label className="pp-label-small">↔</label>
                               <input
                                 type="date"
                                 className="pp-input"
@@ -125,18 +126,14 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
                           </div>
                         )}
 
-                        {/* ФІЛЬТР СТАТУСІВ */}
-                        <div className="pp-inline-item">
-                          <label className="pp-toggle">
-                            <input
-                              type="checkbox"
-                              checked={isEnabledStatusSearch}
-                              onChange={handleToggleStatusSearch}
-                            />
-                            <span className="pp-toggle-slider" />
-                          </label>
 
-                          <div className="pp-label-title">СТАТУС ЗАМОВЛЕНЬ</div>
+                        {/* ФІЛЬТР СТАТУСІВ */}
+                        <div className="pp-inline-item" onClick={handleToggleStatusSearch}>
+                          <div
+                            className={`pp-label-title pp-icon ${isEnabledStatusSearch ? "active-icon" : ""}`}
+                          >
+                            🛒
+                          </div>
                         </div>
 
                         {isEnabledStatusSearch && (
@@ -152,7 +149,9 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
                               <div
                                 key={key}
                                 className={`pp-status-tile ${statuses[key] ? "active" : ""}`}
-                                onClick={() => setStatuses({ ...statuses, [key]: !statuses[key] })}
+                                onClick={() =>
+                                  setStatuses({ ...statuses, [key]: !statuses[key] })
+                                }
                               >
                                 {label}
                               </div>
@@ -163,31 +162,28 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
                         {payments && (
                           <>
                             {/* ФІЛЬТР Payments */}
-                            <div className="pp-inline-item">
-                              <label className="pp-toggle">
-                                <input
-                                  type="checkbox"
-                                  checked={isEnabledPaymentsSearch}
-                                  onChange={handleTogglePaymentsSearch}
-                                />
-                                <span className="pp-toggle-slider" />
-                              </label>
-
-                              <div className="pp-label-title">СТАТУС Оплати</div>
+                            <div className="pp-inline-item" onClick={handleTogglePaymentsSearch}>
+                              <div
+                                className={`pp-label-title pp-icon ${isEnabledPaymentsSearch ? "active-icon-green" : ""}`}
+                              >
+                                🧮
+                              </div>
                             </div>
 
                             {isEnabledPaymentsSearch && (
                               <div className="pp-status-row">
                                 {[
-                                  ["payment0", "Очікування"],
-                                  ["payment1", "Оплачено"],
-                                  ["payment2", "Відміна/Просрочено"],
-                                  // ["payment3", "Просрочено"],
+                                  ["payment0", "ОЧІКУВАННЯ"],
+                                  ["payment1", "ОПЛАЧЕНО"],
+                                  ["payment2", "ПРОСРОЧЕНО"],
+                                  ["payment3", "ВІДМІНА"],
                                 ].map(([key, label]) => (
                                   <div
                                     key={key}
-                                    className={`pp-status-tile ${payments[key] ? "active" : ""}`}
-                                    onClick={() => setPayments({ ...payments, [key]: !payments[key] })}
+                                    className={`pp-status-tile ${payments[key] ? "active-green" : ""}`}
+                                    onClick={() =>
+                                      setPayments({ ...payments, [key]: !payments[key] })
+                                    }
                                   >
                                     {label}
                                   </div>
@@ -196,7 +192,39 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
                             )}
                           </>
                         )}
+                        {payments && (
+                          <>
+                            {/* ФІЛЬТР Payments */}
+                            <div className="pp-inline-item" onClick={handleTogglePaymentsSearch}>
+                              <div
+                                className={`pp-label-title pp-icon ${isEnabledPaymentsSearch ? "active-icon-green" : ""}`}
+                              >
+                                ₴
+                              </div>
+                            </div>
 
+                            {isEnabledPaymentsSearch && (
+                              <div className="pp-status-row">
+                                {[
+                                  ["payment0", "ГОТІВКА"],
+                                  ["payment1", "КАРТКА"],
+                                  ["payment2", "ПОСИЛАННЯ"],
+                                  ["payment3", "РАХУНОК"],
+                                ].map(([key, label]) => (
+                                  <div
+                                    key={key}
+                                    className={`pp-status-tile ${payments[key] ? "active-green" : ""}`}
+                                    onClick={() =>
+                                      setPayments({ ...payments, [key]: !payments[key] })
+                                    }
+                                  >
+                                    {label}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
 
                     )}

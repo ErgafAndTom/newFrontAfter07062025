@@ -94,7 +94,7 @@ const Nav = () => {
     return (
 <div>
 
-  <div className="d-flex justify-content-between align-items-start " style={{borderRadius:'0vh',marginBottom:'1vh'}}>
+  <div className="d-flex justify-content-between align-items-start " style={{borderRadius:'0vh',marginBottom:'0vh'}}>
     {/* Ліва панель з кнопками */}
     <>
       {currentUser?.role === "user" && (

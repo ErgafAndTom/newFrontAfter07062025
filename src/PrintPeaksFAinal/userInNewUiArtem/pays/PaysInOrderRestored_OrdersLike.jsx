@@ -15,7 +15,7 @@ function RowExpanded({ item }) {
         <p><strong>Дата створення:</strong> {new Date(item.createdAt).toLocaleString()}</p>
         <p><strong>Дата оновлення:</strong> {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : '—'}</p>
       </div>
-      <div className="OrderRow-units d-flex flex-row" style={{ gap: "0.8vw", flexWrap: "wrap" }}>
+      <div className="OrderRow-units d-flex flex-row" style={{ gap: "0.5vw", flexWrap: "wrap" }}>
         <div className="OrderUnit-card">
           <div className="UsersOrdersLikeTable-contract-text"><strong>ID:</strong> {item.id}</div>
           <div className="UsersOrdersLikeTable-contract-text"><strong>Назва:</strong> {item.name || "···"}</div>
@@ -105,9 +105,10 @@ function Section({
 
               <div
                 className="summary-cell contragentDocu d-flex justify-content-center"
+
                 onClick={(e) => e.stopPropagation()}
               >
-                <button className="adminButtonAdd" onClick={(e) => generateInvoice(e, item)}>
+                <button className="adminButtonAdd"  style={{minWidth:"7vw"}} onClick={(e) => generateInvoice(e, item)}>
                   Завантажити
                 </button>
               </div>
@@ -116,12 +117,12 @@ function Section({
                 className="summary-cell contragentDii d-flex justify-content-center"
                 onClick={(e) => e.stopPropagation()}
               >
-                <button className="adminButtonAdd" onClick={(e) => openSeePay(e, item)}>
+                <button className="adminButtonAdd" style={{minWidth:"7vw"}}  onClick={(e) => openSeePay(e, item)}>
                   Редагувати
                 </button>
                 <button
                   className="adminButtonAdd"
-                  style={{ background: "#ee3c23", marginLeft: 8 }}
+                  style={{ background: "#ee3c23", marginLeft: "01vw" ,minWidth:"7vw"}}
                   onClick={(e) => openDeletePay(e, item)}
                 >
                   Видалити
@@ -226,9 +227,6 @@ export default function PaysInOrderRestored_OrdersLike({
 
   // data fetch
   useEffect(() => {
-    if (showAddPay || showDeleteOrderModal){
-      return;
-    }
     const payload = {
       inPageCount,
       currentPage,
@@ -248,7 +246,7 @@ export default function PaysInOrderRestored_OrdersLike({
         setLoad(false);
       })
       .catch(handleAxiosError);
-  }, [typeSelect, thisColumn, startDate, endDate, showAddPay, showDeleteOrderModal]);
+  }, [typeSelect, thisColumn, startDate, endDate, showAddPay]);
 
   // modal animation
   useEffect(() => {
@@ -340,7 +338,7 @@ export default function PaysInOrderRestored_OrdersLike({
                   <Spinner animation="border" variant="dark" />
                 </div>
               ) : (
-                <div className="d-flex" >
+                <div className="d-flex" style={{height: "80vh"}}>
                   <div className="d-flex flex-column" style={{border: "0px", overflow: "auto", height: "80vh"}}>
                     <Section
                       title="Контрагенти клієнта"
