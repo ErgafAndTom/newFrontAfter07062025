@@ -4,7 +4,7 @@ import axios from "../../api/axiosInstance";
 import StatusBar from "./StatusBar";
 import  "./FiltrOrders.css";
 
-const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate, setStartDate, setStatuses, statuses, payments, setPayments }) => {
+const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate, setStartDate, setStatuses, statuses, payments, setPayments, setPaymentsType, paymentsType }) => {
     const navigate = useNavigate();
     const [load, setLoad] = useState(false);
     const [show, setShow] = useState(false);
@@ -12,6 +12,7 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
     const [isEnabledDataSearch, setIsEnabledDataSearch] = useState(false);
     const [isEnabledStatusSearch, setIsEnabledStatusSearch] = useState(false);
     const [isEnabledPaymentsSearch, setIsEnabledPaymentsSearch] = useState(false);
+    const [isEnabledPaymentsTypeSearch, setIsEnabledPaymentsTypeSearch] = useState(false);
 
     // Стани для збереження вибраних дат
 
@@ -38,6 +39,15 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
       setPayments({...payments, payment0: false, payment1: false, payment2: false, payment3: false})
     }
     setIsEnabledPaymentsSearch(!isEnabledPaymentsSearch);
+  };
+
+  const handleTogglePaymentsTypeSearch = () => {
+    if (isEnabledPaymentsTypeSearch) {
+      setPaymentsType({...payments, payment0: true, payment1: true, payment2: true, payment3: true})
+    } else {
+      setPaymentsType({...payments, payment0: false, payment1: false, payment2: false, payment3: false})
+    }
+    setIsEnabledPaymentsTypeSearch(!isEnabledPaymentsTypeSearch);
   };
 
     const [isVisible, setIsVisible] = useState(false);
@@ -192,30 +202,30 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
                             )}
                           </>
                         )}
-                        {payments && (
+                        {paymentsType && (
                           <>
                             {/* ФІЛЬТР Payments */}
-                            <div className="pp-inline-item" onClick={handleTogglePaymentsSearch}>
+                            <div className="pp-inline-item" onClick={handleTogglePaymentsTypeSearch}>
                               <div
-                                className={`pp-label-title pp-icon ${isEnabledPaymentsSearch ? "active-icon-green" : ""}`}
+                                className={`pp-label-title pp-icon ${isEnabledPaymentsTypeSearch ? "active-icon-green" : ""}`}
                               >
                                 ₴
                               </div>
                             </div>
 
-                            {isEnabledPaymentsSearch && (
+                            {isEnabledPaymentsTypeSearch && (
                               <div className="pp-status-row">
                                 {[
-                                  ["payment0", "ГОТІВКА"],
-                                  ["payment1", "КАРТКА"],
-                                  ["payment2", "ПОСИЛАННЯ"],
+                                  ["payment0", "link"],
+                                  ["payment1", "terminal"],
+                                  ["payment2", "cash"],
                                   ["payment3", "РАХУНОК"],
                                 ].map(([key, label]) => (
                                   <div
                                     key={key}
-                                    className={`pp-status-tile ${payments[key] ? "active-green" : ""}`}
+                                    className={`pp-status-tile ${paymentsType[key] ? "active-green" : ""}`}
                                     onClick={() =>
-                                      setPayments({ ...payments, [key]: !payments[key] })
+                                      setPaymentsType({ ...paymentsType, [key]: !paymentsType[key] })
                                     }
                                   >
                                     {label}
