@@ -187,6 +187,7 @@ const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate
                                   ["payment1", "ОПЛАЧЕНО"],
                                   ["payment2", "ПРОСРОЧЕНО"],
                                   ["payment3", "ВІДМІНА"],
+                                  ["payment4", "-"],
                                 ].map(([key, label]) => (
                                   <div
                                     key={key}
