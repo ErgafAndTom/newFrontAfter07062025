@@ -5,7 +5,7 @@ import {Spinner} from "react-bootstrap";
 import "./styles.css";
 import NewNoModalCornerRounding from "../NewNoModalBig";
 import BigInBooklet from "../BigInBooklet";
-import NewSheetCutBw from "../../NewSheetCutBw";
+import   "../../NewSheetCutBW";
 
 const Materials2NoteFront = ({
                                  materialAndDrukFront,

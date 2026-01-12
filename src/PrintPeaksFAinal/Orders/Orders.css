@@ -18,7 +18,7 @@
     /*margin-right: 0.5vw;*/
     width: 99%; /* статична ширина, щоб не “розпливалося” */
     height: 59vh; /* щоб не виростало висотою більше за 60% екрану */
-    background: #f2f0e7;
+    background: transparent;
     /*padding: 1rem;*/
     border: none;
     border-radius: 1vh;

@@ -10,6 +10,30 @@ import PerepletPerepletBooklet from "./newnomodals/PerepletPerepletBooklet";
 import BigInBooklet from "./newnomodals/BigInBooklet";
 import evroskoba from "../evroscoba.png";
 
+const DEFAULT_PRICES_THIS = {
+  price: 0,
+  priceDrukFront: 0,
+  priceMaterialFront: 0,
+  priceLaminationFront: 0,
+  totalSheetPriceFront: 0,
+  sheetCount: 0,
+
+  priceDrukBack: 0,
+  priceMaterialBack: 0,
+  priceLaminationBack: 0,
+  totalSheetPriceBack: 0,
+  sheetCountBack: 0,
+
+  pricePerepletUnit: 0,
+  totalPerepletPrice: 0,
+
+  priceForItemWithExtras: 0,
+  sheetsPerUnit: 0,
+
+  big: { pricePerUnit: 0, count: 0, totalPrice: 0 },
+};
+
+
 const NewBooklet = ({
                         thisOrder,
                         newThisOrder,
@@ -47,7 +71,7 @@ const NewBooklet = ({
 
     const [count, setCount] = useState(1);
     const [prices, setPrices] = useState([]);
-    const [pricesThis, setPricesThis] = useState(null);
+    const [pricesThis, setPricesThis] = useState(DEFAULT_PRICES_THIS);
     const [selectedService, setSelectedService] = useState("Буклет");
 
     const [material, setMaterial] = useState({
@@ -183,6 +207,7 @@ const NewBooklet = ({
     useEffect(() => {
         let dataToSend = {
             type: "Note",
+            newField6: "Booklet",
             size: size,
             material: material,
             color: color,
@@ -206,7 +231,7 @@ const NewBooklet = ({
         // console.log(dataToSend);
         axios.post(`/calc/pricing`, dataToSend)
             .then(response => {
-                setPricesThis(response.data.prices)
+                setPricesThis(response?.data?.prices || DEFAULT_PRICES_THIS)
                 setError(null)
             })
             .catch(error => {
@@ -266,6 +291,7 @@ const NewBooklet = ({
     const addNewOrderUnit = e => {
         let toCalcData = {
             nameOrderUnit: `${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
+            newField6: "Booklet",
             type: "Note",
             size: size,
             material: material,

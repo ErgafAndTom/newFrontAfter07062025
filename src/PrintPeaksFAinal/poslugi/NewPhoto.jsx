@@ -1,6 +1,6 @@
 import {MDBContainer} from "mdb-react-ui-kit";
 import {Row} from "react-bootstrap";
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import axios from '../../api/axiosInstance';
 
 import versantIcon from "../public/photoe@2x.png";
@@ -18,11 +18,77 @@ const NewPhoto = ({
                       showNewPhoto,
                       setShowNewPhoto,
                       setThisOrder,
-                      setSelectedThings2
+                      setSelectedThings2,
+                      editingOrderUnit,
+                      setEditingOrderUnit,
+
                   }) => {
     // const [show, setShow] = useState(false);
     const navigate = useNavigate();
-    const [load, setLoad] = useState(false);
+    
+
+    const safeSetShowNewPhoto = (val) => {
+        if (typeof setShowNewPhoto === "function") return setShowNewPhoto(val);
+        console.warn("setShowNewPhoto is not a function", { receivedType: typeof setShowNewPhoto, receivedValue: setShowNewPhoto });
+    };
+
+    const safeSetEditingOrderUnit = (val) => {
+        if (typeof setEditingOrderUnit === "function") return setEditingOrderUnit(val);
+        // optional: no-op
+    };
+
+    const isEdit = Boolean(editingOrderUnit?.id || editingOrderUnit?.idKey);
+
+    const safeNum = (v, fallback) => {
+        const n = Number(v);
+        return Number.isFinite(n) ? n : fallback;
+    };
+
+    const parseOptionsJson = (ou) => {
+        if (!ou?.optionsJson) return null;
+        try {
+            return JSON.parse(ou.optionsJson);
+        } catch (e) {
+            console.error("Bad optionsJson in NewPhoto", e);
+            return null;
+        }
+    };
+
+    const options = useMemo(() => parseOptionsJson(editingOrderUnit), [editingOrderUnit]);
+
+    const DEFAULTS = {
+        size: { x: 100, y: 150 },
+        material: { type: "Фотопапір", thickness: "", material: "", materialId: "", typeUse: "А3" },
+        photo: { type: "Не потрібно", thickness: "Тонкий", material: "", materialId: "", typeUse: "Тонкий" },
+        color: { sides: "односторонній", one: "", two: "", allSidesColor: "CMYK" },
+        lamination: { type: "Не потрібно", material: "", size: "" },
+        big: "Не потрібно",
+        cute: "Не потрібно",
+        cuteLocal: { leftTop: false, rightTop: false, rightBottom: false, leftBottom: false },
+        holes: "Не потрібно",
+        holesR: "",
+        count: 1,
+        selectedService: "Фото",
+    };
+
+    // Canonical labels used in UI buttons
+    const SERVICE_ALIASES = useMemo(
+        () => ({
+            "Диплома": "Диплом",
+            "Сертифіката": "Сертифікат",
+            "Подяки": "Подяка",
+            "Візуалізації": "Візуалізація",
+            "Графіки": "Графік",
+        }),
+        []
+    );
+
+    const normalizeService = (v) => {
+        if (!v) return DEFAULTS.selectedService;
+        return SERVICE_ALIASES[v] || v;
+    };
+
+const [load, setLoad] = useState(false);
     const [isVisible, setIsVisible] = useState(showNewPhoto);
     const [isAnimating, setIsAnimating] = useState(false);
     const [error, setError] = useState(null);
@@ -30,11 +96,11 @@ const NewPhoto = ({
         setIsAnimating(false); // Начинаем анимацию закрытия
         setTimeout(() => {
             setIsVisible(false)
-            setShowNewPhoto(false);
+            safeSetShowNewPhoto(false);
         }, 300); // После завершения анимации скрываем модальное окно
     }
     const handleShow = useCallback((event) => {
-        setShowNewPhoto(true);
+        safeSetShowNewPhoto(true);
     }, []);
 
 
@@ -82,12 +148,98 @@ const NewPhoto = ({
     const [pricesThis, setPricesThis] = useState(null);
     const [selectedService, setSelectedService] = useState("Фото");
 
+    // ✅ Hydrate form state on open (like Vishichka)
+    useEffect(() => {
+        if (!showNewPhoto) return;
+
+        // NEW
+        if (!isEdit) {
+            setSize(DEFAULTS.size);
+            setMaterial(DEFAULTS.material);
+            setPhoto(DEFAULTS.photo);
+            setColor(DEFAULTS.color);
+            setLamination(DEFAULTS.lamination);
+            setBig(DEFAULTS.big);
+            setCute(DEFAULTS.cute);
+            setCuteLocal(DEFAULTS.cuteLocal);
+            setHoles(DEFAULTS.holes);
+            setHolesR(DEFAULTS.holesR);
+            setCount(DEFAULTS.count);
+            setSelectedService(DEFAULTS.selectedService);
+            return;
+        }
+
+        // EDIT
+        const opt = options || null;
+
+        setCount(safeNum(opt?.count, safeNum(editingOrderUnit?.amount, DEFAULTS.count)) || DEFAULTS.count);
+
+        setSize({
+            x: safeNum(opt?.size?.x, safeNum(editingOrderUnit?.newField2, DEFAULTS.size.x)),
+            y: safeNum(opt?.size?.y, safeNum(editingOrderUnit?.newField3, DEFAULTS.size.y)),
+        });
+
+        setMaterial({
+            type: opt?.material?.type ?? DEFAULTS.material.type,
+            thickness: opt?.material?.thickness ?? DEFAULTS.material.thickness,
+            material: opt?.material?.material ?? DEFAULTS.material.material,
+            materialId: opt?.material?.materialId ?? DEFAULTS.material.materialId,
+            typeUse: opt?.material?.typeUse ?? DEFAULTS.material.typeUse,
+        });
+
+        setPhoto({
+            type: opt?.photo?.type ?? DEFAULTS.photo.type,
+            thickness: opt?.photo?.thickness ?? DEFAULTS.photo.thickness,
+            material: opt?.photo?.material ?? DEFAULTS.photo.material,
+            materialId: opt?.photo?.materialId ?? DEFAULTS.photo.materialId,
+            typeUse: opt?.photo?.typeUse ?? DEFAULTS.photo.typeUse,
+        });
+
+        setColor({
+            sides: opt?.color?.sides ?? DEFAULTS.color.sides,
+            one: opt?.color?.one ?? DEFAULTS.color.one,
+            two: opt?.color?.two ?? DEFAULTS.color.two,
+            allSidesColor: opt?.color?.allSidesColor ?? DEFAULTS.color.allSidesColor,
+        });
+
+        setLamination({
+            type: opt?.lamination?.type ?? DEFAULTS.lamination.type,
+            material: opt?.lamination?.material ?? DEFAULTS.lamination.material,
+            size: opt?.lamination?.size ?? DEFAULTS.lamination.size,
+        });
+
+        setBig(opt?.big ?? DEFAULTS.big);
+        setCute(opt?.cute ?? DEFAULTS.cute);
+
+        setCuteLocal({
+            leftTop: Boolean(opt?.cuteLocal?.leftTop ?? DEFAULTS.cuteLocal.leftTop),
+            rightTop: Boolean(opt?.cuteLocal?.rightTop ?? DEFAULTS.cuteLocal.rightTop),
+            rightBottom: Boolean(opt?.cuteLocal?.rightBottom ?? DEFAULTS.cuteLocal.rightBottom),
+            leftBottom: Boolean(opt?.cuteLocal?.leftBottom ?? DEFAULTS.cuteLocal.leftBottom),
+        });
+
+        setHoles(opt?.holes ?? DEFAULTS.holes);
+        setHolesR(opt?.holesR ?? DEFAULTS.holesR);
+
+        // Tabs value can be persisted in different places depending on legacy versions.
+        // Prefer optionsJson.selectedService, then optionsJson.photo.service, then DB field newField1 / description.
+        const serviceFromOptions = opt?.selectedService || opt?.photo?.service;
+        const serviceFallback = editingOrderUnit?.newField1 || editingOrderUnit?.nameOrderUnit || editingOrderUnit?.description;
+        setSelectedService(normalizeService(serviceFromOptions || serviceFallback || DEFAULTS.selectedService));
+    }, [showNewPhoto, isEdit, options, editingOrderUnit]);
+
+
     const addNewOrderUnit = e => {
         let dataToSend = {
             orderId: thisOrder.id,
+            ...(isEdit && (editingOrderUnit?.id || editingOrderUnit?.idKey) ? { orderUnitId: (editingOrderUnit.id || editingOrderUnit.idKey) } : {}),
             toCalc: {
                 nameOrderUnit: `${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
                 type: "Photo",
+                // ✅ Persist top service buttons state
+                selectedService: normalizeService(selectedService),
+                // ✅ Extra persistence for legacy DB schemas (doesn't affect pricing)
+                newField1: normalizeService(selectedService),
                 size: size,
                 material: {
                     ...material,
@@ -104,7 +256,11 @@ const NewPhoto = ({
                 holes: holes,
                 holesR: holesR,
                 count: count,
-                photo: photo,
+                photo: {
+                    ...photo,
+                    // ✅ Also keep it inside optionsJson (photo block is always serialized)
+                    service: normalizeService(selectedService),
+                },
             }
         };
 
@@ -114,7 +270,7 @@ const NewPhoto = ({
                 setThisOrder(response.data);
                 // setSelectedThings2(response.data.order.OrderUnits || []);
                 setSelectedThings2(response.data.OrderUnits);
-                setShowNewPhoto(false)
+                safeSetShowNewPhoto(false)
             })
             .catch(error => {
                 if (error.response.status === 403) {
@@ -129,6 +285,8 @@ const NewPhoto = ({
     useEffect(() => {
         let dataToSend = {
             type: "Photo",
+            // optional, harmless for calc endpoint; helps debugging and future persistence
+            selectedService: normalizeService(selectedService),
             size: size,
             material: material,
             color: color,
@@ -138,7 +296,10 @@ const NewPhoto = ({
             cuteLocal: cuteLocal,
             holes: holes,
             count: count,
-            photo: photo,
+            photo: {
+                ...photo,
+                service: normalizeService(selectedService),
+            },
         }
         axios.post(`/calc/pricing`, dataToSend)
             .then(response => {
@@ -153,7 +314,7 @@ const NewPhoto = ({
                 }
                 console.log(error.message);
             })
-    }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, photo]);
+    }, [selectedService, size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, photo]);
     let handleClick = (e) => {
         setColor({
             sides: e,
@@ -358,7 +519,7 @@ const NewPhoto = ({
                                             <button className="adminButtonAdd" variant="danger"
                                                     onClick={addNewOrderUnit}
                                             >
-                                                Додати до замовлення
+                                                {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
                                             </button>
 
                                         </div>

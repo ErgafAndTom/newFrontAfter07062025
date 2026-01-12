@@ -1,120 +1,198 @@
-import React, { useEffect, useMemo, useState, useCallback, } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { MDBContainer } from "mdb-react-ui-kit";
 import { Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "../../api/axiosInstance";
-import NewNoModalLyuversy  from "./newnomodals/NewNoModalLyuversy";
+
+import NewNoModalLyuversy from "./newnomodals/NewNoModalLyuversy";
 import Loader from "../../components/calc/Loader";
 import NewNoModalCornerRounding from "./newnomodals/NewNoModalBig";
 import NewNoModalCute from "./newnomodals/NewNoModalCute";
 import NewNoModalHoles from "./newnomodals/NewNoModalHoles";
 import NewNoModalProkleyka from "./newnomodals/NewNoModalProkleyka";
-import NewNoModalLamination from "./newnomodals/NewNoModalLamination";
 import versantIcon from "../../components/newUIArtem/printers/binder.svg";
-import LaminationSize from "./newnomodals/LaminationSize";
-
-
 
 const emptyPrice = { pricePerUnit: 0, count: 0, totalPrice: 0 };
+
 const normalize = (obj = {}) => ({
   pricePerUnit: Number(obj.pricePerUnit) || 0,
-  count:        Number(obj.count)        || 0,
-  totalPrice:   Number(obj.totalPrice)   || 0,
-
+  count: Number(obj.count) || 0,
+  totalPrice: Number(obj.totalPrice) || 0,
 });
 
-const BigOvshik = ({
-                     thisOrder,
-                      setThisOrder,
-                     showBigOvshik,
-                     setSelectedThings2,
-                     setShowBigOvshik
-                   }) => {
-  const navigate = useNavigate();
-  const [isVisible, setIsVisible] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const fmt2 = v =>
-    new Intl.NumberFormat("uk-UA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      .format(Number(v));
-  const [material] = useState({
-    type: "Не потрібно",
-    material: "",
-    materialId: "",
-    size: ""
-  });
-  const [error, setError] = useState(null);
-  const [big, setBig] = useState("Не потрібно");
-  const [prokleyka, setProkleyka] = useState("Не потрібно");
-  const [lamination, setLamination] = useState({
-    type: "Не потрібно",
-    material: "",
-    materialId: "",
-    size: ""
-  });
-  const [lyuversy,  setLyuversy]  = useState("Не потрібно");
-  const [cute, setCute] = useState("Не потрібно");
+function safeNum(v, fallback) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
 
-  const [cuteLocal, setCuteLocal] = useState({
+function parseOptionsJson(editingOrderUnit) {
+  if (!editingOrderUnit?.optionsJson) return null;
+  try {
+    return JSON.parse(editingOrderUnit.optionsJson);
+  } catch (e) {
+    console.error("Bad optionsJson", e);
+    return null;
+  }
+}
+
+const DEFAULTS = {
+  // базові поля (те що бек очікує в pricing)
+  size: { x: 297, y: 420 },
+  material: { type: "Не потрібно", material: "", materialId: "", size: "" },
+  color: { sides: "Не потрібно", one: "", two: "", allSidesColor: "CMYK" },
+
+  count: 1,
+
+  big: "Не потрібно",
+  prokleyka: "Не потрібно",
+  lyuversy: "Не потрібно",
+  cute: "Не потрібно",
+  holes: "Не потрібно",
+  holesR: "",
+
+  cuteLocal: {
     leftTop: false,
     rightTop: false,
     rightBottom: false,
     leftBottom: false,
-    radius: ""
-  });
-  const [holes, setHoles] = useState("Не потрібно");
-  const [holesR, setHolesR] = useState("");
-  const [prices, setPrices] = useState([]);
+    radius: "",
+  },
 
-  const [color, setColor] = useState({
-    sides: "Не потрібно",
-    one: "",
-    two: "",
-    allSidesColor: "CMYK",
-  });
-  const [design, setDesign] = useState("Не потрібно");
-  const [count, setCount] = useState(1);
-  const [size, setSize] = useState({ x: 297, y: 420 }); // або рядок "A3"
-  /* ---------- state ---------- */
-  /* ---------- state ---------- */
+  // design: "Не потрібно" або число як string ("0","150"...)
+  design: "Не потрібно",
+
+  // lamination в цьому модалі використовується лише для розрахунку (з бекенду)
+  lamination: { type: "Не потрібно", material: "", materialId: "", size: "" },
+};
+
+const BigOvshik = ({
+                     thisOrder,
+                     setThisOrder,
+                     showBigOvshik,
+                     setSelectedThings2,
+                     setShowBigOvshik,
+
+                     // ✅ ДОДАЙ ЦЕ (як у Vishichka)
+                     editingOrderUnit,
+                   }) => {
+  const navigate = useNavigate();
+
+  const [isVisible, setIsVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [error, setError] = useState(null);
+
+  const options = useMemo(() => parseOptionsJson(editingOrderUnit), [editingOrderUnit]);
+  const isEdit = Boolean(editingOrderUnit?.id || editingOrderUnit?.optionsJson);
+
+  const fmt2 = (v) =>
+    new Intl.NumberFormat("uk-UA", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(v));
+
+  // ---------- керовані стейти (з дефолтів або з options) ----------
+  const [size, setSize] = useState(DEFAULTS.size);
+  const [material, setMaterial] = useState(DEFAULTS.material);
+  const [color, setColor] = useState(DEFAULTS.color);
+
+  const [count, setCount] = useState(DEFAULTS.count);
+
+  const [big, setBig] = useState(DEFAULTS.big);
+  const [prokleyka, setProkleyka] = useState(DEFAULTS.prokleyka);
+  const [lyuversy, setLyuversy] = useState(DEFAULTS.lyuversy);
+  const [cute, setCute] = useState(DEFAULTS.cute);
+
+  const [cuteLocal, setCuteLocal] = useState(DEFAULTS.cuteLocal);
+
+  const [holes, setHoles] = useState(DEFAULTS.holes);
+  const [holesR, setHolesR] = useState(DEFAULTS.holesR);
+
+  const [design, setDesign] = useState(DEFAULTS.design);
+  const [lamination, setLamination] = useState(DEFAULTS.lamination);
+
+  // Прайс-об’єкт з бекенду
   const [pricesThis, setPricesThis] = useState({
     big: emptyPrice,
     prokleyka: emptyPrice,
-    lamination: emptyPrice,   // ← здесь всё, что нужно
-    lyuversy:  emptyPrice,
+    lamination: emptyPrice,
+    lyuversy: emptyPrice,
     cute: emptyPrice,
     holes: emptyPrice,
-    design: { pricePerUnit: 0, totalPrice: 0 }
+
+    // ці два ключі ти використовуєш для ламінування
+    priceLaminationPerSheet: 0,
+    sheetCount: 0,
+
+    design: { pricePerUnit: 0, totalPrice: 0 },
   });
 
+  // ---------- ініціалізація (NEW vs EDIT) ----------
+  const resetToDefaults = useCallback(() => {
+    setSize(DEFAULTS.size);
+    setMaterial(DEFAULTS.material);
+    setColor(DEFAULTS.color);
 
-  /* ---------- стоимость ламинации ---------- */
-  const laminationCost = pricesThis.lamination.totalPrice;
+    setCount(DEFAULTS.count);
 
+    setBig(DEFAULTS.big);
+    setProkleyka(DEFAULTS.prokleyka);
+    setLyuversy(DEFAULTS.lyuversy);
+    setCute(DEFAULTS.cute);
 
-  /* ---------- общий итог ---------- */
-  // ⬇︎ рахуємо підсумок ОДНИМ useMemo
-  const totalPriceFull = useMemo(() => {
-    /* якщо бек вернув “ціна-за-лист” і “скільки листів” —
-       множимо; інакше беремо готову суму з lamination.totalPrice */
-    const laminationCost =
-      pricesThis.priceLaminationPerSheet && pricesThis.sheetCount
-        ? pricesThis.priceLaminationPerSheet * pricesThis.sheetCount
-        : pricesThis.lamination.totalPrice;
+    setCuteLocal(DEFAULTS.cuteLocal);
 
-    return (
-      laminationCost +
-      pricesThis.big.totalPrice +
-      pricesThis.prokleyka.totalPrice +
-      pricesThis.lyuversy.totalPrice +
-      pricesThis.cute.totalPrice +
-      pricesThis.holes.totalPrice +
-      pricesThis.design.totalPrice
+    setHoles(DEFAULTS.holes);
+    setHolesR(DEFAULTS.holesR);
+
+    setDesign(DEFAULTS.design);
+    setLamination(DEFAULTS.lamination);
+
+    setError(null);
+  }, []);
+
+  const hydrateFromEditUnit = useCallback(() => {
+    // якщо немає optionsJson — просто дефолти
+    if (!options) {
+      resetToDefaults();
+      // але можна підтягнути count з amount, якщо є
+      if (editingOrderUnit?.amount) setCount(safeNum(editingOrderUnit.amount, 1));
+      return;
+    }
+
+    // беремо значення з optionsJson, а що нема — з дефолтів
+    setSize(options?.size ?? DEFAULTS.size);
+    setMaterial(options?.material ?? DEFAULTS.material);
+    setColor(options?.color ?? DEFAULTS.color);
+
+    setCount(
+      safeNum(options?.count, NaN) ||
+      (editingOrderUnit?.amount ? safeNum(editingOrderUnit.amount, 1) : DEFAULTS.count)
     );
-  }, [pricesThis]);          // достатньо стежити лише за всім об’єктом
 
+    setBig(options?.big ?? DEFAULTS.big);
+    setProkleyka(options?.prokleyka ?? DEFAULTS.prokleyka);
+    setLyuversy(options?.lyuversy ?? DEFAULTS.lyuversy);
+    setCute(options?.cute ?? DEFAULTS.cute);
 
+    setCuteLocal(options?.cuteLocal ?? DEFAULTS.cuteLocal);
 
+    setHoles(options?.holes ?? DEFAULTS.holes);
+    setHolesR(options?.holesR ?? DEFAULTS.holesR);
 
+    setDesign(options?.design ?? DEFAULTS.design);
+    setLamination(options?.lamination ?? DEFAULTS.lamination);
+
+    setError(null);
+  }, [options, editingOrderUnit, resetToDefaults]);
+
+  // Ключова логіка: коли відкрили модалку — ставимо NEW або EDIT стани
+  useEffect(() => {
+    if (!showBigOvshik) return;
+    if (isEdit) hydrateFromEditUnit();
+    else resetToDefaults();
+  }, [showBigOvshik, isEdit, hydrateFromEditUnit, resetToDefaults]);
+
+  // ---------- анімація модалки ----------
   const handleClose = () => {
     setIsAnimating(false);
     setTimeout(() => {
@@ -133,6 +211,19 @@ const BigOvshik = ({
     }
   }, [showBigOvshik]);
 
+  // ---------- design → pricesThis.design ----------
+  useEffect(() => {
+    const v = design === "Не потрібно" ? 0 : Number(design) || 0;
+    setPricesThis((prev) => ({
+      ...prev,
+      design: {
+        pricePerUnit: v,
+        totalPrice: v,
+      },
+    }));
+  }, [design]);
+
+  // ---------- PRICING ----------
   useEffect(() => {
     const dataToSend = {
       type: "BigOvshik",
@@ -148,99 +239,127 @@ const BigOvshik = ({
       holes,
       holesR,
       count,
-      design
+      design,
     };
 
-    axios.post("/calc/pricing", dataToSend)
-      // внутри .then после axios.post("/calc/pricing", dataToSend)
+    axios
+      .post("/calc/pricing", dataToSend)
       .then(({ data }) => {
         const p = data?.prices ?? {};
 
-        setPricesThis(prev => ({
+        setPricesThis((prev) => ({
           ...prev,
-
-          big:       normalize(p.big),
+          big: normalize(p.big),
           prokleyka: normalize(p.prokleyka),
           lamination: normalize(p.lamination),
-          lyuversy:  normalize(p.lyuversy),
-          cute:      normalize(p.cute),
-          holes:     normalize(p.holes),
+          lyuversy: normalize(p.lyuversy),
+          cute: normalize(p.cute),
+          holes: normalize(p.holes),
 
-          // 💡 вот они — два ключа, приходящие из расчётов
-          priceLaminationPerSheet:
-            Number(p.priceLaminationPerSheet) || 0,
-          sheetCount:
-            Number(p.sheetCount) || 0,
+          priceLaminationPerSheet: Number(p.priceLaminationPerSheet) || 0,
+          sheetCount: Number(p.sheetCount) || 0,
 
-          design: prev.design
+          // design тримаємо локально (не перетираємо)
+          design: prev.design,
         }));
       })
+      .catch((err) => {
+        if (err?.response?.status === 403) navigate("/login");
+        console.log(err?.message);
+      });
+  }, [
+    size,
+    material,
+    color,
+    big,
+    lamination,
+    prokleyka,
+    lyuversy,
+    cute,
+    cuteLocal,
+    holes,
+    holesR,
+    count,
+    design,
+    navigate,
+  ]);
 
-  }, [size, material, color, big, prokleyka, cute, cuteLocal, holes, holesR, count, design, lyuversy, navigate, lamination]);
+  // ---------- TOTAL ----------
+  const totalPriceFull = useMemo(() => {
+    const laminationCost =
+      pricesThis.priceLaminationPerSheet && pricesThis.sheetCount
+        ? pricesThis.priceLaminationPerSheet * pricesThis.sheetCount
+        : pricesThis.lamination.totalPrice;
 
-  // useEffect(() => {
-  //   setPricesThis(prev => ({
-  //     ...prev,
-  //     design: {
-  //       pricePerUnit: design === 'Не потрібно' ? 0 : Number(design) || 0,
-  //       totalPrice:   design === 'Не потрібно' ? 0 : Number(design) || 0,
-  //     },
-  //
-  //   }));
-  // }, [design]);
+    return (
+      laminationCost +
+      pricesThis.big.totalPrice +
+      pricesThis.prokleyka.totalPrice +
+      pricesThis.lyuversy.totalPrice +
+      pricesThis.cute.totalPrice +
+      pricesThis.holes.totalPrice +
+      pricesThis.design.totalPrice
+    );
+  }, [pricesThis]);
 
-// сразу после useState с pricesThis
+  // ---------- SAVE ----------
+  const addNewOrderUnit = () => {
+    if (!thisOrder?.id) return;
 
+    const nameOrderUnit =
+      [
+        design !== "Не потрібно" ? "Дизайн" : null,
+        prokleyka !== "Не потрібно" ? "Проклейка" : null,
+        lyuversy !== "Не потрібно" ? "Люверси" : null,
+        big !== "Не потрібно" ? "Згинання" : null,
+        cute !== "Не потрібно" ? "Скруглення" : null,
+        holes !== "Не потрібно" ? "Свердління" : null,
+      ]
+        .filter(Boolean)
+        .join(", ") || "Постпресс";
 
-  const addNewOrderUnit = e => {
-    let dataToSend = {
+    const dataToSend = {
       orderId: thisOrder.id,
       toCalc: {
-        nameOrderUnit: [
-          design !== "Не потрібно" ? "Дизайн" : null,
-          prokleyka !== "Не потрібно" ? "Проклейка" : null,
-          lyuversy !== "Не потрібно" ? "Люверси" : null,
-          big !== "Не потрібно" ? "Згинання" : null,
-          cute !== "Не потрібно" ? "Скруглення" : null,
-          holes !== "Не потрібно" ? "Свердління" : null
-        ]
-          .filter(Boolean)
-          .join(", ") || "Постпресс",
+        nameOrderUnit,
         type: "BigOvshik",
-        size: size,
-        material: material,
-        color: color,
-        lamination: lamination,
-        big: big,
-        cute: cute,
-        cuteLocal: cuteLocal,
-        prokleyka: prokleyka,
-        lyuversy:  lyuversy,
-        design,
-        holes: holes,
-        holesR: holesR,
-        count: count,
 
-      }
+        size,
+        material,
+        color,
+        lamination,
+
+        big,
+        prokleyka,
+        lyuversy,
+
+        cute,
+        cuteLocal,
+
+        holes,
+        holesR,
+
+        design,
+        count,
+
+        window: "наліпки",
+      },
     };
 
-    axios.post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, dataToSend)
-      .then(response => {
-        // console.log(response.data);
+    axios
+      .post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, dataToSend)
+      .then((response) => {
         setThisOrder(response.data);
-        // setSelectedThings2(response.data.order.OrderUnits || []);
         setSelectedThings2(response.data.OrderUnits);
-        setShowBigOvshik(false)
+        setShowBigOvshik(false);
+        setError(null);
       })
-      .catch(error => {
-        setError(error)
-        if (error.response.status === 403) {
-          navigate('/login');
-        }
-        console.log(error.response);
-        // setErr(error)
+      .catch((err) => {
+        setError(err);
+        if (err?.response?.status === 403) navigate("/login");
+        console.log(err?.response || err?.message);
       });
-  }
+  };
 
   if (!isVisible) return <Loader />;
 
@@ -248,16 +367,16 @@ const BigOvshik = ({
     <div>
       <div
         style={{
-          position: 'fixed',
+          position: "fixed",
           inset: 0,
-          width: '100vw',
-          height: '100vh',
-          backgroundColor: 'rgba(15, 15, 15, 0.45)',
-          backdropFilter: 'blur(2px)',
-          WebkitBackdropFilter: 'blur(2px)',
+          width: "100vw",
+          height: "100vh",
+          backgroundColor: "rgba(15, 15, 15, 0.45)",
+          backdropFilter: "blur(2px)",
+          WebkitBackdropFilter: "blur(2px)",
           zIndex: 99,
           opacity: isAnimating ? 1 : 0,
-          transition: 'opacity 200ms ease'
+          transition: "opacity 200ms ease",
         }}
         onClick={handleClose}
       />
@@ -277,12 +396,16 @@ const BigOvshik = ({
           transition: "opacity 0.3s, transform 0.3s",
           borderRadius: "1vw",
           width: "95vw",
-          height: "95vh"
+          height: "95vh",
         }}
       >
         <div className="d-flex">
           <div className="m-auto fontProductName" />
-          <div className="btn btn-close btn-lg" style={{ margin: "0.5vw" }} onClick={handleClose} />
+          <div
+            className="btn btn-close btn-lg"
+            style={{ margin: "0.5vw" }}
+            onClick={handleClose}
+          />
         </div>
 
         <MDBContainer fluid>
@@ -297,7 +420,7 @@ const BigOvshik = ({
                   type="number"
                   value={count}
                   min={1}
-                  onChange={e => setCount(Number(e.target.value))}
+                  onChange={(e) => setCount(Math.max(1, Number(e.target.value) || 1))}
                   className="d-flex inputsArtemNumber inputsArtem"
                   style={{ marginLeft: "1vw", paddingLeft: "0.5vw" }}
                 />
@@ -310,7 +433,6 @@ const BigOvshik = ({
                 big={big}
                 setBig={setBig}
                 type="SheetCut"
-
                 buttonsArr={[]}
                 selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
               />
@@ -322,13 +444,15 @@ const BigOvshik = ({
                 buttonsArr={[]}
                 selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
               />
+
               <NewNoModalLyuversy
                 lyuversy={lyuversy}
                 setLyuversy={setLyuversy}
                 type="SheetCut"
                 buttonsArr={[]}
-                selectArr={["", "1","2","3","4","5","6","7","8","9"]}
+                selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
               />
+
               <NewNoModalCute
                 cute={cute}
                 setCute={setCute}
@@ -346,39 +470,37 @@ const BigOvshik = ({
                 type="SheetCut"
                 selectArr={["", "3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
               />
-            <div className="">
-              <div className="d-flex flex-row allArtemElem"  >
 
-                <label className="switch scale04ForButtonToggle" aria-label="Дизайн">
-                  <input
-                    type="checkbox"
-                    checked={design !== "Не потрібно"}
-                    onChange={() => setDesign(design === "Не потрібно" ? "0" : "Не потрібно")}
-                  />
-                  <span className="slider" />
-                </label>
+              <div className="">
+                <div className="d-flex flex-row allArtemElem">
+                  <label className="switch scale04ForButtonToggle" aria-label="Дизайн">
+                    <input
+                      type="checkbox"
+                      checked={design !== "Не потрібно"}
+                      onChange={() =>
+                        setDesign(design === "Не потрібно" ? "0" : "Не потрібно")
+                      }
+                    />
+                    <span className="slider" />
+                  </label>
 
-                <div className="PostpressNames">
-Дизайн:
-                  {design !== "Не потрібно" && (
-                    <div className="d-flex align-items-center" >
-                      <input
-                        type="number"
-                        min={0}
-                        value={design}
-                        onChange={(e) => setDesign(e.target.value)}
-                        className="d-flex inputsArtemNumber inputsArtem"
-                      />
-                      <span className="inputsArtemx allArtemElem">грн</span>
-                    </div>
-                  )}
+                  <div className="PostpressNames">
+                    Дизайн:
+                    {design !== "Не потрібно" && (
+                      <div className="d-flex align-items-center">
+                        <input
+                          type="number"
+                          min={0}
+                          value={design}
+                          onChange={(e) => setDesign(e.target.value)}
+                          className="d-flex inputsArtemNumber inputsArtem"
+                        />
+                        <span className="inputsArtemx allArtemElem">грн</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-              </div>
-
-
-
-
 
               {thisOrder && (
                 <div style={{ display: "flex", justifyContent: "center", marginTop: "2vh" }}>
@@ -387,40 +509,58 @@ const BigOvshik = ({
                   </button>
                 </div>
               )}
+
+              {error?.response?.data?.error && (
+                <div style={{ color: "red", marginTop: "1vh", textAlign: "center" }}>
+                  {error.response.data.error}
+                </div>
+              )}
             </div>
           </Row>
 
           <div className="d-flex justify-content-between pricesBlockContainer" style={{ height: "20vmin" }}>
             <div style={{ height: "19vmin" }}>
               <div className="fontInfoForPricing">
-                Ламінація: {fmt2(pricesThis.priceLaminationPerSheet)} грн&nbsp;* {pricesThis.sheetCount} шт&nbsp;=&nbsp;
+                Ламінація: {fmt2(pricesThis.priceLaminationPerSheet)} грн * {pricesThis.sheetCount} шт ={" "}
                 {fmt2(pricesThis.priceLaminationPerSheet * pricesThis.sheetCount)} грн
               </div>
+
               <div className="fontInfoForPricing">
-                Згинання: {fmt2(pricesThis.big.pricePerUnit)} грн * {pricesThis.big.count} = {fmt2(pricesThis.big.totalPrice)} грн
+                Згинання: {fmt2(pricesThis.big.pricePerUnit)} грн * {pricesThis.big.count} ={" "}
+                {fmt2(pricesThis.big.totalPrice)} грн
               </div>
+
               <div className="fontInfoForPricing">
-                Проклейка: {fmt2(pricesThis.prokleyka.pricePerUnit)} грн * {pricesThis.prokleyka.count} = {fmt2(pricesThis.prokleyka.totalPrice)} грн
+                Проклейка: {fmt2(pricesThis.prokleyka.pricePerUnit)} грн * {pricesThis.prokleyka.count} ={" "}
+                {fmt2(pricesThis.prokleyka.totalPrice)} грн
               </div>
+
               <div className="fontInfoForPricing">
-                Люверси: {fmt2(pricesThis.lyuversy.pricePerUnit)} грн * {pricesThis.lyuversy.count} = {fmt2(pricesThis.lyuversy.totalPrice)} грн
+                Люверси: {fmt2(pricesThis.lyuversy.pricePerUnit)} грн * {pricesThis.lyuversy.count} ={" "}
+                {fmt2(pricesThis.lyuversy.totalPrice)} грн
               </div>
+
               <div className="fontInfoForPricing">
-                Скруглення: {fmt2(pricesThis.cute.pricePerUnit)} грн * {pricesThis.cute.count} = {fmt2(pricesThis.cute.totalPrice)} грн
+                Скруглення: {fmt2(pricesThis.cute.pricePerUnit)} грн * {pricesThis.cute.count} ={" "}
+                {fmt2(pricesThis.cute.totalPrice)} грн
               </div>
+
               <div className="fontInfoForPricing">
-                Свердління: {fmt2(pricesThis.holes.pricePerUnit)} грн * {pricesThis.holes.count} = {fmt2(pricesThis.holes.totalPrice)} грн
+                Свердління: {fmt2(pricesThis.holes.pricePerUnit)} грн * {pricesThis.holes.count} ={" "}
+                {fmt2(pricesThis.holes.totalPrice)} грн
               </div>
+
               <div className="fontInfoForPricing">
                 Дизайн: {fmt2(pricesThis.design.pricePerUnit)} грн = {fmt2(pricesThis.design.totalPrice)} грн
               </div>
+
               <div className="fontInfoForPricing1">Загалом: {fmt2(totalPriceFull)} грн</div>
             </div>
 
             <img
               src={versantIcon}
               style={{ height: "16vmin", marginLeft: "15vmin", marginRight: "2vmin" }}
-              alt="printer"
+              alt="binder"
             />
           </div>
         </MDBContainer>

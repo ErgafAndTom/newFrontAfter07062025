@@ -4,10 +4,12 @@ import './CornerRounding.css';
 import './ArtemStyles.css';
 import handleChange from "./PerepletPereplet";
 
-const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, setCount, defaultt,}) => {
-    const [x, setX] = useState(size.x);
-    const [y, setY] = useState(size.y);
-    const [xVal, setXVal] = useState(false);
+const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, setCount, defaultt, showSize = true, showSides = true, }) => {
+
+  const [x, setX] = useState(safeSize.x);
+  const [y, setY] = useState(safeSize.y);
+
+  const [xVal, setXVal] = useState(false);
     const [yVal, setYVal] = useState(false);
     const [isCustom, setIsCustom] = useState(false);
     const [thisNameVal, setThisNameVal] = useState(defaultt);
@@ -51,7 +53,7 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
         minXYValue = 45
         maxXYValue = 445
         invalid = `Будь-ласка введіть розмір від ${minXYValue} до ${maxXYValue} (y до ${yMaxValue}).`
-    } else if (type === "SheetCutBw") {
+    } else if (type === "SheetCutBW") {
         formats = [
             // {name: "А6 (105 х 148 мм)", x: 105, y: 148},
             // {name: "A5 (148 х 210 мм)", x: 148, y: 210},
@@ -237,9 +239,9 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
     }
 
     useEffect(() => {
-        setX(size.x)
-        setY(size.y)
-        const selectedFormat = formats.find(format => format.x === size.x && format.y === size.y);
+        setX(safesize.x)
+        setY(safesize.y)
+        const selectedFormat = formats.find(format => format.x === safesize.x && format.y === safesize.y);
         if (selectedFormat) {
             setThisNameVal(selectedFormat.name);
             setIsCustom(false)
@@ -247,7 +249,7 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
             setThisNameVal("Задати свій розмір");
             setIsCustom(true)
         }
-    }, [size.x, size.y]);
+    }, [safesize.x, safesize.y]);
 
     return (
         <div className="d-flex allArtemElem" style={{marginTop: "1vw", marginLeft:"1.5vw"}}>
@@ -257,48 +259,49 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
                 </Form.Control.Feedback>
 
 
-            <div className="ArtemNewSelectContainer" style={{marginTop:"0.3vw"}}>
-                <select
-                    className="selectArtem"
-                    onChange={handleSelectOption}
-                    value={thisNameVal}
-                    // style={{marginLeft: "2vw"}}
-                >
-                    {/*<option disabled selected>Оберіть значення</option>*/}
-                    {/*<option>Задати свій розмір</option>*/}
-                    {formats.map((item, iter) => (
-                        <option
-                            className="optionInSelectArtem"
-                            key={item.name}
-                            value={item.name}
-                        >
-                            {item.name}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginLeft: "2vw"}}>
-                {buttonsArr.map((item, index) => (
-                    <button
-                        className={item === color.sides ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
-                        key={index}
-                        onClick={() => handleClick(item)}
-                        // style={{
-                        //     backgroundColor: item === color.sides ? 'orange' : 'transparent',
-                        //     border: item === color.sides ? '0.13vw solid transparent' : '0.13vw solid transparent',
-                        // }}
-                    >
-                        <div className="" style={{
-
-                            opacity: item === color.sides ? '100%' : '100%',
-
-                        }}>
-                            {item}
-                        </div>
-                    </button>
+          {showSize && (
+            <div className="ArtemNewSelectContainer" style={{ marginTop: "0.3vw" }}>
+              <select
+                className="selectArtem"
+                onChange={handleSelectOption}
+                value={thisNameVal}
+              >
+                {formats.map((item) => (
+                  <option key={item.name} value={item.name}>
+                    {item.name}
+                  </option>
                 ))}
+              </select>
             </div>
+          )}
+
+
+          {showSides && buttonsArr.length > 0 && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "12px",
+                marginLeft: showSize ? "2vw" : "0",
+              }}
+            >
+              {buttonsArr.map((item) => (
+                <button
+                  key={item}
+                  className={
+                    item === color.sides
+                      ? "buttonsArtem buttonsArtemActive"
+                      : "buttonsArtem"
+                  }
+                  onClick={() => handleClick(item)}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          )}
+
 
 
         </div>

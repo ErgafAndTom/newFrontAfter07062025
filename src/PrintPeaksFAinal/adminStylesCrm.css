@@ -144,7 +144,7 @@
   background-position: 30% 18%, 0% 50%;
   animation: btnGlow 3s ease-in-out infinite;
 }
-.adminButtonAdd,
+
 .adminButtonAdd:link,
 .adminButtonAdd:visited {
   text-decoration: none;
@@ -155,6 +155,7 @@
 
 /* КНОПКА */
 .adminButtonAdd {
+
   text-transform: uppercase;
   /*letter-spacing:.06em;*/
   text-align: start;
@@ -187,7 +188,7 @@
   background-size: 250% 250%, 320% 320%;
   background-position: 30% 18%, 0% 50%;
   animation: btnGlow 3s ease-in-out infinite;
-  box-shadow: 0 4px 0 var(--btn-edge), 0 10px 16px rgba(0,0,0,0.18);
+  /*box-shadow: 0 4px 0 var(--btn-edge), 0 10px 16px rgba(0,0,0,0.18);*/
   transition: transform .18s ease, box-shadow .18s ease, color .18s ease, filter .18s ease;
 }
 
@@ -218,20 +219,20 @@
 
 
 /* Active */
-.adminButtonAdd:active {
-  transform: translateY(2px);
-  box-shadow: inset 0 3px 7px var(--btn-edge);
-}
+/*.adminButtonAdd:active {*/
+/*  transform: translateY(2px);*/
+/*  box-shadow: inset 0 3px 7px var(--btn-edge);*/
+/*}*/
 
 /* Focus */
 
 
 /* Disabled */
 .adminButtonAdd:disabled {
-  background: #F2F0E7 !important;
+  background: #a1945b !important;
   color: #777 !important;
   cursor: not-allowed;
-  opacity: 0.7;
+
   transform: none;
   box-shadow: none;
 }
@@ -708,8 +709,8 @@
 .card3d{
   position: relative;
   background:#f2f0e7;
-  border:1px solid rgba(0,0,0,.08);
-  border-radius:.5vw;
+  border:none;
+  border-radius:1vw;
   /* многоуровневая тень + внутренняя подсветка кромки */
   box-shadow:
     0 1px 0 rgba(255,255,255,.6) inset,
@@ -732,7 +733,7 @@
 }
 
 .card3d:hover{
-  transform: translateY(-2px) translateZ(6px);
+  /*transform: translateY(-2px) translateZ(6px);*/
   box-shadow:
     0 1px 0 rgba(255,255,255,.65) inset,
     0 -1px 0 rgba(0,0,0,.03) inset,
@@ -1217,4 +1218,111 @@ font-weight: 400;
   background-color: #e8eefc;
   font-weight: 600;
   color: #3c60a6;
+}
+.orderEditTabBtn{
+  /* позиція */
+  position: absolute;
+  right: -38px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+
+  /* вигляд */
+  border: none;
+  border-radius: 12px 0 0 12px;
+  background: #2f8f2f;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+  cursor: pointer;
+
+  /* анімація */
+  transition: width 180ms ease, right 180ms ease, padding 180ms ease, border-radius 180ms ease, opacity 180ms ease;
+
+  /* ✅ згорнутий стан */
+  width: 18px;
+  height: 120px;
+  padding: 8px 0;
+
+  /* текст вертикально, компактно */
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 0.2px;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.88;
+
+  /* щоб текст не виходив за межі */
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* ✅ РОЗГОРТАННЯ при наведенні */
+.orderEditTabBtn:hover{
+  right: 0;                /* “притягуємо” на карточку */
+  width: 170px;            /* ширина розгорнутої кнопки */
+  height: 40px;            /* стає нормальною кнопкою */
+  padding: 10px 14px;
+  opacity: 1;
+
+  border-radius: 12px;     /* акуратно */
+  writing-mode: horizontal-tb; /* текст горизонтально */
+  text-orientation: initial;
+}
+
+/* щоб при hover не було “стрибу” по лінії */
+.orderEditTabBtn:active{
+  transform: translateY(-50%) scale(0.98);
+}
+.orderEditTabBtn{
+  position: absolute;
+  right: 0px;          /* ховаємо частину за межі карточки */
+  bottom: 0px;             /* можеш змінити: 10-20px */
+  z-index: 5;
+
+  border: none;
+  border-radius: 12px 0 0 12px;
+  background: #2f8f2f;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+  cursor: pointer;
+
+  /* ✅ згорнутий стан (тонка полоска) */
+  width: 18px;
+  height: 40px;
+  padding: 0;
+
+  /* ховаємо текст коли згорнута */
+  overflow: hidden;
+  white-space: nowrap;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: width 180ms ease, right 180ms ease, padding 180ms ease, opacity 180ms ease;
+  opacity: 0.9;
+}
+
+/* ✅ розгортається по ховеру */
+.orderEditTabBtn:hover{
+  right: 0;
+  width: 190px;          /* ширина розгорнутої кнопки */
+  padding: 0 12px;
+  justify-content: flex-start;
+  opacity: 1;
+}
+
+/* ✅ текст */
+.orderEditTabBtn .label{
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* (опційно) маленька іконка зліва */
+.orderEditTabBtn .icon{
+  width: 16px;
+  min-width: 16px;
+  margin-right: 8px;
+  opacity: 0.95;
 }

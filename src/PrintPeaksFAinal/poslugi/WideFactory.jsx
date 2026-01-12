@@ -40,7 +40,9 @@ const WideFactory = ({
                        setShowWideFactory,
                        showWideFactory,
                    setThisOrder,
-                   setSelectedThings2
+                   setSelectedThings2,
+                   editingOrderUnit,
+                   setEditingOrderUnit
                  }) => {
   // const [show, setShow] = useState(false);
   let handleChange = (e) => {
@@ -51,14 +53,17 @@ const WideFactory = ({
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [selectWideFactory, setSelectWideFactory] = useState("Баннер FactoryWide");
-  const [arrOfTops, setArrOfTops] = useState([""]);
+  const [arrOfTops, setArrOfTops] = useState(["Баннер"]);
   const [arrOfDruk, setArrOfDruk] = useState(["Екосольвентний друк", "УФ друк"]);
   const [error, setError] = useState(null);
+  const editId = editingOrderUnit?.id ?? editingOrderUnit?.ID ?? editingOrderUnit?.idKey ?? null;
+  const isEdit = Boolean(editId);
   const handleClose = () => {
     setIsAnimating(false); // Начинаем анимацию закрытия
     setTimeout(() => {
       setIsVisible(false)
-      setShowWideFactory(false);
+            setShowWideFactory(false);
+      if (typeof setEditingOrderUnit === 'function') setEditingOrderUnit(null);
     }, 300); // После завершения анимации скрываем модальное окно
   }
   const handleShow = useCallback((event) => {
@@ -122,7 +127,7 @@ const WideFactory = ({
   const [count, setCount] = useState(1);
   const [prices, setPrices] = useState(null);
   const [pricesThis, setPricesThis] = useState(null);
-  const [selectedService, setSelectedService] = useState("Плакат");
+  const [selectedService, setSelectedService] = useState("Баннер");
   const [selectedDruk, setSelectedDruk] = useState("Екосольвентний друк");
 
   let handleClickWideFactory = (e) => {
@@ -143,15 +148,97 @@ const WideFactory = ({
   }
 
   useEffect(() => {
-    setSelectedService(arrOfTops[0])
+    if (!arrOfTops || arrOfTops.length === 0) return;
+    setSelectedService(prev => (prev && arrOfTops.includes(prev)) ? prev : arrOfTops[0]);
   }, [arrOfTops]);
+
+
+  const safeParseOptions = (raw) => {
+    if (!raw) return null;
+    if (typeof raw === "object") return raw;
+    try { return JSON.parse(raw); } catch (e) { return null; }
+  };
+
+  const applyTopOptionsByFactoryType = (factoryType) => {
+    if (factoryType === "Баннер FactoryWide") return ["Баннер"];
+    if (factoryType === "Плівка FactoryWide") return ["Наліпки", "Стікера", "Графік роботи"];
+    if (factoryType === "Папір FactoryWide") return ["Афіша", "Плакат", "Реклама"];
+    if (factoryType === "ПВХ FactoryWide") return ["Таблички"];
+    return ["Баннер"];
+  };
+
+  const resetForm = () => {
+    setSelectWideFactory("Баннер FactoryWide");
+    setArrOfTops(["Баннер"]);
+    setSize({ x: 420, y: 594 });
+    setMaterial({ type: "Баннер FactoryWide", thickness: "", material: "", materialId: "" });
+    setColor({ sides: "односторонній", one: "", two: "", allSidesColor: "CMYK" });
+    setLamination({ type: "Не потрібно", material: "", materialId: "" });
+    setBig("Не потрібно");
+    setCute("Не потрібно");
+    setCuteLocal({ leftTop: false, rightTop: false, rightBottom: false, leftBottom: false, radius: "" });
+    setLuversi({ type: "Не потрібно", thickness: "", material: "", materialId: "", size: 100 });
+    setPlotterCutting({ type: "Не потрібно", thickness: "", material: "", materialId: "", size: 100 });
+    setMontajnaPlivka({ type: "Не потрібно", thickness: "", material: "", materialId: "", size: 100 });
+    setHoles("Не потрібно");
+    setHolesR("Не потрібно");
+    setCount(1);
+    setSelectedDruk("Екосольвентний друк");
+    setSelectedService("Баннер");
+  };
+
+  useEffect(() => {
+    if (!showWideFactory) return;
+
+    if (!isEdit) {
+      resetForm();
+      return;
+    }
+
+    const opts = safeParseOptions(editingOrderUnit?.optionsJson) || {};
+    const factoryType = opts?.material?.type || editingOrderUnit?.type || "Баннер FactoryWide";
+    const tops = applyTopOptionsByFactoryType(factoryType);
+
+    setSelectWideFactory(factoryType);
+    setArrOfTops(tops);
+
+    // Hydrate main fields
+    if (opts.size?.x && opts.size?.y) setSize(opts.size);
+    else if (editingOrderUnit?.newField2 && editingOrderUnit?.newField3) {
+      setSize({ x: Number(editingOrderUnit.newField2), y: Number(editingOrderUnit.newField3) });
+    }
+
+    if (opts.material) setMaterial(opts.material);
+    if (opts.color) setColor(opts.color);
+    if (opts.lamination) setLamination(opts.lamination);
+    if (opts.big) setBig(opts.big);
+    if (opts.cute) setCute(opts.cute);
+    if (opts.cuteLocal) setCuteLocal(opts.cuteLocal);
+    if (opts.holes) setHoles(opts.holes);
+    if (opts.holesR) setHolesR(opts.holesR);
+
+    if (typeof opts.count !== "undefined") setCount(Number(opts.count) || 1);
+    else if (editingOrderUnit?.amount) setCount(Number(editingOrderUnit.amount) || 1);
+    else if (editingOrderUnit?.newField5) setCount(Number(editingOrderUnit.newField5) || 1);
+
+    if (opts.selectedDruk) setSelectedDruk(opts.selectedDruk);
+
+    if (opts.luversi) setLuversi(opts.luversi);
+    if (opts.plotterCutting) setPlotterCutting(opts.plotterCutting);
+    if (opts.montajnaPlivka) setMontajnaPlivka(opts.montajnaPlivka);
+
+    const svc = opts.selectedService || opts.newField1 || editingOrderUnit?.newField1 || tops[0];
+    setSelectedService(svc);
+  }, [showWideFactory, isEdit, editId]);
 
   const addNewOrderUnit = e => {
     let dataToSend = {
       orderId: thisOrder.id,
+      ...(isEdit ? { orderUnitId: editId, idKey: editId } : {}),
       toCalc: {
         nameOrderUnit: `${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
-        type: "Wide",
+        type: "WideFactory",
+        newField6: "WideFactory",
         size: size,
         material: material,
         color: color,
@@ -162,6 +249,8 @@ const WideFactory = ({
         holes: holes,
         holesR: holesR,
         count: count,
+        selectedService: selectedService,
+        newField1: selectedService,
         selectedDruk: selectedDruk,
         luversi: luversi,
         plotterCutting: plotterCutting,
@@ -176,6 +265,7 @@ const WideFactory = ({
         // setSelectedThings2(response.data.order.OrderUnits || []);
         setSelectedThings2(response.data.OrderUnits);
         setShowWideFactory(false)
+        if (typeof setEditingOrderUnit === "function") setEditingOrderUnit(null)
       })
       .catch(error => {
         setError(error);
@@ -199,6 +289,7 @@ const WideFactory = ({
   // }, []);
 
   useEffect(() => {
+    if (!showWideFactory) return;
     let dataToSend = {
       type: "WideFactory",
       size: size,

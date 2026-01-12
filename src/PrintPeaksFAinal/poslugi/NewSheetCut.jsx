@@ -1,6 +1,6 @@
 import {MDBContainer} from "mdb-react-ui-kit";
 import {Row} from "react-bootstrap";
-import React, {useCallback, useEffect, useState} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axios from '../../api/axiosInstance';
 import Loader from "../../components/calc/Loader";
 import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
@@ -13,8 +13,7 @@ import Materials2 from "./newnomodals/Materials2";
 import {useNavigate} from "react-router-dom";
 import NewNoModalLyuversy  from "./newnomodals/NewNoModalLyuversy";
 import Porizka from "./newnomodals/Porizka";
-
-import "./isoButtons.css"
+import "./NewSheetCutBW.css";
 import IsoButtons from "./IsoButtons";
 
 import NewNoModalProkleyka from "./newnomodals/NewNoModalProkleyka";
@@ -24,6 +23,50 @@ const normalize = (obj = {}) => ({
   count:        Number(obj.count)        || 0,
   totalPrice:   Number(obj.totalPrice)   || 0
 });
+
+
+const DEFAULTS = {
+  size: { x: 310, y: 440 },
+  material: { type: "Папір", thickness: "Цупкий", material: "", materialId: "0", typeUse: "Цупкий" },
+  color: { sides: "односторонній", one: "", two: "", allSidesColor: "CMYK" },
+  lamination: { type: "Не потрібно", material: "", materialId: "", size: "" },
+  big: "Не потрібно",
+  cute: "Не потрібно",
+  porizka: { type: "Не потрібно" },
+  cuteLocal: { leftTop: false, rightTop: false, rightBottom: false, leftBottom: false, radius: "" },
+  holes: "Не потрібно",
+  holesR: "",
+  prokleyka: "Не потрібно",
+  lyuversy: "Не потрібно",
+  design: "Не потрібно",
+  count: 1,
+  selectedService: "Зображення",
+};
+
+function safeNum(v, fallback) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function parseOptionsJson(orderUnit) {
+  if (!orderUnit?.optionsJson) return null;
+  try {
+    return JSON.parse(orderUnit.optionsJson);
+  } catch (e) {
+    console.error("Bad optionsJson in SheetCut", e);
+    return null;
+  }
+}
+
+const SERVICE_LIST = ["Зображення", "Листівка", "Візитка", "Рукав", "Флаєр", "Буклет", "Брошура", "Картка", "Диплом", "Сертифікат", "Подяка", "Зін", "Презентація", "Бланк", "Афіша", "Календар", "Плакат", "Візуалізація", "Меню", "Документ", "Бейджі", "Холдер"];
+
+function deriveSelectedService(opt, editingOrderUnit) {
+  const raw = (opt?.nameOrderUnit || editingOrderUnit?.nameOrderUnit || editingOrderUnit?.name || "").trim().toLowerCase();
+  if (!raw) return DEFAULTS.selectedService;
+
+  const found = SERVICE_LIST.find((s) => raw.includes(s.toLowerCase()));
+  return found || DEFAULTS.selectedService;
+}
 const NewSheetCut = ({
                        thisOrder,
                        newThisOrder,
@@ -32,13 +75,18 @@ const NewSheetCut = ({
                        setShowNewSheetCut,
                        setThisOrder,
                        setSelectedThings2,
-                       showNewSheetCut
+                       showNewSheetCut,
+                       editingOrderUnit,
+                       setEditingOrderUnit,
                      }) => {
   const fmt2 = v =>
     new Intl.NumberFormat("uk-UA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
       .format(Number(v));
   const [load, setLoad] = useState(false);
   const navigate = useNavigate();
+
+  const isEdit = Boolean(editingOrderUnit?.id || editingOrderUnit?.idKey);
+  const options = useMemo(() => parseOptionsJson(editingOrderUnit), [editingOrderUnit]);
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   let handleChange = (e) => {
@@ -50,6 +98,7 @@ const NewSheetCut = ({
     setTimeout(() => {
       setIsVisible(false)
       setShowNewSheetCut(false);
+      if (typeof setEditingOrderUnit === "function") setEditingOrderUnit(null);
     }, 300); // После завершения анимации скрываем модальное окно
   }
   const handleShow = useCallback((event) => {
@@ -118,11 +167,117 @@ const NewSheetCut = ({
   });
   const [selectedService, setSelectedService] = useState("Зображення");
 
-  const addNewOrderUnit = e => {
+/**
+ * ✅ Поведінка як у Vishichka:
+ * при відкритті модалки
+ * - NEW: reset до дефолтів
+ * - EDIT: підтягуємо з optionsJson (+ fallback з колонок amount/newField2/newField3)
+ */
+useEffect(() => {
+  if (!showNewSheetCut) return;
+
+  setError(null);
+
+  if (!isEdit) {
+    setSize(DEFAULTS.size);
+    setMaterial(DEFAULTS.material);
+    setColor(DEFAULTS.color);
+    setLamination(DEFAULTS.lamination);
+    setBig(DEFAULTS.big);
+    setCute(DEFAULTS.cute);
+    setPorizka(DEFAULTS.porizka);
+    setCuteLocal(DEFAULTS.cuteLocal);
+    setHoles(DEFAULTS.holes);
+    setHolesR(DEFAULTS.holesR);
+    setProkleyka(DEFAULTS.prokleyka);
+    setLyuversy(DEFAULTS.lyuversy);
+    setDesign(DEFAULTS.design);
+    setCount(DEFAULTS.count);
+    setSelectedService(DEFAULTS.selectedService);
+
+    setPricesThis({
+      big: emptyPrice,
+      prokleyka: emptyPrice,
+      lyuversy: emptyPrice,
+      cute: emptyPrice,
+      holes: emptyPrice,
+      design: { pricePerUnit: 0, totalPrice: 0 }
+    });
+    return;
+  }
+
+  const opt = options || null;
+
+  setCount(safeNum(opt?.count, safeNum(editingOrderUnit?.amount, DEFAULTS.count)));
+  setSize({
+    x: safeNum(opt?.size?.x, safeNum(editingOrderUnit?.newField2, DEFAULTS.size.x)),
+    y: safeNum(opt?.size?.y, safeNum(editingOrderUnit?.newField3, DEFAULTS.size.y)),
+  });
+
+  setMaterial({
+    type: opt?.material?.type ?? DEFAULTS.material.type,
+    thickness: opt?.material?.thickness ?? DEFAULTS.material.thickness,
+    material: opt?.material?.material ?? DEFAULTS.material.material,
+    materialId: opt?.material?.materialId ?? DEFAULTS.material.materialId,
+    typeUse: opt?.material?.typeUse ?? DEFAULTS.material.typeUse,
+  });
+
+  setColor({
+    sides: opt?.color?.sides ?? DEFAULTS.color.sides,
+    one: opt?.color?.one ?? DEFAULTS.color.one,
+    two: opt?.color?.two ?? DEFAULTS.color.two,
+    allSidesColor: opt?.color?.allSidesColor ?? DEFAULTS.color.allSidesColor,
+  });
+
+  setLamination({
+    type: opt?.lamination?.type ?? DEFAULTS.lamination.type,
+    material: opt?.lamination?.material ?? DEFAULTS.lamination.material,
+    materialId: opt?.lamination?.materialId ?? DEFAULTS.lamination.materialId,
+    size: opt?.lamination?.size ?? DEFAULTS.lamination.size,
+  });
+
+  setBig(opt?.big ?? DEFAULTS.big);
+  setCute(opt?.cute ?? DEFAULTS.cute);
+  setPorizka(opt?.porizka ?? DEFAULTS.porizka);
+
+  setCuteLocal({
+    leftTop: opt?.cuteLocal?.leftTop ?? DEFAULTS.cuteLocal.leftTop,
+    rightTop: opt?.cuteLocal?.rightTop ?? DEFAULTS.cuteLocal.rightTop,
+    rightBottom: opt?.cuteLocal?.rightBottom ?? DEFAULTS.cuteLocal.rightBottom,
+    leftBottom: opt?.cuteLocal?.leftBottom ?? DEFAULTS.cuteLocal.leftBottom,
+    radius: opt?.cuteLocal?.radius ?? DEFAULTS.cuteLocal.radius,
+  });
+
+  setHoles(opt?.holes ?? DEFAULTS.holes);
+  setHolesR(opt?.holesR ?? DEFAULTS.holesR);
+  setProkleyka(opt?.prokleyka ?? DEFAULTS.prokleyka);
+  setLyuversy(opt?.lyuversy ?? DEFAULTS.lyuversy);
+  setDesign(opt?.design ?? DEFAULTS.design);
+
+  setSelectedService(deriveSelectedService(opt, editingOrderUnit));
+}, [showNewSheetCut, isEdit, options, editingOrderUnit]);
+
+// CATALOG PRICES (для Materials2 / Size / інше)
+useEffect(() => {
+  axios
+    .get(`/getpricesNew`)
+    .then((res) => {
+      const data = res?.data;
+      const arr = Array.isArray(data) ? data : Array.isArray(data?.rows) ? data.rows : [];
+      setPrices(arr);
+    })
+    .catch((err) => {
+      if (err?.response?.status === 403) navigate("/login");
+      console.log(err?.message);
+    });
+}, [navigate]);
+
+  const addNewOrderUnit = () => {
     let dataToSend = {
-      orderId: thisOrder.id,
+      orderId: thisOrder?.id,
+      ...(isEdit && (editingOrderUnit?.id || editingOrderUnit?.idKey) ? { orderUnitId: (editingOrderUnit.id || editingOrderUnit.idKey) } : {}),
       toCalc: {
-        nameOrderUnit: `${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
+        nameOrderUnit: selectedService ? `${selectedService.toLowerCase()} ` : "",
         type: "SheetCut",
         size: size,
         material: material,
@@ -174,6 +329,7 @@ const NewSheetCut = ({
   //         })
   // }, []);
   useEffect(() => {
+    if (!showNewSheetCut) return;
     setPricesThis(prev => ({
       ...prev,
       design: {
@@ -181,9 +337,11 @@ const NewSheetCut = ({
         totalPrice:   design === 'Не потрібно' ? 0 : Number(design) || 0,
       },
     }));
-  }, [design]);
+  }, [showNewSheetCut, design]);
 
   useEffect(() => {
+    if (!showNewSheetCut) return;
+
     let dataToSend = {
       type: "SheetCut",
       size: size,
@@ -219,7 +377,7 @@ const NewSheetCut = ({
         if (err.response?.status === 403) navigate("/login");
         console.log(err.message);
       });
-  }, [size, material, color, lamination.materialId, big, cute, cuteLocal, holes, holesR, count, porizka, lyuversy, prokleyka, design]);
+  }, [showNewSheetCut, size, material, color, lamination.materialId, big, cute, cuteLocal, holes, holesR, count, porizka, lyuversy, prokleyka, design]);
   useEffect(() => {
     if (error) setError(null);
   }, [material]);
@@ -286,7 +444,7 @@ const NewSheetCut = ({
                 <div className="d-flex flex-wrap justify-content-center  fontInfoForPricingsmall {
 }
 ">
-                  {["Зображення", "Листівка", "Візитка", "Флаєр", "Буклет", "Брошура", "Картка", "Диплом", "Сертифікат", "Подяка", "Зін", "Презентація", "Бланк", "Афіша", "Календар", "Плакат", "Візуалізація", "Меню", "Документ", "Бейджі","Холдер"].map((service, index) => (
+                  {["Зображення", "Листівка", "Візитка", "Рукав", "Флаєр", "Буклет", "Брошура", "Картка", "Диплом", "Сертифікат", "Подяка", "Зін", "Презентація", "Бланк", "Афіша", "Календар", "Плакат", "Візуалізація", "Меню", "Документ", "Бейджі","Холдер"].map((service, index) => (
                     <button
                       key={index}
                       className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}
@@ -533,7 +691,7 @@ const NewSheetCut = ({
                       <button className="adminButtonAdd" variant="danger"
                               onClick={addNewOrderUnit}
                       >
-                        Додати до замовлення
+                        {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
                       </button>
 
                     </div>

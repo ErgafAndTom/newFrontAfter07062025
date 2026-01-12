@@ -2,10 +2,12 @@
 
 .allArtemElem {
   margin-left: 2vw;
-
-
+  font-size: 1.5
 
 }
+
+
+
 
 .scale04ForButtonToggle {
   transform: scale(0.5);
@@ -39,13 +41,14 @@
   /* border: 0.15vw solid grey; */ /* если понадобится, масштабировать аналогично */
   width: 1vw; /* 10vw * 0.6 */
   border-bottom: 3px solid #FFA500; /* 5px * 0.6 */
+  font-size: 1.7vh;
 }
 
 .inputsArtemNumber {
   margin-left: 1vw;
   align-items: center;
 
-  background: #ebebe6;
+  background: #f7f5ee;
 }
 
 .inputsArtemkilk {
@@ -55,24 +58,26 @@
   white-space: nowrap;
   /*padding: 0.3vh 0.3vw; !* 0.633vh и 1.273vw умноженные на 0.6 *!*/
   justify-content: center;
-  margin-left: 0.4vw;
+  margin-left: 0.6vw;
   border: transparent;
   /*width: 5vw;*/
   /*display: flex*/
 }
 
 .inputsArtem {
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
   display: flex;
   font-size: clamp(1.2rem, 1.2vh, 2.5vh);
   justify-content: center;
   align-items: center;
-  border: none;
+  border: 1px solid #cfcfcf;
 
   height: 4vh;
-  background: #ebebe6;
+  background: transparent;
   /*padding: 0.38vh 0.76vw; !* 0.633vh и 1.273vw умноженные на 0.6 *!*/
   /*font-size: 1vw;*/
-  border-radius: 0.3vw; /* 0.5vw * 0.6 */
+/* 0.5vw * 0.6 */
   /* border: 0.15vw solid grey; */ /* если понадобится, масштабировать аналогично */
   width: 5vw; /* 10vw * 0.6 */
   border-bottom: 3px solid #FFA500; /* 5px * 0.6 */
@@ -84,17 +89,21 @@
 
 .selectArtem {
   justify-content: center;
+  padding: 8px  10px;
   align-items: center;
+border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
   background-color: transparent;
   /*padding: 0.38vh 0.76vw;*/
   font-size: clamp(1.2rem, 1.2vh, 2.5vh);
   /*outline: none;*/
   width: auto;
-  border: 3px solid transparent; /* 5px * 0.6 */
+  border: 1px solid #cfcfcf; /* 5px * 0.6 */
   /*appearance: none;*/
   /*-webkit-appearance: none;*/
   /*-moz-appearance: none;*/
   border-bottom: 3px solid #FFA500; /* 5px * 0.6 */
+  font-size: 1.7vh;
 }
 
 .optionInSelectArtem {
@@ -109,12 +118,12 @@
 
 .buttonsArtem {
   font-weight: 400;
-  font-size: clamp(1.2rem, 1.2vh, 2.5vh);
+  font-size: clamp(1.1rem, 1.2vh, 2.5vh);
   display: flex;
   justify-content: center;
   align-items: center;
   /* border-radius: 0.627vw; */ /* если использовать, то 0.627vw * 0.6 ≈ 0.38vw */
-  padding: 0.48vh 0.76vw; /* 0.8vh и 1.273vw умноженные на 0.6 */
+  padding: 0.3vh 0.3vw; /* 0.8vh и 1.273vw умноженные на 0.6 */
   margin: 0.3vw; /* 0.323vw * 0.6 */
   /*font-size: var(--font-size-base);*/
   /* 1.3vw * 0.6 */
@@ -340,8 +349,9 @@
 .custom-select-header {
 
   color: black;
-  border-radius: 10px;
-  padding: 8px 0px;
+  border-start-end-radius : 10px;
+  border-start-start-radius : 10px;
+  padding: 0;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -349,7 +359,8 @@
   /*font-size: 15px;*/
   transition: 0.2s;
   white-space: nowrap;
-  background: #dcd9ce;
+  background: transparent;
+
 }
 
 .custom-select-header:hover {
@@ -378,6 +389,7 @@
   white-space: nowrap;
   padding: 8px 12px;
   cursor: pointer;
+
   display: flex;
   justify-content: space-between;
   align-items: baseline;

@@ -77,7 +77,7 @@ export default function RadicalMenuGrid({ onPick }) {
 
 export const buildHandlePick = (ctx) => {
   const map = {
-    black: () => ctx?.setShowNewSheetCutBw?.(true),
+    black: () => ctx?.setShowNewSheetCutBW?.(true),
     color: () => ctx?.setShowNewSheetCut?.(true),
     wide: () => ctx?.setShowNewWide?.(true),
     photo: () => ctx?.setShowNewPhoto?.(true),

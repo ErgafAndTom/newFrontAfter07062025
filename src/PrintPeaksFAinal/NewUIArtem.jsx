@@ -1,11 +1,13 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
+
 import './userInNewUiArtem/StyleArtem.css';
 import './CPM.css';
 import './adminStylesCrm.css';
 import './Wide.css';
 import './MainWindow.css';
-import {useNavigate, useParams} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from '../api/axiosInstance';
+
 
 import blackWhitePrintIcon from "../components/newUIArtem/printers/ComponentTMP_0-image5.png";
 import colorPrintIcon from "../components/newUIArtem/printers/46.png";
@@ -37,7 +39,7 @@ import OneProductInOrders from "../components/newcalc/Orders/OneProductInOrders"
 
 import NewWide from "./poslugi/newWide";
 import NewSheetCut from "./poslugi/NewSheetCut";
-import NewSheetCutBw from "./poslugi/NewSheetCutBw";
+import NewSheetCutBW from "./poslugi/NewSheetCutBW"
 import NewPhoto from "./poslugi/NewPhoto";
 import NewNote from "./poslugi/NewNote";
 import ModalDeleteOrderUnit from "./ModalDeleteOrderUnit";
@@ -58,40 +60,53 @@ import NewSheetSheet from "./poslugi/NewSheetSheet";
 import Delivery from "./poslugi/DeliveryPage";
 import OrderFilesPanel from "./commentsInOrders/OrderFilesPanel";
 import Knopka1 from "./knopki/Knopka1.jsx";
-// import RadicalMenuGrid from "./tools/RadicalMenuGrid";
-const NewUIArtem = () => {
+import RadicalMenuGrid from "./tools/RadicalMenuGrid";
+import PropTypes from "prop-types";
+
+const NewUIArtem = ({
+
+
+                         // setSelectedThings2,
+
+                         setOpenEditor,
+                    }) => {
+  // const isEdit = Boolean(editingOrderUnitSafe?.id);
   const navigate = useNavigate();
   const [things, setThings] = useState([]);
   const [products, setProducts] = useState(null);
-  const [selectedThings2, setSelectedThings2] = useState([]);
   const [summ, setSumm] = useState(0);
   const [isLoad, setIsLoad] = useState(false);
   const [error, setError] = useState(null);
-  const {id} = useParams();
-  const [thisOrder, setThisOrder] = useState({
+  const { id } = useParams();
+  const [editingOrderUnit, setEditingOrderUnit] = useState(null);
+  // Fallback: якщо сеттер не передали з батька — тримаємо локально, щоб не падало.
+  const [editingOrderUnitLocal, setEditingOrderUnitLocal] = useState(null);
+  const isEditingControlled = typeof setEditingOrderUnit === "function";
+  const editingOrderUnitSafe = isEditingControlled ? editingOrderUnit : editingOrderUnitLocal;
+  const setEditingOrderUnitSafe = isEditingControlled ? setEditingOrderUnit : setEditingOrderUnitLocal;
 
-
-    // id: id
-  });
   const [newThisOrder, setNewThisOrder] = useState({
     id: id
-  });
+  })
+  const [thisOrder, setThisOrder] = useState({
+    id: id
+  })
+  const [selectedThings2, setSelectedThings2] = useState();
   const [typeSelect, setTypeSelect] = useState("");
   const [productName, setProductName] = useState('');
   const [showDeleteOrderUnitModal, setShowDeleteOrderUnitModal] = useState(false);
   const [thisOrderUnit, setThisOrderUnit] = useState(null);
-
   const [showWide, setShowWide] = useState(false);
 
 
-  const [showNewSheetCutBw, setShowNewSheetCutBw] = useState(false);
   const [showNewSheetCut, setShowNewSheetCut] = useState(false);
-  const [showNewSheetSheet, setShowNewSheetSheet] = useState(false);
+  const [showNewSheetCutBW, setShowNewSheetCutBW] = useState(false);
   const [showNewWide, setShowNewWide] = useState(false);
   const [showWideFactory, setShowWideFactory] = useState(false);
   const [showNewNote, setShowNewNote] = useState(false);
   const [showNewBooklet, setShowNewBooklet] = useState(false);
   const [showNewPhoto, setShowNewPhoto] = useState(false);
+
 
   const [showBigOvshik, setShowBigOvshik] = useState(false);
   const [showPerepletMet, setShowPerepletMet] = useState(false);
@@ -102,6 +117,80 @@ const NewUIArtem = () => {
   const [showVishichka, setShowVishichka] = useState(false);
   const [showDelivery, setShowDelivery] = useState(false);
   const [expandedThingIndex, setExpandedThingIndex] = useState(null);
+  // ✅ Єдина мапа типів -> модалка (УЗГОДЖЕНО з беком: newField6 = toCalc.type)
+  const EDITORS = [
+    { value: "SheetCutBW", label: "BLACK & WHITE", open: () => setShowNewSheetCutBW(true) },
+    { value: "SheetCut", label: "DIGITAL PRINT CUTING", open: () => setShowNewSheetCut(true) },
+
+    { value: "Vishichka", label: "PLOTTER CUT", open: () => setShowVishichka(true) },
+    { value: "Photo", label: "PHOTO", open: () => setShowNewPhoto(true) },
+
+    { value: "Wide", label: "WIDE PHOTO", open: () => setShowNewWide(true) },
+    { value: "WideFactory", label: "WIDE FACTORY", open: () => setShowWideFactory(true) },
+
+    { value: "BigOvshik", label: "POSTPRESS", open: () => setShowBigOvshik(true) },
+    { value: "PerepletMet", label: "BINDING", open: () => setShowPerepletMet(true) },
+
+    { value: "Laminator", label: "LAMINATION", open: () => setShowLaminator(true) },
+    { value: "Note", label: "NOTE", open: () => setShowNewNote(true) },
+    { value: "BOOKLET", label: "BOOKLET", open: () => setShowNewBooklet(true) },
+
+    { value: "Cup", label: "MUG", open: () => setShowNewCup(true) },
+    { value: "Magnets", label: "MAGNETS", open: () => setShowNewMagnets(true) },
+    { value: "Scans", label: "SCANS", open: () => setShowNewScans(true) },
+    { value: "Delivery", label: "DELIVERY", open: () => setShowDelivery(true) },
+  ];
+  const TYPE_ALIASES = {
+    Postpress: "BigOvshik",
+    Binding: "PerepletMet",
+    Lamination: "Laminator",
+  };
+  // ✅ витягуємо тип позиції максимально надійно
+  const getOrderUnitType = (thing) => {
+    if (!thing) return null;
+
+    // 1) правильне поле з бекенда
+    if (thing.newField6) return thing.newField6;
+
+    // 2) інколи у старих записах може бути thing.type
+    if (thing.type) return thing.type;
+
+    // 3) якщо збережено optionsJson — беремо type з нього
+    if (thing.optionsJson) {
+      try {
+        const parsed = JSON.parse(thing.optionsJson);
+        if (parsed?.newField6) return parsed.newField6;
+      } catch (e) { }
+    }
+
+    return null;
+  };
+  const openEditor = (thingOrNull, eOrType) => {
+    if (eOrType?.stopPropagation) eOrType.stopPropagation();
+
+    const rawType =
+      typeof eOrType === "string"
+        ? eOrType
+        : getOrderUnitType(thingOrNull);
+
+    const type = TYPE_ALIASES[rawType] || rawType;
+
+    const editor = EDITORS.find((x) => x.value === type);
+    if (!editor) return console.warn("No editor for type:", type, thingOrNull);
+
+    setEditingOrderUnit(thingOrNull || null);
+    editor.open();
+  };
+
+  const getEditorByThing = (thing) => {
+    const t = getOrderUnitType(thing);
+    return EDITORS.find((e) => e.value === t) || null;
+  };
+  // ✅ ВАЖЛИВО: функція має бути в scope компонента, а не всередині іншої функції
+  const openEditorForOrderUnit = (thingOrNull, eOrType) => openEditor(thingOrNull, eOrType);
+
+
+
   const toggleExpandedThing = (index) => {
     setExpandedThingIndex(prev => (prev === index ? null : index));
   };
@@ -154,31 +243,62 @@ const NewUIArtem = () => {
     setNewThisOrder(newThisOrderToSend)
   };
 
+
   const handleThisOrderChange = (fieldName, event) => {
     const updatedThisOrder = thisOrder;
     updatedThisOrder[fieldName] = event.target.value;
     setNewThisOrder(updatedThisOrder)
   };
 
-  const handleSaveOrder = (event, valueName) => {
-    let dataToSend = {
-      data: [],
-      id: false,
-      tablePosition: valueName,
-      value: event.target.value
-    }
-    axios.post(`/orders/new`, dataToSend)
-      .then(response => {
-        // console.log(response.data);
-        navigate(`/Orders/${response.data.id}`);
-      })
-      .catch(error => {
-        if (error.response.status === 403) {
-          navigate('/login');
-        }
-        console.log(error.message);
-      })
-  };
+
+  // const getActiveButton = (thing) => {
+  //   const fieldValue = thing?.newField6;
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //   const activeButton = buttons.find(btn => btn.value === fieldValue);
+  //   if (!activeButton) return null;
+  //
+  //   return (
+  //     <button
+  //       type="button"
+  //       className="orderEditTabBtn"
+  //       onClick={(e) => {
+  //         e.stopPropagation();           // щоб не розгортало карточку
+  //         setEditingOrderUnitSafe(thing);    // передаємо редаговану позицію
+  //         activeButton.setState(true);   // відкриваємо відповідне модальне
+  //       }}
+  //       title={activeButton.label}
+  //     >
+  //       {activeButton.label}
+  //     </button>
+  //   );
+  // };
+
+
+  // const handleSaveOrder = (event, valueName) => {
+  //   let dataToSend = {
+  //     data: [],
+  //     id: false,
+  //     tablePosition: valueName,
+  //     value: event.target.value
+  //   }
+  //   axios.post(`/orders/new`, dataToSend)
+  //     .then(response => {
+  //       // console.log(response.data);
+  //       navigate(`/Orders/${response.data.id}`);
+  //     })
+  //     .catch(error => {
+  //       if (error.response.status === 403) {
+  //         navigate('/login');
+  //       }
+  //       console.log(error.message);
+  //     })
+  // };
 
   useEffect(() => {
     (() => {
@@ -200,7 +320,7 @@ const NewUIArtem = () => {
         })
         .catch((error, response) => {
           console.log(error.message);
-          if (error.response.status === 403) {
+          if (error?.response?.status === 403) {
             navigate('/login');
           }
           setIsLoad(false)
@@ -219,198 +339,123 @@ const NewUIArtem = () => {
         <div className="d-flex">
           <div className="containerForContNewUI">
 
-            {/* Перша група */}
             {/* === GRID OF SERVICE TILES === */}
-            <div className="CardPrintersPoslugi" style={{position: 'absolute', top: "5%", left: "0%", width: "36.5%"}}
-                 onClick={toggleExpandedThing}>
+            <div
+              className="CardPrintersPoslugi"
+              style={{ position: 'absolute', top: "5%", left: "0%", width: "36.5%" }}
 
-              {/* 1) BLACK */}
-              <p onClick={() => setShowNewSheetCutBw(true)}>
-                <div className="tileContent">
+            >
+
+              {/* 1) BLACK & WHITE */}
+              <p
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingOrderUnitSafe(null);
+                  setShowNewSheetCutBW(true);
+                }}
+              >
+
+
+
+              <div className="tileContent">
                   <span className="verticalText">BLACK & WHITE</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={blackWhitePrintIcon} alt=""/>
-                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"*/}
-                  {/*     strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
-                  {/*  <rect className="draw" pathLength="1" x="10" y="18" width="44" height="10" rx="2"/>*/}
-                  {/*  <rect className="draw" pathLength="1" x="14" y="28" width="36" height="22" rx="3"/>*/}
-                  {/*  <rect className="draw" pathLength="1" x="20" y="10" width="24" height="8" rx="1"/>*/}
-                  {/*  <rect className="draw" pathLength="1" x="22" y="42" width="20" height="8"/>*/}
-                  {/*  <line className="draw" pathLength="1" x1="18" y1="34" x2="46" y2="34"/>*/}
-                  {/*</svg>*/}
+                  <img className="icon64 CardPrintersPoslugiImg" src={blackWhitePrintIcon} alt="" />
                 </div>
               </p>
 
-              {/* 2) COLOR PRODUCTS */}
-              <p onClick={() => setShowNewSheetCut(true)}>
+              {/* 2) DIGITAL PRINT CUTTING */}
+              <p
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingOrderUnitSafe(null);      // ✅ важливо
+                  setShowNewSheetCut(true);
+                }}
+              >
                 <div className="tileContent">
-                  <div className="verticalColumns" style={{marginTop: "-0.2vh"}}>
+                  <div className="verticalColumns" style={{ marginTop: "-0.2vh" }}>
                     <span className="verticalText">DIGITAL PRINT CUTING</span>
-                    {/*<span className="verticalText"></span>*/}
                   </div>
-                  <img className="icon64 CardPrintersPoslugiImg" src={colorPrintIcon} alt=""/>
-                  {/*<svg*/}
-                  {/*  className="icon64 CardPrintersPoslugiImg"*/}
-                  {/*  viewBox="0 0 64 64"*/}
-                  {/*  fill="none"*/}
-                  {/*  stroke="#2f2f2f"*/}
-                  {/*  strokeWidth="1"*/}
-                  {/*  strokeLinecap="round"*/}
-                  {/*  strokeLinejoin="round"*/}
-                  {/*>*/}
-                  {/*  <rect className="sheetTop" x="16" y="12" width="32" height="20" rx="2"/>*/}
-                  {/*  <rect className="sheetBottom" x="16" y="32" width="32" height="20" rx="2"/>*/}
-                  {/*</svg>*/}
+                  <img className="icon64 CardPrintersPoslugiImg" src={colorPrintIcon} alt="" />
                 </div>
               </p>
 
-
-              {/* 7) CUTTING */}
-              <p onClick={() => setShowVishichka(true)}>
+              {/* 3) PLOTTER CUT */}
+              <p
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingOrderUnitSafe(null);
+                  setShowVishichka(true);
+                }}
+              >
                 <div className="tileContent">
                   <span className="verticalText">PLOTTER CUT</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={plotterCutIcon} alt=""/>
-                  {/*<svg className="icon64 thin CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
-                  {/*     stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
-                  {/*  <rect x="12" y="12" width="40" height="40" rx="2"/>*/}
-                  {/*  <circle className="cutPath" cx="32" cy="32" r="10"/>*/}
-                  {/*  <line x1="16" y1="18" x2="48" y2="18"/>*/}
-                  {/*  <g className="head">*/}
-                  {/*    <rect x="18" y="14" width="6" height="6" rx="1"/>*/}
-                  {/*    <line x1="21" y1="14" x2="21" y2="10"/>*/}
-                  {/*  </g>*/}
-                  {/*</svg>*/}
+                  <img className="icon64 CardPrintersPoslugiImg" src={plotterCutIcon} alt="" />
                 </div>
               </p>
-
 
               {/* 4) PHOTO */}
-              <p onClick={() => setShowNewPhoto?.(true)}>
+              <p onClick={() => openEditorForOrderUnit(null, 'Photo')}>
                 <div className="tileContent">
                   <span className="verticalText">PHOTO</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={photoIcon} alt=""/>
-                  {/*<svg*/}
-                  {/*  className="icon64 CardPrintersPoslugiImg"*/}
-                  {/*  viewBox="0 0 64 64"*/}
-                  {/*  fill="none"*/}
-                  {/*  stroke="#2f2f2f"*/}
-                  {/*  strokeWidth="1"*/}
-                  {/*  strokeLinecap="round"*/}
-                  {/*  strokeLinejoin="round"*/}
-                  {/*>*/}
-                  {/*  /!* рамка полароїда з великим нижнім полем *!/*/}
-                  {/*  <rect className="draw" pathLength="1" x="16" y="11" width="33" height="40" rx="1"/>*/}
-                  {/*  /!* вікно фото всередині *!/*/}
-                  {/*  <rect className="draw" pathLength="1" x="20" y="14" width="24" height="22" rx="2"/>*/}
-                  {/*  /!* пейзаж: гора + сонце *!/*/}
-                  {/*  <path className="draw" pathLength="1" d="M22 34l8-8 6 5 8-7"/>*/}
-                  {/*  <circle className="draw" pathLength="1" cx="38" cy="20" r="3"/>*/}
-                  {/*  /!* підпис під фото *!/*/}
-                  {/*  <line className="draw" pathLength="1" x1="24" y1="42" x2="40" y2="42"/>*/}
-                  {/*</svg>*/}
+                  <img className="icon64 CardPrintersPoslugiImg" src={photoIcon} alt="" />
                 </div>
               </p>
 
-
-              {/* 3) WIDE */}
-              <p onClick={() => setShowNewWide(true)}>
-
+              {/* 5) WIDE PHOTO */}
+              <p onClick={() => openEditorForOrderUnit(null, 'Wide')}>
                 <div className="tileContent">
                   <span className="verticalText">WIDE PHOTO</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={wideIcon} alt=""/>
-                  {/*<svg className="icon64 wide CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"*/}
-                  {/*     strokeWidth="1"*/}
-                  {/*     strokeLinecap="round" strokeLinejoin="round">*/}
-                  {/*  <rect x="10" y="12" width="44" height="10" rx="1"/>*/}
-                  {/*  <g className="moveHead">*/}
-                  {/*    <rect x="12" y="12" width="12" height="10" rx="1"/>*/}
-                  {/*  </g>*/}
-                  {/*  <rect x="14" y="26" width="36" height="22" rx="1"/>*/}
-                  {/*  <rect className="trace" x="16" y="50" width="4" height="4" rx="0.5"/>*/}
-                  {/*  <rect className="trace" x="22" y="50" width="4" height="4" rx="0.5"/>*/}
-                  {/*  <rect className="trace" x="28" y="50" width="4" height="4" rx="0.5"/>*/}
-                  {/*  <rect className="trace" x="34" y="50" width="4" height="4" rx="0.5"/>*/}
-                  {/*</svg>*/}
+                  <img className="icon64 CardPrintersPoslugiImg" src={wideIcon} alt="" />
                 </div>
               </p>
 
-
-              {/* 8) WIDE FACTORY */}
-              <p onClick={() => setShowWideFactory?.(true)}>
+              {/* 6) WIDE FACTORY */}
+              <p onClick={() => openEditorForOrderUnit(null, 'WideFactory')}>
                 <div className="tileContent">
                   <div className="verticalColumns">
-                    <span className="verticalText">WIDE</span>
-                    <span className="verticalText">FACTORY</span>
+                    <span className="verticalText">WIDE FACTORY</span>
+                    <span className="verticalText"></span>
                   </div>
-                  <img className="icon64 CardPrintersPoslugiImg" src={wideFactoryIcon} alt=""/>
-                  {/*<svg className="icon64 ind CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"*/}
-                  {/*     strokeLinecap="round" strokeLinejoin="round">*/}
-                  {/*  <rect x="8" y="12" width="48" height="8" rx="2"/>*/}
-                  {/*  <g className="gantry">*/}
-                  {/*    <rect x="26" y="12" width="12" height="8" rx="1"/>*/}
-                  {/*  </g>*/}
-                  {/*  <rect className="dry" x="12" y="24" width="40" height="16" rx="2"/>*/}
-                  {/*  <path className="trace" d="M16 36l10-6 8 5 8-5"/>*/}
-                  {/*</svg>*/}
+                  <img className="icon64 CardPrintersPoslugiImg" src={wideFactoryIcon} alt="" />
                 </div>
               </p>
 
-
-              {/* 5) POSTPRESS */}
-              <p onClick={() => setShowBigOvshik(true)}>
-
+              {/* 7) POSTPRESS */}
+              <p onClick={() => openEditorForOrderUnit(null, 'Postpress')}>
                 <div className="tileContent">
                   <span className="verticalText">POSTPRESS</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={postpressIcon} alt=""/>
-                  {/*<svg className="icon64 post CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
-                  {/*     stroke="#2f2f2f" strokeLinecap="round" strokeLinejoin="round">*/}
-                  {/*  <rect x="14" y="16" width="36" height="32" rx="2"/>*/}
-                  {/*  <rect className="move armsL" x="14" y="16" width="12" height="32"/>*/}
-                  {/*  <rect className="move armsR" x="38" y="16" width="12" height="32"/>*/}
-                  {/*  <line className="trace" x1="26" y1="16" x2="26" y2="48"/>*/}
-                  {/*  <line className="trace" x1="38" y1="16" x2="38" y2="48"/>*/}
-                  {/*</svg>*/}
+                  <img className="icon64 CardPrintersPoslugiImg" src={postpressIcon} alt="" />
                 </div>
               </p>
 
-              {/* 6) BINDING */}
-              <p onClick={() => setShowPerepletMet(true)}>
+              {/* 8) BINDING */}
+              <p onClick={() => openEditorForOrderUnit(null, 'Binding')}>
                 <div className="tileContent">
                   <span className="verticalText">BINDING</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={bindingIcon} alt=""/>
-                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"*/}
-                  {/*     strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
-                  {/*  <rect className="draw" pathLength="1" x="14" y="14" width="36" height="36" rx="2"/>*/}
-                  {/*  <line className="draw" pathLength="1" x1="22" y1="14" x2="22" y2="50"/>*/}
-                  {/*  <path className="draw" pathLength="1" d="M18 18h6M18 24h6M18 30h6M18 36h6M18 42h6"/>*/}
-                  {/*</svg>*/}
+                  <img className="icon64 CardPrintersPoslugiImg" src={bindingIcon} alt="" />
                 </div>
               </p>
-
 
               {/* 9) LAMINATION */}
-              <p onClick={() => setShowLaminator(true)}>
+              <p onClick={() => openEditorForOrderUnit(null, 'Lamination')}>
                 <div className="tileContent">
                   <span className="verticalText">LAMINATION</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={laminationIcon} alt=""/>
-                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none" stroke="#2f2f2f"*/}
-                  {/*     strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
-                  {/*  <rect className="draw" pathLength="1" x="10" y="18" width="44" height="10" rx="5"/>*/}
-                  {/*  <rect className="draw" pathLength="1" x="10" y="32" width="44" height="10" rx="5"/>*/}
-                  {/*  <rect className="draw" pathLength="1" x="18" y="26" width="28" height="8" rx="2"/>*/}
-                  {/*</svg>*/}
+                  <img className="icon64 CardPrintersPoslugiImg" src={laminationIcon} alt="" />
                 </div>
               </p>
+
             </div>
+
 
           </div>
           {/* Третя група */}
           <div className="d-flex justify-content-end align-items-end">
             <div className="CardPrintersPoslugi"
-                 style={{position: "absolute", bottom: "16%", right: "35%", width: "30%"}}>
+              style={{ position: "absolute", bottom: "16%", right: "35%", width: "30%" }}>
               <p onClick={() => setShowNewNote(true)}>
                 <div className="tileContent">
                   <span className="verticalText">NOTE</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={noteIcon} alt=""/>
+                  <img className="icon64 CardPrintersPoslugiImg" src={noteIcon} alt="" />
                   {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
                   {/*     stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
                   {/*  <rect x="18" y="12" width="28" height="40" rx="2"/>*/}
@@ -426,7 +471,7 @@ const NewUIArtem = () => {
               <p onClick={() => setShowNewBooklet(true)}>
                 <div className="tileContent">
                   <span className="verticalText">BOOKLET</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={bookletIcon} alt=""/>
+                  <img className="icon64 CardPrintersPoslugiImg" src={bookletIcon} alt="" />
                   {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
                   {/*     stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
                   {/*  <rect x="16" y="14" width="32" height="36" rx="2"/>*/}
@@ -439,7 +484,7 @@ const NewUIArtem = () => {
               <p onClick={() => setShowNewCup(true)}>
                 <div className="tileContent">
                   <span className="verticalText">MUG</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={MUG} alt=""/>
+                  <img className="icon64 CardPrintersPoslugiImg" src={MUG} alt="" />
                   {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64"*/}
                   {/*     fill="none" stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
                   {/*  <rect className="draw" pathLength="1" x="20" y="24" width="20" height="16" rx="2"/>*/}
@@ -456,7 +501,7 @@ const NewUIArtem = () => {
               <p onClick={() => setShowNewMagnets(true)}>
                 <div className="tileContent">
                   <span className="verticalText">MAGNETS</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={magnets} alt=""/>
+                  <img className="icon64 CardPrintersPoslugiImg" src={magnets} alt="" />
                   {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
                   {/*     stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
                   {/*  <path className="draw" pathLength="1" d="M20 20h8v12h-8a12 12 0 0 0 24 0h-8V20h8"/>*/}
@@ -470,10 +515,10 @@ const NewUIArtem = () => {
                   <span className="verticalText">SCANS</span>
                   {/*<img className="icon64 CardPrintersPoslugiImg" src={scansIcon} alt=""/>*/}
                   <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
-                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="14" y="28" width="36" height="12" rx="2"/>
-                    <rect x="20" y="18" width="24" height="8" rx="1"/>
-                    <line className="draw" pathLength="1" x1="14" y1="40" x2="50" y2="40"/>
+                    stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="14" y="28" width="36" height="12" rx="2" />
+                    <rect x="20" y="18" width="24" height="8" rx="1" />
+                    <line className="draw" pathLength="1" x1="14" y1="40" x2="50" y2="40" />
                   </svg>
                 </div>
               </p>
@@ -482,7 +527,7 @@ const NewUIArtem = () => {
               <p onClick={() => setShowDelivery(true)}>
                 <div className="tileContent">
                   <span className="verticalText">DELIVERY</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={deliveryIcon} alt=""/>
+                  <img className="icon64 CardPrintersPoslugiImg" src={deliveryIcon} alt="" />
                   {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
                   {/*     stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
                   {/*  <rect x="12" y="28" width="40" height="12" rx="2"/>*/}
@@ -497,10 +542,10 @@ const NewUIArtem = () => {
           </div>
 
 
-          <div className="d-flex flex-column " style={{width: "37.5vw",}}>
-            <div className="order-panel d-flex " style={{width: "37.5vw", marginTop: "0.5vh"}}>
+          <div className="d-flex flex-column " style={{ width: "37.5vw", }}>
+            <div className="order-panel d-flex " style={{ width: "37.5vw", marginTop: "0.5vh", height: "65vh" }}>
               {selectedThings2 && selectedThings2.length !== 0 ? (
-                <div className="order-list" style={{overflowX: "hidden", height: "78vh"}}>
+                <div className="order-list" style={{ overflowX: "hidden", height: "78vh", }}>
                   {selectedThings2.map((thing, index) => (
                     <div
                       key={index}
@@ -511,7 +556,11 @@ const NewUIArtem = () => {
                         marginBottom: "1vh",
                         cursor: "pointer",
                         padding: "1rem",
-                        marginLeft: "3px"
+                        marginLeft: "3px",
+
+
+                        position: "relative",
+
                       }}
                     >
                       <div
@@ -520,10 +569,45 @@ const NewUIArtem = () => {
                         ✕
                       </div>
 
-                      <div className="containerOrderUnits" style={{
-                        // width: "30vw",
-                        // overflow: "hidden"
-                      }}>
+
+                      {(() => {
+                        const editor = getEditorByThing(thing);
+                        console.log("▒");
+                        console.log("▒");
+                        console.log("▒");
+                        console.log("▒");
+                        console.log("▒");
+                        console.log("▒");
+                        console.log("▒");
+                        console.log(thing);
+                        return (
+                          <button
+                            className="buttonSkewedOrderClient adminButtonAdd"
+                            type="button"
+                            style={{
+                              position: "absolute",
+                              bottom: 0,
+                              right: 0,
+                              borderRadius: "0 0 1vh 0",
+                              minWidth: "8vw",
+                            }}
+                            onClick={(e) => openEditor(thing, e)}
+                            title={editor?.label || "Редагувати"}
+                          >
+                            <span className="icon">✎</span>
+                            <span className="label" style={{ fontWeight: 450 }}>
+                              ✏️ {editor?.label || thing.newField6}
+                            </span>
+                          </button>
+                        );
+                      })()}
+
+
+                      {/* === ДАЛІ ТВОЯ ІСНУЮЧА РОЗМІТКА === */}
+                      <div className="containerOrderUnits">
+
+
+
                         <div className="d-flex">
                           <div
                             className="d-flex flex-column justify-content-start">
@@ -532,8 +616,8 @@ const NewUIArtem = () => {
                               style={{
                                 background: "transparent",
                                 padding: "0",
-                                borderRadius: "12px",
-                                border: "0",
+                                borderRadius: "1vh",
+                                border: "none",
                                 width: "100%",
                                 flexWrap: "wrap"
                               }}
@@ -547,14 +631,14 @@ const NewUIArtem = () => {
 
                               >
                                 <div className={"d-flex flex-row align-items-center"}
-                                     style={{
-                                       maxWidth: "33vw",
-                                       background: "transparent",
-                                       // textTransform:"uppercase"
-                                     }}>
+                                  style={{
+                                    maxWidth: "33vw",
+                                    background: "transparent",
+                                    // textTransform:"uppercase"
+                                  }}>
                                   <div>
                                     <div className="adminTextBig"
-                                         style={{maxWidth: "33vw"}}>{thing.name}</div>
+                                      style={{ maxWidth: "33vw" }}>{thing.name}</div>
                                     <div
                                       style={{
                                         marginTop: '0.5rem',
@@ -570,49 +654,50 @@ const NewUIArtem = () => {
                                   {/*</div>*/}
                                 </div>
                                 {/* Основна ціна з кількістю */}
+
                                 <div
                                   className="d-flex align-items-center justify-content-start BasePriceWithQuantity">
-                                  <span className="" style={{color: "rgba(0, 0, 0, 0.6)"}}>{thing.amount}<span
+                                  <span className="" style={{ color: "rgba(0, 0, 0, 0.6)" }}>{thing.amount}<span
                                     className="BasePriceWithQuantitySmall "> шт</span></span>
                                   <span className=""
-                                        style={{color: "rgba(0, 0, 0, 0.6)"}}>× {parseFloat(thing.priceForOneThis).toFixed(2)}<span
-                                    className="BasePriceWithQuantitySmall"> грн</span></span>
+                                    style={{ color: "rgba(0, 0, 0, 0.6)" }}>× {parseFloat(thing.priceForOneThis).toFixed(2)}<span
+                                      className="BasePriceWithQuantitySmall"> грн</span></span>
 
-                                  <span style={{color: "rgba(0, 0, 0, 0.6)"}}>=</span>
-                                  <span className="" style={{color: "red", fontWeight: "400"}}>{thing.priceForThis}<span
-                                    className="BasePriceWithQuantitySmall" style={{color: "red"}}> грн</span></span>
-
+                                  <span style={{ color: "rgba(0, 0, 0, 0.6)" }}>=</span>
+                                  <span className="" style={{ color: "red", fontWeight: "400" }}>{thing.priceForThis}<span
+                                    className="BasePriceWithQuantitySmall" style={{ color: "red" }}> грн </span></span>
+                                  {/*{getActiveButton(thing.newField6)}*/}
                                 </div>
                                 {/* Знижка, якщо є */}
                                 {parseFloat(thing.priceForOneThis).toFixed(2) !== parseFloat(thing.priceForOneThisDiscount).toFixed(2) && (
                                   <div
-                                    className="d-flex flex-row" style={{color: "#008249"}}
+                                    className="d-flex flex-row" style={{ color: "#008249" }}
                                   >
 
 
                                     <div
                                       className="d-flex align-items-center justify-content-start BasePriceWithQuantity"
-                                      style={{color: "#008249"}}>
+                                      style={{ color: "#008249" }}>
 
 
-                                      <span style={{color: "#008249"}}>{thing.amount}<span
+                                      <span style={{ color: "#008249" }}>{thing.amount}<span
                                         className="BasePriceWithQuantitySmall"
-                                        style={{color: "#008249"}}> шт</span></span>
+                                        style={{ color: "#008249" }}> шт</span></span>
 
                                       <span
                                         className=""
-                                        style={{color: "#008249"}}>  × {parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)}<span
-                                        className="BasePriceWithQuantitySmall"
-                                        style={{color: "#008249"}}> грн</span></span>
+                                        style={{ color: "#008249" }}>  × {parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)}<span
+                                          className="BasePriceWithQuantitySmall"
+                                          style={{ color: "#008249" }}> грн</span></span>
                                       {/*{parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(3)}*/}
                                       {/*<span style={{ fontSize: "1rem", opacity: 0.5 }}><div className="BasePriceWithQuantitySmall ">грн</div></span>*/}
                                       =
-                                      <span className=" " style={{color: "#008249"}}>
+                                      <span className=" " style={{ color: "#008249" }}>
 
-                        {thing.priceForThisDiscount}
+                                        {thing.priceForThisDiscount}
                                         <span className="BasePriceWithQuantitySmall"
-                                              style={{color: "#008249"}}> грн</span>
-        </span>
+                                          style={{ color: "#008249" }}> грн</span>
+                                      </span>
                                     </div>
 
                                     <div className="BasePriceWithQuantityDiscountword">
@@ -640,26 +725,26 @@ const NewUIArtem = () => {
                                     <div
                                       className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
                                       На аркуші можна розмістити
-                                      <span className="booooold money" style={{color: "#3c60a6"}}>
+                                      <span className="booooold money" style={{ color: "#3c60a6" }}>
                                         {thing.newField4}
                                       </span> виробів
                                     </div>
                                     <div
                                       className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
                                       Використано на це замовлення
-                                      <strong style={{color: "#3c60a6"}}>{thing.newField5}</strong> аркушів
+                                      <strong style={{ color: "#3c60a6" }}>{thing.newField5}</strong> аркушів
                                     </div>
                                   </div>
 
-                                  <div className="col d-flex flex-column" style={{paddingLeft: '4vw'}}>
+                                  <div className="col d-flex flex-column" style={{ paddingLeft: '4vw' }}>
                                     <div className="d-flex flex-column align-items-end">
                                       <div className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
                                         <div className="BasePriceWithQuantityBig">
                                           За 1 аркуш:
                                         </div>
-                                        <span className="booooold money" style={{color: "#ee3c23"}}>
+                                        <span className="booooold money" style={{ color: "#ee3c23" }}>
                                           {parseFloat(thing.priceForThis / thing.newField5).toFixed(2)}
-                                          <span className="BasePriceWithQuantitySmall" style={{color: "#ee3c23"}}>
+                                          <span className="BasePriceWithQuantitySmall" style={{ color: "#ee3c23" }}>
                                             грн
                                           </span>
                                         </span>
@@ -668,9 +753,9 @@ const NewUIArtem = () => {
                                         <div className="BasePriceWithQuantityBig">
                                           За 1 шт:
                                         </div>
-                                        <span className="booooold money" style={{color: "#ee3c23"}}>
+                                        <span className="booooold money" style={{ color: "#ee3c23" }}>
                                           {parseFloat(thing.priceForThis / thing.amount).toFixed(2)}
-                                          <span className="BasePriceWithQuantitySmall" style={{color: "#ee3c23"}}>
+                                          <span className="BasePriceWithQuantitySmall" style={{ color: "#ee3c23" }}>
                                             грн
                                           </span>
                                         </span>
@@ -680,14 +765,14 @@ const NewUIArtem = () => {
                                 </div>
                                 {(+parseFloat(thing.priceForOneThis).toFixed(2)) !==
                                   (+parseFloat(thing.priceForOneThisDiscount || 0).toFixed(2)) && (
-                                    <div className="d-flex flex-column align-items-center" style={{fontSize: "0.7vw"}}>
+                                    <div className="d-flex flex-column align-items-center" style={{ fontSize: "0.7vw" }}>
                                       <div className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
                                         <div className="BasePriceWithQuantityBig">
                                           За 1 аркуш:
                                         </div>
-                                        <span className="booooold money" style={{color: "#008249"}}>
+                                        <span className="booooold money" style={{ color: "#008249" }}>
                                           {parseFloat(thing.priceForThisDiscount / thing.newField5).toFixed(2)}
-                                          <span className="BasePriceWithQuantitySmall" style={{color: "#008249"}}>
+                                          <span className="BasePriceWithQuantitySmall" style={{ color: "#008249" }}>
                                             грн
                                           </span>
                                         </span>
@@ -696,9 +781,9 @@ const NewUIArtem = () => {
                                         <div className="BasePriceWithQuantityBig">
                                           За 1 шт:
                                         </div>
-                                        <span className="booooold money" style={{color: "#008249"}}>
+                                        <span className="booooold money" style={{ color: "#008249" }}>
                                           {parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)}
-                                          <span className="BasePriceWithQuantitySmall" style={{color: "#008249"}}>
+                                          <span className="BasePriceWithQuantitySmall" style={{ color: "#008249" }}>
                                             грн
                                           </span>
                                         </span>
@@ -740,16 +825,19 @@ const NewUIArtem = () => {
         />
 
 
-        {showNewSheetCutBw &&
-          <NewSheetCutBw
+        {showNewSheetCutBW &&
+          <NewSheetCutBW
             productName={productName}
-            thisOrder={thisOrder} newThisOrder={newThisOrder}
+           thisOrder={thisOrder}
+            newThisOrder={newThisOrder}
             selectedThings2={selectedThings2}
             setNewThisOrder={setNewThisOrder}
-            setShowNewSheetCutBw={setShowNewSheetCutBw}
-            showNewSheetCutBw={showNewSheetCutBw}
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
+            showNewSheetCutBW={showNewSheetCutBW}
+            setShowNewSheetCutBW={setShowNewSheetCutBW}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
         {showNewSheetCut &&
@@ -763,6 +851,8 @@ const NewUIArtem = () => {
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
             showNewSheetCut={showNewSheetCut}
+            editingOrderUnit={editingOrderUnitSafe}    // ← нове
+
           />
         }
         {/*{showNewSheetSheet &&*/}
@@ -789,6 +879,8 @@ const NewUIArtem = () => {
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
             showNewWide={showNewWide}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
         {showWideFactory &&
@@ -802,6 +894,8 @@ const NewUIArtem = () => {
             setSelectedThings2={setSelectedThings2}
             showWideFactory={showWideFactory}
             setShowWideFactory={setShowWideFactory}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
         {showNewCup &&
@@ -815,6 +909,8 @@ const NewUIArtem = () => {
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
             showNewCup={showNewCup}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
         {showNewScans &&
@@ -828,6 +924,8 @@ const NewUIArtem = () => {
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
             showNewScans={showNewScans}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
         {showDelivery &&
@@ -841,6 +939,8 @@ const NewUIArtem = () => {
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
             showDelivery={showDelivery}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
         {showNewMagnets &&
@@ -854,6 +954,8 @@ const NewUIArtem = () => {
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
             showNewMagnets={showNewMagnets}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
         {showNewPhoto &&
@@ -867,6 +969,8 @@ const NewUIArtem = () => {
             showNewPhoto={showNewPhoto}
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
         {/*{showPlotter &&*/}
@@ -891,6 +995,8 @@ const NewUIArtem = () => {
             showNewNote={showNewNote}
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
         {showNewBooklet &&
@@ -903,6 +1009,8 @@ const NewUIArtem = () => {
             showNewBooklet={showNewBooklet}
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
 
@@ -916,6 +1024,8 @@ const NewUIArtem = () => {
             showBigOvshik={showBigOvshik}
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
         {showPerepletMet &&
@@ -928,6 +1038,8 @@ const NewUIArtem = () => {
             showPerepletMet={showPerepletMet}
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
         {/*{showPerepletNeMet &&*/}
@@ -952,6 +1064,8 @@ const NewUIArtem = () => {
             showLaminator={showLaminator}
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
         {showVishichka &&
@@ -964,6 +1078,8 @@ const NewUIArtem = () => {
             showVishichka={showVishichka}
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
         {thisOrder ? (
@@ -972,15 +1088,15 @@ const NewUIArtem = () => {
             width: "36.5vw", position: "fixed", bottom: "0vh", height: "15vh", right: "0"
           }}>
             <ProgressBar thisOrder={thisOrder} setThisOrder={setThisOrder}
-                         newThisOrder={newThisOrder}
-                         setNewThisOrder={setNewThisOrder}
-                         handleThisOrderChange={handleThisOrderChange}
-                         setSelectedThings2={setSelectedThings2}
-                         selectedThings2={selectedThings2}/>
+              newThisOrder={newThisOrder}
+              setNewThisOrder={setNewThisOrder}
+              handleThisOrderChange={handleThisOrderChange}
+              setSelectedThings2={setSelectedThings2}
+              selectedThings2={selectedThings2} />
           </div>
         ) : (
           <div>
-            <Loader/>
+            <Loader />
             <div>Як так сталося що у вас Order без User?!?</div>
           </div>
           // <ClientChangerUIArtem client={thisOrder.User} thisOrder={thisOrder}
@@ -988,16 +1104,16 @@ const NewUIArtem = () => {
           //                       handleThisOrderChange={handleThisOrderChange}/>
           // <ClientChangerUIArtem client={{email: "null", id: 0, phone: "+00000000",}}/>
         )}
-        <div className="d-flex flex-row" style={{position: "fixed", bottom: "-0.7vh",}}>
+        <div className="d-flex flex-row" style={{ position: "fixed", bottom: "-0.7vh", }}>
           <div className="containerNewUI"
-               style={{
-                 height: "17vh",
-                 width: "30vw",
-                 position: "relative",
-                 padding: '1rem',
-                 boxShadow: "0 5px 5px 3px rgba(0, 0, 0, 0.15)"
-               }}>
-            <OrderFilesPanel thisOrder={thisOrder}/>
+            style={{
+              height: "17vh",
+              width: "30vw",
+              position: "relative",
+              padding: '1rem',
+              boxShadow: "0 5px 5px 3px rgba(0, 0, 0, 0.15)"
+            }}>
+            <OrderFilesPanel thisOrder={thisOrder} />
           </div>
           <div className="containerNewUI" style={{
             height: "17vh", width: "30vw", position: "relative", boxShadow: "0 5px 5px 3px rgba(0, 0, 0, 0.15)",
@@ -1028,7 +1144,7 @@ const NewUIArtem = () => {
   }
   return (
     <h1 className="d-flex justify-content-center align-items-center">
-      <Loader/>
+      <Loader />
     </h1>
   )
 };

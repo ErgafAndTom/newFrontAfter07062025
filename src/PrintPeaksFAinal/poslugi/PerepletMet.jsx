@@ -18,19 +18,40 @@ const PerepletMet = ({
                          setThisOrder,
                          setSelectedThings2,
                          showPerepletMet,
-
-
-                     }) => {
+                         editingOrderUnit,
+                         setEditingOrderUnit,
+}) => {
     const [load, setLoad] = useState(false);
     const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
     const [error, setError] = useState(null);
+    const safeSetShowPerepletMet = useCallback((val) => {
+        if (typeof setShowPerepletMet === "function") setShowPerepletMet(val);
+    }, [setShowPerepletMet]);
+
+    const safeSetEditingOrderUnit = useCallback((val) => {
+        if (typeof setEditingOrderUnit === "function") setEditingOrderUnit(val);
+    }, [setEditingOrderUnit]);
+
+    const parseOptionsJson = useCallback((s) => {
+        if (!s) return null;
+        try {
+            return typeof s === "string" ? JSON.parse(s) : s;
+        } catch (e) {
+            console.warn("PerepletMet: failed to parse optionsJson", e);
+            return null;
+        }
+    }, []);
+
+    const isEdit = Boolean(editingOrderUnit && (editingOrderUnit.id || editingOrderUnit.ID || editingOrderUnit.idKey));
+
     const handleClose = () => {
         setIsAnimating(false); // Начинаем анимацию закрытия
         setTimeout(() => {
             setIsVisible(false)
-            setShowPerepletMet(false);
+            safeSetShowPerepletMet(false);
+            safeSetEditingOrderUnit(null);
         }, 300); // После завершения анимации скрываем модальное окно
     }
     const handleShow = useCallback((event) => {
@@ -84,45 +105,127 @@ const PerepletMet = ({
     const [prices, setPrices] = useState([]);
     const [pricesThis, setPricesThis] = useState(null);
 
-    const addNewOrderUnit = e => {
-        let dataToSend = {
+    const resetDefaults = useCallback(() => {
+        setSize({ x: 210, y: 297 });
+        setMaterial({
+            type: "Не потрібно",
+            thickness: "Тонкі",
+            material: "",
+            materialId: "",
+            typeUse: null
+        });
+        setPereplet({
+            type: "",
+            thickness: "Тонкі",
+            material: "",
+            materialId: "",
+            size: "<120",
+            typeUse: "Брошурування до 120 аркушів"
+        });
+        setColor({
+            sides: "Не потрібно",
+            one: "",
+            two: "",
+            allSidesColor: "CMYK",
+        });
+        setLamination({
+            type: "Не потрібно",
+            material: "",
+            materialId: "",
+            size: ""
+        });
+        setBig("Не потрібно");
+        setCute("Не потрібно");
+        setCuteLocal({
+            leftTop: false,
+            rightTop: false,
+            rightBottom: false,
+            leftBottom: false,
+            radius: "",
+        });
+        setHoles("Не потрібно");
+        setHolesR("");
+        setCount(1);
+        setError(null);
+    }, []);
+
+    // Hydrate form on open (edit like Vishichka)
+    useEffect(() => {
+        if (!showPerepletMet) return;
+
+        if (!isEdit) {
+            resetDefaults();
+            return;
+        }
+
+        const opt = parseOptionsJson(editingOrderUnit?.optionsJson) || {};
+        if (opt.size) setSize(opt.size);
+        if (opt.material) setMaterial(opt.material);
+        if (opt.pereplet) setPereplet(opt.pereplet);
+        if (opt.color) setColor(opt.color);
+        if (opt.lamination) setLamination(opt.lamination);
+        if (opt.big !== undefined) setBig(opt.big);
+        if (opt.cute !== undefined) setCute(opt.cute);
+        if (opt.cuteLocal) setCuteLocal(opt.cuteLocal);
+        if (opt.holes !== undefined) setHoles(opt.holes);
+        if (opt.holesR !== undefined) setHolesR(opt.holesR);
+
+        const c =
+            opt.count ??
+            editingOrderUnit?.amount ??
+            editingOrderUnit?.newField5 ??
+            1;
+        setCount(Number(c) || 1);
+
+        setError(null);
+    }, [showPerepletMet, isEdit, editingOrderUnit, parseOptionsJson, resetDefaults]);
+
+
+
+    const saveOrderUnit = () => {
+        const unitId = editingOrderUnit?.id || editingOrderUnit?.ID || editingOrderUnit?.idKey || null;
+        const opt = parseOptionsJson(editingOrderUnit?.optionsJson) || {};
+        const nameOrderUnit = opt?.nameOrderUnit || "Брошурування";
+
+        const dataToSend = {
             orderId: thisOrder.id,
+            ...(isEdit ? { orderUnitId: unitId, idKey: editingOrderUnit?.idKey } : {}),
             toCalc: {
-                nameOrderUnit: "Брошурування",
+                nameOrderUnit,
                 type: "PerepletMet",
-                size: size,
-                material: material,
-                color: color,
-                lamination: lamination,
-                big: big,
-                cute: cute,
-                cuteLocal: cuteLocal,
-                holes: holes,
-                holesR: holesR,
-                count: count,
-                pereplet: pereplet,
+                size,
+                material,
+                color,
+                lamination,
+                big,
+                cute,
+                cuteLocal,
+                holes,
+                holesR,
+                count,
+                pereplet,
             }
         };
+
         axios.post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, dataToSend)
             .then(response => {
-                // console.log(response.data);
                 setThisOrder(response.data);
-                // setSelectedThings2(response.data.order.OrderUnits || []);
                 setSelectedThings2(response.data.OrderUnits);
-                setShowPerepletMet(false)
+                safeSetShowPerepletMet(false);
+                safeSetEditingOrderUnit(null);
             })
             .catch(error => {
-                if (error.response.status === 403) {
-                    navigate('/login');
-                }
+                if (error?.response?.status === 403) navigate('/login');
                 console.log(error.message);
-                // setErr(error)
             });
     }
+
 
     let handleChange = (e) => {
         setCount(e)
     }
+
+
 
     // useEffect(() => {
     //     axios.get(`/getpricesNew`)
@@ -139,6 +242,7 @@ const PerepletMet = ({
     // }, []);
 
     useEffect(() => {
+        if (!showPerepletMet) return;
         let dataToSend = {
             type: "PerepletMet",
             size: size,
@@ -166,7 +270,7 @@ const PerepletMet = ({
                 }
                 console.log(error.message);
             })
-    }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, pereplet]);
+    }, [showPerepletMet, size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, pereplet]);
 
     useEffect(() => {
         if (showPerepletMet) {
@@ -295,7 +399,7 @@ const PerepletMet = ({
                                             }}
                                         >
                                             <button className="adminButtonAdd" variant="danger"
-                                                    onClick={addNewOrderUnit}
+                                                    onClick={saveOrderUnit}
                                             >
                                                 Додати до замовлення
                                             </button>
