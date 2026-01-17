@@ -1,5 +1,5 @@
 import axios from '../../api/axiosInstance';
-import "./NewSheetCutBW.css";
+import "./NewSheetCutBw.css";
 import React, {useEffect, useState, useMemo} from "react";
 import NewNoModalSize from "./newnomodals/NewNoModalSize_colum";
 import NewNoModalLaminationNew from "./newnomodals/NewNoModalLaminationNew";

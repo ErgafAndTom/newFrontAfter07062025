@@ -38,7 +38,7 @@ import versantIcon from "../components/newUIArtem/printers/group-1468.svg";
 import OneProductInOrders from "../components/newcalc/Orders/OneProductInOrders";
 
 import NewWide from "./poslugi/newWide";
-// import NewSheetCut from "./poslugi/NewSheetCut";
+import NewSheetCut from "./poslugi/NewSheetCut";
 // import NewSheetCutBW from "./poslugi/NewSheetCutBW"
 // import NewSheetCutBW from "./poslugi/NewSheetCutBW"
 // import NewSheetCutBW from "./poslugi/NewSheetCutBW";
@@ -51,19 +51,15 @@ import Vishichka from "./poslugi/Vishichka";
 import PerepletMet from "./poslugi/PerepletMet";
 import BigOvshik from "./poslugi/BigOvshik";
 import ProgressBar from "../ProgressBar";
-// import {ExampleLoaderComponent} from "../dev/palette";
 import NewCup from "./poslugi/NewCup";
 
 import NewBooklet from "./poslugi/NewBooklet";
 import NewMagnets from "./poslugi/NewMagnets";
 import NewScans from "./poslugi/NewScans";
 import WideFactory from "./poslugi/WideFactory";
-import NewSheetSheet from "./poslugi/NewSheetSheet";
 import Delivery from "./poslugi/DeliveryPage";
 import OrderFilesPanel from "./commentsInOrders/OrderFilesPanel";
-import Knopka1 from "./knopki/Knopka1.jsx";
-import RadicalMenuGrid from "./tools/RadicalMenuGrid";
-import PropTypes from "prop-types";
+import NewSheetCutBW from "./poslugi/NewSheetCutBw";
 
 const NewUIArtem = ({
 
@@ -827,36 +823,36 @@ const NewUIArtem = ({
         />
 
 
-        {/*{showNewSheetCutBW &&*/}
-        {/*  <NewSheetCutBW*/}
-        {/*    productName={productName}*/}
-        {/*   thisOrder={thisOrder}*/}
-        {/*    newThisOrder={newThisOrder}*/}
-        {/*    selectedThings2={selectedThings2}*/}
-        {/*    setNewThisOrder={setNewThisOrder}*/}
-        {/*    setThisOrder={setThisOrder}*/}
-        {/*    setSelectedThings2={setSelectedThings2}*/}
-        {/*    showNewSheetCutBW={showNewSheetCutBW}*/}
-        {/*    setShowNewSheetCutBW={setShowNewSheetCutBW}*/}
-        {/*    editingOrderUnit={editingOrderUnitSafe}*/}
-        {/*    setEditingOrderUnit={setEditingOrderUnitSafe}*/}
-        {/*  />*/}
-        {/*}*/}
-        {/*{showNewSheetCut &&*/}
-        {/*  <NewSheetCut*/}
-        {/*    productName={productName}*/}
-        {/*    thisOrder={thisOrder}*/}
-        {/*    newThisOrder={newThisOrder}*/}
-        {/*    selectedThings2={selectedThings2}*/}
-        {/*    setNewThisOrder={setNewThisOrder}*/}
-        {/*    setShowNewSheetCut={setShowNewSheetCut}*/}
-        {/*    setThisOrder={setThisOrder}*/}
-        {/*    setSelectedThings2={setSelectedThings2}*/}
-        {/*    showNewSheetCut={showNewSheetCut}*/}
-        {/*    editingOrderUnit={editingOrderUnitSafe}    // ← нове*/}
+        {showNewSheetCutBW &&
+          <NewSheetCutBW
+            productName={productName}
+           thisOrder={thisOrder}
+            newThisOrder={newThisOrder}
+            selectedThings2={selectedThings2}
+            setNewThisOrder={setNewThisOrder}
+            setThisOrder={setThisOrder}
+            setSelectedThings2={setSelectedThings2}
+            showNewSheetCutBW={showNewSheetCutBW}
+            setShowNewSheetCutBW={setShowNewSheetCutBW}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
+          />
+        }
+        {showNewSheetCut &&
+          <NewSheetCut
+            productName={productName}
+            thisOrder={thisOrder}
+            newThisOrder={newThisOrder}
+            selectedThings2={selectedThings2}
+            setNewThisOrder={setNewThisOrder}
+            setShowNewSheetCut={setShowNewSheetCut}
+            setThisOrder={setThisOrder}
+            setSelectedThings2={setSelectedThings2}
+            showNewSheetCut={showNewSheetCut}
+            editingOrderUnit={editingOrderUnitSafe}    // ← нове
 
-        {/*  />*/}
-        {/*}*/}
+          />
+        }
         {/*{showNewSheetSheet &&*/}
         {/*  <NewSheetSheet*/}
         {/*    productName={productName}*/}
