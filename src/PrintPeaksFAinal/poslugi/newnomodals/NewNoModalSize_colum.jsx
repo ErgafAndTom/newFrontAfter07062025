@@ -106,6 +106,7 @@ const NewNoModalSize_colum = ({
             {formats.map((f) => (
               <option key={f.name} value={f.name}>
                 {f.name}
+                {/*({f.x}мм{f.y}мм)*/}
               </option>
             ))}
           </select>

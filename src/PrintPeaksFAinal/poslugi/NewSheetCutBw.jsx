@@ -5,9 +5,11 @@ import NewNoModalSize from "./newnomodals/NewNoModalSize_colum";
 import NewNoModalLaminationNew from "./newnomodals/NewNoModalLaminationNew";
 import Materials2 from "./newnomodals/Materials2";
 
-const DEFAULT_SIZE = { x: 210, y: 297 };
+const DEFAULT_SIZE = {
+  x: 210, y: 297
+};
 const DEFAULTS = {
-
+  size: DEFAULT_SIZE,
   material: {
     type: "Папір",
     thickness: "Офісний",
@@ -59,7 +61,8 @@ export default function NewSheetCutBW({
   const [selectedService, setSelectedService] = useState("Зображення");
   const isEdit = Boolean(editingOrderUnit?.id || editingOrderUnit?.idKey);
   const [size, setSize] = useState({
-
+    x: 210,
+    y: 297
   });
   const options = useMemo(
     () => parseOptionsJson(editingOrderUnit),
@@ -128,6 +131,11 @@ export default function NewSheetCutBW({
   useEffect(() => {
     if (!showNewSheetCutBW) return;
 
+    setSize({
+      x: DEFAULT_SIZE.x,
+      y: DEFAULT_SIZE.y,
+    });
+
     // NEW
     if (!isEdit) {
       setSize(DEFAULTS.size);
@@ -148,8 +156,8 @@ export default function NewSheetCutBW({
     setCount(opt.count ?? editingOrderUnit?.amount ?? DEFAULTS.count);
 
     setSize({
-      x: opt?.size?.x ?? DEFAULTS.size.x,
-      y: opt?.size?.y ?? DEFAULTS.size.y,
+      x: opt?.size?.x ?? DEFAULT_SIZE.x,
+      y: opt?.size?.y ?? DEFAULT_SIZE.y,
     });
 
     setMaterial({
@@ -452,6 +460,15 @@ export default function NewSheetCutBW({
 
                   {pricesThis && (
                     <div className="bw-sticky">
+                      <div style={{ fontWeight: "500" }}>size:</div>
+                      <div className="bw-calc-line">
+                        <span className="bw-sub">{size?.x}мм</span>
+
+                        <span className="bw-op">×</span>
+
+                        <span className="bw-sub">{size?.y}мм</span>
+                      </div>
+
                       <div style={{ fontWeight: "500" }}>Друк:</div>
 
                       <div className="bw-calc-line">
