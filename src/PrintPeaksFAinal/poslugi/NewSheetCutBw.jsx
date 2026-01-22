@@ -459,14 +459,14 @@ export default function NewSheetCutBW({
 
                     {pricesThis && (
                       <div className="bw-sticky">
-                        <div style={{fontWeight: "500"}}>size:</div>
-                        <div className="bw-calc-line">
-                          <span className="bw-sub">{size?.x}мм</span>
+                        {/*<div style={{fontWeight: "500"}}>size:</div>*/}
+                        {/*<div className="bw-calc-line">*/}
+                        {/*  <span className="bw-sub">{size?.x}мм</span>*/}
 
-                          <span className="bw-op">×</span>
+                        {/*  <span className="bw-op">×</span>*/}
 
-                          <span className="bw-sub">{size?.y}мм</span>
-                        </div>
+                        {/*  <span className="bw-sub">{size?.y}мм</span>*/}
+                        {/*</div>*/}
 
                         <div style={{fontWeight: "500"}}>Друк:</div>
 
@@ -602,7 +602,6 @@ export default function NewSheetCutBW({
                       border: "none",
                       background: "transparent",
                       color: "red",
-                      fontSize: "24px",
                       lineHeight: "0px",
                       cursor: "pointer",
 

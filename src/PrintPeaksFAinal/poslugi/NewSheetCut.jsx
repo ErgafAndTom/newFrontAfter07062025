@@ -684,7 +684,7 @@ const NewSheetCut = ({
                       }}
                     >
                       <button className="adminButtonAdd" variant="danger" onClick={addNewOrderUnit}>
-                        Додати до замовлення
+                        {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
                       </button>
                     </div>
                   )}

@@ -41,7 +41,7 @@
   /* border: 0.15vw solid grey; */ /* если понадобится, масштабировать аналогично */
   width: 1vw; /* 10vw * 0.6 */
   border-bottom: 3px solid #FFA500; /* 5px * 0.6 */
-  font-size: 1.7vh;
+  font-size: clamp(1.2rem, 1.7vh, 2.5vh);
 }
 
 .inputsArtemNumber {
@@ -68,7 +68,7 @@
   border-top-right-radius: 10px;
   border-top-left-radius: 10px;
   display: flex;
-  font-size: clamp(1.2rem, 1.2vh, 2.5vh);
+  font-size: clamp(1.2rem, 1.7vh, 2.5vh);
   justify-content: center;
   align-items: center;
   border: 1px solid #cfcfcf;
@@ -118,7 +118,7 @@ border-top-left-radius: 10px;
 
 .buttonsArtem {
   font-weight: 400;
-  font-size: clamp(1.1rem, 1.2vh, 2.5vh);
+  font-size: clamp(1.2rem, 1.7vh, 2.5vh);
   display: flex;
   justify-content: center;
   align-items: center;

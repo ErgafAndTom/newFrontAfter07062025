@@ -587,13 +587,14 @@ const NewUIArtem = ({
                               bottom: 0,
                               right: 0,
                               borderRadius: "0 0 1vh 0",
-                              minWidth: "8vw",
+                              minWidth: "9vw",
+                              zIndex: 50
                             }}
                             onClick={(e) => openEditor(thing, e)}
                             title={editor?.label || "Редагувати"}
                           >
                             <span className="icon">✎</span>
-                            <span className="label" style={{ fontWeight: 450 }}>
+                            <span className="label" style={{ fontWeight: 450, fontSize:"1.1vh" }}>
                               ✏️ {editor?.label || thing.newField6}
                             </span>
                           </button>

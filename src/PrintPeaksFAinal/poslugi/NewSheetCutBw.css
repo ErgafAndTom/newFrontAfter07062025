@@ -301,3 +301,289 @@
   margin: 0 0.35em;
 }
 
+/* =========================================================
+   RESPONSIVE PACK: iPhone / Fold / Ultrawide / 4K
+   Додавай в кінець файлу, щоб перекрити існуючі правила
+   ========================================================= */
+
+:root{
+  --bw-radius: 18px;
+  --bw-gap: 12px;
+  --bw-pad: 16px;
+  --bw-shadow: 0 24px 80px rgba(0,0,0,0.35);
+}
+
+/* ---------- базове покращення поведінки модалки ---------- */
+.bw-modal{
+  max-width: 1100px;          /* щоб на великих не роздувалось */
+  max-height: 92vh;           /* щоб завжди поміщалось */
+  overflow: hidden;           /* контролюємо скрол через content */
+  border-radius: var(--bw-radius);
+  box-shadow: var(--bw-shadow);
+}
+
+/* контент хай скролиться, а не весь екран */
+.bw-content{
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* щоб absolute-блоки не вилітали за межі на маленьких екранах */
+.bw-left,
+.bw-right{
+  min-width: 0;
+}
+
+/* кнопки — більші хіт-таргети (особливо мобайл) */
+.bw-product-tab,
+.ppBwBtn,
+.bw-submit,
+.bw-row button{
+  min-height: 36px;
+}
+
+/* =========================================================
+   1) MOBILE: iPhone 17 Pro (і всі телефони)
+   ========================================================= */
+@media (max-width: 480px){
+  .bw-modal{
+    width: 96vw;
+    height: 94vh;
+    max-width: none;
+    max-height: 94vh;
+    border-radius: 16px;
+  }
+
+  .bw-header{
+    padding: 12px 14px;
+    font-size: 16px;
+  }
+
+  .bw-content{
+    padding: 12px 12px;
+    gap: 10px;
+    grid-template-columns: 1fr; /* одна колонка */
+  }
+
+  /* прибираємо absolute, інакше все з’їде */
+  .bw-left,
+  .bw-right{
+    position: static;
+    width: 100%;
+    left: auto;
+    right: auto;
+    top: auto;
+    gap: 10px;
+  }
+
+  .bw-row{
+    padding: 8px;
+  }
+
+  .bw-title{
+    font-size: 12px;
+  }
+
+  .bw-product-tabs{
+    gap: 6px;
+    padding: 8px 10px;
+  }
+
+  .bw-product-tab{
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .ppBwInput{
+    width: 100%;
+    min-height: 40px;
+    font-size: 16px; /* щоб iOS не зумив інпут */
+  }
+
+  .bw-submit{
+    padding: 10px 14px;
+    font-size: 15px;
+    border-radius: 12px;
+    width: 100%;
+  }
+
+  .bw-footer{
+    padding: 12px;
+  }
+
+  /* sticky на мобайлі часто заважає — вимикаємо */
+  .bw-sticky{
+    position: static;
+    top: auto;
+  }
+}
+
+/* =========================================================
+   2) Samsung Fold 6 CLOSED (вузький екран)
+   орієнтир: 360–420px по ширині
+   ========================================================= */
+@media (min-width: 340px) and (max-width: 520px) and (max-height: 900px){
+  .bw-modal{
+    width: 96vw;
+    height: 94vh;
+  }
+
+  .bw-content{
+    grid-template-columns: 1fr;
+  }
+
+  .bw-left,
+  .bw-right{
+    position: static;
+    width: 100%;
+  }
+
+  .bw-product-tab{
+    padding: 8px 12px;
+  }
+}
+
+/* =========================================================
+   3) Samsung Fold 6 OPEN (розкладений екран)
+   Орієнтир: >= 700px по ширині, але невисокий/планшетний UX
+   ========================================================= */
+@media (min-width: 700px) and (max-width: 980px){
+  .bw-modal{
+    width: 92vw;
+    height: 88vh;
+    max-width: 980px;
+  }
+
+  .bw-content{
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  /* на Fold open можна повернути двоколонковий layout */
+  .bw-left{
+    position: static;
+    width: 100%;
+  }
+
+  .bw-right{
+    position: static;
+    width: 100%;
+  }
+
+  .bw-sticky{
+    position: sticky;
+    top: 70px;
+  }
+}
+
+/* =========================================================
+   4) Ultrawide: Samsung 34" Odyssey G5 (21:9 ~3440x1440)
+   ========================================================= */
+@media (min-width: 3000px) and (max-width: 3700px) and (min-height: 1200px){
+  .bw-modal{
+    /* 42vw на 3440 = 1445px — забагато.
+       Фіксуємо комфортну ширину */
+    width: 1180px;
+    height: 78vh;
+    max-width: 1180px;
+    max-height: 900px;
+  }
+
+  .bw-header{
+    padding: 18px 22px;
+    font-size: 18px;
+  }
+
+  .bw-content{
+    padding: 18px 22px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .bw-left{
+    left: 14px;
+    top: 14px;
+    width: 760px; /* щоб не було 30vw=1032px */
+    position: absolute; /* залишаємо твою концепцію */
+  }
+
+  .bw-right{
+    right: 14px;
+    top: 14px;
+    width: 360px; /* замість 10vw=344px — близько, але стабільно */
+    position: absolute;
+  }
+
+  .bw-product-tab{
+    font-size: 13px;
+    padding: 7px 14px;
+  }
+}
+
+/* =========================================================
+   5) 4K: 3840x2160
+   ========================================================= */
+@media (min-width: 2400px){
+  .bw-modal{
+    width: 1320px;       /* комфортна “панель”, не гігант */
+    height: 76vh;
+    max-width: 920px;
+    max-height: 690px;
+  }
+
+  .bw-header{
+    padding: 20px 24px;
+    font-size: 14px;
+  }
+
+  .bw-title{
+    font-size: 1.3vh;
+  }
+
+  .bw-content{
+    padding: 20px 24px;
+    gap: 14px;
+  }
+
+  .bw-left{
+    left: 18px;
+    top: 16px;
+    width: 590px;
+    font-size: 1.5vh;
+  }
+
+  .bw-right{
+    right: 18px;
+    top: 16px;
+    width: 270px;
+  }
+
+  .bw-product-tab{
+    font-size: 2vh;
+    padding: 8px 16px;
+  }
+
+  .bw-calc-line{
+    font-size: 1.6vh;
+  }
+
+  .bw-calc-total{
+    font-size: 2vh;
+  }
+}
+
+/* =========================================================
+   6) Safety: якщо висота маленька (ландшафт на телефоні)
+   ========================================================= */
+@media (max-height: 520px){
+  .bw-modal{
+    height: 96vh;
+    max-height: 96vh;
+  }
+  .bw-content{
+    padding: 10px 12px;
+  }
+  .bw-footer{
+    padding: 10px;
+  }
+}
