@@ -45,6 +45,8 @@ const Materials2 = ({
       material: item?.name || "",
       materialId: item?.id || 0,
       a: item?.thickness || "",
+      x: item?.x || "",
+      y: item?.y || "",
     }));
     setOpen(false);
   };
@@ -179,6 +181,11 @@ const Materials2 = ({
                 >
                   <span className="name">{item.name}</span>
                   <span className="gsm-sub">
+                    <sub style={{ marginRight: "1vw" }}>
+                      <sub>
+                        {item.x}x{item.y}
+                      </sub>
+                    </sub>
                     <sub>
                       {item.thickness} г/м<sub>2</sub>
                     </sub>
@@ -194,6 +201,11 @@ const Materials2 = ({
           >
             {title}
             <span className="gsm-sub">
+              <sub style={{ marginRight: "1vw" }}>
+                      <sub>
+                        {material.x}x{material.y}
+                      </sub>
+                    </sub>
               {material?.a ? (
                 <sub>
                   {material.a} г/м<sub>2</sub>
@@ -214,7 +226,7 @@ const Materials2 = ({
           >
             {paper.map((item) => (
               <div key={item.id} style={{ fontSize: "15px", padding: "8px 12px" }}>
-                {item.name} {item.thickness}gsm
+                {item.name} {item.x}x{item.y} {item.thickness}gsm
               </div>
             ))}
           </div>
