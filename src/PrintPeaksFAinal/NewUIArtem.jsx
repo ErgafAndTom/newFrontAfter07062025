@@ -834,7 +834,7 @@ const NewUIArtem = ({
             setSelectedThings2={setSelectedThings2}
             showNewSheetCutBW={showNewSheetCutBW}
             setShowNewSheetCutBW={setShowNewSheetCutBW}
-            editingOrderUnit={editingOrderUnitSafe}
+            editingOrderUnit={editingOrderUnit}
             setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
