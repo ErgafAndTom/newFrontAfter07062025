@@ -663,7 +663,7 @@ const NewUIArtem = ({
                                       className="BasePriceWithQuantitySmall"> грн</span></span>
 
                                   <span style={{ color: "rgba(0, 0, 0, 0.6)" }}>=</span>
-                                  <span className="" style={{ color: "red", fontWeight: "400" }}>{thing.priceForThis}<span
+                                  <span className="" style={{ color: "red", fontWeight: "400" }}>{thing.priceForThisDiscount}<span
                                     className="BasePriceWithQuantitySmall" style={{ color: "red" }}> грн </span></span>
                                   {/*{getActiveButton(thing.newField6)}*/}
                                 </div>
