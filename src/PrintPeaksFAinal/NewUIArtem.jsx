@@ -570,14 +570,14 @@ const NewUIArtem = ({
 
                       {(() => {
                         const editor = getEditorByThing(thing);
-                        console.log("▒");
-                        console.log("▒");
-                        console.log("▒");
-                        console.log("▒");
-                        console.log("▒");
-                        console.log("▒");
-                        console.log("▒");
-                        console.log(thing);
+                        // console.log("▒");
+                        // console.log("▒");
+                        // console.log("▒");
+                        // console.log("▒");
+                        // console.log("▒");
+                        // console.log("▒");
+                        // console.log("▒");
+                        // console.log(thing);
                         return (
                           <button
                             className="buttonSkewedOrderClient adminButtonAdd"
