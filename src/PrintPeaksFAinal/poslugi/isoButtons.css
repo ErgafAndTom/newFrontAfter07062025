@@ -5,8 +5,8 @@
   position:relative;
   width:15vw;
   height:20vw;
-  border-radius:12px;
-  overflow:auto;
+  border-radius:0px;
+  /*overflow:auto;*/
   background:#dcd9ce;
   transform:rotate(90deg);
   box-shadow:1px 1px 6px rgba(0,0,0,0.2);

@@ -526,7 +526,10 @@ const NewSheetCut = ({
               </div>
 
               <div style={{ position: "absolute", top: "3vh", right: "3.2vw", height: "20vw" }}>
-                <IsoButtons size={size} setSize={setSize} />
+                <IsoButtons size={size} setSize={setSize} sizeOfPaper={{
+                  x: Number(material.x),
+                  y: Number(material.y),
+                }} material={material} />
               </div>
 
               <MDBContainer fluid style={{ width: "100%", marginLeft: "-1vw", marginTop: "2vh" }}>
