@@ -260,10 +260,22 @@ border-top-left-radius: 10px;
 
 }
 
-.ArtemNewSelectContainer::before {
+/*.ArtemNewSelectContainer::before {*/
+/*  content: "";*/
+
+
+/*  border-left: 6px solid transparent; !* 10px * 0.6 *!*/
+/*  border-right: 6px solid transparent;*/
+/*  border-top: 6px solid #1E90FF; !* 10px * 0.6 *!*/
+/*  position: absolute;*/
+/*  right: 6px; !* 10px * 0.6 *!*/
+/*  top: 50%;*/
+/*  transform: translateY(-50%);*/
+/*  pointer-events: none;*/
+/*}*/
+
+.selectArtemBefore::before {
   content: "";
-
-
   border-left: 6px solid transparent; /* 10px * 0.6 */
   border-right: 6px solid transparent;
   border-top: 6px solid #1E90FF; /* 10px * 0.6 */
@@ -405,7 +417,11 @@ border-top-left-radius: 10px;
 }
 
 .custom-option.active {
-  background: #f2f0e7;
+  background: #b3b3b3;
+  color: #fff;
+}
+.custom-option.active:hover {
+  background: #dcd9ce;
   color: #fff;
 }
 

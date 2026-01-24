@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, {useEffect, useState, useRef} from "react";
 import axios from "../../../api/axiosInstance";
-import { useNavigate } from "react-router-dom";
-import { Spinner } from "react-bootstrap";
+import {useNavigate} from "react-router-dom";
+import {Spinner} from "react-bootstrap";
 
 const Materials2 = ({
                       material,
@@ -36,6 +36,8 @@ const Materials2 = ({
       material: "",
       materialId: 0,
       a: "",
+      x: null,
+      y: null,
     }));
   };
 
@@ -58,7 +60,7 @@ const Materials2 = ({
       inPageCount: 999999,
       currentPage: 1,
       search: "",
-      columnName: { column: "id", reverse: false },
+      columnName: {column: "id", reverse: false},
       size,
       material, // бек у тебе фільтрує по type/thickness
     };
@@ -136,9 +138,9 @@ const Materials2 = ({
       : "Виберіть матеріал";
 
   return (
-    <div className="d-flex allArtemElem" style={{ marginLeft: "2vw" }}>
-      <div style={{ display: "flex" }}>
-        <div style={{ display: "flex" }}>
+    <div className="d-flex allArtemElem" style={{marginLeft: "2vw"}}>
+      <div style={{display: "flex"}}>
+        <div style={{display: "flex"}}>
           {buttonsArr.map((item, index) => (
             <div
               className={
@@ -163,14 +165,14 @@ const Materials2 = ({
 
         {/* SELECT */}
         <div
-          className="custom-select-container selectArtem"
+          className="custom-select-container selectArtem selectArtemBefore"
           ref={dropdownRef}
-          style={{ marginLeft: "1vw", minWidth: dropdownWidth }}
+          style={{marginLeft: "1vw", minWidth: dropdownWidth}}
         >
 
 
           {open && (
-            <div className="custom-select-dropdown" style={{ minWidth: dropdownWidth }}>
+            <div className="custom-select-dropdown" style={{minWidth: dropdownWidth}}>
               {paper.map((item) => (
                 <div
                   key={item.id}
@@ -181,10 +183,12 @@ const Materials2 = ({
                 >
                   <span className="name">{item.name}</span>
                   <span className="gsm-sub">
-                    <sub style={{ marginRight: "1vw" }}>
-                      <sub>
-                        {item.x}x{item.y}
-                      </sub>
+                    <sub style={{marginRight: "0.8vw"}}>
+                      {item.x && item.y && (
+                        <sub>
+                          {item.x}x{item.y}
+                        </sub>
+                      )}
                     </sub>
                     <sub>
                       {item.thickness} г/м<sub>2</sub>
@@ -196,16 +200,18 @@ const Materials2 = ({
           )}
           <div
             className="custom-select-header"
-            style={{ marginLeft: "0vw" }}
+            style={{marginLeft: "0vw"}}
             onClick={() => setOpen(!open)}
           >
             {title}
-            <span className="gsm-sub">
-              <sub style={{ marginRight: "1vw" }}>
-                      <sub>
-                        {material.x}x{material.y}
-                      </sub>
-                    </sub>
+            <span className="gsm-sub" style={{marginRight: "0.8vw"}}>
+              <sub style={{marginRight: "0.8vw"}}>
+                {material.x && material.y && (
+                  <sub>
+                    {material.x}x{material.y}
+                  </sub>
+                )}
+              </sub>
               {material?.a ? (
                 <sub>
                   {material.a} г/м<sub>2</sub>
@@ -225,13 +231,13 @@ const Materials2 = ({
             }}
           >
             {paper.map((item) => (
-              <div key={item.id} style={{ fontSize: "15px", padding: "8px 12px" }}>
+              <div key={item.id} style={{fontSize: "15px", padding: "8px 12px"}}>
                 {item.name} {item.x}x{item.y} {item.thickness}gsm
               </div>
             ))}
           </div>
 
-          {load && <Spinner animation="border" variant="danger" size="sm" />}
+          {load && <Spinner animation="border" variant="danger" size="sm"/>}
           {error && <div>{error}</div>}
         </div>
       </div>
