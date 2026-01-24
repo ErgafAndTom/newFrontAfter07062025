@@ -560,6 +560,7 @@ const NewSheetCut = ({
                       name={"Чорно-білий друк на монохромному принтері:"}
                       buttonsArr={["Офісний", "Тонкий", "Середній", "Цупкий", "Самоклеючі"]}
                       typeUse={null}
+                      typeOfPosluga={"NewSheetCut"}
                     />
 
                     {error && (

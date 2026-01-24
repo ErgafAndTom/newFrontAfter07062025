@@ -9,6 +9,7 @@ const Materials2 = ({
                       buttonsArr = [],
                       size,
                       editingOrderUnit,
+                      typeOfPosluga
                     }) => {
   const [paper, setPaper] = useState([]);
   const [error, setError] = useState(null);
@@ -61,6 +62,7 @@ const Materials2 = ({
       currentPage: 1,
       search: "",
       columnName: {column: "id", reverse: false},
+      typeOfPosluga: typeOfPosluga,
       size,
       material, // бек у тебе фільтрує по type/thickness
     };
