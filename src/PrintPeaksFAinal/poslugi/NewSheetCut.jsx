@@ -388,7 +388,12 @@ const NewSheetCut = ({
     design,
     navigate,
   ]);
-
+  useEffect(() => {
+    console.log('=== FRONTEND DEBUG ===');
+    console.log('Current size:', size);
+    console.log('Current material:', material);
+    console.log('=====================');
+  }, [size, material]);
   useEffect(() => {
     if (error) setError(null);
   }, [material]);

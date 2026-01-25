@@ -371,20 +371,24 @@ export default function NewSheetCutBW({
 
                 {/* 2️⃣ Сторонність */}
                 <div className="bw-title">Сторонність</div>
-                <div className="bw-row ">
+                <div className="bw-sides-container">
+                  <button
+                    className={`bw-side-btn bw-side-left ${color.sides === "односторонній" ? "bw-side-active" : ""}`}
+                    onClick={() => setColor({ ...color, sides: "односторонній" })}
+                  >
+                    Односторонній
+                  </button>
 
-                  <NewNoModalSize
-                    size={safeSize}
-                    setSize={setSize}
-                    type="SheetCutBW"
-                    buttonsArr={["односторонній", "двосторонній"]}
-                    color={color}
-                    setColor={setColor}
-                    count={count}
-                    setCount={setCount}
-                    showSize={false}/>
-
+                  <button
+                    className={`bw-side-btn bw-side-right ${color.sides === "двосторонній" ? "bw-side-active" : ""}`}
+                    onClick={() => setColor({ ...color, sides: "двосторонній" })}
+                  >
+                    Двосторонній
+                  </button>
                 </div>
+
+
+
 
                 {/* 3️⃣ Матеріал */}
                 {/* ===== MATERIAL ===== */}

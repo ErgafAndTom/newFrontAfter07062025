@@ -28,7 +28,6 @@ function sortByButtonsArr(rows, buttonsArr) {
 
   const idx = new Map(buttonsArr.map((name, i) => [name, i]));
 
-  // якщо у БД назви не 1-в-1, просто не ламаємо порядок
   return [...rows].sort((a, b) => {
     const ai = idx.has(a.name) ? idx.get(a.name) : 9999;
     const bi = idx.has(b.name) ? idx.get(b.name) : 9999;
@@ -40,18 +39,16 @@ const VishichkaVibor = ({
                           vishichka,
                           setVishichka,
                           buttonsArr = [],
-                          size, // залишаю, бо ти передаєш (може знадобитися на бекенді/фільтрах)
-                          isEdit, // ВАЖЛИВО: передай сюди Boolean(editingOrderUnit?.id)
+                          size,
+                          isEdit,
                         }) => {
   const [items, setItems] = useState([]);
   const navigate = useNavigate();
 
-  // щоб автодефолт спрацював тільки 1 раз на відкриття модалки
   const didAutoPickRef = useRef(false);
 
   const editMode = useMemo(() => {
     if (typeof isEdit === "boolean") return isEdit;
-    // fallback-логіка, якщо не передали isEdit
     return Boolean(vishichka?.materialId || vishichka?.material);
   }, [isEdit, vishichka?.materialId, vishichka?.material]);
 
@@ -82,29 +79,29 @@ const VishichkaVibor = ({
       material: { type: "Vishichka" },
     };
 
+    let cancelled = false;
+
     axios
       .post(`/materials/NotAll`, data)
       .then((response) => {
+        if (cancelled) return;
+
         const rows = safeRows(response);
         const sorted = sortByButtonsArr(rows, buttonsArr);
 
         setItems(sorted);
 
         // ===== EDIT MODE =====
-        // Не перетираємо вибір користувача/позиції!
         if (editMode) {
           const curId = vishichka?.materialId;
           const curName = vishichka?.material;
 
           // якщо ID є і він існує в списку — нічого не робимо
-          if (
-            curId &&
-            sorted.some((r) => String(r.id) === String(curId))
-          ) {
+          if (curId && sorted.some((r) => String(r.id) === String(curId))) {
             return;
           }
 
-          // якщо ID нема, але є назва — підтягуємо ID по назві (щоб кнопка стала active)
+          // якщо ID нема, але є назва — підтягуємо ID по назві
           if (curName) {
             const found = sorted.find((r) => r.name === curName);
             if (found) {
@@ -114,7 +111,6 @@ const VishichkaVibor = ({
                 typeUse:
                   prev?.typeUse ||
                   LABEL_TO_TYPE_USE[found.name] ||
-                  prev?.typeUse ||
                   null,
               }));
             }
@@ -135,11 +131,68 @@ const VishichkaVibor = ({
         }
       })
       .catch((error) => {
+        if (cancelled) return;
         if (error?.response?.status === 403) navigate("/login");
         console.log(error?.message);
       });
 
-  }, []); // 1 раз на mount (коли модалка відкрилась)
+    return () => {
+      cancelled = true;
+    };
+  }, [buttonsArr, editMode, navigate]); // ✅ ДОДАНО ЗАЛЕЖНОСТІ
+
+  // ✅ ДОДАНО: Ресет didAutoPickRef при закритті/відкритті модалки
+  useEffect(() => {
+    didAutoPickRef.current = false;
+  }, [editMode]);
+  useEffect(() => {
+    const data = {
+      name: "MaterialsPrices",
+      inPageCount: 999999,
+      currentPage: 1,
+      search: "",
+      columnName: { column: "id", reverse: false },
+      material: { type: "Vishichka" },
+    };
+
+    let cancelled = false;
+
+    // ✅ ДОДАЙТЕ ЦЕ ЛОГУВАННЯ
+    console.log('=== VishichkaVibor useEffect ===');
+    console.log('editMode:', editMode);
+    console.log('vishichka:', vishichka);
+    console.log('buttonsArr:', buttonsArr);
+
+    axios
+      .post(`/materials/NotAll`, data)
+      .then((response) => {
+        if (cancelled) return;
+
+        const rows = safeRows(response);
+        const sorted = sortByButtonsArr(rows, buttonsArr);
+
+        // ✅ ДОДАЙТЕ ЦЕ ЛОГУВАННЯ
+        console.log('=== Response ===');
+        console.log('Received items count:', rows.length);
+        console.log('Items:', rows.map(r => ({id: r.id, name: r.name})));
+        console.log('Sorted items:', sorted.map(r => ({id: r.id, name: r.name})));
+        console.log('================');
+
+        setItems(sorted);
+
+        // решта коду...
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.log('=== ERROR ===');
+        console.log(error?.message);
+        if (error?.response?.status === 403) navigate("/login");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [buttonsArr, editMode, navigate]);
 
   return (
     <div className="d-flex allArtemElem" style={{ marginTop: "2vh", justifyContent: "center" }}>

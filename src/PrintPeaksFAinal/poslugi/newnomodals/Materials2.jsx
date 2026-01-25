@@ -84,20 +84,20 @@ const Materials2 = ({
         // 1) Якщо є вибраний materialId і він існує в rows — нічого не робимо.
         // 2) Якщо редагування і materialId не знайдений — очищаємо (щоб не показувати "битий" вибір).
         // 3) Якщо нове замовлення — залишаємо пусто (показує "Виберіть матеріал").
-        if (material?.materialId) {
-          const exists = rows.some((r) => String(r.id) === String(material.materialId));
-          if (!exists) {
-            setMaterial((prev) => ({
-              ...prev,
-              material: "",
-              materialId: 0,
-              a: "",
-            }));
-          }
-        } else {
-          // new order: лишаємо пусто (нічого не сетимо)
-          // edit: теж нічого не сетимо — бо ініціалізація має бути з optionsJson
-        }
+        // if (material?.materialId) {
+        //   const exists = rows.some((r) => String(r.id) === String(material.materialId));
+        //   if (!exists) {
+        //     setMaterial((prev) => ({
+        //       ...prev,
+        //       material: "",
+        //       materialId: 0,
+        //       a: "",
+        //     }));
+        //   }
+        // } else {
+        //   // new order: лишаємо пусто (нічого не сетимо)
+        //   // edit: теж нічого не сетимо — бо ініціалізація має бути з optionsJson
+        // }
       })
       .catch((err) => {
         if (cancelled) return;
