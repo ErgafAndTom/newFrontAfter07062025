@@ -61,7 +61,7 @@ body {
   margin: 0;
   line-height: normal;
   font-family: 'HelveticaNeueCyr', sans-serif;
-  font-size: clamp(1.2rem, 1.2vh, 2.5vh);
+  font-size: clamp(1rem, 1vh, 2.5vh);
   color: #646462;
   font-weight: 400;
 

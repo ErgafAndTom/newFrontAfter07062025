@@ -99,7 +99,7 @@ const NewNoModalSize_colum = ({
 
 
           <select
-            className="selectArtem"
+            className="custom-select-container selectArtem selectArtemBefore"
             value={formats.find((f) => f.x === s.x && f.y === s.y)?.name || defaultt}
             onChange={handleFormatSelect}
           >

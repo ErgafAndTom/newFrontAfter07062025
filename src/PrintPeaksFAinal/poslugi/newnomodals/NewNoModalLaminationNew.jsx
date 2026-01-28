@@ -128,7 +128,6 @@ const NewNoModalLaminationNew = ({
                   materialId: null,
                   size: "",
                 };
-
               });
             }}
           />
@@ -136,44 +135,55 @@ const NewNoModalLaminationNew = ({
         </label>
       )}
 
-
-
       {/* ===== CONDITIONAL UI ===== */}
       {lamination.enabled && (
-        <>
-          {showOptions &&
-            safeButtonsArr.map((item) => (
-              <button
-                key={item}
-                type="button"
-                className={
-                  lamination.material === item
-                    ? "buttonsArtem buttonsArtemActive"
-                    : "buttonsArtem"
-                }
-                onClick={() =>
-                  setLamination((prev) => ({
-                    ...prev,
-                    enabled: true,
-                    type: item,
-                    material: item,
-                    materialId: null,
-                    size: "",
-                  }))
-                }
-              >
-                {LABELS[item] || item}
-              </button>
-            ))}
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          width: "100%",
+          gap: "12px"
+        }}>
 
+          {/* Кнопки зліва */}
+          {showOptions && (
+            <div style={{display: "flex", gap: "8px"}}>
+              {safeButtonsArr.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  className={
+                    lamination.material === item
+                      ? "buttonsArtem buttonsArtemActive"
+                      : "buttonsArtem"
+                  }
+                  onClick={() =>
+                    setLamination((prev) => ({
+                      ...prev,
+                      enabled: true,
+                      type: item,
+                      material: item,
+                      materialId: null,
+                      size: "",
+                    }))
+                  }
+                >
+                  {LABELS[item] || item}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Селект справа */}
           {showOptions && (
             <select
-              className="selectArtem"
+              className="selectArtem custom-select-container selectArtemBefore"
               value={lamination.size}
               onChange={handleSelectChange}
+              style={{minWidth: "180px"}}
             >
               <option value="" disabled>
-                —
+                Вибір ламінації
               </option>
 
               {thisLaminationSizes.map(item => (
@@ -182,13 +192,14 @@ const NewNoModalLaminationNew = ({
                 </option>
               ))}
             </select>
-
           )}
-        </>
+
+        </div>
       )}
 
     </div>
   );
+
 
 };
 

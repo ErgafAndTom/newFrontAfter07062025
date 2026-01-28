@@ -322,22 +322,20 @@ export default function NewSheetCutBW({
                 {/* 1️⃣ Кількість + Розмір */}
                 <div className="bw-title">Кількість та розмір</div>
                 <div className="bw-row">
+                  <div className='d-flex flex-row justify-content-between align-items-center'>
 
-                  <div className='d-flex flex-row justify-content-center align-items-center gap-5'>
+                    {/* Кількість зліва */}
                     <div
                       className="d-flex flex-row inputsArtemkilk allArtemElem"
                       style={{
-                        marginLeft: "1.4vw",
+
                         border: "transparent",
                         justifyContent: "left",
-
                       }}
                     >
-
                       <input
                         className="d-flex inputsArtemNumber inputsArtem"
                         style={{
-
                           alignItems: "center",
                           justifyContent: "center",
                           paddingLeft: "0.7vw",
@@ -349,11 +347,13 @@ export default function NewSheetCutBW({
                       />
                       <div
                         className="inputsArtemx allArtemElem"
-                        style={{border: "transparent", marginTop: "1vh"}}
+                        style={{border: "transparent"}}
                       >
                         шт
                       </div>
                     </div>
+
+                    {/* Розмір справа */}
                     <div>
                       <NewNoModalSize
                         size={size}
@@ -364,10 +364,11 @@ export default function NewSheetCutBW({
                         showSides={false}
                         showCount={true}
                       />
-
                     </div>
+
                   </div>
                 </div>
+
 
                 {/* 2️⃣ Сторонність */}
                 <div className="bw-title">Сторонність</div>
@@ -391,11 +392,10 @@ export default function NewSheetCutBW({
 
 
                 {/* 3️⃣ Матеріал */}
-                {/* ===== MATERIAL ===== */}
+                {/* 3️⃣ Матеріал */}
                 <div className="bw-title">Матеріал</div>
                 <div className="bw-row">
-
-                  <div className='d-flex flex-row justify-content-center align-items-center'>
+                  <div className='d-flex flex-row justify-content-between align-items-center w-100'>
                     <Materials2
                       material={material}
                       setMaterial={setMaterial}
@@ -408,6 +408,7 @@ export default function NewSheetCutBW({
                     />
                   </div>
                 </div>
+
 
 
                 {/* 4️⃣ Ламінація */}
@@ -573,6 +574,7 @@ export default function NewSheetCutBW({
                       ? "adminButtonAdd"
                       : "adminButtonAdd-active"
                   }`}
+                  style={{ fontSize:"clamp(0.7rem, 0.7vh, 2.5vh)", minWidth:"2vw", height:"2vh"}}
                   onClick={() => setSelectedService(service)}
                 >
                   {service}

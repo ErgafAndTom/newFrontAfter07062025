@@ -140,111 +140,110 @@ const Materials2 = ({
       : "Виберіть матеріал";
 
   return (
-    <div className="d-flex allArtemElem" style={{marginLeft: "2vw"}}>
+    <div className="d-flex flex-row justify-content-between align-items-center w-100 gap-3">
+
+      {/* Кнопки зліва */}
       <div style={{display: "flex"}}>
-        <div style={{display: "flex"}}>
-          {buttonsArr.map((item, index) => (
+        {buttonsArr.map((item, index) => (
+          <div
+            className={
+              item === material?.thickness
+                ? "buttonsArtem buttonsArtemActive"
+                : "buttonsArtem"
+            }
+            key={index}
+            onClick={() => handleClickThickness(item)}
+          >
             <div
-              className={
-                item === material?.thickness
-                  ? "buttonsArtem buttonsArtemActive"
-                  : "buttonsArtem"
-              }
-              key={index}
-              onClick={() => handleClickThickness(item)}
+              style={{
+                height: "100%",
+                opacity: item === material?.thickness ? "100%" : "50%",
+              }}
             >
+              {item}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* SELECT справа */}
+      <div
+        className="custom-select-container selectArtem selectArtemBefore"
+        ref={dropdownRef}
+        style={{minWidth: dropdownWidth}}
+      >
+        <div
+          className="custom-select-header"
+          onClick={() => setOpen(!open)}
+        >
+          {title}
+          <span className="gsm-sub" style={{marginRight: "0.8vw"}}>
+          <sub style={{marginRight: "0.8vw"}}>
+            {material.x && material.y && (
+              <sub>
+                {material.x}x{material.y}
+              </sub>
+            )}
+          </sub>
+            {material?.a ? (
+              <sub>
+                {material.a} г/м<sub>2</sub>
+              </sub>
+            ) : null}
+        </span>
+        </div>
+
+        {open && (
+          <div className="custom-select-dropdown" style={{minWidth: dropdownWidth}}>
+            {paper.map((item) => (
               <div
-                style={{
-                  height: "100%",
-                  opacity: item === material?.thickness ? "100%" : "50%",
-                }}
+                key={item.id}
+                className={`custom-option ${
+                  String(item.id) === String(material?.materialId) ? "active" : ""
+                }`}
+                onClick={() => handleSelect(item)}
               >
-                {item}
+                <span className="name">{item.name}</span>
+                <span className="gsm-sub">
+                <sub style={{marginRight: "0.8vw"}}>
+                  {item.x && item.y && (
+                    <sub>
+                      {item.x}x{item.y}
+                    </sub>
+                  )}
+                </sub>
+                <sub>
+                  {item.thickness} г/м<sub>2</sub>
+                </sub>
+              </span>
               </div>
+            ))}
+          </div>
+        )}
+
+        {/* hidden measure */}
+        <div
+          ref={measureRef}
+          style={{
+            position: "absolute",
+            visibility: "hidden",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {paper.map((item) => (
+            <div key={item.id} style={{fontSize: "15px", padding: "8px 12px"}}>
+              {item.name} {item.x}x{item.y} {item.thickness}gsm
             </div>
           ))}
         </div>
 
-        {/* SELECT */}
-        <div
-          className="custom-select-container selectArtem selectArtemBefore"
-          ref={dropdownRef}
-          style={{marginLeft: "1vw", minWidth: dropdownWidth}}
-        >
-
-
-          {open && (
-            <div className="custom-select-dropdown" style={{minWidth: dropdownWidth}}>
-              {paper.map((item) => (
-                <div
-                  key={item.id}
-                  className={`custom-option ${
-                    String(item.id) === String(material?.materialId) ? "active" : ""
-                  }`}
-                  onClick={() => handleSelect(item)}
-                >
-                  <span className="name">{item.name}</span>
-                  <span className="gsm-sub">
-                    <sub style={{marginRight: "0.8vw"}}>
-                      {item.x && item.y && (
-                        <sub>
-                          {item.x}x{item.y}
-                        </sub>
-                      )}
-                    </sub>
-                    <sub>
-                      {item.thickness} г/м<sub>2</sub>
-                    </sub>
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-          <div
-            className="custom-select-header"
-            style={{marginLeft: "0vw"}}
-            onClick={() => setOpen(!open)}
-          >
-            {title}
-            <span className="gsm-sub" style={{marginRight: "0.8vw"}}>
-              <sub style={{marginRight: "0.8vw"}}>
-                {material.x && material.y && (
-                  <sub>
-                    {material.x}x{material.y}
-                  </sub>
-                )}
-              </sub>
-              {material?.a ? (
-                <sub>
-                  {material.a} г/м<sub>2</sub>
-                </sub>
-              ) : null}
-            </span>
-
-
-          </div>
-          {/* hidden measure */}
-          <div
-            ref={measureRef}
-            style={{
-              position: "absolute",
-              visibility: "hidden",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {paper.map((item) => (
-              <div key={item.id} style={{fontSize: "15px", padding: "8px 12px"}}>
-                {item.name} {item.x}x{item.y} {item.thickness}gsm
-              </div>
-            ))}
-          </div>
-
-          {load && <Spinner animation="border" variant="danger" size="sm"/>}
-          {error && <div>{error}</div>}
-        </div>
+        {load && <Spinner animation="border" variant="danger" size="sm"/>}
+        {error && <div>{error}</div>}
       </div>
+
     </div>
   );
+
 };
 
 export default Materials2;

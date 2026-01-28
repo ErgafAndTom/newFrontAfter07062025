@@ -2,7 +2,7 @@
 
 .allArtemElem {
   margin-left: 2vw;
-  font-size: 1.5
+border: transparent
 
 }
 
@@ -11,9 +11,9 @@
 
 .scale04ForButtonToggle {
   transform: scale(0.5);
-  margin-left: -0.5vw;
   white-space: nowrap;
   margin-right: 2vw;
+
   /*width: 100%;*/
 
 }
@@ -33,7 +33,7 @@
 
 .inputsArtemx {
   align-items: center;
-  border: none;
+  border: transparent;
   background: transparent;
   margin-left: 0.5vw;
   margin-right: 0.5vw;
@@ -41,7 +41,7 @@
   /* border: 0.15vw solid grey; */ /* если понадобится, масштабировать аналогично */
   width: 1vw; /* 10vw * 0.6 */
   border-bottom: 3px solid #FFA500; /* 5px * 0.6 */
-  font-size: clamp(1.2rem, 1.7vh, 2.5vh);
+  font-size: clamp(1.2rem, 1.1vh, 2.5vh);
 }
 
 .inputsArtemNumber {
@@ -58,7 +58,7 @@
   white-space: nowrap;
   /*padding: 0.3vh 0.3vw; !* 0.633vh и 1.273vw умноженные на 0.6 *!*/
   justify-content: center;
-  margin-left: 0.6vw;
+  margin-left: 0.0vw;
   border: transparent;
   /*width: 5vw;*/
   /*display: flex*/
@@ -68,12 +68,12 @@
   border-top-right-radius: 10px;
   border-top-left-radius: 10px;
   display: flex;
-  font-size: clamp(1.2rem, 1.7vh, 2.5vh);
+  font-size: clamp(1.2rem, 1.1vh, 2.5vh);
   justify-content: center;
   align-items: center;
   border: 1px solid #cfcfcf;
 
-  height: 4vh;
+
   background: transparent;
   /*padding: 0.38vh 0.76vw; !* 0.633vh и 1.273vw умноженные на 0.6 *!*/
   /*font-size: 1vw;*/
@@ -118,7 +118,7 @@ border-top-left-radius: 10px;
 
 .buttonsArtem {
   font-weight: 400;
-  font-size: clamp(1.2rem, 1.7vh, 2.5vh);
+  font-size: clamp(1.2rem, 1.1vh, 2.5vh);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -347,6 +347,7 @@ border-top-left-radius: 10px;
   color:#444;
   transition:color .22s ease;
   user-select:none;
+
 }
 .wf-card.is-active .wf-caption{ color:#fff; }
 
@@ -356,10 +357,11 @@ border-top-left-radius: 10px;
 }.custom-select-container {
    position: relative;
    user-select: none;
+   font-size: 1.3vh;
  }
 
 .custom-select-header {
-
+font-size: 1.3vh;
   color: black;
   border-start-end-radius : 10px;
   border-start-start-radius : 10px;
@@ -372,6 +374,7 @@ border-top-left-radius: 10px;
   transition: 0.2s;
   white-space: nowrap;
   background: transparent;
+  z-index: 100;
 
 }
 
