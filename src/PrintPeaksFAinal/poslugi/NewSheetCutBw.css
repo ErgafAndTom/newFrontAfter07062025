@@ -163,7 +163,7 @@
 /* ===== RIGHT ===== */
 .bw-right {
   position: absolute;
-  width: 10vw;
+  width: 12vw;
   right: 0.8vw;
   top: 1.5vh;
   display: flex;
@@ -198,7 +198,8 @@
 
 .bw-summary-title {
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 450;
+  color: #898989;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -237,9 +238,11 @@
 .bw-calc-line {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: 12px;
   padding: 3px 0;
   opacity: 0.9;
+  color: #898989;
+  font-weight: 400;
 }
 
 .bw-calc-total {
@@ -275,15 +278,21 @@
   text-align: center;
 }
 .bw-sub {
-  font-size: 0.7em;
+  font-size: 0.5em;
   position: relative;
   bottom: -0.25em;
   margin-left: 0.15em;
+  color: #898989;
 }
 
 .bw-op {
   display: inline-block;
   margin: 0 0.35em;
+  color: #898989;
+}
+.bwsubOP{
+  font-weight: 500;
+  color: #898989;
 }
 
 /* =========================================================
@@ -511,9 +520,9 @@
 @media (min-width: 2400px){
   .bw-modal{
     width: 1320px;       /* комфортна “панель”, не гігант */
-    height: 55vh;
-    max-width: 925px;
-    max-height: 540px;
+    height: 56vh;
+    max-width: 940px;
+    max-height: 560px;
   }
 
   .bw-header{
@@ -535,7 +544,9 @@
   }
 
   .bw-right{
-    right: 18px;
+    display: flex;
+    align-items: center;
+    right: 25px;
     top: 16px;
     width: 270px;
   }
@@ -584,10 +595,10 @@
   border: none;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 450;
   text-transform: uppercase;
   transition: all 0.2s ease;
-  background-color: #e0e0e0;
+  background: rgba(224, 224, 224, 0.5);
   color: #666;
 }
 
@@ -595,12 +606,12 @@
 .bw-side-left {
   left: 0;
   clip-path: polygon(
-    1vh 0,
+    0vh 0,
     100% 0,
     calc(100% - 50px) 100%,
-    1vh 100%,
+    0vh 100%,
     0 calc(100% - 1vh),
-    0 1vh
+    0 0vh
   );
   border-radius: 1vh 0 0 1vh;
   z-index: 1;
@@ -612,9 +623,9 @@
   clip-path: polygon(
     50px 0,
     calc(100% - 1vh) 0,
-    100% 1vh,
+    100% 0vh,
     100% calc(100% - 1vh),
-    calc(100% - 1vh) 100%,
+    calc(100% - 0vh) 100%,
     0 100%
   );
   border-radius: 0 1vh 1vh 0;
@@ -640,3 +651,12 @@
   display: flex;
   overflow: visible;
 }
+.lamination-button:not(:disabled):hover {
+  background-color: #d0d0d0 !important;
+}
+
+/* Не змінювати колір активної кнопки при hover */
+.lamination-button:not(:disabled):hover[style*="background-color: rgb(245, 166, 35)"] {
+  background-color: #f5a623 !important;
+}
+

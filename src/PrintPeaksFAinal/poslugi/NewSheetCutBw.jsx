@@ -25,10 +25,11 @@ const DEFAULTS = {
   },
   lamination: {
     enabled: false,
-    type: "",
-    material: "",
+    type: "Ламінування",
+    material: "з глянцевим ламінуванням",  // ← змінено з "матового" на "глянцеве"
     materialId: null,
     size: "",
+    thickness: "125 мкм"
   },
   count: 1,
   selectedService: "Документ",
@@ -105,10 +106,11 @@ export default function NewSheetCutBW({
   const safeCount = editingOrderUnit?.amount || 1;
   const [lamination, setLamination] = useState({
     enabled: false,
-    type: "",
-    material: "",
+    type: "Ламінування",
+    material: "з глянцевим ламінуванням",  // ← змінено
     materialId: null,
-    size: ""
+    size: "",
+    thickness: "125 мкм"
   });
 
   const safeLamination = lamination || {
@@ -273,6 +275,7 @@ export default function NewSheetCutBW({
     lamination?.enabled,
     lamination?.materialId,
     lamination?.type,
+    lamination?.thickness,
     count,
   ]);
 
@@ -326,7 +329,7 @@ export default function NewSheetCutBW({
 
                     {/* Кількість зліва */}
                     <div
-                      className="d-flex flex-row inputsArtemkilk allArtemElem"
+                      className="d-flex flex-row inputsArtemkilk allArtemElem "
                       style={{
 
                         border: "transparent",
@@ -334,7 +337,7 @@ export default function NewSheetCutBW({
                       }}
                     >
                       <input
-                        className="d-flex inputsArtemNumber inputsArtem"
+                        className="d-flex inputsArtemNumber inputsArtem custom-select-container"
                         style={{
                           alignItems: "center",
                           justifyContent: "center",
@@ -347,14 +350,14 @@ export default function NewSheetCutBW({
                       />
                       <div
                         className="inputsArtemx allArtemElem"
-                        style={{border: "transparent"}}
+                        style={{border: "transparent", color:"#949493"}}
                       >
                         шт
                       </div>
                     </div>
 
                     {/* Розмір справа */}
-                    <div>
+                    <div style={{zIndex:10}}>
                       <NewNoModalSize
                         size={size}
                         setSize={setSize}
@@ -376,6 +379,7 @@ export default function NewSheetCutBW({
                   <button
                     className={`bw-side-btn bw-side-left ${color.sides === "односторонній" ? "bw-side-active" : ""}`}
                     onClick={() => setColor({ ...color, sides: "односторонній" })}
+                    style={{zIndex:10}}
                   >
                     Односторонній
                   </button>
@@ -383,6 +387,7 @@ export default function NewSheetCutBW({
                   <button
                     className={`bw-side-btn bw-side-right ${color.sides === "двосторонній" ? "bw-side-active" : ""}`}
                     onClick={() => setColor({ ...color, sides: "двосторонній" })}
+
                   >
                     Двосторонній
                   </button>
@@ -394,7 +399,7 @@ export default function NewSheetCutBW({
                 {/* 3️⃣ Матеріал */}
                 {/* 3️⃣ Матеріал */}
                 <div className="bw-title">Матеріал</div>
-                <div className="bw-row">
+                <div className="bw-row" style={{zIndex:10}}>
                   <div className='d-flex flex-row justify-content-between align-items-center w-100'>
                     <Materials2
                       material={material}
@@ -412,7 +417,7 @@ export default function NewSheetCutBW({
 
 
                 {/* 4️⃣ Ламінація */}
-                <div className="bw-title d-flex flex-row align-items-center gap-3">Ламінація
+                <div className="bw-title d-flex flex-row align-items-center gap-3" style={{zIndex:0}}>Ламінування
                   <NewNoModalLaminationNew
                     showSwitch={true}
                     showOptions={false}   // ⬅️ ТІЛЬКИ СВІТЧ
@@ -421,10 +426,11 @@ export default function NewSheetCutBW({
                     type="SheetCutBW"
                     size={safeSize}
                     buttonsArr={[
-                      "З глянцевим ламінуванням",
-                      "З матовим ламінуванням",
-                      "З ламінуванням Soft Touch",
+                      "з глянцевим ламінуванням",
+                      "з матовим ламінуванням",
+                      "з ламінуванням Soft Touch",
                     ]}
+
                   />
                 </div>
                 {lamination.enabled && (
@@ -437,9 +443,10 @@ export default function NewSheetCutBW({
                       type="SheetCutBW"
                       size={safeSize}
                       buttonsArr={[
-                        "З глянцевим ламінуванням",
-                        "З матовим ламінуванням",
-                        "З ламінуванням Soft Touch",
+                        "з глянцевим ламінуванням",
+                        "з матовим ламінуванням",
+                        "з ламінуванням Soft Touch",
+
                       ]}
                     />
                   </div>
@@ -453,14 +460,14 @@ export default function NewSheetCutBW({
             {/* ===== RIGHT 30% ===== */}
             <div className="bw-right">
 
-              <div className="bw-summary">
-                <div className="bw-summary-title">Чорно-білий друк</div>
-              </div>
+              {/*<div className="bw-summary">*/}
+              {/*  <div className="bw-summary-title">Чорно-білий друк</div>*/}
+              {/*</div>*/}
 
-              <div className="bw-summary bw-sticky">
+              <div className="">
                 <div className="bw-summary-title">
                   <div className="bw-sticky">
-                    <div className="bw-summary-title" style={{fontWeight: "500"}}>Розрахунок:</div>
+                    {/*<div className="bw-summary-title" >Розрахунок:</div>*/}
 
                     {pricesThis && (
                       <div className="bw-sticky">
@@ -473,7 +480,7 @@ export default function NewSheetCutBW({
                         {/*  <span className="bw-sub">{size?.y}мм</span>*/}
                         {/*</div>*/}
 
-                        <div style={{fontWeight: "500"}}>Друк:</div>
+                        <div className="bwsubOP">Друк:</div>
 
                         <div className="bw-calc-line">
                           {(pricesThis.priceDrukPerSheet || 0).toFixed(2)}
@@ -493,7 +500,7 @@ export default function NewSheetCutBW({
                           <span className="bw-sub">грн</span>
                         </div>
 
-                        <div style={{fontWeight: "500"}}>Матеріали:</div>
+                        <div className="bwsubOP">Матеріали:</div>
 
                         <div className="bw-calc-line">
                           {(pricesThis.pricePaperPerSheet || 0).toFixed(2)}
@@ -513,7 +520,7 @@ export default function NewSheetCutBW({
                           <span className="bw-sub">грн</span>
                         </div>
 
-                        <div style={{fontWeight: "500"}}>Ламінація:</div>
+                        <div className="bwsubOP">Ламінація:</div>
 
                         <div className="bw-calc-line">
                           {(pricesThis.priceLaminationPerSheet || 0).toFixed(2)}

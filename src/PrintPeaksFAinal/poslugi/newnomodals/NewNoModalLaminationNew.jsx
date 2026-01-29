@@ -1,31 +1,38 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "../../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
 
 const LABELS = {
-  "з глянцевим ламінуванням": "Глянцеве",
-  "З глянцевим ламінуванням": "Глянцеве",
-  "з матовим ламінуванням": "Матове",
-  "З матовим ламінуванням": "Матове",
-  "З ламінуванням Soft Touch": "Soft Velvet",
+  "з глянцевим ламінуванням": "ГЛЯНЦЕВЕ",
+  "З глянцевим ламінуванням": "ГЛЯНЦЕВЕ",
+  "з матовим ламінуванням": "МАТОВЕ",
+  "З матовим ламінуванням": "МАТОВЕ",
+  "з ламінуванням Soft Touch": "SOFT TOUCH",
+  "З ламінуванням Soft Touch": "SOFT TOUCH",
 };
 
 const NewNoModalLaminationNew = ({
-  lamination,
-  setLamination,
-  buttonsArr,
-  size,
-  type,
-  isVishichka,
-  materials,
-  selectArr,
-                                   showSwitch = true, sizes,
-                                   showOptions = true, // ⬅️ НОВЕ
-
+                                   lamination,
+                                   setLamination,
+                                   buttonsArr,
+                                   size,
+                                   type,
+                                   isVishichka,
+                                   materials,
+                                   selectArr,
+                                   showSwitch = true,
+                                   sizes,
+                                   showOptions = true,
                                  }) => {
   const [thisLaminationSizes, setThisLaminationSizes] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [dropdownWidth, setDropdownWidth] = useState("auto");
+
   const navigate = useNavigate();
+  const dropdownRef = useRef(null);
+  const measureRef = useRef(null);
+
   const safeSelectArr = Array.isArray(selectArr) ? selectArr : [];
   const safeMaterials = Array.isArray(materials) ? materials : [];
   const safeSizes = Array.isArray(sizes) ? sizes : [];
@@ -33,40 +40,29 @@ const NewNoModalLaminationNew = ({
   const firstButton = safeButtonsArr[0] || "";
 
   const handleToggle = () => {
-    setLamination({
-      ...lamination,
-      type: lamination.type === "Не потрібно" ? firstButton : "Не потрібно",
-      material: lamination.type === "Не потрібно" ? firstButton : "",
-      materialId: null,
-      size: "",
-    });
+    if (!lamination.enabled) {
+      setLamination({
+        ...lamination,
+        enabled: true,
+        material: lamination.material || firstButton,
+        type: lamination.type || firstButton,
+      });
+    } else {
+      setLamination({
+        ...lamination,
+        enabled: false,
+      });
+    }
   };
 
-
-
-  const handleMaterialClick = (material) => {
-    setLamination(prev => ({
-      ...prev,
-      enabled: true,
-      type: material,
-      material,
-      materialId: null,
-      size: "",
-    }));
-  };
-
-
-  const handleSelectChange = (e) => {
-    const opt = e.target.options[e.target.selectedIndex];
+  const handleSelectChange = (item) => {
     setLamination({
       ...lamination,
-      size: e.target.value,
-      materialId: opt.getAttribute("data-id"),
+      size: item.thickness,
+      materialId: item.id,
     });
-};
-
-
-
+    setOpen(false);
+  };
 
   useEffect(() => {
     if (!lamination.material) return;
@@ -89,13 +85,39 @@ const NewNoModalLaminationNew = ({
       .catch(() => setThisLaminationSizes([]));
   }, [lamination.material, size?.x, size?.y]);
 
+  // Автоширина dropdown
+  useEffect(() => {
+    if (!measureRef.current) return;
+    const widths = Array.from(measureRef.current.children).map((el) =>
+      el.getBoundingClientRect().width
+    );
+    if (widths.length > 0) {
+      const maxWidth = Math.ceil(Math.max(...widths)) + 30;
+      setDropdownWidth(`${maxWidth}px`);
+    }
+  }, [thisLaminationSizes]);
 
+  // Клік поза dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedThickness = lamination.size
+    ? `${lamination.size} мкм`
+    : "-";
 
   return (
     <div
       style={{
         display: "flex",
         alignItems: "center",
+        justifyContent: "space-between",
         gap: "12px",
         flexWrap: "nowrap",
       }}
@@ -106,30 +128,7 @@ const NewNoModalLaminationNew = ({
           <input
             type="checkbox"
             checked={!!lamination.enabled}
-            onChange={() => {
-              setLamination((prev) => {
-                if (prev.enabled) {
-                  return {
-                    enabled: false,
-                    type: "",
-                    material: "",
-                    materialId: null,
-                    size: "",
-                  };
-                }
-
-                const first = safeButtonsArr[0] || "";
-
-                return {
-                  ...prev,
-                  enabled: true,
-                  type: first,
-                  material: first,
-                  materialId: null,
-                  size: "",
-                };
-              });
-            }}
+            onChange={handleToggle}
           />
           <span className="slider" />
         </label>
@@ -142,56 +141,124 @@ const NewNoModalLaminationNew = ({
           justifyContent: "space-between",
           alignItems: "center",
           width: "100%",
-          gap: "12px"
+          gap: "12px",
+          marginTop:"1.5vh"
         }}>
 
           {/* Кнопки зліва */}
           {showOptions && (
-            <div style={{display: "flex", gap: "8px"}}>
-              {safeButtonsArr.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  className={
-                    lamination.material === item
-                      ? "buttonsArtem buttonsArtemActive"
-                      : "buttonsArtem"
-                  }
-                  onClick={() =>
-                    setLamination((prev) => ({
-                      ...prev,
-                      enabled: true,
-                      type: item,
-                      material: item,
-                      materialId: null,
-                      size: "",
-                    }))
-                  }
-                >
-                  {LABELS[item] || item}
-                </button>
-              ))}
+            <div style={{
+              display: "flex",
+              position: "absolute",
+              left: 0,
+
+              alignItems: "center",
+              gap: "0"
+            }}>
+              {safeButtonsArr.map((item, index) => {
+                const isActive = lamination.material === item;
+                const isFirst = index === 0;
+                const isLast = index === safeButtonsArr.length - 1;
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    className="lamination-button"
+                    style={{
+                      height:"3vh",
+                      border: "none",
+                      fontSize: "14px",
+                      fontWeight: "450",
+                      width:"6vw",
+                      textTransform: "uppercase",
+                      cursor: "pointer",
+                      padding: "12px 24px",
+                      transition: "all 0.3s ease",
+                      backgroundColor: isActive ? "#f5a623" : "rgba(224, 224, 224, 0.5)",
+                      color: isActive ? "#FFFFFF" : "#666666",
+                      position: "relative",
+                      // Скруглення
+                      borderTopLeftRadius: isFirst ? "1vh" : "0",
+                      borderBottomLeftRadius: isFirst ? "1vh" : "0",
+                      borderTopRightRadius: isLast ? "1vh" : "0",
+                      borderBottomRightRadius: isLast ? "1vh" : "0",
+                      // Прибираємо відстань між кнопками
+                      marginLeft: isFirst ? "0" : "-25px",
+                      // Діагональний зріз
+                      clipPath: isFirst && !isLast
+                        ? "polygon(0 0, 100% 0, calc(100% - 25px) 100%, 0 100%)"
+                        : isLast && !isFirst
+                          ? "polygon(25px 0, 100% 0, 100% 100%, 0 100%)"
+                          : !isFirst && !isLast
+                            ? "polygon(25px 0, 100% 0, calc(100% - 25px) 100%, 0 100%)"
+                            : "none",
+                    }}
+
+                    onClick={() =>
+                      setLamination((prev) => ({
+                        ...prev,
+                        enabled: true,
+                        type: item,
+                        material: item,
+                        materialId: null,
+                        size: "",
+                      }))
+                    }
+                  >
+                    {LABELS[item] || item}
+                  </button>
+                );
+              })}
             </div>
           )}
 
-          {/* Селект справа */}
+          {/* Кастомний SELECT справа */}
           {showOptions && (
-            <select
-              className="selectArtem custom-select-container selectArtemBefore"
-              value={lamination.size}
-              onChange={handleSelectChange}
-              style={{minWidth: "180px"}}
-            >
-              <option value="" disabled>
-                Вибір ламінації
-              </option>
+            <div
+              className="custom-select-container selectArtem selectArtemBefore"
 
-              {thisLaminationSizes.map(item => (
-                <option key={item.id} value={item.thickness} data-id={item.id}>
-                  {item.thickness} мкм
-                </option>
-              ))}
-            </select>
+              ref={dropdownRef}
+              style={{minWidth: dropdownWidth, position:"absolute", right:0}}
+            >
+              <div
+                className="custom-select-header"
+                onClick={() => setOpen(!open)}
+              >
+                {selectedThickness}
+              </div>
+
+              {open && (
+                <div className="custom-select-dropdown" style={{minWidth: dropdownWidth}}>
+                  {thisLaminationSizes.map((item) => (
+                    <div
+                      key={item.id}
+                      className={`custom-option ${
+                        String(item.id) === String(lamination.materialId) ? "active" : ""
+                      }`}
+                      onClick={() => handleSelectChange(item)}
+                    >
+                      <span className="name">{item.thickness} мкм</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Hidden measure */}
+              <div
+                ref={measureRef}
+                style={{
+                  position: "absolute",
+                  visibility: "hidden",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {thisLaminationSizes.map((item) => (
+                  <div key={item.id} style={{fontSize: "15px", padding: "8px 12px"}}>
+                    {item.thickness} мкм
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
         </div>
@@ -199,8 +266,6 @@ const NewNoModalLaminationNew = ({
 
     </div>
   );
-
-
 };
 
 export default NewNoModalLaminationNew;

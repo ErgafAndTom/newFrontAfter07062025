@@ -140,31 +140,49 @@ const Materials2 = ({
       : "Виберіть матеріал";
 
   return (
-    <div className="d-flex flex-row justify-content-between align-items-center w-100 gap-3">
+    <div className="d-flex flex-row justify-content-between align-items-center w-100 gap-3 " >
 
       {/* Кнопки зліва */}
       <div style={{display: "flex"}}>
-        {buttonsArr.map((item, index) => (
-          <div
-            className={
-              item === material?.thickness
-                ? "buttonsArtem buttonsArtemActive"
-                : "buttonsArtem"
-            }
-            key={index}
-            onClick={() => handleClickThickness(item)}
-          >
+        {buttonsArr.map((item, index) => {
+          const isActive = item === material?.thickness;
+          const isFirst = index === 0;
+          const isLast = index === buttonsArr.length - 1;
+
+          return (
             <div
+              className={
+                isActive
+                  ? "buttonsArtem buttonsArtemActive"
+                  : "buttonsArtem"
+              }
+              key={index}
               style={{
-                height: "100%",
-                opacity: item === material?.thickness ? "100%" : "50%",
+                backgroundColor: isActive ? "#f5a623" : "#D3D3D3",
+                color: isActive ? "#FFFFFF" : "#666666",
+                borderTopLeftRadius: isFirst ? "1vh" : "0",
+                borderBottomLeftRadius: isFirst ? "1vh" : "0",
+                borderTopRightRadius: isLast ? "1vh" : "0",
+                borderBottomRightRadius: isLast ? "1vh" : "0",
               }}
+              onClick={() => handleClickThickness(item)}
             >
-              {item}
+              <div
+                style={{
+                  height: "100%",
+                  display: "flex",
+                  color:"white",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {item}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
 
       {/* SELECT справа */}
       <div

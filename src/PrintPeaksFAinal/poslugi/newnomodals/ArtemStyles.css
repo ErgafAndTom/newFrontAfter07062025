@@ -104,35 +104,55 @@ border-top-left-radius: 10px;
   /*-moz-appearance: none;*/
   border-bottom: 3px solid #FFA500; /* 5px * 0.6 */
   font-size: 1.7vh;
+
 }
 
 .optionInSelectArtem {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #ebebe6;
   /*padding: 0.5vh 1vw;*/
+
   border-radius: 0.3vw; /* 0.5vw * 0.6 */
   /*border: 0.09vw solid grey; !* 0.15vw * 0.6 *!*/
 }
-
 .buttonsArtem {
-  font-weight: 400;
-  font-size: clamp(1.2rem, 1.1vh, 2.5vh);
+  font-weight: 450;
+  height: 3vh;
+  width: 6vw;
+  font-size: clamp(0.8rem, 1.1vh, 2.5vh);
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 1vh;
   /* border-radius: 0.627vw; */ /* если использовать, то 0.627vw * 0.6 ≈ 0.38vw */
-  padding: 0.3vh 0.3vw; /* 0.8vh и 1.273vw умноженные на 0.6 */
-  margin: 0.3vw; /* 0.323vw * 0.6 */
+  padding: 0.5vh 0.5vw; /* 0.8vh и 1.273vw умноженные на 0.6 */
   /*font-size: var(--font-size-base);*/
   /* 1.3vw * 0.6 */
-  background: transparent;
-  /* text-decoration:  overline line-through #ff0000; */
-  border: 3px solid transparent; /* 5px * 0.6 */
+  background: #f5a623;
   cursor: pointer;
-
+  text-transform: uppercase;
+  color: #FFFFFF;  /* ← ДОДАНО: білий колір тексту */
+  text-align: center;  /* ← ДОДАНО: центрування тексту */
 }
+
+/*.buttonsArtem {*/
+/*  font-weight: 400;*/
+/*  font-size: clamp(1.2rem, 1.1vh, 2.5vh);*/
+/*  display: flex;*/
+/*  justify-content: center;*/
+/*  align-items: center;*/
+/*  !* border-radius: 0.627vw; *! !* если использовать, то 0.627vw * 0.6 ≈ 0.38vw *!*/
+/*  padding: 0.3vh 0.3vw; !* 0.8vh и 1.273vw умноженные на 0.6 *!*/
+/*  margin: 0.3vw; !* 0.323vw * 0.6 *!*/
+/*  !*font-size: var(--font-size-base);*!*/
+/*  !* 1.3vw * 0.6 *!*/
+/*  background: transparent;*/
+/*  !* text-decoration:  overline line-through #ff0000; *!*/
+/*  border: 3px solid transparent; !* 5px * 0.6 *!*/
+/*  cursor: pointer;*/
+
+/*}*/
 .colorButton.active .noanim {
   opacity: 0;
 }
@@ -158,16 +178,16 @@ border-top-left-radius: 10px;
 .colorButton:hover .anim {
   opacity: 1;
 }
-.buttonsArtem:hover {
-  border-bottom: 3px solid gray; /* 5px * 0.6 */
-  transform: scale(1.05);
+/*.buttonsArtem:hover {*/
+/*  border-bottom: 3px solid gray; !* 5px * 0.6 *!*/
+/*  transform: scale(1.05);*/
 
-}
+/*}*/
 
-.buttonsArtemActive {
-  border-bottom: 3px solid #FFA500; /* 5px * 0.6 */
+/*.buttonsArtemActive {*/
+/*  border-bottom: 3px solid #938b7d; !* 5px * 0.6 *!*/
 
-}
+/*}*/
 
 .buttonsArtemNotActive {
   /*filter: grayscale(100%);*/
@@ -358,6 +378,8 @@ border-top-left-radius: 10px;
    position: relative;
    user-select: none;
    font-size: 1.3vh;
+   background: rgba(224, 224, 224, 0.5);
+
  }
 
 .custom-select-header {
@@ -374,7 +396,7 @@ font-size: 1.3vh;
   transition: 0.2s;
   white-space: nowrap;
   background: transparent;
-  z-index: 100;
+
 
 }
 
@@ -394,17 +416,17 @@ font-size: 1.3vh;
 }
 .custom-select-dropdown::-webkit-scrollbar {
   width: 0px;
-  background: transparent;
+  background: #e0e0e0;
 }
-
 .custom-select-dropdown {
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
+  background: #e0e0e0;/* Firefox */
 }
 .custom-option {
   white-space: nowrap;
   padding: 8px 12px;
   cursor: pointer;
-
+  background: #e0e0e0;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -415,16 +437,16 @@ font-size: 1.3vh;
 }
 
 .custom-option:hover {
-  background: #dcd9ce;
+  background: #d0d0d0;
 
 }
 
 .custom-option.active {
-  background: #b3b3b3;
+  /*background: #b3b3b3;*/
   color: #fff;
 }
 .custom-option.active:hover {
-  background: #dcd9ce;
+  /*background: #dcd9ce;*/
   color: #fff;
 }
 
@@ -436,7 +458,7 @@ font-size: 1.3vh;
   /*font-size: 1em;*/
   opacity: 0.8;
   margin-left: 2vh;
-  color: #bbb;
+
 }
 
 .gsm-sub sub {
