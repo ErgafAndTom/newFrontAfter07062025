@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import borderRadiusIcon0 from "../../public/borderradius.svg";
 import borderRadiusIcon1 from "../../public/borderradius1.svg";
 import borderRadiusIcon2 from "../../public/borderradius2.svg";
@@ -12,15 +12,18 @@ const iconArray = [
 ];
 
 const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttonsArr, selectArr}) => {
+    const [openRadius, setOpenRadius] = useState(false);
+    const radiusRef = useRef(null);
 
-    let handleSelectChange = (e) => {
+    let handleSelectChange = (val) => {
         setCuteLocal({
             leftTop: true,
             rightTop: true,
             rightBottom: true,
             leftBottom: true,
-            radius: e,
-        })
+            radius: val,
+        });
+        setOpenRadius(false);
     }
 
     let handleToggle = (e) => {
@@ -102,6 +105,18 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
         }
     }
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (radiusRef.current && !radiusRef.current.contains(event.target)) {
+                setOpenRadius(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const radiusTitle = cuteLocal.radius ? `${cuteLocal.radius} мм` : "Радіус";
+
   return (
     <div className="d-flex allArtemElem">
       <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -119,17 +134,29 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
           <span style={{whiteSpace: "nowrap"}}>Скруглення кутів:</span>
           {cute !== "Не потрібно" ? (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <div className="ArtemNewSelectContainer">
-                <select
-                  value={cuteLocal.radius}
-                  onChange={handleSelectChange}
-                  className="selectArtem"
+              <div
+                className="custom-select-container selectArtem selectArtemBefore"
+                ref={radiusRef}
+              >
+                <div
+                  className="custom-select-header"
+                  onClick={() => setOpenRadius(!openRadius)}
                 >
-                  <option value="">{""}</option>
-                  {(selectArr || []).map((item) => (
-                    <option key={item} value={item}>{item} мм</option>
-                  ))}
-                </select>
+                  {radiusTitle}
+                </div>
+                {openRadius && (
+                  <div className="custom-select-dropdown">
+                    {(selectArr || []).map((item) => (
+                      <div
+                        key={item}
+                        className={`custom-option ${String(item) === String(cuteLocal.radius) ? "active" : ""}`}
+                        onClick={() => handleSelectChange(item)}
+                      >
+                        <span className="name">{item} мм</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <button

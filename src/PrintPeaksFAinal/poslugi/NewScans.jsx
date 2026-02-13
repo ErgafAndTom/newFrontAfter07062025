@@ -1,373 +1,396 @@
-import {MDBContainer} from "mdb-react-ui-kit";
-import {Row} from "react-bootstrap";
-import React, {useCallback, useEffect, useState} from "react";
-import axios from '../../api/axiosInstance';
-import Loader from "../../components/calc/Loader";
-import versantIcon from "../scan.png";
-import {useNavigate} from "react-router-dom";
-import NewNoModalSizeCup from "./newnomodals/cup/NewNoModalSizeCup";
-import Materials2Cup from "./newnomodals/cup/Materials2Cup";
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import axios from "../../api/axiosInstance";
+import { useNavigate } from "react-router-dom";
+
+import ServiceModalWrapper from "./shared/ServiceModalWrapper";
+import PricingSummary from "./shared/PricingSummary";
+import CountInput from "./shared/CountInput";
+import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
+import "./shared/ServiceModal.css";
+
+// ========== DEFAULTS ==========
+const DEFAULT_SIZE = { x: 0, y: 0 };
+
+const DEFAULTS = {
+  size: DEFAULT_SIZE,
+  material: {
+    type: "Не потрібно",
+    thickness: "Чашка",
+    material: "",
+    materialId: "",
+    typeUse: "Офісний",
+  },
+  color: {
+    sides: "Не потрібно",
+    one: "",
+    two: "",
+    allSidesColor: "CMYK",
+  },
+  lamination: {
+    type: "Не потрібно",
+    material: "",
+    materialId: "",
+    size: "",
+  },
+  count: 1,
+  porizka: { type: "Не потрібно" },
+};
+
+const SIZE_FORMATS = [
+  { name: "A5 (148 x 210 мм)", x: 148, y: 210 },
+  { name: "A4 (210 x 297 мм)", x: 210, y: 297 },
+  { name: "A3 (297 x 420 мм)", x: 297, y: 420 },
+];
 
 const NewScans = ({
-                      thisOrder,
-                      newThisOrder,
-                      setNewThisOrder,
-                      selectedThings2,
-                      setShowNewScans,
-                      setThisOrder,
-                      setSelectedThings2,
-                      showNewScans
-                  }) => {
-    let handleChange = (e) => {
-        setCount(e)
-    }
-    const [load, setLoad] = useState(false);
-    const navigate = useNavigate();
-    const [isVisible, setIsVisible] = useState(false);
-    const [isAnimating, setIsAnimating] = useState(false);
-    const [error, setError] = useState(null);
-    const handleClose = () => {
-        setIsAnimating(false); // Начинаем анимацию закрытия
-        setTimeout(() => {
-            setIsVisible(false)
-            setShowNewScans(false);
-        }, 300); // После завершения анимации скрываем модальное окно
-    }
-    const handleShow = useCallback((event) => {
-        setShowNewScans(true);
-    }, []);
+  thisOrder,
+  setThisOrder,
+  setSelectedThings2,
+  showNewScans,
+  setShowNewScans,
+  editingOrderUnit,
+  setEditingOrderUnit,
+}) => {
+  const navigate = useNavigate();
 
+  // Modal state detection
+  const { isEdit, options } = useModalState(editingOrderUnit, showNewScans);
 
-    const [size, setSize] = useState({
-        x: 0,
-        y: 0
-    });
-    const [material, setMaterial] = useState({
-        type: "Не потрібно",
-        thickness: "Чашка",
-        material: "",
-        materialId: "",
-        typeUse: "Офісний"
-    });
-    const [color, setColor] = useState({
-        sides: "Не потрібно",
-        one: "",
-        two: "",
-        allSidesColor: "CMYK",
-    });
-    const [lamination, setLamination] = useState({
-        type: "Не потрібно",
-        material: "",
-        materialId: "",
-        size: ""
-    });
-    const [big, setBig] = useState("Не потрібно");
-    const [cute, setCute] = useState("Не потрібно");
-    const [porizka, setPorizka] = useState({type: "Не потрібно"});
-    const [cuteLocal, setCuteLocal] = useState({
+  // ========== STATE ==========
+  const [size, setSize] = useState(DEFAULT_SIZE);
+  const [material, setMaterial] = useState(DEFAULTS.material);
+  const [count, setCount] = useState(DEFAULTS.count);
+  const [porizka, setPorizka] = useState(DEFAULTS.porizka);
+  const [error, setError] = useState(null);
+
+  // Dropdown
+  const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
+  const [materialDropdownOpen, setMaterialDropdownOpen] = useState(false);
+  const [materials, setMaterials] = useState([]);
+
+  const sizeDropdownRef = useRef(null);
+  const materialDropdownRef = useRef(null);
+
+  // Pricing hook
+  const calcData = useMemo(
+    () => ({
+      size,
+      material,
+      color: DEFAULTS.color,
+      lamination: DEFAULTS.lamination,
+      big: "Не потрібно",
+      cute: "Не потрібно",
+      cuteLocal: {
         leftTop: false,
         rightTop: false,
         rightBottom: false,
         leftBottom: false,
         radius: "",
-    });
-    const [holes, setHoles] = useState("Не потрібно");
-    const [holesR, setHolesR] = useState("");
-    const [count, setCount] = useState(1);
-    const [prices, setPrices] = useState([]);
-    const [pricesThis, setPricesThis] = useState(null);
+      },
+      holes: "Не потрібно",
+      holesR: "",
+      count,
+      porizka,
+    }),
+    [size, material, count, porizka]
+  );
 
-    const addNewOrderUnit = e => {
-        let dataToSend = {
-            orderId: thisOrder.id,
-            toCalc: {
-                nameOrderUnit: "Кружка",
-                type: "Scans",
-                size: size,
-                material: material,
-                color: color,
-                lamination: lamination,
-                big: big,
-                cute: cute,
-                cuteLocal: cuteLocal,
-                holes: holes,
-                holesR: holesR,
-                count: count,
-                porizka: porizka,
-            }
-        };
+  const { pricesThis } = useModalPricing("Scans", calcData, showNewScans);
 
-        axios.post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, dataToSend)
-            .then(response => {
-                // console.log(response.data);
-                setThisOrder(response.data);
-                // setSelectedThings2(response.data.order.OrderUnits || []);
-                setSelectedThings2(response.data.OrderUnits);
-                setShowNewScans(false)
-            })
-            .catch(error => {
-                if (error.response.status === 403) {
-                    navigate('/login');
-                }
-                console.log(error.message);
-                // setErr(error)
-            });
+  // Save hook
+  const { saveOrderUnit } = useOrderUnitSave(
+    thisOrder,
+    setThisOrder,
+    setSelectedThings2,
+    () => setShowNewScans(false),
+    setEditingOrderUnit
+  );
+
+  // ========== EFFECTS ==========
+
+  // Initialize/reset state when modal opens
+  useEffect(() => {
+    if (!showNewScans) return;
+
+    // NEW mode - set defaults
+    if (!isEdit) {
+      setSize(DEFAULTS.size);
+      setMaterial(DEFAULTS.material);
+      setCount(DEFAULTS.count);
+      setPorizka(DEFAULTS.porizka);
+      setError(null);
+      return;
     }
 
-    // useEffect(() => {
-    //     axios.get(`/getpricesNew`)
-    //         .then(response => {
-    //             // console.log(response.data);
-    //             setPrices(response.data)
-    //         })
-    //         .catch(error => {
-    //             if(error.response.status === 403){
-    //                 navigate('/login');
-    //             }
-    //             console.log(error.message);
-    //         })
-    // }, []);
+    // EDIT mode - load from options
+    const opt = options || {};
+    setCount(opt.count ?? editingOrderUnit?.amount ?? DEFAULTS.count);
 
-    useEffect(() => {
-        let dataToSend = {
-            type: "Scans",
-            size: size,
-            material: material,
-            color: color,
-            lamination: lamination,
-            big: big,
-            cute: cute,
-            cuteLocal: cuteLocal,
-            holes: holes,
-            holesR: holesR,
-            count: count,
-            porizka: porizka,
+    setSize({
+      x: opt?.size?.x ?? DEFAULT_SIZE.x,
+      y: opt?.size?.y ?? DEFAULT_SIZE.y,
+    });
+
+    setMaterial({
+      type: opt?.material?.type ?? DEFAULTS.material.type,
+      thickness: opt?.material?.thickness ?? DEFAULTS.material.thickness,
+      material: opt?.material?.material ?? DEFAULTS.material.material,
+      materialId: opt?.material?.materialId ?? DEFAULTS.material.materialId,
+      typeUse: opt?.material?.typeUse ?? DEFAULTS.material.typeUse,
+    });
+
+    setPorizka(opt?.porizka ?? DEFAULTS.porizka);
+
+    setError(null);
+  }, [showNewScans, isEdit, options, editingOrderUnit]);
+
+  // Fetch materials
+  useEffect(() => {
+    if (!showNewScans) return;
+
+    const data = {
+      name: "MaterialsPrices",
+      inPageCount: 999999,
+      currentPage: 1,
+      search: "",
+      columnName: { column: "id", reverse: false },
+      typeOfPosluga: "Scans",
+      size,
+      material,
+    };
+
+    axios
+      .post(`/materials/NotAll`, data)
+      .then((response) => {
+        setMaterials(response.data.rows || []);
+      })
+      .catch((err) => {
+        setMaterials([]);
+        if (err?.response?.status === 403) {
+          navigate("/login");
         }
-        axios.post(`/calc/pricing`, dataToSend)
-            .then(response => {
-                setPricesThis(response.data.prices)
-                setError(null)
-            })
-            .catch(error => {
-                setError(error)
-                if (error.response.status === 403) {
-                    navigate('/login');
-                }
-                console.log(error.message);
-            })
-    }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, porizka]);
+      });
+  }, [material?.thickness, material?.type, size, showNewScans, navigate]);
 
-    useEffect(() => {
-        if (showNewScans) {
-            setIsVisible(true); // Сначала показываем модальное окно
-            setTimeout(() => setIsAnimating(true), 100); // После короткой задержки запускаем анимацию появления
-        } else {
-            setIsAnimating(false); // Начинаем анимацию закрытия
-            setTimeout(() => setIsVisible(false), 300); // После завершения анимации скрываем модальное окно
-        }
-    }, [showNewScans]);
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sizeDropdownRef.current && !sizeDropdownRef.current.contains(event.target)) {
+        setSizeDropdownOpen(false);
+      }
+      if (materialDropdownRef.current && !materialDropdownRef.current.contains(event.target)) {
+        setMaterialDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-    return (
-        <>
-            {isVisible === true ? (
-                <div>
-                    <div
-                      style={{
-                        position: 'fixed',
-                        inset: 0,
-                        width: '100vw',
-                        height: '100vh',
-                        backgroundColor: 'rgba(15, 15, 15, 0.45)',
-                        backdropFilter: 'blur(2px)',
-                        WebkitBackdropFilter: 'blur(2px)',
-                        zIndex: 99,
-                        opacity: isAnimating ? 1 : 0,
-                        transition: 'opacity 200ms ease'
-                      }}
-                        onClick={handleClose}
-                    ></div>
-                    <div className="d-flex flex-column" style={{
-                        zIndex: "100",
-                        position: "fixed",
-                        background: "#dcd9ce",
-                        top: "50%",
-                        left: "50%",
-                        transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)", // анимация масштаба
-                        opacity: isAnimating ? 1 : 0, // анимация прозрачности
-                        transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out", // плавная анимация
-                        borderRadius: "1vw",
-                        width: "95vw",
-                        height: "95vh",
-                        // padding: "20px"
-                    }}>
-                        <div className="d-flex">
-                            <div className="m-auto text-center fontProductName">
+  // ========== HANDLERS ==========
 
-                            </div>
-                            <div
-                                className="btn btn-close btn-lg"
-                                style={{
-                                    margin: "0.5vw",
-                                }}
-                                onClick={handleClose}
-                            >
-                            </div>
-                        </div>
-                        <div className="d-flex flex-column">
-                            <div className="d-flex flex-column">
-                                <div className="d-flex flex-row inputsArtemkilk allArtemElem" style={{
-                                    marginLeft: "1.4vw",
-                                    border: "transparent",
-                                    justifyContent: "left",
-                                    marginTop: "1vw"
-                                }}> У кількості:
-                                    <input
-                                        className="d-flex inputsArtemNumber inputsArtem "
-                                        style={{
-                                            marginLeft: "1vw",
-                                            background: "#FBFAF6",
-                                            width: "5vw",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            paddingLeft: "0.5vw",
+  const handleSizeSelect = (format) => {
+    setSize({ x: format.x, y: format.y });
+    setSizeDropdownOpen(false);
+  };
 
-                                        }}
-                                        type="number"
-                                        value={count}
-                                        min={1}
-                                        // disabled
-                                        onChange={(event) => handleChange(event.target.value)}
-                                    />
-                                    <div className="inputsArtemx allArtemElem"
-                                         style={{border: "transparent", marginTop: "-2vh"}}> шт
-                                    </div>
-                                </div>
-                            </div>
-                            <MDBContainer fluid style={{width: '100%'}}>
-                                <Row xs={1} md={6} className="">
-                                    <div className="d-flex flex-column">
-                                        <NewNoModalSizeCup
-                                            size={size}
-                                            setSize={setSize}
-                                            prices={prices}
-                                            type={"SheetCut"}
-                                            buttonsArr={["односторонній", "двосторонній",]}
-                                            color={color}
-                                            setColor={setColor}
-                                            count={count}
-                                            setCount={setCount}
-                                            defaultt={"А3 (297 х 420 мм)"}
-                                        />
-                                        {/*<NewNoModalMaterial*/}
-                                        <Materials2Cup
-                                            typeForMaterialsFetch={"Scans"}
-                                            material={material}
-                                            setMaterial={setMaterial}
-                                            count={count}
-                                            setCount={setCount}
-                                            prices={prices}
-                                            size={size}
+  const handleMaterialSelect = (item) => {
+    setMaterial((prev) => ({
+      ...prev,
+      material: item?.name || "",
+      materialId: item?.id || 0,
+      a: item?.thickness || "",
+      x: item?.x || "",
+      y: item?.y || "",
+    }));
+    setMaterialDropdownOpen(false);
+  };
 
-                                            name={"Чорно-білий друк на монохромному принтері:"}
-                                            buttonsArr={["Офісний", "Тонкий",
-                                                "Середній",
-                                                "Цупкий", "Самоклеючі"]}
-                                            typeUse={null}
-                                        />
+  const handleSave = () => {
+    const toCalcData = {
+      nameOrderUnit: "Кружка",
+      type: "Scans",
+      size,
+      material,
+      color: DEFAULTS.color,
+      lamination: DEFAULTS.lamination,
+      big: "Не потрібно",
+      cute: "Не потрібно",
+      cuteLocal: {
+        leftTop: false,
+        rightTop: false,
+        rightBottom: false,
+        leftBottom: false,
+        radius: "",
+      },
+      holes: "Не потрібно",
+      holesR: "",
+      count,
+      porizka,
+    };
 
-                                    </div>
-                                </Row>
-                                <div className="d-flex">
-                                    {thisOrder && (
-                                        <div
-                                            className="d-flex"
-                                            style={{
-                                                width: "90vw",
-                                                marginLeft: "2.5vw",
+    saveOrderUnit(toCalcData, editingOrderUnit, setError);
+  };
 
+  // ========== RENDER HELPERS ==========
 
+  const selectedSizeFormat = SIZE_FORMATS.find((f) => f.x === size.x && f.y === size.y);
+  const sizeTitle = selectedSizeFormat?.name || (size.x && size.y ? `${size.x} x ${size.y} мм` : "Оберіть розмір");
+  const materialTitle = material?.material || "Виберіть матеріал";
 
-                                                fontWeight: "bold",
-                                                display: 'flex',
-                                                justifyContent: 'left',
-                                                alignItems: 'center',
-                                                transition: "all 0.3s ease",
-                                                height: '3vw',
-                                            }}
-                                        >
-                                            <button className="adminButtonAdd" variant="danger"
-                                                    onClick={addNewOrderUnit}
-                                            >
-                                                Додати до замовлення
-                                            </button>
-                                            {/*<div*/}
-                                            {/*    className="btn btn-warning" style={{*/}
-                                            {/*    borderRadius: '0.627vw',*/}
-                                            {/*    border: '0.08vw solid gray',*/}
-                                            {/*    padding: '0.2vw 0.7vw',*/}
-                                            {/*}}*/}
-                                            {/*    // onClick={handleThingClickAndHide}*/}
-                                            {/*>*/}
-                                            {/*    Додати до пресетів*/}
-                                            {/*</div>*/}
-                                        </div>
-                                    )}
-                                </div>
-                                {error &&
-                                    <div>{error.message}</div>
-                                }
-                                {null === pricesThis ? (
-                                    <div style={{width: '50vw'}}>
-
-                                    </div>
-                                ) : (
-                                    <div className="d-flex justify-content-between pricesBlockContainer"
-                                         style={{height: "20vmin"}}>
-                                        <div className="" style={{height: "19vh"}}>
-
-                                            <div className="fontInfoForPricing">
-                                                Друк: {pricesThis.priceForThisUnitOfCup.toFixed(2)} грн
-                                                * {pricesThis.skolko} шт
-                                                = {(pricesThis.priceForAllUnitOfCup).toFixed(2)} грн
-                                            </div>
-
-                                            <div className="fontInfoForPricing1">
-                                                Загалом: {pricesThis.price} грн
-                                            </div>
-
-                                        </div>
-
-
-                                        <img
-                                            className="versant80-img-icon"
-                                            alt="sssss"
-                                            src={versantIcon}
-                                            style={{
-                                                height: "14vmin",
-                                                marginLeft: "10vmin",
-                                                marginRight: "2vmin",
-
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                            </MDBContainer>
-                        </div>
-                    </div>
-                </div>
-            ) : (
-                <div
-                    style={{display: "none"}}
-                ></div>
-            )}
-        </>
-    )
-
-    return (
-        <div>
-            <Loader/>
+  // Custom pricing summary for Scans
+  const ScansPrice = () => {
+    if (!pricesThis) {
+      return (
+        <div className="bw-summary-title">
+          <div className="bw-sticky">
+            <div className="bwsubOP">Розрахунок завантажується...</div>
+          </div>
         </div>
-    )
+      );
+    }
+
+    return (
+      <div className="bw-summary-title">
+        <div className="bw-sticky">
+          <div className="bwsubOP">Друк:</div>
+          <div className="bw-calc-line">
+            {(pricesThis.priceForThisUnitOfCup || 0).toFixed(2)}
+            <span className="bw-sub">грн</span>
+            <span className="bw-op">×</span>
+            {pricesThis.skolko || 0}
+            <span className="bw-sub">шт</span>
+            <span className="bw-op">=</span>
+            {(pricesThis.priceForAllUnitOfCup || 0).toFixed(2)}
+            <span className="bw-sub">грн</span>
+          </div>
+
+          <div
+            className="bw-calc-total d-flex justify-content-center align-content-center"
+            style={{ fontWeight: "500", color: "red" }}
+          >
+            {pricesThis.price || 0}
+            <span className="bw-sub">грн</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ========== LEFT CONTENT ==========
+  const leftContent = (
+    <>
+      {/* Count */}
+      <div className="bw-title">Кількість</div>
+      <div className="bw-row">
+        <CountInput count={count} setCount={setCount} />
+      </div>
+
+      {/* Size */}
+      <div className="bw-title">Розмір</div>
+      <div className="bw-row">
+        <div
+          className="custom-select-container selectArtem selectArtemBefore"
+          ref={sizeDropdownRef}
+          style={{ width: "100%", zIndex: 10 }}
+        >
+          <div
+            className="custom-select-header"
+            onClick={() => setSizeDropdownOpen(!sizeDropdownOpen)}
+          >
+            {sizeTitle}
+          </div>
+
+          {sizeDropdownOpen && (
+            <div className="custom-select-dropdown">
+              {SIZE_FORMATS.map((item) => (
+                <div
+                  key={item.name}
+                  className={`custom-option ${item.name === sizeTitle ? "active" : ""}`}
+                  onClick={() => handleSizeSelect(item)}
+                >
+                  <span className="name">{item.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Material */}
+      <div className="bw-title">Матеріал</div>
+      <div className="bw-row">
+        <div
+          className="custom-select-container selectArtem selectArtemBefore"
+          ref={materialDropdownRef}
+          style={{ width: "100%" }}
+        >
+          <div
+            className="custom-select-header"
+            onClick={() => setMaterialDropdownOpen(!materialDropdownOpen)}
+          >
+            {materialTitle}
+            {material.x && material.y && (
+              <span className="gsm-sub" style={{ marginLeft: "0.5vw" }}>
+                <sub>{material.x}x{material.y}</sub>
+              </span>
+            )}
+          </div>
+
+          {materialDropdownOpen && (
+            <div className="custom-select-dropdown">
+              {materials.map((item) => (
+                <div
+                  key={item.id}
+                  className={`custom-option ${
+                    String(item.id) === String(material?.materialId) ? "active" : ""
+                  }`}
+                  onClick={() => handleMaterialSelect(item)}
+                >
+                  <span className="name">{item.name}</span>
+                  <span className="gsm-sub">
+                    <sub style={{ marginRight: "0.8vw" }}>
+                      {item.x && item.y && (
+                        <sub>{item.x}x{item.y}</sub>
+                      )}
+                    </sub>
+                    <sub>
+                      {item.thickness} г/м<sub>2</sub>
+                    </sub>
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+
+  // ========== RIGHT CONTENT ==========
+  const rightContent = <ScansPrice />;
+
+  // ========== BOTTOM CONTENT ==========
+  const bottomContent = (
+    <div className="bw-action">
+      <button className="adminButtonAdd" variant="danger" onClick={handleSave}>
+        {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
+      </button>
+    </div>
+  );
+
+  // ========== RENDER ==========
+  return (
+    <ServiceModalWrapper
+      show={showNewScans}
+      onClose={() => setShowNewScans(false)}
+      leftContent={leftContent}
+      rightContent={rightContent}
+      bottomContent={bottomContent}
+      error={error}
+      className="service-scans"
+      setEditingOrderUnit={setEditingOrderUnit}
+    />
+  );
 };
 
 export default NewScans;

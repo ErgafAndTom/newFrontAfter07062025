@@ -1,452 +1,490 @@
-import {MDBContainer} from "mdb-react-ui-kit";
-import {Row} from "react-bootstrap";
-import React, {useCallback, useEffect, useState} from "react";
-import axios from '../../api/axiosInstance';
-import './newnomodals/ArtemStyles.css';
-import versantIcon from "../magnetsIcon.png";
-import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
-import Materials2 from "./newnomodals/Materials2";
-import SliderComponent from "./newnomodals/SlidersComponent";
-import {useNavigate} from "react-router-dom";
-import Loader from "../../components/calc/Loader";
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import axios from "../../api/axiosInstance";
+import { useNavigate } from "react-router-dom";
+
+import ServiceModalWrapper from "./shared/ServiceModalWrapper";
+import CountInput from "./shared/CountInput";
+import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
+import "./shared/ServiceModal.css";
+
+// ========== DEFAULTS ==========
+const DEFAULT_SIZE = { x: 100, y: 150 };
+
+const DEFAULTS = {
+  size: DEFAULT_SIZE,
+  material: {
+    type: "Магніт",
+    thickness: "",
+    material: "",
+    materialId: "",
+  },
+  color: {
+    sides: "односторонній",
+    one: "",
+    two: "",
+    allSidesColor: "CMYK",
+  },
+  lamination: {
+    type: "Не потрібно",
+    material: "",
+  },
+  count: 1,
+  cuteLocal: {
+    leftTop: false,
+    rightTop: false,
+    rightBottom: false,
+    leftBottom: false,
+    radius: "",
+  },
+};
+
+const SIZE_FORMATS = [
+  { name: "Задати свій розмір", x: 0, y: 0 },
+  { name: "100 x 150 мм", x: 100, y: 150 },
+  { name: "90 x 50 мм", x: 90, y: 50 },
+  { name: "85 x 55 мм", x: 85, y: 55 },
+  { name: "A5 (148 x 210 мм)", x: 148, y: 210 },
+  { name: "A4 (210 x 297 мм)", x: 210, y: 297 },
+  { name: "A3 (297 x 420 мм)", x: 297, y: 420 },
+];
 
 const NewMagnets = ({
-                        thisOrder,
-                        newThisOrder,
-                        setNewThisOrder,
-                        selectedThings2,
-                        showNewMagnets,
-                        setShowNewMagnets,
-                        setThisOrder,
-                        setSelectedThings2
-                    }) => {
-    // const [show, setShow] = useState(false);
-    let handleChange = (e) => {
-        setCount(e)
-    }
-    const navigate = useNavigate();
-    const [load, setLoad] = useState(false);
-    const [isVisible, setIsVisible] = useState(false);
-    const [isAnimating, setIsAnimating] = useState(false);
-    const [error, setError] = useState(null);
-    const handleClose = () => {
-        setIsAnimating(false); // Начинаем анимацию закрытия
-        setTimeout(() => {
-            setIsVisible(false)
-            setShowNewMagnets(false);
-        }, 300); // После завершения анимации скрываем модальное окно
-    }
-    const handleShow = useCallback((event) => {
-        setShowNewMagnets(true);
-    }, []);
+  thisOrder,
+  setThisOrder,
+  setSelectedThings2,
+  showNewMagnets,
+  setShowNewMagnets,
+  editingOrderUnit,
+  setEditingOrderUnit,
+}) => {
+  const navigate = useNavigate();
 
+  // Modal state detection
+  const { isEdit, options } = useModalState(editingOrderUnit, showNewMagnets);
 
-    const [size, setSize] = useState({
-        x: 100,
-        y: 150
-    });
-    const [material, setMaterial] = useState({
-        type: "Магніт",
-        thickness: "",
-        material: "",
-        materialId: ""
-    });
-    const [color, setColor] = useState({
-        sides: "односторонній",
-        one: "",
-        two: "",
-        allSidesColor: "CMYK",
-    });
-    const [lamination, setLamination] = useState({
-        type: "Не потрібно",
-        material: "",
-    });
-    const [big, setBig] = useState("Не потрібно");
-    const [cute, setCute] = useState("Не потрібно");
-    const [cuteLocal, setCuteLocal] = useState({
-        leftTop: false,
-        rightTop: false,
-        rightBottom: false,
-        leftBottom: false,
-        radius: "",
-    });
-    const [holes, setHoles] = useState("Не потрібно");
-    const [holesR, setHolesR] = useState("Не потрібно");
-    const [count, setCount] = useState(1);
-    const [prices, setPrices] = useState(null);
-    const [pricesThis, setPricesThis] = useState(null);
-    const [selectedService, setSelectedService] = useState("Магнітах");
+  // ========== STATE ==========
+  const [size, setSize] = useState(DEFAULT_SIZE);
+  const [material, setMaterial] = useState(DEFAULTS.material);
+  const [color, setColor] = useState(DEFAULTS.color);
+  const [count, setCount] = useState(DEFAULTS.count);
+  const [error, setError] = useState(null);
 
-    const addNewOrderUnit = e => {
-        let dataToSend = {
-            orderId: thisOrder.id,
-            toCalc: {
-                nameOrderUnit: `${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
-                type: "Magnets",
-                size: size,
-                material: material,
-                color: color,
-                lamination: lamination,
-                big: big,
-                cute: cute,
-                cuteLocal: cuteLocal,
-                holes: holes,
-                holesR: holesR,
-                count: count,
-            }
-        };
+  // Dropdowns
+  const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
+  const [materialDropdownOpen, setMaterialDropdownOpen] = useState(false);
+  const [materials, setMaterials] = useState([]);
+  const [customSize, setCustomSize] = useState(false);
+  const [localX, setLocalX] = useState(DEFAULT_SIZE.x);
+  const [localY, setLocalY] = useState(DEFAULT_SIZE.y);
 
-        axios.post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, dataToSend)
-            .then(response => {
-                // console.log(response.data);
-                setThisOrder(response.data);
-                // setSelectedThings2(response.data.order.OrderUnits || []);
-                setSelectedThings2(response.data.OrderUnits);
-                setShowNewMagnets(false)
-            })
-            .catch(error => {
-              setError(error)
-                if (error.response.status === 403) {
-                    navigate('/login');
-                }
-                console.log(error.message);
-                // setErr(error)
-            });
+  const sizeDropdownRef = useRef(null);
+  const materialDropdownRef = useRef(null);
+
+  // Pricing hook
+  const calcData = useMemo(
+    () => ({
+      size,
+      material,
+      color,
+      lamination: DEFAULTS.lamination,
+      big: "Не потрібно",
+      cute: "Не потрібно",
+      cuteLocal: DEFAULTS.cuteLocal,
+      holes: "Не потрібно",
+      holesR: "Не потрібно",
+      count,
+    }),
+    [size, material, color, count]
+  );
+
+  const { pricesThis } = useModalPricing("Magnets", calcData, showNewMagnets);
+
+  // Save hook
+  const { saveOrderUnit } = useOrderUnitSave(
+    thisOrder,
+    setThisOrder,
+    setSelectedThings2,
+    () => setShowNewMagnets(false),
+    setEditingOrderUnit
+  );
+
+  // ========== EFFECTS ==========
+
+  // Initialize/reset state when modal opens
+  useEffect(() => {
+    if (!showNewMagnets) return;
+
+    // NEW mode - set defaults
+    if (!isEdit) {
+      setSize(DEFAULTS.size);
+      setMaterial(DEFAULTS.material);
+      setColor(DEFAULTS.color);
+      setCount(DEFAULTS.count);
+      setLocalX(DEFAULTS.size.x);
+      setLocalY(DEFAULTS.size.y);
+      setCustomSize(false);
+      setError(null);
+      return;
     }
 
-    // useEffect(() => {
-    //     axios.get(`/getpricesNew`)
-    //         .then(response => {
-    //             // console.log(response.data);
-    //             setPrices(response.data)
-    //         })
-    //         .catch(error => {
-    //             console.log(error.message);
-    //         })
-    // }, []);
+    // EDIT mode - load from options
+    const opt = options || {};
 
-    useEffect(() => {
-        let dataToSend = {
-            type: "Magnets",
-            size: size,
-            material: material,
-            color: color,
-            lamination: lamination,
-            big: big,
-            cute: cute,
-            cuteLocal: cuteLocal,
-            holes: holes,
-            holesR: holesR,
-            count: count,
+    const safeNum = (v, fallback) => {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : fallback;
+    };
+
+    setCount(safeNum(opt?.count, safeNum(editingOrderUnit?.amount, DEFAULTS.count)) || DEFAULTS.count);
+
+    setSize({
+      x: safeNum(opt?.size?.x, DEFAULT_SIZE.x),
+      y: safeNum(opt?.size?.y, DEFAULT_SIZE.y),
+    });
+    setLocalX(safeNum(opt?.size?.x, DEFAULT_SIZE.x));
+    setLocalY(safeNum(opt?.size?.y, DEFAULT_SIZE.y));
+
+    setMaterial({
+      type: opt?.material?.type ?? DEFAULTS.material.type,
+      thickness: opt?.material?.thickness ?? DEFAULTS.material.thickness,
+      material: opt?.material?.material ?? DEFAULTS.material.material,
+      materialId: opt?.material?.materialId ?? DEFAULTS.material.materialId,
+    });
+
+    setColor({
+      sides: opt?.color?.sides ?? DEFAULTS.color.sides,
+      one: opt?.color?.one ?? DEFAULTS.color.one,
+      two: opt?.color?.two ?? DEFAULTS.color.two,
+      allSidesColor: opt?.color?.allSidesColor ?? DEFAULTS.color.allSidesColor,
+    });
+
+    // Check if custom size
+    const foundFormat = SIZE_FORMATS.find(
+      (f) => f.x === safeNum(opt?.size?.x, DEFAULT_SIZE.x) && f.y === safeNum(opt?.size?.y, DEFAULT_SIZE.y) && f.x !== 0
+    );
+    setCustomSize(!foundFormat);
+
+    setError(null);
+  }, [showNewMagnets, isEdit, options, editingOrderUnit]);
+
+  // Fetch materials
+  useEffect(() => {
+    if (!showNewMagnets) return;
+
+    const data = {
+      name: "MaterialsPrices",
+      inPageCount: 999999,
+      currentPage: 1,
+      search: "",
+      columnName: { column: "id", reverse: false },
+      material,
+      size,
+    };
+
+    axios
+      .post(`/materials/NotAll`, data)
+      .then((response) => {
+        const rows = response.data.rows || [];
+        setMaterials(rows);
+
+        // Auto-select first material if none selected
+        if (rows.length > 0 && !material.materialId) {
+          setMaterial((prev) => ({
+            ...prev,
+            material: rows[0].name,
+            materialId: rows[0].id,
+          }));
         }
-        axios.post(`/calc/pricing`, dataToSend)
-            .then(response => {
-                // console.log(response.data);
-                setPricesThis(response.data.prices)
-                setError(null)
-            })
-            .catch(error => {
-                console.log(error.message);
-                setError(error)
-            })
-    }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count]);
-
-    useEffect(() => {
-        if (showNewMagnets) {
-            setIsVisible(true); // Сначала показываем модальное окно
-            setTimeout(() => setIsAnimating(true), 100); // После короткой задержки запускаем анимацию появления
-        } else {
-            setIsAnimating(false); // Начинаем анимацию закрытия
-            setTimeout(() => setIsVisible(false), 300); // После завершения анимации скрываем модальное окно
+      })
+      .catch((err) => {
+        setMaterials([]);
+        if (err?.response?.status === 403) {
+          navigate("/login");
         }
-    }, [showNewMagnets]);
+      });
+  }, [material?.type, size, showNewMagnets, navigate]);
 
-    return (
-        <>
-            {isVisible ? (
-                <div>
-                    <div
-                      style={{
-                        position: 'fixed',
-                        inset: 0,
-                        width: '100vw',
-                        height: '100vh',
-                        backgroundColor: 'rgba(15, 15, 15, 0.45)',
-                        backdropFilter: 'blur(2px)',
-                        WebkitBackdropFilter: 'blur(2px)',
-                        zIndex: 99,
-                        opacity: isAnimating ? 1 : 0,
-                        transition: 'opacity 200ms ease'
-                      }}
-                        onClick={handleClose}
-                    ></div>
-                    <div className="d-flex flex-column" style={{
-                        zIndex: "100",
-                        position: "fixed",
-                        background: "#dcd9ce",
-                        top: "50%",
-                        left: "50%",
-                        transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)", // анимация масштаба
-                        opacity: isAnimating ? 1 : 0, // анимация прозрачности
-                        transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out", // плавная анимация
-                        borderRadius: "1vw",
-                        width: "95vw",
-                        height: "95vh",
-                        // padding: "20px"
-                    }}>
-                        <div className="d-flex">
-                            <div className="m-auto text-center fontProductName">
-                                <div className="d-flex flex-wrap justify-content-center">
-                                    {["Магнітах",].map((service, index) => (
-                                        <button
-                                            key={index}
-                                            className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}
-                                            style={{minWidth: "5vw"}}
-                                            onClick={() => setSelectedService(service)}
-                                        >
-                                            {service}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                            <div
-                                className="btn btn-close btn-lg"
-                                style={{
-                                    margin: "0.5vw",
-                                }}
-                                onClick={handleClose}
-                            >
-                            </div>
-                        </div>
-                        <div className="d-flex flex-column  " style={{marginLeft: '-1vw'}}>
-                            <div className="d-flex flex-row inputsArtemkilk allArtemElem" style={{
-                                marginLeft: "2.5vw",
-                                border: "transparent",
-                                justifyContent: "left",
-                                marginTop: "1vw"
-                            }}> У кількості:
-                                <input
-                                    className="d-flex inputsArtemNumber inputsArtem "
-                                    style={{
-                                        marginLeft: "1vw",
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sizeDropdownRef.current && !sizeDropdownRef.current.contains(event.target)) {
+        setSizeDropdownOpen(false);
+      }
+      if (materialDropdownRef.current && !materialDropdownRef.current.contains(event.target)) {
+        setMaterialDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        paddingLeft: "0.5vw",
+  // ========== HANDLERS ==========
 
-                                    }}
-                                    type="number"
-                                    value={count}
-                                    min={1}
-                                    // disabled
-                                    onChange={(event) => handleChange(event.target.value)}
-                                />
-                                <div className="inputsArtemx allArtemElem"
-                                     style={{border: "transparent", marginTop: "-2vh"}}> шт
-                                </div>
-                            </div>
-                            <MDBContainer
+  const handleSizeSelect = (format) => {
+    if (format.name === "Задати свій розмір") {
+      setCustomSize(true);
+      setSizeDropdownOpen(false);
+      return;
+    }
 
-                                fluid
-                                style={{width: '100%', marginTop: '1vw'}}
-                            >
-                                <Row xs={1} md={6} className="d-flex">
-                                    <div className="d-flex flex-column">
-                                        <NewNoModalSize
-                                            size={size}
-                                            setSize={setSize}
-                                            prices={prices}
-                                            type={"Magnets"}
-                                            buttonsArr={["односторонній"]}
-                                            color={color}
-                                            setColor={setColor}
-                                            count={count}
-                                            setCount={setCount}
+    setSize({ x: format.x, y: format.y });
+    setLocalX(format.x);
+    setLocalY(format.y);
+    setCustomSize(false);
+    setSizeDropdownOpen(false);
+  };
 
-                                        />
-                                        <SliderComponent
-                                            size={size}
-                                            setSize={setSize}
-                                            prices={prices}
-                                            type={"Magnets"}
-                                            buttonsArr={["односторонній"]}
-                                            color={color}
-                                            setColor={setColor}
-                                            count={count}
-                                            setCount={setCount}
+  const applyCustomSize = () => {
+    setSize({ x: localX, y: localY });
+  };
 
-                                        />
-                                        <Materials2
-                                            material={material}
-                                            setMaterial={setMaterial}
-                                            count={count}
-                                            setCount={setCount}
-                                            prices={prices}
-                                            size={size}
-                                            selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
-                                            name={"Широкоформатний фотодрук:"}
-                                            buttonsArr={[]}
-                                        />
-                                    </div>
-                                    {/*<NewSizesButtons*/}
-                                    {/*    size={size}*/}
-                                    {/*    setSize={setSize}*/}
-                                    {/*/>*/}
-                                </Row>
-                                {/*{data.rows.map((item) => (*/}
-                                {/*"proxy": "http://127.0.0.1:3000",*/}
-                                {/*    <CardProduct key={item.id} name={name} data={data} setData={setData} item={item}/>*/}
-                                {/*))}*/}
-                                <div className="d-flex">
-                                    {thisOrder && (
-                                        <div
-                                            className="d-flex align-content-between justify-content-between"
-                                            style={{
-                                                width: "90vw",
-                                                marginLeft: "2.5vw",
+  const handleMaterialSelect = (item) => {
+    setMaterial((prev) => ({
+      ...prev,
+      material: item?.name || "",
+      materialId: item?.id || 0,
+    }));
+    setMaterialDropdownOpen(false);
+  };
 
-                                                fontWeight: "bold",
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                transition: "all 0.3s ease",
-                                                // cursor: "pointer",
-                                                height: '5vw',
-                                            }}
-                                        >
-                                            <button className="adminButtonAdd" variant="danger"
-                                                    onClick={addNewOrderUnit}
-                                            >
-                                                Додати до замовлення
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                              {error &&
-                                <div style={{
-                                  transition: "all 0.3s ease",
-                                  color: "red",
-                                  width: "20vw",
-                                  marginLeft: "2.5vw",
+  const handleSave = () => {
+    if (!material?.materialId) {
+      setError("Виберіть будь ласка матеріал");
+      return;
+    }
 
-                                  display: 'flex',
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                  height: '3vw',
-                                  marginTop: "1vh",
-                                  marginBottom: "1vh",
-                                  border: "1px solid red",
-                                  borderRadius: "10px",
-                                  padding: "10px",
-                                  backgroundColor: "rgba(255, 0, 0, 0.2)",
-                                  fontSize: "1.5vw",
-                                  fontWeight: "bold",
-                                  textAlign: "center",
-                                  cursor: "pointer",
+    const toCalcData = {
+      nameOrderUnit: "Магнітах ",
+      type: "Magnets",
+      size,
+      material,
+      color,
+      lamination: DEFAULTS.lamination,
+      big: "Не потрібно",
+      cute: "Не потрібно",
+      cuteLocal: DEFAULTS.cuteLocal,
+      holes: "Не потрібно",
+      holesR: "Не потрібно",
+      count,
+    };
 
-                                }}>{error.response.data.error}</div>
-                              }
-                                {null === pricesThis ? (
-                                    <div style={{width: '50vw'}}>
+    saveOrderUnit(toCalcData, editingOrderUnit, setError);
+  };
 
-                                    </div>
-                                ) : (
-                                    <div className="d-flex justify-content-between pricesBlockContainer"
-                                         style={{height: '20vmin'}}>
-                                        <div className="" style={{height: '19vmin'}}>
-                                            {/* Друк (рахується за sheetCount) */}
-                                            <div className="fontInfoForPricing">
-                                                Друк: {parseFloat(pricesThis.priceDrukPerSheet).toFixed(2)} грн
-                                                * {pricesThis.sheetCount} м2
-                                                = {(parseFloat(pricesThis.priceDrukPerSheet) * pricesThis.sheetCount).toFixed(2)} грн
-                                            </div>
+  // ========== RENDER HELPERS ==========
 
-                                            {/* Матеріали (папір, рахуються за sheetCount) */}
-                                            <div className="fontInfoForPricing">
-                                                Матеріали: {parseFloat(pricesThis.pricePaperPerSheet).toFixed(2)} грн
-                                                * {pricesThis.sheetCount} м2
-                                                = {(parseFloat(pricesThis.pricePaperPerSheet) * pricesThis.sheetCount).toFixed(2)} грн
-                                            </div>
+  const selectedSizeFormat = SIZE_FORMATS.find((f) => f.x === size.x && f.y === size.y && f.x !== 0);
+  const sizeTitle = customSize
+    ? "Задати свій розмір"
+    : selectedSizeFormat?.name || `${size.x} x ${size.y} мм`;
+  const materialTitle = material?.material || "Виберіть матеріал";
 
-                                            {/* Ламінація (рахується за sheetCount) */}
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    Ламінація: {parseFloat(pricesThis.priceLaminationPerSheet).toFixed(2)} грн * {pricesThis.sheetCount} м2 = {(parseFloat(pricesThis.priceLaminationPerSheet) * pricesThis.sheetCount).toFixed(2)} грн*/}
-                                            {/*</div>*/}
-
-                                            {/* Додаткова послуга "Порізка" */}
-                                            {pricesThis.porizka !== 0 && (
-                                                <div className="fontInfoForPricing">
-                                                    Порізка: {parseFloat(pricesThis.porizka).toFixed(2)} грн
-                                                    * {pricesThis.sheetCount} шт
-                                                    = {(parseFloat(pricesThis.porizka) * pricesThis.sheetCount).toFixed(2)} грн
-                                                </div>
-                                            )}
-
-                                            {/* Підсумкова вартість замовлення */}
-                                            <div className="fontInfoForPricing1">
-                                                Загалом: {parseFloat(pricesThis.price).toFixed(2)} грн
-                                            </div>
-
-                                            {/* Інформація про кількість аркушів */}
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    - З одного аркуша {pricesThis.listsFromBd} можливо зробити {pricesThis.sheetsPerUnit} виробів*/}
-                                            {/*</div>*/}
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    - Затрачено {pricesThis.sheetCount} аркушів {pricesThis.listsFromBd}*/}
-                                            {/*</div>*/}
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    Вартість 1 аркуша {pricesThis.listsFromBd}: {parseFloat(pricesThis.unitSheetPrice).toFixed(2)} грн*/}
-                                            {/*</div>*/}
-
-                                            {/* Розрахунок ціни за виріб (зі всіма допами) */}
-                                            <div className="fontInfoForPricing1">
-                                                Ціна за
-                                                виріб: {parseFloat(pricesThis.priceForItemWithExtras).toFixed(2)} грн
-                                            </div>
-
-                                            {/* Додатковий розрахунок ціни за лист */}
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    Ціна за аркуш (зі всіма допами): {parseFloat(pricesThis.priceForSheetWithExtras).toFixed(2)} грн*/}
-                                            {/*</div>*/}
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    Ціна за аркуш (лише матеріал та друк): {parseFloat(pricesThis.priceForSheetMaterialPrint).toFixed(2)} грн*/}
-                                            {/*</div>*/}
-                                        </div>
-
-                                        <img
-                                            className="versant80-img-icon"
-                                            alt="sssss"
-                                            src={versantIcon}
-                                            style={{
-                                                height: "13vmin",
-                                                marginRight: "2vmin",
-
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                            </MDBContainer>
-                        </div>
-                        {/*{thisOrder && (*/}
-                        {/*    <div className="btn btn-light" onClick={handleThingClickAndHide}>*/}
-                        {/*        ДОДАТИ ДО ЗАМОВЛЕННЯ*/}
-                        {/*    </div>*/}
-                        {/*)}*/}
-                    </div>
-                </div>
-            ) : (
-                <div
-                    style={{display: "none"}}
-                ></div>
-            )}
-        </>
-    )
-
-    return (
-        <div>
-            <Loader/>
+  // Custom pricing summary for Magnets
+  const MagnetsPrice = () => {
+    if (!pricesThis) {
+      return (
+        <div className="bw-summary-title">
+          <div className="bw-sticky">
+            <div className="bwsubOP">Розрахунок завантажується...</div>
+          </div>
         </div>
-    )
+      );
+    }
+
+    return (
+      <div className="bw-summary-title">
+        <div className="bw-sticky">
+          <div className="bwsubOP">Друк:</div>
+          <div className="bw-calc-line">
+            {parseFloat(pricesThis.priceDrukPerSheet || 0).toFixed(2)}
+            <span className="bw-sub">грн</span>
+            <span className="bw-op">×</span>
+            {pricesThis.sheetCount || 0}
+            <span className="bw-sub">м2</span>
+            <span className="bw-op">=</span>
+            {(parseFloat(pricesThis.priceDrukPerSheet || 0) * (pricesThis.sheetCount || 0)).toFixed(2)}
+            <span className="bw-sub">грн</span>
+          </div>
+
+          <div className="bwsubOP">Матеріали:</div>
+          <div className="bw-calc-line">
+            {parseFloat(pricesThis.pricePaperPerSheet || 0).toFixed(2)}
+            <span className="bw-sub">грн</span>
+            <span className="bw-op">×</span>
+            {pricesThis.sheetCount || 0}
+            <span className="bw-sub">м2</span>
+            <span className="bw-op">=</span>
+            {(parseFloat(pricesThis.pricePaperPerSheet || 0) * (pricesThis.sheetCount || 0)).toFixed(2)}
+            <span className="bw-sub">грн</span>
+          </div>
+
+          {pricesThis.porizka !== 0 && (
+            <>
+              <div className="bwsubOP">Порізка:</div>
+              <div className="bw-calc-line">
+                {parseFloat(pricesThis.porizka || 0).toFixed(2)}
+                <span className="bw-sub">грн</span>
+                <span className="bw-op">×</span>
+                {pricesThis.sheetCount || 0}
+                <span className="bw-sub">шт</span>
+                <span className="bw-op">=</span>
+                {(parseFloat(pricesThis.porizka || 0) * (pricesThis.sheetCount || 0)).toFixed(2)}
+                <span className="bw-sub">грн</span>
+              </div>
+            </>
+          )}
+
+          <div
+            className="bw-calc-total d-flex justify-content-center align-content-center"
+            style={{ fontWeight: "500", color: "red" }}
+          >
+            {parseFloat(pricesThis.price || 0).toFixed(2)}
+            <span className="bw-sub">грн</span>
+          </div>
+
+          {pricesThis.priceForItemWithExtras && (
+            <div className="bw-calc-line" style={{ marginTop: "8px" }}>
+              <span className="bwsubOP">За виріб:</span>
+              {parseFloat(pricesThis.priceForItemWithExtras || 0).toFixed(2)}
+              <span className="bw-sub">грн</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // ========== LEFT CONTENT ==========
+  const leftContent = (
+    <>
+      {/* Count */}
+      <div className="bw-title">Кількість</div>
+      <div className="bw-row">
+        <CountInput count={count} setCount={setCount} />
+      </div>
+
+      {/* Size */}
+      <div className="bw-title">Розмір</div>
+      <div className="bw-row">
+        <div className="d-flex flex-row justify-content-between align-items-center w-100 gap-2">
+          {/* Custom size inputs */}
+          {customSize && (
+            <div className="d-flex align-items-center gap-1">
+              <input
+                className="inputsArtem"
+                type="number"
+                value={localX}
+                min={10}
+                max={1000}
+                onChange={(e) => setLocalX(Number(e.target.value))}
+                onBlur={applyCustomSize}
+                style={{ width: "60px" }}
+              />
+              <span style={{ color: "#666" }}>x</span>
+              <input
+                className="inputsArtem"
+                type="number"
+                value={localY}
+                min={10}
+                max={1000}
+                onChange={(e) => setLocalY(Number(e.target.value))}
+                onBlur={applyCustomSize}
+                style={{ width: "60px" }}
+              />
+              <span style={{ color: "#666", fontSize: "12px" }}>мм</span>
+            </div>
+          )}
+
+          {/* Size Dropdown */}
+          <div
+            className="custom-select-container selectArtem selectArtemBefore"
+            ref={sizeDropdownRef}
+            style={{ zIndex: 10, flex: customSize ? "0 0 auto" : "1" }}
+          >
+            <div
+              className="custom-select-header"
+              onClick={() => setSizeDropdownOpen(!sizeDropdownOpen)}
+            >
+              {sizeTitle}
+            </div>
+
+            {sizeDropdownOpen && (
+              <div className="custom-select-dropdown">
+                {SIZE_FORMATS.map((item) => (
+                  <div
+                    key={item.name}
+                    className={`custom-option ${item.name === sizeTitle ? "active" : ""}`}
+                    onClick={() => handleSizeSelect(item)}
+                  >
+                    <span className="name">{item.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Material */}
+      <div className="bw-title">Матеріал</div>
+      <div className="bw-row">
+        <div
+          className="custom-select-container selectArtem selectArtemBefore"
+          ref={materialDropdownRef}
+          style={{ width: "100%" }}
+        >
+          <div
+            className="custom-select-header"
+            onClick={() => setMaterialDropdownOpen(!materialDropdownOpen)}
+          >
+            {materialTitle}
+          </div>
+
+          {materialDropdownOpen && (
+            <div className="custom-select-dropdown">
+              {materials.map((item) => (
+                <div
+                  key={item.id}
+                  className={`custom-option ${
+                    String(item.id) === String(material?.materialId) ? "active" : ""
+                  }`}
+                  onClick={() => handleMaterialSelect(item)}
+                >
+                  <span className="name">{item.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+
+  // ========== RIGHT CONTENT ==========
+  const rightContent = <MagnetsPrice />;
+
+  // ========== BOTTOM CONTENT ==========
+  const bottomContent = (
+    <div className="bw-action">
+      <button className="adminButtonAdd" variant="danger" onClick={handleSave}>
+        {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
+      </button>
+    </div>
+  );
+
+  // ========== RENDER ==========
+  return (
+    <ServiceModalWrapper
+      show={showNewMagnets}
+      onClose={() => setShowNewMagnets(false)}
+      leftContent={leftContent}
+      rightContent={rightContent}
+      bottomContent={bottomContent}
+      error={error}
+      className="service-magnets"
+      setEditingOrderUnit={setEditingOrderUnit}
+    />
+  );
 };
 
 export default NewMagnets;

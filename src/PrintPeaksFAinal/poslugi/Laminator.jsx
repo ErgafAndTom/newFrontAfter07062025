@@ -1,408 +1,430 @@
-import {MDBContainer} from "mdb-react-ui-kit";
-import {Row} from "react-bootstrap";
-import React, {useCallback, useEffect, useState} from "react";
-import axios from '../../api/axiosInstance';
-import Loader from "../../components/calc/Loader";
-import NewNoModalLamination from "./newnomodals/NewNoModalLamination";
-import versantIcon from '../../components/newUIArtem/printers/p8_.png';
-import {useNavigate} from "react-router-dom";
-import LaminationSize from "./newnomodals/LaminationSize";
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import axios from "../../api/axiosInstance";
+import { useNavigate } from "react-router-dom";
+
+import ServiceModalWrapper from "./shared/ServiceModalWrapper";
+import PricingSummary from "./shared/PricingSummary";
+import CountInput from "./shared/CountInput";
+import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
+import "./shared/ServiceModal.css";
+
+// ========== DEFAULTS ==========
+const DEFAULT_SIZE = { x: 210, y: 297 };
+
+const DEFAULTS = {
+  size: DEFAULT_SIZE,
+  material: {
+    type: "Не потрібно",
+    thickness: "Тонкі",
+    material: "",
+    materialId: "",
+    typeUse: null,
+  },
+  color: {
+    sides: "Не потрібно",
+    one: "",
+    two: "",
+    allSidesColor: "CMYK",
+  },
+  lamination: {
+    type: "з глянцевим ламінуванням",
+    material: "з глянцевим ламінуванням",
+    materialId: "",
+    size: "",
+    typeUse: "А3",
+  },
+  count: 1,
+};
+
+const SIZE_FORMATS = [
+  { name: "A5 (148 x 210 мм)", x: 148, y: 210 },
+  { name: "A4 (210 x 297 мм)", x: 210, y: 297 },
+  { name: "A3 (297 x 420 мм)", x: 297, y: 420 },
+];
+
+const LAMINATION_BUTTONS = [
+  "з глянцевим ламінуванням",
+  "з матовим ламінуванням",
+  "з ламінуванням SoftTouch",
+  "з холодним матовим ламінуванням",
+];
+
+const LABELS = {
+  "з глянцевим ламінуванням": "ГЛЯНЦЕВЕ",
+  "з матовим ламінуванням": "МАТОВЕ",
+  "з ламінуванням SoftTouch": "SOFT TOUCH",
+  "з холодним матовим ламінуванням": "ХОЛОДНЕ",
+};
 
 const Laminator = ({
-                       thisOrder,
-                       newThisOrder,
-                       setNewThisOrder,
-                       selectedThings2,
-                       setShowLaminator,
-                       setThisOrder,
-                       setSelectedThings2,
-                       showLaminator
-                   }) => {
-    let handleChange = (e) => {
-        setCount(e)
-    }
-    const [load, setLoad] = useState(false);
-    const navigate = useNavigate();
-    const [isVisible, setIsVisible] = useState(false);
-    const [isAnimating, setIsAnimating] = useState(false);
-    const [error, setError] = useState(null);
-    const handleClose = () => {
-        setIsAnimating(false); // Начинаем анимацию закрытия
-        setTimeout(() => {
-            setIsVisible(false)
-            setShowLaminator(false);
-        }, 300); // После завершения анимации скрываем модальное окно
-    }
-    const handleShow = useCallback((event) => {
-        setShowLaminator(true);
-    }, []);
+  thisOrder,
+  setThisOrder,
+  setSelectedThings2,
+  showLaminator,
+  setShowLaminator,
+  editingOrderUnit,
+  setEditingOrderUnit,
+}) => {
+  const navigate = useNavigate();
 
+  // Modal state detection
+  const { isEdit, options } = useModalState(editingOrderUnit, showLaminator);
 
-    const [size, setSize] = useState({
-        x: 210,
-        y: 297
-    });
-    const [material, setMaterial] = useState({
-        type: "Не потрібно",
-        thickness: "Тонкі",
-        material: "",
-        materialId: "",
-        typeUse: null
-    });
-    const [color, setColor] = useState({
-        sides: "Не потрібно",
-        one: "",
-        two: "",
-        allSidesColor: "CMYK",
-    });
-    const [lamination, setLamination] = useState({
-        type: "Не потрібно",
-        material: "",
-        materialId: "",
-        size: "",
-        typeUse: "А3",
-    });
-    const [big, setBig] = useState("Не потрібно");
-    const [cute, setCute] = useState("Не потрібно");
-    const [cuteLocal, setCuteLocal] = useState({
+  // ========== STATE ==========
+  const [size, setSize] = useState(DEFAULT_SIZE);
+  const [lamination, setLamination] = useState(DEFAULTS.lamination);
+  const [count, setCount] = useState(DEFAULTS.count);
+  const [error, setError] = useState(null);
+
+  // Lamination sizes from API
+  const [thisLaminationSizes, setThisLaminationSizes] = useState([]);
+  const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
+  const [thicknessDropdownOpen, setThicknessDropdownOpen] = useState(false);
+
+  const sizeDropdownRef = useRef(null);
+  const thicknessDropdownRef = useRef(null);
+
+  // Pricing hook
+  const calcData = useMemo(
+    () => ({
+      size,
+      material: DEFAULTS.material,
+      color: DEFAULTS.color,
+      lamination,
+      big: "Не потрібно",
+      cute: "Не потрібно",
+      cuteLocal: {
         leftTop: false,
         rightTop: false,
         rightBottom: false,
         leftBottom: false,
         radius: "",
-    });
-    const [holes, setHoles] = useState("Не потрібно");
-    const [holesR, setHolesR] = useState("");
-    const [count, setCount] = useState(1);
-    const [prices, setPrices] = useState([]);
-    const [pricesThis, setPricesThis] = useState(null);
+      },
+      holes: "Не потрібно",
+      holesR: "",
+      count,
+    }),
+    [size, lamination, count]
+  );
 
-    const addNewOrderUnit = e => {
-        let dataToSend = {
-            orderId: thisOrder.id,
-            toCalc: {
-                nameOrderUnit: `Ламінація`,
-                type: "Laminator",
-                size: size,
-                material: material,
-                color: color,
-                lamination: lamination,
-                big: big,
-                cute: cute,
-                cuteLocal: cuteLocal,
-                holes: holes,
-                holesR: holesR,
-                count: count,
-            }
-        };
+  const { pricesThis } = useModalPricing("Laminator", calcData, showLaminator);
 
-        axios.post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, dataToSend)
-            .then(response => {
-                // console.log(response.data);
-                setThisOrder(response.data);
-                // setSelectedThings2(response.data.order.OrderUnits || []);
-                setSelectedThings2(response.data.OrderUnits);
-                setShowLaminator(false)
-            })
-            .catch(error => {
-                if (error.response.status === 403) {
-                    navigate('/login');
-                }
-                console.log(error.message);
-                // setErr(error)
-            });
+  // Save hook
+  const { saveOrderUnit } = useOrderUnitSave(
+    thisOrder,
+    setThisOrder,
+    setSelectedThings2,
+    () => setShowLaminator(false),
+    setEditingOrderUnit
+  );
+
+  // ========== EFFECTS ==========
+
+  // Initialize/reset state when modal opens
+  useEffect(() => {
+    if (!showLaminator) return;
+
+    // NEW mode - set defaults
+    if (!isEdit) {
+      setSize(DEFAULTS.size);
+      setLamination(DEFAULTS.lamination);
+      setCount(DEFAULTS.count);
+      setError(null);
+      return;
     }
 
-    // useEffect(() => {
-    //     axios.get(`/getpricesNew`)
-    //         .then(response => {
-    //             // console.log(response.data);
-    //             setPrices(response.data)
-    //         })
-    //         .catch(error => {
-    //             if(error.response.status === 403){
-    //                 navigate('/login');
-    //             }
-    //             console.log(error.message);
-    //         })
-    // }, []);
+    // EDIT mode - load from options
+    const opt = options || {};
+    setCount(opt.count ?? editingOrderUnit?.amount ?? DEFAULTS.count);
 
-    useEffect(() => {
-        let dataToSend = {
-            type: "Laminator",
-            size: size,
-            material: material,
-            color: color,
-            lamination: lamination,
-            big: big,
-            cute: cute,
-            cuteLocal: cuteLocal,
-            holes: holes,
-            holesR: holesR,
-            count: count,
+    setSize({
+      x: opt?.size?.x ?? DEFAULT_SIZE.x,
+      y: opt?.size?.y ?? DEFAULT_SIZE.y,
+    });
+
+    setLamination({
+      type: opt?.lamination?.type ?? DEFAULTS.lamination.type,
+      material: opt?.lamination?.material ?? DEFAULTS.lamination.material,
+      materialId: opt?.lamination?.materialId ?? "",
+      size: opt?.lamination?.size ?? "",
+      typeUse: opt?.lamination?.typeUse ?? "А3",
+    });
+
+    setError(null);
+  }, [showLaminator, isEdit, options, editingOrderUnit]);
+
+  // Fetch lamination sizes when material changes
+  useEffect(() => {
+    if (!lamination.material || !showLaminator) return;
+
+    const data = {
+      name: "MaterialsPrices",
+      inPageCount: 999999,
+      currentPage: 1,
+      search: "",
+      columnName: { column: "id", reverse: false },
+      type: "Lamination",
+      material: {
+        type: "Ламінування",
+        material: lamination.material,
+        materialId: lamination.materialId,
+        thickness: lamination.size,
+        typeUse: "А3",
+      },
+      size,
+    };
+
+    axios
+      .post(`/materials/NotAll`, data)
+      .then((response) => {
+        const rows = response.data.rows || [];
+        setThisLaminationSizes(rows);
+
+        // Auto-select first thickness if none selected
+        if (rows.length > 0 && !lamination.materialId) {
+          setLamination((prev) => ({
+            ...prev,
+            materialId: rows[0].id,
+            size: `${rows[0].thickness}`,
+          }));
         }
-        axios.post(`/calc/pricing`, dataToSend)
-            .then(response => {
-                // console.log(response.data.prices);
-                setPricesThis(response.data.prices)
-                setError(null)
-            })
-            .catch(error => {
-                setError(error)
-                if (error.response.status === 403) {
-                    navigate('/login');
-                }
-                console.log(error.message);
-            })
-    }, [material, color, lamination.materialId, big, cute, cuteLocal, holes, holesR, count]);
-
-    useEffect(() => {
-        if (showLaminator) {
-            setIsVisible(true); // Сначала показываем модальное окно
-            setTimeout(() => setIsAnimating(true), 100); // После короткой задержки запускаем анимацию появления
-        } else {
-            setIsAnimating(false); // Начинаем анимацию закрытия
-            setTimeout(() => setIsVisible(false), 300); // После завершения анимации скрываем модальное окно
+      })
+      .catch((err) => {
+        setThisLaminationSizes([]);
+        if (err?.response?.status === 403) {
+          navigate("/login");
         }
-    }, [showLaminator]);
+      });
+  }, [lamination.material, lamination.type, size, showLaminator, navigate]);
 
-    return (
-        <>
-            {isVisible === true ? (
-                <div>
-                    <div
-                      style={{
-                        position: 'fixed',
-                        inset: 0,
-                        width: '100vw',
-                        height: '100vh',
-                        backgroundColor: 'rgba(15, 15, 15, 0.45)',
-                        backdropFilter: 'blur(2px)',
-                        WebkitBackdropFilter: 'blur(2px)',
-                        zIndex: 99,
-                        opacity: isAnimating ? 1 : 0,
-                        transition: 'opacity 200ms ease'
-                      }}
-                        onClick={handleClose}
-                    ></div>
-                    <div className="d-flex flex-column" style={{
-                        zIndex: "100",
-                        position: "fixed",
-                        background: "#dcd9ce",
-                        top: "50%",
-                        left: "50%",
-                        transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)", // анимация масштаба
-                        opacity: isAnimating ? 1 : 0, // анимация прозрачности
-                        transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out", // плавная анимация
-                        borderRadius: "1vw",
-                        width: "95vw",
-                        height: "95vh",
-                        // padding: "20px"
-                    }}>
-                        <div className="d-flex">
-                            <div className="m-auto text-center fontProductName">
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sizeDropdownRef.current && !sizeDropdownRef.current.contains(event.target)) {
+        setSizeDropdownOpen(false);
+      }
+      if (thicknessDropdownRef.current && !thicknessDropdownRef.current.contains(event.target)) {
+        setThicknessDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-                            </div>
-                            <div
-                                className="btn btn-close btn-lg"
-                                style={{
-                                    margin: "0.5vw",
-                                }}
-                                onClick={handleClose}
-                            >
-                            </div>
-                        </div>
-                        <div className="d-flex flex-column">
-                            <div className="d-flex flex-row inputsArtemkilk allArtemElem" style={{
-                                marginLeft: "1.7vw",
-                                border: "transparent",
-                                justifyContent: "left",
-                                marginTop: "1vw"
-                            }}> У кількості:
-                                <input
-                                    className="d-flex inputsArtemNumber inputsArtem "
-                                    style={{
-                                        marginLeft: "1vw",
-                                        width: "5vw",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        paddingLeft: "0.5vw",
+  // ========== HANDLERS ==========
 
-                                    }}
-                                    type="number"
-                                    value={count}
-                                    min={1}
-                                    // disabled
-                                    onChange={(event) => handleChange(event.target.value)}
-                                />
-                                <div className="inputsArtemx allArtemElem"
-                                     style={{border: "transparent", marginTop: "-2vh"}}> шт
-                                </div>
-                            </div>
-                            <MDBContainer fluid style={{width: '100%'}}>
-                                <Row xs={1} md={6} className="">
-                                    <div className="d-flex flex-column">
-                                        <LaminationSize
-                                            size={size}
-                                            setSize={setSize}
-                                            prices={prices}
-                                            type={"BigOvshik"}
-                                            buttonsArr={["односторонній", "двосторонній",]}
-                                            color={color}
-                                            setColor={setColor}
-                                            count={count}
-                                            setCount={setCount}
-                                            defaultt={"А3 (297 х 420 мм)"}
-                                        />
-                                        {/*<NewNoModalMaterial*/}
-                                        {/*<Materials2*/}
-                                        {/*    material={material}*/}
-                                        {/*    setMaterial={setMaterial}*/}
-                                        {/*    count={count}*/}
-                                        {/*    setCount={setCount}*/}
-                                        {/*    prices={prices}*/}
-                                        {/*    selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}*/}
-                                        {/*    name={"Чорно-білий друк на монохромному принтері:"}*/}
-                                        {/*    buttonsArr={["Тонкі",*/}
-                                        {/*        "Середньої щільності",*/}
-                                        {/*        "Цупкі", "Самоклеючі"]}*/}
-                                        {/*    typeUse={null}*/}
-                                        {/*/>*/}
-                                        <div className="d-flex" style={{marginLeft: "-1.5vw"}}>
-                                            <NewNoModalLamination
-                                                lamination={lamination}
-                                                setLamination={setLamination}
-                                                prices={prices}
-                                                size={size}
-                                                type={"Lamination"}
-                                                buttonsArr={["з глянцевим ламінуванням",
-                                                  "з матовим ламінуванням",
-                                                  "з ламінуванням SoftTouch",
-                                                  "з холодним матовим ламінуванням",]}
-                                                selectArr={["30", "70", "80", "100", "125", "250"]}
-                                            />
-                                        </div>
+  const handleSizeSelect = (format) => {
+    setSize({ x: format.x, y: format.y });
+    setSizeDropdownOpen(false);
+  };
 
-                                    </div>
-                                </Row>
-                                <div className="d-flex">
-                                    {thisOrder && (
-                                        <div
-                                            className="d-flex align-content-between justify-content-between"
-                                            style={{
-                                                width: "90vw",
-                                                marginLeft: "2.5vw",
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                transition: "all 0.3s ease",
-                                                height: '3vw',
-                                            }}
-                                        >
-                                            <button className="adminButtonAdd" variant="danger"
-                                                    onClick={addNewOrderUnit}
-                                            >
-                                                Додати до замовлення
-                                            </button>
-                                            {/*<div*/}
-                                            {/*    className="btn btn-warning" style={{*/}
-                                            {/*    borderRadius: '0.627vw',*/}
-                                            {/*    border: '0.08vw solid gray',*/}
-                                            {/*    padding: '0.2vw 0.7vw',*/}
-                                            {/*}}*/}
-                                            {/*    // onClick={handleThingClickAndHide}*/}
-                                            {/*>*/}
-                                            {/*    Додати до пресетів*/}
-                                            {/*</div>*/}
-                                        </div>
-                                    )}
-                                </div>
-                                {error &&
-                                    <div>{error.message}</div>
-                                }
-                                {null === pricesThis ? (
-                                    <div style={{width: '50vw'}}>
+  const handleLaminationTypeClick = (material) => {
+    setLamination((prev) => ({
+      ...prev,
+      material,
+      type: material,
+      materialId: "",
+      size: "",
+    }));
+  };
 
-                                    </div>
-                                ) : (
-                                    <div className="d-flex justify-content-between pricesBlockContainer"
-                                         style={{height: "20vmin"}}>
-                                        <div className="" style={{height: "19vmin"}}>
+  const handleThicknessSelect = (item) => {
+    setLamination((prev) => ({
+      ...prev,
+      materialId: item.id,
+      size: `${item.thickness}`,
+    }));
+    setThicknessDropdownOpen(false);
+  };
 
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    Друк: {pricesThis.priceForDrukThisUnit} грн * {pricesThis.skolko} шт*/}
-                                            {/*    = {pricesThis.priceForDrukThisUnit * pricesThis.skolko} грн*/}
-                                            {/*</div>*/}
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    Матеріали: {pricesThis.priceForThisUnitOfPapper}грн. * {pricesThis.skolko} шт*/}
-                                            {/*    = {pricesThis.priceForThisUnitOfPapper * pricesThis.skolko}грн.*/}
-                                            {/*</div>*/}
+  const handleSave = () => {
+    const toCalcData = {
+      nameOrderUnit: "Ламінація",
+      type: "Laminator",
+      size,
+      material: DEFAULTS.material,
+      color: DEFAULTS.color,
+      lamination,
+      big: "Не потрібно",
+      cute: "Не потрібно",
+      cuteLocal: {
+        leftTop: false,
+        rightTop: false,
+        rightBottom: false,
+        leftBottom: false,
+        radius: "",
+      },
+      holes: "Не потрібно",
+      holesR: "",
+      count,
+    };
 
-                                            <div className="fontInfoForPricing">
-                                                Ламінація: {pricesThis.priceForThisUnitOfLamination} грн
-                                                * {pricesThis.skolko} шт
-                                                = {pricesThis.priceForThisAllUnitsOfLamination} грн
-                                            </div>
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    Згинання {pricesThis.priceForThisUnitOfBig} грн * {count} шт*/}
-                                            {/*    = {pricesThis.priceForAllUnitsOfBig} грн*/}
-                                            {/*</div>*/}
-                                            {/*<div className=" fontInfoForPricing">*/}
-                                            {/*    Свердління отворів: {pricesThis.priceForThisUnitOfCute} грн * {count} шт*/}
-                                            {/*    = {pricesThis.priceForAllUnitsOfCute} грн*/}
-                                            {/*</div>*/}
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    Суруглення кутів: {pricesThis.priceForThisUnitOfHoles} грн * {count} шт*/}
-                                            {/*    = {pricesThis.priceForAllUnitsOfHoles} грн*/}
+    saveOrderUnit(toCalcData, editingOrderUnit, setError);
+  };
 
-                                            {/*</div>*/}
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    {pricesThis.priceForThisUnitOfPapper * pricesThis.skolko}+*/}
-                                            {/*    {pricesThis.priceForDrukThisUnit * pricesThis.skolko}+*/}
-                                            {/*    {pricesThis.priceForThisAllUnitsOfLamination}+*/}
-                                            {/*    {pricesThis.priceForAllUnitsOfBig}+*/}
-                                            {/*    {pricesThis.priceForAllUnitsOfCute}+*/}
-                                            {/*    {pricesThis.priceForAllUnitsOfHoles}=*/}
-                                            {/*    {pricesThis.price}*/}
-                                            {/*</div>*/}
-                                            <div className="fontInfoForPricing1">
-                                                Загалом: {pricesThis.price} грн
-                                            </div>
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    - З одного аркуша A3 можливо*/}
-                                            {/*    зробити {pricesThis.skolkoListovNaOdin} виробів*/}
-                                            {/*</div>*/}
-                                            {/*<div className="fontInfoForPricing">*/}
-                                            {/*    - Затрачено {pricesThis.skolko} аркушів (SR A3)*/}
-                                            {/*</div>*/}
-                                        </div>
+  // ========== RENDER HELPERS ==========
 
+  const selectedSizeFormat = SIZE_FORMATS.find((f) => f.x === size.x && f.y === size.y);
+  const sizeTitle = selectedSizeFormat?.name || `${size.x} x ${size.y} мм`;
+  const thicknessTitle = lamination.size ? `${lamination.size} мкм` : "-";
 
-                                        <img
-                                            className="lamination-img-icon"
-                                            alt="sssss"
-                                            src={versantIcon}
+  // ========== LEFT CONTENT ==========
+  const leftContent = (
+    <>
+      {/* Count & Size */}
+      <div className="bw-title">Кількість та розмір</div>
+      <div className="bw-row">
+        <div className="d-flex flex-row justify-content-between align-items-center">
+          {/* Count */}
+          <CountInput count={count} setCount={setCount} />
 
-                                        />
-                                    </div>
-                                )}
-                            </MDBContainer>
-                        </div>
-                    </div>
-                </div>
-            ) : (
-                <div
-                    style={{display: "none"}}
-                ></div>
+          {/* Size Dropdown */}
+          <div
+            className="custom-select-container selectArtem selectArtemBefore"
+            ref={sizeDropdownRef}
+            style={{ zIndex: 10 }}
+          >
+            <div
+              className="custom-select-header"
+              onClick={() => setSizeDropdownOpen(!sizeDropdownOpen)}
+            >
+              {sizeTitle}
+            </div>
+
+            {sizeDropdownOpen && (
+              <div className="custom-select-dropdown">
+                {SIZE_FORMATS.map((item) => (
+                  <div
+                    key={item.name}
+                    className={`custom-option ${item.name === sizeTitle ? "active" : ""}`}
+                    onClick={() => handleSizeSelect(item)}
+                  >
+                    <span className="name">{item.name}</span>
+                  </div>
+                ))}
+              </div>
             )}
-        </>
-    )
-
-    return (
-        <div>
-            <Loader/>
+          </div>
         </div>
-    )
+      </div>
+
+      {/* Lamination Type */}
+      <div className="bw-title">Тип ламінації</div>
+      <div className="bw-row">
+        <div
+          style={{
+            display: "flex",
+            position: "relative",
+            alignItems: "center",
+            gap: "0",
+            width: "100%",
+          }}
+        >
+          {LAMINATION_BUTTONS.map((item, index) => {
+            const isActive = lamination.material === item;
+            const isFirst = index === 0;
+            const isLast = index === LAMINATION_BUTTONS.length - 1;
+            return (
+              <button
+                key={item}
+                type="button"
+                className="lamination-button"
+                style={{
+                  height: "3vh",
+                  border: "none",
+                  fontSize: "14px",
+                  fontWeight: "450",
+                  flex: 1,
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                  padding: "12px 8px",
+                  transition: "all 0.3s ease",
+                  backgroundColor: isActive ? "#f5a623" : "rgba(224, 224, 224, 0.5)",
+                  color: isActive ? "#FFFFFF" : "#666666",
+                  position: "relative",
+                  borderTopLeftRadius: isFirst ? "1vh" : "0",
+                  borderBottomLeftRadius: isFirst ? "1vh" : "0",
+                  borderTopRightRadius: isLast ? "1vh" : "0",
+                  borderBottomRightRadius: isLast ? "1vh" : "0",
+                  marginLeft: isFirst ? "0" : "-25px",
+                  clipPath:
+                    isFirst && !isLast
+                      ? "polygon(0 0, 100% 0, calc(100% - 25px) 100%, 0 100%)"
+                      : isLast && !isFirst
+                      ? "polygon(25px 0, 100% 0, 100% 100%, 0 100%)"
+                      : !isFirst && !isLast
+                      ? "polygon(25px 0, 100% 0, calc(100% - 25px) 100%, 0 100%)"
+                      : "none",
+                }}
+                onClick={() => handleLaminationTypeClick(item)}
+              >
+                {LABELS[item] || item}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Lamination Thickness */}
+      <div className="bw-title">Товщина плівки</div>
+      <div className="bw-row">
+        <div
+          className="custom-select-container selectArtem selectArtemBefore"
+          ref={thicknessDropdownRef}
+          style={{ width: "100%" }}
+        >
+          <div
+            className="custom-select-header"
+            onClick={() => setThicknessDropdownOpen(!thicknessDropdownOpen)}
+          >
+            {thicknessTitle}
+          </div>
+
+          {thicknessDropdownOpen && (
+            <div className="custom-select-dropdown">
+              {thisLaminationSizes.map((item) => (
+                <div
+                  key={item.id}
+                  className={`custom-option ${
+                    String(item.id) === String(lamination.materialId) ? "active" : ""
+                  }`}
+                  onClick={() => handleThicknessSelect(item)}
+                >
+                  <span className="name">{item.thickness} мкм</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+
+  // ========== RIGHT CONTENT ==========
+  const rightContent = <PricingSummary pricesThis={pricesThis} type="Laminator" />;
+
+  // ========== BOTTOM CONTENT ==========
+  const bottomContent = (
+    <div className="bw-action">
+      <button className="adminButtonAdd" variant="danger" onClick={handleSave}>
+        {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
+      </button>
+    </div>
+  );
+
+  // ========== RENDER ==========
+  return (
+    <ServiceModalWrapper
+      show={showLaminator}
+      onClose={() => setShowLaminator(false)}
+      leftContent={leftContent}
+      rightContent={rightContent}
+      bottomContent={bottomContent}
+      error={error}
+      className="service-laminator"
+      setEditingOrderUnit={setEditingOrderUnit}
+    />
+  );
 };
 
 export default Laminator;

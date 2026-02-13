@@ -1,23 +1,18 @@
-import { MDBContainer } from "mdb-react-ui-kit";
-import { Row } from "react-bootstrap";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "../../api/axiosInstance";
-import Loader from "../../components/calc/Loader";
 import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
 import NewNoModalLamination from "./newnomodals/NewNoModalLamination";
 import NewNoModalCornerRounding from "./newnomodals/NewNoModalBig";
 import NewNoModalCute from "./newnomodals/NewNoModalCute";
 import NewNoModalHoles from "./newnomodals/NewNoModalHoles";
-import versantIcon from "../public/versant80@2x.png";
 import Materials2 from "./newnomodals/Materials2";
 import { useNavigate } from "react-router-dom";
 import NewNoModalLyuversy from "./newnomodals/NewNoModalLyuversy";
 import Porizka from "./newnomodals/Porizka";
-
-import "./isoButtons.css";
-import IsoButtons from "./IsoButtons";
-
 import NewNoModalProkleyka from "./newnomodals/NewNoModalProkleyka";
+
+import "./NewSheetCutBw.css";
+import "./NewSheetCut.css";
 
 const emptyPrice = { pricePerUnit: 0, count: 0, totalPrice: 0 };
 const normalize = (obj = {}) => ({
@@ -119,24 +114,13 @@ const NewSheetCut = ({
       maximumFractionDigits: 2,
     }).format(Number(v));
 
-  const [load, setLoad] = useState(false);
   const navigate = useNavigate();
-  const [isVisible, setIsVisible] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
 
   const [error, setError] = useState(null);
 
   const handleClose = () => {
-    setIsAnimating(false);
-    setTimeout(() => {
-      setIsVisible(false);
-      setShowNewSheetCut(false);
-    }, 300);
+    setShowNewSheetCut(false);
   };
-
-  const handleShow = useCallback(() => {
-    setShowNewSheetCut(true);
-  }, [setShowNewSheetCut]);
 
   let handleChange = (e) => {
     setCount(e);
@@ -398,399 +382,451 @@ const NewSheetCut = ({
     if (error) setError(null);
   }, [material]);
 
-  /* ===================== MODAL ANIMATION ===================== */
-
-  useEffect(() => {
-    if (showNewSheetCut) {
-      setIsVisible(true);
-      setTimeout(() => setIsAnimating(true), 100);
-    } else {
-      setIsAnimating(false);
-      setTimeout(() => setIsVisible(false), 300);
-    }
-  }, [showNewSheetCut]);
 
   /* ===================== RENDER ===================== */
 
+  if (!showNewSheetCut) return null;
+
   return (
-    <>
-      {isVisible === true ? (
-        <div>
-          <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              width: "100vw",
-              height: "100vh",
-              backgroundColor: "rgba(15, 15, 15, 0.45)",
-              backdropFilter: "blur(2px)",
-              WebkitBackdropFilter: "blur(2px)",
-              zIndex: 99,
-              opacity: isAnimating ? 1 : 0,
-              transition: "opacity 200ms ease",
-            }}
-            onClick={handleClose}
-          ></div>
+    <div className="sc-wrap">
+      {/* ===== OVERLAY ===== */}
+      <div className="bw-overlay" onClick={handleClose} />
 
-          <div
-            className="d-flex flex-column"
-            style={{
-              zIndex: "100",
-              position: "fixed",
-              background: "#dcd9ce",
-              top: "50%",
-              left: "50%",
-              transform: isAnimating
-                ? "translate(-50%, -50%) scale(1)"
-                : "translate(-50%, -50%) scale(0.8)",
-              opacity: isAnimating ? 1 : 0,
-              transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
-              borderRadius: "9px",
-              width: "95vw",
-              height: "95vh",
-            }}
-          >
-            <div className="d-flex">
-              <div className="m-auto text-center fontProductName">
-                <div className="d-flex flex-wrap justify-content-center fontInfoForPricingsmall">
-                  {[
-                    "Зображення",
-                    "Листівка",
-                    "Візитка",
-                    "Флаєр",
-                    "Буклет",
-                    "Брошура",
-                    "Картка",
-                    "Диплом",
-                    "Сертифікат",
-                    "Подяка",
-                    "Зін",
-                    "Презентація",
-                    "Бланк",
-                    "Афіша",
-                    "Календар",
-                    "Плакат",
-                    "Візуалізація",
-                    "Меню",
-                    "Документ",
-                    "Бейджі",
-                    "Холдер",
-                  ].map((service, index) => (
-                    <button
-                      key={index}
-                      className={`btn ${
-                        selectedService === service ? "adminButtonAdd" : "adminButtonAdd-primary"
-                      } m-1`}
-                      style={{ minWidth: "4vw" }}
-                      onClick={() => setSelectedService(service)}
-                    >
-                      {service}
-                    </button>
-                  ))}
-                </div>
-              </div>
+      {/* ===== MODAL ===== */}
+      <div className="sc-modal" style={{
+        minHeight: 'auto',
+        // overflow: 'hidden',
+      }} onClick={(e) => e.stopPropagation()}>
 
-              <div
-                className="btn btn-close"
-                style={{
-                  margin: "0.5vw",
-                }}
-                onClick={handleClose}
-              ></div>
-            </div>
+        {/* ===== BODY: left + right ===== */}
+        <div className="sc-body" >
 
-            <div className="d-flex flex-column">
-              <div
-                className="d-flex flex-row inputsArtemkilk "
-                style={{
-                  marginLeft: "1.4vw",
-                  border: "transparent",
-                  justifyContent: "left",
-                  marginTop: "1vw",
-                }}
-              >
-                {" "}
-                У кількості:
+          {/* ===== LEFT: scrollable options ===== */}
+          <div className="sc-left" style={{}}>
+
+          {/* 1. Кількість + Розмір (одна строка) */}
+            <div className="sc-title">Кількість та розмір</div>
+            <div className="sc-row d-flex flex-row align-items-center justify-content-between" style={{}}>
+            <div className="d-flex flex-row" style={{ alignItems: "center", flexShrink: 0, }}>
                 <input
-                  className="d-flex inputsArtem"
-                  style={{
-                    marginLeft: "1vw",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    paddingLeft: "0.5vw",
-                  }}
+                  className="inputsArtem"
                   type="number"
                   value={count}
                   min={1}
                   onChange={(event) => handleChange(event.target.value)}
                 />
-                <div className="inputsArtemx allArtemElem" style={{ border: "transparent", marginTop: "-2vh" }}>
-                  {" "}
-                  шт
-                </div>
+                <div className="inputsArtemx" style={{ border: "transparent" }}>шт</div>
               </div>
 
-              <div style={{ position: "absolute", top: "3vh", right: "3.2vw", height: "20vw" }}>
-                <IsoButtons size={size} setSize={setSize} sizeOfPaper={{
-                  x: Number(material.x),
-                  y: Number(material.y),
-                }} material={material} />
+              <div style={{ marginLeft: "auto", paddingRight: 0 }}>
+                <NewNoModalSize
+                  size={size}
+                  setSize={setSize}
+                  prices={prices}
+                  type={"SheetCut"}
+                  buttonsArr={[]}
+                  color={color}
+                  setColor={setColor}
+                  count={count}
+                  setCount={setCount}
+                  defaultt={"А3 (297 х 420 мм)"}
+                />
               </div>
-
-              <MDBContainer fluid style={{ width: "100%", marginLeft: "-1vw", marginTop: "2vh" }}>
-                <Row xs={1} md={6} className="">
-                  <div className="d-flex flex-column">
-                    <NewNoModalSize
-                      size={size}
-                      setSize={setSize}
-                      prices={prices}
-                      type={"SheetCut"}
-                      buttonsArr={["односторонній", "двосторонній"]}
-                      color={color}
-                      setColor={setColor}
-                      count={count}
-                      setCount={setCount}
-                      defaultt={"А3 (297 х 420 мм)"}
-                    />
-
-                    <Materials2
-                      material={material}
-                      setMaterial={setMaterial}
-                      setError={null}
-                      count={count}
-                      setCount={setCount}
-                      prices={prices}
-                      size={size}
-                      selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
-                      name={"Чорно-білий друк на монохромному принтері:"}
-                      buttonsArr={["Офісний", "Тонкий", "Середній", "Цупкий", "Самоклеючі"]}
-                      typeUse={null}
-                      typeOfPosluga={"NewSheetCut"}
-                    />
-
-                    {error && (
-                      <div
-                        style={{
-                          transition: "all 0.3s ease",
-                          color: "#d00416",
-                          width: "40vw",
-                          display: "flex",
-                          justifyContent: "start",
-                          alignItems: "center",
-                          fontWeight: "700",
-                          border: "none",
-                          borderRadius: "10px",
-                          paddingLeft: "2vw",
-                          backgroundColor: "transparent",
-                          textAlign: "center",
-                          cursor: "pointer",
-                          animation: "blink 1s linear infinite",
-                        }}
-                      >
-                        {error.response?.data?.error || "Помилка"}
-                        <style>
-                          {`
-                            @keyframes blink {
-                              0%, 50%, 100% { opacity: 1; }
-                              25%, 75% { opacity: 0; }
-                            }
-                          `}
-                        </style>
-                      </div>
-                    )}
-
-                    <NewNoModalLamination
-                      className="d-flex justify-content-start align-items-center"
-                      lamination={lamination}
-                      setLamination={setLamination}
-                      prices={prices}
-                      size={size}
-                      type={"SheetCut"}
-                      buttonsArr={[
-                        "з глянцевим ламінуванням",
-                        "з матовим ламінуванням",
-                        "з ламінуванням SoftTouch",
-                        "з холодним матовим ламінуванням",
-                      ]}
-                      selectArr={["30", "70", "80", "100", "125", "250"]}
-                    />
-
-                    <NewNoModalCornerRounding
-                      className="d-flex justify-content-start align-items-center"
-                      big={big}
-                      setBig={setBig}
-                      prices={prices}
-                      type={"SheetCut"}
-                      buttonsArr={[]}
-                      selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
-                    />
-
-                    <NewNoModalCute
-                      className="d-flex justify-content-start align-items-center"
-                      cute={cute}
-                      setCute={setCute}
-                      cuteLocal={cuteLocal}
-                      setCuteLocal={setCuteLocal}
-                      prices={prices}
-                      type={"SheetCut"}
-                      buttonsArr={[]}
-                      selectArr={["3", "6", "8", "10", "13"]}
-                    />
-
-                    <NewNoModalHoles
-                      className="d-flex justify-content-start align-items-center"
-                      holes={holes}
-                      setHoles={setHoles}
-                      holesR={holesR}
-                      setHolesR={setHolesR}
-                      prices={prices}
-                      type={"SheetCut"}
-                      buttonsArr={[]}
-                      selectArr={["", "3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
-                    />
-
-                    <NewNoModalProkleyka
-                      className="d-flex justify-content-start align-items-center"
-                      prokleyka={prokleyka}
-                      setProkleyka={setProkleyka}
-                      prices={prices}
-                      type={"SheetCut"}
-                      buttonsArr={[]}
-                      selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
-                    />
-
-                    <NewNoModalLyuversy
-                      className="d-flex justify-content-start align-items-center"
-                      lyuversy={lyuversy}
-                      setLyuversy={setLyuversy}
-                      type={"SheetCut"}
-                      buttonsArr={[]}
-                      selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
-                    />
-
-                    <Porizka
-                      className="d-flex justify-content-start align-items-center"
-                      porizka={porizka}
-                      setPorizka={setPorizka}
-                      prices={prices}
-                      type={"SheetCut"}
-                    />
-                  </div>
-                </Row>
-
-                <div className="d-flex">
-                  {thisOrder && (
-                    <div
-                      className="d-flex align-content-between justify-content-between"
-                      style={{
-                        width: "90vw",
-                        marginLeft: "2.5vw",
-                        fontWeight: "500",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "3vw",
-                      }}
-                    >
-                      <button className="adminButtonAdd" variant="danger" onClick={addNewOrderUnit}>
-                        {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {null === pricesThis ? (
-                  <div style={{ width: "50vw" }}></div>
-                ) : (
-                  <div className="d-flex justify-content-between pricesBlockContainer">
-                    <div className="">
-                      <div className="fontInfoForPricing">
-                        Друк: {fmt2(pricesThis.priceDrukPerSheet)} грн&nbsp;* {pricesThis.sheetCount} шт&nbsp;=&nbsp;
-                        {fmt2(pricesThis.priceDrukPerSheet * pricesThis.sheetCount)} грн
-                      </div>
-
-                      <div className="fontInfoForPricing">
-                        Матеріали: {fmt2(pricesThis.pricePaperPerSheet)} грн&nbsp;* {pricesThis.sheetCount} шт&nbsp;=&nbsp;
-                        {fmt2(pricesThis.pricePaperPerSheet * pricesThis.sheetCount)} грн
-                      </div>
-
-                      <div className="fontInfoForPricing">
-                        Ламінація: {fmt2(pricesThis.priceLaminationPerSheet)} грн&nbsp;* {pricesThis.sheetCount} шт&nbsp;=&nbsp;
-                        {fmt2(pricesThis.priceLaminationPerSheet * pricesThis.sheetCount)} грн
-                      </div>
-
-                      <div className="fontInfoForPricing">
-                        Згинання: {pricesThis.big.pricePerUnit} грн * {pricesThis.big.count} шт = {pricesThis.big.totalPrice} грн
-                      </div>
-
-                      <div className="fontInfoForPricing">
-                        Скруглення кутів: {pricesThis.cute.pricePerUnit} грн * {pricesThis.cute.count} шт = {pricesThis.cute.totalPrice} грн
-                      </div>
-
-                      <div className="fontInfoForPricing">
-                        Свердління отворів: {pricesThis.holes.pricePerUnit} грн * {pricesThis.holes.count} шт = {pricesThis.holes.totalPrice} грн
-                      </div>
-
-                      <div className="fontInfoForPricing">
-                        Проклейка: {pricesThis.prokleyka.pricePerUnit} грн * {pricesThis.prokleyka.count} шт = {pricesThis.prokleyka.totalPrice} грн
-                      </div>
-
-                      <div className="fontInfoForPricing">
-                        Люверси: {pricesThis.lyuversy.pricePerUnit} грн * {pricesThis.lyuversy.count} шт = {pricesThis.lyuversy.totalPrice} грн
-                      </div>
-
-                      {pricesThis.porizka !== 0 && (
-                        <div className="fontInfoForPricing">Порізка: {pricesThis.porizka} грн</div>
-                      )}
-
-                      <div className="fontInfoForPricing1" style={{ marginTop: "0.5vw", color: "#d5091b" }}>
-                        Загалом =: {(parseFloat(pricesThis.price / count).toFixed(2) * count).toFixed(2)} грн
-                      </div>
-
-                      <div className="fontInfoForPricing">
-                        - З одного аркуша можна виробити: {pricesThis.sheetsPerUnit} шт
-                      </div>
-
-                      <div className="fontInfoForPricing">
-                        - Використано аркушів(А3/SrA3/SrA3+): {pricesThis.sheetCount} шт
-                      </div>
-
-                      <div
-                        style={{
-                          position: "absolute",
-                          bottom: "1vh",
-                          right: "0.5vw",
-                          textAlign: "right",
-                          opacity: "0.5",
-                          fontSize: "0.7vh",
-                        }}
-                      >
-                        <div className="fontInfoForPricing" style={{ fontSize: "0.8vw" }}>
-                          Вартість аркуша з постпресс обробкою : &nbsp;{fmt2(pricesThis.priceForSheetWithExtras)} грн
-                        </div>
-
-                        <div className="fontInfoForPricing" style={{ fontSize: "0.8vw" }}>
-                          Вартість аркуша (лише матеріал та друк): &nbsp;{fmt2(pricesThis.priceForSheetMaterialPrint)} грн
-                        </div>
-                      </div>
-
-                      <div className="fontInfoForPricing1">За 1 виріб: {(pricesThis.price / count).toFixed(2)} грн</div>
-                    </div>
-
-                    <img className="versant80-img-icon" alt="sssss" src={versantIcon} />
-                  </div>
-                )}
-              </MDBContainer>
             </div>
-          </div>
-        </div>
-      ) : (
-        <div style={{ display: "none" }}></div>
-      )}
-    </>
-  );
 
-  // (твій старий return нижче був недосяжним — залишати не потрібно)
+            {/* 2. Сторонність (окрема строка) */}
+            <div className="sc-title">Сторонність</div>
+            <div className="sc-sides">
+              <button
+                className={`sc-side-btn sc-side-left ${color.sides === "односторонній" ? "sc-side-active" : ""}`}
+                onClick={() => setColor({ ...color, sides: "односторонній" })}
+              >
+                Односторонній
+              </button>
+              <button
+                className={`sc-side-btn sc-side-right ${color.sides === "двосторонній" ? "sc-side-active" : ""}`}
+                onClick={() => setColor({ ...color, sides: "двосторонній" })}
+              >
+                Двосторонній
+              </button>
+            </div>
+
+            {/* 3. Матеріал */}
+            <div className="sc-title">Матеріал</div>
+            <div className="sc-row" style={{ zIndex: 10 }}>
+              <Materials2
+                material={material}
+                setMaterial={setMaterial}
+                setError={null}
+                count={count}
+                setCount={setCount}
+                prices={prices}
+                size={size}
+                selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
+                name={"Кольоровий друк:"}
+                buttonsArr={["Офісний", "Тонкий", "Середній", "Цупкий", "Самоклеючі"]}
+                typeUse={null}
+                typeOfPosluga={"NewSheetCut"}
+              />
+            </div>
+
+            {/* 4. Ламінація */}
+            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
+              <div className="sc-title" style={{ marginBottom: 0 }}>Ламінування</div>
+              <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
+                <input
+                  type="checkbox"
+                  checked={lamination.type !== "Не потрібно"}
+                  onChange={() => {
+                    if (lamination.type === "Не потрібно") {
+                      setLamination({ ...lamination, type: "з глянцевим ламінуванням", material: "з глянцевим ламінуванням", materialId: "", size: "", typeUse: "А3" });
+                    } else {
+                      setLamination({ type: "Не потрібно", material: "", materialId: "", size: "", typeUse: "А3" });
+                    }
+                  }}
+                />
+                <span className="slider" />
+              </label>
+            </div>
+            {lamination.type !== "Не потрібно" && (
+              <div className="sc-row sc-lam-row">
+                <NewNoModalLamination
+                  lamination={lamination}
+                  setLamination={setLamination}
+                  prices={prices}
+                  size={size}
+                  type={"SheetCut"}
+                  buttonsArr={[
+                    "з глянцевим ламінуванням",
+                    "з матовим ламінуванням",
+                    "з ламінуванням SoftTouch",
+                    "з холодним матовим ламінуванням",
+                  ]}
+                  selectArr={["30", "70", "80", "100", "125", "250"]}
+                  labelMap={{
+                    "з глянцевим ламінуванням": "глянцеве",
+                    "з матовим ламінуванням": "матове",
+                    "з ламінуванням SoftTouch": "SoftTouch",
+                    "з холодним матовим ламінуванням": "холодне матове",
+                  }}
+                />
+              </div>
+            )}
+
+            {/* 5. Згинання */}
+            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
+              <div className="sc-title" style={{ marginBottom: 0 }}>Згинання</div>
+              <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
+                <input type="checkbox" checked={big !== "Не потрібно"} onChange={() => {
+                  if (big === "Не потрібно") setBig("1");
+                  else setBig("Не потрібно");
+                }} />
+                <span className="slider" />
+              </label>
+            </div>
+            {big !== "Не потрібно" && (
+              <div className="sc-row sc-pp-row">
+                <NewNoModalCornerRounding
+                  big={big}
+                  setBig={setBig}
+                  prices={prices}
+                  type={"SheetCut"}
+                  buttonsArr={[]}
+                  selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+                />
+              </div>
+            )}
+
+            {/* 6. Скруглення кутів */}
+            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
+              <div className="sc-title" style={{ marginBottom: 0 }}>Скруглення кутів</div>
+              <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
+                <input type="checkbox" checked={cute !== "Не потрібно"} onChange={() => {
+                  if (cute === "Не потрібно") setCute(4);
+                  else {
+                    setCute("Не потрібно");
+                    setCuteLocal({ leftTop: false, rightTop: false, rightBottom: false, leftBottom: false, radius: "" });
+                  }
+                }} />
+                <span className="slider" />
+              </label>
+            </div>
+            {cute !== "Не потрібно" && (
+              <div className="sc-row sc-pp-row">
+                <NewNoModalCute
+                  cute={cute}
+                  setCute={setCute}
+                  cuteLocal={cuteLocal}
+                  setCuteLocal={setCuteLocal}
+                  prices={prices}
+                  type={"SheetCut"}
+                  buttonsArr={[]}
+                  selectArr={["3", "6", "8", "10", "13"]}
+                />
+              </div>
+            )}
+
+            {/* 7. Свердління отворів */}
+            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
+              <div className="sc-title" style={{ marginBottom: 0 }}>Свердління отворів</div>
+              <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
+                <input type="checkbox" checked={holes !== "Не потрібно"} onChange={() => {
+                  if (holes === "Не потрібно") { setHoles(1); setHolesR("5 мм"); }
+                  else { setHoles("Не потрібно"); setHolesR(""); }
+                }} />
+                <span className="slider" />
+              </label>
+            </div>
+            {holes !== "Не потрібно" && (
+              <div className="sc-row sc-pp-row">
+                <NewNoModalHoles
+                  holes={holes}
+                  setHoles={setHoles}
+                  holesR={holesR}
+                  setHolesR={setHolesR}
+                  prices={prices}
+                  type={"SheetCut"}
+                  buttonsArr={[]}
+                  selectArr={["", "3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
+                />
+              </div>
+            )}
+
+            {/* 8. Проклейка */}
+            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
+              <div className="sc-title" style={{ marginBottom: 0 }}>Проклейка</div>
+              <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
+                <input type="checkbox" checked={prokleyka !== "Не потрібно"} onChange={() => {
+                  if (prokleyka === "Не потрібно") setProkleyka("1");
+                  else setProkleyka("Не потрібно");
+                }} />
+                <span className="slider" />
+              </label>
+            </div>
+            {prokleyka !== "Не потрібно" && (
+              <div className="sc-row sc-pp-row">
+                <NewNoModalProkleyka
+                  prokleyka={prokleyka}
+                  setProkleyka={setProkleyka}
+                  prices={prices}
+                  type={"SheetCut"}
+                  buttonsArr={[]}
+                  selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+                />
+              </div>
+            )}
+
+            {/* 9. Люверси */}
+            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
+              <div className="sc-title" style={{ marginBottom: 0 }}>Люверси</div>
+              <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
+                <input type="checkbox" checked={lyuversy !== "Не потрібно"} onChange={() => {
+                  if (lyuversy === "Не потрібно") setLyuversy("1");
+                  else setLyuversy("Не потрібно");
+                }} />
+                <span className="slider" />
+              </label>
+            </div>
+            {lyuversy !== "Не потрібно" && (
+              <div className="sc-row sc-pp-row">
+                <NewNoModalLyuversy
+                  lyuversy={lyuversy}
+                  setLyuversy={setLyuversy}
+                  type={"SheetCut"}
+                  buttonsArr={[]}
+                  selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+                />
+              </div>
+            )}
+
+            {/* 10. Порізка */}
+            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
+              <div className="sc-title" style={{ marginBottom: 0 }}>Порізка</div>
+              <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
+                <input type="checkbox" checked={porizka.type !== "Не потрібно"} onChange={() => {
+                  if (porizka.type === "Не потрібно") setPorizka({ ...porizka, type: "Потрібно" });
+                  else setPorizka({ type: "Не потрібно" });
+                }} />
+                <span className="slider" />
+              </label>
+            </div>
+            {porizka.type !== "Не потрібно" && (
+              <div className="sc-row sc-pp-row">
+                <Porizka
+                  porizka={porizka}
+                  setPorizka={setPorizka}
+                  prices={prices}
+                  type={"SheetCut"}
+                />
+              </div>
+            )}
+
+          </div>
+          {/* END sc-left */}
+
+          {/* ===== RIGHT: pricing ===== */}
+          <div className="sc-right">
+            {pricesThis && (
+              <>
+                <div className="sc-price-label">Друк:</div>
+                <div className="sc-price-line">
+                  {fmt2(pricesThis.priceDrukPerSheet)}
+                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-price-op">&times;</span>
+                  {pricesThis.sheetCount || 0}
+                  <span className="sc-price-sub">шт</span>
+                  <span className="sc-price-op">=</span>
+                  {fmt2((pricesThis.priceDrukPerSheet || 0) * (pricesThis.sheetCount || 0))}
+                  <span className="sc-price-sub">грн</span>
+                </div>
+
+                <div className="sc-price-label">Матеріали:</div>
+                <div className="sc-price-line">
+                  {fmt2(pricesThis.pricePaperPerSheet)}
+                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-price-op">&times;</span>
+                  {pricesThis.sheetCount || 0}
+                  <span className="sc-price-sub">шт</span>
+                  <span className="sc-price-op">=</span>
+                  {fmt2((pricesThis.pricePaperPerSheet || 0) * (pricesThis.sheetCount || 0))}
+                  <span className="sc-price-sub">грн</span>
+                </div>
+
+                <div className="sc-price-label">Ламінація:</div>
+                <div className="sc-price-line">
+                  {fmt2(pricesThis.priceLaminationPerSheet)}
+                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-price-op">&times;</span>
+                  {pricesThis.sheetCount || 0}
+                  <span className="sc-price-sub">шт</span>
+                  <span className="sc-price-op">=</span>
+                  {fmt2((pricesThis.priceLaminationPerSheet || 0) * (pricesThis.sheetCount || 0))}
+                  <span className="sc-price-sub">грн</span>
+                </div>
+
+                <div className="sc-price-label">Згинання:</div>
+                <div className="sc-price-line">
+                  {pricesThis.big?.pricePerUnit || 0}
+                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-price-op">&times;</span>
+                  {pricesThis.big?.count || 0}
+                  <span className="sc-price-sub">шт</span>
+                  <span className="sc-price-op">=</span>
+                  {pricesThis.big?.totalPrice || 0}
+                  <span className="sc-price-sub">грн</span>
+                </div>
+
+                <div className="sc-price-label">Скруглення:</div>
+                <div className="sc-price-line">
+                  {pricesThis.cute?.pricePerUnit || 0}
+                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-price-op">&times;</span>
+                  {pricesThis.cute?.count || 0}
+                  <span className="sc-price-sub">шт</span>
+                  <span className="sc-price-op">=</span>
+                  {pricesThis.cute?.totalPrice || 0}
+                  <span className="sc-price-sub">грн</span>
+                </div>
+
+                <div className="sc-price-label">Отвори:</div>
+                <div className="sc-price-line">
+                  {pricesThis.holes?.pricePerUnit || 0}
+                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-price-op">&times;</span>
+                  {pricesThis.holes?.count || 0}
+                  <span className="sc-price-sub">шт</span>
+                  <span className="sc-price-op">=</span>
+                  {pricesThis.holes?.totalPrice || 0}
+                  <span className="sc-price-sub">грн</span>
+                </div>
+
+                <div className="sc-price-label">Проклейка:</div>
+                <div className="sc-price-line">
+                  {pricesThis.prokleyka?.pricePerUnit || 0}
+                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-price-op">&times;</span>
+                  {pricesThis.prokleyka?.count || 0}
+                  <span className="sc-price-sub">шт</span>
+                  <span className="sc-price-op">=</span>
+                  {pricesThis.prokleyka?.totalPrice || 0}
+                  <span className="sc-price-sub">грн</span>
+                </div>
+
+                <div className="sc-price-label">Люверси:</div>
+                <div className="sc-price-line">
+                  {pricesThis.lyuversy?.pricePerUnit || 0}
+                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-price-op">&times;</span>
+                  {pricesThis.lyuversy?.count || 0}
+                  <span className="sc-price-sub">шт</span>
+                  <span className="sc-price-op">=</span>
+                  {pricesThis.lyuversy?.totalPrice || 0}
+                  <span className="sc-price-sub">грн</span>
+                </div>
+
+                {pricesThis.porizka !== 0 && (
+                  <>
+                    <div className="sc-price-label">Порізка:</div>
+                    <div className="sc-price-line">
+                      {pricesThis.porizka || 0}
+                      <span className="sc-price-sub">грн</span>
+                    </div>
+                  </>
+                )}
+
+                <div className="sc-price-total">
+                  {pricesThis.price || 0}
+                  <span className="sc-price-sub">грн</span>
+                </div>
+
+                <div className="sc-price-unit">
+                  За 1 виріб: {count ? (pricesThis.price / count).toFixed(2) : 0} грн
+                </div>
+              </>
+            )}
+          </div>
+          {/* END sc-right */}
+
+        </div>
+        {/* END sc-body */}
+
+        {/* ===== ERROR ===== */}
+        {error && (
+          <div className="sc-error">
+            {error.response?.data?.error || "Помилка"}
+          </div>
+        )}
+
+        {/* ===== SERVICE TABS ===== */}
+        <div className="sc-tabs">
+          {[
+            "Зображення", "Листівка", "Візитка", "Флаєр", "Буклет",
+            "Брошура", "Картка", "Диплом", "Сертифікат", "Подяка",
+            "Зін", "Презентація", "Бланк", "Афіша", "Календар",
+            "Плакат", "Візуалізація", "Меню", "Документ", "Бейджі", "Холдер",
+          ].map((service) => (
+            <button
+              key={service}
+              className={`btn ${selectedService === service ? "adminButtonAdd" : "adminButtonAdd-active"}`}
+              style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
+              onClick={() => setSelectedService(service)}
+            >
+              {service}
+            </button>
+          ))}
+        </div>
+
+        {/* ===== ACTION BUTTON ===== */}
+        <div className="sc-action">
+          <button className="adminButtonAdd" onClick={addNewOrderUnit}>
+            {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
+          </button>
+        </div>
+
+      </div>
+      {/* END sc-modal */}
+    </div>
+  );
 };
 
 export default NewSheetCut;

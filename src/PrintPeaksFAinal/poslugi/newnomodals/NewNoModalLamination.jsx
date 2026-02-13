@@ -1,12 +1,14 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import axios from '../../../api/axiosInstance';
 import {Navigate, useNavigate} from "react-router-dom";
 
 
-const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, selectArr, size, type, isVishichka}) => {
+const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, selectArr, size, type, isVishichka, labelMap}) => {
     const [thisLaminationSizes, setThisLaminationSizes] = useState([]);
     const [error, setError] = useState(null);
     const [load, setLoad] = useState(true);
+    const [openThickness, setOpenThickness] = useState(false);
+    const thicknessRef = useRef(null);
     const navigate = useNavigate();
 
     let handleSelectChange = (e) => {
@@ -128,6 +130,28 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
             })
     }, [lamination.material, lamination.type, size]);
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (thicknessRef.current && !thicknessRef.current.contains(event.target)) {
+                setOpenThickness(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleSelectItem = (item) => {
+        setLamination({
+            type: lamination.type,
+            material: lamination.material,
+            materialId: item.id,
+            size: `${item.thickness}`
+        });
+        setOpenThickness(false);
+    };
+
+    const thicknessTitle = lamination.size ? `${lamination.size} мкм` : "Виберіть товщину";
+
   return (
     <div className="d-flex allArtemElem">
       <div style={{ display: 'flex', alignItems: 'center', marginTop: '1vw',  }}>
@@ -160,30 +184,35 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
                         width: "10vw"
                       }}
                     >
-                      {item}
+                      {labelMap?.[item] || item}
                     </div>
                   </button>
                 ))}
 
-                <div className="ArtemNewSelectContainer">
-                  <select
-                    value={lamination.size}
-                    onChange={(event) => handleSelectChange(event)}
-                    className="selectArtem"
+                <div
+                  className="custom-select-container selectArtem selectArtemBefore"
+                  ref={thicknessRef}
+                  style={{ marginLeft: "1vw" }}
+                >
+                  <div
+                    className="custom-select-header"
+                    onClick={() => setOpenThickness(!openThickness)}
                   >
-                    <option value="">{""}</option>
-                    {thisLaminationSizes.map((item) => (
-                      <option
-                        className="optionInSelectArtem"
-                        key={item.thickness}
-                        value={item.thickness}
-                        data-id={item.id}
-                        tosend={item.thickness}
-                      >
-                        {item.thickness} мкм
-                      </option>
-                    ))}
-                  </select>
+                    {thicknessTitle}
+                  </div>
+                  {openThickness && (
+                    <div className="custom-select-dropdown">
+                      {thisLaminationSizes.map((item) => (
+                        <div
+                          key={item.thickness}
+                          className={`custom-option ${String(item.thickness) === String(lamination.size) ? "active" : ""}`}
+                          onClick={() => handleSelectItem(item)}
+                        >
+                          <span className="name">{item.thickness} мкм</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

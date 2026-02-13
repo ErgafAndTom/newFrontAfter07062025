@@ -18,6 +18,8 @@ import TelegramProvider from "./telegram";
 import { initWebSocket } from "./ws";
 import TelegramDrawer from "./components/Telegram/TelegramDrawer";
 import useTelegramNotifications from "./components/Telegram/useTelegramNotifications";
+import NewUIArtem from "./PrintPeaksFAinal/NewUIArtem";
+// import SomePage from "./QHernia/SomePage";
 
 const globalStyles = css`
   @import url('https://use.typekit.net/iro7gjn.css');
@@ -25,6 +27,16 @@ const globalStyles = css`
 
 function App() {
 
+  const handleBugCollapse = (signature, count) => {
+    // Відправ на сервер / аналітику
+    console.log('Sending to analytics:', { signature, count });
+
+    // Можна відправити на бекенд
+    // fetch('/api/bugs', {
+    //   method: 'POST',
+    //   body: JSON.stringify({ signature, count, timestamp: Date.now() })
+    // });
+  };
 
   useEffect(() => {
         document.fonts.ready.then(() => {
@@ -48,17 +60,18 @@ function App() {
   // }, []);
 
   return (
+
     <Provider store={store}>          {/* ← ЭТО ДОЛЖНО БЫТЬ САМОЕ ВНЕШНЕЕ */}
       <TelegramProvider>
         <Router>
-          <AllWindow />
+          <AllWindow/>
         </Router>
-
         {/* ВАЖЛИВО: Drawer стоїть ТУТ !!! */}
         {/*<TelegramDrawer />*/}
       </TelegramProvider>
 
     </Provider>
+
   );
 }
 

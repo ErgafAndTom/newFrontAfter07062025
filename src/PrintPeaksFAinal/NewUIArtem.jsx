@@ -60,6 +60,7 @@ import WideFactory from "./poslugi/WideFactory";
 import Delivery from "./poslugi/DeliveryPage";
 import OrderFilesPanel from "./commentsInOrders/OrderFilesPanel";
 import NewSheetCutBW from "./poslugi/NewSheetCutBw";
+import QuantumErrorBoundary from "../QuantumErrorBoundary";
 
 const NewUIArtem = ({
 
@@ -334,6 +335,9 @@ const NewUIArtem = ({
   if (thisOrder) {
     return (
       <div>
+        <QuantumErrorBoundary/>
+
+
         <div className="d-flex">
           <div className="containerForContNewUI">
 
