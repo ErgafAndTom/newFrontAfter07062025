@@ -1,0 +1,148 @@
+/* ServiceModal.css - extends base BW styles */
+@import '../NewSheetCutBw.css';
+
+/* =========================================================
+   Service-specific modal variants
+   ========================================================= */
+
+/* Standard modal - uses base NewSheetCutBw.css sizing */
+
+/* Photo service - slightly taller for image options */
+.bw-modal.service-photo {
+  height: 58vh;
+}
+
+/* Wide format services - more fields */
+.bw-modal.service-wide {
+  height: 60vh;
+}
+
+/* Booklet service - most complex */
+.bw-modal.service-booklet {
+  height: 65vh;
+}
+
+/* Laminator service - compact */
+.bw-modal.service-laminator {
+  height: 48vh;
+}
+
+/* Magnets service */
+.bw-modal.service-magnets {
+  height: 55vh;
+}
+
+/* Scans service - very simple */
+.bw-modal.service-scans {
+  height: 45vh;
+}
+
+/* Binding service (PerepletMet) */
+.bw-modal.service-binding {
+  height: 52vh;
+}
+
+/* Embroidery service (Vishichka) */
+.bw-modal.service-embroidery {
+  height: 62vh;
+}
+
+/* Notes service */
+.bw-modal.service-notes {
+  height: 58vh;
+}
+
+/* =========================================================
+   Mobile overrides for service variants
+   ========================================================= */
+@media (max-width: 480px) {
+  .bw-modal.service-photo,
+  .bw-modal.service-wide,
+  .bw-modal.service-booklet,
+  .bw-modal.service-laminator,
+  .bw-modal.service-magnets,
+  .bw-modal.service-scans,
+  .bw-modal.service-binding,
+  .bw-modal.service-embroidery,
+  .bw-modal.service-notes {
+    height: 94vh;
+    width: 96vw;
+  }
+}
+
+/* Samsung Fold closed */
+@media (min-width: 340px) and (max-width: 520px) and (max-height: 900px) {
+  .bw-modal.service-photo,
+  .bw-modal.service-wide,
+  .bw-modal.service-booklet,
+  .bw-modal.service-laminator,
+  .bw-modal.service-magnets,
+  .bw-modal.service-scans,
+  .bw-modal.service-binding,
+  .bw-modal.service-embroidery,
+  .bw-modal.service-notes {
+    height: 94vh;
+    width: 96vw;
+  }
+}
+
+/* Samsung Fold open / tablets */
+@media (min-width: 700px) and (max-width: 980px) {
+  .bw-modal.service-photo,
+  .bw-modal.service-wide,
+  .bw-modal.service-booklet,
+  .bw-modal.service-laminator,
+  .bw-modal.service-magnets,
+  .bw-modal.service-scans,
+  .bw-modal.service-binding,
+  .bw-modal.service-embroidery,
+  .bw-modal.service-notes {
+    height: 88vh;
+    width: 92vw;
+  }
+}
+
+/* =========================================================
+   Additional shared styling
+   ========================================================= */
+
+/* Compact count input styling */
+.bw-count-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bw-count-input input {
+  width: 70px;
+  text-align: center;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+}
+
+.bw-count-input .bw-unit {
+  color: #949493;
+  font-size: 14px;
+}
+
+/* Section divider */
+.bw-divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+  margin: 12px 0;
+}
+
+/* Info text */
+.bw-info {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* Pricing highlight */
+.bw-price-highlight {
+  font-weight: 500;
+  color: #c00000;
+}
