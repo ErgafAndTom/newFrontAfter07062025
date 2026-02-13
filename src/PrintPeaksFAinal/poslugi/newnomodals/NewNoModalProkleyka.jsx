@@ -1,51 +1,58 @@
-import React from "react";
+import React, {useState, useEffect, useRef} from "react";
 
 const NewNoModalProkleyka = ({prokleyka, setProkleyka, selectArr}) => {
+    const [open, setOpen] = useState(false);
+    const ref = useRef(null);
 
-  const handleSelectChange = (e) => {
-    setProkleyka(e.target.value);
-  }
-
-  const handleToggle = () => {
-    if (prokleyka === "Не потрібно") {
-      setProkleyka("1");
-    } else {
-      setProkleyka("Не потрібно");
+    const handleSelectChange = (val) => {
+        setProkleyka(val);
+        setOpen(false);
     }
-  }
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (ref.current && !ref.current.contains(event.target)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const title = prokleyka && prokleyka !== "Не потрібно" ? `${prokleyka} стор.` : "Кількість";
 
   return (
     <div className="d-flex allArtemElem">
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        {/* NEW SWITCH */}
-        <label className="switch scale04ForButtonToggle" >
-          <input
-            type="checkbox"
-            checked={prokleyka !== "Не потрібно"}
-            onChange={handleToggle}
-          />
-          <span className="slider" />
-        </label>
-
         <div className="PostpressNames" >
           <span >Проклейка:</span>
 
           {prokleyka !== "Не потрібно" && (
-            <div
-              className="ArtemNewSelectContainer"
-              style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-            >
-              <select
-                value={prokleyka}
-                onChange={handleSelectChange}
-                className="selectArtem"
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <div
+                className="custom-select-container selectArtem selectArtemBefore"
+                ref={ref}
               >
-                {(selectArr || []).map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
+                <div
+                  className="custom-select-header"
+                  onClick={() => setOpen(!open)}
+                >
+                  {title}
+                </div>
+                {open && (
+                  <div className="custom-select-dropdown">
+                    {(selectArr || []).filter(item => item !== "").map((item) => (
+                      <div
+                        key={item}
+                        className={`custom-option ${String(item) === String(prokleyka) ? "active" : ""}`}
+                        onClick={() => handleSelectChange(item)}
+                      >
+                        <span className="name">{item} стор.</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

@@ -85,7 +85,7 @@ const PlotterCutting = ({plotterCutting, setPlotterCutting, plivkaOrPVH, prices,
       .catch(error => {
         setLoad(false)
         setError(error.message)
-        if(error.response.status === 403){
+        if(error?.response?.status === 403){
           navigate('/login');
         }
         setThisLaminationSizes([])

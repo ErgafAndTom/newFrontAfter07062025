@@ -277,6 +277,7 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
       {showSize && (
         <div
           className="custom-select-container selectArtem selectArtemBefore"
+
           ref={dropdownRef}
           style={{minWidth: dropdownWidth}}
         >

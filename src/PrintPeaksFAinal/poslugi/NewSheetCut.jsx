@@ -11,7 +11,7 @@ import NewNoModalLyuversy from "./newnomodals/NewNoModalLyuversy";
 import Porizka from "./newnomodals/Porizka";
 import NewNoModalProkleyka from "./newnomodals/NewNoModalProkleyka";
 
-import "./NewSheetCutBw.css";
+
 import "./NewSheetCut.css";
 
 const emptyPrice = { pricePerUnit: 0, count: 0, totalPrice: 0 };
@@ -63,11 +63,11 @@ const DEFAULTS = {
   porizka: { type: "Не потрібно" },
 
   cuteLocal: {
-    leftTop: false,
-    rightTop: false,
-    rightBottom: false,
-    leftBottom: false,
-    radius: "",
+    leftTop: true,
+    rightTop: true,
+    rightBottom: true,
+    leftBottom: true,
+    radius: "6",
   },
 
   holes: "Не потрібно",
@@ -81,6 +81,17 @@ const DEFAULTS = {
 function safeNum(v, fallback) {
   const n = Number(v);
   return Number.isFinite(n) ? n : fallback;
+}
+
+function calcItemsPerSheet(sheetX, sheetY, itemX, itemY) {
+  const sx = Number(sheetX) || 0;
+  const sy = Number(sheetY) || 0;
+  const ix = Number(itemX) || 0;
+  const iy = Number(itemY) || 0;
+  if (!sx || !sy || !ix || !iy) return 0;
+  const normal = Math.floor(sx / ix) * Math.floor(sy / iy);
+  const rotated = Math.floor(sx / iy) * Math.floor(sy / ix);
+  return Math.max(normal, rotated);
 }
 
 function parseOptionsJson(editingOrderUnit) {
@@ -169,11 +180,11 @@ const NewSheetCut = ({
   const [porizka, setPorizka] = useState({ type: "Не потрібно" });
 
   const [cuteLocal, setCuteLocal] = useState({
-    leftTop: false,
-    rightTop: false,
-    rightBottom: false,
-    leftBottom: false,
-    radius: "",
+    leftTop: true,
+    rightTop: true,
+    rightBottom: true,
+    leftBottom: true,
+    radius: "6",
   });
 
   const [holes, setHoles] = useState("Не потрібно");
@@ -195,6 +206,13 @@ const NewSheetCut = ({
   });
 
   const [selectedService, setSelectedService] = useState("Зображення");
+  const [isEditServices, setIsEditServices] = useState(false);
+  const [services, setServices] = useState([
+    "Зображення", "Листівка", "Візитка", "Флаєр", "Буклет",
+    "Брошура", "Картка", "Диплом", "Сертифікат", "Подяка",
+    "Зін", "Презентація", "Бланк", "Афіша", "Календар",
+    "Плакат", "Візуалізація", "Меню", "Документ", "Бейджі", "Холдер",
+  ]);
 
   /* ===================== ✅ ДОДАНО: INIT MODAL (NEW/EDIT) як у Vishichka ===================== */
 
@@ -373,12 +391,6 @@ const NewSheetCut = ({
     navigate,
   ]);
   useEffect(() => {
-    console.log('=== FRONTEND DEBUG ===');
-    console.log('Current size:', size);
-    console.log('Current material:', material);
-    console.log('=====================');
-  }, [size, material]);
-  useEffect(() => {
     if (error) setError(null);
   }, [material]);
 
@@ -396,16 +408,16 @@ const NewSheetCut = ({
       <div className="sc-modal" style={{
         minHeight: 'auto',
         height: 'auto',
-        // overflow: 'hidden',
       }} onClick={(e) => e.stopPropagation()}>
 
         {/* ===== BODY: left + right ===== */}
         <div className="sc-body" >
 
           {/* ===== LEFT: scrollable options ===== */}
-          <div className="" style={{}}>
+          <div className="sc-left-sections">
 
           {/* 1. Кількість + Розмір (одна строка) */}
+            <div className="sc-section">
             <div className="sc-title">Кількість та розмір</div>
             <div className="sc-row d-flex flex-row align-items-center justify-content-between" style={{}}>
             <div className="d-flex flex-row" style={{ alignItems: "center", flexShrink: 0, }}>
@@ -434,8 +446,10 @@ const NewSheetCut = ({
                 />
               </div>
             </div>
+            </div>
 
             {/* 2. Сторонність (окрема строка) */}
+            <div className="sc-section">
             <div className="sc-title">Сторонність</div>
             <div className="sc-sides">
               <button
@@ -451,10 +465,12 @@ const NewSheetCut = ({
                 Двосторонній
               </button>
             </div>
+            </div>
 
             {/* 3. Матеріал */}
+            <div className="sc-section" style={{ position: "relative", zIndex: 60 }}>
             <div className="sc-title">Матеріал</div>
-            <div className="sc-row" style={{ zIndex: 10 }}>
+            <div className="sc-row">
               <Materials2
                 material={material}
                 setMaterial={setMaterial}
@@ -470,8 +486,10 @@ const NewSheetCut = ({
                 typeOfPosluga={"NewSheetCut"}
               />
             </div>
+            </div>
 
             {/* 4. Ламінація */}
+            <div className="sc-section">
             <div className="d-flex align-items-center" style={{ gap: "8px" }}>
               <div className="sc-title" style={{ marginBottom: 0 }}>Ламінування</div>
               <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
@@ -513,8 +531,10 @@ const NewSheetCut = ({
                 />
               </div>
             )}
+            </div>
 
             {/* 5. Згинання */}
+            <div className="sc-section" style={{ position: "relative", zIndex: 50 }}>
             <div className="d-flex align-items-center" style={{ gap: "8px" }}>
               <div className="sc-title" style={{ marginBottom: 0 }}>Згинання</div>
               <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
@@ -537,14 +557,18 @@ const NewSheetCut = ({
                 />
               </div>
             )}
+            </div>
 
             {/* 6. Скруглення кутів */}
+            <div className="sc-section" style={{ position: "relative", zIndex: 40 }}>
             <div className="d-flex align-items-center" style={{ gap: "8px" }}>
               <div className="sc-title" style={{ marginBottom: 0 }}>Скруглення кутів</div>
               <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
                 <input type="checkbox" checked={cute !== "Не потрібно"} onChange={() => {
-                  if (cute === "Не потрібно") setCute(4);
-                  else {
+                  if (cute === "Не потрібно") {
+                    setCute(4);
+                    setCuteLocal({ leftTop: true, rightTop: true, rightBottom: true, leftBottom: true, radius: "6" });
+                  } else {
                     setCute("Не потрібно");
                     setCuteLocal({ leftTop: false, rightTop: false, rightBottom: false, leftBottom: false, radius: "" });
                   }
@@ -566,8 +590,10 @@ const NewSheetCut = ({
                 />
               </div>
             )}
+            </div>
 
             {/* 7. Свердління отворів */}
+            <div className="sc-section" style={{ position: "relative", zIndex: 30 }}>
             <div className="d-flex align-items-center" style={{ gap: "8px" }}>
               <div className="sc-title" style={{ marginBottom: 0 }}>Свердління отворів</div>
               <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
@@ -592,8 +618,10 @@ const NewSheetCut = ({
                 />
               </div>
             )}
+            </div>
 
             {/* 8. Проклейка */}
+            <div className="sc-section" style={{ position: "relative", zIndex: 20 }}>
             <div className="d-flex align-items-center" style={{ gap: "8px" }}>
               <div className="sc-title" style={{ marginBottom: 0 }}>Проклейка</div>
               <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
@@ -616,8 +644,10 @@ const NewSheetCut = ({
                 />
               </div>
             )}
+            </div>
 
             {/* 9. Люверси */}
+            <div className="sc-section" style={{ position: "relative", zIndex: 10 }}>
             <div className="d-flex align-items-center" style={{ gap: "8px" }}>
               <div className="sc-title" style={{ marginBottom: 0 }}>Люверси</div>
               <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
@@ -639,8 +669,10 @@ const NewSheetCut = ({
                 />
               </div>
             )}
+            </div>
 
             {/* 10. Порізка */}
+            <div className="sc-section">
             <div className="d-flex align-items-center" style={{ gap: "8px" }}>
               <div className="sc-title" style={{ marginBottom: 0 }}>Порізка</div>
               <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
@@ -661,6 +693,7 @@ const NewSheetCut = ({
                 />
               </div>
             )}
+            </div>
 
           </div>
           {/* END sc-left */}
@@ -783,6 +816,10 @@ const NewSheetCut = ({
                 <div className="sc-price-unit">
                   За 1 виріб: {count ? (pricesThis.price / count).toFixed(2) : 0} грн
                 </div>
+
+                <div className="sc-price-unit">
+                  На одному аркуші: {calcItemsPerSheet(material.x || 320, material.y || 450, size.x, size.y)} шт
+                </div>
               </>
             )}
           </div>
@@ -800,21 +837,82 @@ const NewSheetCut = ({
 
         {/* ===== SERVICE TABS ===== */}
         <div className="sc-tabs">
-          {[
-            "Зображення", "Листівка", "Візитка", "Флаєр", "Буклет",
-            "Брошура", "Картка", "Диплом", "Сертифікат", "Подяка",
-            "Зін", "Презентація", "Бланк", "Афіша", "Календар",
-            "Плакат", "Візуалізація", "Меню", "Документ", "Бейджі", "Холдер",
-          ].map((service) => (
-            <button
+          {services.map((service) => (
+            <div
               key={service}
-              className={`btn ${selectedService === service ? "adminButtonAdd" : "adminButtonAdd-active"}`}
-              style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
-              onClick={() => setSelectedService(service)}
+              style={{ position: "relative", display: "inline-flex", alignItems: "center" }}
             >
-              {service}
-            </button>
+              <button
+                className={`btn ${selectedService === service ? "adminButtonAdd" : "adminButtonAdd-active"}`}
+                style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
+                onClick={() => setSelectedService(service)}
+              >
+                {service}
+              </button>
+
+              {isEditServices && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (services.length === 1) {
+                      alert("Повинен бути хоча б один товар");
+                      return;
+                    }
+                    if (!window.confirm(`Видалити "${service}"?`)) return;
+                    setServices((prev) => prev.filter((s) => s !== service));
+                    if (selectedService === service) {
+                      setSelectedService(services[0] || "");
+                    }
+                  }}
+                  style={{
+                    position: "absolute",
+                    top: "-4px",
+                    right: "-4px",
+                    width: "18px",
+                    height: "18px",
+                    borderRadius: "50%",
+                    border: "none",
+                    background: "transparent",
+                    color: "red",
+                    lineHeight: "0px",
+                    cursor: "pointer",
+                  }}
+                >
+                  x
+                </button>
+              )}
+            </div>
           ))}
+
+          {isEditServices && (
+            <button
+              className="btn adminButtonAdd"
+              style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
+              onClick={() => {
+                const name = prompt("Введіть назву товару");
+                if (!name) return;
+                const trimmed = name.trim();
+                if (!trimmed) return;
+                if (services.includes(trimmed)) {
+                  alert("Така назва вже існує");
+                  return;
+                }
+                setServices((prev) => [...prev, trimmed]);
+                setSelectedService(trimmed);
+              }}
+            >
+              ➕
+            </button>
+          )}
+
+          <button
+            className={`btn ${isEditServices ? "adminButtonAdd" : "adminButtonAdd-active"}`}
+            style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
+            onClick={() => setIsEditServices((v) => !v)}
+            title={isEditServices ? "Завершити редагування" : "Налаштування назв товарів"}
+          >
+            {isEditServices ? "✔️" : "⚙️"}
+          </button>
         </div>
 
         {/* ===== ACTION BUTTON ===== */}

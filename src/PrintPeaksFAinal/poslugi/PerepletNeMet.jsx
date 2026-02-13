@@ -105,7 +105,7 @@ const PerepletNeMet = ({
                 setShowPerepletNeMet(false)
             })
             .catch(error => {
-                if(error.response.status === 403){
+                if(error?.response?.status === 403){
                     navigate('/login');
                 }
                 console.log(error.message);
@@ -120,7 +120,7 @@ const PerepletNeMet = ({
                 setPrices(response.data)
             })
             .catch(error => {
-                if(error.response.status === 403){
+                if(error?.response?.status === 403){
                     navigate('/login');
                 }
                 console.log(error.message);
@@ -146,7 +146,7 @@ const PerepletNeMet = ({
                 setPricesThis(response.data.prices)
             })
             .catch(error => {
-                if(error.response.status === 403){
+                if(error?.response?.status === 403){
                     navigate('/login');
                 }
                 console.log(error.message);
@@ -289,9 +289,6 @@ const PerepletNeMet = ({
                                             style={{
                                                 width: "90vw",
                                                 marginLeft: "2.5vw",
-                                                 ,
-
-
                                                 fontWeight: "bold",
                                                 display: 'flex',
                                                 justifyContent: 'center',

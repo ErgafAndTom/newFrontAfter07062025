@@ -85,7 +85,7 @@ const Luvarsi = ({luversi, setLuversi, prices, buttonsArr, selectArr, size, type
   //     .catch(error => {
   //       setLoad(false)
   //       setError(error.message)
-  //       if(error.response.status === 403){
+  //       if(error?.response?.status === 403){
   //         navigate('/login');
   //       }
   //       setThisLaminationSizes([])

@@ -1,46 +1,58 @@
-/* eslint-disable react/prop-types */
-import React from "react";
+import React, {useState, useEffect, useRef} from "react";
 
 const NewNoModalLyuversy = ({ lyuversy, setLyuversy, selectArr = [] }) => {
-  const firstOption = selectArr.find(Boolean) || "1";
+    const [open, setOpen] = useState(false);
+    const ref = useRef(null);
 
-  const handleToggle = () =>
-    lyuversy === "Не потрібно"
-      ? setLyuversy(firstOption)
-      : setLyuversy("Не потрібно");
+    const handleSelectChange = (val) => {
+        setLyuversy(val);
+        setOpen(false);
+    }
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (ref.current && !ref.current.contains(event.target)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const title = lyuversy && lyuversy !== "Не потрібно" ? `${lyuversy} шт.` : "Кількість";
 
   return (
     <div className="d-flex allArtemElem">
       <div style={{ display: "flex", alignItems: "center" }}>
-        {/* NEW SWITCH */}
-        <label className="switch scale04ForButtonToggle" >
-          <input
-            type="checkbox"
-            checked={lyuversy !== "Не потрібно"}
-            onChange={handleToggle}
-          />
-          <span className="slider" />
-        </label>
-
         <div className="PostpressNames">
           <span >Люверси:</span>
 
           {lyuversy !== "Не потрібно" && (
-            <div
-              className="ArtemNewSelectContainer"
-              style={{ display: "flex", justifyContent: "center", alignItems: "center" }}
-            >
-              <select
-                value={lyuversy}
-                onChange={e => setLyuversy(e.target.value)}
-                className="selectArtem"
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+              <div
+                className="custom-select-container selectArtem selectArtemBefore"
+                ref={ref}
               >
-                {selectArr.map(item => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
+                <div
+                  className="custom-select-header"
+                  onClick={() => setOpen(!open)}
+                >
+                  {title}
+                </div>
+                {open && (
+                  <div className="custom-select-dropdown">
+                    {selectArr.filter(item => item !== "").map(item => (
+                      <div
+                        key={item}
+                        className={`custom-option ${String(item) === String(lyuversy) ? "active" : ""}`}
+                        onClick={() => handleSelectChange(item)}
+                      >
+                        <span className="name">{item} шт.</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

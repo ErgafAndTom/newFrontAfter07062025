@@ -106,7 +106,7 @@ const NewCup = ({
                 setShowNewCup(false)
             })
             .catch(error => {
-                if (error.response.status === 403) {
+                if (error?.response?.status === 403) {
                     navigate('/login');
                 }
                 console.log(error.message);
@@ -121,7 +121,7 @@ const NewCup = ({
     //             setPrices(response.data)
     //         })
     //         .catch(error => {
-    //             if(error.response.status === 403){
+    //             if(error?.response?.status === 403){
     //                 navigate('/login');
     //             }
     //             console.log(error.message);
@@ -150,7 +150,7 @@ const NewCup = ({
             })
             .catch(error => {
                 setError(error)
-                if (error.response.status === 403) {
+                if (error?.response?.status === 403) {
                     navigate('/login');
                 }
                 console.log(error.message);

@@ -170,7 +170,7 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
                   margin: '0.323vw',
                   width: '3.173vw',
                   height: '3.173vw',
-                  marginLeft: '2.5vw',
+                  marginLeft: '1vw',
                 }}
               >
                 <img style={{ height: '100%', opacity: cuteLocal.leftTop ? '100%' : '90%' }} alt="" src={borderRadiusIcon0} />

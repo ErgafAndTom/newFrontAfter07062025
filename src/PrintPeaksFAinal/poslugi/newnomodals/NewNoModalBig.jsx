@@ -1,46 +1,58 @@
-import React, {useEffect, useState} from "react";
+import React, {useState, useEffect, useRef} from "react";
 
 const NewNoModalBig = ({big, setBig, prices, buttonsArr, selectArr}) => {
+    const [openBig, setOpenBig] = useState(false);
+    const bigRef = useRef(null);
 
-    let handleSelectChange = (e) => {
-        setBig(e.target.value)
+    let handleSelectChange = (val) => {
+        setBig(val);
+        setOpenBig(false);
     }
 
-    let handleToggle = (e) => {
-        if (big === "Не потрібно") {
-            setBig("1")
-        } else {
-            setBig("Не потрібно")
-        }
-    }
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (bigRef.current && !bigRef.current.contains(event.target)) {
+                setOpenBig(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const bigTitle = big && big !== "Не потрібно" ? `${big} згин.` : "Кількість";
 
   return (
     <div className="d-flex allArtemElem">
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        {/* NEW SWITCH */}
-        <label className="switch scale04ForButtonToggle" >
-          <input
-            type="checkbox"
-            checked={big !== "Не потрібно"}
-            onChange={handleToggle}
-          />
-          <span className="slider" />
-        </label>
-
         <div className="PostpressNames">
-          <span style={{  }}>Згинання:</span>
+          <span style={{}}>Згинання:</span>
 
           {big !== "Не потрібно" ? (
-            <div className="ArtemNewSelectContainer" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <select
-                value={big}
-                onChange={(event) => handleSelectChange(event)}
-                className="selectArtem"
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <div
+                className="custom-select-container selectArtem selectArtemBefore"
+                ref={bigRef}
               >
-                {(selectArr || []).map((item) => (
-                  <option key={item} value={item}>{item}</option>
-                ))}
-              </select>
+                <div
+                  className="custom-select-header"
+                  onClick={() => setOpenBig(!openBig)}
+                >
+                  {bigTitle}
+                </div>
+                {openBig && (
+                  <div className="custom-select-dropdown">
+                    {(selectArr || []).filter(item => item !== "").map((item) => (
+                      <div
+                        key={item}
+                        className={`custom-option ${String(item) === String(big) ? "active" : ""}`}
+                        onClick={() => handleSelectChange(item)}
+                      >
+                        <span className="name">{item} згин.</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             <div />

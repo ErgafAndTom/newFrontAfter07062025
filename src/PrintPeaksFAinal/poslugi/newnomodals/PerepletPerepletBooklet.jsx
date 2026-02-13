@@ -85,7 +85,7 @@ const PerepletPerepletBooklet = ({
 
                 })
                 .catch(error => {
-                    // if (error.response.status === 403) {
+                    // if (error?.response?.status === 403) {
                     //     navigate('/login');
                     // }
                     console.log(error.message);
