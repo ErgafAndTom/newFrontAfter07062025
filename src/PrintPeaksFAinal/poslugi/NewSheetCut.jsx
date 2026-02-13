@@ -395,6 +395,7 @@ const NewSheetCut = ({
       {/* ===== MODAL ===== */}
       <div className="sc-modal" style={{
         minHeight: 'auto',
+        height: 'auto',
         // overflow: 'hidden',
       }} onClick={(e) => e.stopPropagation()}>
 
@@ -402,7 +403,7 @@ const NewSheetCut = ({
         <div className="sc-body" >
 
           {/* ===== LEFT: scrollable options ===== */}
-          <div className="sc-left" style={{}}>
+          <div className="" style={{}}>
 
           {/* 1. Кількість + Розмір (одна строка) */}
             <div className="sc-title">Кількість та розмір</div>
