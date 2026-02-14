@@ -12,7 +12,7 @@ import Porizka from "./newnomodals/Porizka";
 import NewNoModalProkleyka from "./newnomodals/NewNoModalProkleyka";
 
 
-import "./NewSheetCut.css";
+import "./Poslugy.css";
 
 const emptyPrice = { pricePerUnit: 0, count: 0, totalPrice: 0 };
 const normalize = (obj = {}) => ({
@@ -414,7 +414,12 @@ const NewSheetCut = ({
         <div className="sc-body" >
 
           {/* ===== LEFT: scrollable options ===== */}
-          <div className="sc-left-sections">
+          <div className="sc-left-sections" style={{
+            margin: 0,
+            padding: 0,
+            gap: "1.5vh",
+            overflowY: "hidden",
+          }}>
 
           {/* 1. Кількість + Розмір (одна строка) */}
             <div className="sc-section">
@@ -701,126 +706,126 @@ const NewSheetCut = ({
           {/* ===== RIGHT: pricing ===== */}
           <div className="sc-right">
             {pricesThis && (
-              <>
+              <div className="sc-prices-grid">
                 <div className="sc-price-label">Друк:</div>
                 <div className="sc-price-line">
-                  {fmt2(pricesThis.priceDrukPerSheet)}
-                  <span className="sc-price-sub">грн</span>
-                  <span className="sc-price-op">&times;</span>
-                  {pricesThis.sheetCount || 0}
-                  <span className="sc-price-sub">шт</span>
-                  <span className="sc-price-op">=</span>
-                  {fmt2((pricesThis.priceDrukPerSheet || 0) * (pricesThis.sheetCount || 0))}
-                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-val">{fmt2(pricesThis.priceDrukPerSheet)}</span>
+                  <span className="sc-unit">грн</span>
+                  <span className="sc-op">&times;</span>
+                  <span className="sc-val">{pricesThis.sheetCount || 0}</span>
+                  <span className="sc-unit">шт</span>
+                  <span className="sc-op">=</span>
+                  <span className="sc-total">{fmt2((pricesThis.priceDrukPerSheet || 0) * (pricesThis.sheetCount || 0))}</span>
+                  <span className="sc-unit">грн</span>
                 </div>
 
                 <div className="sc-price-label">Матеріали:</div>
                 <div className="sc-price-line">
-                  {fmt2(pricesThis.pricePaperPerSheet)}
-                  <span className="sc-price-sub">грн</span>
-                  <span className="sc-price-op">&times;</span>
-                  {pricesThis.sheetCount || 0}
-                  <span className="sc-price-sub">шт</span>
-                  <span className="sc-price-op">=</span>
-                  {fmt2((pricesThis.pricePaperPerSheet || 0) * (pricesThis.sheetCount || 0))}
-                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-val">{fmt2(pricesThis.pricePaperPerSheet)}</span>
+                  <span className="sc-unit">грн</span>
+                  <span className="sc-op">&times;</span>
+                  <span className="sc-val">{pricesThis.sheetCount || 0}</span>
+                  <span className="sc-unit">шт</span>
+                  <span className="sc-op">=</span>
+                  <span className="sc-total">{fmt2((pricesThis.pricePaperPerSheet || 0) * (pricesThis.sheetCount || 0))}</span>
+                  <span className="sc-unit">грн</span>
                 </div>
 
                 <div className="sc-price-label">Ламінація:</div>
                 <div className="sc-price-line">
-                  {fmt2(pricesThis.priceLaminationPerSheet)}
-                  <span className="sc-price-sub">грн</span>
-                  <span className="sc-price-op">&times;</span>
-                  {pricesThis.sheetCount || 0}
-                  <span className="sc-price-sub">шт</span>
-                  <span className="sc-price-op">=</span>
-                  {fmt2((pricesThis.priceLaminationPerSheet || 0) * (pricesThis.sheetCount || 0))}
-                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-val">{fmt2(pricesThis.priceLaminationPerSheet)}</span>
+                  <span className="sc-unit">грн</span>
+                  <span className="sc-op">&times;</span>
+                  <span className="sc-val">{pricesThis.sheetCount || 0}</span>
+                  <span className="sc-unit">шт</span>
+                  <span className="sc-op">=</span>
+                  <span className="sc-total">{fmt2((pricesThis.priceLaminationPerSheet || 0) * (pricesThis.sheetCount || 0))}</span>
+                  <span className="sc-unit">грн</span>
                 </div>
 
                 <div className="sc-price-label">Згинання:</div>
                 <div className="sc-price-line">
-                  {pricesThis.big?.pricePerUnit || 0}
-                  <span className="sc-price-sub">грн</span>
-                  <span className="sc-price-op">&times;</span>
-                  {pricesThis.big?.count || 0}
-                  <span className="sc-price-sub">шт</span>
-                  <span className="sc-price-op">=</span>
-                  {pricesThis.big?.totalPrice || 0}
-                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-val">{fmt2(pricesThis.big?.pricePerUnit || 0)}</span>
+                  <span className="sc-unit">грн</span>
+                  <span className="sc-op">&times;</span>
+                  <span className="sc-val">{pricesThis.big?.count || 0}</span>
+                  <span className="sc-unit">шт</span>
+                  <span className="sc-op">=</span>
+                  <span className="sc-total">{fmt2(pricesThis.big?.totalPrice || 0)}</span>
+                  <span className="sc-unit">грн</span>
                 </div>
 
                 <div className="sc-price-label">Скруглення:</div>
                 <div className="sc-price-line">
-                  {pricesThis.cute?.pricePerUnit || 0}
-                  <span className="sc-price-sub">грн</span>
-                  <span className="sc-price-op">&times;</span>
-                  {pricesThis.cute?.count || 0}
-                  <span className="sc-price-sub">шт</span>
-                  <span className="sc-price-op">=</span>
-                  {pricesThis.cute?.totalPrice || 0}
-                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-val">{fmt2(pricesThis.cute?.pricePerUnit || 0)}</span>
+                  <span className="sc-unit">грн</span>
+                  <span className="sc-op">&times;</span>
+                  <span className="sc-val">{pricesThis.cute?.count || 0}</span>
+                  <span className="sc-unit">шт</span>
+                  <span className="sc-op">=</span>
+                  <span className="sc-total">{fmt2(pricesThis.cute?.totalPrice || 0)}</span>
+                  <span className="sc-unit">грн</span>
                 </div>
 
                 <div className="sc-price-label">Отвори:</div>
                 <div className="sc-price-line">
-                  {pricesThis.holes?.pricePerUnit || 0}
-                  <span className="sc-price-sub">грн</span>
-                  <span className="sc-price-op">&times;</span>
-                  {pricesThis.holes?.count || 0}
-                  <span className="sc-price-sub">шт</span>
-                  <span className="sc-price-op">=</span>
-                  {pricesThis.holes?.totalPrice || 0}
-                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-val">{fmt2(pricesThis.holes?.pricePerUnit || 0)}</span>
+                  <span className="sc-unit">грн</span>
+                  <span className="sc-op">&times;</span>
+                  <span className="sc-val">{pricesThis.holes?.count || 0}</span>
+                  <span className="sc-unit">шт</span>
+                  <span className="sc-op">=</span>
+                  <span className="sc-total">{fmt2(pricesThis.holes?.totalPrice || 0)}</span>
+                  <span className="sc-unit">грн</span>
                 </div>
 
                 <div className="sc-price-label">Проклейка:</div>
                 <div className="sc-price-line">
-                  {pricesThis.prokleyka?.pricePerUnit || 0}
-                  <span className="sc-price-sub">грн</span>
-                  <span className="sc-price-op">&times;</span>
-                  {pricesThis.prokleyka?.count || 0}
-                  <span className="sc-price-sub">шт</span>
-                  <span className="sc-price-op">=</span>
-                  {pricesThis.prokleyka?.totalPrice || 0}
-                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-val">{fmt2(pricesThis.prokleyka?.pricePerUnit || 0)}</span>
+                  <span className="sc-unit">грн</span>
+                  <span className="sc-op">&times;</span>
+                  <span className="sc-val">{pricesThis.prokleyka?.count || 0}</span>
+                  <span className="sc-unit">шт</span>
+                  <span className="sc-op">=</span>
+                  <span className="sc-total">{fmt2(pricesThis.prokleyka?.totalPrice || 0)}</span>
+                  <span className="sc-unit">грн</span>
                 </div>
 
                 <div className="sc-price-label">Люверси:</div>
                 <div className="sc-price-line">
-                  {pricesThis.lyuversy?.pricePerUnit || 0}
-                  <span className="sc-price-sub">грн</span>
-                  <span className="sc-price-op">&times;</span>
-                  {pricesThis.lyuversy?.count || 0}
-                  <span className="sc-price-sub">шт</span>
-                  <span className="sc-price-op">=</span>
-                  {pricesThis.lyuversy?.totalPrice || 0}
-                  <span className="sc-price-sub">грн</span>
+                  <span className="sc-val">{fmt2(pricesThis.lyuversy?.pricePerUnit || 0)}</span>
+                  <span className="sc-unit">грн</span>
+                  <span className="sc-op">&times;</span>
+                  <span className="sc-val">{pricesThis.lyuversy?.count || 0}</span>
+                  <span className="sc-unit">шт</span>
+                  <span className="sc-op">=</span>
+                  <span className="sc-total">{fmt2(pricesThis.lyuversy?.totalPrice || 0)}</span>
+                  <span className="sc-unit">грн</span>
                 </div>
 
                 {pricesThis.porizka !== 0 && (
                   <>
                     <div className="sc-price-label">Порізка:</div>
-                    <div className="sc-price-line">
-                      {pricesThis.porizka || 0}
-                      <span className="sc-price-sub">грн</span>
+                    <div className="sc-price-line-simple">
+                      <span>{fmt2(pricesThis.porizka || 0)}</span>
+                      <span className="sc-unit">грн</span>
                     </div>
                   </>
                 )}
 
                 <div className="sc-price-total">
-                  {pricesThis.price || 0}
-                  <span className="sc-price-sub">грн</span>
+                  {fmt2(pricesThis.price || 0)}
+                  <span className="sc-unit">грн</span>
                 </div>
 
                 <div className="sc-price-unit">
-                  За 1 виріб: {count ? (pricesThis.price / count).toFixed(2) : 0} грн
+                  За 1 виріб: {count ? fmt2(pricesThis.price / count) : "0,00"} грн
                 </div>
 
                 <div className="sc-price-unit">
                   На одному аркуші: {calcItemsPerSheet(material.x || 320, material.y || 450, size.x, size.y)} шт
                 </div>
-              </>
+              </div>
             )}
           </div>
           {/* END sc-right */}
