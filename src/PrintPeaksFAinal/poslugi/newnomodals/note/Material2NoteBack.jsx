@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import axios from "../../../../api/axiosInstance";
 import {useNavigate} from "react-router-dom";
 import {Spinner} from "react-bootstrap";
+import "../../Poslugy.css";
 
 const Materials2NoteBack = ({
                                 materialAndDrukBack,
@@ -426,7 +427,9 @@ const Materials2NoteBack = ({
                   checked={materialAndDrukBack.laminationType !== "Не потрібно"}
                   onChange={handleToggleLamination}
                 />
-                <span className="slider" />
+                <span className="switch-on"><span>ON</span></span>
+          <span className="slider" />
+          <span className="switch-off"><span>OFF</span></span>
               </label>
                 <div>{"Ламінація:"}</div>
 

@@ -39,14 +39,14 @@ const NewNoModalHoles = ({holes, setHoles, holesR, setHolesR, prices, buttonsArr
 
   return (
     <div className="d-flex allArtemElem">
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div className="sc-pp-wrap">
         <div className="PostpressNames">
           <span style={{  whiteSpace: "nowrap" }}>Cвердління отворів:</span>
 
           {holes !== "Не потрібно" && (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div className="sc-pp-wrap">
               <div
-                className="custom-select-container selectArtem selectArtemBefore"
+                className="custom-select-container selectArtem selectArtemBefore sc-has-value"
                 ref={sizeRef}
               >
                 <div
@@ -70,31 +70,15 @@ const NewNoModalHoles = ({holes, setHoles, holesR, setHolesR, prices, buttonsArr
                 )}
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', marginLeft: '1vw' }}>
-                {iconArray.map((item, index) => (
-                  <div
-                    key={index}
-                    className={holes === index + 1 ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
-                    onClick={() => handleClick(index + 1)}
-                    style={{
-                      padding: 0,
-                      margin: '0.323vw',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      transition: 'all 0.3s ease',
-                      cursor: 'pointer',
-                      height: '3.2vh',
-                    }}
-                  >
-                    <img
-                      style={{ height: '100%', opacity: holes === index + 1 ? '100%' : '90%' }}
-                      alt=""
-                      src={iconArray[index]}
-                    />
-                  </div>
-                ))}
-              </div>
+              {iconArray.map((item, index) => (
+                <button
+                  key={index}
+                  className={`sc-pp-icon${holes === index + 1 ? " sc-pp-icon-active" : ""}`}
+                  onClick={() => handleClick(index + 1)}
+                >
+                  <img alt="" src={iconArray[index]} />
+                </button>
+              ))}
             </div>
           )}
         </div>

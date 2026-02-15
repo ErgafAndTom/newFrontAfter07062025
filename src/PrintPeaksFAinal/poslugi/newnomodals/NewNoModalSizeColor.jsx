@@ -385,7 +385,7 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
 
 
             <div
-                className="custom-select-container selectArtem selectArtemBefore ArtemNewSelectContainer"
+                className="custom-select-container selectArtem selectArtemBefore ArtemNewSelectContainer sc-has-value"
                 ref={sizeDropdownRef}
             >
                 <div
@@ -410,7 +410,7 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
                 )}
             </div>
 
-            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', marginLeft: "2vw"}}>
+            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', }}>
                 {buttonsArr.map((item, index) => (
                     <button
                         className={item === color.sides ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}

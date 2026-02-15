@@ -1,5 +1,5 @@
 import axios from '../../api/axiosInstance';
-import "./NewSheetCutBw.css";
+import "./Poslugy.css";
 import React, {useEffect, useState, useMemo} from "react";
 import NewNoModalSize from "./newnomodals/NewNoModalSize_colum";
 import NewNoModalLaminationNew from "./newnomodals/NewNoModalLaminationNew";
@@ -281,7 +281,8 @@ export default function NewSheetCutBW({
 
 
   return (
-    <>
+    <div className="sc-wrap">
+      {/* ===== OVERLAY ===== */}
       <div
         className="bw-overlay"
         onClick={() => {
@@ -289,138 +290,103 @@ export default function NewSheetCutBW({
           setShowNewSheetCutBW(false);
         }}
       />
-      <div className="bw-modal">
 
-        {/* ===== OVERLAY ===== */}
+      {/* ===== MODAL ===== */}
+      <div className="sc-modal" style={{ minHeight: 'auto', height: 'auto', width: '48vw', maxWidth: '860px' }} onClick={(e) => e.stopPropagation()}>
 
+        {/* ===== BODY: left + right ===== */}
+        <div className="sc-body">
 
-        {/* ===== MODAL ===== */}
-        <div
-          className="bw-modal"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/*/!* ===== HEADER ===== *!/*/}
-          {/*<div className="bw-header">*/}
-          {/*  <span>Чорно-білий друк</span>*/}
-          {/*  <button*/}
-          {/*    className="bw-close"*/}
-          {/*    onClick={() => {*/}
-          {/*      setEditingOrderUnit(null);*/}
-          {/*      setShowNewSheetCutBW(false);*/}
-          {/*    }}*/}
-          {/*  >*/}
-          {/*    ✕*/}
-          {/*  </button>*/}
-          {/*</div>*/}
+          {/* ===== LEFT: options ===== */}
+          <div className="sc-left-sections" style={{ flex: '7 1 0' }}>
 
-          {/* ===== CONTENT ===== */}
-          {/* ===== CONTENT ===== */}
-          <div className="bw-content">
-
-            <div className="bw-layout">
-
-              {/* ===== LEFT 70% ===== */}
-              <div className="bw-left">
-
-                {/* 1️⃣ Кількість + Розмір */}
-                <div className="bw-title">Кількість та розмір</div>
-                <div className="bw-row">
-                  <div className='d-flex flex-row justify-content-between align-items-center'>
-
-                    {/* Кількість зліва */}
-                    <div
-                      className="d-flex flex-row inputsArtemkilk allArtemElem "
-                      style={{
-
-                        border: "transparent",
-                        justifyContent: "left",
-                      }}
-                    >
-                      <input
-                        className="d-flex inputsArtemNumber inputsArtem custom-select-container"
-                        style={{
-                          alignItems: "center",
-                          justifyContent: "center",
-                          paddingLeft: "0.7vw",
-                        }}
-                        type="number"
-                        value={count}
-                        min={1}
-                        onChange={(event) => setCount(Number(event.target.value || 1))}
-                      />
-                      <div
-                        className="inputsArtemx allArtemElem"
-                        style={{border: "transparent", color:"#949493"}}
-                      >
-                        шт
-                      </div>
-                    </div>
-
-                    {/* Розмір справа */}
-                    <div style={{zIndex:10}}>
-                      <NewNoModalSize
-                        size={size}
-                        setSize={setSize}
-                        type="SheetCutBW"
-                        count={count}
-                        showSize={true}
-                        showSides={false}
-                        showCount={true}
-                      />
-                    </div>
-
-                  </div>
+            {/* 1. Кількість + Розмір */}
+            <div className="sc-section">
+              <div className="sc-title">Кількість та розмір</div>
+              <div className="sc-row d-flex flex-row align-items-center justify-content-between">
+                <div className="d-flex flex-row" style={{ alignItems: "center" }}>
+                  <input
+                    className="inputsArtem"
+                    type="number"
+                    value={count}
+                    min={1}
+                    onChange={(event) => setCount(Number(event.target.value || 1))}
+                  />
+                  <div className="inputsArtemx" style={{ border: "transparent" }}>шт</div>
                 </div>
-
-
-                {/* 2️⃣ Сторонність */}
-                <div className="bw-title">Сторонність</div>
-                <div className="bw-sides-container">
-                  <button
-                    className={`bw-side-btn bw-side-left ${color.sides === "односторонній" ? "bw-side-active" : ""}`}
-                    onClick={() => setColor({ ...color, sides: "односторонній" })}
-                    style={{zIndex:10}}
-                  >
-                    Односторонній
-                  </button>
-
-                  <button
-                    className={`bw-side-btn bw-side-right ${color.sides === "двосторонній" ? "bw-side-active" : ""}`}
-                    onClick={() => setColor({ ...color, sides: "двосторонній" })}
-
-                  >
-                    Двосторонній
-                  </button>
+                <div style={{ marginLeft: "auto", paddingRight: 0 }}>
+                  <NewNoModalSize
+                    size={size}
+                    setSize={setSize}
+                    type="SheetCutBW"
+                    count={count}
+                    showSize={true}
+                    showSides={false}
+                    showCount={true}
+                  />
                 </div>
+              </div>
+            </div>
 
+            {/* 2. Сторонність */}
+            <div className="sc-section">
+              <div className="sc-title">Сторонність</div>
+              <div className="sc-sides">
+                <button
+                  className={`sc-side-btn sc-side-left ${color.sides === "односторонній" ? "sc-side-active" : ""}`}
+                  onClick={() => setColor({ ...color, sides: "односторонній" })}
+                >
+                  <span className="sc-side-text">Односторонній</span>
+                </button>
+                <button
+                  className={`sc-side-btn sc-side-right ${color.sides === "двосторонній" ? "sc-side-active" : ""}`}
+                  onClick={() => setColor({ ...color, sides: "двосторонній" })}
+                >
+                  <span className="sc-side-text">Двосторонній</span>
+                </button>
+              </div>
+            </div>
 
+            {/* 3. Матеріал */}
+            <div className="sc-section" style={{ position: "relative", zIndex: 60 }}>
+              <div className="sc-title">Матеріал</div>
+              <div className="sc-row">
+                <Materials2
+                  material={material}
+                  setMaterial={setMaterial}
+                  count={count}
+                  setCount={setCount}
+                  size={size}
+                  name={"Чорно-білий друк на монохромному принтері:"}
+                  buttonsArr={["Офісний"]}
+                  typeUse={null}
+                />
+              </div>
+            </div>
 
-
-                {/* 3️⃣ Матеріал */}
-                {/* 3️⃣ Матеріал */}
-                <div className="bw-title">Матеріал</div>
-                <div className="bw-row" style={{zIndex:10}}>
-                  <div className='d-flex flex-row justify-content-between align-items-center w-100'>
-                    <Materials2
-                      material={material}
-                      setMaterial={setMaterial}
-                      count={count}
-                      setCount={setCount}
-                      size={size}
-                      name={"Чорно-білий друк на монохромному принтері:"}
-                      buttonsArr={["Офісний"]}
-                      typeUse={null}
-                    />
-                  </div>
-                </div>
-
-
-
-                {/* 4️⃣ Ламінація */}
-                <div className="bw-title d-flex flex-row align-items-center gap-3" style={{zIndex:0}}>Ламінування
+            {/* 4. Ламінування */}
+            <div className="sc-section" style={{ position: "relative", zIndex: 40, marginBottom: "1.5vh" }}>
+              <div className="d-flex align-items-center" style={{ gap: "8px" }}>
+                <div className="sc-title" style={{ marginBottom: 0 }}>Ламінування</div>
+                <NewNoModalLaminationNew
+                  showSwitch={true}
+                  showOptions={false}
+                  lamination={lamination}
+                  setLamination={setLamination}
+                  type="SheetCutBW"
+                  size={safeSize}
+                  buttonsArr={[
+                    "з глянцевим ламінуванням",
+                    "з матовим ламінуванням",
+                    "з ламінуванням Soft Touch",
+                  ]}
+                />
+              </div>
+              {lamination.enabled && (
+                <div className="sc-row sc-lam-row">
                   <NewNoModalLaminationNew
-                    showSwitch={true}
-                    showOptions={false}   // ⬅️ ТІЛЬКИ СВІТЧ
+                    showSwitch={false}
+                    showOptions={true}
                     lamination={lamination}
                     setLamination={setLamination}
                     type="SheetCutBW"
@@ -430,253 +396,160 @@ export default function NewSheetCutBW({
                       "з матовим ламінуванням",
                       "з ламінуванням Soft Touch",
                     ]}
-
                   />
                 </div>
-                {lamination.enabled && (
-                  <div className="bw-row d-flex flex-row justify-content-center align-items-center">
-                    <NewNoModalLaminationNew
-                      showSwitch={false}     // світч уже зверху
-                      showOptions={true}     // тут тільки UI
-                      lamination={lamination}
-                      setLamination={setLamination}
-                      type="SheetCutBW"
-                      size={safeSize}
-                      buttonsArr={[
-                        "з глянцевим ламінуванням",
-                        "з матовим ламінуванням",
-                        "з ламінуванням Soft Touch",
-
-                      ]}
-                    />
-                  </div>
-                )}
-
-              </div>
-
-
+              )}
             </div>
 
-            {/* ===== RIGHT 30% ===== */}
-            <div className="bw-right">
+          </div>
+          {/* END sc-left */}
 
-              {/*<div className="bw-summary">*/}
-              {/*  <div className="bw-summary-title">Чорно-білий друк</div>*/}
-              {/*</div>*/}
-
-              <div className="">
-                <div className="bw-summary-title">
-                  <div className="bw-sticky">
-                    {/*<div className="bw-summary-title" >Розрахунок:</div>*/}
-
-                    {pricesThis && (
-                      <div className="bw-sticky">
-                        {/*<div style={{fontWeight: "500"}}>size:</div>*/}
-                        {/*<div className="bw-calc-line">*/}
-                        {/*  <span className="bw-sub">{size?.x}мм</span>*/}
-
-                        {/*  <span className="bw-op">×</span>*/}
-
-                        {/*  <span className="bw-sub">{size?.y}мм</span>*/}
-                        {/*</div>*/}
-
-                        <div className="bwsubOP">Друк:</div>
-
-                        <div className="bw-calc-line">
-                          {(pricesThis.priceDrukPerSheet || 0).toFixed(2)}
-                          <span className="bw-sub">грн</span>
-
-                          <span className="bw-op">×</span>
-
-                          {pricesThis.sheetCount || 0}
-                          <span className="bw-sub">шт</span>
-
-                          <span className="bw-op">=</span>
-
-                          {(
-                            (pricesThis.priceDrukPerSheet || 0) *
-                            (pricesThis.sheetCount || 0)
-                          ).toFixed(2)}
-                          <span className="bw-sub">грн</span>
-                        </div>
-
-                        <div className="bwsubOP">Матеріали:</div>
-
-                        <div className="bw-calc-line">
-                          {(pricesThis.pricePaperPerSheet || 0).toFixed(2)}
-                          <span className="bw-sub">грн</span>
-
-                          <span className="bw-op">×</span>
-
-                          {pricesThis.sheetCount || 0}
-                          <span className="bw-sub">шт</span>
-
-                          <span className="bw-op">=</span>
-
-                          {(
-                            (pricesThis.pricePaperPerSheet || 0) *
-                            (pricesThis.sheetCount || 0)
-                          ).toFixed(2)}
-                          <span className="bw-sub">грн</span>
-                        </div>
-
-                        <div className="bwsubOP">Ламінація:</div>
-
-                        <div className="bw-calc-line">
-                          {(pricesThis.priceLaminationPerSheet || 0).toFixed(2)}
-                          <span className="bw-sub">грн</span>
-
-                          <span className="bw-op">×</span>
-
-                          {pricesThis.sheetCount || 0}
-                          <span className="bw-sub">шт</span>
-
-                          <span className="bw-op">=</span>
-
-                          {(
-                            (pricesThis.priceLaminationPerSheet || 0) *
-                            (pricesThis.sheetCount || 0)
-                          ).toFixed(2)}
-                          <span className="bw-sub">грн</span>
-                        </div>
-
-                        <div
-                          className="bw-calc-total d-flex justify-content-center align-content-center"
-                          style={{fontWeight: "500", color: "red"}}
-                        >
-                          {pricesThis.price || 0}
-                          <span className="bw-sub">грн</span>
-                        </div>
-                      </div>
-                    )}
-
-
-                  </div>
-
+          {/* ===== RIGHT: pricing ===== */}
+          <div className="sc-right" style={{ flex: '3 1 0', width: 'auto', minWidth: 0, maxWidth: 'none' }}>
+            {pricesThis && (
+              <div className="sc-prices-grid">
+                <div className="sc-price-label">Друк:</div>
+                <div className="sc-price-line">
+                  <span className="sc-val">{(pricesThis.priceDrukPerSheet || 0).toFixed(2)}</span>
+                  <span className="sc-unit">грн</span>
+                  <span className="sc-op">&times;</span>
+                  <span className="sc-val">{pricesThis.sheetCount || 0}</span>
+                  <span className="sc-unit">шт</span>
+                  <span className="sc-op">=</span>
+                  <span className="sc-total">{((pricesThis.priceDrukPerSheet || 0) * (pricesThis.sheetCount || 0)).toFixed(2)}</span>
+                  <span className="sc-unit">грн</span>
                 </div>
-                {/* тут буде калькуляція */}
+
+                <div className="sc-price-label">Матеріали:</div>
+                <div className="sc-price-line">
+                  <span className="sc-val">{(pricesThis.pricePaperPerSheet || 0).toFixed(2)}</span>
+                  <span className="sc-unit">грн</span>
+                  <span className="sc-op">&times;</span>
+                  <span className="sc-val">{pricesThis.sheetCount || 0}</span>
+                  <span className="sc-unit">шт</span>
+                  <span className="sc-op">=</span>
+                  <span className="sc-total">{((pricesThis.pricePaperPerSheet || 0) * (pricesThis.sheetCount || 0)).toFixed(2)}</span>
+                  <span className="sc-unit">грн</span>
+                </div>
+
+                <div className="sc-price-label">Ламінація:</div>
+                <div className="sc-price-line">
+                  <span className="sc-val">{(pricesThis.priceLaminationPerSheet || 0).toFixed(2)}</span>
+                  <span className="sc-unit">грн</span>
+                  <span className="sc-op">&times;</span>
+                  <span className="sc-val">{pricesThis.sheetCount || 0}</span>
+                  <span className="sc-unit">шт</span>
+                  <span className="sc-op">=</span>
+                  <span className="sc-total">{((pricesThis.priceLaminationPerSheet || 0) * (pricesThis.sheetCount || 0)).toFixed(2)}</span>
+                  <span className="sc-unit">грн</span>
+                </div>
+
+                <div className="sc-price-total">
+                  {pricesThis.price || 0}
+                  <span className="sc-unit">грн</span>
+                </div>
               </div>
-
-            </div>
-
-          </div>
-          {typeof error === "string" && (
-            <div className="bw-error">
-              {error}
-            </div>
-          )}
-          <div className="bw-product-tabs">
-            {services.map((service) => (
-              <div
-                key={service}
-                style={{
-                  position: "relative",
-                  display: "inline-flex",
-                  alignItems: "center",
-                }}
-              >
-                <button
-                  className={`btn ${
-                    selectedService === service
-                      ? "adminButtonAdd"
-                      : "adminButtonAdd-active"
-                  }`}
-                  style={{ fontSize:"clamp(0.7rem, 0.7vh, 2.5vh)", minWidth:"2vw", height:"2vh"}}
-                  onClick={() => setSelectedService(service)}
-                >
-                  {service}
-                </button>
-
-                {/* КНОПКА ВИДАЛЕННЯ */}
-                {isEditServices && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (services.length === 1) {
-                        alert("Повинен бути хоча б один товар");
-                        return;
-                      }
-
-                      if (!window.confirm(`Видалити "${service}"?`)) return;
-
-                      setServices((prev) => prev.filter((s) => s !== service));
-
-                      if (selectedService === service) {
-                        setSelectedService(services[0] || "");
-                      }
-                    }}
-                    style={{
-                      position: "absolute",
-                      top: "-4px",
-                      right: "-4px",
-                      width: "18px",
-                      height: "18px",
-                      borderRadius: "50%",
-                      border: "none",
-                      background: "transparent",
-                      color: "red",
-                      lineHeight: "0px",
-                      cursor: "pointer",
-
-                    }}
-                  >
-                    x
-                  </button>
-                )}
-              </div>
-            ))}
-
-            {/* КНОПКА ДОДАВАННЯ */}
-            {isEditServices && (
-              <button
-                className="btn adminButtonAdd"
-                onClick={() => {
-                  const name = prompt("Введіть назву товару");
-                  if (!name) return;
-
-                  const trimmed = name.trim();
-                  if (!trimmed) return;
-
-                  if (services.includes(trimmed)) {
-                    alert("Така назва вже існує");
-                    return;
-                  }
-
-                  setServices((prev) => [...prev, trimmed]);
-                  setSelectedService(trimmed);
-                }}
-              >
-
-                <div className="bw-text-gray">➕</div>
-              </button>
             )}
-
-            {/* КНОПКА НАЛАШТУВАНЬ */}
-            <button
-              className={`btn  ${
-                isEditServices ? "adminButtonAdd" : "adminButtonAdd-active"
-              }`}
-              onClick={() => setIsEditServices((v) => !v)}
-              title={isEditServices ? "Завершити редагування" : "Налаштування назв товарів"}
-            >
-              <div className="bw-text-gray">{isEditServices ? "✔️" : "⚙️"}</div>
-            </button>
-
           </div>
+          {/* END sc-right */}
 
-          {/* BUTTON */}
-          <div className="bw-action">
-            <button className="adminButtonAdd" variant="danger"
-                    onClick={addNewOrderUnit}
-            >
-              {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
-
-
-            </button>
-
-          </div>
         </div>
+        {/* END sc-body */}
+
+        {/* ===== ERROR ===== */}
+        {typeof error === "string" && (
+          <div className="sc-error">{error}</div>
+        )}
+
+        {/* ===== SERVICE TABS ===== */}
+        <div className="sc-tabs">
+          {services.map((service) => (
+            <div
+              key={service}
+              style={{ position: "relative", display: "inline-flex", alignItems: "center" }}
+            >
+              <button
+                className={`btn ${selectedService === service ? "adminButtonAdd" : "adminButtonAdd-active"}`}
+                style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
+                onClick={() => setSelectedService(service)}
+              >
+                <span className="sc-tab-text">{service}</span>
+              </button>
+
+              {isEditServices && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (services.length === 1) {
+                      alert("Повинен бути хоча б один товар");
+                      return;
+                    }
+                    if (!window.confirm(`Видалити "${service}"?`)) return;
+                    setServices((prev) => prev.filter((s) => s !== service));
+                    if (selectedService === service) {
+                      setSelectedService(services[0] || "");
+                    }
+                  }}
+                  style={{
+                    position: "absolute",
+                    top: "-4px",
+                    right: "-4px",
+                    width: "18px",
+                    height: "18px",
+                    borderRadius: "50%",
+                    border: "none",
+                    background: "transparent",
+                    color: "red",
+                    lineHeight: "0px",
+                    cursor: "pointer",
+                  }}
+                >
+                  x
+                </button>
+              )}
+            </div>
+          ))}
+
+          {isEditServices && (
+            <button
+              className="btn adminButtonAdd"
+              style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
+              onClick={() => {
+                const name = prompt("Введіть назву товару");
+                if (!name) return;
+                const trimmed = name.trim();
+                if (!trimmed) return;
+                if (services.includes(trimmed)) {
+                  alert("Така назва вже існує");
+                  return;
+                }
+                setServices((prev) => [...prev, trimmed]);
+                setSelectedService(trimmed);
+              }}
+            >
+              ➕
+            </button>
+          )}
+
+          <button
+            className={`btn sc-settings-btn ${isEditServices ? "adminButtonAdd" : "adminButtonAdd-active"}`}
+            style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
+            onClick={() => setIsEditServices((v) => !v)}
+            title={isEditServices ? "Завершити редагування" : "Налаштування назв товарів"}
+          >
+            {isEditServices ? "✔️" : "⚙️"}
+          </button>
+        </div>
+
+        {/* ===== ACTION BUTTON ===== */}
+        <div className="sc-action">
+          <button className="adminButtonAdd" onClick={addNewOrderUnit}>
+            {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
+          </button>
+        </div>
+
       </div>
-    </>
+      {/* END sc-modal */}
+    </div>
   );
 }

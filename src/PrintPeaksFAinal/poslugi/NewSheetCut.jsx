@@ -414,18 +414,12 @@ const NewSheetCut = ({
         <div className="sc-body" >
 
           {/* ===== LEFT: scrollable options ===== */}
-          <div className="sc-left-sections" style={{
-            margin: 0,
-            padding: 0,
-            gap: "1.5vh",
-            overflowY: "hidden",
-          }}>
+          <div className="sc-left-sections" >
 
           {/* 1. Кількість + Розмір (одна строка) */}
-            <div className="sc-section">
-            <div className="sc-title">Кількість та розмір</div>
-            <div className="sc-row d-flex flex-row align-items-center justify-content-between" style={{}}>
-            <div className="d-flex flex-row" style={{ alignItems: "center", flexShrink: 0, }}>
+            <div className="sc-section sc-section-divided">
+            <div className="sc-row d-flex flex-row align-items-center justify-content-between" >
+            <div className="d-flex flex-row" style={{ alignItems: "center"}}>
                 <input
                   className="inputsArtem"
                   type="number"
@@ -436,7 +430,7 @@ const NewSheetCut = ({
                 <div className="inputsArtemx" style={{ border: "transparent" }}>шт</div>
               </div>
 
-              <div style={{ marginLeft: "auto", paddingRight: 0 }}>
+              <div >
                 <NewNoModalSize
                   size={size}
                   setSize={setSize}
@@ -454,27 +448,25 @@ const NewSheetCut = ({
             </div>
 
             {/* 2. Сторонність (окрема строка) */}
-            <div className="sc-section">
-            <div className="sc-title">Сторонність</div>
+            <div className="sc-section sc-section-divided">
             <div className="sc-sides">
               <button
                 className={`sc-side-btn sc-side-left ${color.sides === "односторонній" ? "sc-side-active" : ""}`}
                 onClick={() => setColor({ ...color, sides: "односторонній" })}
               >
-                Односторонній
+                <span className="sc-side-text">Односторонній</span>
               </button>
               <button
                 className={`sc-side-btn sc-side-right ${color.sides === "двосторонній" ? "sc-side-active" : ""}`}
                 onClick={() => setColor({ ...color, sides: "двосторонній" })}
               >
-                Двосторонній
+                <span className="sc-side-text">Двосторонній</span>
               </button>
             </div>
             </div>
 
             {/* 3. Матеріал */}
             <div className="sc-section" style={{ position: "relative", zIndex: 60 }}>
-            <div className="sc-title">Матеріал</div>
             <div className="sc-row">
               <Materials2
                 material={material}
@@ -852,7 +844,7 @@ const NewSheetCut = ({
                 style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
                 onClick={() => setSelectedService(service)}
               >
-                {service}
+                <span className="sc-tab-text">{service}</span>
               </button>
 
               {isEditServices && (
@@ -916,7 +908,7 @@ const NewSheetCut = ({
             onClick={() => setIsEditServices((v) => !v)}
             title={isEditServices ? "Завершити редагування" : "Налаштування назв товарів"}
           >
-            {isEditServices ? "✔️" : "⚙️"}
+            <span className="sc-tab-text">{isEditServices ? "✔️" : "⚙️"}</span>
           </button>
         </div>
 

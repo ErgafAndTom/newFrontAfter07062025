@@ -23,14 +23,14 @@ const NewNoModalProkleyka = ({prokleyka, setProkleyka, selectArr}) => {
 
   return (
     <div className="d-flex allArtemElem">
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div className="sc-pp-wrap">
         <div className="PostpressNames" >
           <span >Проклейка:</span>
 
           {prokleyka !== "Не потрібно" && (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div className="sc-pp-wrap">
               <div
-                className="custom-select-container selectArtem selectArtemBefore"
+                className="custom-select-container selectArtem selectArtemBefore sc-has-value"
                 ref={ref}
               >
                 <div

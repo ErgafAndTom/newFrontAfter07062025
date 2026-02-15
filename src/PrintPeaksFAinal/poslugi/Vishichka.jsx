@@ -16,15 +16,15 @@ import "./Poslugy.css";
  */
 const VISHICHKA_MAP = {
   SHEET_CUT: {
-    label: "з плотерною порізкою на надрукованих аркушах",
+    label: "З плотерною надсічкою на надрукованих аркушах",
     typeUse: "sheet_cut",
   },
   STICKERPACK: {
-    label: "з плотерною порізкою стікерпаків",
+    label: "З плотерною порізкою стікерпаків",
     typeUse: "stickerpack",
   },
   SINGLE_ITEMS: {
-    label: "з плотерною порізкою окремими виробами",
+    label: "З плотерною порізкою окремими виробами",
     typeUse: "single_items",
   },
 };
@@ -175,6 +175,11 @@ const Vishichka = ({
     priceForItemWithExtras: 0,
   });
   const [selectedService, setSelectedService] = useState("Наліпки");
+  const [isEditServices, setIsEditServices] = useState(false);
+  const [services, setServices] = useState([
+    "Наліпки", "Стікери", "Стікерпак", "Стікерсет", "Бірки",
+    "Листівки", "Коробочки", "Фішки", "Цінник", "Меню",
+  ]);
 
   const setVishichkaSafe = useCallback((nextOrUpdater) => {
     setVishichka((prev) => {
@@ -496,13 +501,13 @@ const Vishichka = ({
                   className={`sc-side-btn sc-side-left ${color.sides === "односторонній" ? "sc-side-active" : ""}`}
                   onClick={() => setColor({ ...color, sides: "односторонній" })}
                 >
-                  Односторонній
+                  <span className="sc-side-text">Односторонній</span>
                 </button>
                 <button
                   className={`sc-side-btn sc-side-right ${color.sides === "двосторонній" ? "sc-side-active" : ""}`}
                   onClick={() => setColor({ ...color, sides: "двосторонній" })}
                 >
-                  Двосторонній
+                  <span className="sc-side-text">Двосторонній</span>
                 </button>
               </div>
             </div>
@@ -555,8 +560,28 @@ const Vishichka = ({
               </div>
             </div>
 
-            {/* 4. Ламінування */}
+            {/* 4. Монтажна плівка */}
             <div className="sc-section" style={{ position: "relative", zIndex: 40 }}>
+              <div className="sc-title">Монтажна плівка</div>
+              <div className="sc-row">
+                <PlivkaMontajna
+                  size={size}
+                  plivkaMontajna={plivkaMontajna}
+                  setPlivkaMontajna={setPlivkaMontajna}
+                  vishichka={vishichka}
+                  setVishichka={setVishichkaSafe}
+                  prices={prices}
+                  buttonsArr={[
+                    VISHICHKA_MAP.SHEET_CUT.label,
+                    VISHICHKA_MAP.STICKERPACK.label,
+                    VISHICHKA_MAP.SINGLE_ITEMS.label,
+                  ]}
+                />
+              </div>
+            </div>
+
+            {/* 5. Ламінування */}
+            <div className="sc-section" style={{ position: "relative", zIndex: 30 }}>
               <div className="d-flex align-items-center" style={{ gap: "8px" }}>
                 <div className="sc-title" style={{ marginBottom: 0 }}>Ламінування</div>
                 <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
@@ -571,7 +596,9 @@ const Vishichka = ({
                       }
                     }}
                   />
+                  <span className="switch-on"><span>ON</span></span>
                   <span className="slider" />
+                  <span className="switch-off"><span>OFF</span></span>
                 </label>
               </div>
               {lamination.type !== "Не потрібно" && (
@@ -599,26 +626,6 @@ const Vishichka = ({
                   />
                 </div>
               )}
-            </div>
-
-            {/* 5. Монтажна плівка */}
-            <div className="sc-section" style={{ position: "relative", zIndex: 30 }}>
-              <div className="sc-title">Монтажна плівка</div>
-              <div className="sc-row">
-                <PlivkaMontajna
-                  size={size}
-                  plivkaMontajna={plivkaMontajna}
-                  setPlivkaMontajna={setPlivkaMontajna}
-                  vishichka={vishichka}
-                  setVishichka={setVishichkaSafe}
-                  prices={prices}
-                  buttonsArr={[
-                    VISHICHKA_MAP.SHEET_CUT.label,
-                    VISHICHKA_MAP.STICKERPACK.label,
-                    VISHICHKA_MAP.SINGLE_ITEMS.label,
-                  ]}
-                />
-              </div>
             </div>
 
           </div>
@@ -721,19 +728,82 @@ const Vishichka = ({
 
         {/* ===== SERVICE TABS ===== */}
         <div className="sc-tabs">
-          {[
-            "Наліпки", "Стікери", "Стікерпак", "Стікерсет", "Бірки",
-            "Листівки", "Коробочки", "Фішки", "Цінник", "Меню",
-          ].map((service) => (
-            <button
+          {services.map((service) => (
+            <div
               key={service}
-              className={`btn ${selectedService === service ? "adminButtonAdd" : "adminButtonAdd-active"}`}
-              style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
-              onClick={() => setSelectedService(service)}
+              style={{ position: "relative", display: "inline-flex", alignItems: "center" }}
             >
-              {service}
-            </button>
+              <button
+                className={`btn ${selectedService === service ? "adminButtonAdd" : "adminButtonAdd-active"}`}
+                style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
+                onClick={() => setSelectedService(service)}
+              >
+                <span className="sc-tab-text">{service}</span>
+              </button>
+
+              {isEditServices && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (services.length === 1) {
+                      alert("Повинен бути хоча б один товар");
+                      return;
+                    }
+                    if (!window.confirm(`Видалити "${service}"?`)) return;
+                    setServices((prev) => prev.filter((s) => s !== service));
+                    if (selectedService === service) {
+                      setSelectedService(services[0] || "");
+                    }
+                  }}
+                  style={{
+                    position: "absolute",
+                    top: "-4px",
+                    right: "-4px",
+                    width: "18px",
+                    height: "18px",
+                    borderRadius: "50%",
+                    border: "none",
+                    background: "transparent",
+                    color: "red",
+                    lineHeight: "0px",
+                    cursor: "pointer",
+                  }}
+                >
+                  x
+                </button>
+              )}
+            </div>
           ))}
+
+          {isEditServices && (
+            <button
+              className="btn adminButtonAdd"
+              style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
+              onClick={() => {
+                const name = prompt("Введіть назву товару");
+                if (!name) return;
+                const trimmed = name.trim();
+                if (!trimmed) return;
+                if (services.includes(trimmed)) {
+                  alert("Така назва вже існує");
+                  return;
+                }
+                setServices((prev) => [...prev, trimmed]);
+                setSelectedService(trimmed);
+              }}
+            >
+              ➕
+            </button>
+          )}
+
+          <button
+            className={`btn sc-settings-btn ${isEditServices ? "adminButtonAdd" : "adminButtonAdd-active"}`}
+            style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
+            onClick={() => setIsEditServices((v) => !v)}
+            title={isEditServices ? "Завершити редагування" : "Налаштування назв товарів"}
+          >
+            {isEditServices ? "✔️" : "⚙️"}
+          </button>
         </div>
 
         {/* ===== ACTION BUTTON ===== */}

@@ -171,7 +171,7 @@ const Materials2 = ({
                 style={{
                   height: "100%",
                   display: "flex",
-                  color:"white",
+                  color: isActive ? "white" : "var(--admingrey)",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
@@ -186,10 +186,21 @@ const Materials2 = ({
 
       {/* SELECT справа */}
       <div
-        className="custom-select-container selectArtem selectArtemBefore"
+        className={`custom-select-container selectArtem selectArtemBefore${material?.materialId && material.materialId !== 0 && material.materialId !== "0" ? " sc-has-value" : ""}`}
         ref={dropdownRef}
         style={{minWidth: dropdownWidth}}
       >
+        {/* tapping hand loader */}
+        {!(material?.materialId && material.materialId !== 0 && material.materialId !== "0") && (
+          <div className="sc-hand">
+            <div className="sc-hand-finger"/>
+            <div className="sc-hand-finger"/>
+            <div className="sc-hand-finger"/>
+            <div className="sc-hand-finger"/>
+            <div className="sc-hand-palm"/>
+            <div className="sc-hand-thumb"/>
+          </div>
+        )}
         <div
           className="custom-select-header"
           onClick={() => setOpen(!open)}

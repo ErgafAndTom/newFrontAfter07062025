@@ -9,14 +9,7 @@ border: transparent
 
 
 
-.scale04ForButtonToggle {
-  transform: scale(0.5);
-  white-space: nowrap;
-  margin-right: 2vw;
-
-  /*width: 100%;*/
-
-}
+/* .scale04ForButtonToggle moved to Poslugy.css */
 .PostpressNames {
   display: flex;
   flex-direction: row;

@@ -1,6 +1,7 @@
 import React, {useEffect, useState, useRef} from "react";
 import axios from '../../../api/axiosInstance';
 import {Navigate, useNavigate} from "react-router-dom";
+import "../Poslugy.css";
 
 
 const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, selectArr, size, type, isVishichka, labelMap}) => {
@@ -154,7 +155,7 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
 
   return (
     <div className="d-flex allArtemElem">
-      <div style={{ display: 'flex', alignItems: 'center', marginTop: '1vw',  }}>
+      <div className="sc-pp-wrap">
         {/* NEW SWITCH */}
         <label className="switch scale04ForButtonToggle" >
           <input
@@ -162,37 +163,33 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
             checked={lamination.type !== "Не потрібно"}
             onChange={handleToggle}
           />
+          <span className="switch-on"><span>ON</span></span>
           <span className="slider" />
+          <span className="switch-off"><span>OFF</span></span>
         </label>
 
         <div className="PostpressNames">
           <span style={{  }}>Ламінація:</span>
 
           {lamination.type !== "Не потрібно" ? (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div className="sc-pp-wrap">
+              <div className="sc-pp-wrap">
                 {buttonsArr.map((item, index) => (
                   <button
                     className={item === lamination.material ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
                     key={index}
                     onClick={() => handleClick(item)}
                   >
-                    <div
-                      style={{
-
-                        opacity: item === lamination.material ? '100%' : '50%',
-                        width: "10vw"
-                      }}
-                    >
+                    <div>
                       {labelMap?.[item] || item}
                     </div>
                   </button>
                 ))}
 
                 <div
-                  className="custom-select-container selectArtem selectArtemBefore"
+                  className="custom-select-container selectArtem selectArtemBefore sc-has-value"
                   ref={thicknessRef}
-                  style={{ marginLeft: "1vw" }}
+                  style={{ marginLeft: "0.5vw" }}
                 >
                   <div
                     className="custom-select-header"

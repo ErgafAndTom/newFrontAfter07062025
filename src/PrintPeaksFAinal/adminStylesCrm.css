@@ -194,7 +194,7 @@
 
 .adminButtonAdd:hover {
   color: #f2f0e7;
-  background: #1d8e5b;
+  background: var(--admingreen);
 }
 /* Блиск (“sheen”) */
 /*.adminButtonAdd::before {*/

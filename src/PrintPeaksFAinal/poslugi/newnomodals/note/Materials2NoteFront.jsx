@@ -3,6 +3,7 @@ import axios from "../../../../api/axiosInstance";
 import {useNavigate} from "react-router-dom";
 import {Spinner} from "react-bootstrap";
 import "./styles.css";
+import "../../Poslugy.css";
 import NewNoModalCornerRounding from "../NewNoModalBig";
 import BigInBooklet from "../BigInBooklet";
 // import   "../../NewSheetCutBW";
@@ -233,7 +234,9 @@ const Materials2NoteFront = ({
                       checked={materialAndDrukFront.materialAndDrukFront !== "Не потрібно"}
                       onChange={handleToggleAll}
                     />
-                    <span className="slider" />
+                    <span className="switch-on"><span>ON</span></span>
+          <span className="slider" />
+          <span className="switch-off"><span>OFF</span></span>
                   </label>
                     <div
                         className="d-flex "
@@ -409,7 +412,9 @@ const Materials2NoteFront = ({
                           checked={materialAndDrukFront.laminationType !== "Не потрібно"}
                           onChange={handleToggleLamination}
                         />
-                        <span className="slider" />
+                        <span className="switch-on"><span>ON</span></span>
+          <span className="slider" />
+          <span className="switch-off"><span>OFF</span></span>
                       </label>
                         <div>{"Ламінація:"}</div>
 

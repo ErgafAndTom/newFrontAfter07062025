@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import axios from '../../../../api/axiosInstance';
 import {Navigate, useNavigate} from "react-router-dom";
+import "../../Poslugy.css";
 
 const Luvarsi = ({luversi, setLuversi, prices, buttonsArr, selectArr, size, type}) => {
   const [thisLaminationSizes, setThisLaminationSizes] = useState([]);
@@ -106,7 +107,9 @@ const Luvarsi = ({luversi, setLuversi, prices, buttonsArr, selectArr, size, type
           checked={luversi.type !== "Не потрібно"}
           onChange={handleToggle}
         />
-        <span className="slider" />
+        <span className="switch-on"><span>ON</span></span>
+          <span className="slider" />
+          <span className="switch-off"><span>OFF</span></span>
       </label>
       <div className="d-flex flex-column">
             <span style={{

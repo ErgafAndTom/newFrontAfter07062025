@@ -3,6 +3,7 @@ import borderRadiusIcon0 from "../../public/borderradius.svg";
 import borderRadiusIcon1 from "../../public/borderradius1.svg";
 import borderRadiusIcon2 from "../../public/borderradius2.svg";
 import borderRadiusIcon9 from "../../public/borderradius9.svg";
+import "../Poslugy.css";
 
 const iconArray = [
     borderRadiusIcon0,
@@ -119,7 +120,7 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
 
   return (
     <div className="d-flex allArtemElem">
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div className="sc-pp-wrap">
         {/* NEW SWITCH */}
         <label className="switch scale04ForButtonToggle"  aria-label="Скруглення кутів">
           <input
@@ -127,15 +128,17 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
             checked={cute !== "Не потрібно"}
             onChange={handleToggle}
           />
+          <span className="switch-on"><span>ON</span></span>
           <span className="slider" />
+          <span className="switch-off"><span>OFF</span></span>
         </label>
 
         <div className="PostpressNames"  >
           <span style={{whiteSpace: "nowrap"}}>Скруглення кутів:</span>
           {cute !== "Не потрібно" ? (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div className="sc-pp-wrap">
               <div
-                className="custom-select-container selectArtem selectArtemBefore"
+                className="custom-select-container selectArtem selectArtemBefore sc-has-value"
                 ref={radiusRef}
               >
                 <div
@@ -160,68 +163,31 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
               </div>
 
               <button
-                className="buttonsArtem"
+                className={`sc-pp-icon${cuteLocal.leftTop ? " sc-pp-icon-active" : ""}`}
                 onClick={handleClickLeftTop}
-                style={{
-                  backgroundColor: cuteLocal.leftTop ? 'orange' : '#FBFAF6',
-                  border: '0.13vw solid transparent',
-                  borderRadius: '0.627vw',
-                  padding: '1.273vh 1.273vw',
-                  margin: '0.323vw',
-                  width: '3.173vw',
-                  height: '3.173vw',
-                  marginLeft: '1vw',
-                }}
               >
-                <img style={{ height: '100%', opacity: cuteLocal.leftTop ? '100%' : '90%' }} alt="" src={borderRadiusIcon0} />
+                <img alt="" src={borderRadiusIcon0} />
               </button>
 
               <button
-                className="buttonsArtem"
+                className={`sc-pp-icon${cuteLocal.rightTop ? " sc-pp-icon-active" : ""}`}
                 onClick={handleClickRightTop}
-                style={{
-                  backgroundColor: cuteLocal.rightTop ? 'orange' : '#FBFAF6',
-                  border: '0.13vw solid transparent',
-                  borderRadius: '0.627vw',
-                  padding: '1.273vh 1.273vw',
-                  margin: '0.323vw',
-                  width: '3.173vw',
-                  height: '3.173vw',
-                }}
               >
-                <img style={{ height: '100%', opacity: cuteLocal.rightTop ? '100%' : '70%' }} alt="" src={borderRadiusIcon9} />
+                <img alt="" src={borderRadiusIcon9} />
               </button>
 
               <button
-                className="buttonsArtem"
+                className={`sc-pp-icon${cuteLocal.rightBottom ? " sc-pp-icon-active" : ""}`}
                 onClick={handleClickRightBottom}
-                style={{
-                  backgroundColor: cuteLocal.rightBottom ? 'orange' : '#FBFAF6',
-                  border: '0.13vw solid transparent',
-                  borderRadius: '0.627vw',
-                  padding: '1.273vh 1.273vw',
-                  margin: '0.323vw',
-                  width: '3.173vw',
-                  height: '3.173vw',
-                }}
               >
-                <img style={{ height: '100%', opacity: cuteLocal.rightBottom ? '100%' : '70%' }} alt="" src={borderRadiusIcon1} />
+                <img alt="" src={borderRadiusIcon1} />
               </button>
 
               <button
-                className="buttonsArtem"
+                className={`sc-pp-icon${cuteLocal.leftBottom ? " sc-pp-icon-active" : ""}`}
                 onClick={handleClickLeftBottom}
-                style={{
-                  backgroundColor: cuteLocal.leftBottom ? 'orange' : '#FBFAF6',
-                  border: '0.13vw solid transparent',
-                  borderRadius: '0.627vw',
-                  padding: '1.273vh 1.273vw',
-                  margin: '0.323vw',
-                  width: '3.173vw',
-                  height: '3.173vw',
-                }}
               >
-                <img style={{ height: '100%', opacity: cuteLocal.leftBottom ? '100%' : '70%' }} alt="" src={borderRadiusIcon2} />
+                <img alt="" src={borderRadiusIcon2} />
               </button>
             </div>
           ) : <div />}

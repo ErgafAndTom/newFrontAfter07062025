@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "../../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import "../Poslugy.css";
 
 
 const LABELS = {
@@ -130,7 +131,9 @@ const NewNoModalLaminationNew = ({
             checked={!!lamination.enabled}
             onChange={handleToggle}
           />
+          <span className="switch-on"><span>ON</span></span>
           <span className="slider" />
+          <span className="switch-off"><span>OFF</span></span>
         </label>
       )}
 
@@ -215,7 +218,7 @@ const NewNoModalLaminationNew = ({
           {/* Кастомний SELECT справа */}
           {showOptions && (
             <div
-              className="custom-select-container selectArtem selectArtemBefore"
+              className="custom-select-container selectArtem selectArtemBefore sc-has-value"
 
               ref={dropdownRef}
               style={{minWidth: dropdownWidth, position:"absolute", right:0}}

@@ -6,6 +6,7 @@ import ServiceModalWrapper from "./shared/ServiceModalWrapper";
 import CountInput from "./shared/CountInput";
 import { useModalState, useOrderUnitSave } from "./shared/hooks";
 import "./shared/ServiceModal.css";
+import "./Poslugy.css";
 
 // Import existing postpress components
 import NewNoModalCornerRounding from "./newnomodals/NewNoModalBig";
@@ -433,7 +434,9 @@ const BigOvshik = ({
               checked={design !== "Не потрібно"}
               onChange={() => setDesign(design === "Не потрібно" ? "0" : "Не потрібно")}
             />
-            <span className="slider" />
+            <span className="switch-on"><span>ON</span></span>
+          <span className="slider" />
+          <span className="switch-off"><span>OFF</span></span>
           </label>
 
           <div className="PostpressNames">
