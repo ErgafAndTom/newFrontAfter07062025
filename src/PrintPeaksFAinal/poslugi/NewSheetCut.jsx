@@ -417,7 +417,7 @@ const NewSheetCut = ({
           <div className="sc-left-sections" >
 
           {/* 1. Кількість + Розмір (одна строка) */}
-            <div className="sc-section sc-section-divided">
+            <div className="sc-section sc-section-card">
             <div className="sc-row d-flex flex-row align-items-center justify-content-between" >
             <div className="d-flex flex-row" style={{ alignItems: "center"}}>
                 <input
@@ -448,7 +448,7 @@ const NewSheetCut = ({
             </div>
 
             {/* 2. Сторонність (окрема строка) */}
-            <div className="sc-section sc-section-divided">
+            <div className="sc-section sc-section-card">
             <div className="sc-sides">
               <button
                 className={`sc-side-btn sc-side-left ${color.sides === "односторонній" ? "sc-side-active" : ""}`}
@@ -466,7 +466,7 @@ const NewSheetCut = ({
             </div>
 
             {/* 3. Матеріал */}
-            <div className="sc-section" style={{ position: "relative", zIndex: 60 }}>
+            <div className="sc-section sc-section-card" style={{ position: "relative", zIndex: 60 }}>
             <div className="sc-row">
               <Materials2
                 material={material}
@@ -487,9 +487,8 @@ const NewSheetCut = ({
 
             {/* 4. Ламінація */}
             <div className="sc-section">
-            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
-              <div className="sc-title" style={{ marginBottom: 0 }}>Ламінування</div>
-              <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
+            <div className="d-flex align-items-center" >
+              <label className="switch scale04ForButtonToggle" >
                 <input
                   type="checkbox"
                   checked={lamination.type !== "Не потрібно"}
@@ -501,66 +500,74 @@ const NewSheetCut = ({
                     }
                   }}
                 />
+                <span className="switch-on"><span>Ламінування</span></span>
                 <span className="slider" />
+                <span className="switch-off"><span>OFF</span></span>
               </label>
-            </div>
-            {lamination.type !== "Не потрібно" && (
-              <div className="sc-row sc-lam-row">
-                <NewNoModalLamination
-                  lamination={lamination}
-                  setLamination={setLamination}
-                  prices={prices}
-                  size={size}
-                  type={"SheetCut"}
-                  buttonsArr={[
-                    "з глянцевим ламінуванням",
-                    "з матовим ламінуванням",
-                    "з ламінуванням SoftTouch",
-                    "з холодним матовим ламінуванням",
-                  ]}
-                  selectArr={["30", "70", "80", "100", "125", "250"]}
-                  labelMap={{
-                    "з глянцевим ламінуванням": "глянцеве",
-                    "з матовим ламінуванням": "матове",
-                    "з ламінуванням SoftTouch": "SoftTouch",
-                    "з холодним матовим ламінуванням": "холодне матове",
-                  }}
-                />
+              {lamination.type === "Не потрібно" && (
+                <div className="sc-title" style={{ marginBottom: 0 }}>Ламінування</div>
+              )}
+              {lamination.type !== "Не потрібно" && (
+                <div className="sc-row sc-lam-row" >
+                  <NewNoModalLamination
+                    lamination={lamination}
+                    setLamination={setLamination}
+                    prices={prices}
+                    size={size}
+                    type={"SheetCut"}
+                    buttonsArr={[
+                      "з глянцевим ламінуванням",
+                      "з матовим ламінуванням",
+                      "з ламінуванням SoftTouch",
+                      "з холодним матовим ламінуванням",
+                    ]}
+                    selectArr={["30", "70", "80", "100", "125", "250"]}
+                    labelMap={{
+                      "з глянцевим ламінуванням": "глянцеве",
+                      "з матовим ламінуванням": "матове",
+                      "з ламінуванням SoftTouch": "SoftTouch",
+                      "з холодним матовим ламінуванням": "холодне матове",
+                    }}
+                  />
               </div>
             )}
+            </div>
             </div>
 
             {/* 5. Згинання */}
             <div className="sc-section" style={{ position: "relative", zIndex: 50 }}>
-            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
-              <div className="sc-title" style={{ marginBottom: 0 }}>Згинання</div>
-              <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
+            <div className="d-flex align-items-center">
+              <label className="switch scale04ForButtonToggle">
                 <input type="checkbox" checked={big !== "Не потрібно"} onChange={() => {
                   if (big === "Не потрібно") setBig("1");
                   else setBig("Не потрібно");
                 }} />
+                <span className="switch-on"><span>Згинання</span></span>
                 <span className="slider" />
+                <span className="switch-off"><span>OFF</span></span>
               </label>
+              {big === "Не потрібно" && (
+                <div className="sc-title" style={{ marginBottom: 0 }}>Згинання</div>
+              )}
+              {big !== "Не потрібно" && (
+                <div className="sc-row sc-pp-row" style={{ flex: 1 }}>
+                  <NewNoModalCornerRounding
+                    big={big}
+                    setBig={setBig}
+                    prices={prices}
+                    type={"SheetCut"}
+                    buttonsArr={[]}
+                    selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+                  />
+                </div>
+              )}
             </div>
-            {big !== "Не потрібно" && (
-              <div className="sc-row sc-pp-row">
-                <NewNoModalCornerRounding
-                  big={big}
-                  setBig={setBig}
-                  prices={prices}
-                  type={"SheetCut"}
-                  buttonsArr={[]}
-                  selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
-                />
-              </div>
-            )}
             </div>
 
             {/* 6. Скруглення кутів */}
             <div className="sc-section" style={{ position: "relative", zIndex: 40 }}>
-            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
-              <div className="sc-title" style={{ marginBottom: 0 }}>Скруглення кутів</div>
-              <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
+            <div className="d-flex align-items-center">
+              <label className="switch scale04ForButtonToggle">
                 <input type="checkbox" checked={cute !== "Не потрібно"} onChange={() => {
                   if (cute === "Не потрібно") {
                     setCute(4);
@@ -570,126 +577,147 @@ const NewSheetCut = ({
                     setCuteLocal({ leftTop: false, rightTop: false, rightBottom: false, leftBottom: false, radius: "" });
                   }
                 }} />
+                <span className="switch-on"><span>Скруглення</span></span>
                 <span className="slider" />
+                <span className="switch-off"><span>OFF</span></span>
               </label>
+              {cute === "Не потрібно" && (
+                <div className="sc-title" style={{ marginBottom: 0 }}>Скруглення кутів</div>
+              )}
+              {cute !== "Не потрібно" && (
+                <div className="sc-row sc-pp-row" style={{ flex: 1 }}>
+                  <NewNoModalCute
+                    cute={cute}
+                    setCute={setCute}
+                    cuteLocal={cuteLocal}
+                    setCuteLocal={setCuteLocal}
+                    prices={prices}
+                    type={"SheetCut"}
+                    buttonsArr={[]}
+                    selectArr={["3", "6", "8", "10", "13"]}
+                  />
+                </div>
+              )}
             </div>
-            {cute !== "Не потрібно" && (
-              <div className="sc-row sc-pp-row">
-                <NewNoModalCute
-                  cute={cute}
-                  setCute={setCute}
-                  cuteLocal={cuteLocal}
-                  setCuteLocal={setCuteLocal}
-                  prices={prices}
-                  type={"SheetCut"}
-                  buttonsArr={[]}
-                  selectArr={["3", "6", "8", "10", "13"]}
-                />
-              </div>
-            )}
             </div>
 
             {/* 7. Свердління отворів */}
             <div className="sc-section" style={{ position: "relative", zIndex: 30 }}>
-            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
-              <div className="sc-title" style={{ marginBottom: 0 }}>Свердління отворів</div>
-              <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
+            <div className="d-flex align-items-center">
+              <label className="switch scale04ForButtonToggle">
                 <input type="checkbox" checked={holes !== "Не потрібно"} onChange={() => {
                   if (holes === "Не потрібно") { setHoles(1); setHolesR("5 мм"); }
                   else { setHoles("Не потрібно"); setHolesR(""); }
                 }} />
+                <span className="switch-on"><span>Свердління</span></span>
                 <span className="slider" />
+                <span className="switch-off"><span>OFF</span></span>
               </label>
+              {holes === "Не потрібно" && (
+                <div className="sc-title" style={{ marginBottom: 0 }}>Свердління отворів</div>
+              )}
+              {holes !== "Не потрібно" && (
+                <div className="sc-row sc-pp-row" style={{ flex: 1 }}>
+                  <NewNoModalHoles
+                    holes={holes}
+                    setHoles={setHoles}
+                    holesR={holesR}
+                    setHolesR={setHolesR}
+                    prices={prices}
+                    type={"SheetCut"}
+                    buttonsArr={[]}
+                    selectArr={["", "3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
+                  />
+                </div>
+              )}
             </div>
-            {holes !== "Не потрібно" && (
-              <div className="sc-row sc-pp-row">
-                <NewNoModalHoles
-                  holes={holes}
-                  setHoles={setHoles}
-                  holesR={holesR}
-                  setHolesR={setHolesR}
-                  prices={prices}
-                  type={"SheetCut"}
-                  buttonsArr={[]}
-                  selectArr={["", "3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
-                />
-              </div>
-            )}
             </div>
 
             {/* 8. Проклейка */}
             <div className="sc-section" style={{ position: "relative", zIndex: 20 }}>
-            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
-              <div className="sc-title" style={{ marginBottom: 0 }}>Проклейка</div>
-              <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
+            <div className="d-flex align-items-center">
+              <label className="switch scale04ForButtonToggle">
                 <input type="checkbox" checked={prokleyka !== "Не потрібно"} onChange={() => {
                   if (prokleyka === "Не потрібно") setProkleyka("1");
                   else setProkleyka("Не потрібно");
                 }} />
+                <span className="switch-on"><span>Проклейка</span></span>
                 <span className="slider" />
+                <span className="switch-off"><span>OFF</span></span>
               </label>
+              {prokleyka === "Не потрібно" && (
+                <div className="sc-title" style={{ marginBottom: 0 }}>Проклейка</div>
+              )}
+              {prokleyka !== "Не потрібно" && (
+                <div className="sc-row sc-pp-row" style={{ flex: 1 }}>
+                  <NewNoModalProkleyka
+                    prokleyka={prokleyka}
+                    setProkleyka={setProkleyka}
+                    prices={prices}
+                    type={"SheetCut"}
+                    buttonsArr={[]}
+                    selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+                  />
+                </div>
+              )}
             </div>
-            {prokleyka !== "Не потрібно" && (
-              <div className="sc-row sc-pp-row">
-                <NewNoModalProkleyka
-                  prokleyka={prokleyka}
-                  setProkleyka={setProkleyka}
-                  prices={prices}
-                  type={"SheetCut"}
-                  buttonsArr={[]}
-                  selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
-                />
-              </div>
-            )}
             </div>
 
             {/* 9. Люверси */}
             <div className="sc-section" style={{ position: "relative", zIndex: 10 }}>
-            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
-              <div className="sc-title" style={{ marginBottom: 0 }}>Люверси</div>
-              <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
+            <div className="d-flex align-items-center">
+              <label className="switch scale04ForButtonToggle">
                 <input type="checkbox" checked={lyuversy !== "Не потрібно"} onChange={() => {
                   if (lyuversy === "Не потрібно") setLyuversy("1");
                   else setLyuversy("Не потрібно");
                 }} />
+                <span className="switch-on"><span>Люверси</span></span>
                 <span className="slider" />
+                <span className="switch-off"><span>OFF</span></span>
               </label>
+              {lyuversy === "Не потрібно" && (
+                <div className="sc-title" style={{ marginBottom: 0 }}>Люверси</div>
+              )}
+              {lyuversy !== "Не потрібно" && (
+                <div className="sc-row sc-pp-row" style={{ flex: 1 }}>
+                  <NewNoModalLyuversy
+                    lyuversy={lyuversy}
+                    setLyuversy={setLyuversy}
+                    type={"SheetCut"}
+                    buttonsArr={[]}
+                    selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+                  />
+                </div>
+              )}
             </div>
-            {lyuversy !== "Не потрібно" && (
-              <div className="sc-row sc-pp-row">
-                <NewNoModalLyuversy
-                  lyuversy={lyuversy}
-                  setLyuversy={setLyuversy}
-                  type={"SheetCut"}
-                  buttonsArr={[]}
-                  selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
-                />
-              </div>
-            )}
             </div>
 
             {/* 10. Порізка */}
             <div className="sc-section">
-            <div className="d-flex align-items-center" style={{ gap: "8px" }}>
-              <div className="sc-title" style={{ marginBottom: 0 }}>Порізка</div>
-              <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
+            <div className="d-flex align-items-center">
+              <label className="switch scale04ForButtonToggle">
                 <input type="checkbox" checked={porizka.type !== "Не потрібно"} onChange={() => {
                   if (porizka.type === "Не потрібно") setPorizka({ ...porizka, type: "Потрібно" });
                   else setPorizka({ type: "Не потрібно" });
                 }} />
+                <span className="switch-on"><span>Порізка</span></span>
                 <span className="slider" />
+                <span className="switch-off"><span>OFF</span></span>
               </label>
+              {porizka.type === "Не потрібно" && (
+                <div className="sc-title" style={{ marginBottom: 0 }}>Порізка</div>
+              )}
+              {porizka.type !== "Не потрібно" && (
+                <div className="sc-row sc-pp-row" style={{ flex: 1 }}>
+                  <Porizka
+                    porizka={porizka}
+                    setPorizka={setPorizka}
+                    prices={prices}
+                    type={"SheetCut"}
+                  />
+                </div>
+              )}
             </div>
-            {porizka.type !== "Не потрібно" && (
-              <div className="sc-row sc-pp-row">
-                <Porizka
-                  porizka={porizka}
-                  setPorizka={setPorizka}
-                  prices={prices}
-                  type={"SheetCut"}
-                />
-              </div>
-            )}
             </div>
 
           </div>
@@ -819,6 +847,24 @@ const NewSheetCut = ({
                 </div>
               </div>
             )}
+
+            {/* ===== ACTION BUTTON ===== */}
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "2vh" }}>
+              <button className="sc-add-btn" onClick={addNewOrderUnit} type="button">
+                <div className="sc-add-btn__outline" />
+                <div className="sc-add-btn__icon">
+                  <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14.2199 21.63C13.0399 21.63 11.3699 20.8 10.0499 16.83L9.32988 14.67L7.16988 13.95C3.20988 12.63 2.37988 10.96 2.37988 9.78001C2.37988 8.61001 3.20988 6.93001 7.16988 5.60001L15.6599 2.77001C17.7799 2.06001 19.5499 2.27001 20.6399 3.35001C21.7299 4.43001 21.9399 6.21001 21.2299 8.33001L18.3999 16.82C17.0699 20.8 15.3999 21.63 14.2199 21.63ZM7.63988 7.03001C4.85988 7.96001 3.86988 9.06001 3.86988 9.78001C3.86988 10.5 4.85988 11.6 7.63988 12.52L10.1599 13.36C10.3799 13.43 10.5599 13.61 10.6299 13.83L11.4699 16.35C12.3899 19.13 13.4999 20.12 14.2199 20.12C14.9399 20.12 16.0399 19.13 16.9699 16.35L19.7999 7.86001C20.3099 6.32001 20.2199 5.06001 19.5699 4.41001C18.9199 3.76001 17.6599 3.68001 16.1299 4.19001L7.63988 7.03001Z" fill="currentColor" />
+                    <path d="M10.11 14.4C9.92005 14.4 9.73005 14.33 9.58005 14.18C9.29005 13.89 9.29005 13.41 9.58005 13.12L13.16 9.53C13.45 9.24 13.93 9.24 14.22 9.53C14.51 9.82 14.51 10.3 14.22 10.59L10.64 14.18C10.5 14.33 10.3 14.4 10.11 14.4Z" fill="currentColor" />
+                  </svg>
+                </div>
+                <p className="sc-add-btn__text">
+                  {(isEdit ? "Зберегти зміни" : "Додати до замовлення").split("").map((char, i) => (
+                    <span key={i} style={{ "--i": i }}>{char === " " ? "\u00A0" : char}</span>
+                  ))}
+                </p>
+              </button>
+            </div>
           </div>
           {/* END sc-right */}
 
@@ -912,12 +958,7 @@ const NewSheetCut = ({
           </button>
         </div>
 
-        {/* ===== ACTION BUTTON ===== */}
-        <div className="sc-action">
-          <button className="adminButtonAdd" onClick={addNewOrderUnit}>
-            {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
-          </button>
-        </div>
+        {/* action button moved to sc-right */}
 
       </div>
       {/* END sc-modal */}

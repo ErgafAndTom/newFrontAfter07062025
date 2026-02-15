@@ -160,10 +160,7 @@ const Materials2 = ({
               style={{
                 backgroundColor: isActive ? "#f5a623" : "#D3D3D3",
                 color: isActive ? "#FFFFFF" : "#666666",
-                borderTopLeftRadius: isFirst ? "1vh" : "0",
-                borderBottomLeftRadius: isFirst ? "1vh" : "0",
-                borderTopRightRadius: isLast ? "1vh" : "0",
-                borderBottomRightRadius: isLast ? "1vh" : "0",
+                borderRadius: 0,
               }}
               onClick={() => handleClickThickness(item)}
             >

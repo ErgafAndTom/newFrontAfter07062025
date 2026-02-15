@@ -189,7 +189,7 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
                 <div
                   className="custom-select-container selectArtem selectArtemBefore sc-has-value"
                   ref={thicknessRef}
-                  style={{ marginLeft: "0.5vw" }}
+                  style={{ marginLeft: "1vw" }}
                 >
                   <div
                     className="custom-select-header"
