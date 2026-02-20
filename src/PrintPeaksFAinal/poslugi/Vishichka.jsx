@@ -479,6 +479,7 @@ const Vishichka = ({
     <ScModal
       show={showVishichka}
       onClose={handleClose}
+      modalStyle={{ width: "44.5vw" }}
       rightContent={
         <>
           {pricesThis && (

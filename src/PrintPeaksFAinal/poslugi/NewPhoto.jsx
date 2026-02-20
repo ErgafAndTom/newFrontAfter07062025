@@ -2,12 +2,14 @@ import React, { useEffect, useState, useMemo, useRef } from "react";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
-import ServiceModalWrapper from "./shared/ServiceModalWrapper";
-import PricingSummary from "./shared/PricingSummary";
-import CountInput from "./shared/CountInput";
-import ProductTabs from "./shared/ProductTabs";
+import ScModal from "./shared/ScModal";
+import ScCountSize from "./shared/ScCountSize";
+import ScSection from "./shared/ScSection";
+import ScPricing from "./shared/ScPricing";
+import ScAddButton from "./shared/ScAddButton";
+import ScTabs from "./shared/ScTabs";
 import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
-import "./shared/ServiceModal.css";
+import "./shared/sc-base.css";
 
 // ========== DEFAULTS ==========
 const DEFAULT_SIZE = { x: 100, y: 150 };
@@ -78,6 +80,12 @@ const NewPhoto = ({
 }) => {
   const navigate = useNavigate();
 
+  const fmt2 = (v) =>
+    new Intl.NumberFormat("uk-UA", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(v) || 0);
+
   // Modal state detection
   const { isEdit, options } = useModalState(editingOrderUnit, showNewPhoto);
 
@@ -90,6 +98,7 @@ const NewPhoto = ({
   const [selectedService, setSelectedService] = useState(DEFAULTS.selectedService);
   const [services, setServices] = useState(SERVICES);
   const [error, setError] = useState(null);
+  const [isEditServices, setIsEditServices] = useState(false);
 
   // Dropdowns
   const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
@@ -332,139 +341,143 @@ const NewPhoto = ({
     : selectedSizeFormat?.name || `${size.x} x ${size.y} мм`;
   const materialTitle = material?.material || "Виберіть матеріал";
 
-  // Custom pricing summary for Photo
-  const PhotoPrice = () => {
-    if (!pricesThis) {
-      return (
-        <div className="bw-summary-title">
-          <div className="bw-sticky">
-            <div className="bwsubOP">Розрахунок завантажується...</div>
-          </div>
-        </div>
-      );
-    }
+  // ========== PRICING DATA ==========
 
-    return (
-      <div className="bw-summary-title">
-        <div className="bw-sticky">
-          <div className="bwsubOP">Матеріали:</div>
-          <div className="bw-calc-line">
-            {(pricesThis.priceForThisUnitOfPapper || 0).toFixed(2)}
-            <span className="bw-sub">грн</span>
-            <span className="bw-op">×</span>
-            {pricesThis.skolko || 0}
-            <span className="bw-sub">шт</span>
-            <span className="bw-op">=</span>
-            {((pricesThis.priceForThisUnitOfPapper || 0) * (pricesThis.skolko || 0)).toFixed(2)}
-            <span className="bw-sub">грн</span>
-          </div>
+  const sk = pricesThis?.skolko || 0;
+  const pricingLines = [
+    { label: "Матеріали", perUnit: pricesThis?.priceForThisUnitOfPapper, count: sk, total: (pricesThis?.priceForThisUnitOfPapper || 0) * sk },
+    { label: "Друк", perUnit: pricesThis?.priceForDrukThisUnit, count: sk, total: (pricesThis?.priceForDrukThisUnit || 0) * sk },
+  ];
 
-          <div className="bwsubOP">Друк:</div>
-          <div className="bw-calc-line">
-            {(pricesThis.priceForDrukThisUnit || 0).toFixed(2)}
-            <span className="bw-sub">грн</span>
-            <span className="bw-op">×</span>
-            {pricesThis.skolko || 0}
-            <span className="bw-sub">шт</span>
-            <span className="bw-op">=</span>
-            {((pricesThis.priceForDrukThisUnit || 0) * (pricesThis.skolko || 0)).toFixed(2)}
-            <span className="bw-sub">грн</span>
-          </div>
+  // ========== RENDER ==========
 
-          <div
-            className="bw-calc-total d-flex justify-content-center align-content-center"
-            style={{ fontWeight: "500", color: "red" }}
-          >
-            {pricesThis.price || 0}
-            <span className="bw-sub">грн</span>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // ========== LEFT CONTENT ==========
-  const leftContent = (
-    <>
-      {/* Count */}
-      <div className="bw-title">Кількість</div>
-      <div className="bw-row">
-        <CountInput count={count} setCount={setCount} />
-      </div>
-
-      {/* Size */}
-      <div className="bw-title">Розмір</div>
-      <div className="bw-row">
-        <div className="d-flex flex-row justify-content-between align-items-center w-100 gap-2">
-          {/* Custom size inputs */}
-          {customSize && (
-            <div className="d-flex align-items-center gap-1">
-              <input
-                className="inputsArtem"
-                type="number"
-                value={localX}
-                min={45}
-                max={310}
-                onChange={(e) => setLocalX(Number(e.target.value))}
-                onBlur={applyCustomSize}
-                style={{ width: "60px" }}
-              />
-              <span style={{ color: "#666" }}>x</span>
-              <input
-                className="inputsArtem"
-                type="number"
-                value={localY}
-                min={45}
-                max={440}
-                onChange={(e) => setLocalY(Number(e.target.value))}
-                onBlur={applyCustomSize}
-                style={{ width: "60px" }}
-              />
-              <span style={{ color: "#666", fontSize: "12px" }}>мм</span>
-            </div>
+  return (
+    <ScModal
+      show={showNewPhoto}
+      onClose={() => setShowNewPhoto(false)}
+      modalStyle={{ width: "35vw" }}
+      rightContent={
+        <>
+          {pricesThis && (
+            <ScPricing
+              lines={pricingLines}
+              totalPrice={pricesThis.price || 0}
+              fmt={fmt2}
+            />
           )}
-
-          {/* Size Dropdown */}
-          <div
-            className="custom-select-container selectArtem selectArtemBefore"
-            ref={sizeDropdownRef}
-            style={{ zIndex: 10, flex: customSize ? "0 0 auto" : "1" }}
-          >
-            <div
-              className="custom-select-header"
-              onClick={() => setSizeDropdownOpen(!sizeDropdownOpen)}
-            >
-              {sizeTitle}
-            </div>
-
-            {sizeDropdownOpen && (
-              <div className="custom-select-dropdown">
-                <div
-                  className="custom-option"
-                  onClick={() => handleSizeSelect({ name: "Задати свій розмір" })}
-                >
-                  <span className="name">Задати свій розмір</span>
-                </div>
-                {SIZE_FORMATS.map((item) => (
-                  <div
-                    key={item.name}
-                    className={`custom-option ${!customSize && item.name === sizeTitle ? "active" : ""}`}
-                    onClick={() => handleSizeSelect(item)}
-                  >
-                    <span className="name">{item.name}</span>
-                  </div>
-                ))}
+          <ScAddButton onClick={handleSave} isEdit={isEdit} />
+        </>
+      }
+      errorContent={
+        error && (
+          <div className="sc-error">
+            {typeof error === "string" ? error : "Помилка"}
+          </div>
+        )
+      }
+      tabsContent={
+        <ScTabs
+          services={services}
+          selectedService={selectedService}
+          onSelect={setSelectedService}
+          isEditServices={isEditServices}
+          setIsEditServices={setIsEditServices}
+          onAddService={() => {
+            const name = prompt("Введіть назву товару");
+            if (!name) return;
+            const trimmed = name.trim();
+            if (!trimmed || services.includes(trimmed)) {
+              alert(services.includes(trimmed) ? "Така назва вже існує" : "");
+              return;
+            }
+            setServices((prev) => [...prev, trimmed]);
+            setSelectedService(trimmed);
+          }}
+          onRemoveService={(service) => {
+            if (services.length === 1) {
+              alert("Повинен бути хоча б один товар");
+              return;
+            }
+            if (!window.confirm(`Видалити "${service}"?`)) return;
+            setServices((prev) => prev.filter((s) => s !== service));
+            if (selectedService === service) setSelectedService(services[0] || "");
+          }}
+        />
+      }
+    >
+      {/* 1. Кількість + Розмір */}
+      <ScCountSize
+        count={count}
+        onCountChange={(v) => setCount(v)}
+        sizeComponent={
+          <div className="d-flex flex-row justify-content-between align-items-center w-100 gap-2">
+            {customSize && (
+              <div className="d-flex align-items-center gap-1">
+                <input
+                  className="inputsArtem"
+                  type="number"
+                  value={localX}
+                  min={45}
+                  max={310}
+                  onChange={(e) => setLocalX(Number(e.target.value))}
+                  onBlur={applyCustomSize}
+                  style={{ width: "60px" }}
+                />
+                <span style={{ color: "var(--admingrey)" }}>x</span>
+                <input
+                  className="inputsArtem"
+                  type="number"
+                  value={localY}
+                  min={45}
+                  max={440}
+                  onChange={(e) => setLocalY(Number(e.target.value))}
+                  onBlur={applyCustomSize}
+                  style={{ width: "60px" }}
+                />
+                <span style={{ color: "var(--admingrey)", fontSize: "12px" }}>мм</span>
               </div>
             )}
-          </div>
-        </div>
-      </div>
 
-      {/* Material */}
-      <div className="bw-title">Матеріал</div>
-      <div className="bw-row">
+            <div
+              className="custom-select-container selectArtem selectArtemBefore sc-has-value"
+              ref={sizeDropdownRef}
+              style={{ zIndex: 10, flex: customSize ? "0 0 auto" : "1" }}
+            >
+              <div
+                className="custom-select-header"
+                onClick={() => setSizeDropdownOpen(!sizeDropdownOpen)}
+              >
+                {sizeTitle}
+              </div>
+
+              {sizeDropdownOpen && (
+                <div className="custom-select-dropdown">
+                  <div
+                    className="custom-option"
+                    onClick={() => handleSizeSelect({ name: "Задати свій розмір" })}
+                  >
+                    <span className="name">Задати свій розмір</span>
+                  </div>
+                  {SIZE_FORMATS.map((item) => (
+                    <div
+                      key={item.name}
+                      className={`custom-option ${!customSize && item.name === sizeTitle ? "active" : ""}`}
+                      onClick={() => handleSizeSelect(item)}
+                    >
+                      <span className="name">{item.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        }
+      />
+
+      {/* 2. Матеріал */}
+      <ScSection style={{ position: "relative", zIndex: 60 }}>
         <div
-          className="custom-select-container selectArtem selectArtemBefore"
+          className="custom-select-container selectArtem selectArtemBefore sc-has-value"
           ref={materialDropdownRef}
           style={{ width: "100%" }}
         >
@@ -494,55 +507,8 @@ const NewPhoto = ({
             </div>
           )}
         </div>
-      </div>
-    </>
-  );
-
-  // ========== RIGHT CONTENT ==========
-  const rightContent = <PhotoPrice />;
-
-  // ========== BOTTOM CONTENT ==========
-  const bottomContent = (
-    <>
-      {/* Service tabs */}
-      <div className="bw-product-tabs">
-        {services.map((service) => (
-          <button
-            key={service}
-            className={`btn ${selectedService === service ? "adminButtonAdd" : "adminButtonAdd-active"}`}
-            style={{
-              fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)",
-              minWidth: "2vw",
-              height: "2vh",
-            }}
-            onClick={() => setSelectedService(service)}
-          >
-            {service}
-          </button>
-        ))}
-      </div>
-
-      {/* Action button */}
-      <div className="bw-action">
-        <button className="adminButtonAdd" variant="danger" onClick={handleSave}>
-          {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
-        </button>
-      </div>
-    </>
-  );
-
-  // ========== RENDER ==========
-  return (
-    <ServiceModalWrapper
-      show={showNewPhoto}
-      onClose={() => setShowNewPhoto(false)}
-      leftContent={leftContent}
-      rightContent={rightContent}
-      bottomContent={bottomContent}
-      error={error}
-      className="service-photo"
-      setEditingOrderUnit={setEditingOrderUnit}
-    />
+      </ScSection>
+    </ScModal>
   );
 };
 

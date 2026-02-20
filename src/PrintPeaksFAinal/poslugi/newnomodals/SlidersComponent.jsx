@@ -7,12 +7,12 @@ const PRESETS = {
     y: { min: 127,  max: 4000, step: 1, unit: 'мм' },
   },
   Magnets: {
-    x: { min: 50,  max: 600,  step: 1, unit: 'мм' },   // ← заміни під свої
-    y: { min: 50,  max: 1000, step: 1, unit: 'мм' },   // ← заміни під свої
+    x: { min: 50,  max: 600,  step: 1, unit: 'мм' },
+    y: { min: 50,  max: 1000, step: 1, unit: 'мм' },
   },
   WideFactory: {
-    x: { min: 100,  max: 1600, step: 1, unit: 'мм' },   // ← заміни під свої
-    y: { min: 100,  max: 10000,step: 1, unit: 'мм' },   // ← заміни під свої
+    x: { min: 100,  max: 1600, step: 1, unit: 'мм' },
+    y: { min: 100,  max: 10000,step: 1, unit: 'мм' },
   },
 };
 
@@ -23,9 +23,6 @@ function SliderComponent({ size, setSize, type = 'Wide' }) {
 
   const [x, setX] = useState(clamp(size.x, ranges.x.min, ranges.x.max));
   const [y, setY] = useState(clamp(size.y, ranges.y.min, ranges.y.max));
-
-  const [background1, setBackground1] = useState({});
-  const [background2, setBackground2] = useState({});
 
   const handleChange1 = (e) => setX(parseInt(e.target.value, 10));
   const handleChange2 = (e) => setY(parseInt(e.target.value, 10));
@@ -41,31 +38,18 @@ function SliderComponent({ size, setSize, type = 'Wide' }) {
     setSize({ x: size.x, y: val });
   };
 
-  // оновлюємо заливку треку (0..100%) під активні діапазони
-  useEffect(() => {
-    const xPct = ((x - ranges.x.min) * 100) / (ranges.x.max - ranges.x.min);
-    const yPct = ((y - ranges.y.min) * 100) / (ranges.y.max - ranges.y.min);
+  const xPct = ((x - ranges.x.min) * 100) / (ranges.x.max - ranges.x.min);
+  const yPct = ((y - ranges.y.min) * 100) / (ranges.y.max - ranges.y.min);
 
-    setBackground1({
-      background: `linear-gradient(to right, #ffa500 ${xPct}%, #ccc ${xPct}%)`,
-    });
-    setBackground2({
-      background: `linear-gradient(to right, #ffa500 ${yPct}%, #ccc ${yPct}%)`,
-    });
-  }, [x, y, ranges]);
-
-  // якщо зовнішній size або type змінюються — піджимаємо в межі пресету
   useEffect(() => {
     setX(clamp(size.x, ranges.x.min, ranges.x.max));
     setY(clamp(size.y, ranges.y.min, ranges.y.max));
   }, [size.x, size.y, type]);
 
   return (
-    <div className="slider-container" style={{ marginTop: '2vw', marginLeft: '0.2vw' }}>
-      <div className="d-flex flex-column" style={{ marginLeft: '2vw', width: '100%' }}>
-        <span className="slider-label" style={{ marginLeft: '40vw', width: '100%', opacity: '50%' }}>
-          {ranges.x.max} {ranges.x.unit}
-        </span>
+    <div className="sc-sliders">
+      <div className="sc-slider-row">
+        <span className="sc-slider-max">ШИРИНА</span>
         <input
           type="range"
           min={ranges.x.min}
@@ -75,20 +59,18 @@ function SliderComponent({ size, setSize, type = 'Wide' }) {
           onChange={handleChange1}
           onMouseUp={commitX}
           onTouchEnd={commitX}
-          className="custom-slider"
-          style={background1}
+          className="sc-slider"
+          style={{
+            background: `linear-gradient(to right, var(--adminblue) ${xPct}%, var(--adminfonelement) ${xPct}%)`,
+          }}
         />
-        <div className="d-flex align-content-between justify-content-between" style={{ opacity: '50%' }}>
-          <span className="slider-label">
-            {x} {ranges.x.unit}
-          </span>
+        <div className="sc-slider-labels">
+          <span className="sc-slider-max">{ranges.x.max} {ranges.x.unit}</span>
         </div>
       </div>
 
-      <div className="d-flex flex-column" style={{ marginLeft: '2vw', width: '100%' }}>
-        <span className="slider-label" style={{ marginLeft: '40vw', width: '100%', opacity: '50%' }}>
-          {ranges.y.max} {ranges.y.unit}
-        </span>
+      <div className="sc-slider-row">
+        <span className="sc-slider-max">ВИСОТА</span>
         <input
           type="range"
           min={ranges.y.min}
@@ -98,13 +80,13 @@ function SliderComponent({ size, setSize, type = 'Wide' }) {
           onChange={handleChange2}
           onMouseUp={commitY}
           onTouchEnd={commitY}
-          className="custom-slider"
-          style={background2}
+          className="sc-slider"
+          style={{
+            background: `linear-gradient(to right, var(--adminblue) ${yPct}%, var(--adminfonelement) ${yPct}%)`,
+          }}
         />
-        <div className="d-flex align-content-between justify-content-between" style={{ opacity: '50%' }}>
-          <span className="slider-label">
-            {y} {ranges.y.unit}
-          </span>
+        <div className="sc-slider-labels">
+          <span className="sc-slider-max">{ranges.y.max} {ranges.y.unit}</span>
         </div>
       </div>
     </div>

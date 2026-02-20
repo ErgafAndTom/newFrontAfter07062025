@@ -1,14 +1,17 @@
-import { MDBContainer } from "mdb-react-ui-kit";
-import { Row } from "react-bootstrap";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from '../../api/axiosInstance';
-import './newnomodals/ArtemStyles.css';
-import versantIcon from "../public/wided@2x.png";
 import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
 import Materials2 from "./newnomodals/Materials2";
 import SliderComponent from "./newnomodals/SlidersComponent";
 import { useNavigate } from "react-router-dom";
-import Loader from "../../components/calc/Loader";
+
+import ScModal from "./shared/ScModal";
+import ScCountSize from "./shared/ScCountSize";
+import ScSection from "./shared/ScSection";
+import ScPricing from "./shared/ScPricing";
+import ScAddButton from "./shared/ScAddButton";
+import ScTabs from "./shared/ScTabs";
+import "./shared/sc-base.css";
 
 const DEFAULTS = {
   size: { x: 420, y: 594 },
@@ -24,20 +27,27 @@ const DEFAULTS = {
   selectedService: "Плакат",
 };
 
+const SERVICES = ["Плакат", "Креслення", "Фотографія", "Афіша", "Лекала", "Холст"];
+
 const NewWide = ({
   thisOrder,
   setShowNewWide,
   showNewWide,
   setThisOrder,
   setSelectedThings2,
-  // для режиму редагування (як у Vishichka)
   editingOrderUnit,
   setEditingOrderUnit,
 }) => {
   const navigate = useNavigate();
 
+  const fmt2 = (v) =>
+    new Intl.NumberFormat("uk-UA", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(v) || 0);
+
   const isEdit = Boolean(editingOrderUnit && (editingOrderUnit.id || editingOrderUnit.ID || editingOrderUnit.idKey));
-// safe setters (щоб не ловити "... is not a function")
+
   const safeSetShowNewWide = useCallback((val) => {
     if (typeof setShowNewWide === "function") setShowNewWide(val);
   }, [setShowNewWide]);
@@ -48,9 +58,6 @@ const NewWide = ({
 
   const [load, setLoad] = useState(false);
   const [error, setError] = useState(null);
-
-  const [isVisible, setIsVisible] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
 
   const [size, setSize] = useState(DEFAULTS.size);
   const [material, setMaterial] = useState(DEFAULTS.material);
@@ -63,6 +70,8 @@ const NewWide = ({
   const [holesR, setHolesR] = useState(DEFAULTS.holesR);
   const [count, setCount] = useState(DEFAULTS.count);
   const [selectedService, setSelectedService] = useState(DEFAULTS.selectedService);
+  const [services, setServices] = useState(SERVICES);
+  const [isEditServices, setIsEditServices] = useState(false);
 
   const [prices, setPrices] = useState(null);
   const [pricesThis, setPricesThis] = useState(null);
@@ -73,37 +82,21 @@ const NewWide = ({
   };
 
   const handleClose = () => {
-    setIsAnimating(false);
-    setTimeout(() => {
-      setIsVisible(false);
-      safeSetShowNewWide(false);
-      // важливо: після закриття скинути editing, щоб наступне відкриття було NEW
-      safeSetEditingOrderUnit(null);
-    }, 300);
+    safeSetShowNewWide(false);
+    safeSetEditingOrderUnit(null);
   };
 
-  // Завантаження прайсів (як і в інших модалках)
+  // Завантаження прайсів
   useEffect(() => {
     axios.get(`/getpricesNew`)
       .then((response) => setPrices(response.data))
       .catch((e) => console.log(e?.message));
   }, []);
 
-  // Показ/анімація модалки + гідрація стейтів (NEW vs EDIT)
+  // Гідрація стейтів (NEW vs EDIT)
   useEffect(() => {
-    if (!showNewWide) {
-      setIsAnimating(false);
-      setTimeout(() => setIsVisible(false), 300);
-      return;
-    }
+    if (!showNewWide) return;
 
-    // open
-    setIsVisible(true);
-    setTimeout(() => setIsAnimating(true), 100);
-
-    // hydrate like Vishichka:
-    // - NEW: reset defaults
-    // - EDIT: load from optionsJson (fallbacks)
     if (!isEdit) {
       setSize(DEFAULTS.size);
       setMaterial(DEFAULTS.material);
@@ -160,7 +153,7 @@ const NewWide = ({
     setPricesThis(null);
   }, [showNewWide, isEdit, editingOrderUnit, safeSetEditingOrderUnit, safeSetShowNewWide]);
 
-  // Pricing (не стріляємо, якщо модалка закрита)
+  // Pricing
   useEffect(() => {
     if (!showNewWide) return;
 
@@ -231,223 +224,130 @@ const NewWide = ({
       .finally(() => setLoad(false));
   };
 
-  if (!isVisible) return <div style={{ display: "none" }} />;
+  // ========== PRICING DATA ==========
+
+  const sc = pricesThis?.sheetCount || 0;
+  const pricingLines = [
+    { label: "Друк", perUnit: pricesThis?.priceDrukPerSheet, count: sc, total: (parseFloat(pricesThis?.priceDrukPerSheet) || 0) * sc },
+    { label: "Матеріали", perUnit: pricesThis?.pricePaperPerSheet, count: sc, total: (parseFloat(pricesThis?.pricePaperPerSheet) || 0) * sc },
+  ];
+
+  const pricingSimpleLines = pricesThis?.porizka && pricesThis.porizka !== 0
+    ? [{ label: "Порізка", value: (parseFloat(pricesThis.porizka) || 0) * sc }]
+    : [];
+
+  const pricingExtras = [
+    { label: "За виріб", value: `${fmt2(pricesThis?.priceForItemWithExtras || 0)} грн` },
+  ];
+
+  // ========== RENDER ==========
 
   return (
-    <>
-      <div>
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            width: '100vw',
-            height: '100vh',
-            backgroundColor: 'rgba(15, 15, 15, 0.45)',
-            backdropFilter: 'blur(2px)',
-            WebkitBackdropFilter: 'blur(2px)',
-            zIndex: 99,
-            opacity: isAnimating ? 1 : 0,
-            transition: 'opacity 200ms ease'
-          }}
-          onClick={handleClose}
-        ></div>
-
-        <div
-          className="d-flex flex-column"
-          style={{
-            zIndex: "100",
-            position: "fixed",
-            background: "#dcd9ce",
-            top: "50%",
-            left: "50%",
-            transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)",
-            opacity: isAnimating ? 1 : 0,
-            transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
-            borderRadius: "1vw",
-            width: "95vw",
-            height: "95vh",
-          }}
-        >
-          <div className="d-flex">
-            <div className="m-auto text-center fontProductName">
-              <div className="d-flex flex-wrap justify-content-center">
-                {["Плакат", "Креслення", "Фотографія", "Афіша", "Лекала", "Холст"].map((service, index) => (
-                  <button
-                    key={index}
-                    className={`btn ${selectedService === service ? 'adminButtonAdd' : 'adminButtonAdd-primary'} m-1`}
-                    style={{ minWidth: "5vw" }}
-                    onClick={() => setSelectedService(service)}
-                  >
-                    {service}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div
-              className="btn btn-close btn-lg"
-              style={{ margin: "0.5vw" }}
-              onClick={handleClose}
+    <ScModal
+      show={showNewWide}
+      onClose={handleClose}
+      modalStyle={{ width: "45vw" }}
+      rightContent={
+        <>
+          {pricesThis && (
+            <ScPricing
+              lines={pricingLines}
+              simpleLines={pricingSimpleLines}
+              totalPrice={pricesThis.price || 0}
+              extras={pricingExtras}
+              fmt={fmt2}
+              countUnit="м2"
             />
+          )}
+          <ScAddButton onClick={saveOrderUnit} isEdit={isEdit} disabled={load} />
+        </>
+      }
+      errorContent={
+        error && (
+          <div className="sc-error">
+            {error?.response?.data?.error || error?.message || "Помилка"}
           </div>
+        )
+      }
+      tabsContent={
+        <ScTabs
+          services={services}
+          selectedService={selectedService}
+          onSelect={setSelectedService}
+          isEditServices={isEditServices}
+          setIsEditServices={setIsEditServices}
+          onAddService={() => {
+            const name = prompt("Введіть назву товару");
+            if (!name) return;
+            const trimmed = name.trim();
+            if (!trimmed || services.includes(trimmed)) {
+              alert(services.includes(trimmed) ? "Така назва вже існує" : "");
+              return;
+            }
+            setServices((prev) => [...prev, trimmed]);
+            setSelectedService(trimmed);
+          }}
+          onRemoveService={(service) => {
+            if (services.length === 1) {
+              alert("Повинен бути хоча б один товар");
+              return;
+            }
+            if (!window.confirm(`Видалити "${service}"?`)) return;
+            setServices((prev) => prev.filter((s) => s !== service));
+            if (selectedService === service) setSelectedService(services[0] || "");
+          }}
+        />
+      }
+    >
+      {/* 1. Кількість + Розмір */}
+      <ScCountSize
+        count={count}
+        onCountChange={handleChangeCount}
+        sizeComponent={
+          <NewNoModalSize
+            size={size}
+            setSize={setSize}
+            prices={prices}
+            type={"Wide"}
+            buttonsArr={[]}
+            color={color}
+            setColor={setColor}
+            count={count}
+            setCount={setCount}
+          />
+        }
+      />
 
-          <div className="d-flex flex-column" style={{ marginLeft: '-1vw' }}>
-            <div
-              className="d-flex flex-row inputsArtemkilk allArtemElem"
-              style={{
-                marginLeft: "2.5vw",
-                border: "transparent",
-                justifyContent: "left",
-                marginTop: "1vw"
-              }}
-            >
-              У кількості:
-              <input
-                className="d-flex inputsArtemNumber inputsArtem"
-                style={{
-                  marginLeft: "1vw",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingLeft: "0.5vw",
-                }}
-                type="number"
-                value={count}
-                min={1}
-                onChange={(event) => handleChangeCount(event.target.value)}
-              />
-              <div className="inputsArtemx allArtemElem" style={{ border: "transparent", marginTop: "-2vh" }}>
-                шт
-              </div>
-            </div>
+      {/* 2. Слайдер розміру */}
+      <ScSection>
+        <SliderComponent
+          size={size}
+          setSize={setSize}
+          prices={prices}
+          type={"Wide"}
+          buttonsArr={["односторонній"]}
+          color={color}
+          setColor={setColor}
+          count={count}
+          setCount={setCount}
+        />
+      </ScSection>
 
-            <MDBContainer fluid style={{ width: '100%', marginTop: '1vw' }}>
-              <Row xs={1} md={6} className="d-flex">
-                <div className="d-flex flex-column">
-                  <NewNoModalSize
-                    size={size}
-                    setSize={setSize}
-                    prices={prices}
-                    type={"Wide"}
-                    buttonsArr={["односторонній"]}
-                    color={color}
-                    setColor={setColor}
-                    count={count}
-                    setCount={setCount}
-                  />
-                  <SliderComponent
-                    size={size}
-                    setSize={setSize}
-                    prices={prices}
-                    type={"Wide"}
-                    buttonsArr={["односторонній"]}
-                    color={color}
-                    setColor={setColor}
-                    count={count}
-                    setCount={setCount}
-                  />
-                  <Materials2
-                    material={material}
-                    setMaterial={setMaterial}
-                    count={count}
-                    setCount={setCount}
-                    prices={prices}
-                    size={size}
-                    selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
-                    name={"Широкоформатний фотодрук:"}
-                    buttonsArr={[]}
-                  />
-                </div>
-              </Row>
-
-              <div className="d-flex">
-                {thisOrder && (
-                  <div
-                    className="d-flex align-content-between justify-content-between"
-                    style={{
-                      width: "90vw",
-                      marginLeft: "2.5vw",
-                      fontWeight: "bold",
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      transition: "all 0.3s ease",
-                      height: '5vw',
-                    }}
-                  >
-                    <button className="adminButtonAdd" variant="danger" onClick={saveOrderUnit} disabled={load}>
-                      {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {error && (
-                <div style={{
-                  transition: "all 0.3s ease",
-                  color: "red",
-                  width: "20vw",
-                  marginLeft: "2.5vw",
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '3vw',
-                  marginTop: "1vh",
-                  marginBottom: "1vh",
-                  border: "1px solid red",
-                  borderRadius: "10px",
-                  padding: "10px",
-                  backgroundColor: "rgba(255, 0, 0, 0.2)",
-                  fontSize: "1.5vw",
-                  fontWeight: "bold",
-                  textAlign: "center",
-                  cursor: "pointer",
-                }}>
-                  {error?.response?.data?.error || error?.message || "Error"}
-                </div>
-              )}
-
-              {pricesThis !== null && pricesThis !== undefined && (
-                <div className="d-flex justify-content-between pricesBlockContainer" style={{ height: '20vmin' }}>
-                  <div style={{ height: '19vmin' }}>
-                    <div className="fontInfoForPricing">
-                      Друк: {parseFloat(pricesThis.priceDrukPerSheet).toFixed(2)} грн * {pricesThis.sheetCount} м2
-                      = {(parseFloat(pricesThis.priceDrukPerSheet) * pricesThis.sheetCount).toFixed(2)} грн
-                    </div>
-
-                    <div className="fontInfoForPricing">
-                      Матеріали: {parseFloat(pricesThis.pricePaperPerSheet).toFixed(2)} грн * {pricesThis.sheetCount} м2
-                      = {(parseFloat(pricesThis.pricePaperPerSheet) * pricesThis.sheetCount).toFixed(2)} грн
-                    </div>
-
-                    {pricesThis.porizka !== 0 && (
-                      <div className="fontInfoForPricing">
-                        Порізка: {parseFloat(pricesThis.porizka).toFixed(2)} грн * {pricesThis.sheetCount} шт
-                        = {(parseFloat(pricesThis.porizka) * pricesThis.sheetCount).toFixed(2)} грн
-                      </div>
-                    )}
-
-                    <div className="fontInfoForPricing1">
-                      Загалом: {parseFloat(pricesThis.price).toFixed(2)} грн
-                    </div>
-
-                    <div className="fontInfoForPricing1">
-                      Ціна за виріб: {parseFloat(pricesThis.priceForItemWithExtras).toFixed(2)} грн
-                    </div>
-                  </div>
-
-                  <img
-                    className="versant80-img-icon"
-                    alt="wide"
-                    src={versantIcon}
-                    style={{ height: "17vmin", marginRight: "2vmin" }}
-                  />
-                </div>
-              )}
-            </MDBContainer>
-          </div>
-        </div>
-      </div>
-    </>
+      {/* 3. Матеріал */}
+      <ScSection style={{ position: "relative", zIndex: 60 }}>
+        <Materials2
+          material={material}
+          setMaterial={setMaterial}
+          count={count}
+          setCount={setCount}
+          prices={prices}
+          size={size}
+          selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
+          name={"Широкоформатний фотодрук:"}
+          buttonsArr={[]}
+        />
+      </ScSection>
+    </ScModal>
   );
 };
 
