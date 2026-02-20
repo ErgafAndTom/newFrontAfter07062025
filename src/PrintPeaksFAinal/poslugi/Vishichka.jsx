@@ -4,12 +4,21 @@ import axios from "../../api/axiosInstance";
 import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
 import Materials2 from "./newnomodals/Materials2";
 import { useNavigate } from "react-router-dom";
-import VishichkaVibor from "./newnomodals/vishichka/VishichkaVibor";
 import PlivkaMontajna from "./newnomodals/plivka/PlivkaMontajna";
 import NewNoModalLamination from "./newnomodals/NewNoModalLamination";
 import {columnTranslations as editingOrderUnit} from "../user/translations";
 
+import ScModal from "./shared/ScModal";
+import ScCountSize from "./shared/ScCountSize";
+import ScSides from "./shared/ScSides";
+import ScSection from "./shared/ScSection";
+import ScToggleSection from "./shared/ScToggleSection";
+import ScPricing from "./shared/ScPricing";
+import ScAddButton from "./shared/ScAddButton";
+import ScTabs from "./shared/ScTabs";
+
 import "./Poslugy.css";
+import "./shared/sc-base.css";
 
 /**
  * Мапа типів висічки (лейбл -> typeUse)
@@ -446,376 +455,224 @@ const Vishichka = ({
       });
   };
 
+  /* ===================== PRICING DATA ===================== */
+
+  const sc = pricesThis?.sheetCount || 0;
+
+  const pricingLines = [
+    { label: "Друк", perUnit: pricesThis?.priceDrukPerSheet, count: sc, total: (pricesThis?.priceDrukPerSheet || 0) * sc },
+    { label: "Матеріали", perUnit: pricesThis?.pricePaperPerSheet, count: sc, total: (pricesThis?.pricePaperPerSheet || 0) * sc },
+    { label: "Висічка", perUnit: pricesThis?.priceVishichkaPerSheet, count: sc, total: pricesThis?.totalVishichkaPrice || 0 },
+    { label: "Монтажка + вибірка", perUnit: pricesThis?.pricePlivkaPerSheet, count: sc, total: pricesThis?.totalPlivkaPrice || 0 },
+    { label: "Ламінація", perUnit: pricesThis?.priceLaminationPerSheet, count: sc, total: (pricesThis?.priceLaminationPerSheet || 0) * sc },
+  ];
+
+  const pricingExtras = [
+    { label: "За 1 виріб", value: `${fmt2(pricesThis?.priceForItemWithExtras || 0)} грн` },
+    { label: "На аркуші", value: `${pricesThis?.sheetsPerUnit || 0} шт` },
+    { label: "Аркушів", value: `${sc} шт` },
+  ];
+
   if (!showVishichka) return null;
 
   return (
-    <div className="sc-wrap">
-      {/* ===== OVERLAY ===== */}
-      <div className="bw-overlay" onClick={handleClose} />
-
-      {/* ===== MODAL ===== */}
-      <div className="sc-modal" style={{ minHeight: 'auto', height: 'auto' }} onClick={(e) => e.stopPropagation()}>
-
-        {/* ===== BODY: left + right ===== */}
-        <div className="sc-body">
-
-          {/* ===== LEFT: scrollable options ===== */}
-          <div className="sc-left-sections">
-
-            {/* 1. Кількість + Розмір */}
-            <div className="sc-section">
-              <div className="sc-title">Кількість та розмір</div>
-              <div className="sc-row d-flex flex-row align-items-center justify-content-between">
-                <div className="d-flex flex-row" style={{ alignItems: "center", flexShrink: 0 }}>
-                  <input
-                    className="inputsArtem"
-                    type="number"
-                    value={count}
-                    min={1}
-                    onChange={(e) => handleChangeCount(e.target.value)}
-                  />
-                  <div className="inputsArtemx" style={{ border: "transparent" }}>шт</div>
-                </div>
-                <div style={{ marginLeft: "auto", paddingRight: 0 }}>
-                  <NewNoModalSize
-                    size={size}
-                    setSize={setSize}
-                    prices={prices}
-                    type={"Vishichka"}
-                    buttonsArr={[]}
-                    color={color}
-                    setColor={setColor}
-                    count={count}
-                    setCount={setCount}
-                    defaultt={"А3 (297 х 420 мм)"}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* 2. Сторонність */}
-            <div className="sc-section">
-              <div className="sc-title">Сторонність</div>
-              <div className="sc-sides">
-                <button
-                  className={`sc-side-btn sc-side-left ${color.sides === "односторонній" ? "sc-side-active" : ""}`}
-                  onClick={() => setColor({ ...color, sides: "односторонній" })}
-                >
-                  <span className="sc-side-text">Односторонній</span>
-                </button>
-                <button
-                  className={`sc-side-btn sc-side-right ${color.sides === "двосторонній" ? "sc-side-active" : ""}`}
-                  onClick={() => setColor({ ...color, sides: "двосторонній" })}
-                >
-                  <span className="sc-side-text">Двосторонній</span>
-                </button>
-              </div>
-            </div>
-
-            {/* 3. Матеріал */}
-            <div className="sc-section" style={{ position: "relative", zIndex: 60 }}>
-              <div className="sc-title">Матеріал</div>
-              <div className="sc-row">
-                <Materials2
-                  material={material}
-                  setMaterial={setMaterial}
-                  count={count}
-                  setCount={setCount}
-                  prices={prices}
-                  size={size}
-                  selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
-                  name={"Чорно-білий друк на монохромному принтері:"}
-                  buttonsArr={["Тонкий", "Середній", "Цупкий", "Самоклеючі"]}
-                  typeUse={null}
-                  editingOrderUnit={editingOrderUnit}
-                />
-              </div>
-            </div>
-
-            {/* 3. Плотерна порізка */}
-            <div className="sc-section" style={{ position: "relative", zIndex: 50 }}>
-              <div className="sc-title">Плотерна порізка</div>
-              <div className="sc-row d-flex flex-row">
-                {[
-                  { key: "SHEET_CUT", label: "Висічка" },
-                  { key: "STICKERPACK", label: "Стікерпак" },
-                  { key: "SINGLE_ITEMS", label: "Порізка" },
-                ].map((btn) => (
-                  <button
-                    key={btn.key}
-                    className={`buttonsArtem${vishichka.typeUse === VISHICHKA_MAP[btn.key].typeUse ? " buttonsArtemActive" : ""}`}
-                    onClick={() =>
-                      setVishichkaSafe({
-                        ...vishichka,
-                        material: VISHICHKA_MAP[btn.key].label,
-                        typeUse: VISHICHKA_MAP[btn.key].typeUse,
-                        type: "vishichka",
-                        materialId: "",
-                      })
-                    }
-                  >
-                    <div>{btn.label}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 4. Монтажна плівка */}
-            <div className="sc-section" style={{ position: "relative", zIndex: 40 }}>
-              <div className="sc-title">Монтажна плівка</div>
-              <div className="sc-row">
-                <PlivkaMontajna
-                  size={size}
-                  plivkaMontajna={plivkaMontajna}
-                  setPlivkaMontajna={setPlivkaMontajna}
-                  vishichka={vishichka}
-                  setVishichka={setVishichkaSafe}
-                  prices={prices}
-                  buttonsArr={[
-                    VISHICHKA_MAP.SHEET_CUT.label,
-                    VISHICHKA_MAP.STICKERPACK.label,
-                    VISHICHKA_MAP.SINGLE_ITEMS.label,
-                  ]}
-                />
-              </div>
-            </div>
-
-            {/* 5. Ламінування */}
-            <div className="sc-section" style={{ position: "relative", zIndex: 30 }}>
-              <div className="d-flex align-items-center" style={{ gap: "8px" }}>
-                <div className="sc-title" style={{ marginBottom: 0 }}>Ламінування</div>
-                <label className="switch scale04ForButtonToggle" style={{ margin: 0 }}>
-                  <input
-                    type="checkbox"
-                    checked={lamination.type !== "Не потрібно"}
-                    onChange={() => {
-                      if (lamination.type === "Не потрібно") {
-                        setLamination({ ...lamination, type: "з глянцевим ламінуванням", material: "з глянцевим ламінуванням", materialId: "", size: "", typeUse: "А3" });
-                      } else {
-                        setLamination({ type: "Не потрібно", material: "", materialId: "", size: "", typeUse: "А3" });
-                      }
-                    }}
-                  />
-                  <span className="switch-on"><span>ON</span></span>
-                  <span className="slider" />
-                  <span className="switch-off"><span>OFF</span></span>
-                </label>
-              </div>
-              {lamination.type !== "Не потрібно" && (
-                <div className="sc-row sc-lam-row">
-                  <NewNoModalLamination
-                    lamination={lamination}
-                    setLamination={setLamination}
-                    prices={prices}
-                    size={size}
-                    type={"SheetCut"}
-                    isVishichka={true}
-                    buttonsArr={[
-                      "з глянцевим ламінуванням",
-                      "з матовим ламінуванням",
-                      "з ламінуванням SoftTouch",
-                      "з холодним матовим ламінуванням",
-                    ]}
-                    selectArr={["30", "70", "80", "100", "125", "250"]}
-                    labelMap={{
-                      "з глянцевим ламінуванням": "глянцеве",
-                      "з матовим ламінуванням": "матове",
-                      "з ламінуванням SoftTouch": "SoftTouch",
-                      "з холодним матовим ламінуванням": "холодне матове",
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-
-          </div>
-          {/* END sc-left */}
-
-          {/* ===== RIGHT: pricing ===== */}
-          <div className="sc-right">
-            {pricesThis && (
-              <div className="sc-prices-grid">
-                <div className="sc-price-label">Друк:</div>
-                <div className="sc-price-line">
-                  <span className="sc-val">{fmt2(pricesThis.priceDrukPerSheet)}</span>
-                  <span className="sc-unit">грн</span>
-                  <span className="sc-op">&times;</span>
-                  <span className="sc-val">{pricesThis.sheetCount || 0}</span>
-                  <span className="sc-unit">шт</span>
-                  <span className="sc-op">=</span>
-                  <span className="sc-total">{fmt2((pricesThis.priceDrukPerSheet || 0) * (pricesThis.sheetCount || 0))}</span>
-                  <span className="sc-unit">грн</span>
-                </div>
-
-                <div className="sc-price-label">Матеріали:</div>
-                <div className="sc-price-line">
-                  <span className="sc-val">{fmt2(pricesThis.pricePaperPerSheet)}</span>
-                  <span className="sc-unit">грн</span>
-                  <span className="sc-op">&times;</span>
-                  <span className="sc-val">{pricesThis.sheetCount || 0}</span>
-                  <span className="sc-unit">шт</span>
-                  <span className="sc-op">=</span>
-                  <span className="sc-total">{fmt2((pricesThis.pricePaperPerSheet || 0) * (pricesThis.sheetCount || 0))}</span>
-                  <span className="sc-unit">грн</span>
-                </div>
-
-                <div className="sc-price-label">Висічка:</div>
-                <div className="sc-price-line">
-                  <span className="sc-val">{fmt2(pricesThis.priceVishichkaPerSheet)}</span>
-                  <span className="sc-unit">грн</span>
-                  <span className="sc-op">&times;</span>
-                  <span className="sc-val">{pricesThis.sheetCount || 0}</span>
-                  <span className="sc-unit">шт</span>
-                  <span className="sc-op">=</span>
-                  <span className="sc-total">{fmt2(pricesThis.totalVishichkaPrice || 0)}</span>
-                  <span className="sc-unit">грн</span>
-                </div>
-
-                <div className="sc-price-label">Монтажка + вибірка:</div>
-                <div className="sc-price-line">
-                  <span className="sc-val">{fmt2(pricesThis.pricePlivkaPerSheet)}</span>
-                  <span className="sc-unit">грн</span>
-                  <span className="sc-op">&times;</span>
-                  <span className="sc-val">{pricesThis.sheetCount || 0}</span>
-                  <span className="sc-unit">шт</span>
-                  <span className="sc-op">=</span>
-                  <span className="sc-total">{fmt2(pricesThis.totalPlivkaPrice || 0)}</span>
-                  <span className="sc-unit">грн</span>
-                </div>
-
-                <div className="sc-price-label">Ламінація:</div>
-                <div className="sc-price-line">
-                  <span className="sc-val">{fmt2(pricesThis.priceLaminationPerSheet)}</span>
-                  <span className="sc-unit">грн</span>
-                  <span className="sc-op">&times;</span>
-                  <span className="sc-val">{pricesThis.sheetCount || 0}</span>
-                  <span className="sc-unit">шт</span>
-                  <span className="sc-op">=</span>
-                  <span className="sc-total">{fmt2((pricesThis.priceLaminationPerSheet || 0) * (pricesThis.sheetCount || 0))}</span>
-                  <span className="sc-unit">грн</span>
-                </div>
-
-                <div className="sc-price-total">
-                  {fmt2(pricesThis.price || 0)}
-                  <span className="sc-unit">грн</span>
-                </div>
-
-                <div className="sc-price-unit">
-                  За 1 виріб: {fmt2(pricesThis.priceForItemWithExtras || 0)} грн
-                </div>
-
-                <div className="sc-price-unit">
-                  З одного аркуша: {pricesThis.sheetsPerUnit || 0} шт
-                </div>
-
-                <div className="sc-price-unit">
-                  Аркушів: {pricesThis.sheetCount || 0} шт
-                </div>
-              </div>
-            )}
-          </div>
-          {/* END sc-right */}
-
-        </div>
-        {/* END sc-body */}
-
-        {/* ===== ERROR ===== */}
-        {error && (
-          <div className="sc-error">
-            {error?.response?.data?.error || "Помилка"}
-          </div>
-        )}
-
-        {/* ===== SERVICE TABS ===== */}
-        <div className="sc-tabs">
-          {services.map((service) => (
-            <div
-              key={service}
-              style={{ position: "relative", display: "inline-flex", alignItems: "center" }}
-            >
-              <button
-                className={`btn ${selectedService === service ? "adminButtonAdd" : "adminButtonAdd-active"}`}
-                style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
-                onClick={() => setSelectedService(service)}
-              >
-                <span className="sc-tab-text">{service}</span>
-              </button>
-
-              {isEditServices && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (services.length === 1) {
-                      alert("Повинен бути хоча б один товар");
-                      return;
-                    }
-                    if (!window.confirm(`Видалити "${service}"?`)) return;
-                    setServices((prev) => prev.filter((s) => s !== service));
-                    if (selectedService === service) {
-                      setSelectedService(services[0] || "");
-                    }
-                  }}
-                  style={{
-                    position: "absolute",
-                    top: "-4px",
-                    right: "-4px",
-                    width: "18px",
-                    height: "18px",
-                    borderRadius: "50%",
-                    border: "none",
-                    background: "transparent",
-                    color: "red",
-                    lineHeight: "0px",
-                    cursor: "pointer",
-                  }}
-                >
-                  x
-                </button>
-              )}
-            </div>
-          ))}
-
-          {isEditServices && (
-            <button
-              className="btn adminButtonAdd"
-              style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
-              onClick={() => {
-                const name = prompt("Введіть назву товару");
-                if (!name) return;
-                const trimmed = name.trim();
-                if (!trimmed) return;
-                if (services.includes(trimmed)) {
-                  alert("Така назва вже існує");
-                  return;
-                }
-                setServices((prev) => [...prev, trimmed]);
-                setSelectedService(trimmed);
-              }}
-            >
-              ➕
-            </button>
+    <ScModal
+      show={showVishichka}
+      onClose={handleClose}
+      rightContent={
+        <>
+          {pricesThis && (
+            <ScPricing
+              lines={pricingLines}
+              totalPrice={pricesThis.price || 0}
+              extras={pricingExtras}
+              fmt={fmt2}
+            />
           )}
+          <ScAddButton onClick={addNewOrderUnit} isEdit={isEdit} />
+        </>
+      }
+      tabsContent={
+        <ScTabs
+          services={services}
+          selectedService={selectedService}
+          onSelect={setSelectedService}
+          isEditServices={isEditServices}
+          setIsEditServices={setIsEditServices}
+          onAddService={() => {
+            const name = prompt("Введіть назву товару");
+            if (!name) return;
+            const trimmed = name.trim();
+            if (!trimmed) return;
+            if (services.includes(trimmed)) {
+              alert("Така назва вже існує");
+              return;
+            }
+            setServices((prev) => [...prev, trimmed]);
+            setSelectedService(trimmed);
+          }}
+          onRemoveService={(service) => {
+            if (services.length === 1) {
+              alert("Повинен бути хоча б один товар");
+              return;
+            }
+            if (!window.confirm(`Видалити "${service}"?`)) return;
+            setServices((prev) => prev.filter((s) => s !== service));
+            if (selectedService === service) {
+              setSelectedService(services[0] || "");
+            }
+          }}
+        />
+      }
+      errorContent={
+        typeof error === "string"
+          ? <div className="sc-error">{error}</div>
+          : error?.response?.data?.error
+            ? <div className="sc-error">{error.response.data.error}</div>
+            : null
+      }
+    >
+      {/* 1. Кількість + Розмір */}
+      <ScCountSize
+        count={count}
+        onCountChange={handleChangeCount}
+        sizeComponent={
+          <NewNoModalSize
+            size={size}
+            setSize={setSize}
+            prices={prices}
+            type="Vishichka"
+            buttonsArr={[]}
+            color={color}
+            setColor={setColor}
+            count={count}
+            setCount={setCount}
+            defaultt="А3 (297 х 420 мм)"
+          />
+        }
+      />
 
-          <button
-            className={`btn sc-settings-btn ${isEditServices ? "adminButtonAdd" : "adminButtonAdd-active"}`}
-            style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
-            onClick={() => setIsEditServices((v) => !v)}
-            title={isEditServices ? "Завершити редагування" : "Налаштування назв товарів"}
-          >
-            {isEditServices ? "✔️" : "⚙️"}
-          </button>
+      {/* 2. Сторонність */}
+      <ScSides
+        value={color.sides}
+        onChange={(sides) => setColor({ ...color, sides })}
+        options={[
+          { value: "односторонній", label: "Односторонній" },
+          { value: "двосторонній", label: "Двосторонній" },
+          { value: "Не потрібно", label: "Без друку" },
+        ]}
+      />
+
+      {/* 3. Матеріал */}
+      <ScSection style={{ position: "relative", zIndex: 60 }}>
+        <Materials2
+          material={material}
+          setMaterial={setMaterial}
+          count={count}
+          setCount={setCount}
+          prices={prices}
+          size={size}
+          selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
+          name="Чорно-білий друк на монохромному принтері:"
+          buttonsArr={["Тонкий", "Середній", "Цупкий", "Самоклеючі"]}
+          typeUse={null}
+          editingOrderUnit={editingOrderUnit}
+        />
+      </ScSection>
+
+      {/* 4. Плотерна порізка */}
+      <ScSection style={{ position: "relative", zIndex: 50, marginTop: 0 }}>
+        <div className="sc-row d-flex flex-row">
+          {[
+            { key: "SHEET_CUT", label: "Висічка" },
+            { key: "STICKERPACK", label: "Стікерпак" },
+            { key: "SINGLE_ITEMS", label: "Порізка" },
+          ].map((btn) => (
+            <button
+              key={btn.key}
+              className={`buttonsArtem${vishichka.typeUse === VISHICHKA_MAP[btn.key].typeUse ? " buttonsArtemActive" : ""}`}
+              onClick={() =>
+                setVishichkaSafe({
+                  ...vishichka,
+                  material: VISHICHKA_MAP[btn.key].label,
+                  typeUse: VISHICHKA_MAP[btn.key].typeUse,
+                  type: "vishichka",
+                  materialId: "",
+                })
+              }
+            >
+              <div>{btn.label}</div>
+            </button>
+          ))}
         </div>
+      </ScSection>
 
-        {/* ===== ACTION BUTTON ===== */}
-        <div className="sc-action">
-          <button className="adminButtonAdd" onClick={addNewOrderUnit}>
-            {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
-          </button>
-        </div>
+      {/* 5. Монтажна плівка */}
+      <ScSection style={{ position: "relative", zIndex: 40, marginTop: 0 }}>
+        <PlivkaMontajna
+          size={size}
+          plivkaMontajna={plivkaMontajna}
+          setPlivkaMontajna={setPlivkaMontajna}
+          vishichka={vishichka}
+          setVishichka={setVishichkaSafe}
+          prices={prices}
+          buttonsArr={[
+            VISHICHKA_MAP.SHEET_CUT.label,
+            VISHICHKA_MAP.STICKERPACK.label,
+            VISHICHKA_MAP.SINGLE_ITEMS.label,
+          ]}
+        />
+      </ScSection>
 
-      </div>
-      {/* END sc-modal */}
-    </div>
+      {/* 6. Ламінування */}
+      <ScToggleSection
+        label="Ламінування"
+        isOn={lamination.type !== "Не потрібно"}
+        onToggle={() => {
+          if (lamination.type === "Не потрібно") {
+            setLamination({
+              ...lamination,
+              type: "з глянцевим ламінуванням",
+              material: "з глянцевим ламінуванням",
+              materialId: "",
+              size: "",
+              typeUse: "А3",
+            });
+          } else {
+            setLamination({
+              type: "Не потрібно",
+              material: "",
+              materialId: "",
+              size: "",
+              typeUse: "А3",
+            });
+          }
+        }}
+        style={{ position: "relative", zIndex: 30 }}
+      >
+        <NewNoModalLamination
+          lamination={lamination}
+          setLamination={setLamination}
+          prices={prices}
+          size={size}
+          type="SheetCut"
+          isVishichka={true}
+          buttonsArr={[
+            "з глянцевим ламінуванням",
+            "з матовим ламінуванням",
+            "з ламінуванням SoftTouch",
+            "з холодним матовим ламінуванням",
+          ]}
+          selectArr={["30", "70", "80", "100", "125", "250"]}
+          labelMap={{
+            "з глянцевим ламінуванням": "глянцеве",
+            "з матовим ламінуванням": "матове",
+            "з ламінуванням SoftTouch": "SoftTouch",
+            "з холодним матовим ламінуванням": "холодне матове",
+          }}
+        />
+      </ScToggleSection>
+    </ScModal>
   );
 };
 

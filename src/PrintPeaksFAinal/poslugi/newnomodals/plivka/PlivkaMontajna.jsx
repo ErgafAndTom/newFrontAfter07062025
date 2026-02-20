@@ -104,21 +104,10 @@ const PlivkaMontajna = ({
     <div className="d-flex flex-row justify-content-between align-items-center w-100 gap-3">
       {/* SELECT */}
       <div
-        className={`custom-select-container selectArtem selectArtemBefore${!isNone ? " sc-has-value" : ""}`}
+        className="custom-select-container selectArtem selectArtemBefore sc-has-value"
         ref={dropdownRef}
         style={{minWidth: dropdownWidth}}
       >
-        {/* tapping hand loader */}
-        {isNone && (
-          <div className="sc-hand">
-            <div className="sc-hand-finger"/>
-            <div className="sc-hand-finger"/>
-            <div className="sc-hand-finger"/>
-            <div className="sc-hand-finger"/>
-            <div className="sc-hand-palm"/>
-            <div className="sc-hand-thumb"/>
-          </div>
-        )}
         <div
           className="custom-select-header"
           onClick={() => setOpen(!open)}
