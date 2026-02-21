@@ -80,24 +80,17 @@ const Materials2 = ({
         setPaper(Array.isArray(rows) ? rows : []);
         setLoad(false);
 
-        // ✅ Реконсиляція вибору:
-        // 1) Якщо є вибраний materialId і він існує в rows — нічого не робимо.
-        // 2) Якщо редагування і materialId не знайдений — очищаємо (щоб не показувати "битий" вибір).
-        // 3) Якщо нове замовлення — залишаємо пусто (показує "Виберіть матеріал").
-        // if (material?.materialId) {
-        //   const exists = rows.some((r) => String(r.id) === String(material.materialId));
-        //   if (!exists) {
-        //     setMaterial((prev) => ({
-        //       ...prev,
-        //       material: "",
-        //       materialId: 0,
-        //       a: "",
-        //     }));
-        //   }
-        // } else {
-        //   // new order: лишаємо пусто (нічого не сетимо)
-        //   // edit: теж нічого не сетимо — бо ініціалізація має бути з optionsJson
-        // }
+        // Авто-вибір першого матеріалу якщо нічого не вибрано
+        if ((!material?.materialId || material.materialId === 0 || material.materialId === "0") && rows.length > 0) {
+          setMaterial((prev) => ({
+            ...prev,
+            material: rows[0].name,
+            materialId: rows[0].id,
+            a: rows[0].thickness || "",
+            x: rows[0].x || "",
+            y: rows[0].y || "",
+          }));
+        }
       })
       .catch((err) => {
         if (cancelled) return;

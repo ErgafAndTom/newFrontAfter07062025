@@ -1,524 +1,253 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import axios from "../../../../api/axiosInstance";
-import {useNavigate} from "react-router-dom";
-import {Spinner} from "react-bootstrap";
+import { Spinner } from "react-bootstrap";
 import "../../Poslugy.css";
 
 const Materials2NoteBack = ({
-                                materialAndDrukBack,
-                                setMaterialAndDrukBack,
-                                count,
-                                setCount,
-                                prices,
-                                type,
-                                name,
-                                buttonsArr,
-                                buttonsArrDruk,
-                                buttonsArrColor,
-                                selectArr,
-                                typeUse,
-                                size
-                            }) => {
-    const [paper, setPaper] = useState([]);
-    const [error, setError] = useState(null);
-    const [load, setLoad] = useState(true);
-    const navigate = useNavigate();
+  materialAndDrukBack,
+  setMaterialAndDrukBack,
+  count,
+  setCount,
+  prices,
+  type,
+  name,
+  buttonsArr,
+  buttonsArrDruk,
+  buttonsArrColor,
+  selectArr,
+  typeUse,
+  size,
+}) => {
+  const [paper, setPaper] = useState([]);
+  const [error, setError] = useState(null);
+  const [load, setLoad] = useState(true);
 
-    // Новий стан для даних ламінування
-    const [lamination, setLamination] = useState([]);
-    const [loadLamination, setLoadLamination] = useState(false);
+  const [lamination, setLamination] = useState([]);
+  const [loadLamination, setLoadLamination] = useState(false);
 
-    // Масив кнопок для вибору типу ламінування
-    const buttonsArrLamination = [
-        "з глянцевим ламінуванням",
-        "з матовим ламінуванням",
-        "з ламінуванням SoftTouch",
-        "з холодним матовим ламінуванням"
+  const buttonsArrLamination = [
+    "з глянцевим ламінуванням",
+    "з матовим ламінуванням",
+    "з ламінуванням SoftTouch",
+    "з холодним матовим ламінуванням",
+  ];
 
-    ];
+  // ========== HANDLERS ==========
+  const handleSelectChange = (e) => {
+    const sel = e.target.options[e.target.selectedIndex];
+    setMaterialAndDrukBack((prev) => ({
+      ...prev,
+      material: e.target.value || "",
+      materialId: sel.getAttribute("data-id") || "default",
+    }));
+  };
 
-    const handleSelectChange = (e) => {
-        const selectedOption = e.target.options[e.target.selectedIndex];
-        const selectedId = selectedOption.getAttribute("data-id") || "default";
-        const selectedValue = e.target.value || "";
-        setMaterialAndDrukBack((prev) => ({
+  const handleSelectTypeChange = (e) => {
+    setMaterialAndDrukBack((prev) => ({ ...prev, materialTypeUse: e.target.value || "" }));
+  };
+
+  const handleSelectDrukSidesChange = (e) => {
+    setMaterialAndDrukBack((prev) => ({ ...prev, drukSides: e.target.value || "" }));
+  };
+
+  const handleSelectDrukColorChange = (e) => {
+    setMaterialAndDrukBack((prev) => ({ ...prev, drukColor: e.target.value || "" }));
+  };
+
+  const handleToggleLamination = () => {
+    setMaterialAndDrukBack((prev) => ({
+      ...prev,
+      laminationType: prev.laminationType === "Не потрібно" ? "з глянцевим ламінуванням" : "Не потрібно",
+    }));
+  };
+
+  const handleSelectLaminationTypeUseChange = (e) => {
+    setMaterialAndDrukBack((prev) => ({ ...prev, laminationTypeUse: e.target.value || "" }));
+  };
+
+  const handleColorCountChange = (e) => {
+    const value = Number(e.target.value);
+    setMaterialAndDrukBack((prev) => ({
+      ...prev,
+      count: value % 2 !== 0 ? value + 1 : value,
+    }));
+  };
+
+  // ========== EFFECTS ==========
+  useEffect(() => {
+    const data = {
+      name: "MaterialsPrices",
+      inPageCount: 999999,
+      currentPage: 1,
+      search: "",
+      columnName: { column: "id", reverse: false },
+      size: size,
+      typeOfPosluga: "Note/Booklet",
+      material: {
+        type: materialAndDrukBack.materialType,
+        typeUse: materialAndDrukBack.materialTypeUse,
+      },
+    };
+    setLoad(true);
+    setError(null);
+    axios
+      .post(`/materials/NotAll`, data)
+      .then((response) => {
+        setPaper(response.data.rows);
+        setLoad(false);
+        if (response.data?.rows?.[0]) {
+          setMaterialAndDrukBack((prev) => ({
             ...prev,
-            material: selectedValue,
-            materialId: selectedId
-        }));
-    };
-
-    const handleSelectTypeChange = (e) => {
-        const selectedValue = e.target.value || "";
-        setMaterialAndDrukBack((prev) => ({
-            ...prev,
-            materialTypeUse: selectedValue
-        }));
-    };
-
-    const handleSelectDrukSidesChange = (e) => {
-        const selectedValue = e.target.value || "";
-        setMaterialAndDrukBack((prev) => ({
-            ...prev,
-            drukSides: selectedValue
-        }));
-    };
-
-    const handleSelectDrukColorChange = (e) => {
-        const selectedValue = e.target.value || "";
-        setMaterialAndDrukBack((prev) => ({
-            ...prev,
-            drukColor: selectedValue
-        }));
-    };
-
-    let handleClick = (e) => {
-        setMaterialAndDrukBack({
-            ...materialAndDrukBack,
-            drukSides: e
-        });
-    };
-
-    useEffect(() => {
-        let data = {
-            name: "MaterialsPrices",
-            inPageCount: 999999,
-            currentPage: 1,
-            search: "",
-            columnName: {
-                column: "id",
-                reverse: false
-            },
-            size: size,
-            typeOfPosluga: "Note/Booklet",
-            material: {
-                type: materialAndDrukBack.materialType,
-                typeUse: materialAndDrukBack.materialTypeUse
-            }
-        };
-        setLoad(true);
-        setError(null);
-        axios
-            .post(`/materials/NotAll`, data)
-            .then((response) => {
-                setPaper(response.data.rows);
-                setLoad(false);
-                if (response.data && response.data.rows && response.data.rows[0]) {
-                    setMaterialAndDrukBack((prev) => ({
-                        ...prev,
-                        material: response.data.rows[0].name,
-                        materialId: response.data.rows[0].id
-                    }));
-                } else {
-                    setMaterialAndDrukBack((prev) => ({
-                        ...prev,
-                        material: "Немає",
-                        materialId: 0
-                    }));
-                }
-            })
-            .catch((error) => {
-                setLoad(false);
-                setError(error.message);
-                // if (error.response?.status === 403) {
-                //     navigate("/login");
-                // }
-                console.log(error.message);
-            });
-    }, [materialAndDrukBack.materialTypeUse, size]);
-
-    // Логіка завантаження даних для ламінування (тільки якщо ламінування увімкнено)
-    useEffect(() => {
-        if (materialAndDrukBack.laminationType !== "Не потрібно") {
-            const data = {
-                name: "MaterialsPrices",
-                inPageCount: 999999,
-                currentPage: 1,
-                type: "SheetCut",
-                search: "",
-                columnName: {
-                    column: "id",
-                    reverse: false
-                },
-                size: size,
-                material: {
-                    type: "Ламінування",
-                    material: materialAndDrukBack.laminationTypeUse
-                }
-            };
-            setLoadLamination(true);
-            setError(null);
-            axios
-                .post(`/materials/NotAll`, data)
-                .then((response) => {
-                    setLamination(response.data.rows);
-                    setLoadLamination(false);
-                    if (response.data && response.data.rows && response.data.rows[0]) {
-                        setMaterialAndDrukBack((prev) => ({
-                            ...prev,
-                            laminationmaterial: response.data.rows[0].name,
-                            laminationmaterialId: response.data.rows[0].id
-                        }));
-                    } else {
-                        setMaterialAndDrukBack((prev) => ({
-                            ...prev,
-                            laminationmaterial: "Немає",
-                            laminationmaterialId: 0
-                        }));
-                    }
-                })
-                .catch((err) => {
-                    setLoadLamination(false);
-                    setError(err.message);
-                    // if (err.response?.status === 403) {
-                    //     navigate("/login");
-                    // }
-                    console.log(err.message);
-                });
+            material: response.data.rows[0].name,
+            materialId: response.data.rows[0].id,
+          }));
+        } else {
+          setMaterialAndDrukBack((prev) => ({ ...prev, material: "Немає", materialId: 0 }));
         }
-    }, [materialAndDrukBack.laminationType, materialAndDrukBack.laminationTypeUse, size]);
+      })
+      .catch((err) => {
+        setLoad(false);
+        setError(err.message);
+        console.log(err.message);
+      });
+  }, [materialAndDrukBack.materialTypeUse, size]);
 
-    // Обробник для перемикання ламінування (toggle)
-    const handleToggleLamination = () => {
-        setMaterialAndDrukBack((prev) => ({
+  useEffect(() => {
+    if (materialAndDrukBack.laminationType === "Не потрібно") return;
+    const data = {
+      name: "MaterialsPrices",
+      inPageCount: 999999,
+      currentPage: 1,
+      type: "SheetCut",
+      search: "",
+      columnName: { column: "id", reverse: false },
+      size: size,
+      material: { type: "Ламінування", material: materialAndDrukBack.laminationTypeUse },
+    };
+    setLoadLamination(true);
+    setError(null);
+    axios
+      .post(`/materials/NotAll`, data)
+      .then((response) => {
+        setLamination(response.data.rows);
+        setLoadLamination(false);
+        if (response.data?.rows?.[0]) {
+          setMaterialAndDrukBack((prev) => ({
             ...prev,
-            laminationType: prev.laminationType === "Не потрібно" ? "з глянцевим ламінуванням" : "Не потрібно",
-        }));
-    };
+            laminationmaterial: response.data.rows[0].name,
+            laminationmaterialId: response.data.rows[0].id,
+          }));
+        } else {
+          setMaterialAndDrukBack((prev) => ({ ...prev, laminationmaterial: "Немає", laminationmaterialId: 0 }));
+        }
+      })
+      .catch((err) => {
+        setLoadLamination(false);
+        setError(err.message);
+        console.log(err.message);
+      });
+  }, [materialAndDrukBack.laminationType, materialAndDrukBack.laminationTypeUse, size]);
 
-    // Обробник для вибору типу ламінування
-    const handleSelectLaminationTypeUseChange = (e) => {
-        const selectedValue = e.target.value || "";
-        setMaterialAndDrukBack((prev) => ({
-            ...prev,
-            laminationTypeUse: selectedValue
-        }));
-    };
+  // ========== RENDER ==========
+  const lamOn = materialAndDrukBack.laminationType !== "Не потрібно";
 
-    const handleColorCountChange = (e) => {
-        const value = Number(e.target.value);
-        const value2 = e.target.value;
-      if (value % 2 !== 0) {
-        setMaterialAndDrukBack((prev) => ({
-          ...prev,
-          count: value+1
-        }));
-      } else {
-        setMaterialAndDrukBack((prev) => ({
-          ...prev,
-          count: value
-        }));
-      }
-    };
+  return (
+    <div className="sc-section sc-section-card" style={{ position: "relative", zIndex: 55 }}>
+      {/* === Блок: кількість аркушів === */}
+      <div className="d-flex align-items-center">
+        <span className="sc-title" style={{ marginBottom: 0, marginRight: "0.5vw", whiteSpace: "nowrap" }}>Блок</span>
+        <input
+          className="inputsArtem"
+          type="number"
+          value={materialAndDrukBack.count}
+          onChange={handleColorCountChange}
+          style={{ width: "4vw", fontSize: "0.8vw", padding: "0.3vw" }}
+          min={2}
+          step={2}
+        />
+        <span style={{ marginLeft: "0.3vw", opacity: 0.6, fontSize: "0.85vw", color: "var(--admingrey)" }}>арк.</span>
+        <span style={{ marginLeft: "0.5vw", opacity: 0.4, fontSize: "0.75vw", color: "var(--admingrey)" }}>
+          ({materialAndDrukBack.count * 2} стор.)
+        </span>
+      </div>
 
-    return (
-        <div
-            className="d-flex flex-column allArtemElem"
-            style={{position: "absolute", marginLeft: "45vw"}}
-        >
-            {/* Заголовок "Блок:" */}
+      {/* === Друк === */}
+      <div className="d-flex align-items-center" style={{ marginTop: "0.8vh" }}>
+        <span className="sc-title" style={{ marginBottom: 0, marginRight: "0.5vw", whiteSpace: "nowrap" }}>Друк</span>
+        <select value={materialAndDrukBack.drukColor || ""} onChange={handleSelectDrukColorChange} className="selectArtem" style={{ marginRight: "0.5vw" }}>
+          {buttonsArrColor.map((item, i) => (
+            <option key={item + i} value={item}>{item}</option>
+          ))}
+        </select>
+        {materialAndDrukBack.drukColor !== "Не потрібно" && (
+          <select value={materialAndDrukBack.drukSides || ""} onChange={handleSelectDrukSidesChange} className="selectArtem">
+            {buttonsArrDruk.map((item, i) => (
+              <option key={item + i} value={item}>{item}</option>
+            ))}
+          </select>
+        )}
+      </div>
 
+      {/* === Матеріал === */}
+      <div className="d-flex align-items-center" style={{ marginTop: "0.8vh" }}>
+        <span className="sc-title" style={{ marginBottom: 0, marginRight: "0.5vw", whiteSpace: "nowrap" }}>Матеріал</span>
+        <select value={materialAndDrukBack.materialTypeUse || ""} onChange={handleSelectTypeChange} className="selectArtem" style={{ marginRight: "0.5vw" }}>
+          {buttonsArr.map((item, i) => (
+            <option key={item + i} value={item}>{item}</option>
+          ))}
+        </select>
+        <select value={materialAndDrukBack.material || ""} onChange={handleSelectChange} className="selectArtem">
+          {paper.map((item, i) => (
+            <option key={item.name + i} value={item.name} data-id={item.id}>
+              {item.name} {item.thickness} gsm
+            </option>
+          ))}
+        </select>
+        {load && <Spinner animation="border" variant="danger" size="sm" style={{ marginLeft: "0.5vw" }} />}
+        {error && <div style={{ color: "red", marginLeft: "0.5vw", fontSize: "0.8vw" }}>{error}</div>}
+      </div>
 
-            {/* 1. Кількість аркушів */}
-            <div
-                className="d-flex align-items-center"
-
-            >
-                <div
-                    className="d-flex "
-                    style={{
-                        fontSize: "1vw",
-                        width: "6vw",
-
-                        fontWeight: "bold",
-
-                    }}
-                >
-                    Блок:
-                </div>
-                <span
-                    style={{
-                        fontSize: "1vw",
-                        marginRight: "0.5vw",
-
-                        whiteSpace: "nowrap",
-
-                    }}
-                >
-                Кількість аркушів:
-            </span>
-                <input
-                    className="inputsArtem"
-                    type="number"
-                    value={materialAndDrukBack.count}
-                    onChange={handleColorCountChange}
-                    style={{
-                        width: "5vw",
-                        fontSize: "0.8vw",
-                        padding: "0.5vw",
-
-
-                    }}
-                    min={2}
-                    step={2}
-
-                />
-                <div className="inputsArtemx allArtemElem" style={{border: "transparent", marginTop: "-2vh"}}> шт</div>
-                <div className="inputsArtemx allArtemElem" style={{border: "transparent", marginTop: "-1.8vh", width: "8vw",opacity:"0.5", fontSize:"0.8vw"}}>Сторінок: {materialAndDrukBack.count*2} шт</div>
-            </div>
-
-            {/* 2. Друк */}
-            <div
-                className="d-flex align-items-center"
-                style={{marginTop: "1vh", marginLeft: "6vw"}}
-            >
-            <span
-                style={{
-                    fontSize: "1vw",
-                    marginRight: "0.5vw",
-                    whiteSpace: "nowrap"
-                }}
-            >
-                Друк:
-            </span>
-                <div
-                    className="ArtemNewSelectContainer"
-                    style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center"
-                    }}
-                >
-                    <select
-                        name="drukColorSelect"
-                        value={materialAndDrukBack.drukColor || ""}
-                        onChange={handleSelectDrukColorChange}
-                        className="selectArtem"
-                        style={{marginRight: "1vw"}}
-                    >
-                        {buttonsArrColor.map((item, iter) => (
-                            <option
-                                key={item + iter}
-                                className="optionInSelectArtem"
-                                value={item}
-                                data-id={item}
-                            >
-                                {item}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Якщо друк потрібен, показати додатковий селект "drukSides" */}
-                {materialAndDrukBack.drukColor !== "Не потрібно" && (
-                    <div
-                        className="ArtemNewSelectContainer"
-                        style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center"
-                        }}
-                    >
-                        <select
-                            name="drukSidesSelect"
-                            value={materialAndDrukBack.drukSides || ""}
-                            onChange={handleSelectDrukSidesChange}
-                            className="selectArtem"
-                        >
-                            {buttonsArrDruk.map((item, iter) => (
-                                <option
-                                    key={item + iter}
-                                    className="optionInSelectArtem"
-                                    value={item}
-                                    data-id={item}
-                                >
-                                    {item}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                )}
-            </div>
-
-            {/* 3. Матеріал */}
-            <div
-                className="d-flex align-items-center"
-                style={{marginTop: "1vh", marginLeft: "6vw"}}
-            >
-            <span
-                style={{
-                    fontSize: "1vw",
-
-
-                    marginRight: "0.5vw",
-                    whiteSpace: "nowrap"
-                }}
-            >
-                Матеріал:
-            </span>
-                {/* Перший селект: тип матеріалу */}
-                <div
-                    className="ArtemNewSelectContainer"
-                    style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        marginRight: "1vw"
-                    }}
-                >
-                    <select
-                        name="materialTypeUseSelect"
-                        value={materialAndDrukBack.materialTypeUse || ""}
-                        onChange={handleSelectTypeChange}
-                        className="selectArtem"
-                    >
-                        {buttonsArr.map((item, iter) => (
-                            <option
-                                key={item + iter}
-                                className="optionInSelectArtem"
-                                value={item}
-                                data-id={item}
-                            >
-                                {item}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Другий селект: конкретний матеріал */}
-                <div
-                    className="ArtemNewSelectContainer"
-                    style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center"
-                    }}
-                >
-                    <select
-                        name="materialSelect"
-                        value={materialAndDrukBack.material || ""}
-                        onChange={handleSelectChange}
-                        className="selectArtem"
-                    >
-                        {paper.map((item, iter) => (
-                            <option
-                                key={item.name + iter}
-                                className="optionInSelectArtem"
-                                value={item.name}
-                                data-id={item.id}
-                            >
-                                {item.name} {item.thickness} gsm
-                            </option>
-                        ))}
-                    </select>
-                    {load && <Spinner animation="border" variant="danger" size="sm"/>}
-                    {error && <div>{error}</div>}
-                </div>
-            </div>
-
-            {/* 4. Ламінація */}
-            <div
-                className="d-flex"
-                style={{display: "flex", marginTop: "0.5vh", marginLeft: "5.3vw", alignItems: "center"}}
-            >
-              <label className="switch scale04ForButtonToggle" >
-                <input
-                  type="checkbox"
-                  checked={materialAndDrukBack.laminationType !== "Не потрібно"}
-                  onChange={handleToggleLamination}
-                />
-                <span className="switch-on"><span>ON</span></span>
+      {/* === Ламінація toggle === */}
+      <div className="d-flex align-items-center" style={{ marginTop: "0.8vh" }}>
+        <label className="switch scale04ForButtonToggle">
+          <input type="checkbox" checked={lamOn} onChange={handleToggleLamination} />
+          <span className="switch-on"><span>ON</span></span>
           <span className="slider" />
           <span className="switch-off"><span>OFF</span></span>
-              </label>
-                <div>{"Ламінація:"}</div>
-
-                <div
-                    className="laminationContainer"
-
-                >
-
-
-                    {/* Якщо ламінування не вимкнено, показати додаткові селекти */}
-                    {materialAndDrukBack.laminationType !== "Не потрібно" && (
-                        <div
-                            className="d-flex interFont"
-                            style={{marginTop: "-0.7vh", marginLeft: "-1vw"}}
-                        >
-                            <div
-                                className="ArtemNewSelectContainer interFont"
-                                style={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    marginRight: "1vw"
-                                }}
-                            >
-                                <select
-                                    name="laminationTypeUse"
-                                    value={materialAndDrukBack.laminationTypeUse || ""}
-                                    onChange={handleSelectLaminationTypeUseChange}
-                                    className="selectArtem"
-                                >
-                                    {buttonsArrLamination.map((item, iter) => (
-                                        <option
-                                            key={item + iter}
-                                            value={item}
-                                            data-id={item}
-                                            className="optionInSelectArtem"
-                                        >
-                                            {item}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div
-                                className="ArtemNewSelectContainer interFont"
-                                style={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center"
-                                }}
-                            >
-                                <select
-                                    name="laminationMaterial"
-                                    value={materialAndDrukBack.laminationmaterial || ""}
-                                    onChange={(e) => {
-                                        const selectedOption =
-                                            e.target.options[e.target.selectedIndex];
-                                        const selectedId =
-                                            selectedOption.getAttribute("data-id") || "default";
-                                        const selectedValue = e.target.value || "";
-                                        setMaterialAndDrukBack((prev) => ({
-                                            ...prev,
-                                            laminationmaterial: selectedValue,
-                                            laminationmaterialId: selectedId
-                                        }));
-                                    }}
-                                    className="selectArtem interFont"
-                                >
-                                    {lamination.map((item, iter) => (
-                                        <option
-                                            key={item.name + iter}
-                                            value={item.thickness}
-                                            data-id={item.id}
-                                            className="optionInSelectArtem"
-                                        >
-                                            {item.thickness} мл
-                                        </option>
-                                    ))}
-                                </select>
-                                {loadLamination && (
-                                    <Spinner animation="border" variant="danger" size="sm"/>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-
+        </label>
+        {!lamOn ? (
+          <div className="sc-title" style={{ marginBottom: 0 }}>Ламінація</div>
+        ) : (
+          <div className="sc-row sc-pp-row" style={{ flex: 1, alignItems: "center" }}>
+            <select value={materialAndDrukBack.laminationTypeUse || ""} onChange={handleSelectLaminationTypeUseChange} className="selectArtem" style={{ marginRight: "0.5vw" }}>
+              {buttonsArrLamination.map((item, i) => (
+                <option key={item + i} value={item}>{item}</option>
+              ))}
+            </select>
+            <select
+              value={materialAndDrukBack.laminationmaterial || ""}
+              onChange={(e) => {
+                const sel = e.target.options[e.target.selectedIndex];
+                setMaterialAndDrukBack((prev) => ({
+                  ...prev,
+                  laminationmaterial: e.target.value || "",
+                  laminationmaterialId: sel.getAttribute("data-id") || "default",
+                }));
+              }}
+              className="selectArtem"
+            >
+              {lamination.map((item, i) => (
+                <option key={item.name + i} value={item.thickness} data-id={item.id}>
+                  {item.thickness} мл
+                </option>
+              ))}
+            </select>
+            {loadLamination && <Spinner animation="border" variant="danger" size="sm" style={{ marginLeft: "0.5vw" }} />}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default Materials2NoteBack;

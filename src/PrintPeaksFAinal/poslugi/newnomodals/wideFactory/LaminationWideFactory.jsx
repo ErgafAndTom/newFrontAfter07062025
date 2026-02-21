@@ -96,75 +96,34 @@ const LaminationWideFactory = ({lamination, setLamination, prices, buttonsArr, s
   }, [lamination.type, size]);
 
 
-  return (<div className="d-flex allArtemElem">
-    <div style={{display: 'flex', alignItems: 'center', marginTop: "1vw", marginLeft: "0vw"}}>
-      <label className="switch scale04ForButtonToggle" >
-        <input
-          type="checkbox"
-          checked={lamination.type !== "Не потрібно"}
-          onChange={handleToggle}
-        />
-        <span className="switch-on"><span>ON</span></span>
-          <span className="slider" />
-          <span className="switch-off"><span>OFF</span></span>
+  const isOn = lamination.type !== "Не потрібно";
+
+  return (
+    <div className="d-flex align-items-center">
+      <label className="switch scale04ForButtonToggle">
+        <input type="checkbox" checked={isOn} onChange={handleToggle} />
+        <span className="switch-on"><span>Ламінація</span></span>
+        <span className="slider" />
+        <span className="switch-off"><span>OFF</span></span>
       </label>
-      <div className="d-flex flex-column">
-            <span style={{
-              marginRight: '0.633vw'
-            }}>{"Ламінація:"}</span>
-        {lamination.type !== "Не потрібно" ? (
-          <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center',}}>
-            <div style={{
-              display: 'flex', justifyContent: 'center', alignItems: 'center'
-            }}>
-              {thisLaminationSizes.map((item, index) => (<button
-                className={item.id === lamination.materialId ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
-                key={index}
-                onClick={() => handleClick(item.id)}
-                // style={{
-                //     backgroundColor: item === lamination.material ? 'orange' : 'transparent',
-                //     border: item === lamination.material ? '0.13vw solid transparent' : '0.13vw solid transparent',
-                // }}
-              >
-                <div className="" style={{
-                  fontSize: "var(--font-size-base)",
-                  opacity: item.id === lamination.materialId ? '100%' : '50%',
-                  whiteSpace: "nowrap",
-                  // width:"13vw"
-                }} data-id={item.id}
-                >
-                  {item.name}
-                </div>
-              </button>))}
-
-              {/*{lamination.material === "По периметру" &&*/}
-              {/*  <div className="ArtemNewSelectContainer" style={{marginLeft: "1vw"}}>*/}
-              {/*    <select*/}
-              {/*      value={lamination.size}*/}
-              {/*      onChange={(event) => handleSelectChange(event)}*/}
-              {/*      className="selectArtem"*/}
-              {/*    >*/}
-              {/*      <option value={""}>{""}</option>*/}
-              {/*      {selectArr.map((item, iter2) => (*/}
-              {/*        // <option className="optionInSelectArtem" key={item.thickness}*/}
-              {/*        //         value={item.thickness} data-id={item.id} tosend={item.thickness}>{item.thickness} мкм</option>))}*/}
-              {/*        <option className="optionInSelectArtem" key={item}*/}
-              {/*                value={item}>{item} мм</option>))}*/}
-              {/*    </select>*/}
-              {/*  </div>*/}
-              {/*}*/}
+      {!isOn && (
+        <div className="sc-title" style={{ marginBottom: 0 }}>Ламінація</div>
+      )}
+      {isOn && (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {thisLaminationSizes.map((item, index) => (
+            <div
+              className={item.id === lamination.materialId ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
+              key={index}
+              onClick={() => handleClick(item.id)}
+            >
+              <div style={{ whiteSpace: "nowrap" }}>{item.name}</div>
             </div>
-          </div>) : (<div>
-
-        </div>)}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
-
-
-    <>
-
-    </>
-  </div>)
+  )
 };
 
 export default LaminationWideFactory;

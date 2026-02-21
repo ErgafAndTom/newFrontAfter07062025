@@ -410,7 +410,7 @@ const NewPhoto = ({
         count={count}
         onCountChange={(v) => setCount(v)}
         sizeComponent={
-          <div className="d-flex flex-row justify-content-between align-items-center w-100 gap-2">
+          <div className="d-flex flex-row align-items-center w-100 gap-2" style={{ position: "relative", zIndex: 70 }}>
             {customSize && (
               <div className="d-flex align-items-center gap-1">
                 <input
@@ -441,7 +441,7 @@ const NewPhoto = ({
             <div
               className="custom-select-container selectArtem selectArtemBefore sc-has-value"
               ref={sizeDropdownRef}
-              style={{ zIndex: 10, flex: customSize ? "0 0 auto" : "1" }}
+              style={{ flex: customSize ? "0 0 auto" : "1" }}
             >
               <div
                 className="custom-select-header"

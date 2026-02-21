@@ -1,119 +1,60 @@
-import { MDBContainer } from "mdb-react-ui-kit";
-import { Row } from "react-bootstrap";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "../../api/axiosInstance";
-import Loader from "../../components/calc/Loader";
-import versantIcon from "../../components/newUIArtem/printers/delivery.png"; // додай свій ікон-ресурс
 import { useNavigate } from "react-router-dom";
 
-/**
- * Компонент оформлення та додавання доставки до замовлення
- * Повторює прийоми верстки та стилістику решти калькуляторів (ламінування тощо)
- */
+import { ScModal, ScSection, ScPricing, ScAddButton } from "./shared";
+import "./Poslugy.css";
+
+const fmt2 = (v) =>
+  new Intl.NumberFormat("uk-UA", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(v));
+
 const DeliveryPage = ({
-                        thisOrder,
-                        setThisOrder,
-                        setSelectedThings2,
-                        showDelivery,
-                        setShowDelivery,
-                      }) => {
+  thisOrder,
+  setThisOrder,
+  setSelectedThings2,
+  showDelivery,
+  setShowDelivery,
+}) => {
   const navigate = useNavigate();
 
-  /* === Локальний стан === */
-  const [isVisible, setIsVisible] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  // Форма доставки
-  const [deliveryType, setDeliveryType] = useState("Нова Пошта");
-  const [city, setCity] = useState(1);
-  const [warehouse, setWarehouse] = useState(50);
-  const [courierAddress, setCourierAddress] = useState(1);
-  const [cost, setCost] = useState(null);
+  // ========== STATE ==========
+  const [deliveryType] = useState("Нова Пошта");
+  const [count, setCount] = useState(1);
+  const [price, setPrice] = useState(50);
+  const [courierAddress] = useState(1);
+  const [cost] = useState(null);
   const [error, setError] = useState(null);
 
-  /* === Закриття / відкриття модалки === */
-  const handleClose = () => {
-    setIsAnimating(false);
-    setTimeout(() => {
-      setIsVisible(false);
-      setShowDelivery(false);
-    }, 300);
-  };
+  const handleClose = () => setShowDelivery(false);
 
-  const handleShow = useCallback(() => {
-    setShowDelivery(true);
-  }, []);
+  // ========== SAVE ==========
+  const handleSave = () => {
+    if (!thisOrder?.id) return;
 
-  /* === Розрахунок вартості доставки === */
-  // useEffect(() => {
-  //   if (!city) return; // бракує даних
-  //
-  //   const payload = {
-  //     deliveryType,
-  //     city,
-  //     warehouse,
-  //     courierAddress,
-  //   };
-  //
-  //   axios
-  //     .post("/calc/delivery", payload)
-  //     .then((res) => {
-  //       setCost(res.data.price);
-  //       setError(null);
-  //     })
-  //     .catch((err) => {
-  //       setError(err);
-  //       if (err.response?.status === 403) navigate("/login");
-  //     });
-  // }, [deliveryType, city, warehouse, courierAddress]);
-
-  /* === Ефект для плавного показу / приховання модалки === */
-  useEffect(() => {
-    if (showDelivery) {
-      setIsVisible(true);
-      setTimeout(() => setIsAnimating(true), 100);
-    } else {
-      setIsAnimating(false);
-      setTimeout(() => setIsVisible(false), 300);
-    }
-  }, [showDelivery]);
-
-  /* === Підтвердження та запис у замовлення === */
-  const addDeliveryToOrder = () => {
     const dataToSend = {
       orderId: thisOrder.id,
       toCalc: {
         nameOrderUnit: "Доставка",
         type: "Delivery",
         deliveryType,
-        city,
-        warehouse,
+        city: count,
+        warehouse: price,
         courierAddress,
         cost,
-
         size: { x: 0, y: 0 },
-        material: {
-          type: "Не потрібно"
-        },
-        color: {
-          sides: "Не потрібно"
-        },
-        lamination: {
-          type: "Не потрібно"
-        },
+        material: { type: "Не потрібно" },
+        color: { sides: "Не потрібно" },
+        lamination: { type: "Не потрібно" },
         big: "Не потрібно",
         cute: "Не потрібно",
-        cuteLocal: {
-          leftTop: false,
-          rightTop: false,
-          rightBottom: false,
-          leftBottom: false,
-          radius: "",
-        },
+        cuteLocal: { leftTop: false, rightTop: false, rightBottom: false, leftBottom: false, radius: "" },
         holes: "Не потрібно",
         holesR: "Не потрібно",
-        count: city,
-        price: warehouse
+        count,
+        price,
       },
     };
 
@@ -125,189 +66,70 @@ const DeliveryPage = ({
         setShowDelivery(false);
       })
       .catch((err) => {
-        if (err.response?.status === 403) navigate("/login");
+        if (err?.response?.status === 403) navigate("/login");
         setError(err);
       });
   };
 
-  /* === Рендер модального вікна === */
-  if (!isVisible) return null;
+  // ========== PRICING DATA ==========
+  const total = (Number(price) || 0) * (Number(count) || 0);
+  const pricingLines = [
+    { label: "Доставка", perUnit: Number(price) || 0, count: Number(count) || 0, total },
+  ];
 
+  // ========== RENDER ==========
   return (
-    <>
-      {/* Підкладка */}
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          width: '100vw',
-          height: '100vh',
-          backgroundColor: 'rgba(15, 15, 15, 0.45)',
-          backdropFilter: 'blur(2px)',
-          WebkitBackdropFilter: 'blur(2px)',
-          zIndex: 99,
-          opacity: isAnimating ? 1 : 0,
-          transition: 'opacity 200ms ease'
-        }}
-        onClick={handleClose}
-      />
-
-      {/* Власне модалка */}
-      <div
-        className="d-flex flex-column"
-        style={{
-          zIndex: 100,
-          position: "fixed",
-          background: "#dcd9ce",
-          top: "50%",
-          left: "50%",
-          transform: isAnimating
-            ? "translate(-50%, -50%) scale(1)"
-            : "translate(-50%, -50%) scale(0.8)",
-          opacity: isAnimating ? 1 : 0,
-          transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
-          borderRadius: "1vw",
-          width: "95vw",
-          height: "95vh",
-        }}
-      >
-        {/* Заголовок + close */}
-        <div className="d-flex">
-          <div className="m-auto text-center fontProductName">Доставка</div>
-          <div
-            className="btn btn-close btn-lg"
-            style={{ margin: "0.5vw" }}
-            onClick={handleClose}
+    <ScModal
+      show={showDelivery}
+      onClose={handleClose}
+      modalStyle={{ width: "35vw" }}
+      rightContent={
+        <>
+          <ScPricing
+            lines={pricingLines}
+            totalPrice={total}
+            fmt={fmt2}
           />
+          <ScAddButton onClick={handleSave} />
+        </>
+      }
+      errorContent={
+        error && (
+          <div className="sc-error">
+            {error?.response?.data?.error || error?.message || "Помилка"}
+          </div>
+        )
+      }
+    >
+      {/* 1. Кількість */}
+      <ScSection title="">
+        <div className="d-flex flex-row align-items-center">
+          <input
+            className="inputsArtem"
+            type="number"
+            min={1}
+            value={count}
+            onChange={(e) => setCount(Math.max(1, +e.target.value || 1))}
+          />
+          <div className="inputsArtemx">шт</div>
         </div>
+      </ScSection>
 
-        {/* Форма */}
-        <MDBContainer fluid>
+      {/* 2. Ціна */}
+      <ScSection title="">
+        <div className="d-flex flex-row align-items-center">
+          <input
+            className="inputsArtem"
+            type="number"
+            min={0}
+            value={price}
+            onChange={(e) => setPrice(+e.target.value || 0)}
+          />
+          <div className="inputsArtemx">грн</div>
+        </div>
+      </ScSection>
 
-            <div className="d-flex flex-column" style={{ marginLeft: "1.7vw", width:"10vw"}}>
-              {/* Тип доставки */}
-
-              {/*<div className="fontInfoForPricing">Тип доставки:*/}
-              {/*<select*/}
-              {/*  value={deliveryType}*/}
-              {/*  onChange={(e) => setDeliveryType(e.target.value)}*/}
-              {/*  className="inputsArtem"*/}
-              {/*>*/}
-              {/*  <option>Таксі </option>*/}
-              {/*  <option>Кур'єр по Києву</option>*/}
-              {/*  <option>Нова Пошта</option>*/}
-              {/*</select>*/}
-              {/*</div>*/}
-              <>
-                <div className={"d-flex flex-row align-items-center justify-content-start gap-1"}>
-                  <label className="fontInfoForPricing" >Кількість: </label>
-                  <input
-                    type="number"
-                    style={{marginLeft:"0.5vw"}}
-                    min={1}
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="inputsArtem"
-                  />
-                  <div className="inputsArtemx allArtemElem"
-                       style={{border: "transparent", marginTop: "-2vh"}}> шт
-                  </div>
-                </div>
-                <div className={"d-flex flex-row align-items-center justify-content-start gap-1"}>
-                  <label className="fontInfoForPricing mt-2">Ціна: </label>
-                  <input
-                    type="number"
-                    min={50}
-                    style={{marginLeft:"0.5vw"}}
-                    value={warehouse}
-                    onChange={(e) => setWarehouse(e.target.value)}
-                    className="inputsArtem"
-                  />
-                  <div className="inputsArtemx allArtemElem"
-                       style={{border: "transparent", marginTop: "-2vh"}}> грн
-                  </div>
-                </div>
-              </>
-
-              {/* Місто та склад / адреса */}
-
-              {/*{deliveryType !== "Самовивіз" && (*/}
-
-              {/*  <>*/}
-              {/*    <div className={"d-flex flex-row align-items-center justify-content-start gap-3"}>*/}
-              {/*      <label className="fontInfoForPricing">Місто:</label>*/}
-              {/*      <input*/}
-              {/*        type="number"*/}
-              {/*        min={1}*/}
-              {/*        value={city}*/}
-              {/*        onChange={(e) => setCity(e.target.value)}*/}
-              {/*        className="inputsArtem"*/}
-              {/*      />*/}
-              {/*    </div>*/}
-              {/*    <div className={"d-flex flex-row align-items-center justify-content-start gap-3"}>*/}
-              {/*      <label className="fontInfoForPricing mt-2">Відділення:</label>*/}
-              {/*      <input*/}
-              {/*        type="text"*/}
-              {/*        value={warehouse}*/}
-              {/*        onChange={(e) => setWarehouse(e.target.value)}*/}
-              {/*        className="inputsArtem"*/}
-              {/*      />*/}
-              {/*    </div>*/}
-              {/*  </>*/}
-
-              {/*)}*/}
-
-
-              {/*{deliveryType === "Нова Пошта" && (*/}
-              {/*  <div className={"d-flex flex-row align-items-center justify-content-start gap-3"}>*/}
-              {/*    <label className="fontInfoForPricing mt-2">Відділення:</label>*/}
-              {/*    <input*/}
-              {/*      type="text"*/}
-              {/*      value={warehouse}*/}
-              {/*      onChange={(e) => setWarehouse(e.target.value)}*/}
-              {/*      className="inputsArtem"*/}
-              {/*    />*/}
-              {/*  </div>*/}
-              {/*)}*/}
-
-              {/*{deliveryType === "Кур'єр по Києву" && (*/}
-              {/*  <>*/}
-              {/*    <label className="fontInfoForPricing mt-2">Адреса доставки:</label>*/}
-              {/*    <input*/}
-              {/*      type="text"*/}
-              {/*      value={courierAddress}*/}
-              {/*      onChange={(e) => setCourierAddress(e.target.value)}*/}
-              {/*      className="inputsArtem"*/}
-              {/*    />*/}
-              {/*  </>*/}
-              {/*)}*/}
-            </div>
-
-
-          {/* Блок вартості + кнопка */}
-          <div className="d-flex" style={{ marginTop: "1.5vw", marginLeft: "1.6vw"}}>
-            <button className="adminButtonAdd" onClick={addDeliveryToOrder}
-                    // disabled={!cost && deliveryType !== "Самовивіз"}
-                    style={{background:"#fab416"}}>
-              Додати до замовлення
-            </button>
-          </div>
-
-          <div className="d-flex justify-content-between align-items-center pricesBlockContainer" style={{ height: "20vmin" }}>
-            <div>
-              {error && <div className="fontInfoForPricing">{error.message}</div>}
-              {cost !== null && (
-                <div className="fontInfoForPricing1">Вартість доставки: {cost} грн</div>
-              )}
-              {deliveryType === "Самовивіз" && (
-                <div className="fontInfoForPricing1">Вартість: 0 грн</div>
-              )}
-            </div>
-            <img className="lamination-img-icon" alt="delivery" src={versantIcon} />
-          </div>
-        </MDBContainer>
-      </div>
-    </>
+    </ScModal>
   );
 };
 

@@ -2,10 +2,8 @@ import React, { useEffect, useState, useMemo, useCallback } from "react";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
-import ServiceModalWrapper from "./shared/ServiceModalWrapper";
-import CountInput from "./shared/CountInput";
+import { ScModal, ScSection, ScToggleSection, ScPricing, ScAddButton } from "./shared";
 import { useModalState, useOrderUnitSave } from "./shared/hooks";
-import "./shared/ServiceModal.css";
 import "./Poslugy.css";
 
 // Import existing postpress components
@@ -111,6 +109,12 @@ const BigOvshik = ({
     () => setShowBigOvshik(false),
     setEditingOrderUnit
   );
+
+  // ========== CLOSE ==========
+  const handleClose = () => {
+    if (setEditingOrderUnit) setEditingOrderUnit(null);
+    setShowBigOvshik(false);
+  };
 
   // ========== RESET/HYDRATE ==========
   const resetToDefaults = useCallback(() => {
@@ -271,219 +275,173 @@ const BigOvshik = ({
     saveOrderUnit(toCalcData, editingOrderUnit, setError);
   };
 
-  // ========== PRICING COMPONENT ==========
-  const BigOvshikPrice = () => (
-    <div className="bw-summary-title">
-      <div className="bw-sticky">
-        <div className="bwsubOP">Ламінація:</div>
-        <div className="bw-calc-line">
-          {fmt2(pricesThis.priceLaminationPerSheet)}
-          <span className="bw-sub">грн</span>
-          <span className="bw-op">×</span>
-          {pricesThis.sheetCount}
-          <span className="bw-sub">шт</span>
-          <span className="bw-op">=</span>
-          {fmt2(pricesThis.priceLaminationPerSheet * pricesThis.sheetCount)}
-          <span className="bw-sub">грн</span>
-        </div>
+  // ========== PRICING DATA ==========
+  const pricingLines = [
+    {
+      label: "Ламінація",
+      perUnit: pricesThis.priceLaminationPerSheet,
+      count: pricesThis.sheetCount,
+      total: (pricesThis.priceLaminationPerSheet || 0) * (pricesThis.sheetCount || 0),
+    },
+    { label: "Згинання", perUnit: pricesThis.big.pricePerUnit, count: pricesThis.big.count, total: pricesThis.big.totalPrice },
+    { label: "Проклейка", perUnit: pricesThis.prokleyka.pricePerUnit, count: pricesThis.prokleyka.count, total: pricesThis.prokleyka.totalPrice },
+    { label: "Люверси", perUnit: pricesThis.lyuversy.pricePerUnit, count: pricesThis.lyuversy.count, total: pricesThis.lyuversy.totalPrice },
+    { label: "Скруглення", perUnit: pricesThis.cute.pricePerUnit, count: pricesThis.cute.count, total: pricesThis.cute.totalPrice },
+    { label: "Свердління", perUnit: pricesThis.holes.pricePerUnit, count: pricesThis.holes.count, total: pricesThis.holes.totalPrice },
+  ];
 
-        <div className="bwsubOP">Згинання:</div>
-        <div className="bw-calc-line">
-          {fmt2(pricesThis.big.pricePerUnit)}
-          <span className="bw-sub">грн</span>
-          <span className="bw-op">×</span>
-          {pricesThis.big.count}
-          <span className="bw-op">=</span>
-          {fmt2(pricesThis.big.totalPrice)}
-          <span className="bw-sub">грн</span>
-        </div>
-
-        <div className="bwsubOP">Проклейка:</div>
-        <div className="bw-calc-line">
-          {fmt2(pricesThis.prokleyka.pricePerUnit)}
-          <span className="bw-sub">грн</span>
-          <span className="bw-op">×</span>
-          {pricesThis.prokleyka.count}
-          <span className="bw-op">=</span>
-          {fmt2(pricesThis.prokleyka.totalPrice)}
-          <span className="bw-sub">грн</span>
-        </div>
-
-        <div className="bwsubOP">Люверси:</div>
-        <div className="bw-calc-line">
-          {fmt2(pricesThis.lyuversy.pricePerUnit)}
-          <span className="bw-sub">грн</span>
-          <span className="bw-op">×</span>
-          {pricesThis.lyuversy.count}
-          <span className="bw-op">=</span>
-          {fmt2(pricesThis.lyuversy.totalPrice)}
-          <span className="bw-sub">грн</span>
-        </div>
-
-        <div className="bwsubOP">Скруглення:</div>
-        <div className="bw-calc-line">
-          {fmt2(pricesThis.cute.pricePerUnit)}
-          <span className="bw-sub">грн</span>
-          <span className="bw-op">×</span>
-          {pricesThis.cute.count}
-          <span className="bw-op">=</span>
-          {fmt2(pricesThis.cute.totalPrice)}
-          <span className="bw-sub">грн</span>
-        </div>
-
-        <div className="bwsubOP">Свердління:</div>
-        <div className="bw-calc-line">
-          {fmt2(pricesThis.holes.pricePerUnit)}
-          <span className="bw-sub">грн</span>
-          <span className="bw-op">×</span>
-          {pricesThis.holes.count}
-          <span className="bw-op">=</span>
-          {fmt2(pricesThis.holes.totalPrice)}
-          <span className="bw-sub">грн</span>
-        </div>
-
-        <div className="bwsubOP">Дизайн:</div>
-        <div className="bw-calc-line">
-          {fmt2(pricesThis.design.totalPrice)}
-          <span className="bw-sub">грн</span>
-        </div>
-
-        <div
-          className="bw-calc-total d-flex justify-content-center align-content-center"
-          style={{ fontWeight: "500", color: "red" }}
-        >
-          {fmt2(totalPriceFull)}
-          <span className="bw-sub">грн</span>
-        </div>
-      </div>
-    </div>
-  );
-
-  // ========== LEFT CONTENT ==========
-  const leftContent = (
-    <>
-      {/* Count */}
-      <div className="bw-title">Кількість</div>
-      <div className="bw-row">
-        <CountInput count={count} setCount={setCount} />
-      </div>
-
-      {/* Zgynanna (Bending) */}
-      <div className="bw-row" style={{ marginTop: "1vh" }}>
-        <NewNoModalCornerRounding
-          big={big}
-          setBig={setBig}
-          type="SheetCut"
-          buttonsArr={[]}
-          selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
-        />
-      </div>
-
-      {/* Prokleyka */}
-      <div className="bw-row">
-        <NewNoModalProkleyka
-          prokleyka={prokleyka}
-          setProkleyka={setProkleyka}
-          type="SheetCut"
-          buttonsArr={[]}
-          selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
-        />
-      </div>
-
-      {/* Lyuversy */}
-      <div className="bw-row">
-        <NewNoModalLyuversy
-          lyuversy={lyuversy}
-          setLyuversy={setLyuversy}
-          type="SheetCut"
-          buttonsArr={[]}
-          selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
-        />
-      </div>
-
-      {/* Cute (Corner rounding) */}
-      <div className="bw-row">
-        <NewNoModalCute
-          cute={cute}
-          setCute={setCute}
-          cuteLocal={cuteLocal}
-          setCuteLocal={setCuteLocal}
-          type="SheetCut"
-          selectArr={["3", "6", "8", "10", "13"]}
-        />
-      </div>
-
-      {/* Holes */}
-      <div className="bw-row">
-        <NewNoModalHoles
-          holes={holes}
-          setHoles={setHoles}
-          holesR={holesR}
-          setHolesR={setHolesR}
-          type="SheetCut"
-          selectArr={["", "3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
-        />
-      </div>
-
-      {/* Design */}
-      <div className="bw-row">
-        <div className="d-flex flex-row allArtemElem">
-          <label className="switch scale04ForButtonToggle" aria-label="Дизайн">
-            <input
-              type="checkbox"
-              checked={design !== "Не потрібно"}
-              onChange={() => setDesign(design === "Не потрібно" ? "0" : "Не потрібно")}
-            />
-            <span className="switch-on"><span>ON</span></span>
-          <span className="slider" />
-          <span className="switch-off"><span>OFF</span></span>
-          </label>
-
-          <div className="PostpressNames">
-            Дизайн:
-            {design !== "Не потрібно" && (
-              <div className="d-flex align-items-center">
-                <input
-                  type="number"
-                  min={0}
-                  value={design}
-                  onChange={(e) => setDesign(e.target.value)}
-                  className="d-flex inputsArtemNumber inputsArtem"
-                  style={{ width: "80px", marginLeft: "8px" }}
-                />
-                <span className="inputsArtemx allArtemElem" style={{ marginLeft: "4px" }}>грн</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </>
-  );
-
-  // ========== RIGHT CONTENT ==========
-  const rightContent = <BigOvshikPrice />;
-
-  // ========== BOTTOM CONTENT ==========
-  const bottomContent = (
-    <div className="bw-action">
-      <button className="adminButtonAdd" onClick={handleSave}>
-        {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
-      </button>
-    </div>
-  );
+  const pricingSimpleLines = design !== "Не потрібно"
+    ? [{ label: "Дизайн", value: pricesThis.design.totalPrice }]
+    : [];
 
   // ========== RENDER ==========
   return (
-    <ServiceModalWrapper
+    <ScModal
       show={showBigOvshik}
-      onClose={() => setShowBigOvshik(false)}
-      leftContent={leftContent}
-      rightContent={rightContent}
-      bottomContent={bottomContent}
-      error={error?.response?.data?.error || (typeof error === "string" ? error : null)}
-      className="service-wide"
-      setEditingOrderUnit={setEditingOrderUnit}
-    />
+      onClose={handleClose}
+      modalStyle={{ width: "40vw" }}
+      rightContent={
+        <>
+          <ScPricing
+            lines={pricingLines}
+            simpleLines={pricingSimpleLines}
+            totalPrice={totalPriceFull}
+            fmt={fmt2}
+          />
+          <ScAddButton onClick={handleSave} isEdit={isEdit} />
+        </>
+      }
+      errorContent={
+        error && (
+          <div className="sc-error">
+            {error?.response?.data?.error || (typeof error === "string" ? error : "Помилка")}
+          </div>
+        )
+      }
+    >
+      {/* 1. Кількість */}
+      <ScSection title="">
+        <div className="d-flex flex-row align-items-center">
+          <input
+            className="inputsArtem"
+            type="number"
+            min={1}
+            value={count}
+            onChange={(e) => setCount(Math.max(1, +e.target.value || 1))}
+          />
+          <div className="inputsArtemx">шт</div>
+        </div>
+      </ScSection>
+
+      {/* 2. Згинання */}
+      <ScToggleSection
+        label="Згинання"
+        title="Згинання"
+        isOn={big !== "Не потрібно"}
+        onToggle={() => big === "Не потрібно" ? setBig("1") : setBig("Не потрібно")}
+        style={{ position: "relative", zIndex: 60 }}
+      >
+        <NewNoModalCornerRounding
+          big={big} setBig={setBig}
+          type="SheetCut" buttonsArr={[]}
+          selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+        />
+      </ScToggleSection>
+
+      {/* 3. Проклейка */}
+      <ScToggleSection
+        label="Проклейка"
+        title="Проклейка"
+        isOn={prokleyka !== "Не потрібно"}
+        onToggle={() => prokleyka === "Не потрібно" ? setProkleyka("1") : setProkleyka("Не потрібно")}
+        style={{ position: "relative", zIndex: 50 }}
+      >
+        <NewNoModalProkleyka
+          prokleyka={prokleyka} setProkleyka={setProkleyka}
+          type="SheetCut" buttonsArr={[]}
+          selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+        />
+      </ScToggleSection>
+
+      {/* 4. Люверси */}
+      <ScToggleSection
+        label="Люверси"
+        title="Люверси"
+        isOn={lyuversy !== "Не потрібно"}
+        onToggle={() => lyuversy === "Не потрібно" ? setLyuversy("1") : setLyuversy("Не потрібно")}
+        style={{ position: "relative", zIndex: 40 }}
+      >
+        <NewNoModalLyuversy
+          lyuversy={lyuversy} setLyuversy={setLyuversy}
+          type="SheetCut" buttonsArr={[]}
+          selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+        />
+      </ScToggleSection>
+
+      {/* 5. Скруглення кутів */}
+      <ScToggleSection
+        label="Скруглення"
+        title="Скруглення кутів"
+        isOn={cute !== "Не потрібно"}
+        onToggle={() => {
+          if (cute === "Не потрібно") {
+            setCute(4);
+            setCuteLocal({ leftTop: true, rightTop: true, rightBottom: true, leftBottom: true, radius: "6" });
+          } else {
+            setCute("Не потрібно");
+            setCuteLocal({ leftTop: false, rightTop: false, rightBottom: false, leftBottom: false, radius: "" });
+          }
+        }}
+        style={{ position: "relative", zIndex: 30 }}
+      >
+        <NewNoModalCute
+          cute={cute} setCute={setCute}
+          cuteLocal={cuteLocal} setCuteLocal={setCuteLocal}
+          type="SheetCut" selectArr={["3", "6", "8", "10", "13"]}
+        />
+      </ScToggleSection>
+
+      {/* 6. Свердління отворів */}
+      <ScToggleSection
+        label="Свердління"
+        title="Свердління отворів"
+        isOn={holes !== "Не потрібно"}
+        onToggle={() => {
+          if (holes === "Не потрібно") { setHoles(1); setHolesR("5 мм"); }
+          else { setHoles("Не потрібно"); setHolesR(""); }
+        }}
+        style={{ position: "relative", zIndex: 20 }}
+      >
+        <NewNoModalHoles
+          holes={holes} setHoles={setHoles}
+          holesR={holesR} setHolesR={setHolesR}
+          type="SheetCut" buttonsArr={[]}
+          selectArr={["", "3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
+        />
+      </ScToggleSection>
+
+      {/* 7. Дизайн */}
+      <ScToggleSection
+        label="Дизайн"
+        title="Дизайн"
+        isOn={design !== "Не потрібно"}
+        onToggle={() => setDesign(design === "Не потрібно" ? "0" : "Не потрібно")}
+        style={{ position: "relative", zIndex: 10 }}
+      >
+        <div className="d-flex align-items-center">
+          <input
+            type="number"
+            min={0}
+            value={design}
+            onChange={(e) => setDesign(e.target.value)}
+            className="inputsArtem"
+            style={{ width: "80px" }}
+          />
+          <span className="inputsArtemx">грн</span>
+        </div>
+      </ScToggleSection>
+
+    </ScModal>
   );
 };
 

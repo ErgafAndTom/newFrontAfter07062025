@@ -2,16 +2,13 @@ import React, { useEffect, useState, useMemo, useRef } from "react";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
-import ServiceModalWrapper from "./shared/ServiceModalWrapper";
-import CountInput from "./shared/CountInput";
+import { ScModal, ScSection, ScCountSize, ScPricing, ScAddButton } from "./shared";
 import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
-import "./shared/ServiceModal.css";
+import "./Poslugy.css";
 
 // ========== DEFAULTS ==========
-const DEFAULT_SIZE = { x: 100, y: 150 };
-
 const DEFAULTS = {
-  size: DEFAULT_SIZE,
+  size: { x: 105, y: 148 },
   material: {
     type: "Магніт",
     thickness: "",
@@ -24,29 +21,22 @@ const DEFAULTS = {
     two: "",
     allSidesColor: "CMYK",
   },
-  lamination: {
-    type: "Не потрібно",
-    material: "",
-  },
   count: 1,
-  cuteLocal: {
-    leftTop: false,
-    rightTop: false,
-    rightBottom: false,
-    leftBottom: false,
-    radius: "",
-  },
 };
 
 const SIZE_FORMATS = [
-  { name: "Задати свій розмір", x: 0, y: 0 },
-  { name: "100 x 150 мм", x: 100, y: 150 },
-  { name: "90 x 50 мм", x: 90, y: 50 },
-  { name: "85 x 55 мм", x: 85, y: 55 },
-  { name: "A5 (148 x 210 мм)", x: 148, y: 210 },
-  { name: "A4 (210 x 297 мм)", x: 210, y: 297 },
-  { name: "A3 (297 x 420 мм)", x: 297, y: 420 },
+  { name: "А7 (74 x 105 мм)", x: 74, y: 105 },
+  { name: "А6 (105 x 148 мм)", x: 105, y: 148 },
+  { name: "А5 (148 x 210 мм)", x: 148, y: 210 },
+  { name: "А4 (210 x 297 мм)", x: 210, y: 297 },
+  { name: "А3 (297 x 420 мм)", x: 297, y: 420 },
 ];
+
+const fmt2 = (v) =>
+  new Intl.NumberFormat("uk-UA", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(v));
 
 const NewMagnets = ({
   thisOrder,
@@ -63,7 +53,7 @@ const NewMagnets = ({
   const { isEdit, options } = useModalState(editingOrderUnit, showNewMagnets);
 
   // ========== STATE ==========
-  const [size, setSize] = useState(DEFAULT_SIZE);
+  const [size, setSize] = useState(DEFAULTS.size);
   const [material, setMaterial] = useState(DEFAULTS.material);
   const [color, setColor] = useState(DEFAULTS.color);
   const [count, setCount] = useState(DEFAULTS.count);
@@ -73,9 +63,6 @@ const NewMagnets = ({
   const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
   const [materialDropdownOpen, setMaterialDropdownOpen] = useState(false);
   const [materials, setMaterials] = useState([]);
-  const [customSize, setCustomSize] = useState(false);
-  const [localX, setLocalX] = useState(DEFAULT_SIZE.x);
-  const [localY, setLocalY] = useState(DEFAULT_SIZE.y);
 
   const sizeDropdownRef = useRef(null);
   const materialDropdownRef = useRef(null);
@@ -86,10 +73,10 @@ const NewMagnets = ({
       size,
       material,
       color,
-      lamination: DEFAULTS.lamination,
+      lamination: { type: "Не потрібно", material: "" },
       big: "Не потрібно",
       cute: "Не потрібно",
-      cuteLocal: DEFAULTS.cuteLocal,
+      cuteLocal: { leftTop: false, rightTop: false, rightBottom: false, leftBottom: false, radius: "" },
       holes: "Не потрібно",
       holesR: "Не потрібно",
       count,
@@ -108,62 +95,40 @@ const NewMagnets = ({
     setEditingOrderUnit
   );
 
+  const handleClose = () => {
+    if (setEditingOrderUnit) setEditingOrderUnit(null);
+    setShowNewMagnets(false);
+  };
+
   // ========== EFFECTS ==========
 
-  // Initialize/reset state when modal opens
   useEffect(() => {
     if (!showNewMagnets) return;
 
-    // NEW mode - set defaults
     if (!isEdit) {
       setSize(DEFAULTS.size);
       setMaterial(DEFAULTS.material);
       setColor(DEFAULTS.color);
       setCount(DEFAULTS.count);
-      setLocalX(DEFAULTS.size.x);
-      setLocalY(DEFAULTS.size.y);
-      setCustomSize(false);
       setError(null);
       return;
     }
 
-    // EDIT mode - load from options
     const opt = options || {};
-
-    const safeNum = (v, fallback) => {
-      const n = Number(v);
-      return Number.isFinite(n) ? n : fallback;
-    };
+    const safeNum = (v, fb) => { const n = Number(v); return Number.isFinite(n) ? n : fb; };
 
     setCount(safeNum(opt?.count, safeNum(editingOrderUnit?.amount, DEFAULTS.count)) || DEFAULTS.count);
-
     setSize({
-      x: safeNum(opt?.size?.x, DEFAULT_SIZE.x),
-      y: safeNum(opt?.size?.y, DEFAULT_SIZE.y),
+      x: safeNum(opt?.size?.x, DEFAULTS.size.x),
+      y: safeNum(opt?.size?.y, DEFAULTS.size.y),
     });
-    setLocalX(safeNum(opt?.size?.x, DEFAULT_SIZE.x));
-    setLocalY(safeNum(opt?.size?.y, DEFAULT_SIZE.y));
-
     setMaterial({
       type: opt?.material?.type ?? DEFAULTS.material.type,
       thickness: opt?.material?.thickness ?? DEFAULTS.material.thickness,
       material: opt?.material?.material ?? DEFAULTS.material.material,
       materialId: opt?.material?.materialId ?? DEFAULTS.material.materialId,
     });
-
-    setColor({
-      sides: opt?.color?.sides ?? DEFAULTS.color.sides,
-      one: opt?.color?.one ?? DEFAULTS.color.one,
-      two: opt?.color?.two ?? DEFAULTS.color.two,
-      allSidesColor: opt?.color?.allSidesColor ?? DEFAULTS.color.allSidesColor,
-    });
-
-    // Check if custom size
-    const foundFormat = SIZE_FORMATS.find(
-      (f) => f.x === safeNum(opt?.size?.x, DEFAULT_SIZE.x) && f.y === safeNum(opt?.size?.y, DEFAULT_SIZE.y) && f.x !== 0
-    );
-    setCustomSize(!foundFormat);
-
+    setColor(opt?.color ?? DEFAULTS.color);
     setError(null);
   }, [showNewMagnets, isEdit, options, editingOrderUnit]);
 
@@ -171,23 +136,19 @@ const NewMagnets = ({
   useEffect(() => {
     if (!showNewMagnets) return;
 
-    const data = {
-      name: "MaterialsPrices",
-      inPageCount: 999999,
-      currentPage: 1,
-      search: "",
-      columnName: { column: "id", reverse: false },
-      material,
-      size,
-    };
-
     axios
-      .post(`/materials/NotAll`, data)
+      .post(`/materials/NotAll`, {
+        name: "MaterialsPrices",
+        inPageCount: 999999,
+        currentPage: 1,
+        search: "",
+        columnName: { column: "id", reverse: false },
+        material,
+        size,
+      })
       .then((response) => {
         const rows = response.data.rows || [];
         setMaterials(rows);
-
-        // Auto-select first material if none selected
         if (rows.length > 0 && !material.materialId) {
           setMaterial((prev) => ({
             ...prev,
@@ -198,9 +159,7 @@ const NewMagnets = ({
       })
       .catch((err) => {
         setMaterials([]);
-        if (err?.response?.status === 403) {
-          navigate("/login");
-        }
+        if (err?.response?.status === 403) navigate("/login");
       });
   }, [material?.type, size, showNewMagnets, navigate]);
 
@@ -221,21 +180,8 @@ const NewMagnets = ({
   // ========== HANDLERS ==========
 
   const handleSizeSelect = (format) => {
-    if (format.name === "Задати свій розмір") {
-      setCustomSize(true);
-      setSizeDropdownOpen(false);
-      return;
-    }
-
     setSize({ x: format.x, y: format.y });
-    setLocalX(format.x);
-    setLocalY(format.y);
-    setCustomSize(false);
     setSizeDropdownOpen(false);
-  };
-
-  const applyCustomSize = () => {
-    setSize({ x: localX, y: localY });
   };
 
   const handleMaterialSelect = (item) => {
@@ -248,158 +194,80 @@ const NewMagnets = ({
   };
 
   const handleSave = () => {
-    if (!material?.materialId) {
-      setError("Виберіть будь ласка матеріал");
-      return;
-    }
-
-    const toCalcData = {
-      nameOrderUnit: "Магнітах ",
-      type: "Magnets",
-      size,
-      material,
-      color,
-      lamination: DEFAULTS.lamination,
-      big: "Не потрібно",
-      cute: "Не потрібно",
-      cuteLocal: DEFAULTS.cuteLocal,
-      holes: "Не потрібно",
-      holesR: "Не потрібно",
-      count,
-    };
-
-    saveOrderUnit(toCalcData, editingOrderUnit, setError);
-  };
-
-  // ========== RENDER HELPERS ==========
-
-  const selectedSizeFormat = SIZE_FORMATS.find((f) => f.x === size.x && f.y === size.y && f.x !== 0);
-  const sizeTitle = customSize
-    ? "Задати свій розмір"
-    : selectedSizeFormat?.name || `${size.x} x ${size.y} мм`;
-  const materialTitle = material?.material || "Виберіть матеріал";
-
-  // Custom pricing summary for Magnets
-  const MagnetsPrice = () => {
-    if (!pricesThis) {
-      return (
-        <div className="bw-summary-title">
-          <div className="bw-sticky">
-            <div className="bwsubOP">Розрахунок завантажується...</div>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="bw-summary-title">
-        <div className="bw-sticky">
-          <div className="bwsubOP">Друк:</div>
-          <div className="bw-calc-line">
-            {parseFloat(pricesThis.priceDrukPerSheet || 0).toFixed(2)}
-            <span className="bw-sub">грн</span>
-            <span className="bw-op">×</span>
-            {pricesThis.sheetCount || 0}
-            <span className="bw-sub">м2</span>
-            <span className="bw-op">=</span>
-            {(parseFloat(pricesThis.priceDrukPerSheet || 0) * (pricesThis.sheetCount || 0)).toFixed(2)}
-            <span className="bw-sub">грн</span>
-          </div>
-
-          <div className="bwsubOP">Матеріали:</div>
-          <div className="bw-calc-line">
-            {parseFloat(pricesThis.pricePaperPerSheet || 0).toFixed(2)}
-            <span className="bw-sub">грн</span>
-            <span className="bw-op">×</span>
-            {pricesThis.sheetCount || 0}
-            <span className="bw-sub">м2</span>
-            <span className="bw-op">=</span>
-            {(parseFloat(pricesThis.pricePaperPerSheet || 0) * (pricesThis.sheetCount || 0)).toFixed(2)}
-            <span className="bw-sub">грн</span>
-          </div>
-
-          {pricesThis.porizka !== 0 && (
-            <>
-              <div className="bwsubOP">Порізка:</div>
-              <div className="bw-calc-line">
-                {parseFloat(pricesThis.porizka || 0).toFixed(2)}
-                <span className="bw-sub">грн</span>
-                <span className="bw-op">×</span>
-                {pricesThis.sheetCount || 0}
-                <span className="bw-sub">шт</span>
-                <span className="bw-op">=</span>
-                {(parseFloat(pricesThis.porizka || 0) * (pricesThis.sheetCount || 0)).toFixed(2)}
-                <span className="bw-sub">грн</span>
-              </div>
-            </>
-          )}
-
-          <div
-            className="bw-calc-total d-flex justify-content-center align-content-center"
-            style={{ fontWeight: "500", color: "red" }}
-          >
-            {parseFloat(pricesThis.price || 0).toFixed(2)}
-            <span className="bw-sub">грн</span>
-          </div>
-
-          {pricesThis.priceForItemWithExtras && (
-            <div className="bw-calc-line" style={{ marginTop: "8px" }}>
-              <span className="bwsubOP">За виріб:</span>
-              {parseFloat(pricesThis.priceForItemWithExtras || 0).toFixed(2)}
-              <span className="bw-sub">грн</span>
-            </div>
-          )}
-        </div>
-      </div>
+    saveOrderUnit(
+      {
+        nameOrderUnit: "Магнітах ",
+        type: "Magnets",
+        size,
+        material,
+        color,
+        lamination: { type: "Не потрібно", material: "" },
+        big: "Не потрібно",
+        cute: "Не потрібно",
+        cuteLocal: { leftTop: false, rightTop: false, rightBottom: false, leftBottom: false, radius: "" },
+        holes: "Не потрібно",
+        holesR: "Не потрібно",
+        count,
+      },
+      editingOrderUnit,
+      setError
     );
   };
 
-  // ========== LEFT CONTENT ==========
-  const leftContent = (
-    <>
-      {/* Count */}
-      <div className="bw-title">Кількість</div>
-      <div className="bw-row">
-        <CountInput count={count} setCount={setCount} />
-      </div>
+  // ========== RENDER HELPERS ==========
+  const selectedSizeFormat = SIZE_FORMATS.find((f) => f.x === size.x && f.y === size.y);
+  const sizeTitle = selectedSizeFormat?.name || `${size.x} x ${size.y} мм`;
+  const materialTitle = material?.material || "Виберіть матеріал";
 
-      {/* Size */}
-      <div className="bw-title">Розмір</div>
-      <div className="bw-row">
-        <div className="d-flex flex-row justify-content-between align-items-center w-100 gap-2">
-          {/* Custom size inputs */}
-          {customSize && (
-            <div className="d-flex align-items-center gap-1">
-              <input
-                className="inputsArtem"
-                type="number"
-                value={localX}
-                min={10}
-                max={1000}
-                onChange={(e) => setLocalX(Number(e.target.value))}
-                onBlur={applyCustomSize}
-                style={{ width: "60px" }}
-              />
-              <span style={{ color: "#666" }}>x</span>
-              <input
-                className="inputsArtem"
-                type="number"
-                value={localY}
-                min={10}
-                max={1000}
-                onChange={(e) => setLocalY(Number(e.target.value))}
-                onBlur={applyCustomSize}
-                style={{ width: "60px" }}
-              />
-              <span style={{ color: "#666", fontSize: "12px" }}>мм</span>
-            </div>
-          )}
+  // ========== PRICING DATA ==========
+  const totalM2 = pricesThis?.allTotalSizeInM2 || 0;
 
-          {/* Size Dropdown */}
+  const pricingLines = pricesThis
+    ? [
+        { label: "Друк", perUnit: pricesThis.priceDrukPerSheet, count: totalM2, total: pricesThis.totalDrukPrice || 0 },
+        { label: "Матеріали", perUnit: pricesThis.pricePaperPerSheet, count: totalM2, total: (pricesThis.pricePaperPerSheet || 0) * totalM2 },
+      ]
+    : [];
+
+  const pricingExtras = pricesThis
+    ? [{ label: "За виріб", value: `${fmt2(pricesThis.priceForItemWithExtras || 0)} грн` }]
+    : [];
+
+  // ========== RENDER ==========
+  return (
+    <ScModal
+      show={showNewMagnets}
+      onClose={handleClose}
+      modalStyle={{ width: "45vw" }}
+      rightContent={
+        <>
+          <ScPricing
+            lines={pricingLines}
+            totalPrice={Number(pricesThis?.price) || 0}
+            extras={pricingExtras}
+            fmt={fmt2}
+            countUnit="м2"
+          />
+          <ScAddButton onClick={handleSave} isEdit={isEdit} />
+        </>
+      }
+      errorContent={
+        error && (
+          <div className="sc-error">
+            {typeof error === "string" ? error : error?.response?.data?.error || "Помилка"}
+          </div>
+        )
+      }
+    >
+      {/* 1. Кількість + Розмір */}
+      <ScCountSize
+        count={count}
+        onCountChange={(v) => setCount(v)}
+        sizeComponent={
           <div
             className="custom-select-container selectArtem selectArtemBefore"
             ref={sizeDropdownRef}
-            style={{ zIndex: 10, flex: customSize ? "0 0 auto" : "1" }}
+            style={{ zIndex: 10, marginLeft: "auto" }}
           >
             <div
               className="custom-select-header"
@@ -407,7 +275,6 @@ const NewMagnets = ({
             >
               {sizeTitle}
             </div>
-
             {sizeDropdownOpen && (
               <div className="custom-select-dropdown">
                 {SIZE_FORMATS.map((item) => (
@@ -422,12 +289,11 @@ const NewMagnets = ({
               </div>
             )}
           </div>
-        </div>
-      </div>
+        }
+      />
 
-      {/* Material */}
-      <div className="bw-title">Матеріал</div>
-      <div className="bw-row">
+      {/* 2. Матеріал */}
+      <ScSection title="" style={{ position: "relative", zIndex: 5 }}>
         <div
           className="custom-select-container selectArtem selectArtemBefore"
           ref={materialDropdownRef}
@@ -439,15 +305,12 @@ const NewMagnets = ({
           >
             {materialTitle}
           </div>
-
           {materialDropdownOpen && (
             <div className="custom-select-dropdown">
               {materials.map((item) => (
                 <div
                   key={item.id}
-                  className={`custom-option ${
-                    String(item.id) === String(material?.materialId) ? "active" : ""
-                  }`}
+                  className={`custom-option ${String(item.id) === String(material?.materialId) ? "active" : ""}`}
                   onClick={() => handleMaterialSelect(item)}
                 >
                   <span className="name">{item.name}</span>
@@ -456,34 +319,9 @@ const NewMagnets = ({
             </div>
           )}
         </div>
-      </div>
-    </>
-  );
+      </ScSection>
 
-  // ========== RIGHT CONTENT ==========
-  const rightContent = <MagnetsPrice />;
-
-  // ========== BOTTOM CONTENT ==========
-  const bottomContent = (
-    <div className="bw-action">
-      <button className="adminButtonAdd" variant="danger" onClick={handleSave}>
-        {isEdit ? "Зберегти зміни" : "Додати до замовлення"}
-      </button>
-    </div>
-  );
-
-  // ========== RENDER ==========
-  return (
-    <ServiceModalWrapper
-      show={showNewMagnets}
-      onClose={() => setShowNewMagnets(false)}
-      leftContent={leftContent}
-      rightContent={rightContent}
-      bottomContent={bottomContent}
-      error={error}
-      className="service-magnets"
-      setEditingOrderUnit={setEditingOrderUnit}
-    />
+    </ScModal>
   );
 };
 
