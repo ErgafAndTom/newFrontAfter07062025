@@ -230,6 +230,7 @@ const NewBooklet = ({
     ? [
         { label: "За виріб", value: `${fmt2(pricesThis.priceForItemWithExtras)} грн` },
         { label: "Кратність", value: `${(pricesThis.sheetsPerUnit || 0) / 2} шт` },
+        { label: "Сторінок блоку", value: `${materialAndDrukBack.count * 2} стор.` },
       ]
     : [];
 

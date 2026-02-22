@@ -130,13 +130,16 @@ const Materials2NoteInBody = ({
         axios
             .post(`/materials/NotAll`, data)
             .then((response) => {
-                setPaperColorDruk(response.data.rows);
+                const rows = (response.data.rows || []).filter(
+                    (r) => r.name !== "Офісний папір А4"
+                );
+                setPaperColorDruk(rows);
                 setLoadPaperColor(false);
-                if (response.data?.rows?.[0]) {
+                if (rows[0]) {
                     setMaterialAndDrukInBody((prev) => ({
                         ...prev,
-                        ColorDrukMaterial: response.data.rows[0].name,
-                        ColorDrukMaterialId: response.data.rows[0].id
+                        ColorDrukMaterial: rows[0].name,
+                        ColorDrukMaterialId: rows[0].id
                     }));
                 } else {
                     setMaterialAndDrukInBody((prev) => ({
@@ -290,13 +293,16 @@ const Materials2NoteInBody = ({
         axios
             .post(`/materials/NotAll`, data)
             .then((response) => {
-                setPaperBwDruk(response.data.rows);
+                const rowsBw = (response.data.rows || []).filter(
+                    (r) => r.name !== "Офісний папір А4"
+                );
+                setPaperBwDruk(rowsBw);
                 setLoadPaperBW(false);
-                if (response.data?.rows?.[0]) {
+                if (rowsBw[0]) {
                     setMaterialAndDrukInBody((prev) => ({
                         ...prev,
-                        BwDrukMaterial: response.data.rows[0].name,
-                        BwDrukMaterialId: response.data.rows[0].id
+                        BwDrukMaterial: rowsBw[0].name,
+                        BwDrukMaterialId: rowsBw[0].id
                     }));
                 } else {
                     setMaterialAndDrukInBody((prev) => ({
@@ -451,13 +457,16 @@ const Materials2NoteInBody = ({
         axios
             .post(`/materials/NotAll`, data)
             .then((response) => {
-                setPaperNonDruk(response.data.rows);
+                const rowsNon = (response.data.rows || []).filter(
+                    (r) => r.name !== "Офісний папір А4"
+                );
+                setPaperNonDruk(rowsNon);
                 setLoadPaperNON(false);
-                if (response.data?.rows?.[0]) {
+                if (rowsNon[0]) {
                     setMaterialAndDrukInBody((prev) => ({
                         ...prev,
-                        NonDrukMaterial: response.data.rows[0].name,
-                        NonDrukMaterialId: response.data.rows[0].id
+                        NonDrukMaterial: rowsNon[0].name,
+                        NonDrukMaterialId: rowsNon[0].id
                     }));
                 } else {
                     setMaterialAndDrukInBody((prev) => ({

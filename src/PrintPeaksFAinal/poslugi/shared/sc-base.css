@@ -1,0 +1,2218 @@
+/* =============================================================
+   GLOBAL VARIABLES
+   ============================================================= */
+:root {
+  --admingreen: #0e935b;
+  --admingrey: #666666;
+  --adminorange: #f5a623;
+  --adminblue: #3c60a6;
+  --adminfonelement: #f2f0e9;
+  --adminfon: #f7f5ee;
+}
+
+/* =============================================================
+   UNIFIED SWITCH (skew ON/OFF)
+   ============================================================= */
+label.switch {
+  cursor: pointer;
+  position: relative;
+  display: flex !important;
+  width: 6.7rem !important;
+  height: auto !important;
+  overflow: hidden;
+  padding: 0.5rem !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  text-transform: uppercase;
+  transition: width 0.5s;
+}
+
+label.switch:has(input:checked) {
+  width: 11rem !important;
+  margin-right: -3.5rem;
+}
+
+.switch input {
+  display: none;
+}
+
+/* --- OFF label (visible right, slides out on checked) --- */
+.switch .switch-off,
+.switch .switch-off span {
+  color: #666666 !important;
+}
+
+.switch .switch-off {
+  position: absolute;
+  right: 0.3rem;
+  z-index: 1;
+  display: flex;
+  height: 3rem;
+  width: 6rem;
+  transform: skewX(12deg);
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  transition: 0.5s;
+}
+
+.switch .switch-off span {
+  transform: skewX(-12deg);
+}
+
+.switch input:checked ~ .switch-off {
+  right: -6.5rem;
+}
+
+/* --- bar: OFF = transparent, ON = var(--admingreen) --- */
+.switch .slider {
+  z-index: 0;
+  height: 3rem;
+  width: 6rem;
+  transform: skewX(12deg);
+  border: 2px solid #666666 !important;
+  background-color: transparent !important;
+  transition: 0.5s;
+}
+
+.switch input:checked ~ .slider {
+  transform: skewX(-12deg);
+  background-color: transparent !important;
+  border: 2px solid var(--admingreen) !important;
+  width: 10rem;
+}
+
+/* --- ON label (hidden left, slides in on checked) --- */
+.switch .switch-on {
+  position: absolute;
+  left: -11rem;
+  z-index: 1;
+  display: flex;
+  height: 3rem;
+  width: 6rem;
+  transform: skewX(-12deg);
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  color: #666666;
+  transition: 0.5s;
+}
+
+.switch .switch-on span {
+  transform: skewX(12deg);
+}
+
+.switch input:checked ~ .switch-on {
+  left: 0;
+  width: 10rem;
+  color: var(--admingreen) !important;
+  justify-content: center;
+  padding-left: 1rem;
+}
+.switch input:checked ~ .switch-on span {
+  color: var(--admingreen) !important;
+}
+
+.scale04ForButtonToggle {
+  transform: scale(0.65);
+  transform-origin: left center;
+  white-space: nowrap;
+  order: -1;
+}
+
+/* hide old toggleContainer switch */
+.toggleContainer.scale04ForButtonToggle {
+  display: none !important;
+}
+
+/* --- switch always left of text --- */
+.sc-pp-wrap {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-wrap: wrap;
+}
+
+.sc-pp-wrap > .scale04ForButtonToggle {
+  order: -1 !important;
+}
+
+
+/* ===== NewSheetCut — scoped overrides on top of bw- design ===== */
+
+/* Wrapper scope: .sc-wrap  */
+
+/* --- overlay stays the same as bw-overlay --- */
+
+/* --- modal: bigger because SheetCut has many more options --- */
+.sc-wrap .sc-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 62vw;
+  max-height: 90vh;
+
+  background: var(--adminfon);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+  overflow: visible;
+}
+
+/* --- content: two-column flex instead of absolute --- */
+.sc-wrap .sc-body {
+  display: flex;
+  align-items: flex-start;
+  overflow: visible;
+  padding: 20px 28px 0;
+  gap: 16px;
+  position: relative;
+  z-index: 100;
+}
+
+/* --- LEFT: scrollable options column --- */
+.sc-wrap .sc-left {
+  flex: 1;
+  overflow-y: visible;
+  overflow-x: hidden;
+  padding-right: 8px;
+  display: flex;
+  flex-direction: column;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.15) transparent;
+}
+.sc-wrap .sc-left::-webkit-scrollbar {
+  width: 5px;
+}
+.sc-wrap .sc-left::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 10px;
+}
+
+/* --- RIGHT: sticky price column --- */
+.sc-wrap .sc-right {
+  width: 14vw;
+  min-width: 180px;
+  max-width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+}
+
+/* --- left sections column with gap --- */
+.sc-wrap .sc-left-sections {
+  flex: 1;
+  min-width: 0;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2vh;
+  padding-right: 8px;
+  position: relative;
+  z-index: 10;
+}
+/* Кількість + Розмір в одному рядку */
+.sc-wrap .sc-count-size-row {
+  display: flex;
+  gap: 1vw;
+  align-items: stretch;
+}
+.sc-wrap .sc-count-size-row .sc-section-card {
+  background: linear-gradient(270deg, #f2f0e9, #efece5, #f5f3ec, #f0ede6, #f2f0e9);
+  background-size: 100% 100%;
+  animation: cardShimmer 5s linear infinite;
+  padding: 1.2vh 1vw;
+  border-radius: 0;
+}
+
+/* Картки для секцій Сторонність, Матеріал */
+.sc-wrap .sc-left-sections > .sc-section-card {
+  background: linear-gradient(270deg, #f2f0e9, #efece5, #f5f3ec, #f0ede6, #f2f0e9);
+  background-size: 100% 100%;
+  animation: cardShimmer 5s linear infinite;
+  padding: 1.2vh 1vw;
+  border-radius: 0;
+  /*box-shadow: 0 1px 3px rgba(0,0,0,0.08);*/
+}
+
+@keyframes cardShimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 400% 50%; }
+}
+/* pseudo-elements inside cards match card background */
+.sc-wrap .sc-section-card .sc-side-btn::before,
+.sc-wrap .sc-section-card .sc-side-btn::after,
+.sc-wrap .sc-section-card .buttonsArtem::before,
+.sc-wrap .sc-section-card .buttonsArtem::after {
+  background-color: var(--adminfonelement);
+}
+/* sections 4-10 (Ламінування...Порізка) — мінімальна відстань */
+.sc-wrap .sc-left-sections > .sc-section:nth-child(n+4) {
+  margin-top: -1vh;
+}
+.sc-wrap .sc-left-sections::-webkit-scrollbar {
+  width: 5px;
+}
+.sc-wrap .sc-left-sections::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 10px;
+}
+
+/* --- section titles (reuse bw-title style) --- */
+.sc-wrap .sc-title {
+  font-size: clamp(0.75rem, 1.3vh, 1.8vh);
+  color: var(--admingrey);
+  margin-bottom: 0;
+  text-transform: uppercase;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  min-height: 3vh;
+  min-width: 10vw;
+  flex-shrink: 0;
+}
+
+/* --- switch toggle: 1.5x bigger --- */
+.sc-wrap .scale04ForButtonToggle {
+  transform: scale(0.56);
+  margin-right: 0;
+}
+
+/* --- section row --- */
+.sc-wrap .sc-row {
+  background: transparent;
+  border-radius: 8px;
+}
+
+/* --- compact size inputs inside the modal --- */
+.sc-wrap .allArtemElem {
+  margin-left: 0;
+  margin-right: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+/* Всередині count-size-row: розмір + селект в 1 рядок */
+.sc-wrap .sc-count-size-row .allArtemElem {
+  flex-wrap: nowrap;
+}
+
+.sc-wrap .ArtemNewSelectContainer {
+  margin-left: 0.5vw;
+  margin-right: 0;
+  display: flex;
+  justify-content: space-between;
+  flex-shrink: 1;
+  min-width: 0;
+}
+.sc-wrap .custom-select-header {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sc-wrap .FormControlFeedbackColor {
+  display: none;
+}
+
+/* inputsArtem unified below with form-control */
+
+.sc-wrap .inputsArtemx {
+  font-size: clamp(0.75rem, 1.3vh, 1.8vh);
+  color: var(--admingrey);
+  margin-left: 0.3vw;
+  margin-right: 0.3vw;
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: none;
+}
+
+.sc-wrap .selectArtem {
+  height: 3.2vh;
+  min-height: 0;
+  padding: 2px 6px;
+  font-size: clamp(0.75rem, 1.3vh, 1.8vh);
+  color: var(--admingrey);
+  background: transparent;
+  border: none !important;
+  border-bottom: 2px solid var(--adminblue) !important;
+  border-radius: 0;
+}
+
+/* Dropdown розміру (selectArtem) всередині count-size-row — admingreen */
+.sc-wrap .sc-count-size-row .selectArtem {
+  border-bottom: 2px solid var(--admingreen) !important;
+}
+
+/* --- unified input style (quantity + size) --- */
+.sc-wrap .inputsArtem,
+.sc-wrap .inputsArtem.form-control {
+  width: 3.5vw;
+  height: 3.2vh;
+  min-height: 0;
+  padding: 2px 4px;
+  font-size: clamp(0.75rem, 1.3vh, 1.8vh) !important;
+  color: var(--admingrey);
+  background: transparent;
+  border: none !important;
+  border-bottom: 2px solid var(--adminblue) !important;
+  border-radius: 0;
+  text-align: center;
+  box-shadow: none !important;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.sc-wrap .inputsArtemx {
+  border-bottom: none !important;
+}
+
+.sc-wrap .inputsArtem::placeholder {
+  color: #ccc;
+  animation: sc-blink 1.5s ease-in-out infinite;
+}
+
+.sc-wrap .inputsArtem:focus,
+.sc-wrap .inputsArtem.form-control:focus {
+  border-bottom-color: #e08e00;
+  box-shadow: none !important;
+}
+
+.sc-wrap .inputsArtem.form-control:disabled {
+  background: transparent;
+  border-bottom: 2px dashed #ccc;
+  opacity: 0.6;
+}
+
+@keyframes sc-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* --- lamination: full-width buttons like material/sides --- */
+.sc-wrap .sc-lam-row {
+  flex: 1;
+}
+.sc-wrap .sc-lam-row .allArtemElem {
+  width: 100%;
+}
+
+.sc-wrap .sc-lam-row .allArtemElem > div {
+  width: 100%;
+  margin-top: 0;
+}
+
+.sc-wrap .sc-lam-row .PostpressNames {
+  width: 100%;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sc-wrap .sc-lam-row .PostpressNames > div {
+  width: 100%;
+}
+
+.sc-wrap .sc-lam-row .PostpressNames > div > div {
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+/* --- lamination: reduce gap between switch and buttons --- */
+.sc-wrap .sc-lam-row .allArtemElem > div {
+  margin-top: 0 !important;
+}
+
+.sc-wrap .sc-lam-row button.buttonsArtem:last-of-type {
+  border-radius: 0 8px 8px 0;
+}
+
+/* --- post-press rows: hide internal switch and label --- */
+.sc-wrap .sc-lam-row .scale04ForButtonToggle,
+.sc-wrap .sc-pp-row .scale04ForButtonToggle {
+  display: none !important;
+}
+
+.sc-wrap .sc-lam-row .PostpressNames > span:first-child,
+.sc-wrap .sc-pp-row .PostpressNames > span:first-child {
+  display: none !important;
+}
+
+.sc-wrap .sc-lam-row .PostpressNames > span:first-child,
+.sc-wrap .sc-pp-row .PostpressNames > span:first-child {
+  display: none;
+}
+
+/* --- hide blue arrow on custom size dropdown --- */
+.sc-wrap .selectArtemBefore::before {
+  display: none;
+}
+
+/* --- size & material dropdowns: match quantity font, center text --- */
+.sc-wrap .custom-select-header {
+  font-size: clamp(0.75rem, 1.3vh, 1.8vh);
+  color: var(--admingrey);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 0.5vw;
+  padding-right: 1.5vw;
+  height: 100%;
+  min-height: 3.2vh;
+}
+
+/* extra left padding when hand loader is visible */
+.sc-wrap .custom-select-container:not(.sc-has-value) .custom-select-header {
+  padding-left: 2vw;
+}
+
+.sc-wrap .custom-select-container {
+  font-size: clamp(0.75rem, 1.3vh, 1.8vh);
+  color: var(--admingrey);
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid var(--adminblue) !important;
+  border-radius: 0 !important;
+  position: relative;
+  transition: border-color 0.3s ease;
+}
+
+/* Dropdown розміру (всередині count-size-row) — admingreen */
+.sc-wrap .sc-count-size-row .custom-select-container {
+  border-bottom: 2px solid var(--admingreen) !important;
+}
+
+/* --- triangle indicator --- */
+.sc-wrap .custom-select-container::after {
+  content: "";
+  position: absolute;
+  right: 0.4vw;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid #1e90ff;
+  pointer-events: none;
+}
+
+/* --- not selected: tapping hand loader (from uiverse.io/Pradeepsaranbishnoi) --- */
+.sc-hand {
+  --skin-color: var(--adminorange);
+  --tap-speed: 0.6s;
+  --tap-stagger: 0.1s;
+  position: absolute;
+  left: 0.3vw;
+  top: 50%;
+  width: 18px;
+  height: 13px;
+  transform: translateY(-50%) scaleX(-1) scale(0.75);
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+
+.sc-hand::before {
+  content: '';
+  display: block;
+  width: 180%;
+  height: 75%;
+  position: absolute;
+  top: 70%;
+  right: 20%;
+  background-color: black;
+  border-radius: 40px 10px;
+  filter: blur(4px);
+  opacity: 0.15;
+}
+
+.sc-hand-palm {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: var(--skin-color);
+  border-radius: 10px 40px;
+}
+
+.sc-hand-thumb {
+  position: absolute;
+  width: 120%;
+  height: 10px;
+  background-color: var(--skin-color);
+  bottom: -18%;
+  right: 1%;
+  transform-origin: calc(100% - 5px) 5px;
+  transform: rotate(-20deg);
+  border-radius: 30px 20px 20px 10px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+  border-left: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.sc-hand-thumb::after {
+  width: 20%;
+  height: 60%;
+  content: '';
+  background-color: rgba(255, 255, 255, 0.3);
+  position: absolute;
+  bottom: -8%;
+  left: 2px;
+  border-radius: 60% 10% 10% 30%;
+  border-right: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+.sc-hand-finger {
+  position: absolute;
+  width: 80%;
+  height: 9px;
+  background-color: var(--skin-color);
+  bottom: 32%;
+  right: 64%;
+  transform-origin: 100% 5px;
+  animation-duration: calc(var(--tap-speed) * 2);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  transform: rotate(10deg);
+}
+
+.sc-hand-finger::before {
+  content: '';
+  position: absolute;
+  width: 140%;
+  height: 8px;
+  background-color: var(--skin-color);
+  bottom: 8%;
+  right: 65%;
+  transform-origin: calc(100% - 5px) 5px;
+  transform: rotate(-60deg);
+  border-radius: 20px;
+}
+
+.sc-hand-finger:nth-child(1) {
+  animation-delay: 0s;
+  filter: brightness(70%);
+  animation-name: sc-tap-1;
+}
+.sc-hand-finger:nth-child(2) {
+  animation-delay: var(--tap-stagger);
+  filter: brightness(80%);
+  animation-name: sc-tap-2;
+}
+.sc-hand-finger:nth-child(3) {
+  animation-delay: calc(var(--tap-stagger) * 2);
+  filter: brightness(90%);
+  animation-name: sc-tap-3;
+}
+.sc-hand-finger:nth-child(4) {
+  animation-delay: calc(var(--tap-stagger) * 3);
+  filter: brightness(100%);
+  animation-name: sc-tap-4;
+}
+
+@keyframes sc-tap-1 {
+  0%, 50%, 100% { transform: rotate(10deg) scale(0.4); }
+  40% { transform: rotate(50deg) scale(0.4); }
+}
+@keyframes sc-tap-2 {
+  0%, 50%, 100% { transform: rotate(10deg) scale(0.6); }
+  40% { transform: rotate(50deg) scale(0.6); }
+}
+@keyframes sc-tap-3 {
+  0%, 50%, 100% { transform: rotate(10deg) scale(0.8); }
+  40% { transform: rotate(50deg) scale(0.8); }
+}
+@keyframes sc-tap-4 {
+  0%, 50%, 100% { transform: rotate(10deg) scale(1); }
+  40% { transform: rotate(50deg) scale(1); }
+}
+
+/* hide the old ::before on unselected dropdowns */
+.sc-wrap .custom-select-container:not(.sc-has-value)::before {
+  display: none !important;
+}
+
+
+.sc-wrap .custom-select-container.sc-has-value::before {
+  display: none !important;
+}
+
+/* --- selected state: transparent bg, green bottom line --- */
+.sc-wrap .custom-select-container.sc-has-value {
+  background: transparent !important;
+  border-bottom: 2px solid var(--admingreen) !important;
+  border-radius: 0 !important;
+}
+
+/* --- postpress dropdowns (zgyn, cute, holes, prokleyka, lyuversy, lamination): fixed width --- */
+.sc-wrap .sc-lam-row .custom-select-container,
+.sc-wrap .sc-pp-row .custom-select-container {
+  width: 4vw;
+  min-width: 4vw;
+}
+
+.sc-wrap .custom-select-container.sc-has-value .custom-select-header {
+  color: inherit;
+}
+
+.sc-wrap .custom-select-container.sc-has-value .gsm-sub,
+.sc-wrap .custom-select-container.sc-has-value .gsm-sub sub {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.sc-wrap .custom-select-container.sc-has-value::after {
+  border-top-color: #1e90ff;
+}
+
+.sc-wrap .custom-select-dropdown {
+  max-height: 30vh;
+  overflow-y: auto;
+  background: var(--adminfon) !important;
+}
+
+.sc-wrap .custom-option {
+  background: var(--adminfon) !important;
+  border-bottom: 1px solid #D3D3D3;
+}
+
+.sc-wrap .custom-option:last-child {
+  border-bottom: none;
+}
+
+.sc-wrap .custom-option:hover {
+  background: var(--admingreen) !important;
+  color: var(--adminfon) !important;
+}
+
+.sc-wrap .custom-option:hover .name,
+.sc-wrap .custom-option:hover .gsm-sub,
+.sc-wrap .custom-option:hover sub {
+  color: var(--adminfon) !important;
+}
+
+.sc-wrap .custom-option.active {
+  background: var(--admingreen) !important;
+  color: var(--adminfon) !important;
+}
+
+.sc-wrap .custom-option.active .name,
+.sc-wrap .custom-option.active .gsm-sub,
+.sc-wrap .custom-option.active sub {
+  color: var(--adminfon) !important;
+}
+
+/* --- material buttons: Uiverse border-reveal animation --- */
+.sc-wrap .buttonsArtem {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 3.2vh;
+  width: auto;
+  min-width: fit-content;
+  border: 2px solid var(--adminorange) !important;
+  border-radius: 0;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 450;
+  text-transform: uppercase;
+  transition: 0.3s;
+  background-color: transparent !important;
+  color: var(--admingrey) !important;
+  padding: 4px 0.6vw;
+  margin-right: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* text stays above pseudo-elements */
+.sc-wrap .buttonsArtem > div {
+  position: relative;
+  z-index: 3;
+  color: var(--admingrey) !important;
+  transition: color 0.3s;
+}
+
+/* --- cover layer 1 (full): hides the border --- */
+.sc-wrap .buttonsArtem::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfon);
+  transition: 0.3s ease-out;
+  transform: scaleY(1);
+  z-index: 1;
+}
+
+/* --- cover layer 2 (top portion): hides upper border --- */
+.sc-wrap .buttonsArtem::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 50%);
+  background-color: var(--adminfon);
+  transition: 0.3s ease-out;
+  transform: scaleY(1);
+  z-index: 2;
+}
+
+/* --- hover (inactive): covers animate away → border revealed, text → AdminOrange --- */
+.sc-wrap .buttonsArtem:not(.buttonsArtemActive):hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.sc-wrap .buttonsArtem:not(.buttonsArtemActive):hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+.sc-wrap .buttonsArtem:not(.buttonsArtemActive):hover {
+  border-color: var(--adminorange) !important;
+}
+
+.sc-wrap .buttonsArtem:not(.buttonsArtemActive):hover > div {
+  color: var(--adminorange) !important;
+}
+
+/* single button: auto width */
+.sc-wrap .buttonsArtem:only-child {
+  flex: 0 1 auto;
+  padding: 0 2vw;
+}
+
+/* --- active: AdminGreen border, no pseudo-elements --- */
+.sc-wrap .buttonsArtem.buttonsArtemActive,
+.sc-wrap .buttonsArtem[style*="background-color: rgb(245, 166, 35)"] {
+  background-color: transparent !important;
+  border: 2px solid var(--admingreen) !important;
+  color: var(--admingreen) !important;
+  z-index: 2;
+}
+
+.sc-wrap .buttonsArtem.buttonsArtemActive > div,
+.sc-wrap .buttonsArtem[style*="background-color: rgb(245, 166, 35)"] > div {
+  color: var(--admingreen) !important;
+}
+
+.sc-wrap .buttonsArtem.buttonsArtemActive::before,
+.sc-wrap .buttonsArtem.buttonsArtemActive::after,
+.sc-wrap .buttonsArtem[style*="background-color: rgb(245, 166, 35)"]::before,
+.sc-wrap .buttonsArtem[style*="background-color: rgb(245, 166, 35)"]::after {
+  display: none;
+}
+
+/* --- postpress wrapper: flex center --- */
+.sc-wrap .sc-pp-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* --- postpress icon buttons (cute corners, holes) --- */
+.sc-wrap .sc-pp-icon:first-of-type {
+  margin-left: 1.5vw;
+}
+
+.sc-wrap .sc-pp-icon {
+  flex: unset;
+  width: 3.2vh;
+  height: 3.2vh;
+  min-height: unset;
+  clip-path: none;
+  margin: 0.3vh;
+  padding: 0;
+  font-size: inherit;
+  text-transform: none;
+  background: transparent !important;
+  color: #666666 !important;
+  border: none;
+  border-radius: 0.4vw;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.sc-wrap .sc-pp-icon img {
+  height: 100%;
+  opacity: 0.4;
+}
+
+.sc-wrap .sc-pp-icon.sc-pp-icon-active {
+  background: transparent !important;
+}
+
+.sc-wrap .sc-pp-icon.sc-pp-icon-active img {
+  opacity: 1;
+  filter: brightness(0) saturate(100%) invert(36%) sepia(93%) saturate(460%) hue-rotate(118deg) brightness(95%) contrast(101%);
+}
+
+.sc-wrap .sc-pp-icon:not(.sc-pp-icon-active):hover img {
+  opacity: 0.7;
+}
+
+/* --- lamination text buttons --- */
+.sc-wrap .sc-lam-row .buttonsArtem div {
+  width: auto !important;
+}
+
+/* --- material layout: select below buttons --- */
+.sc-wrap .sc-row > .d-flex.flex-row.justify-content-between {
+  flex-wrap: wrap;
+}
+
+.sc-wrap .sc-row > .d-flex.flex-row.justify-content-between > div:first-child {
+  width: 100%;
+}
+
+.sc-wrap .sc-row > .d-flex.flex-row.justify-content-between > .custom-select-container {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* --- sides toggle (flex-based, no absolute) --- */
+.sc-wrap .sc-sides {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  height: auto;
+  min-height: 3.2vh;
+}
+
+.sc-wrap .sc-side-btn {
+  flex: 1;
+  height: auto;
+  min-height: 3.2vh;
+  border: 2px solid var(--adminorange) !important;
+  border-radius: 0;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 450;
+  text-transform: uppercase;
+  transition: 0.3s;
+  background-color: transparent !important;
+  color: var(--admingrey) !important;
+  position: relative;
+  min-width: fit-content;
+  padding: 4px 12px;
+}
+
+/* text stays above pseudo-elements */
+.sc-wrap .sc-side-text {
+  position: relative;
+  z-index: 3;
+  color: var(--admingrey) !important;
+  transition: color 0.3s;
+}
+
+/* --- cover layer 1 (full): hides the border --- */
+.sc-wrap .sc-side-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfon);
+  transition: 0.3s ease-out;
+  transform: scaleY(1);
+  z-index: 1;
+}
+
+/* --- cover layer 2 (top portion): hides upper border --- */
+.sc-wrap .sc-side-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 50%);
+  background-color: var(--adminfon);
+  transition: 0.3s ease-out;
+  transform: scaleY(1);
+  z-index: 2;
+}
+
+/* --- hover (inactive): covers animate away → border revealed --- */
+.sc-wrap .sc-side-btn:not(.sc-side-active):hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.sc-wrap .sc-side-btn:not(.sc-side-active):hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+.sc-wrap .sc-side-btn:not(.sc-side-active):hover {
+  border-color: var(--adminorange) !important;
+}
+
+.sc-wrap .sc-side-btn:not(.sc-side-active):hover .sc-side-text {
+  color: var(--adminorange) !important;
+}
+
+/* --- active: AdminGreen border, no pseudo-elements --- */
+.sc-wrap .sc-side-btn.sc-side-active {
+  background-color: transparent !important;
+  border: 2px solid var(--admingreen) !important;
+  color: var(--admingreen) !important;
+  z-index: 2;
+}
+
+.sc-wrap .sc-side-btn.sc-side-active .sc-side-text {
+  color: var(--admingreen) !important;
+}
+
+.sc-wrap .sc-side-btn.sc-side-active::before,
+.sc-wrap .sc-side-btn.sc-side-active::after {
+  display: none;
+}
+
+/* --- pricing panel (right) --- */
+
+/* Single grid parent so all rows share column widths */
+.sc-wrap .sc-prices-grid {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto auto auto 1fr auto;
+  align-items: baseline;
+  gap: 0;
+}
+
+.sc-wrap .sc-price-label {
+  grid-column: 1 / -1;
+  font-weight: 500;
+  color: var(--admingrey);
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.sc-wrap .sc-price-label:first-child {
+  margin-top: 0;
+}
+
+.sc-wrap .sc-price-line {
+  display: contents;
+  font-size: 13px;
+  color: var(--admingrey);
+  font-weight: 400;
+}
+
+.sc-wrap .sc-price-line > span {
+  font-size: 13px;
+  color: var(--admingrey);
+  font-weight: 400;
+  padding: 1px 0;
+}
+
+.sc-wrap .sc-price-line .sc-val {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sc-wrap .sc-price-line .sc-unit {
+  font-size: 0.75em;
+  color: var(--admingrey);
+  margin-left: 1px;
+  text-align: left;
+}
+
+.sc-wrap .sc-price-line .sc-op {
+  text-align: center;
+  color: var(--admingrey);
+  padding: 0 3px;
+}
+
+.sc-wrap .sc-price-line .sc-total {
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 500;
+  color: var(--admingrey);
+}
+
+.sc-wrap .sc-price-line-simple {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  font-size: 13px;
+  padding: 1px 0;
+  color: var(--admingrey);
+  font-weight: 400;
+  gap: 2px;
+}
+
+.sc-wrap .sc-price-line-simple .sc-unit {
+  font-size: 0.75em;
+  color: var(--admingrey);
+  margin-left: 1px;
+  align-self: baseline;
+}
+
+.sc-wrap .sc-price-total {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 500;
+  color: #c00000;
+}
+
+.sc-wrap .sc-price-total .sc-unit {
+  font-size: 0.6em;
+  color: #c00000;
+  margin-left: 2px;
+  align-self: flex-end;
+  margin-bottom: 1px;
+}
+
+.sc-wrap .sc-price-unit {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--admingrey);
+  margin-top: 4px;
+}
+
+/* --- product tabs (bottom) --- */
+.sc-wrap .sc-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  row-gap: 5px;
+  padding: 8px 16px;
+  margin-top: 1.5vh;
+  flex-wrap: wrap;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  position: relative;
+  z-index: 0;
+}
+
+/* --- tab buttons: Uiverse border-reveal animation --- */
+.sc-wrap .sc-tabs .btn {
+  position: relative !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 2px solid var(--adminorange) !important;
+  border-radius: 0 !important;
+  color: var(--admingrey) !important;
+  transition: 0.3s !important;
+  cursor: pointer;
+  overflow: visible !important;
+  animation: none !important;
+  box-shadow: none !important;
+  padding: 0 0.6vw !important;
+  height: 3.2vh !important;
+  min-height: 3.2vh !important;
+  font-size: 11px !important;
+  font-weight: 450 !important;
+  text-transform: uppercase !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* text stays above pseudo-elements */
+.sc-wrap .sc-tab-text {
+  position: relative;
+  z-index: 3;
+  color: var(--admingrey) !important;
+  transition: color 0.3s;
+}
+
+/* --- cover layer 1 (full): hides top/left/right, leaves bottom border --- */
+.sc-wrap .sc-tabs .adminButtonAdd-active::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfon);
+  transition: 0.3s ease-out;
+  transform: scaleY(1);
+  z-index: 1;
+}
+
+/* --- cover layer 2 (top portion) --- */
+.sc-wrap .sc-tabs .adminButtonAdd-active::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 50%);
+  background-color: var(--adminfon);
+  transition: 0.3s ease-out;
+  transform: scaleY(1);
+  z-index: 2;
+}
+
+/* --- hover (inactive): covers animate away → border revealed --- */
+.sc-wrap .sc-tabs .adminButtonAdd-active:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.sc-wrap .sc-tabs .adminButtonAdd-active:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+.sc-wrap .sc-tabs .adminButtonAdd-active:hover {
+  border-color: var(--adminorange) !important;
+  background: transparent !important;
+}
+
+.sc-wrap .sc-tabs .adminButtonAdd-active:hover .sc-tab-text {
+  color: var(--adminorange) !important;
+}
+
+/* --- active tab: AdminGreen border, no pseudo-elements --- */
+.sc-wrap .sc-tabs .adminButtonAdd {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 2px solid var(--admingreen) !important;
+  color: var(--admingreen) !important;
+  animation: none !important;
+}
+
+.sc-wrap .sc-tabs .adminButtonAdd .sc-tab-text {
+  color: var(--admingreen) !important;
+}
+
+.sc-wrap .sc-tabs .adminButtonAdd:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--admingreen) !important;
+}
+
+.sc-wrap .sc-tabs .adminButtonAdd::before,
+.sc-wrap .sc-tabs .adminButtonAdd::after {
+  display: none !important;
+}
+
+/* --- settings button (⚙️) --- */
+.sc-wrap .sc-tabs .sc-settings-btn {
+  margin-left: 0.5vw !important;
+  border: none !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  color: var(--admingrey) !important;
+  font-size: clamp(0.7rem, 1.2vh, 2.5vh) !important;
+  width: auto !important;
+  min-width: 0 !important;
+  padding: 0 0.4vw !important;
+}
+.sc-wrap .sc-tabs .sc-settings-btn.adminButtonAdd-active::before,
+.sc-wrap .sc-tabs .sc-settings-btn.adminButtonAdd-active::after {
+  display: none !important;
+}
+.sc-wrap .sc-tabs .sc-settings-btn.adminButtonAdd {
+  color: var(--admingreen) !important;
+}
+
+/* --- action button row --- */
+.sc-wrap .sc-action {
+  display: flex;
+  padding: 8px 16px 10px;
+  justify-content: center;
+  position: relative;
+  z-index: 0;
+}
+
+/* --- error --- */
+.sc-wrap .sc-error {
+  margin: 0 16px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: rgba(255, 0, 0, 0.12);
+  color: #b00020;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+/* =========================================================
+   1) MOBILE: iPhone 17 Pro / Samsung Fold 6 closed (phones)
+   ========================================================= */
+@media (max-width: 480px) {
+  .sc-wrap .sc-modal {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: 100vh;
+    border-radius: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .sc-wrap .sc-body {
+    flex-direction: column;
+    padding: 10px 12px 0;
+    gap: 8px;
+  }
+  .sc-wrap .sc-left {
+    padding-right: 0;
+    max-width: none;
+    min-width: 0;
+    width: 100%;
+  }
+  .sc-wrap .sc-left-sections {
+    gap: 8px;
+    padding-right: 0;
+  }
+  .sc-wrap .sc-right {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    padding: 10px 0;
+  }
+  /* Count + Size — один рядок */
+  .sc-wrap .sc-count-size-row {
+    flex-direction: row;
+    gap: 6px;
+  }
+  /* Inputs — більший шрифт і ширина на телефоні */
+  .sc-wrap .inputsArtem,
+  .sc-wrap .inputsArtem.form-control {
+    width: 50px;
+    font-size: 14px !important;
+    height: auto;
+    min-height: 28px;
+  }
+  .sc-wrap .inputsArtemx {
+    font-size: 13px;
+  }
+  /* Select розмірів — нормальний шрифт */
+  .sc-wrap .selectArtem,
+  .sc-wrap .custom-select-header {
+    font-size: 14px;
+  }
+  /* Sides — не вилазять за рамки */
+  .sc-wrap .sc-sides {
+    height: auto;
+    min-height: 36px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .sc-wrap .sc-side-btn {
+    height: auto;
+    min-height: 36px;
+    font-size: 13px;
+    min-width: 0;
+    flex: 1 1 0;
+    overflow: hidden;
+    padding: 4px 8px;
+  }
+  .sc-wrap .sc-side-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+  /* Buttons — більші для пальця, не вилазять */
+  .sc-wrap .buttonsArtem {
+    font-size: 12px;
+    height: auto;
+    min-height: 34px;
+    padding: 6px 10px;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .sc-wrap .buttonsArtem > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* Switch — трохи більший */
+  .sc-wrap .scale04ForButtonToggle {
+    transform: scale(0.55);
+  }
+  /* Titles */
+  .sc-wrap .sc-title {
+    font-size: 12px;
+  }
+  /* Tabs */
+  .sc-wrap .sc-tabs {
+    gap: 4px;
+    row-gap: 6px;
+    padding: 8px 10px;
+    flex-wrap: wrap;
+  }
+  .sc-wrap .sc-tabs .btn {
+    font-size: 11px;
+    padding: 6px 10px;
+    height: auto;
+    min-height: 28px;
+  }
+  /* Pricing — компактніший */
+  .sc-wrap .sc-prices-grid {
+    font-size: 12px;
+  }
+  .sc-wrap .sc-price-label {
+    font-size: 13px;
+    margin-top: 6px;
+  }
+  .sc-wrap .sc-price-line > span {
+    font-size: 12px;
+  }
+  .sc-wrap .sc-price-total {
+    font-size: 16px;
+  }
+  /* Action button — менший */
+  .sc-add-btn {
+    height: 50px;
+    padding: 12px 16px;
+  }
+  .sc-wrap .sc-error {
+    margin: 0 10px;
+    font-size: 12px;
+  }
+  /* Section cards — менший padding + overflow protection */
+  .sc-wrap .sc-section-card,
+  .sc-wrap .sc-count-size-row .sc-section-card {
+    padding: 8px 10px;
+    overflow: hidden;
+    max-width: 100%;
+  }
+  /* Material buttons — wrap on small screens */
+  .sc-wrap .allArtemElem {
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .sc-wrap .buttonsArtem {
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 6px 12px;
+    overflow: hidden;
+  }
+  /* Material select */
+  .sc-wrap .ArtemNewSelectContainer {
+    margin-left: 0;
+    width: 100%;
+  }
+  /* Size row — wrap на телефоні */
+  .sc-wrap .sc-count-size-row .allArtemElem {
+    flex-wrap: wrap;
+  }
+  .sc-wrap .sc-count-size-row {
+    overflow: hidden;
+  }
+  /* Toggle sections — менший відступ */
+  .sc-wrap .sc-section {
+    padding: 4px 0;
+  }
+}
+
+/* =========================================================
+   2) Samsung Fold 6 CLOSED (narrow screen)
+   ========================================================= */
+@media (min-width: 340px) and (max-width: 520px) and (max-height: 900px) {
+  .sc-wrap .sc-modal {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    overflow-y: auto;
+  }
+  .sc-wrap .sc-body {
+    flex-direction: column;
+    padding: 10px 12px 0;
+  }
+  .sc-wrap .sc-right {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    padding: 10px 0;
+  }
+  .sc-wrap .sc-count-size-row {
+    flex-direction: row;
+    gap: 6px;
+  }
+  .sc-wrap .inputsArtem,
+  .sc-wrap .inputsArtem.form-control {
+    width: 50px;
+    font-size: 14px !important;
+    height: auto;
+    min-height: 28px;
+  }
+  .sc-wrap .inputsArtemx {
+    font-size: 13px;
+  }
+  .sc-wrap .selectArtem,
+  .sc-wrap .custom-select-header {
+    font-size: 14px;
+  }
+  .sc-wrap .sc-sides {
+    height: auto;
+    min-height: 36px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .sc-wrap .sc-side-btn {
+    height: auto;
+    min-height: 36px;
+    font-size: 11px;
+    letter-spacing: 0;
+    min-width: 0;
+    flex: 1 1 0;
+    overflow: hidden;
+    padding: 4px 8px;
+  }
+  .sc-wrap .sc-side-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+  .sc-wrap .buttonsArtem {
+    height: auto;
+    min-height: 34px;
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 6px 12px;
+    overflow: hidden;
+  }
+  .sc-wrap .buttonsArtem > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sc-wrap .sc-tabs .btn {
+    padding: 6px 10px;
+    font-size: 11px;
+    height: auto;
+    min-height: 28px;
+  }
+  .sc-wrap .sc-section-card,
+  .sc-wrap .sc-count-size-row .sc-section-card {
+    padding: 8px 10px;
+    overflow: hidden;
+    max-width: 100%;
+  }
+  .sc-wrap .allArtemElem {
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .sc-wrap .ArtemNewSelectContainer {
+    margin-left: 0;
+    width: 100%;
+  }
+  .sc-wrap .sc-count-size-row .allArtemElem {
+    flex-wrap: wrap;
+  }
+  .sc-wrap .sc-count-size-row {
+    overflow: hidden;
+  }
+  .sc-wrap .sc-section {
+    padding: 4px 0;
+  }
+}
+
+/* =========================================================
+   3) Samsung Fold 6 OPEN (unfolded screen)
+   ========================================================= */
+@media (min-width: 700px) and (max-width: 980px) {
+  .sc-wrap .sc-modal {
+    width: 92vw;
+    height: 88vh;
+    max-width: 980px;
+    overflow-y: auto;
+  }
+  .sc-wrap .sc-body {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sc-wrap .sc-left {
+    overflow-y: auto;
+  }
+  .sc-wrap .sc-right {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    position: static;
+    padding: 10px 0;
+  }
+  .sc-wrap .sc-count-size-row {
+    flex-direction: row;
+    gap: 6px;
+  }
+  .sc-wrap .inputsArtem,
+  .sc-wrap .inputsArtem.form-control {
+    width: 50px;
+    font-size: 14px !important;
+    height: auto;
+    min-height: 28px;
+  }
+  .sc-wrap .inputsArtemx {
+    font-size: 13px;
+  }
+  .sc-wrap .selectArtem,
+  .sc-wrap .custom-select-header {
+    font-size: 14px;
+  }
+  .sc-wrap .sc-sides {
+    height: auto;
+    min-height: 36px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .sc-wrap .sc-side-btn {
+    height: auto;
+    min-height: 36px;
+    font-size: 12px;
+    min-width: 0;
+    flex: 1 1 0;
+    overflow: hidden;
+  }
+  .sc-wrap .sc-side-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+  .sc-wrap .allArtemElem {
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .sc-wrap .buttonsArtem {
+    height: auto;
+    min-height: 34px;
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 6px 12px;
+    overflow: hidden;
+  }
+  .sc-wrap .buttonsArtem > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sc-wrap .ArtemNewSelectContainer {
+    margin-left: 0;
+    width: 100%;
+  }
+  .sc-wrap .sc-section {
+    padding: 4px 0;
+  }
+  .sc-wrap .sc-section-card,
+  .sc-wrap .sc-count-size-row .sc-section-card {
+    padding: 8px 10px;
+    overflow: hidden;
+    max-width: 100%;
+  }
+}
+
+/* =========================================================
+   3b) Tablets (legacy range outside Fold open)
+   ========================================================= */
+@media (min-width: 481px) and (max-width: 699px) {
+  .sc-wrap .sc-modal {
+    width: 96vw;
+    height: 94vh;
+    overflow-y: auto;
+  }
+  .sc-wrap .sc-body {
+    flex-direction: column;
+    padding: 12px 14px 0;
+  }
+  .sc-wrap .sc-right {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    padding: 10px 0;
+  }
+  .sc-wrap .sc-count-size-row {
+    flex-direction: row;
+    gap: 6px;
+  }
+  .sc-wrap .inputsArtem,
+  .sc-wrap .inputsArtem.form-control {
+    width: 50px;
+    font-size: 14px !important;
+    height: auto;
+    min-height: 28px;
+  }
+  .sc-wrap .inputsArtemx {
+    font-size: 13px;
+  }
+  .sc-wrap .selectArtem,
+  .sc-wrap .custom-select-header {
+    font-size: 14px;
+  }
+  .sc-wrap .sc-sides {
+    height: auto;
+    min-height: 36px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .sc-wrap .sc-side-btn {
+    height: auto;
+    min-height: 36px;
+    font-size: 12px;
+    min-width: 0;
+    flex: 1 1 0;
+    overflow: hidden;
+  }
+  .sc-wrap .sc-side-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+  .sc-wrap .buttonsArtem {
+    height: auto;
+    min-height: 34px;
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 6px 12px;
+    overflow: hidden;
+  }
+  .sc-wrap .buttonsArtem > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sc-wrap .sc-section-card,
+  .sc-wrap .sc-count-size-row .sc-section-card {
+    padding: 8px 10px;
+    overflow: hidden;
+    max-width: 100%;
+  }
+  .sc-wrap .allArtemElem {
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .sc-wrap .ArtemNewSelectContainer {
+    margin-left: 0;
+    width: 100%;
+  }
+  .sc-wrap .sc-section {
+    padding: 4px 0;
+  }
+}
+
+/* =========================================================
+   GENERAL: all screens below Full HD — wrap buttons, compact layout
+   ========================================================= */
+@media (max-width: 1199px) {
+  .sc-wrap .sc-modal {
+    overflow-y: auto;
+  }
+  .sc-wrap .sc-body {
+    flex-direction: column;
+  }
+  .sc-wrap .sc-right {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+  /* Material buttons wrap */
+  .sc-wrap .allArtemElem {
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .sc-wrap .buttonsArtem {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .sc-wrap .buttonsArtem > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* Sides — достатня висота, не вилазять */
+  .sc-wrap .sc-sides {
+    height: auto;
+    min-height: 34px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .sc-wrap .sc-side-btn {
+    height: auto;
+    min-height: 34px;
+    min-width: 0;
+    flex: 1 1 0;
+    overflow: hidden;
+  }
+  .sc-wrap .sc-side-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+  /* Section cards — overflow protection */
+  .sc-wrap .sc-section-card {
+    overflow: hidden;
+    max-width: 100%;
+  }
+  /* Sections — менший відступ */
+  .sc-wrap .sc-section {
+    padding: 4px 0;
+  }
+}
+
+/* =========================================================
+   4) Full HD (1920x1080) — tighten modal for better look
+   ========================================================= */
+@media (min-width: 1200px) and (max-width: 2399px) {
+  .sc-wrap .sc-modal {
+    width: 55vw;
+    max-height: 90vh;
+  }
+  .sc-wrap .sc-right {
+    width: 14vw;
+    min-width: 180px;
+    max-width: 260px;
+  }
+}
+
+/* =========================================================
+   5) Ultrawide: Samsung Odyssey G5 (21:9 ~3440x1440)
+   ========================================================= */
+@media (min-width: 3000px) and (max-width: 3700px) and (min-height: 1200px) {
+  .sc-wrap .sc-modal {
+    width: 1200px;
+    max-width: 1200px;
+    height: 78vh;
+    max-height: 820px;
+  }
+  .sc-wrap .sc-left {
+    width: 780px;
+    font-size: 1vh;
+  }
+  .sc-wrap .sc-right {
+    width: 360px;
+    max-width: 360px;
+    min-width: 360px;
+  }
+  .sc-wrap .sc-title {
+    font-size: clamp(0.75rem, 1.3vh, 1.8vh);
+  }
+  .sc-wrap .sc-price-line {
+    font-size: 1.4vh;
+  }
+  .sc-wrap .sc-price-total {
+    font-size: 2vh;
+  }
+  .sc-wrap .sc-tabs button {
+    font-size: 13px;
+    padding: 7px 14px;
+  }
+}
+
+/* =========================================================
+   6) 4K: 3840x2160
+   ========================================================= */
+@media (min-width: 2400px) {
+  .sc-wrap .sc-modal {
+    width: 1150px;
+    max-width: 1150px;
+    max-height: 97vh;
+  }
+  .sc-wrap .sc-left {
+    font-size: 1vh;
+    width: 680px;
+  }
+  .sc-wrap .sc-left-sections {
+    font-size: 1vh;
+    overflow: visible;
+  }
+  .sc-wrap .sc-right {
+    width: 300px;
+    max-width: 300px;
+    min-width: 280px;
+  }
+  .sc-wrap .sc-title {
+    font-size: clamp(0.75rem, 1.3vh, 1.8vh);
+  }
+  .sc-wrap .sc-price-line {
+    font-size: 1.4vh;
+  }
+  .sc-wrap .sc-price-total {
+    font-size: 2vh;
+  }
+  /* Розмір + селект в 1 рядок */
+  .sc-wrap .sc-count-size-row .allArtemElem {
+    flex-wrap: nowrap;
+  }
+  .sc-wrap .ArtemNewSelectContainer {
+    margin-left: 4px;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+}
+
+/* =========================================================
+   7) Safety: landscape with low height (phone rotated)
+   ========================================================= */
+@media (max-height: 520px) {
+  .sc-wrap .sc-modal {
+    height: 96vh;
+    max-height: 96vh;
+  }
+  .sc-wrap .sc-body {
+    padding: 6px 10px 0;
+  }
+  .sc-wrap .sc-tabs {
+    padding: 4px 10px;
+  }
+  .sc-wrap .sc-action {
+    padding: 4px 10px 6px;
+  }
+}
+
+/* ===== Animated add-to-order button ===== */
+.sc-add-btn {
+  --transtion: 0.3s ease-in-out;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 18px 24px;
+  height: 60px;
+  background-color: transparent;
+  border: none;
+  font-size: 12px;
+  font-weight: 450;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transform-origin: center;
+  transform: scale(calc(1 + (var(--active, 0) * 0.05)));
+  transition: transform var(--transtion);
+}
+.sc-add-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background-color: var(--adminfon);
+  box-shadow: inset 0 0 0 2px var(--admingrey);
+  transition: all var(--transtion);
+  z-index: 0;
+}
+.sc-add-btn::after {
+  display: none;
+}
+.sc-add-btn:is(:hover, :focus-visible) {
+  --active: 1;
+}
+.sc-add-btn:is(:hover, :focus-visible)::before {
+  background-color: var(--adminfonelement);
+}
+.sc-add-btn:is(:hover, :focus-visible) .sc-add-btn__outline::before {
+  background-color: transparent;
+}
+.sc-add-btn:active {
+  transform: scale(1);
+}
+
+/* Spinning dots border */
+.sc-add-btn__outline {
+  --size_border: calc(100% + 2px);
+  overflow: hidden;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--size_border);
+  height: var(--size_border);
+  background-color: transparent;
+  z-index: -10;
+}
+.sc-add-btn__outline::before {
+  content: "";
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform-origin: left;
+  transform: rotate(0deg);
+  width: 100%;
+  height: 2rem;
+  background-color: var(--adminorange);
+  mask: linear-gradient(transparent 0%, white 120%);
+  animation: sc-btn-rotate 2s linear infinite;
+}
+
+/* Paper plane icon */
+.sc-add-btn__icon {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(1.4);
+  transition: all 0.4s ease;
+  color: var(--adminorange);
+}
+.sc-add-btn__icon svg {
+  overflow: visible;
+  animation: sc-btn-land 0.8s ease forwards;
+}
+.sc-add-btn:hover .sc-add-btn__icon {
+  transform: rotate(45deg) scale(1.5);
+  color: var(--admingreen);
+}
+
+/* Text — letter animation */
+.sc-add-btn__text {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 450;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--admingrey);
+}
+.sc-add-btn__text span {
+  display: block;
+  opacity: 0;
+  animation: sc-btn-slideDown 1s ease forwards calc(var(--i) * 0.04s);
+}
+.sc-add-btn:hover .sc-add-btn__text span {
+  opacity: 1;
+  animation: sc-btn-wave 0.6s ease forwards calc(var(--i) * 0.03s);
+}
+
+@keyframes sc-btn-slideDown {
+  0% { opacity: 0; transform: translateY(-25px) translateX(8px) rotate(-90deg); color: var(--adminorange); filter: blur(6px); }
+  25% { opacity: 1; transform: translateY(5px) translateX(0) rotate(0); filter: blur(0); }
+  45% { opacity: 1; transform: translateY(-4px); }
+  65% { opacity: 1; transform: translateY(2px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes sc-btn-wave {
+  20% { opacity: 1; transform: translateY(6px); }
+  40% { opacity: 1; transform: translateY(-4px); color: var(--adminorange); }
+  60% { opacity: 1; transform: translateY(2px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sc-btn-rotate {
+  to { transform: rotate(360deg); }
+}
+@keyframes sc-btn-land {
+  0% { transform: translateX(-80px) translateY(40px) rotate(-60deg) scale(2.5); opacity: 0; filter: blur(4px); }
+  60% { transform: translateX(5px) translateY(-3px) rotate(5deg) scale(1); opacity: 1; filter: blur(0); }
+  80% { transform: translateX(-2px) translateY(1px) rotate(-2deg); }
+  100% { transform: translateX(0) translateY(0) rotate(0); opacity: 1; filter: blur(0); }
+}
+
+/* Active (mouse down) — text disappears, plane takes off */
+.sc-add-btn:active .sc-add-btn__text span {
+  opacity: 1;
+  animation: sc-btn-disappear 0.6s ease forwards calc(var(--i) * 0.03s);
+}
+.sc-add-btn:active .sc-add-btn__icon svg {
+  animation: sc-btn-takeOff 0.8s linear forwards;
+}
+.sc-add-btn:active .sc-add-btn__icon {
+  transform: rotate(0) scale(1.4);
+}
+.sc-add-btn:active .sc-add-btn__icon::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  width: 0;
+  left: -5px;
+  background: linear-gradient(to right, transparent, var(--admingrey));
+  animation: sc-btn-contrail 0.8s linear forwards;
+}
+@keyframes sc-btn-disappear {
+  from { opacity: 1; }
+  to { opacity: 0; transform: translateX(5px) translateY(20px); color: var(--adminorange); filter: blur(5px); }
+}
+@keyframes sc-btn-takeOff {
+  0% { opacity: 1; }
+  60% { opacity: 1; transform: translateX(70px) rotate(45deg) scale(2); }
+  100% { opacity: 0; transform: translateX(160px) rotate(45deg) scale(0); }
+}
+@keyframes sc-btn-contrail {
+  0% { width: 0; opacity: 1; }
+  8% { width: 15px; }
+  60% { opacity: 0.7; width: 80px; }
+  100% { opacity: 0; width: 160px; }
+}
+
+/* =============================================================
+   SC-SLIDERS  (SliderComponent — brand-styled range inputs)
+   ============================================================= */
+.sc-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8vh;
+  width: 100%;
+}
+
+.sc-slider-row {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* track */
+.sc-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: calc(100% + 14px);
+  margin-left: -7px;
+  margin-right: -7px;
+  height: 5px;
+  outline: none;
+  cursor: pointer;
+  background: var(--adminfonelement);
+  transition: background 0.1s;
+}
+
+/* thumb — webkit (Chrome, Safari, Edge) */
+.sc-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 4px;
+  height: 18px;
+  background: var(--admingreen);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.sc-slider::-webkit-slider-thumb:hover {
+  transform: scaleY(1.2);
+  box-shadow: 0 0 6px rgba(14,147,91,0.35);
+}
+.sc-slider:active::-webkit-slider-thumb {
+  background: var(--adminorange);
+}
+
+/* thumb — Firefox */
+.sc-slider::-moz-range-thumb {
+  width: 4px;
+  height: 18px;
+  background: var(--admingreen);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+.sc-slider::-moz-range-thumb:hover {
+  transform: scaleY(1.2);
+  box-shadow: 0 0 6px rgba(14,147,91,0.35);
+}
+
+/* track — Firefox */
+.sc-slider::-moz-range-track {
+  height: 5px;
+  background: transparent;
+}
+
+/* labels under slider */
+.sc-slider-labels {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 2px;
+}
+.sc-slider-val {
+  font-size: 0.75rem;
+  color: var(--admingrey);
+  font-weight: 500;
+}
+.sc-slider-max {
+  font-size: 0.7rem;
+  color: var(--admingrey);
+  opacity: 0.5;
+}
+
+/* =============================================================
+   WF-CARDS  (WideFactory category cards — scoped for ScModal)
+   ============================================================= */
+.sc-wrap .wf-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+.sc-wrap .wf-card {
+  width: 6vw;
+  height: 3.5vw;
+  border: none;
+  border-radius: 0;
+  background: var(--adminfonelement);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+}
+.sc-wrap .wf-card:hover {
+  transform: translateY(-4px);
+}
+.sc-wrap .wf-card.is-active {
+  background: var(--admingreen);
+  box-shadow: 0 4px 14px rgba(14, 147, 91, 0.3);
+}
+.sc-wrap .wf-icon {
+  width: 40%;
+  height: 40%;
+  stroke-width: 1.7;
+  color: var(--admingrey);
+  transition: color 0.22s ease;
+}
+.sc-wrap .wf-card.is-active .wf-icon {
+  color: #fff;
+}
+.sc-wrap .wf-caption {
+  margin-top: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--admingrey);
+  user-select: none;
+  transition: color 0.22s ease;
+}
+.sc-wrap .wf-card.is-active .wf-caption {
+  color: #fff;
+}

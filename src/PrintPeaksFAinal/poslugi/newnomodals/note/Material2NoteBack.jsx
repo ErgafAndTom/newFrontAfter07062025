@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "../../../../api/axiosInstance";
 import { Spinner } from "react-bootstrap";
 import "../../Poslugy.css";
@@ -24,12 +24,16 @@ const Materials2NoteBack = ({
 
   const [lamination, setLamination] = useState([]);
   const [loadLamination, setLoadLamination] = useState(false);
+  const [openPaper, setOpenPaper] = useState(false);
+  const [openLam, setOpenLam] = useState(false);
+  const dropdownPaperRef = useRef(null);
+  const dropdownLamRef = useRef(null);
 
   const buttonsArrLamination = [
-    "з глянцевим ламінуванням",
-    "з матовим ламінуванням",
-    "з ламінуванням SoftTouch",
-    "з холодним матовим ламінуванням",
+    { value: "з глянцевим ламінуванням", label: "Глянцеве" },
+    { value: "з матовим ламінуванням", label: "Матове" },
+    { value: "з ламінуванням SoftTouch", label: "SoftTouch" },
+    { value: "з холодним матовим ламінуванням", label: "Холодне матове" },
   ];
 
   // ========== HANDLERS ==========
@@ -52,6 +56,13 @@ const Materials2NoteBack = ({
 
   const handleSelectDrukColorChange = (e) => {
     setMaterialAndDrukBack((prev) => ({ ...prev, drukColor: e.target.value || "" }));
+  };
+
+  const handleToggleBlock = () => {
+    setMaterialAndDrukBack((prev) => ({
+      ...prev,
+      materialAndDrukBack: prev.materialAndDrukBack === "Не потрібно" ? "2" : "Не потрібно",
+    }));
   };
 
   const handleToggleLamination = () => {
@@ -93,13 +104,16 @@ const Materials2NoteBack = ({
     axios
       .post(`/materials/NotAll`, data)
       .then((response) => {
-        setPaper(response.data.rows);
+        const rows = (response.data.rows || []).filter(
+          (r) => r.name !== "Офісний папір А4"
+        );
+        setPaper(rows);
         setLoad(false);
-        if (response.data?.rows?.[0]) {
+        if (rows[0]) {
           setMaterialAndDrukBack((prev) => ({
             ...prev,
-            material: response.data.rows[0].name,
-            materialId: response.data.rows[0].id,
+            material: rows[0].name,
+            materialId: rows[0].id,
           }));
         } else {
           setMaterialAndDrukBack((prev) => ({ ...prev, material: "Немає", materialId: 0 }));
@@ -148,104 +162,202 @@ const Materials2NoteBack = ({
       });
   }, [materialAndDrukBack.laminationType, materialAndDrukBack.laminationTypeUse, size]);
 
+  // закриття dropdown при кліку за межами
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownPaperRef.current && !dropdownPaperRef.current.contains(e.target)) setOpenPaper(false);
+      if (dropdownLamRef.current && !dropdownLamRef.current.contains(e.target)) setOpenLam(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const paperTitle = materialAndDrukBack.material && materialAndDrukBack.material !== "Немає"
+    ? materialAndDrukBack.material
+    : "Виберіть матеріал";
+
+  const lamThickness = lamination.find((p) => p.name === materialAndDrukBack.laminationmaterial)?.thickness;
+  const lamTitle = lamThickness ? `${lamThickness} мкм` : "Виберіть ламінацію";
+
   // ========== RENDER ==========
+  const isBlockOn = materialAndDrukBack.materialAndDrukBack !== "Не потрібно";
   const lamOn = materialAndDrukBack.laminationType !== "Не потрібно";
 
   return (
     <div className="sc-section sc-section-card" style={{ position: "relative", zIndex: 55 }}>
-      {/* === Блок: кількість аркушів === */}
+      {/* === Блок: головний toggle + кількість + кольоровість === */}
       <div className="d-flex align-items-center">
-        <span className="sc-title" style={{ marginBottom: 0, marginRight: "0.5vw", whiteSpace: "nowrap" }}>Блок</span>
-        <input
-          className="inputsArtem"
-          type="number"
-          value={materialAndDrukBack.count}
-          onChange={handleColorCountChange}
-          style={{ width: "4vw", fontSize: "0.8vw", padding: "0.3vw" }}
-          min={2}
-          step={2}
-        />
-        <span style={{ marginLeft: "0.3vw", opacity: 0.6, fontSize: "0.85vw", color: "var(--admingrey)" }}>арк.</span>
-        <span style={{ marginLeft: "0.5vw", opacity: 0.4, fontSize: "0.75vw", color: "var(--admingrey)" }}>
-          ({materialAndDrukBack.count * 2} стор.)
-        </span>
-      </div>
-
-      {/* === Друк === */}
-      <div className="d-flex align-items-center" style={{ marginTop: "0.8vh" }}>
-        <span className="sc-title" style={{ marginBottom: 0, marginRight: "0.5vw", whiteSpace: "nowrap" }}>Друк</span>
-        <select value={materialAndDrukBack.drukColor || ""} onChange={handleSelectDrukColorChange} className="selectArtem" style={{ marginRight: "0.5vw" }}>
-          {buttonsArrColor.map((item, i) => (
-            <option key={item + i} value={item}>{item}</option>
-          ))}
-        </select>
-        {materialAndDrukBack.drukColor !== "Не потрібно" && (
-          <select value={materialAndDrukBack.drukSides || ""} onChange={handleSelectDrukSidesChange} className="selectArtem">
-            {buttonsArrDruk.map((item, i) => (
-              <option key={item + i} value={item}>{item}</option>
-            ))}
-          </select>
-        )}
-      </div>
-
-      {/* === Матеріал === */}
-      <div className="d-flex align-items-center" style={{ marginTop: "0.8vh" }}>
-        <span className="sc-title" style={{ marginBottom: 0, marginRight: "0.5vw", whiteSpace: "nowrap" }}>Матеріал</span>
-        <select value={materialAndDrukBack.materialTypeUse || ""} onChange={handleSelectTypeChange} className="selectArtem" style={{ marginRight: "0.5vw" }}>
-          {buttonsArr.map((item, i) => (
-            <option key={item + i} value={item}>{item}</option>
-          ))}
-        </select>
-        <select value={materialAndDrukBack.material || ""} onChange={handleSelectChange} className="selectArtem">
-          {paper.map((item, i) => (
-            <option key={item.name + i} value={item.name} data-id={item.id}>
-              {item.name} {item.thickness} gsm
-            </option>
-          ))}
-        </select>
-        {load && <Spinner animation="border" variant="danger" size="sm" style={{ marginLeft: "0.5vw" }} />}
-        {error && <div style={{ color: "red", marginLeft: "0.5vw", fontSize: "0.8vw" }}>{error}</div>}
-      </div>
-
-      {/* === Ламінація toggle === */}
-      <div className="d-flex align-items-center" style={{ marginTop: "0.8vh" }}>
         <label className="switch scale04ForButtonToggle">
-          <input type="checkbox" checked={lamOn} onChange={handleToggleLamination} />
-          <span className="switch-on"><span>ON</span></span>
+          <input type="checkbox" checked={isBlockOn} onChange={handleToggleBlock} />
+          <span className="switch-on"><span>Блок</span></span>
           <span className="slider" />
           <span className="switch-off"><span>OFF</span></span>
         </label>
-        {!lamOn ? (
-          <div className="sc-title" style={{ marginBottom: 0 }}>Ламінація</div>
+        {!isBlockOn ? (
+          <div className="sc-title" style={{ marginBottom: 0 }}>{name}</div>
         ) : (
-          <div className="sc-row sc-pp-row" style={{ flex: 1, alignItems: "center" }}>
-            <select value={materialAndDrukBack.laminationTypeUse || ""} onChange={handleSelectLaminationTypeUseChange} className="selectArtem" style={{ marginRight: "0.5vw" }}>
-              {buttonsArrLamination.map((item, i) => (
-                <option key={item + i} value={item}>{item}</option>
-              ))}
-            </select>
-            <select
-              value={materialAndDrukBack.laminationmaterial || ""}
-              onChange={(e) => {
-                const sel = e.target.options[e.target.selectedIndex];
-                setMaterialAndDrukBack((prev) => ({
-                  ...prev,
-                  laminationmaterial: e.target.value || "",
-                  laminationmaterialId: sel.getAttribute("data-id") || "default",
-                }));
-              }}
-              className="selectArtem"
-            >
-              {lamination.map((item, i) => (
-                <option key={item.name + i} value={item.thickness} data-id={item.id}>
-                  {item.thickness} мл
-                </option>
-              ))}
-            </select>
-            {loadLamination && <Spinner animation="border" variant="danger" size="sm" style={{ marginLeft: "0.5vw" }} />}
-          </div>
+          <>
+            {buttonsArrColor.map((item, i) => {
+              const isActive = item === materialAndDrukBack.drukColor;
+              return (
+                <div
+                  className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
+                  key={item + i}
+                  style={{ backgroundColor: isActive ? "#f5a623" : "#D3D3D3", color: isActive ? "#FFFFFF" : "#666666", borderRadius: 0 }}
+                  onClick={() => setMaterialAndDrukBack((prev) => ({ ...prev, drukColor: item }))}
+                >
+                  <div style={{ height: "100%", display: "flex", color: isActive ? "white" : "var(--admingrey)", alignItems: "center", justifyContent: "center" }}>
+                    {item}
+                  </div>
+                </div>
+              );
+            })}
+            <input
+              className="inputsArtem"
+              type="number"
+              value={materialAndDrukBack.count}
+              onChange={handleColorCountChange}
+              min={2}
+              step={2}
+            />
+            <div className="inputsArtemx" style={{ border: "transparent" }}>арк.</div>
+          </>
         )}
       </div>
+
+      {isBlockOn && (
+        <>
+
+          {/* === Сторонність === */}
+          {materialAndDrukBack.drukColor !== "Не потрібно" && (
+            <div style={{ display: "flex", width: "100%", marginTop: "0.8vh" }}>
+              {buttonsArrDruk.map((item, i) => {
+                const isActive = item === materialAndDrukBack.drukSides;
+                return (
+                  <div
+                    className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
+                    key={item + i}
+                    style={{ flex: 1, backgroundColor: isActive ? "#f5a623" : "#D3D3D3", color: isActive ? "#FFFFFF" : "#666666", borderRadius: 0 }}
+                    onClick={() => setMaterialAndDrukBack((prev) => ({ ...prev, drukSides: item }))}
+                  >
+                    <div style={{ height: "100%", display: "flex", color: isActive ? "white" : "var(--admingrey)", alignItems: "center", justifyContent: "center" }}>
+                      {item}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* === Матеріал — кнопки + dropdown в один рядок === */}
+          <div className="d-flex align-items-center" style={{ marginTop: "0.8vh", position: "relative" }}>
+            {buttonsArr.map((item, i) => {
+              const isActive = item === materialAndDrukBack.materialTypeUse;
+              return (
+                <div
+                  className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
+                  key={item + i}
+                  style={{ backgroundColor: isActive ? "#f5a623" : "#D3D3D3", color: isActive ? "#FFFFFF" : "#666666", borderRadius: 0 }}
+                  onClick={() => setMaterialAndDrukBack((prev) => ({ ...prev, materialTypeUse: item }))}
+                >
+                  <div style={{ height: "100%", display: "flex", color: isActive ? "white" : "var(--admingrey)", alignItems: "center", justifyContent: "center" }}>
+                    {item}
+                  </div>
+                </div>
+              );
+            })}
+            <div
+              className={`custom-select-container selectArtem selectArtemBefore${materialAndDrukBack.materialId && materialAndDrukBack.materialId !== 0 && materialAndDrukBack.materialId !== "0" ? " sc-has-value" : ""}`}
+              ref={dropdownPaperRef}
+              style={{ flex: 1, marginLeft: "0.5vw", position: "relative" }}
+            >
+              <div className="custom-select-header" onClick={() => setOpenPaper(!openPaper)}>
+                {paperTitle}
+                <span className="gsm-sub" style={{ marginRight: "0.8vw" }}>
+                  {paper.find((p) => p.name === materialAndDrukBack.material)?.thickness && (
+                    <sub>{paper.find((p) => p.name === materialAndDrukBack.material).thickness} г/м<sub>2</sub></sub>
+                  )}
+                </span>
+              </div>
+              {openPaper && (
+                <div className="custom-select-dropdown">
+                  {paper.map((item) => (
+                    <div
+                      key={item.id}
+                      className={`custom-option ${String(item.id) === String(materialAndDrukBack.materialId) ? "active" : ""}`}
+                      onClick={() => {
+                        setMaterialAndDrukBack((prev) => ({ ...prev, material: item.name, materialId: item.id }));
+                        setOpenPaper(false);
+                      }}
+                    >
+                      <span className="name">{item.name}</span>
+                      <span className="gsm-sub">
+                        <sub>{item.thickness} г/м<sub>2</sub></sub>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            {load && <Spinner animation="border" variant="danger" size="sm" style={{ marginLeft: "0.5vw" }} />}
+            {error && <div style={{ color: "red", marginLeft: "0.5vw", fontSize: "0.8vw" }}>{error}</div>}
+          </div>
+
+          {/* === Ламінація toggle === */}
+          <div className="d-flex align-items-center" style={{ marginTop: "0.8vh" }}>
+            <label className="switch scale04ForButtonToggle">
+              <input type="checkbox" checked={lamOn} onChange={handleToggleLamination} />
+              <span className="switch-on"><span>Ламінація</span></span>
+              <span className="slider" />
+              <span className="switch-off"><span>OFF</span></span>
+            </label>
+            {!lamOn && <div className="sc-title" style={{ marginBottom: 0 }}>Ламінація</div>}
+            {lamOn && buttonsArrLamination.map((item, i) => {
+              const isActive = item.value === materialAndDrukBack.laminationTypeUse;
+              return (
+                <div
+                  className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
+                  key={item.value + i}
+                  style={{ backgroundColor: isActive ? "#f5a623" : "#D3D3D3", color: isActive ? "#FFFFFF" : "#666666", borderRadius: 0 }}
+                  onClick={() => setMaterialAndDrukBack((prev) => ({ ...prev, laminationTypeUse: item.value }))}
+                >
+                  <div style={{ height: "100%", display: "flex", color: isActive ? "white" : "var(--admingrey)", alignItems: "center", justifyContent: "center" }}>
+                    {item.label}
+                  </div>
+                </div>
+              );
+            })}
+            {lamOn && (
+              <div
+                className={`custom-select-container selectArtem selectArtemBefore${materialAndDrukBack.laminationmaterialId && materialAndDrukBack.laminationmaterialId !== 0 && materialAndDrukBack.laminationmaterialId !== "0" ? " sc-has-value" : ""}`}
+                ref={dropdownLamRef}
+                style={{ marginLeft: "0.5vw", position: "relative" }}
+              >
+                <div className="custom-select-header" onClick={() => setOpenLam(!openLam)}>
+                  {lamTitle}
+                </div>
+                {openLam && (
+                  <div className="custom-select-dropdown">
+                    {lamination.map((item) => (
+                      <div
+                        key={item.id}
+                        className={`custom-option ${String(item.id) === String(materialAndDrukBack.laminationmaterialId) ? "active" : ""}`}
+                        onClick={() => {
+                          setMaterialAndDrukBack((prev) => ({ ...prev, laminationmaterial: item.name, laminationmaterialId: item.id }));
+                          setOpenLam(false);
+                        }}
+                      >
+                        <span className="name">{item.thickness} мкм</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            {lamOn && loadLamination && <Spinner animation="border" variant="danger" size="sm" style={{ marginLeft: "0.5vw" }} />}
+          </div>
+        </>
+      )}
     </div>
   );
 };

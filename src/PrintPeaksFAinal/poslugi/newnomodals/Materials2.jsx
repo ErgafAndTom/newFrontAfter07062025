@@ -76,8 +76,11 @@ const Materials2 = ({
       .then((response) => {
         if (cancelled) return;
 
-        const rows = response?.data?.rows || [];
-        setPaper(Array.isArray(rows) ? rows : []);
+        const rawRows = response?.data?.rows || [];
+        const rows = (Array.isArray(rawRows) ? rawRows : []).filter(
+          (r) => r.name !== "Офісний папір А4"
+        );
+        setPaper(rows);
         setLoad(false);
 
         // Авто-вибір першого матеріалу якщо нічого не вибрано
