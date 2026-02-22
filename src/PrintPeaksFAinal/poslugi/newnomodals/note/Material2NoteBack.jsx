@@ -184,7 +184,7 @@ const Materials2NoteBack = ({
   const lamOn = materialAndDrukBack.laminationType !== "Не потрібно";
 
   return (
-    <div className="sc-section sc-section-card" style={{ position: "relative", zIndex: 55 }}>
+    <div className="sc-section sc-section-card" style={{ position: "relative", zIndex: 55, display: "flex", flexDirection: "column", gap: "0.8vh" }}>
       {/* === Блок: головний toggle + кількість + кольоровість === */}
       <div className="d-flex align-items-center">
         <label className="switch scale04ForButtonToggle">
@@ -219,6 +219,7 @@ const Materials2NoteBack = ({
               onChange={handleColorCountChange}
               min={2}
               step={2}
+              style={{ marginLeft: "1vw" }}
             />
             <div className="inputsArtemx" style={{ border: "transparent" }}>арк.</div>
           </>
@@ -230,7 +231,7 @@ const Materials2NoteBack = ({
 
           {/* === Сторонність === */}
           {materialAndDrukBack.drukColor !== "Не потрібно" && (
-            <div style={{ display: "flex", width: "100%", marginTop: "0.8vh" }}>
+            <div style={{ display: "flex", width: "100%" }}>
               {buttonsArrDruk.map((item, i) => {
                 const isActive = item === materialAndDrukBack.drukSides;
                 return (
@@ -250,7 +251,7 @@ const Materials2NoteBack = ({
           )}
 
           {/* === Матеріал — кнопки + dropdown в один рядок === */}
-          <div className="d-flex align-items-center" style={{ marginTop: "0.8vh", position: "relative" }}>
+          <div className="d-flex align-items-center" style={{ position: "relative" }}>
             {buttonsArr.map((item, i) => {
               const isActive = item === materialAndDrukBack.materialTypeUse;
               return (
@@ -304,7 +305,7 @@ const Materials2NoteBack = ({
           </div>
 
           {/* === Ламінація toggle === */}
-          <div className="d-flex align-items-center" style={{ marginTop: "0.8vh" }}>
+          <div className="d-flex align-items-center">
             <label className="switch scale04ForButtonToggle">
               <input type="checkbox" checked={lamOn} onChange={handleToggleLamination} />
               <span className="switch-on"><span>Ламінація</span></span>

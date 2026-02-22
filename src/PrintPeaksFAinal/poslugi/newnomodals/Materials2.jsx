@@ -9,7 +9,9 @@ const Materials2 = ({
                       buttonsArr = [],
                       size,
                       editingOrderUnit,
-                      typeOfPosluga
+                      typeOfPosluga,
+                      disabled = false,
+                      preferredMaterialName,
                     }) => {
   const [paper, setPaper] = useState([]);
   const [error, setError] = useState(null);
@@ -77,22 +79,37 @@ const Materials2 = ({
         if (cancelled) return;
 
         const rawRows = response?.data?.rows || [];
-        const rows = (Array.isArray(rawRows) ? rawRows : []).filter(
-          (r) => r.name !== "Офісний папір А4"
-        );
+        const rows = Array.isArray(rawRows) ? rawRows : [];
         setPaper(rows);
         setLoad(false);
 
-        // Авто-вибір першого матеріалу якщо нічого не вибрано
-        if ((!material?.materialId || material.materialId === 0 || material.materialId === "0") && rows.length > 0) {
-          setMaterial((prev) => ({
-            ...prev,
-            material: rows[0].name,
-            materialId: rows[0].id,
-            a: rows[0].thickness || "",
-            x: rows[0].x || "",
-            y: rows[0].y || "",
-          }));
+        // Якщо є preferredMaterialName — завжди вибирати його
+        if (preferredMaterialName && rows.length > 0) {
+          const preferred = rows.find((r) => r.name === preferredMaterialName);
+          const target = preferred || rows[0];
+          if (String(target.id) !== String(material?.materialId)) {
+            setMaterial((prev) => ({
+              ...prev,
+              material: target.name,
+              materialId: target.id,
+              a: target.thickness || "",
+              x: target.x || "",
+              y: target.y || "",
+            }));
+          }
+        } else {
+          // Авто-вибір першого матеріалу якщо нічого не вибрано або поточний відсутній у результатах
+          const currentExists = rows.some((r) => String(r.id) === String(material?.materialId));
+          if (rows.length > 0 && (!material?.materialId || material.materialId === 0 || material.materialId === "0" || !currentExists)) {
+            setMaterial((prev) => ({
+              ...prev,
+              material: rows[0].name,
+              materialId: rows[0].id,
+              a: rows[0].thickness || "",
+              x: rows[0].x || "",
+              y: rows[0].y || "",
+            }));
+          }
         }
       })
       .catch((err) => {
@@ -105,7 +122,7 @@ const Materials2 = ({
     return () => {
       cancelled = true;
     };
-  }, [material?.thickness, material?.type, size, navigate, setMaterial]); // materialId не потрібен
+  }, [material?.thickness, material?.type, size, navigate, setMaterial, preferredMaterialName]);
 
   // 📏 автоширина
   useEffect(() => {
@@ -196,7 +213,8 @@ const Materials2 = ({
         )}
         <div
           className="custom-select-header"
-          onClick={() => setOpen(!open)}
+          onClick={() => !disabled && setOpen(!open)}
+          style={disabled ? { pointerEvents: "none", opacity: 0.7 } : undefined}
         >
           {title}
           <span className="gsm-sub" style={{marginRight: "0.8vw"}}>

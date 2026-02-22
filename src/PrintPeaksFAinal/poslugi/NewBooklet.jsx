@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ScModal, ScSection, ScCountSize, ScPricing, ScAddButton, ScTabs } from "./shared";
+import { ScModal, ScSection, ScCountSize, ScPricing, ScAddButton, ScTabs, ScToggleSection } from "./shared";
 import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
 
 import NewNoModalSizeNote from "./newnomodals/note/NewNoModalSizeNote";
 import Materials2NoteFront from "./newnomodals/note/Materials2NoteFront";
 import Materials2NoteBack from "./newnomodals/note/Material2NoteBack";
 import PerepletPerepletBooklet from "./newnomodals/PerepletPerepletBooklet";
-import BigInBooklet from "./newnomodals/BigInBooklet";
+
 
 // ========== DEFAULTS ==========
 const SERVICES_BOOKLET = ["Буклет", "Автореферат", "Конспект", "Звіт", "Журнал", "Зін", "Брошура", "Методичка"];
@@ -99,6 +99,7 @@ const NewBooklet = ({
   const [services, setServices] = useState(SERVICES_BOOKLET);
   const [isEditServices, setIsEditServices] = useState(false);
   const [error, setError] = useState(null);
+  const [hasCover, setHasCover] = useState(false);
 
   // ========== PRICING HOOK ==========
   const calcData = useMemo(() => {
@@ -149,6 +150,7 @@ const NewBooklet = ({
       setCount(DEFAULTS.count);
       setPereplet(DEFAULTS.pereplet);
       setSelectedService(DEFAULTS.selectedService);
+      setHasCover(false);
       setError(null);
       return;
     }
@@ -159,7 +161,13 @@ const NewBooklet = ({
 
     setCount(safeNum(opt?.count, safeNum(editingOrderUnit?.amount, DEFAULTS.count)) || DEFAULTS.count);
     if (opt?.size) setSize({ x: safeNum(opt.size.x, DEFAULTS.size.x), y: safeNum(opt.size.y, DEFAULTS.size.y) });
-    if (opt?.materialAndDrukFront) setMaterialAndDrukFront(opt.materialAndDrukFront);
+    if (opt?.materialAndDrukFront) {
+      setMaterialAndDrukFront(opt.materialAndDrukFront);
+      // Обкладинка увімкнена, якщо drukColor не "Не потрібно"
+      setHasCover(opt.materialAndDrukFront.drukColor !== "Не потрібно");
+    } else {
+      setHasCover(false);
+    }
     if (opt?.materialAndDrukBack) setMaterialAndDrukBack(opt.materialAndDrukBack);
     if (opt?.materialAndDrukInBody) setMaterialAndDrukInBody(opt.materialAndDrukInBody);
     if (opt?.material) setMaterial(opt.material);
@@ -209,16 +217,13 @@ const NewBooklet = ({
   // ========== PRICING DATA ==========
   const sc = pricesThis?.sheetCount || 0;
   const scBack = pricesThis?.sheetCountBack || 0;
-  const hasBig = materialAndDrukFront.big !== "Не потрібно";
+
 
   const pricingLines = pricesThis
     ? [
         { label: "Обкладинка: Друк", perUnit: pricesThis.priceDrukFront, count: sc, total: (pricesThis.priceDrukFront || 0) * sc },
         { label: "Обкладинка: Матеріал", perUnit: pricesThis.priceMaterialFront, count: sc, total: (pricesThis.priceMaterialFront || 0) * sc },
         { label: "Обкладинка: Ламінація", perUnit: pricesThis.priceLaminationFront, count: sc, total: (pricesThis.priceLaminationFront || 0) * sc },
-        ...(hasBig
-          ? [{ label: "Згинання", perUnit: pricesThis?.big?.pricePerUnit || 0, count: pricesThis?.big?.count || 0, total: pricesThis?.big?.totalPrice || 0 }]
-          : []),
         { label: "Блок: Друк", perUnit: pricesThis.priceDrukBack, count: scBack, total: (pricesThis.priceDrukBack || 0) * scBack },
         { label: "Блок: Матеріал", perUnit: pricesThis.priceMaterialBack, count: scBack, total: (pricesThis.priceMaterialBack || 0) * scBack },
         { label: "Блок: Ламінація", perUnit: pricesThis.priceLaminationBack, count: scBack, total: (pricesThis.priceLaminationBack || 0) * scBack },
@@ -309,21 +314,37 @@ const NewBooklet = ({
       />
 
       {/* 2. Обкладинка */}
-      <Materials2NoteFront
-        materialAndDrukFront={materialAndDrukFront}
-        setMaterialAndDrukFront={setMaterialAndDrukFront}
-        count={count}
-        setCount={setCount}
-        prices={[]}
-        size={size}
-        selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
-        name={"Обкладинки:"}
-        buttonsArr={["Офісний", "Тонкий", "Середній", "Цупкий"]}
-        buttonsArrDruk={["односторонній", "двосторонній"]}
-        buttonsArrColor={["Не потрібно", "Чорнобілий", "Кольоровий"]}
-        buttonsArrLamination={["З глянцевим ламінуванням", "З матовим ламінуванням", "З ламінуванням SoftTouch"]}
-        typeUse={null}
-      />
+      <ScToggleSection
+        label="Обкладинка"
+        title="Обкладинка"
+        isOn={hasCover}
+        onToggle={() => {
+          if (hasCover) {
+            setHasCover(false);
+            setMaterialAndDrukFront((prev) => ({ ...prev, drukColor: "Не потрібно", materialId: "", material: "" }));
+          } else {
+            setHasCover(true);
+            setMaterialAndDrukFront(DEFAULTS.materialAndDrukFront);
+          }
+        }}
+        style={{ position: "relative", zIndex: 65 }}
+      >
+        <Materials2NoteFront
+          materialAndDrukFront={materialAndDrukFront}
+          setMaterialAndDrukFront={setMaterialAndDrukFront}
+          count={count}
+          setCount={setCount}
+          prices={[]}
+          size={size}
+          selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
+          name={"Обкладинки:"}
+          buttonsArr={["Офісний", "Тонкий", "Середній", "Цупкий"]}
+          buttonsArrDruk={["односторонній", "двосторонній"]}
+          buttonsArrColor={["Не потрібно", "Чорнобілий", "Кольоровий"]}
+          buttonsArrLamination={["З глянцевим ламінуванням", "З матовим ламінуванням", "З ламінуванням SoftTouch"]}
+          typeUse={null}
+        />
+      </ScToggleSection>
 
       {/* 3. Блок */}
       <Materials2NoteBack
@@ -355,14 +376,6 @@ const NewBooklet = ({
         />
       </ScSection>
 
-      {/* 5. Згинання */}
-      <ScSection style={{ position: "relative", zIndex: 40 }}>
-        <BigInBooklet
-          selectArr={["Не потрібно", "1", "2", "3"]}
-          materialAndDrukFront={materialAndDrukFront}
-          setMaterialAndDrukFront={setMaterialAndDrukFront}
-        />
-      </ScSection>
     </ScModal>
   );
 };

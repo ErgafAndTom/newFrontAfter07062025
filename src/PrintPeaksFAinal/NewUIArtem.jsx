@@ -59,7 +59,7 @@ import NewScans from "./poslugi/NewScans";
 import WideFactory from "./poslugi/WideFactory";
 import Delivery from "./poslugi/DeliveryPage";
 import OrderFilesPanel from "./commentsInOrders/OrderFilesPanel";
-import NewSheetCutBW from "./poslugi/NewSheetCutBw";
+import NewSheetCutBW from "./poslugi/NewSheetCutBW";
 import QuantumErrorBoundary from "../QuantumErrorBoundary";
 
 const NewUIArtem = ({

@@ -175,7 +175,7 @@ const Materials2NoteFront = ({
   const lamOn = materialAndDrukFront.laminationType !== "Не потрібно";
 
   return (
-    <div className="sc-section sc-section-card" style={{ position: "relative", zIndex: 60 }}>
+    <div className="sc-section sc-section-card" style={{ position: "relative", zIndex: 60, display: "flex", flexDirection: "column", gap: "0.8vh" }}>
       {/* === Головний toggle: Обкладинка / Друк inline === */}
       <div className="d-flex align-items-center">
         <label className="switch scale04ForButtonToggle">
@@ -214,7 +214,7 @@ const Materials2NoteFront = ({
         <>
           {/* Сторонність */}
           {materialAndDrukFront.drukColor !== "Не потрібно" && (
-            <div style={{ display: "flex", width: "100%", marginTop: "0.8vh" }}>
+            <div style={{ display: "flex", width: "100%" }}>
               {buttonsArrDruk.map((item, i) => {
                 const isActive = item === materialAndDrukFront.drukSides;
                 return (
@@ -234,7 +234,7 @@ const Materials2NoteFront = ({
           )}
 
           {/* Матеріал — кнопки + dropdown в один рядок */}
-          <div className="d-flex align-items-center" style={{ marginTop: "0.8vh", position: "relative" }}>
+          <div className="d-flex align-items-center" style={{ position: "relative" }}>
             {buttonsArr.map((item, i) => {
               const isActive = item === materialAndDrukFront.materialTypeUse;
               return (
@@ -288,7 +288,7 @@ const Materials2NoteFront = ({
           </div>
 
           {/* Ламінація toggle */}
-          <div className="d-flex align-items-center" style={{ marginTop: "0.8vh" }}>
+          <div className="d-flex align-items-center">
             <label className="switch scale04ForButtonToggle">
               <input type="checkbox" checked={lamOn} onChange={handleToggleLamination} />
               <span className="switch-on"><span>Ламінація</span></span>

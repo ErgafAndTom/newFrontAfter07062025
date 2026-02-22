@@ -243,8 +243,9 @@ const NewPhoto = ({
         const rows = response.data.rows || [];
         setMaterials(rows);
 
-        // Auto-select first material if none selected
-        if (rows.length > 0 && !material.materialId) {
+        // Auto-select first material if none selected or current not in results
+        const currentExists = rows.some((r) => String(r.id) === String(material.materialId));
+        if (rows.length > 0 && (!material.materialId || !currentExists)) {
           setMaterial((prev) => ({
             ...prev,
             material: rows[0].name,

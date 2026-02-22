@@ -78,88 +78,38 @@ const PerepletPereplet = ({pereplet, setPereplet, prices, buttonsArr, selectArr,
     },
         [pereplet.size, pereplet.typeUse, size]);
 
+    const imageMap = {
+        "на пластик": { src: plastick, alt: "На пластик" },
+        "на пружину": { src: metall, alt: "На пружину" },
+    };
+
+    const displayVariants = thisPerepletVariants.filter(
+        (item) => imageMap[item.name?.toLowerCase()]
+    );
+
     return (
         <div className="d-flex allArtemElem">
-
-
-            <div style={{ marginTop: "1vw",marginLeft: "-2.1vw"}}>
-
-                <div className="d-flex flex-column">
-
-                    {pereplet.type !== "Не потрібно" ? (
-                        <div style={{
-                            display: 'flex',
-                            flexDirection: "column",
-                            // justifyContent: 'center',
-                            // alignItems: 'center',
-                        }} className="m-0 p-0">
-                            <div className="m-0 p-0" style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                // marginLeft: "2vw",
-                            }}>
-
-
-                            </div>
-                            <div className="d-flex">
-                                {thisPerepletVariants.map((item, index) => (<button
-                                    className={item.id === pereplet.materialId ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
-                                    key={index}
-                                    onClick={() => handleClickType(item)}
-                                >
-                                    <>
-                                        {item.name === "На пружину".toLowerCase() &&
-                                            <div className="d-flex flex-column align-content-center align-items-center" style={{
-                                                height: "100%",
-                                                opacity: item === pereplet.size ? '100%' : '90%',
-                                                whiteSpace: "nowrap",
-                                            }}>
-                                                {item.name === "На скобу".toLowerCase() &&
-                                                    <img src={skoba} alt="На скобу" style={{diheight: "5vw"}}/>
-                                                }
-                                                {item.name === "На пластик".toLowerCase() &&
-                                                    <img src={plastick} alt="На пластик" style={{height: "5vw"}}/>
-                                                }
-                                                {item.name === "На пружину".toLowerCase() &&
-                                                    <img src={metall} alt="На пружину" style={{height: "5vw"}}/>
-                                                }
-
-                                                {item.name}
-                                            </div>
-                                        }
-                                        {item.name === "На пластик".toLowerCase() &&
-                                            <div className="d-flex flex-column align-content-center align-items-center" style={{
-                                                height: "100%",
-                                                opacity: item === pereplet.size ? '100%' : '90%',
-                                                whiteSpace: "nowrap",
-                                            }}>
-                                                {item.name === "На скобу".toLowerCase() &&
-                                                    <img src={skoba} alt="На скобу" style={{diheight: "5vw"}}/>
-                                                }
-                                                {item.name === "На пластик".toLowerCase() &&
-                                                    <img src={plastick} alt="На пластик" style={{height: "5vw"}}/>
-                                                }
-                                                {item.name === "На пружину".toLowerCase() &&
-                                                    <img src={metall} alt="На пружину" style={{height: "5vw"}}/>
-                                                }
-
-                                                {item.name}
-                                            </div>
-                                        }
-                                    </>
-                                </button>))}
-
-                            </div>
-
-                        </div>) : (<div>
-
-                    </div>)}
+            {pereplet.type !== "Не потрібно" && displayVariants.length > 0 && (
+                <div className="d-flex">
+                    {displayVariants.map((item, index) => {
+                        const img = imageMap[item.name?.toLowerCase()];
+                        return (
+                            <button
+                                className={item.id === pereplet.materialId ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
+                                key={index}
+                                onClick={() => handleClickType(item)}
+                                style={{ padding: "0.8vh 1vw" }}
+                            >
+                                <div className="d-flex flex-column align-items-center" style={{ whiteSpace: "nowrap" }}>
+                                    <img src={img.src} alt={img.alt} style={{ height: "7vh", marginBottom: "0.4vh" }} />
+                                    {item.name}
+                                </div>
+                            </button>
+                        );
+                    })}
                 </div>
-            </div>
+            )}
         </div>
-
-
     )
 };
 

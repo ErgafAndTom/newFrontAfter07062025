@@ -325,7 +325,34 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
 
     return (
         <div className="d-flex allArtemElem"  >
-            <div className="d-flex" >
+            <div
+                className="custom-select-container selectArtem selectArtemBefore ArtemNewSelectContainer sc-has-value"
+                ref={sizeDropdownRef}
+                style={{ flex: isCustom ? "0 0 auto" : "1" }}
+            >
+                <div
+                    className="custom-select-header"
+                    onClick={() => setOpenSize(!openSize)}
+                >
+                    {thisNameVal}
+                </div>
+
+                {openSize && (
+                    <div className="custom-select-dropdown" style={{ top: "100%", left: "50%", transform: "translateX(-50%)" }}>
+                        {formats.map((item) => (
+                            <div
+                                key={item.name}
+                                className={`custom-option ${item.name === thisNameVal ? "active" : ""}`}
+                                onClick={() => handleSelectItem(item)}
+                            >
+                                <span className="name">{item.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            <div className="d-flex" style={{ marginLeft: "1vw" }}>
                 {isCustom === true ? (
                     <Form.Control
                         className="inputsArtem"
@@ -344,7 +371,6 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
                         min={minXYValue}
                         max={xMaxValue}
                         disabled
-                        // onChange={(event) => setX(event.target.value)}
                         isInvalid={xVal}
                     />
                 )}
@@ -372,7 +398,6 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
                         min={minXYValue}
                         max={yMaxValue}
                         disabled
-                        // onChange={(event) => setY(event.target.value)}
                         isInvalid={yVal}
                     />
                 )}<div className="inputsArtemx" style={{border:"transparent"}}> мм</div></div>
@@ -381,34 +406,6 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
                    {invalid}
                </Form.Control.Feedback>
            </div>
-
-
-
-            <div
-                className="custom-select-container selectArtem selectArtemBefore ArtemNewSelectContainer sc-has-value"
-                ref={sizeDropdownRef}
-            >
-                <div
-                    className="custom-select-header"
-                    onClick={() => setOpenSize(!openSize)}
-                >
-                    {thisNameVal}
-                </div>
-
-                {openSize && (
-                    <div className="custom-select-dropdown">
-                        {formats.map((item) => (
-                            <div
-                                key={item.name}
-                                className={`custom-option ${item.name === thisNameVal ? "active" : ""}`}
-                                onClick={() => handleSelectItem(item)}
-                            >
-                                <span className="name">{item.name}</span>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
 
             <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', }}>
                 {buttonsArr.map((item, index) => (

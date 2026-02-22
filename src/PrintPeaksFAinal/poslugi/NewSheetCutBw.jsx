@@ -331,7 +331,7 @@ export default function NewSheetCutBW({
         onChange={(sides) => setColor({ ...color, sides })}
       />
 
-      {/* 3. Матеріал */}
+      {/* 3. Матеріал (кнопка "Офісний" прихована, селект заблокований — папір обирається автоматично по розміру) */}
       <ScSection style={{ position: "relative", zIndex: 60 }}>
         <Materials2
           material={material}
@@ -340,8 +340,14 @@ export default function NewSheetCutBW({
           setCount={setCount}
           size={size}
           name={"Чорно-білий друк на монохромному принтері:"}
-          buttonsArr={["Офісний"]}
+          buttonsArr={[/* "Офісний" — приховано */]}
           typeUse={null}
+          disabled={true}
+          preferredMaterialName={
+            size.x === 210 && size.y === 297 ? "Офісний папір А4"
+            : size.x === 297 && size.y === 420 ? "Офісний папір А3"
+            : null
+          }
         />
       </ScSection>
 

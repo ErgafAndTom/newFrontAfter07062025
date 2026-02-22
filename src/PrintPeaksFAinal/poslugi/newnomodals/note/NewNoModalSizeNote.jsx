@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import Form from "react-bootstrap/Form";
 import '../CornerRounding.css';
 import '../ArtemStyles.css';
@@ -11,6 +11,8 @@ const NewNoModalSizeNote = ({size, setSize, type, buttonsArr, color, setColor, c
     const [yVal, setYVal] = useState(false);
     const [isCustom, setIsCustom] = useState(false);
     const [thisNameVal, setThisNameVal] = useState(defaultt);
+    const [openSize, setOpenSize] = useState(false);
+    const sizeDropdownRef = useRef(null);
 
     //initial main -------------------------------------------------------------------------------------------
     let formats = []
@@ -239,8 +241,60 @@ const NewNoModalSizeNote = ({size, setSize, type, buttonsArr, color, setColor, c
         }
     }, [size.x, size.y]);
 
+    // Клік поза dropdown
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (sizeDropdownRef.current && !sizeDropdownRef.current.contains(event.target)) {
+                setOpenSize(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleSelectItem = (item) => {
+        if (item.name === "Задати свій розмір") {
+            setThisNameVal(item.name);
+            setIsCustom(true);
+        } else {
+            setX(item.x);
+            setY(item.y);
+            setThisNameVal(item.name);
+            setSize({ x: item.x, y: item.y });
+            setIsCustom(false);
+        }
+        setOpenSize(false);
+    };
+
     return (
-        <div className="d-flex allArtemElem " style={{marginTop: "2vh", marginLeft: "0.5vw"}}>
+        <div className="d-flex allArtemElem">
+
+            <div
+                className="custom-select-container selectArtem selectArtemBefore ArtemNewSelectContainer sc-has-value"
+                ref={sizeDropdownRef}
+                style={{ flex: isCustom ? "0 0 auto" : "1" }}
+            >
+                <div
+                    className="custom-select-header"
+                    onClick={() => setOpenSize(!openSize)}
+                >
+                    {thisNameVal}
+                </div>
+
+                {openSize && (
+                    <div className="custom-select-dropdown" style={{ top: "100%", left: "50%", transform: "translateX(-50%)" }}>
+                        {formats.map((item) => (
+                            <div
+                                key={item.name}
+                                className={`custom-option ${item.name === thisNameVal ? "active" : ""}`}
+                                onClick={() => handleSelectItem(item)}
+                            >
+                                <span className="name">{item.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
 
             <div className="d-flex" style={{marginLeft: "1vw"}}>
                 {isCustom === true ? (
@@ -261,7 +315,6 @@ const NewNoModalSizeNote = ({size, setSize, type, buttonsArr, color, setColor, c
                         min={minXYValue}
                         max={xMaxValue}
                         disabled
-                        // onChange={(event) => setX(event.target.value)}
                         isInvalid={xVal}
                     />
                 )}
@@ -289,7 +342,6 @@ const NewNoModalSizeNote = ({size, setSize, type, buttonsArr, color, setColor, c
                         min={minXYValue}
                         max={yMaxValue}
                         disabled
-                        // onChange={(event) => setY(event.target.value)}
                         isInvalid={yVal}
                     />
                 )}
@@ -298,29 +350,6 @@ const NewNoModalSizeNote = ({size, setSize, type, buttonsArr, color, setColor, c
                     {invalid}
                 </Form.Control.Feedback>
             </div>
-
-            <div className="ArtemNewSelectContainer" style={{justifyContent: 'center', alignItems: 'center'}}>
-                <select
-                    className="selectArtem"
-                    onChange={handleSelectOption}
-                    value={thisNameVal}
-                    style={{marginLeft: "1vw"}}
-                >
-                    {/*<option disabled selected>Оберіть значення</option>*/}
-                    {/*<option>Задати свій розмір</option>*/}
-                    {formats.map((item, iter) => (
-                        <option
-                            className="optionInSelectArtem"
-                            key={item.name}
-                            value={item.name}
-                        >
-                            {item.name}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-
 
         </div>
     )
