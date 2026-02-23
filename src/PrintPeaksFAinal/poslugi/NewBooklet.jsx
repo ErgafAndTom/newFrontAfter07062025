@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ScModal, ScSection, ScCountSize, ScPricing, ScAddButton, ScTabs, ScToggleSection } from "./shared";
+import { ScModal, ScSection, ScCountSize, ScPricing, ScAddButton, ScTabs } from "./shared";
 import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
 
 import NewNoModalSizeNote from "./newnomodals/note/NewNoModalSizeNote";
@@ -42,6 +42,7 @@ const DEFAULTS = {
     laminationmaterial: "", laminationmaterialId: "",
     typeUse: "",
     big: "Не потрібно",
+    materialAndDrukFront: "Не потрібно",
   },
   materialAndDrukBack: {
     materialType: "Папір", materialTypeUse: "Офісний",
@@ -55,7 +56,7 @@ const DEFAULTS = {
   material: { type: "Не потрібно", thickness: "", material: "", materialId: "", typeUse: "" },
   color: { sides: "Не потрібно", one: "", two: "", allSidesColor: "CMYK" },
   lamination: { type: "Не потрібно", material: "", materialId: "", size: "" },
-  pereplet: { type: "", material: "", materialId: "", size: ">120", typeUse: "Брошурування до 120 аркушів" },
+  pereplet: { type: "", material: "", materialId: "", size: "<120", typeUse: "Брошурування до 120 аркушів" },
   count: 1,
   selectedService: "Буклет",
 };
@@ -99,18 +100,24 @@ const NewBooklet = ({
   const [services, setServices] = useState(SERVICES_BOOKLET);
   const [isEditServices, setIsEditServices] = useState(false);
   const [error, setError] = useState(null);
-  const [hasCover, setHasCover] = useState(false);
 
   // ========== PRICING HOOK ==========
+  const coverIsOff = materialAndDrukFront.materialAndDrukFront === "Не потрібно";
+
   const calcData = useMemo(() => {
+    const frontForCalc = coverIsOff ? {
+      ...materialAndDrukFront,
+      drukColor: "Не потрібно", materialId: "", material: "",
+      laminationType: "Не потрібно", laminationmaterialId: "", laminationmaterial: "",
+    } : materialAndDrukFront;
     const data = {
       newField6: "Booklet",
       size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count,
-      pereplet, materialAndDrukFront, materialAndDrukInBody, materialAndDrukBack,
+      pereplet, materialAndDrukFront: frontForCalc, materialAndDrukInBody, materialAndDrukBack,
     };
     if (porizka.type !== "Не потрібно") data.porizka = porizka;
     return data;
-  }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, porizka, materialAndDrukFront, materialAndDrukInBody, materialAndDrukBack, pereplet]);
+  }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, porizka, materialAndDrukFront, materialAndDrukInBody, materialAndDrukBack, pereplet, coverIsOff]);
 
   const { pricesThis } = useModalPricing("Note", calcData, showNewBooklet);
 
@@ -150,7 +157,6 @@ const NewBooklet = ({
       setCount(DEFAULTS.count);
       setPereplet(DEFAULTS.pereplet);
       setSelectedService(DEFAULTS.selectedService);
-      setHasCover(false);
       setError(null);
       return;
     }
@@ -161,13 +167,7 @@ const NewBooklet = ({
 
     setCount(safeNum(opt?.count, safeNum(editingOrderUnit?.amount, DEFAULTS.count)) || DEFAULTS.count);
     if (opt?.size) setSize({ x: safeNum(opt.size.x, DEFAULTS.size.x), y: safeNum(opt.size.y, DEFAULTS.size.y) });
-    if (opt?.materialAndDrukFront) {
-      setMaterialAndDrukFront(opt.materialAndDrukFront);
-      // Обкладинка увімкнена, якщо drukColor не "Не потрібно"
-      setHasCover(opt.materialAndDrukFront.drukColor !== "Не потрібно");
-    } else {
-      setHasCover(false);
-    }
+    if (opt?.materialAndDrukFront) setMaterialAndDrukFront(opt.materialAndDrukFront);
     if (opt?.materialAndDrukBack) setMaterialAndDrukBack(opt.materialAndDrukBack);
     if (opt?.materialAndDrukInBody) setMaterialAndDrukInBody(opt.materialAndDrukInBody);
     if (opt?.material) setMaterial(opt.material);
@@ -202,12 +202,17 @@ const NewBooklet = ({
   // ========== HANDLERS ==========
 
   const handleSave = () => {
+    const frontForSave = coverIsOff ? {
+      ...materialAndDrukFront,
+      drukColor: "Не потрібно", materialId: "", material: "",
+      laminationType: "Не потрібно", laminationmaterialId: "", laminationmaterial: "",
+    } : materialAndDrukFront;
     const toCalcData = {
       nameOrderUnit: `${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
       newField6: "Booklet",
       type: "Note",
       size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count,
-      pereplet, materialAndDrukFront, materialAndDrukInBody, materialAndDrukBack,
+      pereplet, materialAndDrukFront: frontForSave, materialAndDrukInBody, materialAndDrukBack,
     };
     if (porizka.type !== "Не потрібно") toCalcData.porizka = porizka;
 
@@ -313,38 +318,22 @@ const NewBooklet = ({
         }
       />
 
-      {/* 2. Обкладинка */}
-      <ScToggleSection
-        label="Обкладинка"
-        title="Обкладинка"
-        isOn={hasCover}
-        onToggle={() => {
-          if (hasCover) {
-            setHasCover(false);
-            setMaterialAndDrukFront((prev) => ({ ...prev, drukColor: "Не потрібно", materialId: "", material: "" }));
-          } else {
-            setHasCover(true);
-            setMaterialAndDrukFront(DEFAULTS.materialAndDrukFront);
-          }
-        }}
-        style={{ position: "relative", zIndex: 65 }}
-      >
-        <Materials2NoteFront
-          materialAndDrukFront={materialAndDrukFront}
-          setMaterialAndDrukFront={setMaterialAndDrukFront}
-          count={count}
-          setCount={setCount}
-          prices={[]}
-          size={size}
-          selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
-          name={"Обкладинки:"}
-          buttonsArr={["Офісний", "Тонкий", "Середній", "Цупкий"]}
-          buttonsArrDruk={["односторонній", "двосторонній"]}
-          buttonsArrColor={["Не потрібно", "Чорнобілий", "Кольоровий"]}
-          buttonsArrLamination={["З глянцевим ламінуванням", "З матовим ламінуванням", "З ламінуванням SoftTouch"]}
-          typeUse={null}
-        />
-      </ScToggleSection>
+      {/* 2. Обкладинка (внутрішній toggle у Materials2NoteFront) */}
+      <Materials2NoteFront
+        materialAndDrukFront={materialAndDrukFront}
+        setMaterialAndDrukFront={setMaterialAndDrukFront}
+        count={count}
+        setCount={setCount}
+        prices={[]}
+        size={size}
+        selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
+        name={"Обкладинки:"}
+        buttonsArr={["Офісний", "Тонкий", "Середній", "Цупкий"]}
+        buttonsArrDruk={["односторонній", "двосторонній"]}
+        buttonsArrColor={["Не потрібно", "Чорнобілий", "Кольоровий"]}
+        buttonsArrLamination={["З глянцевим ламінуванням", "З матовим ламінуванням", "З ламінуванням SoftTouch"]}
+        typeUse={null}
+      />
 
       {/* 3. Блок */}
       <Materials2NoteBack

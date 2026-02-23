@@ -53,7 +53,7 @@ const DEFAULTS = {
   material: { type: "Не потрібно", thickness: "", material: "", materialId: "", typeUse: "" },
   color: { sides: "Не потрібно", one: "", two: "", allSidesColor: "CMYK" },
   lamination: { type: "Не потрібно", material: "", materialId: "", size: "" },
-  pereplet: { type: "", thickness: "Тонкі", material: "", materialId: "", size: ">120", typeUse: "Брошурування до 120 аркушів" },
+  pereplet: { type: "", thickness: "Тонкі", material: "", materialId: "", size: "<120", typeUse: "Брошурування до 120 аркушів" },
   count: 1,
   selectedService: "Блокнот",
 };

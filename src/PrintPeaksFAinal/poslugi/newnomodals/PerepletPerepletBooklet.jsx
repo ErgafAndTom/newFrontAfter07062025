@@ -26,25 +26,23 @@ const PerepletPerepletBooklet = ({
 
 
     let handleClickSize = (e, e2) => {
-        setPereplet({
-            type: pereplet.type,
-            material: pereplet.material,
-            materialId: pereplet.materialId,
+        setPereplet(prev => ({
+            ...prev,
             size: e2,
             typeUse: e
-        })
+        }))
     }
     let handleClickType = (e) => {
-        setPereplet({
+        setPereplet(prev => ({
+            ...prev,
             type: e,
             material: e.name,
             materialId: e.id,
-            size: pereplet.size,
-            typeUse: pereplet.typeUse
-        })
+        }))
     }
 
     useEffect(() => {
+            let cancelled = false;
             let data = {
                 name: "MaterialsPrices",
                 inPageCount: 999999,
@@ -66,33 +64,45 @@ const PerepletPerepletBooklet = ({
             }
             axios.post(`/materials/NotAll`, data)
                 .then(response => {
+                    if (cancelled) return;
                     const rows = response.data.rows;
                     setThisPerepletVariants(rows);
                     // Якщо поточний вибір є серед результатів — не чіпаємо
                     const currentExists = rows.some(r => r.id === pereplet.materialId);
                     if (!currentExists && rows.length > 0) {
-                        // Ставимо "на скобу" як дефолт, або перший доступний
-                        const skoba = rows.find(r => r.name?.toLowerCase() === "на скобу");
-                        const fallback = skoba || rows[0];
-                        setPereplet({
-                            ...pereplet,
-                            material: fallback.name,
-                            materialId: fallback.id
-                        });
+                        // Спочатку шукаємо матеріал з тією ж назвою (зберігаємо вибір при зміні розміру)
+                        const sameNameMatch = pereplet.material
+                            ? rows.find(r => r.name?.toLowerCase() === pereplet.material?.toLowerCase())
+                            : null;
+                        if (sameNameMatch) {
+                            setPereplet(prev => ({
+                                ...prev,
+                                material: sameNameMatch.name,
+                                materialId: sameNameMatch.id
+                            }));
+                        } else {
+                            // Ставимо "на скобу" як дефолт, або перший доступний
+                            const skoba = rows.find(r => r.name?.toLowerCase() === "на скобу");
+                            const fallback = skoba || rows[0];
+                            setPereplet(prev => ({
+                                ...prev,
+                                material: fallback.name,
+                                materialId: fallback.id
+                            }));
+                        }
                     } else if (rows.length === 0) {
-                        setPereplet({
-                            ...pereplet,
+                        setPereplet(prev => ({
+                            ...prev,
                             material: "",
                             materialId: 0
-                        });
+                        }));
                     }
                 })
                 .catch(error => {
-                    // if (error?.response?.status === 403) {
-                    //     navigate('/login');
-                    // }
+                    if (cancelled) return;
                     console.log(error.message);
                 })
+            return () => { cancelled = true; };
         },
         [pereplet.size, pereplet.typeUse, size]);
 

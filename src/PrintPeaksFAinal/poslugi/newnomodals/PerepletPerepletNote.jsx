@@ -18,25 +18,28 @@ const PerepletPereplet = ({pereplet, setPereplet, prices, buttonsArr, selectArr,
 
 
     let handleClickSize = (e, e2) => {
-        setPereplet({
-            type: pereplet.type,
-            material: pereplet.material,
-            materialId: pereplet.materialId,
+        setPereplet(prev => ({
+            ...prev,
             size: e2,
             typeUse: e
-        })
+        }))
     }
     let handleClickType = (e) => {
-        setPereplet({
+        setPereplet(prev => ({
+            ...prev,
             type: e,
             material: e.name,
             materialId: e.id,
-            size: pereplet.size,
-            typeUse: pereplet.typeUse
-        })
+        }))
     }
 
+    const imageMap = {
+        "на пластик": { src: plastick, alt: "На пластик" },
+        "на пружину": { src: metall, alt: "На пружину" },
+    };
+
     useEffect(() => {
+        let cancelled = false;
         let data = {
             name: "MaterialsPrices",
             inPageCount: 999999,
@@ -58,30 +61,47 @@ const PerepletPereplet = ({pereplet, setPereplet, prices, buttonsArr, selectArr,
         }
         axios.post(`/materials/NotAll`, data)
             .then(response => {
-                setThisPerepletVariants(response.data.rows);
-                // console.log(response.data.rows[2]);
-                if (response.data.rows[2]) {
-                    setPereplet({
-                        ...pereplet,
-                        material: response.data.rows[2].name,
-                        materialId: response.data.rows[2].id
-                    });
+                if (cancelled) return;
+                const rows = response.data.rows;
+                setThisPerepletVariants(rows);
+                // Перевіряємо чи поточний вибір є серед нових результатів
+                const currentExists = rows.some(r => r.id === pereplet.materialId);
+                if (!currentExists && rows.length > 0) {
+                    // Спочатку шукаємо матеріал з тією ж назвою (зберігаємо вибір при зміні розміру)
+                    const sameNameMatch = pereplet.material
+                        ? rows.find(r => r.name?.toLowerCase() === pereplet.material?.toLowerCase())
+                        : null;
+                    if (sameNameMatch) {
+                        setPereplet(prev => ({
+                            ...prev,
+                            material: sameNameMatch.name,
+                            materialId: sameNameMatch.id
+                        }));
+                    } else {
+                        // Fallback: "на пружину" як дефолт, або перший відображуваний
+                        const pruzhyna = rows.find(r => r.name?.toLowerCase() === "на пружину");
+                        const displayable = rows.filter(r =>
+                            imageMap[r.name?.toLowerCase()]
+                        );
+                        const fallback = pruzhyna || displayable[0] || rows[0];
+                        setPereplet(prev => ({
+                            ...prev,
+                            material: fallback.name,
+                            materialId: fallback.id
+                        }));
+                    }
                 }
-
             })
             .catch(error => {
+                if (cancelled) return;
                 if (error?.response?.status === 403) {
                     navigate('/login');
                 }
                 console.log(error.message);
             })
+        return () => { cancelled = true; };
     },
         [pereplet.size, pereplet.typeUse, size]);
-
-    const imageMap = {
-        "на пластик": { src: plastick, alt: "На пластик" },
-        "на пружину": { src: metall, alt: "На пружину" },
-    };
 
     const displayVariants = thisPerepletVariants.filter(
         (item) => imageMap[item.name?.toLowerCase()]
