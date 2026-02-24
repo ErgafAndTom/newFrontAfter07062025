@@ -165,6 +165,16 @@ const NewScans = ({
         size: { x: material.x || 0, y: material.y || 0 },
         material,
         count,
+        lamination: { type: "Не потрібно", material: "", materialId: "", size: "", typeUse: "" },
+        color: { sides: "Не потрібно", one: "", two: "", allSidesColor: "" },
+        big: "Не потрібно",
+        cute: "Не потрібно",
+        cuteLocal: { leftTop: false, rightTop: false, rightBottom: false, leftBottom: false, radius: "" },
+        holes: "Не потрібно",
+        holesR: "",
+        prokleyka: "Не потрібно",
+        lyuversy: "Не потрібно",
+        design: "Не потрібно",
       },
       editingOrderUnit,
       setError
@@ -225,7 +235,7 @@ const NewScans = ({
       {/* 2. Матеріал */}
       <ScSection title="" style={{ position: "relative", zIndex: 5 }}>
         <div
-          className="custom-select-container selectArtem selectArtemBefore"
+          className={`custom-select-container selectArtem selectArtemBefore${material.materialId ? " sc-has-value" : ""}`}
           ref={materialDropdownRef}
           style={{ width: "100%" }}
         >

@@ -195,10 +195,9 @@ const Materials2NoteFront = ({
                   <div
                     className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
                     key={item + i}
-                    style={{ backgroundColor: isActive ? "#f5a623" : "#D3D3D3", color: isActive ? "#FFFFFF" : "#666666", borderRadius: 0 }}
                     onClick={() => setMaterialAndDrukFront((prev) => ({ ...prev, drukColor: item }))}
                   >
-                    <div style={{ height: "100%", display: "flex", color: isActive ? "white" : "var(--admingrey)", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {item}
                     </div>
                   </div>
@@ -221,10 +220,10 @@ const Materials2NoteFront = ({
                   <div
                     className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
                     key={item + i}
-                    style={{ flex: 1, backgroundColor: isActive ? "#f5a623" : "#D3D3D3", color: isActive ? "#FFFFFF" : "#666666", borderRadius: 0 }}
+                    style={{ flex: 1 }}
                     onClick={() => setMaterialAndDrukFront((prev) => ({ ...prev, drukSides: item }))}
                   >
-                    <div style={{ height: "100%", display: "flex", color: isActive ? "white" : "var(--admingrey)", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {item}
                     </div>
                   </div>
@@ -241,10 +240,9 @@ const Materials2NoteFront = ({
                 <div
                   className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
                   key={item + i}
-                  style={{ backgroundColor: isActive ? "#f5a623" : "#D3D3D3", color: isActive ? "#FFFFFF" : "#666666", borderRadius: 0 }}
                   onClick={() => setMaterialAndDrukFront((prev) => ({ ...prev, materialTypeUse: item }))}
                 >
-                  <div style={{ height: "100%", display: "flex", color: isActive ? "white" : "var(--admingrey)", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {item}
                   </div>
                 </div>
@@ -302,10 +300,9 @@ const Materials2NoteFront = ({
                 <div
                   className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
                   key={item.value + i}
-                  style={{ backgroundColor: isActive ? "#f5a623" : "#D3D3D3", color: isActive ? "#FFFFFF" : "#666666", borderRadius: 0 }}
                   onClick={() => setMaterialAndDrukFront((prev) => ({ ...prev, laminationTypeUse: item.value }))}
                 >
-                  <div style={{ height: "100%", display: "flex", color: isActive ? "white" : "var(--admingrey)", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {item.label}
                   </div>
                 </div>

@@ -215,6 +215,16 @@ const Laminator = ({
         size,
         lamination,
         count,
+        material: { type: "Не потрібно", thickness: "", material: "", materialId: "", typeUse: "" },
+        color: { sides: "Не потрібно", one: "", two: "", allSidesColor: "" },
+        big: "Не потрібно",
+        cute: "Не потрібно",
+        cuteLocal: { leftTop: false, rightTop: false, rightBottom: false, leftBottom: false, radius: "" },
+        holes: "Не потрібно",
+        holesR: "",
+        prokleyka: "Не потрібно",
+        lyuversy: "Не потрібно",
+        design: "Не потрібно",
       },
       editingOrderUnit,
       setError
@@ -311,7 +321,7 @@ const Laminator = ({
       {/* 3. Товщина плівки */}
       <ScSection title="">
         <div
-          className="custom-select-container selectArtem selectArtemBefore"
+          className={`custom-select-container selectArtem selectArtemBefore${lamination.size ? " sc-has-value" : ""}`}
           ref={thicknessDropdownRef}
           style={{ width: "100%" }}
         >

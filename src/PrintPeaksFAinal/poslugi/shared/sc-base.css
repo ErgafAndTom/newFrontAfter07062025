@@ -232,8 +232,26 @@ label.switch:has(input:checked) {
   background: linear-gradient(270deg, #f2f0e9, #efece5, #f5f3ec, #f0ede6, #f2f0e9);
   background-size: 100% 100%;
   animation: cardShimmer 5s linear infinite;
-  padding: 1.2vh 1vw;
+  padding: 0.8vh 0.7vw;
   border-radius: 0;
+}
+
+.sc-wrap .sc-modal-bw .sc-count-size-row .sc-section-card {
+  display: flex;
+  align-items: center;
+}
+
+.sc-wrap .sc-modal-bw .sc-count-size-row .sc-section-card > .sc-row {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.sc-wrap .sc-modal-bw .sc-bw-material-card .sc-row {
+  min-height: 3.84vh;
+  display: flex;
+  align-items: center;
 }
 
 /* Картки для секцій Сторонність, Матеріал */
@@ -256,6 +274,7 @@ label.switch:has(input:checked) {
 .sc-wrap .sc-section-card .buttonsArtem::before,
 .sc-wrap .sc-section-card .buttonsArtem::after {
   background-color: var(--adminfonelement);
+  filter: none;
 }
 /* sections 4-10 (Ламінування...Порізка) — мінімальна відстань */
 .sc-wrap .sc-left-sections > .sc-section:nth-child(n+4) {
@@ -470,7 +489,7 @@ label.switch:has(input:checked) {
   padding-left: 0.5vw;
   padding-right: 1.5vw;
   height: 100%;
-  min-height: 3.2vh;
+  min-height: 3.84vh;
 }
 
 /* extra left padding when hand loader is visible */
@@ -665,6 +684,10 @@ label.switch:has(input:checked) {
   min-width: 4vw;
 }
 
+.sc-wrap .sc-lam-row .custom-select-container {
+  border-bottom: 2px solid var(--admingreen) !important;
+}
+
 .sc-wrap .custom-select-container.sc-has-value .custom-select-header {
   color: inherit;
 }
@@ -719,19 +742,19 @@ label.switch:has(input:checked) {
 .sc-wrap .buttonsArtem {
   flex: 1 1 auto;
   height: auto;
-  min-height: 3.2vh;
+  min-height: 3.84vh;
   width: auto;
   min-width: fit-content;
   border: 2px solid var(--adminorange) !important;
   border-radius: 0;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 450;
   text-transform: uppercase;
   transition: 0.3s;
   background-color: transparent !important;
   color: var(--admingrey) !important;
-  padding: 4px 0.6vw;
+  padding: 5px 0.72vw;
   margin-right: 0;
   position: relative;
   z-index: 1;
@@ -753,7 +776,7 @@ label.switch:has(input:checked) {
   left: -2px;
   width: calc(100% + 6px);
   height: calc(100% + 2px);
-  background-color: var(--adminfon);
+  background-color: var(--adminfonelement);
   transition: 0.3s ease-out;
   transform: scaleY(1);
   z-index: 1;
@@ -767,7 +790,7 @@ label.switch:has(input:checked) {
   left: -2px;
   width: calc(100% + 4px);
   height: calc(100% - 50%);
-  background-color: var(--adminfon);
+  background-color: var(--adminfonelement);
   transition: 0.3s ease-out;
   transform: scaleY(1);
   z-index: 2;
@@ -798,18 +821,18 @@ label.switch:has(input:checked) {
   padding: 0 2vw;
 }
 
-/* --- active: AdminGreen border, no pseudo-elements --- */
+/* --- active: admingreen background + light text --- */
 .sc-wrap .buttonsArtem.buttonsArtemActive,
 .sc-wrap .buttonsArtem[style*="background-color: rgb(245, 166, 35)"] {
-  background-color: transparent !important;
+  background-color: var(--admingreen) !important;
   border: 2px solid var(--admingreen) !important;
-  color: var(--admingreen) !important;
+  color: var(--adminfon) !important;
   z-index: 2;
 }
 
 .sc-wrap .buttonsArtem.buttonsArtemActive > div,
 .sc-wrap .buttonsArtem[style*="background-color: rgb(245, 166, 35)"] > div {
-  color: var(--admingreen) !important;
+  color: var(--adminfon) !important;
 }
 
 .sc-wrap .buttonsArtem.buttonsArtemActive::before,
@@ -895,17 +918,17 @@ label.switch:has(input:checked) {
   flex-wrap: wrap;
   width: 100%;
   height: auto;
-  min-height: 3.2vh;
+  min-height: 3.84vh;
 }
 
 .sc-wrap .sc-side-btn {
   flex: 1;
   height: auto;
-  min-height: 3.2vh;
+  min-height: 3.84vh;
   border: 2px solid var(--adminorange) !important;
   border-radius: 0;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 450;
   text-transform: uppercase;
   transition: 0.3s;
@@ -913,7 +936,7 @@ label.switch:has(input:checked) {
   color: var(--admingrey) !important;
   position: relative;
   min-width: fit-content;
-  padding: 4px 12px;
+  padding: 5px 14px;
 }
 
 /* text stays above pseudo-elements */
@@ -932,7 +955,7 @@ label.switch:has(input:checked) {
   left: -2px;
   width: calc(100% + 6px);
   height: calc(100% + 2px);
-  background-color: var(--adminfon);
+  background-color: var(--adminfonelement);
   transition: 0.3s ease-out;
   transform: scaleY(1);
   z-index: 1;
@@ -946,7 +969,7 @@ label.switch:has(input:checked) {
   left: -2px;
   width: calc(100% + 4px);
   height: calc(100% - 50%);
-  background-color: var(--adminfon);
+  background-color: var(--adminfonelement);
   transition: 0.3s ease-out;
   transform: scaleY(1);
   z-index: 2;
@@ -971,16 +994,16 @@ label.switch:has(input:checked) {
   color: var(--adminorange) !important;
 }
 
-/* --- active: AdminGreen border, no pseudo-elements --- */
+/* --- active: admingreen background + light text --- */
 .sc-wrap .sc-side-btn.sc-side-active {
-  background-color: transparent !important;
+  background-color: var(--admingreen) !important;
   border: 2px solid var(--admingreen) !important;
-  color: var(--admingreen) !important;
+  color: var(--adminfon) !important;
   z-index: 2;
 }
 
 .sc-wrap .sc-side-btn.sc-side-active .sc-side-text {
-  color: var(--admingreen) !important;
+  color: var(--adminfon) !important;
 }
 
 .sc-wrap .sc-side-btn.sc-side-active::before,
@@ -1124,10 +1147,10 @@ label.switch:has(input:checked) {
   overflow: visible !important;
   animation: none !important;
   box-shadow: none !important;
-  padding: 0 0.6vw !important;
-  height: 3.2vh !important;
-  min-height: 3.2vh !important;
-  font-size: 11px !important;
+  padding: 0 0.72vw !important;
+  height: 3.84vh !important;
+  min-height: 3.84vh !important;
+  font-size: 13px !important;
   font-weight: 450 !important;
   text-transform: uppercase !important;
   display: inline-flex !important;
@@ -1151,7 +1174,7 @@ label.switch:has(input:checked) {
   left: -2px;
   width: calc(100% + 4px);
   height: calc(100% + 2px);
-  background-color: var(--adminfon);
+  background-color: var(--adminfonelement);
   transition: 0.3s ease-out;
   transform: scaleY(1);
   z-index: 1;
@@ -1165,7 +1188,7 @@ label.switch:has(input:checked) {
   left: -2px;
   width: calc(100% + 4px);
   height: calc(100% - 50%);
-  background-color: var(--adminfon);
+  background-color: var(--adminfonelement);
   transition: 0.3s ease-out;
   transform: scaleY(1);
   z-index: 2;
@@ -1191,24 +1214,24 @@ label.switch:has(input:checked) {
   color: var(--adminorange) !important;
 }
 
-/* --- active tab: AdminGreen border, no pseudo-elements --- */
+/* --- active tab: admingreen background + light text --- */
 .sc-wrap .sc-tabs .adminButtonAdd {
-  background: transparent !important;
-  background-color: transparent !important;
+  background: var(--admingreen) !important;
+  background-color: var(--admingreen) !important;
   background-image: none !important;
   border: 2px solid var(--admingreen) !important;
-  color: var(--admingreen) !important;
+  color: var(--adminfon) !important;
   animation: none !important;
 }
 
 .sc-wrap .sc-tabs .adminButtonAdd .sc-tab-text {
-  color: var(--admingreen) !important;
+  color: var(--adminfon) !important;
 }
 
 .sc-wrap .sc-tabs .adminButtonAdd:hover {
-  background: transparent !important;
-  background-color: transparent !important;
-  color: var(--admingreen) !important;
+  background: var(--admingreen) !important;
+  background-color: var(--admingreen) !important;
+  color: var(--adminfon) !important;
 }
 
 .sc-wrap .sc-tabs .adminButtonAdd::before,
@@ -1389,7 +1412,7 @@ label.switch:has(input:checked) {
   /* Action button — менший */
   .sc-add-btn {
     height: 50px;
-    padding: 12px 16px;
+    padding: 9px 12px;
   }
   .sc-wrap .sc-error {
     margin: 0 10px;
@@ -1911,7 +1934,7 @@ label.switch:has(input:checked) {
   width: 100%;
   padding: 18px 24px;
   height: 60px;
-  background-color: transparent;
+  background-color: var(--adminorange);
   border: none;
   font-size: 12px;
   font-weight: 450;
@@ -1929,11 +1952,12 @@ label.switch:has(input:checked) {
   transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
-  background-color: var(--adminfon);
+  background-color: var(--adminorange);
   box-shadow: inset 0 0 0 2px var(--admingrey);
   transition: all var(--transtion);
   z-index: 0;
 }
+
 .sc-add-btn::after {
   display: none;
 }
@@ -1941,11 +1965,12 @@ label.switch:has(input:checked) {
   --active: 1;
 }
 .sc-add-btn:is(:hover, :focus-visible)::before {
-  background-color: var(--adminfonelement);
+  background-color: var(--adminorange);
 }
 .sc-add-btn:is(:hover, :focus-visible) .sc-add-btn__outline::before {
   background-color: transparent;
 }
+
 .sc-add-btn:active {
   transform: scale(1);
 }
@@ -1986,7 +2011,7 @@ label.switch:has(input:checked) {
   justify-content: center;
   transform: scale(1.4);
   transition: all 0.4s ease;
-  color: var(--adminorange);
+  color: var(--admingrey);
 }
 .sc-add-btn__icon svg {
   overflow: visible;
@@ -2054,6 +2079,27 @@ label.switch:has(input:checked) {
 }
 .sc-add-btn:active .sc-add-btn__icon {
   transform: rotate(0) scale(1.4);
+}
+
+
+/* Compact add button variant for NewSheetCutBW */
+.sc-add-btn.sc-add-btn--bw-compact {
+  max-width: 100%;
+  height: 50px;
+  padding: 12px 16px;
+}
+
+.sc-add-btn.sc-add-btn--bw-compact .sc-add-btn__text {
+  font-size: 9px;
+  letter-spacing: 0.6px;
+}
+
+.sc-add-btn.sc-add-btn--bw-compact .sc-add-btn__icon {
+  transform: scale(1.1);
+}
+
+.sc-add-btn.sc-add-btn--bw-compact:hover .sc-add-btn__icon {
+  transform: rotate(45deg) scale(1.2);
 }
 .sc-add-btn:active .sc-add-btn__icon::before {
   content: "";

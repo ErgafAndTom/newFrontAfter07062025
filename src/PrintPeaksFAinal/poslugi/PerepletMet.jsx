@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
@@ -6,7 +6,6 @@ import { ScModal, ScSection, ScPricing, ScAddButton } from "./shared";
 import { useModalState, useOrderUnitSave } from "./shared/hooks";
 import "./Poslugy.css";
 
-import PerepletSize from "./newnomodals/PerepletSize";
 import PerepletPereplet from "./newnomodals/PerepletPereplet";
 
 const fmt2 = (v) =>
@@ -14,6 +13,12 @@ const fmt2 = (v) =>
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(Number(v));
+
+const SIZE_FORMATS = [
+  { name: "A5 (148 x 210 мм)", x: 148, y: 210 },
+  { name: "A4 (210 x 297 мм)", x: 210, y: 297 },
+  { name: "A3 (297 x 420 мм)", x: 297, y: 420 },
+];
 
 const PerepletMet = ({
   thisOrder,
@@ -39,6 +44,8 @@ const PerepletMet = ({
   const [holes, setHoles] = useState("Не потрібно");
   const [holesR, setHolesR] = useState("");
   const [count, setCount] = useState(1);
+  const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
+  const sizeDropdownRef = useRef(null);
   const [prices] = useState([]);
   const [pricesThis, setPricesThis] = useState(null);
   const [error, setError] = useState(null);
@@ -107,6 +114,16 @@ const PerepletMet = ({
       });
   }, [showPerepletMet, size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, pereplet, navigate]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sizeDropdownRef.current && !sizeDropdownRef.current.contains(event.target)) {
+        setSizeDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   // ========== SAVE ==========
   const handleSave = () => {
     if (!thisOrder?.id) return;
@@ -119,6 +136,14 @@ const PerepletMet = ({
       big, cute, cuteLocal, holes, holesR, count, pereplet,
     }, editingOrderUnit, setError);
   };
+
+  const handleSizeSelect = (format) => {
+    setSize({ x: format.x, y: format.y });
+    setSizeDropdownOpen(false);
+  };
+
+  const selectedSizeFormat = SIZE_FORMATS.find((f) => f.x === size.x && f.y === size.y);
+  const sizeTitle = selectedSizeFormat?.name || `${size.x} x ${size.y} мм`;
 
   // ========== PRICING DATA ==========
   const perepletLabel = pereplet.material
@@ -152,31 +177,50 @@ const PerepletMet = ({
         )
       }
     >
-      {/* 1. Кількість */}
-      <ScSection title="">
-        <div className="d-flex flex-row align-items-center">
-          <input
-            className="inputsArtem"
-            type="number"
-            min={1}
-            value={count}
-            onChange={(e) => setCount(Math.max(1, +e.target.value || 1))}
-          />
-          <div className="inputsArtemx">шт</div>
+      {/* 1-2. Кількість + Розмір в один ряд */}
+      <div className="sc-count-size-row">
+        <div className="sc-section sc-section-card" style={{ flex: 1 }}>
+          <div className="sc-row">
+            <div
+              className="custom-select-container selectArtem selectArtemBefore"
+              ref={sizeDropdownRef}
+              style={{ zIndex: 10 }}
+            >
+              <div
+                className="custom-select-header"
+                onClick={() => setSizeDropdownOpen(!sizeDropdownOpen)}
+              >
+                {sizeTitle}
+              </div>
+              {sizeDropdownOpen && (
+                <div className="custom-select-dropdown">
+                  {SIZE_FORMATS.map((item) => (
+                    <div
+                      key={item.name}
+                      className={`custom-option ${item.name === sizeTitle ? "active" : ""}`}
+                      onClick={() => handleSizeSelect(item)}
+                    >
+                      <span className="name">{item.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </ScSection>
-
-      {/* 2. Розмір */}
-      <ScSection title="">
-        <PerepletSize
-          size={size} setSize={setSize}
-          prices={prices} type="SheetCut"
-          buttonsArr={["односторонній", "двосторонній"]}
-          color={color} setColor={setColor}
-          count={count} setCount={setCount}
-          defaultt="А3 (297 х 420 мм)"
-        />
-      </ScSection>
+        <div className="sc-section sc-section-card">
+          <div className="sc-row d-flex flex-row align-items-center">
+            <input
+              className="inputsArtem"
+              type="number"
+              min={1}
+              value={count}
+              onChange={(e) => setCount(Math.max(1, +e.target.value || 1))}
+            />
+            <div className="inputsArtemx">шт</div>
+          </div>
+        </div>
+      </div>
 
       {/* 3. Переплет */}
       <ScSection title="">

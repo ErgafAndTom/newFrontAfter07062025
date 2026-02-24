@@ -12,6 +12,7 @@ const Materials2 = ({
                       typeOfPosluga,
                       disabled = false,
                       preferredMaterialName,
+                      autoSelectFirst = true,
                     }) => {
   const [paper, setPaper] = useState([]);
   const [error, setError] = useState(null);
@@ -100,7 +101,7 @@ const Materials2 = ({
         } else {
           // Авто-вибір першого матеріалу якщо нічого не вибрано або поточний відсутній у результатах
           const currentExists = rows.some((r) => String(r.id) === String(material?.materialId));
-          if (rows.length > 0 && (!material?.materialId || material.materialId === 0 || material.materialId === "0" || !currentExists)) {
+          if (autoSelectFirst && rows.length > 0 && (!material?.materialId || material.materialId === 0 || material.materialId === "0" || !currentExists)) {
             setMaterial((prev) => ({
               ...prev,
               material: rows[0].name,
@@ -122,7 +123,7 @@ const Materials2 = ({
     return () => {
       cancelled = true;
     };
-  }, [material?.thickness, material?.type, size, navigate, setMaterial, preferredMaterialName]);
+  }, [material?.thickness, material?.type, size, navigate, setMaterial, preferredMaterialName, autoSelectFirst]);
 
   // 📏 автоширина
   useEffect(() => {
@@ -151,17 +152,16 @@ const Materials2 = ({
     material?.material && material.material !== "Немає"
       ? material.material
       : "Виберіть матеріал";
+  const hasButtons = buttonsArr.length > 0;
 
   return (
-    <div className="d-flex flex-row justify-content-between align-items-center w-100 gap-3 " >
+    <div className={`d-flex flex-row align-items-center w-100 ${hasButtons ? "justify-content-between gap-3" : "justify-content-center"}`} >
 
       {/* Кнопки зліва */}
+      {hasButtons && (
       <div style={{display: "flex"}}>
         {buttonsArr.map((item, index) => {
           const isActive = item === material?.thickness;
-          const isFirst = index === 0;
-          const isLast = index === buttonsArr.length - 1;
-
           return (
             <div
               className={
@@ -170,18 +170,12 @@ const Materials2 = ({
                   : "buttonsArtem"
               }
               key={index}
-              style={{
-                backgroundColor: isActive ? "#f5a623" : "#D3D3D3",
-                color: isActive ? "#FFFFFF" : "#666666",
-                borderRadius: 0,
-              }}
               onClick={() => handleClickThickness(item)}
             >
               <div
                 style={{
                   height: "100%",
                   display: "flex",
-                  color: isActive ? "white" : "var(--admingrey)",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
@@ -192,13 +186,13 @@ const Materials2 = ({
           );
         })}
       </div>
-
+      )}
 
       {/* SELECT справа */}
       <div
         className={`custom-select-container selectArtem selectArtemBefore${material?.materialId && material.materialId !== 0 && material.materialId !== "0" ? " sc-has-value" : ""}`}
         ref={dropdownRef}
-        style={{minWidth: dropdownWidth}}
+        style={{ minWidth: hasButtons ? dropdownWidth : "100%", width: hasButtons ? undefined : "100%" }}
       >
         {/* tapping hand loader */}
         {!(material?.materialId && material.materialId !== 0 && material.materialId !== "0") && (
@@ -234,7 +228,7 @@ const Materials2 = ({
         </div>
 
         {open && (
-          <div className="custom-select-dropdown" style={{minWidth: dropdownWidth}}>
+          <div className="custom-select-dropdown" style={{ minWidth: hasButtons ? dropdownWidth : "100%" }}>
             {paper.map((item) => (
               <div
                 key={item.id}

@@ -1,6 +1,5 @@
 import axios from '../../api/axiosInstance';
-import React, { useEffect, useState, useMemo } from "react";
-import NewNoModalSize from "./newnomodals/NewNoModalSize_colum";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import NewNoModalLamination from "./newnomodals/NewNoModalLamination";
 import Materials2 from "./newnomodals/Materials2";
 
@@ -17,6 +16,11 @@ import "./Poslugy.css";
 import "./shared/sc-base.css";
 
 const DEFAULT_SIZE = { x: 210, y: 297 };
+
+const SIZE_FORMATS = [
+  { name: "A4 (210 x 297 мм)", x: 210, y: 297 },
+  { name: "A3 (297 x 420 мм)", x: 297, y: 420 },
+];
 
 const DEFAULTS = {
   size: DEFAULT_SIZE,
@@ -74,6 +78,8 @@ export default function NewSheetCutBW({
   const [selectedService, setSelectedService] = useState("Документ");
   const isEdit = Boolean(editingOrderUnit?.id || editingOrderUnit?.idKey);
   const [size, setSize] = useState({ x: 210, y: 297 });
+  const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
+  const sizeDropdownRef = useRef(null);
 
   const options = useMemo(
     () => parseOptionsJson(editingOrderUnit),
@@ -151,6 +157,16 @@ export default function NewSheetCutBW({
     setSelectedService(matched || services[0] || "");
     setError(null);
   }, [showNewSheetCutBW, isEdit, options, editingOrderUnit]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sizeDropdownRef.current && !sizeDropdownRef.current.contains(event.target)) {
+        setSizeDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   /* ===================== SAVE ===================== */
 
@@ -236,6 +252,14 @@ export default function NewSheetCutBW({
     count,
   ]);
 
+  const handleSizeSelect = (format) => {
+    setSize({ x: format.x, y: format.y });
+    setSizeDropdownOpen(false);
+  };
+
+  const selectedSizeFormat = SIZE_FORMATS.find((f) => f.x === size.x && f.y === size.y);
+  const sizeTitle = selectedSizeFormat?.name || `${size.x} x ${size.y} мм`;
+
   /* ===================== PRICING DATA ===================== */
 
   const sc = pricesThis.sheetCount || 0;
@@ -260,6 +284,9 @@ export default function NewSheetCutBW({
       show={showNewSheetCutBW}
       onClose={handleClose}
       modalStyle={{ width: "35vw" }}
+      modalClassName="sc-modal-bw"
+      leftStyle={{ flex: 1.2 }}
+      rightStyle={{ width: "11.2vw", minWidth: "144px", maxWidth: "208px" }}
       rightContent={
         <>
           {pricesThis && (
@@ -270,7 +297,7 @@ export default function NewSheetCutBW({
               fmt={fmt2}
             />
           )}
-          <ScAddButton onClick={addNewOrderUnit} isEdit={isEdit} />
+          <ScAddButton onClick={addNewOrderUnit} isEdit={isEdit} className="sc-add-btn--bw-compact" />
         </>
       }
       errorContent={
@@ -313,15 +340,31 @@ export default function NewSheetCutBW({
         count={count}
         onCountChange={(v) => setCount(Number(v) || 1)}
         sizeComponent={
-          <NewNoModalSize
-            size={size}
-            setSize={setSize}
-            type="SheetCutBW"
-            count={count}
-            showSize={true}
-            showSides={false}
-            showCount={true}
-          />
+          <div
+            className="custom-select-container selectArtem selectArtemBefore"
+            ref={sizeDropdownRef}
+            style={{ zIndex: 10, width: "100%" }}
+          >
+            <div
+              className="custom-select-header"
+              onClick={() => setSizeDropdownOpen(!sizeDropdownOpen)}
+            >
+              {sizeTitle}
+            </div>
+            {sizeDropdownOpen && (
+              <div className="custom-select-dropdown">
+                {SIZE_FORMATS.map((item) => (
+                  <div
+                    key={item.name}
+                    className={`custom-option ${item.name === sizeTitle ? "active" : ""}`}
+                    onClick={() => handleSizeSelect(item)}
+                  >
+                    <span className="name">{item.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         }
       />
 
@@ -332,7 +375,7 @@ export default function NewSheetCutBW({
       />
 
       {/* 3. Матеріал (кнопка "Офісний" прихована, селект заблокований — папір обирається автоматично по розміру) */}
-      <ScSection style={{ position: "relative", zIndex: 60 }}>
+      <ScSection className="sc-bw-material-card" style={{ position: "relative", zIndex: 60 }}>
         <Materials2
           material={material}
           setMaterial={setMaterial}

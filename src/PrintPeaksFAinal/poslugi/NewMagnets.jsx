@@ -25,6 +25,7 @@ const DEFAULTS = {
 };
 
 const SIZE_FORMATS = [
+  { name: "Задати свій розмір", custom: true },
   { name: "А7 (74 x 105 мм)", x: 74, y: 105 },
   { name: "А6 (105 x 148 мм)", x: 105, y: 148 },
   { name: "А5 (148 x 210 мм)", x: 148, y: 210 },
@@ -55,6 +56,7 @@ const NewMagnets = ({
   // ========== STATE ==========
   const [size, setSize] = useState(DEFAULTS.size);
   const [material, setMaterial] = useState(DEFAULTS.material);
+  const [isCustomSize, setIsCustomSize] = useState(false);
   const [color, setColor] = useState(DEFAULTS.color);
   const [count, setCount] = useState(DEFAULTS.count);
   const [error, setError] = useState(null);
@@ -72,7 +74,7 @@ const NewMagnets = ({
     () => ({
       size,
       material,
-      color,
+      color: { sides: "Не потрібно", one: "", two: "", allSidesColor: "CMYK" },
       lamination: { type: "Не потрібно", material: "" },
       big: "Не потрібно",
       cute: "Не потрібно",
@@ -81,7 +83,7 @@ const NewMagnets = ({
       holesR: "Не потрібно",
       count,
     }),
-    [size, material, color, count]
+    [size, material, count]
   );
 
   const { pricesThis } = useModalPricing("Magnets", calcData, showNewMagnets);
@@ -110,6 +112,7 @@ const NewMagnets = ({
       setMaterial(DEFAULTS.material);
       setColor(DEFAULTS.color);
       setCount(DEFAULTS.count);
+      setIsCustomSize(false);
       setError(null);
       return;
     }
@@ -118,10 +121,12 @@ const NewMagnets = ({
     const safeNum = (v, fb) => { const n = Number(v); return Number.isFinite(n) ? n : fb; };
 
     setCount(safeNum(opt?.count, safeNum(editingOrderUnit?.amount, DEFAULTS.count)) || DEFAULTS.count);
-    setSize({
+    const nextSize = {
       x: safeNum(opt?.size?.x, DEFAULTS.size.x),
       y: safeNum(opt?.size?.y, DEFAULTS.size.y),
-    });
+    };
+    setSize(nextSize);
+    setIsCustomSize(!SIZE_FORMATS.some((f) => !f.custom && f.x === nextSize.x && f.y === nextSize.y));
     setMaterial({
       type: opt?.material?.type ?? DEFAULTS.material.type,
       thickness: opt?.material?.thickness ?? DEFAULTS.material.thickness,
@@ -180,8 +185,21 @@ const NewMagnets = ({
   // ========== HANDLERS ==========
 
   const handleSizeSelect = (format) => {
+    if (format.custom) {
+      setIsCustomSize(true);
+      setSizeDropdownOpen(false);
+      return;
+    }
+    setIsCustomSize(false);
     setSize({ x: format.x, y: format.y });
     setSizeDropdownOpen(false);
+  };
+
+  const handleCustomSizeChange = (field, value) => {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return;
+    const clamped = Math.max(1, Math.round(n));
+    setSize((prev) => ({ ...prev, [field]: clamped }));
   };
 
   const handleMaterialSelect = (item) => {
@@ -200,7 +218,7 @@ const NewMagnets = ({
         type: "Magnets",
         size,
         material,
-        color,
+        color: { sides: "Не потрібно", one: "", two: "", allSidesColor: "CMYK" },
         lamination: { type: "Не потрібно", material: "" },
         big: "Не потрібно",
         cute: "Не потрібно",
@@ -215,8 +233,8 @@ const NewMagnets = ({
   };
 
   // ========== RENDER HELPERS ==========
-  const selectedSizeFormat = SIZE_FORMATS.find((f) => f.x === size.x && f.y === size.y);
-  const sizeTitle = selectedSizeFormat?.name || `${size.x} x ${size.y} мм`;
+  const selectedSizeFormat = SIZE_FORMATS.find((f) => !f.custom && f.x === size.x && f.y === size.y);
+  const sizeTitle = isCustomSize ? "Задати свій розмір" : (selectedSizeFormat?.name || `${size.x} x ${size.y} мм`);
   const materialTitle = material?.material || "Виберіть матеріал";
 
   // ========== PRICING DATA ==========
@@ -224,7 +242,6 @@ const NewMagnets = ({
 
   const pricingLines = pricesThis
     ? [
-        { label: "Друк", perUnit: pricesThis.priceDrukPerSheet, count: totalM2, total: pricesThis.totalDrukPrice || 0 },
         { label: "Матеріали", perUnit: pricesThis.pricePaperPerSheet, count: totalM2, total: (pricesThis.pricePaperPerSheet || 0) * totalM2 },
       ]
     : [];
@@ -264,28 +281,50 @@ const NewMagnets = ({
         count={count}
         onCountChange={(v) => setCount(v)}
         sizeComponent={
-          <div
-            className="custom-select-container selectArtem selectArtemBefore"
-            ref={sizeDropdownRef}
-            style={{ zIndex: 10, marginLeft: "auto" }}
-          >
+          <div style={{ width: "100%" }}>
             <div
-              className="custom-select-header"
-              onClick={() => setSizeDropdownOpen(!sizeDropdownOpen)}
+              className={`custom-select-container selectArtem selectArtemBefore${sizeTitle ? " sc-has-value" : ""}`}
+              ref={sizeDropdownRef}
+              style={{ zIndex: 10, width: "100%" }}
             >
-              {sizeTitle}
+              <div
+                className="custom-select-header"
+                onClick={() => setSizeDropdownOpen(!sizeDropdownOpen)}
+              >
+                {sizeTitle}
+              </div>
+              {sizeDropdownOpen && (
+                <div className="custom-select-dropdown">
+                  {SIZE_FORMATS.map((item) => (
+                    <div
+                      key={item.name}
+                      className={`custom-option ${item.name === sizeTitle ? "active" : ""}`}
+                      onClick={() => handleSizeSelect(item)}
+                    >
+                      <span className="name">{item.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            {sizeDropdownOpen && (
-              <div className="custom-select-dropdown">
-                {SIZE_FORMATS.map((item) => (
-                  <div
-                    key={item.name}
-                    className={`custom-option ${item.name === sizeTitle ? "active" : ""}`}
-                    onClick={() => handleSizeSelect(item)}
-                  >
-                    <span className="name">{item.name}</span>
-                  </div>
-                ))}
+            {isCustomSize && (
+              <div className="d-flex align-items-center justify-content-center" style={{ gap: "8px", marginTop: "8px" }}>
+                <input
+                  className="inputsArtem"
+                  type="number"
+                  min={1}
+                  value={size.x}
+                  onChange={(e) => handleCustomSizeChange("x", e.target.value)}
+                />
+                <span style={{ color: "var(--admingrey)", fontWeight: 600 }}>x</span>
+                <input
+                  className="inputsArtem"
+                  type="number"
+                  min={1}
+                  value={size.y}
+                  onChange={(e) => handleCustomSizeChange("y", e.target.value)}
+                />
+                <span className="inputsArtemx" style={{ border: "transparent" }}>мм</span>
               </div>
             )}
           </div>
@@ -295,7 +334,7 @@ const NewMagnets = ({
       {/* 2. Матеріал */}
       <ScSection title="" style={{ position: "relative", zIndex: 5 }}>
         <div
-          className="custom-select-container selectArtem selectArtemBefore"
+          className={`custom-select-container selectArtem selectArtemBefore${material.materialId ? " sc-has-value" : ""}`}
           ref={materialDropdownRef}
           style={{ width: "100%" }}
         >

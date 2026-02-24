@@ -87,18 +87,20 @@ const PerepletPereplet = ({pereplet, setPereplet, prices, buttonsArr, selectArr,
 
                     {pereplet.type !== "Не потрібно" ? (
                         <div style={{ display: 'flex', flexDirection: "column", gap: "0.5vw" }}>
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                                 <button
                                     className={"Брошурування до 120 аркушів" === pereplet.typeUse ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
                                     onClick={() => handleClickSize("Брошурування до 120 аркушів", "<120")}
+                                    style={{ flex: 1, minWidth: 0 }}
                                 >
-                                    <div style={{ whiteSpace: "nowrap" }}>Брошурування до 120 аркушів</div>
+                                    <div>до 120 аркушів</div>
                                 </button>
                                 <button
                                     className={"Брошурування від 120 до 280 аркушів" === pereplet.typeUse ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
                                     onClick={() => handleClickSize("Брошурування від 120 до 280 аркушів", ">120")}
+                                    style={{ flex: 1, minWidth: 0 }}
                                 >
-                                    <div style={{ whiteSpace: "nowrap" }}>Брошурування від 120 до 280 аркушів</div>
+                                    <div>від 120 до 280 аркушів</div>
                                 </button>
                             </div>
                             <div className="d-flex" style={{ flexWrap: "wrap" }}>
@@ -113,6 +115,8 @@ const PerepletPereplet = ({pereplet, setPereplet, prices, buttonsArr, selectArr,
                                 >
                                     <div className="d-flex flex-column align-content-center align-items-center" style={{
                                         height: "100%",
+                                        filter: item.id === pereplet.materialId ? "brightness(0) saturate(100%) invert(100%)" : "none",
+                                        transition: "filter 0.2s ease",
                                     }}>
                                         {item.name === "на скобу" &&
                                             <img src={skoba} alt="на скобу" style={{height: "2.5vw"}}/>

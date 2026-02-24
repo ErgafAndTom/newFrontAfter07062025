@@ -33,7 +33,7 @@ const Materials2NoteBack = ({
     { value: "з глянцевим ламінуванням", label: "Глянцеве" },
     { value: "з матовим ламінуванням", label: "Матове" },
     { value: "з ламінуванням SoftTouch", label: "SoftTouch" },
-    { value: "з холодним матовим ламінуванням", label: "Холодне матове" },
+    { value: "з холодним матовим ламінуванням", label: "Холодне" },
   ];
 
   // ========== HANDLERS ==========
@@ -203,10 +203,9 @@ const Materials2NoteBack = ({
                 <div
                   className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
                   key={item + i}
-                  style={{ backgroundColor: isActive ? "#f5a623" : "#D3D3D3", color: isActive ? "#FFFFFF" : "#666666", borderRadius: 0 }}
                   onClick={() => setMaterialAndDrukBack((prev) => ({ ...prev, drukColor: item }))}
                 >
-                  <div style={{ height: "100%", display: "flex", color: isActive ? "white" : "var(--admingrey)", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {item}
                   </div>
                 </div>
@@ -238,10 +237,10 @@ const Materials2NoteBack = ({
                   <div
                     className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
                     key={item + i}
-                    style={{ flex: 1, backgroundColor: isActive ? "#f5a623" : "#D3D3D3", color: isActive ? "#FFFFFF" : "#666666", borderRadius: 0 }}
+                    style={{ flex: 1 }}
                     onClick={() => setMaterialAndDrukBack((prev) => ({ ...prev, drukSides: item }))}
                   >
-                    <div style={{ height: "100%", display: "flex", color: isActive ? "white" : "var(--admingrey)", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {item}
                     </div>
                   </div>
@@ -258,10 +257,9 @@ const Materials2NoteBack = ({
                 <div
                   className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
                   key={item + i}
-                  style={{ backgroundColor: isActive ? "#f5a623" : "#D3D3D3", color: isActive ? "#FFFFFF" : "#666666", borderRadius: 0 }}
                   onClick={() => setMaterialAndDrukBack((prev) => ({ ...prev, materialTypeUse: item }))}
                 >
-                  <div style={{ height: "100%", display: "flex", color: isActive ? "white" : "var(--admingrey)", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {item}
                   </div>
                 </div>
@@ -319,10 +317,9 @@ const Materials2NoteBack = ({
                 <div
                   className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
                   key={item.value + i}
-                  style={{ backgroundColor: isActive ? "#f5a623" : "#D3D3D3", color: isActive ? "#FFFFFF" : "#666666", borderRadius: 0 }}
                   onClick={() => setMaterialAndDrukBack((prev) => ({ ...prev, laminationTypeUse: item.value }))}
                 >
-                  <div style={{ height: "100%", display: "flex", color: isActive ? "white" : "var(--admingrey)", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {item.label}
                   </div>
                 </div>

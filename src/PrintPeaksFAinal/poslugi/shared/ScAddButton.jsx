@@ -1,10 +1,10 @@
 import React from "react";
 
-const ScAddButton = ({ onClick, isEdit = false, disabled = false }) => {
+const ScAddButton = ({ onClick, isEdit = false, disabled = false, className = "" }) => {
   const text = isEdit ? "Зберегти зміни" : "Додати до замовлення";
   return (
     <div style={{ display: "flex", justifyContent: "center", marginTop: "2vh" }}>
-      <button className="sc-add-btn" onClick={onClick} type="button" disabled={disabled}>
+      <button className={`sc-add-btn${className ? " " + className : ""}`} onClick={onClick} type="button" disabled={disabled}>
         <div className="sc-add-btn__outline" />
         <div className="sc-add-btn__icon">
           <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

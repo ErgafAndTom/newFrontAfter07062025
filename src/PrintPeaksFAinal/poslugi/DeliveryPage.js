@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
-import { ScModal, ScSection, ScPricing, ScAddButton } from "./shared";
+import { ScModal, ScPricing, ScAddButton } from "./shared";
 import "./Poslugy.css";
 
 const fmt2 = (v) =>
@@ -101,33 +101,33 @@ const DeliveryPage = ({
         )
       }
     >
-      {/* 1. Кількість */}
-      <ScSection title="">
-        <div className="d-flex flex-row align-items-center">
-          <input
-            className="inputsArtem"
-            type="number"
-            min={1}
-            value={count}
-            onChange={(e) => setCount(Math.max(1, +e.target.value || 1))}
-          />
-          <div className="inputsArtemx">шт</div>
+      {/* 1-2. Кількість + Ціна */}
+      <div className="sc-count-size-row">
+        <div className="sc-section sc-section-card" style={{ flex: 1 }}>
+          <div className="sc-row d-flex flex-row align-items-center">
+            <input
+              className="inputsArtem"
+              type="number"
+              min={1}
+              value={count}
+              onChange={(e) => setCount(Math.max(1, +e.target.value || 1))}
+            />
+            <div className="inputsArtemx">шт</div>
+          </div>
         </div>
-      </ScSection>
-
-      {/* 2. Ціна */}
-      <ScSection title="">
-        <div className="d-flex flex-row align-items-center">
-          <input
-            className="inputsArtem"
-            type="number"
-            min={0}
-            value={price}
-            onChange={(e) => setPrice(+e.target.value || 0)}
-          />
-          <div className="inputsArtemx">грн</div>
+        <div className="sc-section sc-section-card" style={{ flex: 1 }}>
+          <div className="sc-row d-flex flex-row align-items-center">
+            <input
+              className="inputsArtem"
+              type="number"
+              min={0}
+              value={price}
+              onChange={(e) => setPrice(+e.target.value || 0)}
+            />
+            <div className="inputsArtemx">грн</div>
+          </div>
         </div>
-      </ScSection>
+      </div>
 
     </ScModal>
   );

@@ -425,6 +425,7 @@ const NewSheetCut = ({
           buttonsArr={["Офісний", "Тонкий", "Середній", "Цупкий", "Самоклеючі"]}
           typeUse={null}
           typeOfPosluga={"NewSheetCut"}
+          autoSelectFirst={false}
         />
       </ScSection>
 
@@ -458,7 +459,7 @@ const NewSheetCut = ({
             "з глянцевим ламінуванням": "глянцеве",
             "з матовим ламінуванням": "матове",
             "з ламінуванням SoftTouch": "SoftTouch",
-            "з холодним матовим ламінуванням": "холодне матове",
+            "з холодним матовим ламінуванням": "холодне",
           }}
         />
       </ScToggleSection>

@@ -578,6 +578,7 @@ const Vishichka = ({
           buttonsArr={["Тонкий", "Середній", "Цупкий", "Самоклеючі"]}
           typeUse={null}
           editingOrderUnit={editingOrderUnit}
+          autoSelectFirst={false}
         />
       </ScSection>
 
@@ -628,6 +629,7 @@ const Vishichka = ({
       {/* 6. Ламінування */}
       <ScToggleSection
         label="Ламінування"
+        title="Ламінування"
         isOn={lamination.type !== "Не потрібно"}
         onToggle={() => {
           if (lamination.type === "Не потрібно") {
@@ -669,7 +671,7 @@ const Vishichka = ({
             "з глянцевим ламінуванням": "глянцеве",
             "з матовим ламінуванням": "матове",
             "з ламінуванням SoftTouch": "SoftTouch",
-            "з холодним матовим ламінуванням": "холодне матове",
+            "з холодним матовим ламінуванням": "холодне",
           }}
         />
       </ScToggleSection>
