@@ -156,7 +156,7 @@ label.switch:has(input:checked) {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 62vw;
-  max-height: 90vh;
+  max-height: 50vh;
 
   background: var(--adminfon);
   border-radius: 4px;

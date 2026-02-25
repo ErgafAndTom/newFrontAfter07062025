@@ -16,25 +16,17 @@ import plotterCutIcon from "../components/newUIArtem/printers/ComponentTMP_0-ima
 import photoIcon from "../components/newUIArtem/printers/ComponentTMP_0-image3.png";
 import wideIcon from "../components/newUIArtem/printers/ComponentTMP_0-image2.png";
 import wideFactoryIcon from "../components/newUIArtem/printers/Без назви-4.png";
-import postpressIcon from "../components/newUIArtem/printers/creo.png";
 import laminationIcon from "../components/newUIArtem/printers/üÑº ¡áºó¿-1.png";
 import bindingIcon from "../components/newUIArtem/printers/1996 (1).png";
 import noteIcon from "../components/newUIArtem/printers/group-1468.svg";
 import bookletIcon from "./evroscoba.png";
-import scansIcon from "../components/newUIArtem/printers/group-1468.svg";
 import deliveryIcon from "../components/newUIArtem/printers/delivery.png";
 
 
 import MUG from "../components/newUIArtem/printers/mug.png";
 import magnets from "./magnetsIcon.png";
-import Scans from "./scan.png";
-import Deliverypng from "../components/newUIArtem/printers/delivery.png";
 import ClientChangerUIArtem from "../PrintPeaksFAinal/userInNewUiArtem/ClientChangerUIArtem";
-import knopka1 from "./knopki/Knopka1.jsx";
 
-import scoba from "./poslugi/newnomodals/skoba.svg";
-
-import versantIcon from "../components/newUIArtem/printers/group-1468.svg";
 
 import OneProductInOrders from "../components/newcalc/Orders/OneProductInOrders";
 
@@ -62,28 +54,14 @@ import Delivery from "./poslugi/DeliveryPage";
 import NewSheetCutBW from "./poslugi/NewSheetCutBW";
 import QuantumErrorBoundary from "../QuantumErrorBoundary";
 
-const NewUIArtem = ({
-
-
-                         // setSelectedThings2,
-
-                         setOpenEditor,
-                    }) => {
-  // const isEdit = Boolean(editingOrderUnitSafe?.id);
+const NewUIArtem = () => {
   const navigate = useNavigate();
-  const [things, setThings] = useState([]);
-  const [products, setProducts] = useState(null);
-  const [summ, setSumm] = useState(0);
-  const [isLoad, setIsLoad] = useState(false);
   const [error, setError] = useState(null);
   const [uiLockError, setUiLockError] = useState(null);
   const { id } = useParams();
   const [editingOrderUnit, setEditingOrderUnit] = useState(null);
-  // Fallback: якщо сеттер не передали з батька — тримаємо локально, щоб не падало.
-  const [editingOrderUnitLocal, setEditingOrderUnitLocal] = useState(null);
-  const isEditingControlled = typeof setEditingOrderUnit === "function";
-  const editingOrderUnitSafe = isEditingControlled ? editingOrderUnit : editingOrderUnitLocal;
-  const setEditingOrderUnitSafe = isEditingControlled ? setEditingOrderUnit : setEditingOrderUnitLocal;
+  const editingOrderUnitSafe = editingOrderUnit;
+  const setEditingOrderUnitSafe = setEditingOrderUnit;
 
   const [newThisOrder, setNewThisOrder] = useState({
     id: id
@@ -91,12 +69,10 @@ const NewUIArtem = ({
   const [thisOrder, setThisOrder] = useState({
     id: id
   })
-  const [selectedThings2, setSelectedThings2] = useState();
-  const [typeSelect, setTypeSelect] = useState("");
-  const [productName, setProductName] = useState('');
+  const [selectedThings2, setSelectedThings2] = useState([]);
+  const productName = '';
   const [showDeleteOrderUnitModal, setShowDeleteOrderUnitModal] = useState(false);
   const [thisOrderUnit, setThisOrderUnit] = useState(null);
-  const [showWide, setShowWide] = useState(false);
 
 
   const [showNewSheetCut, setShowNewSheetCut] = useState(false);
@@ -178,7 +154,7 @@ const NewUIArtem = ({
     const editor = EDITORS.find((x) => x.value === type);
     if (!editor) return console.warn("No editor for type:", type, thingOrNull);
 
-    setEditingOrderUnit(thingOrNull || null);
+    setEditingOrderUnitSafe(thingOrNull || null);
     editor.open();
   };
 
@@ -186,48 +162,78 @@ const NewUIArtem = ({
     const t = getOrderUnitType(thing);
     return EDITORS.find((e) => e.value === t) || null;
   };
+
+  const getPluralForm = (value, one, few, many) => {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return many;
+    const n = Math.abs(Math.trunc(numeric));
+    const mod10 = n % 10;
+    const mod100 = n % 100;
+
+    if (mod10 === 1 && mod100 !== 11) return one;
+    if (mod10 >= 2 && mod10 <= 4 && !(mod100 >= 12 && mod100 <= 14)) return few;
+    return many;
+  };
+
+  const getEditorAccentClass = (thing) => {
+    const raw = getOrderUnitType(thing);
+    const type = TYPE_ALIASES[raw] || raw;
+
+    const primary = new Set(['SheetCutBW', 'SheetCut', 'Photo', 'Wide']);
+    const middle = new Set(['Vishichka', 'Magnets', 'Laminator', 'PerepletMet', 'BigOvshik', 'Postpress', 'Binding', 'Lamination']);
+
+    if (primary.has(type)) return 'nui-editor-accent-orange';
+    if (middle.has(type)) return 'nui-editor-accent-green';
+    return 'nui-editor-accent-blue';
+  };
+
+  const formatThingName = (value) => {
+    const source = String(value || '').trim();
+    if (!source) return '';
+
+    let text = source.toLowerCase();
+
+    text = text.replace(/з\s+ламінуванням\s+([^,]+)/i, (_, laminationPart) => {
+      let material = String(laminationPart || '').trim();
+      material = material.replace(/softtouch/gi, 'SoftTouch');
+      if (material) material = material.charAt(0).toUpperCase() + material.slice(1);
+      return `з ламінуванням "${material}"`;
+    });
+
+    text = text.replace(/"([^"]+)"/g, (_, inner) => {
+      const chunk = String(inner || '').trim();
+      if (!chunk) return '""';
+      return `"${chunk.charAt(0).toUpperCase()}${chunk.slice(1)}"`;
+    });
+
+    text = text.replace(/магнітах/gi, 'магніт');
+
+    let result = text.charAt(0).toUpperCase() + text.slice(1);
+
+    // normalize latin/cyrillic A in paper sizes
+    result = result
+      .replace(/s\s*r\s*[aа]\s*3\+?/gi, 'SR A3')
+      .replace(/s\s*r\s*[aа]\s*4\+?/gi, 'SR A4')
+      .replace(/s\s*r\s*[aа]\s*5\+?/gi, 'SR A5')
+      .replace(/s\s*r\s*[aа]\s*6\+?/gi, 'SR A6')
+      .replace(/s\s*r\s*[aа]\s*7\+?/gi, 'SR A7')
+      .replace(/sr[aа]\s*3\+?/gi, 'SRA3')
+      .replace(/[aа]\s*7\+?/gi, 'A7')
+      .replace(/[aа]\s*6\+?/gi, 'A6')
+      .replace(/[aа]\s*5\+?/gi, 'A5')
+      .replace(/[aа]\s*4\+?/gi, 'A4')
+      .replace(/[aа]\s*3\+?/gi, 'A3');
+
+    return result;
+  };
   // ✅ ВАЖЛИВО: функція має бути в scope компонента, а не всередині іншої функції
   const openEditorForOrderUnit = (thingOrNull, eOrType) => openEditor(thingOrNull, eOrType);
-
 
 
   const toggleExpandedThing = (index) => {
     setExpandedThingIndex(prev => (prev === index ? null : index));
   };
 
-
-  const setTypeSelect2 = (thing) => {
-    if (thing !== null) {
-      setTypeSelect(thing)
-    } else {
-      setTypeSelect("")
-    }
-  };
-  const handleThingClick = (thing, typeThing) => {
-    let newThisOrderToSend = thisOrder
-    // console.log(thing);
-    if (thing.productunits) {
-      newThisOrderToSend.OrderUnits = [...selectedThings2, {
-        ...thing,
-        amount: 1,
-        newField2: 45,
-        newField3: 45,
-        OrderUnitUnits: thing.productunits
-      }]
-    } else {
-      newThisOrderToSend.OrderUnits = [...selectedThings2, {
-        ...thing,
-        amount: 1,
-        newField2: 45,
-        newField3: 45,
-        OrderUnitUnits: [],
-        x: thing.x,
-        y: thing.y,
-        idInStorageUnit: thing.id
-      }]
-    }
-    setNewThisOrder(newThisOrderToSend)
-  };
 
   const handleThingClickDelete2 = (OrderUnit, e) => {
     e.stopPropagation()
@@ -243,95 +249,25 @@ const NewUIArtem = ({
     setNewThisOrder(newThisOrderToSend)
   };
 
-
-  const handleThisOrderChange = (fieldName, event) => {
-    const updatedThisOrder = thisOrder;
-    updatedThisOrder[fieldName] = event.target.value;
-    setNewThisOrder(updatedThisOrder)
-  };
-
-
-  // const getActiveButton = (thing) => {
-  //   const fieldValue = thing?.newField6;
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //   const activeButton = buttons.find(btn => btn.value === fieldValue);
-  //   if (!activeButton) return null;
-  //
-  //   return (
-  //     <button
-  //       type="button"
-  //       className="orderEditTabBtn"
-  //       onClick={(e) => {
-  //         e.stopPropagation();           // щоб не розгортало карточку
-  //         setEditingOrderUnitSafe(thing);    // передаємо редаговану позицію
-  //         activeButton.setState(true);   // відкриваємо відповідне модальне
-  //       }}
-  //       title={activeButton.label}
-  //     >
-  //       {activeButton.label}
-  //     </button>
-  //   );
-  // };
-
-
-  // const handleSaveOrder = (event, valueName) => {
-  //   let dataToSend = {
-  //     data: [],
-  //     id: false,
-  //     tablePosition: valueName,
-  //     value: event.target.value
-  //   }
-  //   axios.post(`/orders/new`, dataToSend)
-  //     .then(response => {
-  //       // console.log(response.data);
-  //       navigate(`/Orders/${response.data.id}`);
-  //     })
-  //     .catch(error => {
-  //       if (error.response.status === 403) {
-  //         navigate('/login');
-  //       }
-  //       console.log(error.message);
-  //     })
-  // };
-
   useEffect(() => {
-    (() => {
-      // console.log(1);
-    })();
     if (id) {
-      setIsLoad(true)
       let data = {
         id: id
       }
-      // console.log(data);
       axios.post(`/Orders/OneOrder`, data)
         .then(response => {
-          // console.log(axios);
-          // console.log(response.data);
           setThisOrder(response.data)
           setSelectedThings2(response.data.OrderUnits)
-          setIsLoad(false)
         })
-        .catch((error, response) => {
+        .catch((error) => {
           console.log(error.message);
           if (error?.response?.status === 403) {
             navigate('/login');
           }
-          setIsLoad(false)
           setError(error.message)
         })
     }
   }, [id]);
-
-  useEffect(() => {
-
-  }, [selectedThings2]);
 
   const statusValue = Number.parseInt(thisOrder?.status, 10);
   const isCancelledOrder = thisOrder?.status === 'Відміна' || statusValue === -1;
@@ -355,45 +291,30 @@ const NewUIArtem = ({
     }
   })();
 
-  const orderStatusColor = (() => {
-    if (isCancelledOrder) return 'var(--adminred, #ee3c23)';
+  const orderToneClass = (() => {
+    if (isCancelledOrder) return 'nui-order-tone-red';
     switch (statusValue) {
       case 1:
-        return 'var(--adminorange, #f5a623)';
+        return 'nui-order-tone-orange';
       case 2:
-        return 'var(--adminblue, #3c60a6)';
+        return 'nui-order-tone-blue';
       case 3:
-        return 'var(--adminrose, #ef7aaa)';
+        return 'nui-order-tone-rose';
       case 4:
       case 5:
-        return 'var(--admingreen, #0e935b)';
+        return 'nui-order-tone-green';
       default:
-        return 'var(--admingrey, #666666)';
+        return 'nui-order-tone-grey';
     }
   })();
 
-  const serviceStripeColor = (() => {
-    if (isCancelledOrder) return 'var(--adminred, #ee3c23)';
-    switch (statusValue) {
-      case 1:
-        return 'var(--adminorange, #f5a623)';
-      case 2:
-        return 'var(--adminblue, #3c60a6)';
-      case 3:
-        return 'var(--adminrose, #ef7aaa)';
-      case 4:
-      case 5:
-        return 'var(--admingreen, #0e935b)';
-      default:
-        return 'var(--admingrey, #666666)';
-    }
-  })();
-
-  const serviceStripeStyle = Number.isFinite(statusValue) && statusValue >= 1
-    ? { '--nui-service-status-color': serviceStripeColor }
-    : undefined;
+  const serviceToneClass = Number.isFinite(statusValue) && statusValue >= 1
+    ? `nui-service-tone-${orderToneClass.replace('nui-order-tone-', '')}`
+    : '';
 
   const isOrderLockedForEdit = Number.isFinite(statusValue) && [2, 3, 4, 5].includes(statusValue);
+  const hasOrders = Array.isArray(selectedThings2) && selectedThings2.length > 0;
+
   const lockStatusLabel = (() => {
     switch (statusValue) {
       case 2:
@@ -415,7 +336,10 @@ const NewUIArtem = ({
 
   const handleLockedZoneClickCapture = (e, mode = 'редагувати') => {
     if (!isOrderLockedForEdit) return;
-    const interactiveTarget = e.target?.closest?.('button, p, .order-item, .buttonSkewedOrderClient, .battonClosed, .tileContent');
+
+    if (mode === 'редагувати') return;
+
+    const interactiveTarget = e.target?.closest?.('button, p, .order-item, .nui-order-item, .buttonSkewedOrderClient, .battonClosed, .tileContent');
     if (!interactiveTarget) return;
     e.preventDefault();
     e.stopPropagation();
@@ -431,13 +355,12 @@ const NewUIArtem = ({
       <div className="nui-sheetcut-theme sc-wrap">
         <QuantumErrorBoundary/>
 
-        <div className="d-flex" style={serviceStripeStyle}>
+        <div className={`d-flex  ${serviceToneClass}${hasOrders ? "" : " no-orders"}`}>
           <div className="containerForContNewUI">
 
             {/* === GRID OF SERVICE TILES === */}
             <div
-              className={`CardPrintersPoslugi nui-services-grid nui-services-grid-primary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
-              style={{ position: 'absolute', top: "5%", left: "0%", width: "61.5%" }}
+              className={`CardPrintersPoslugi nui-services-grid nui-services-grid-primary nui-services-position-primary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
               onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
 
             >
@@ -450,7 +373,6 @@ const NewUIArtem = ({
                   setShowNewSheetCutBW(true);
                 }}
               >
-
 
 
               <div className="tileContent">
@@ -468,7 +390,7 @@ const NewUIArtem = ({
                 }}
               >
                 <div className="tileContent">
-                  <div className="verticalColumns" style={{ marginTop: "-0.2vh" }}>
+                  <div className="verticalColumns nui-vertical-columns-tight">
                     <span className="verticalText">DIGITAL PRINT CUTING</span>
                   </div>
                   <img className="icon64 CardPrintersPoslugiImg" src={colorPrintIcon} alt="" />
@@ -494,8 +416,7 @@ const NewUIArtem = ({
             </div>
 
             <div
-              className={`CardPrintersPoslugi nui-services-grid nui-services-grid-middle nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
-              style={{ position: "absolute", top: "24%", left: "0%", width: "61.5%" }}
+              className={`CardPrintersPoslugi nui-services-grid nui-services-grid-middle nui-services-position-middle nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
               onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
             >
               <p
@@ -511,12 +432,6 @@ const NewUIArtem = ({
                 </div>
               </p>
 
-              <p onClick={() => openEditorForOrderUnit(null, 'Postpress')}>
-                <div className="tileContent">
-                  <span className="verticalText">POSTPRESS</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={postpressIcon} alt="" />
-                </div>
-              </p>
 
               <p onClick={() => setShowNewMagnets(true)}>
                 <div className="tileContent">
@@ -540,10 +455,8 @@ const NewUIArtem = ({
               </p>
             </div>
 
-          </div>
             {/* Третя група */}
-            <div className={`CardPrintersPoslugi nui-services-grid nui-services-grid-secondary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
-              style={{ position: "absolute", top: "43%", left: "0%", width: "61.5%" }}
+            <div className={`CardPrintersPoslugi nui-services-grid nui-services-grid-secondary nui-services-position-secondary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
               onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
 >
               <p onClick={() => setShowNewNote(true)}>
@@ -628,281 +541,126 @@ const NewUIArtem = ({
               </p>
 
             </div>
+          </div>
 
-
-          <div className="d-flex flex-column " style={{ width: "37.5vw", }}>
-            {orderListStatusTitle && (
-              <div className="nui-order-delivered-title">{orderListStatusTitle}</div>
-            )}
-            <div className={`order-panel d-flex nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`} style={{ width: "37.5vw", marginTop: "0.5vh", height: "74vh", "--nui-order-status-color": orderStatusColor }} onClickCapture={(e) => handleLockedZoneClickCapture(e, 'редагувати')}>
-              {selectedThings2 && selectedThings2.length !== 0 ? (
-                <div className="order-list" style={{ overflowX: "hidden", height: "74vh", paddingBottom: "0.4vh" }}>
-                  {selectedThings2.map((thing, index) => (
-                    <div
-                      key={index}
-                      className="order-item card3d"
-                      onClick={() => toggleExpandedThing(index)}
-                      style={{
-                        width: "36vw",
-                        marginBottom: "1vh",
-                        cursor: "pointer",
-                        padding: "1rem",
-                        marginLeft: "3px",
-
-
-                        position: "relative",
-
-                      }}
-                    >
-                      <div
-                        onClick={(e) => handleThingClickDelete2(thing, e)}
-                        className="battonClosed">
-                        ✕
-                      </div>
-
-
-                      {(() => {
-                        const editor = getEditorByThing(thing);
-                        // console.log("▒");
-                        // console.log("▒");
-                        // console.log("▒");
-                        // console.log("▒");
-                        // console.log("▒");
-                        // console.log("▒");
-                        // console.log("▒");
-                        // console.log(thing);
-                        return (
-                          <button
-                            className="buttonSkewedOrderClient adminButtonAdd"
-                            type="button"
-                            style={{
-                              position: "absolute",
-                              bottom: 0,
-                              right: 0,
-                              borderRadius: "0 0 1vh 0",
-                              minWidth: "9vw",
-                              zIndex: 50
-                            }}
-                            onClick={(e) => openEditor(thing, e)}
-                            title={editor?.label || "Редагувати"}
-                          >
-                            <span className="icon">✎</span>
-                            <span className="label" style={{ fontWeight: 450, fontSize:"1.1vh" }}>
-                              ✏️ {editor?.label || thing.newField6}
-                            </span>
-                          </button>
-                        );
-                      })()}
-
-
-                      {/* === ДАЛІ ТВОЯ ІСНУЮЧА РОЗМІТКА === */}
-                      <div className="containerOrderUnits">
-
-
-
-                        <div className="d-flex">
-                          <div
-                            className="d-flex flex-column justify-content-start">
-                            <div
-                              className="d-flex justify-content-between align-items-start"
-                              style={{
-                                background: "transparent",
-                                padding: "0",
-                                borderRadius: "1vh",
-                                border: "none",
-                                width: "100%",
-                                flexWrap: "wrap"
-                              }}
-                            >
-                              {/* Ціна за штуку без знижки */}
-
-
-                              {/* Назва + розміри */}
-                              <div
-                                className="adminFontTable  BasePriceWithQuantityBase d-flex flex-column"
-
-                              >
-                                <div className={"d-flex flex-row align-items-center"}
-                                  style={{
-                                    maxWidth: "33vw",
-                                    background: "transparent",
-                                    // textTransform:"uppercase"
-                                  }}>
-                                  <div>
-                                    <div className="adminTextBig"
-                                      style={{ maxWidth: "33vw" }}>{thing.name}</div>
-                                    <div
-                                      style={{
-                                        marginTop: '0.5rem',
-                                        height: '1px',
-                                        background: 'transparent',
-                                        boxShadow: '0 1px 2px rgba(0,0,0,0.3)'
-                                      }}
-                                    />
-                                  </div>
-
-                                  {/*  <div style={{ fontSize: "2vh", opacity: 0.6 }}>*/}
-                                  {/*  ({thing.newField2} мм × {thing.newField3} мм)*/}
-                                  {/*</div>*/}
-                                </div>
-                                {/* Основна ціна з кількістю */}
-
-                                <div
-                                  className="d-flex align-items-center justify-content-start BasePriceWithQuantity">
-                                  <span className="" style={{ color: "rgba(0, 0, 0, 0.6)" }}>{thing.amount}<span
-                                    className="BasePriceWithQuantitySmall "> шт</span></span>
-                                  <span className=""
-                                    style={{ color: "rgba(0, 0, 0, 0.6)" }}>× {parseFloat(thing.priceForOneThis).toFixed(2)}<span
-                                      className="BasePriceWithQuantitySmall"> грн</span></span>
-
-                                  <span style={{ color: "rgba(0, 0, 0, 0.6)" }}>=</span>
-                                  <span className="" style={{ color: "red", fontWeight: "400" }}>{thing.priceForAllThis}<span
-                                    className="BasePriceWithQuantitySmall" style={{ color: "red" }}> грн </span></span>
-                                  {/*{getActiveButton(thing.newField6)}*/}
-                                </div>
-                                {/* Знижка, якщо є */}
-                                {parseFloat(thing.priceForOneThis).toFixed(2) !== parseFloat(thing.priceForOneThisDiscount).toFixed(2) && (
-                                  <div
-                                    className="d-flex flex-row" style={{ color: "#008249" }}
-                                  >
-
-
-                                    <div
-                                      className="d-flex align-items-center justify-content-start BasePriceWithQuantity"
-                                      style={{ color: "#008249" }}>
-
-
-                                      <span style={{ color: "#008249" }}>{thing.amount}<span
-                                        className="BasePriceWithQuantitySmall"
-                                        style={{ color: "#008249" }}> шт</span></span>
-
-                                      <span
-                                        className=""
-                                        style={{ color: "#008249" }}>  × {parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)}<span
-                                          className="BasePriceWithQuantitySmall"
-                                          style={{ color: "#008249" }}> грн</span></span>
-                                      {/*{parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(3)}*/}
-                                      {/*<span style={{ fontSize: "1rem", opacity: 0.5 }}><div className="BasePriceWithQuantitySmall ">грн</div></span>*/}
-                                      =
-                                      <span className=" " style={{ color: "#008249" }}>
-
-                                        {thing.priceForThisDiscount}
-                                        <span className="BasePriceWithQuantitySmall"
-                                          style={{ color: "#008249" }}> грн</span>
-                                      </span>
-                                    </div>
-
-                                    <div className="BasePriceWithQuantityDiscountword">
-                                      {/*Знижка {thisOrder.prepayment}*/}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-
-
-                            </div>
-
-                            {expandedThingIndex === index && (
-                              <>
-                                <OneProductInOrders
-                                  item={thing}
-                                  cash={true}
-                                  handleAmountChange={handleAmountChange}
-                                  index={index}
-                                  thisOrder={thisOrder}
-                                />
-
-                                <div className="bottomMeta">
-                                  <div className="col">
-                                    <div
-                                      className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
-                                      На аркуші можна розмістити
-                                      <span className="booooold money" style={{ color: "#3c60a6" }}>
-                                        {thing.newField4}
-                                      </span> виробів
-                                    </div>
-                                    <div
-                                      className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
-                                      Використано на це замовлення
-                                      <strong style={{ color: "#3c60a6" }}>{thing.newField5}</strong> аркушів
-                                    </div>
-                                  </div>
-
-                                  <div className="col d-flex flex-column" style={{ paddingLeft: '4vw' }}>
-                                    <div className="d-flex flex-column align-items-end">
-                                      <div className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
-                                        <div className="BasePriceWithQuantityBig">
-                                          За 1 аркуш:
-                                        </div>
-                                        <span className="booooold money" style={{ color: "#ee3c23" }}>
-                                          {parseFloat(thing.priceForThis / thing.newField5).toFixed(2)}
-                                          <span className="BasePriceWithQuantitySmall" style={{ color: "#ee3c23" }}>
-                                            грн
-                                          </span>
-                                        </span>
-                                      </div>
-                                      <div className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
-                                        <div className="BasePriceWithQuantityBig">
-                                          За 1 шт:
-                                        </div>
-                                        <span className="booooold money" style={{ color: "#ee3c23" }}>
-                                          {parseFloat(thing.priceForThis / thing.amount).toFixed(2)}
-                                          <span className="BasePriceWithQuantitySmall" style={{ color: "#ee3c23" }}>
-                                            грн
-                                          </span>
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                                {(+parseFloat(thing.priceForOneThis).toFixed(2)) !==
-                                  (+parseFloat(thing.priceForOneThisDiscount || 0).toFixed(2)) && (
-                                    <div className="d-flex flex-column align-items-center" style={{ fontSize: "0.7vw" }}>
-                                      <div className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
-                                        <div className="BasePriceWithQuantityBig">
-                                          За 1 аркуш:
-                                        </div>
-                                        <span className="booooold money" style={{ color: "#008249" }}>
-                                          {parseFloat(thing.priceForThisDiscount / thing.newField5).toFixed(2)}
-                                          <span className="BasePriceWithQuantitySmall" style={{ color: "#008249" }}>
-                                            грн
-                                          </span>
-                                        </span>
-                                      </div>
-                                      <div className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center">
-                                        <div className="BasePriceWithQuantityBig">
-                                          За 1 шт:
-                                        </div>
-                                        <span className="booooold money" style={{ color: "#008249" }}>
-                                          {parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)}
-                                          <span className="BasePriceWithQuantitySmall" style={{ color: "#008249" }}>
-                                            грн
-                                          </span>
-                                        </span>
-                                      </div>
-                                    </div>
-                                  )}
-                              </>
-                            )}
-
-
-                          </div>
-                        </div>
-
-
-                      </div>
-
-
-                      {/* …весь внутрішній JSX залишається, лише прибери зайві d-flex */}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="empty"></div>
+          <div className={`d-flex flex-column nui-orders-column${hasOrders ? "" : " nui-orders-column-empty"}`} style={!hasOrders ? { display: "none" } : undefined}>
+            <div className={`nui-order-header-shell ${orderToneClass}`}>
+              {orderListStatusTitle && (
+                <div className="nui-order-delivered-title">{orderListStatusTitle}</div>
               )}
             </div>
+            {hasOrders ? (
+                <div
+                  className={`nui-order-list nui-order-list-shell ${orderToneClass} nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
+                >
+                  {selectedThings2.map((thing, index) => {
+                    const editor = getEditorByThing(thing);
+                    const editorLabel = String(editor?.label || thing.newField6 || 'редагувати').toUpperCase();
+                    const editorAccentClass = getEditorAccentClass(thing);
+                    const formattedName = formatThingName(thing.name);
+                    const isNameParagraph = formattedName.length > 115;
+                    const hasDiscount = parseFloat(thing.priceForOneThis).toFixed(2) !== parseFloat(thing.priceForOneThisDiscount).toFixed(2);
+                    const unitPrice = hasDiscount
+                      ? parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)
+                      : parseFloat(thing.priceForOneThis).toFixed(2);
+                    const totalPrice = hasDiscount ? thing.priceForThisDiscount : thing.priceForAllThis;
+
+                    return (
+                    <div
+                      key={index}
+                      className={`nui-order-item${expandedThingIndex === index ? " is-expanded" : ""}`}
+                      onClick={() => toggleExpandedThing(index)}
+                    >
+                      <div className="nui-item-header">
+                        <div className={`nui-item-name${isNameParagraph ? ' is-paragraph' : ''}`}>{formattedName}</div>
+                        <div className="nui-item-actions">
+                          <div className="nui-item-btn nui-item-del" onClick={(e) => handleThingClickDelete2(thing, e)}>✕</div>
+                        </div>
+                      </div>
+
+                      <div className="nui-item-pricing">
+                        <div className={`nui-price-row${hasDiscount ? ' is-discounted-active' : ''}`}>
+                          <span className="nui-price-calc">{thing.amount}<span className="nui-unit-sub">шт</span>{" х "}{unitPrice}<span className="nui-unit-sub">грн</span>{" = "}</span>
+                          <span className="nui-price-total">{totalPrice}<span className="nui-unit-sub">грн</span></span>
+                          <button
+                            type="button"
+                            className={`nui-item-type-btn ${editorAccentClass}`}
+                            onClick={(e) => { e.stopPropagation(); openEditor(thing, e); }}
+                            title={editorLabel}
+                          >
+                            <span className="nui-type-icon">✎</span>
+                            <span className="nui-type-label">{editorLabel}</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {expandedThingIndex === index && (
+                        <div className="nui-item-details">
+                          <OneProductInOrders
+                            item={thing}
+                            cash={true}
+                            handleAmountChange={handleAmountChange}
+                            index={index}
+                            thisOrder={thisOrder}
+                          />
+                          <div className="nui-details-footer-row">
+                            <span>На аркуші розміщується: <span className="nui-bold-blue">{thing.newField4} {getPluralForm(thing.newField4, "виріб", "вироби", "виробів")}</span></span>
+                            <span className="nui-sep">|</span>
+                            <span>Загалом використано: <span className="nui-bold-blue">{thing.newField5} {getPluralForm(thing.newField5, "аркуш", "аркуші", "аркушів")}</span></span>
+                            <span className="nui-sep">|</span>
+                            {hasDiscount ? (
+                              <>
+                                <div className="nui-summary-line is-discount">
+                                  <span>За 1 аркуш (-%):</span>
+                                  <span className="nui-price">{parseFloat(thing.priceForThisDiscount / (thing.newField5 || 1)).toFixed(2)}<span className="nui-unit-sub-up">грн</span></span>
+                                </div>
+                                <span className="nui-sep">|</span>
+                                <div className="nui-summary-line is-discount">
+                                  <span>За 1 шт (-%):</span>
+                                  <span className="nui-price">{parseFloat(thing.priceForThisDiscount / (thing.amount || 1)).toFixed(2)}<span className="nui-unit-sub-up">грн</span></span>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="nui-summary-line">
+                                  <span>За 1 аркуш:</span>
+                                  <span className="nui-price">{parseFloat(thing.priceForThis / (thing.newField5 || 1)).toFixed(2)}<span className="nui-unit-sub-up">грн</span></span>
+                                </div>
+                                <span className="nui-sep">|</span>
+                                <div className="nui-summary-line">
+                                  <span>За 1 шт:</span>
+                                  <span className="nui-price">{parseFloat(thing.priceForThis / (thing.amount || 1)).toFixed(2)}<span className="nui-unit-sub-up">грн</span></span>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                  })}
+                </div>
+              ) : null}
 
 
+          </div>
+          <div className="d-flex flex-row nui-bottom-shell">
+            <div className="containerNewUI nui-client-shell">
+              <ClientChangerUIArtem
+                thisOrder={thisOrder}
+                setThisOrder={setThisOrder}
+                setSelectedThings2={setSelectedThings2}
+              />
+            </div>
+            <div className="containerNewUI nui-progress-shell">
+              <ProgressBar 
+                thisOrder={thisOrder} 
+                setThisOrder={setThisOrder}
+                setSelectedThings2={setSelectedThings2}
+                selectedThings2={selectedThings2}
+                externalError={uiLockError} 
+              />
+            </div>
           </div>
         </div>
 
@@ -928,7 +686,7 @@ const NewUIArtem = ({
             setSelectedThings2={setSelectedThings2}
             showNewSheetCutBW={showNewSheetCutBW}
             setShowNewSheetCutBW={setShowNewSheetCutBW}
-            editingOrderUnit={editingOrderUnit}
+            editingOrderUnit={editingOrderUnitSafe}
             setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
@@ -1175,28 +933,7 @@ const NewUIArtem = ({
           />
         }
         {thisOrder ? (
-          <div
-            className="d-flex flex-row nui-bottom-shell"
-          >
-            <div className="containerNewUI nui-client-shell">
-              <ClientChangerUIArtem
-                thisOrder={thisOrder}
-                setThisOrder={setThisOrder}
-                setNewThisOrder={setNewThisOrder}
-                setSelectedThings2={setSelectedThings2}
-                handleThisOrderChange={handleThisOrderChange}
-              />
-            </div>
-            <div className="containerNewUI nui-progress-shell">
-              <ProgressBar thisOrder={thisOrder} setThisOrder={setThisOrder}
-                newThisOrder={newThisOrder}
-                setNewThisOrder={setNewThisOrder}
-                handleThisOrderChange={handleThisOrderChange}
-                setSelectedThings2={setSelectedThings2}
-                selectedThings2={selectedThings2}
-                externalError={uiLockError} />
-            </div>
-          </div>
+<div></div>
         ) : (
           <div>
             <Loader />

@@ -497,12 +497,11 @@
 }
 
 .containerForContNewUI {
-    display: flex;
+
     flex-direction: column;
     /*margin-top: 0.5vh;*/
-    align-items: start;
-    width: 100%;
-    height: 100%;
+    align-items: center;
+
   background: transparent;
   /*z-index: 0;*/
 }

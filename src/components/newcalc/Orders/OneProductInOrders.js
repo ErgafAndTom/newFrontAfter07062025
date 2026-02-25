@@ -1,65 +1,52 @@
-import React, {useState} from "react";
+import React from "react";
 import "./OneProductInOrders.css";
-import {Accordion} from "react-bootstrap";
 
-function OneProductInOrders({item, thisOrder}) {
-    const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
+const toNumber = (value) => {
+  const raw = String(value ?? "").replace(",", ".").trim();
+  const numeric = Number.parseFloat(raw);
+  return Number.isFinite(numeric) ? numeric : 0;
+};
 
-    return (
-        <div className="unit-list" style={{width: "34.5vw"}}>
+const fmt2 = (value) => toNumber(value).toFixed(2);
 
-            {item.OrderUnitUnits.map((unit, idx) => (
-                <div key={unit.idKey} className="unit-item">
-                    {/* header row */}
-                    <div className="unit-header">
-                        <div className="BasePriceWithQuantityDetals">
-                            <span className="BasePriceWithQuantityDetals">{idx + 1}. </span>
-                            <span className="BasePriceWithQuantityDetals">{unit.name}</span>
-                        </div>
-                        <div className=" BasePriceWithQuantityDetals d-flex align-items-center justify-content-end">
-                            <span className="BasePriceWithQuantityBig">{unit.newField5}<span className="BasePriceWithQuantitySmall">шт</span></span>
+function OneProductInOrders({ item }) {
+  const units = Array.isArray(item?.OrderUnitUnits) ? item.OrderUnitUnits : [];
 
-                            <span className="BasePriceWithQuantityBig">×</span>
-                            <span className="BasePriceWithQuantityBig">{parseFloat(unit.priceForOneThis).toFixed(2)}<span className="BasePriceWithQuantitySmall">грн</span></span>
+  return (
+    <div className="unit-list">
+      {units.map((unit, idx) => {
+        const hasDiscount = toNumber(unit?.priceForOneThis) !== toNumber(unit?.priceForOneThisDiscount);
+        const unitPrice = hasDiscount ? unit?.priceForOneThisDiscount : unit?.priceForOneThis;
+        const totalPrice = hasDiscount ? unit?.priceForAllThisDiscount : unit?.priceForAllThis;
 
-                          <span className="BasePriceWithQuantityBig">=</span>
-                            <span className="booooold"
-                                  style={{
-                                      color: "#ef5223",
+        return (
+          <div key={unit?.idKey ?? idx} className="unit-item">
+            <div className="unit-title-row">
+              <span className="unit-name-index">{idx + 1}.</span>
+              <span className="unit-name-text">{unit?.name}</span>
+            </div>
 
-                                  }}>{parseFloat(unit.priceForAllThis).toFixed(2)}<span className="BasePriceWithQuantitySmall"   style={{color: "#ef5223"}}>грн</span></span>
-
-                        </div>
-                    </div>
-
-                    {/* discounted row */}
-                    {/*{["0", "1", "2", "3", "4", "5", "6", "7", "8", "9",].includes(thisOrder.prepayment) && thisOrder.prepayment.includes('%')(*/}
-                    {/*{thisOrder.prepayment.includes('%') && !parseFloat(unit.priceForOneThis) === parseFloat(unit.priceForOneThisDiscount) && (*/}
-                    {parseFloat(unit.priceForOneThis) !== parseFloat(unit.priceForOneThisDiscount) && (
-                        <div className="adminFontTable BasePriceWithQuantityDetals d-flex align-items-center justify-content-end">
-                            <span className="BasePriceWithQuantityBig">{unit.newField5}<span className="BasePriceWithQuantitySmall">шт</span></span>
-
-                          <span className="BasePriceWithQuantityBig">×</span>
-
-                            <span
-                                className="BasePriceWithQuantityBig"> {parseFloat(unit.priceForOneThisDiscount).toFixed(2)}<span className="BasePriceWithQuantitySmall">грн</span></span>
-
-                            <span className="BasePriceWithQuantityBig">=</span>
-                            {/*<span*/}
-                            {/*    className="booooold" style={{color:"#008249"}}>{parseFloat(unit.priceForAllThisDiscount).toFixed(2)} <span className="BasePriceWithQuantitySmall" style={{color:"#008249"}}>грн</span></span>*/}
-                          <span className="booooold"
-                                style={{
-                                  color: "#008249",
-
-                                }}>{unit.priceForAllThisDiscount}<span className="BasePriceWithQuantitySmall"   style={{color: "#008249",}}>грн</span></span>
-                        </div>
-                    )}
-                </div>
-            ))}
-        </div>
-    );
+            <div className={`unit-calc-row${hasDiscount ? " is-discount" : ""}`}>
+              <span className="unit-val qty">
+                {toNumber(unit?.newField5)}
+                <span className="unit-sub">шт</span>
+              </span>
+              <span className="unit-sep">×</span>
+              <span className="unit-val one">
+                {fmt2(unitPrice)}
+                <span className="unit-sub">грн</span>
+              </span>
+              <span className="unit-sep">=</span>
+              <span className="unit-val unit-total">
+                {fmt2(totalPrice)}
+                <span className="unit-sub">грн</span>
+              </span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export default OneProductInOrders;

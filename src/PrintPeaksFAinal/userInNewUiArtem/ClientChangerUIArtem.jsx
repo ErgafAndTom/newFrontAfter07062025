@@ -183,7 +183,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
   }, [thisOrder?.client?.id]);
 
   return (
-    <div className="nui-client-changer">
+    <div className="">
       <div
         onClick={handleShow}
       >
@@ -200,12 +200,13 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
                   whiteSpace: "nowrap",
                   textOverflow: "ellipsis",
                   fontWeight: "400",
-                  width: "29vw",
+                  width: "31.5vw",
                   overflow: "hidden",
                   maxWidth: "30vw",
-                  marginTop: "-0.5vh",
+                  
                   cursor: "pointer",
                   userSelect: "none",
+
                 }}
                 title="Натисни, щоб скопіювати 🤖:"
               >

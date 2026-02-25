@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import DiscountCalculator from './DiscountCalculator';
 import axios from './api/axiosInstance';
 import { useSelector } from 'react-redux';
 import "./progressbar_styles.css"
-import {useNavigate} from "react-router-dom";
 
 function formatNumber(num) {
   const s = num == null ? '0' : String(num).replace(/\s+/g, '').replace(/,/g, '.');
@@ -46,11 +45,6 @@ const STAGES = [
 
 const STAGE_TONES = ['warn', 'brown', 'blue', 'pink', 'green', 'green'];
 
-const PAYMENT_STATUS = {
-  pay: { label: 'Оплачено', tone: 'pay' },
-  pending: { label: 'Очікуємо оплату', tone: 'pending' },
-};
-
 const EMPTY_ORDER_LIST_ERROR = 'Список замовлень порожній';
 
 const resolveDeadlineValue = (order) => {
@@ -60,61 +54,22 @@ const resolveDeadlineValue = (order) => {
   return null;
 };
 
-const getStageTitle = (stage, orderId) => {
-  if (stage == null) return 'Статус невідомий';
-  const value = Number(stage);
-  if (Number.isNaN(value)) return 'Статус невідомий';
-  switch (value) {
-    case -1:
-      return `Скасоване замовлення №${orderId ?? '—'}`;
-    case 0:
-      return `Обробка замовлення №${orderId ?? '—'}`;
-    case 1:
-      return `Замовлення №${orderId ?? '—'} друкується`;
-    case 2:
-      return `Замовлення №${orderId ?? '—'} у постпресі`;
-    case 3:
-      return `Готове замовлення №${orderId ?? '—'}`;
-    default:
-      return `Замовлення №${orderId ?? '—'} віддали`;
-  }
-};
-
-
-const ProgressBar = ({
+const
+  ProgressBar = ({
                        thisOrder,
                        setThisOrder,
-                       setNewThisOrder,
-                       handleThisOrderChange,
                        selectedThings2,
                        setSelectedThings2,
                        externalError = null,
                      }) => {
 
-  const navigate = useNavigate();
 
   const currentUser = useSelector((state) => state.auth.user);
-  function formatNumber(num) {
-    const s = num == null ? '0' : String(num).replace(/\s+/g, '').replace(/,/g, '.');
-    const n = Number(s);
-    if (!Number.isFinite(n)) return '0.00';
-    return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-  }
-
-  function parseNumber(v) {
-    if (v == null) return 0;
-    const s = String(v).replace(/\s+/g, '').replace(/,/g, '.');
-    const n = Number(s);
-    return Number.isFinite(n) ? n : 0;
-  }
-
-
-  const [discount, setDiscount] = useState('0%'); // рядок з %
-  const [total, setTotal] = useState(thisOrder?.allPrice ?? thisOrder?.price ?? 0);
+  const deadlineInputRef = useRef(null);
+  const canEditDeadline = currentUser?.role === 'admin';
   const [error, setError] = useState(null);
   const [discountError, setDiscountError] = useState(null);
   const [activeError, setActiveError] = useState(null);
-  const [load, setLoad] = useState(false);
 
   const norm = useCallback((v) => {
     if (v == null) return 0;
@@ -141,68 +96,12 @@ const ProgressBar = ({
     return Math.max(clientNum, compNum, 0);
   }, [norm]);
 
-  const recalcTotal = useCallback((order, overrideEff) => {
-    const eff = typeof overrideEff === 'number' ? overrideEff : getEffectiveDiscount(order);
-    const basePrice = parseNumber(order?.price ?? order?.allPrice ?? 0);
-    const totalNum = Math.round((basePrice * (1 - eff / 100)) * 100) / 100;
-    return totalNum;
-  }, [getEffectiveDiscount]);
-
-
-  const handleAmountChange = (value) => {
-    const numeric = String(value).replace(/[^0-9.]/g, '');
-    const formatted = numeric ? formatNumber(numeric) : '0.00';
-    setAmount(formatted);
-  };
-
-  const sanitizePercentInput = (value) => {
-    if (!value) return '0%';
-    const numeric = String(value).replace(/[^\d.]/g, '');
-    const n = norm(numeric);
-    return `${n}%`;
-  };
-
-
-
-    // Оновлюємо total одразу тут (якщо треба, бо знизу useEffect теж є)
-
-
-
-  // const handleDiscountChange = async (value) => {
-  //   if (currentUser?.role !== "admin") return;
-  //   const dataToSend = {
-  //     newDiscount: value,
-  //     orderId: thisOrder.id,
-  //   };
-  //
-  //   try {
-  //     setError(null);
-  //     setLoad(true);
-  //     const { data } = await axios.put(`/orders/OneOrder/discount`, dataToSend);
-  //
-  //     setThisOrder(data);
-  //     setSelectedThings2(data.OrderUnits);
-  //
-  //
-  //   } catch (err) {
-  //     if (err?.response?.status === 403) {
-  //       navigate('/login');
-  //       return;
-  //     }
-  //     setError(err.message || 'Помилка');
-  //   } finally {
-  //     setLoad(false);
-  //   }
-  // };
-
   const [currentStage, setCurrentStage] = useState(thisOrder?.status ? parseInt(thisOrder.status, 10) : 0);
   const [isPaid, setIsPaid] = useState(false);
   const [isCancelled, setIsCancelled] = useState(false);
 
   const [elapsedTime, setElapsedTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [manufacturingStartTime, setManufacturingStartTime] = useState(null);
-  const [finalManufacturingTime, setFinalManufacturingTime] = useState(null);
-  const [amount, setAmount] = useState(() => formatNumber(thisOrder?.price ?? 0));
   const [deadlineAt, setDeadlineAt] = useState(resolveDeadlineValue(thisOrder));
   const [deadlineCountdown, setDeadlineCountdown] = useState('');
 
@@ -214,17 +113,6 @@ const ProgressBar = ({
 
   const effectiveDiscountNum = useMemo(() => getEffectiveDiscount(thisOrder), [getEffectiveDiscount, thisOrder]);
   const isDiscountApplied = effectiveDiscountNum > 0;
-
-  const orderWithEffectiveDiscount = useMemo(() => {
-    if (!thisOrder) return thisOrder;
-    const effectiveDiscount = getEffectiveDiscount(thisOrder);
-    return {
-      ...thisOrder,
-      effectiveDiscount,
-      discount: thisOrder.discount ?? effectiveDiscount,
-      prepayment: typeof thisOrder.prepayment === 'string' ? thisOrder.prepayment : `${effectiveDiscount}%`,
-    };
-  }, [getEffectiveDiscount, thisOrder]);
 
   useEffect(() => {
     if (!thisOrder) return;
@@ -253,9 +141,6 @@ const ProgressBar = ({
     setIsCancelled(thisOrder.status === 'Відміна' || statusValue === -1);
     if (thisOrder.manufacturingStartTime) {
       setManufacturingStartTime(thisOrder.manufacturingStartTime);
-    }
-    if (thisOrder.finalManufacturingTime) {
-      setFinalManufacturingTime(thisOrder.finalManufacturingTime);
     }
     setDeadlineAt(resolveDeadlineValue(thisOrder));
   }, [thisOrder]);
@@ -308,7 +193,7 @@ const ProgressBar = ({
       if (diff >= 0) {
         setDeadlineCountdown(formatDuration(diff));
       } else {
-        setDeadlineCountdown(`Прострочено: ${formatDuration(diff)}`);
+        setDeadlineCountdown(`Не встигли на: ${formatDuration(diff)}`);
       }
     };
 
@@ -338,46 +223,6 @@ const ProgressBar = ({
     if (isActive) return paletteTone;
     return 'track';
   };
-
-  const currentStageDescriptor = useMemo(() => {
-    if (isCancelled) {
-      return {
-        title: `Скасоване замовлення №${thisOrder?.id ?? '—'}`,
-        subtitle: 'Замовлення було скасоване',
-        accent: UI.color.danger,
-      };
-    }
-    const normalized = Math.min(Math.max(currentStage, 0), STAGES.length - 1);
-    const stage = STAGES[normalized];
-    return {
-      title: getStageTitle(currentStage, thisOrder?.id),
-      subtitle: stage?.subtitle ?? 'Статус уточнюється',
-      accent: stage?.color ?? UI.color.text,
-    };
-  }, [currentStage, isCancelled, thisOrder?.id ]);
-
-  const paymentState = isPaid ? PAYMENT_STATUS.pay : PAYMENT_STATUS.pending;
-  const paymentBadgeText = (!isPaid && Number(currentStage) === 0) ? '-' : paymentState.label;
-  const statusText = isCancelled ? 'Скасовано' : currentStageDescriptor.subtitle;
-  const statusBadgeText = useMemo(() => {
-    if (isCancelled) return 'СКАСОВАНО';
-    const stage = Number(currentStage);
-    if (stage === 0) return 'НОВЕ ЗАМОВЛЕННЯ';
-    if (stage === 4) return '-';
-    if (stage >= 5) return 'ЗАМОВЛЕННЯ ВІДДАНО';
-    return (statusText || 'СТАТУС УТОЧНЮЄТЬСЯ').toUpperCase();
-  }, [currentStage, isCancelled, statusText]);
-
-  const formatCurrency = useCallback((value) => {
-    if (value == null || value === '') return '-';
-    const numericValue = Number(value);
-    if (!Number.isFinite(numericValue)) return `${value}`;
-    return new Intl.NumberFormat('uk-UA', {
-      style: 'currency',
-      currency: 'UAH',
-      minimumFractionDigits: 2,
-    }).format(numericValue);
-  }, []);
 
   const renderDeadlineCountdown = useCallback((value) => {
     if (!value) return '—';
@@ -411,10 +256,6 @@ const ProgressBar = ({
     );
   }, []);
 
-  const effectiveStageIndex = isCancelled
-    ? -1
-    : (isPaid ? STAGES.length - 1 : Math.min(Math.max(currentStage, 0), STAGES.length - 1));
-
   const completedStageCount = isCancelled
     ? 0
     : Math.min(
@@ -427,10 +268,7 @@ const ProgressBar = ({
     : `${completedStageCount}/${STAGES.length}`;
 
   const isFullyCompleted = !isCancelled && completedStageCount >= STAGES.length;
-  const isAwaitingPaymentStage = !isCancelled && !isPaid && normalizedCurrentStage >= 4;
   const actionPlaceholderLabel = isFullyCompleted ? 'Замовлення завершено' : '—';
-
-  const shouldShowBottomTitle = false;
 
   const deadlineExactLabel = useMemo(() => {
     if (!deadlineAt) return '';
@@ -439,18 +277,54 @@ const ProgressBar = ({
     return date.toLocaleString('uk-UA');
   }, [deadlineAt]);
 
-  const handleDeadlineChange = (deadlineValue) => {
+  const openDeadlinePicker = () => {
+    if (!canEditDeadline) return;
+    if (deadlineInputRef.current?.showPicker) {
+      deadlineInputRef.current.showPicker();
+      return;
+    }
+    deadlineInputRef.current?.click();
+  };
+
+  const handleDeadlineInputChange = async (event) => {
+    const value = event.target.value;
+    if (!value) return;
+
+    const selectedDate = new Date(value);
+    if (!Number.isFinite(selectedDate.getTime())) return;
+
+    const isoDeadline = selectedDate.toISOString();
     const startedAt = thisOrder?.manufacturingStartTime || new Date().toISOString();
-    setDeadlineAt(deadlineValue);
-    setThisOrder((prev) => (
-      prev
+
+    const optimisticOrderPatch = {
+      deadline: isoDeadline,
+      manufacturingStartTime: startedAt,
+    };
+
+    setDeadlineAt(isoDeadline);
+    setThisOrder((prev) => (prev ? { ...prev, ...optimisticOrderPatch } : prev));
+
+    if (!canEditDeadline || !thisOrder?.id) return;
+
+    try {
+      const { data: deadlineData } = await axios.put('/orders/OneOrder/deadlineUpdate', {
+        thisOrderId: thisOrder.id,
+        deadlineNew: isoDeadline,
+      });
+
+      const persistedDeadline = deadlineData?.deadline || isoDeadline;
+      setDeadlineAt(persistedDeadline);
+      setThisOrder((prev) => (prev
         ? {
             ...prev,
-            deadline: deadlineValue,
-            manufacturingStartTime: prev.manufacturingStartTime || startedAt,
+            ...optimisticOrderPatch,
+            deadline: persistedDeadline,
           }
-        : prev
-    ));
+        : prev));
+      handleStageError(null);
+    } catch (err) {
+      handleStageError(err?.response?.data?.error || err?.message || 'Помилка збереження дедлайну');
+    }
   };
 
   const actionConfig = useMemo(() => {
@@ -501,7 +375,6 @@ const ProgressBar = ({
     setActiveError(null);
   }, [externalError, error, discountError]);
 
-  const paymentTone = paymentState.tone;
   const actionHoverTone = useMemo(() => {
     if (isCancelled) return 'danger';
     switch (Number(currentStage)) {
@@ -579,9 +452,6 @@ const ProgressBar = ({
           if (nextOrder.manufacturingStartTime) {
             setManufacturingStartTime(nextOrder.manufacturingStartTime);
           }
-          if (nextOrder.finalManufacturingTime) {
-            setFinalManufacturingTime(nextOrder.finalManufacturingTime);
-          }
         }
 
         handleStageError(null);
@@ -590,24 +460,10 @@ const ProgressBar = ({
         handleStageError(err);
       });
   };
-  // useEffect(() => {
-  //   if (!thisOrder) return;
-  //   const eff = getEffectiveDiscount(thisOrder);
-  //   setDiscount(`${eff}%`);
-  //   setAmount(formatNumber(thisOrder.price ?? 0));
-  //   const totalAfter = recalcTotal(thisOrder, eff);
-  //   setTotal(totalAfter);
-  // }, [thisOrder]);
-
-
 return (
   <div className={`nui-progressbar pb-shell tone-${actionTone} hover-tone-${actionHoverTone}`}>
     <div className="pb-action-rail">
       <div className="pb-action-row">
-        <span className={`pb-inline-badge pb-inline-badge--pay pay-tone-${paymentTone}`}>
-          {paymentBadgeText}
-        </span>
-
         {actionConfig ? (
           <button
             type="button"
@@ -616,18 +472,9 @@ return (
           >
             <span className="pb-action-label">{actionConfig.label}</span>
           </button>
-        ) : isAwaitingPaymentStage ? (
-          <button
-            type="button"
-            className="pb-action-awaiting-btn"
-          >
-            Очікуємо оплату
-          </button>
         ) : (
           <div className={`pb-action-placeholder${isFullyCompleted ? ' is-complete' : ''}`}>{actionPlaceholderLabel}</div>
         )}
-
-        <span className="pb-inline-badge pb-inline-badge--status">{statusBadgeText}</span>
       </div>
 
       <div className="pb-track-row">
@@ -681,27 +528,34 @@ return (
             setThisOrder={setThisOrder}
             selectedThings2={selectedThings2}
             setSelectedThings2={setSelectedThings2}
-            onDeadlineChange={handleDeadlineChange}
-            showDeadlineButton={!deadlineAt}
             setGlobalError={handleDiscountError}
           />
         </div>
 
         <div className="pb-deadline-wrap">
+          <button
+            type="button"
+            className={`dc-deadline-btn pb-deadline-btn${deadlineAt ? ' is-transparent' : ''}${!canEditDeadline ? ' is-readonly' : ''}`}
+            onClick={openDeadlinePicker}
+            disabled={!canEditDeadline}
+          >
+            <span className="pb-deadline-btn-label">{deadlineAt ? "ЗАЛИШИЛОСЬ" : "ДЕДЛАЙН"}</span>
+          </button>
+
           {deadlineAt && (
-            <div className={`pb-deadline-under${deadlineCountdown.startsWith('Прострочено') ? ' is-overdue' : ''}`} title={deadlineExactLabel || undefined}>
-              <span className="pb-deadline-under-label">ДЕДЛАЙН</span>
+            <div className={`pb-deadline-under${deadlineCountdown.startsWith('Прострочено') || deadlineCountdown.startsWith('Не встигли') ? ' is-overdue' : ''}`} title={deadlineExactLabel || undefined}>
+              <span className="pb-deadline-under-label">ЗАЛИШИЛОСЬ:</span>
               <span className="pb-deadline-under-counter">{renderDeadlineCountdown(deadlineCountdown)}</span>
             </div>
           )}
-        </div>
-      </div>
 
-      <div className="pb-bottom-row">
-        <div className={`pb-title tone-${isCancelled ? 'danger' : currentStageTone}`}>
-          {shouldShowBottomTitle ? currentStageDescriptor.title : ''}
+          <input
+            ref={deadlineInputRef}
+            type="datetime-local"
+            className="dc-deadline-input"
+            onChange={handleDeadlineInputChange}
+          />
         </div>
-        <div className="pb-meta" />
       </div>
 
       {activeError && (
