@@ -32,6 +32,7 @@ const CustomOrderTable2 = () => {
   const search = useSelector((state) => state.search.search);
   const navigate = useNavigate();
   const [limit, setLimit] = useState(50);
+  const [nowTick, setNowTick] = useState(Date.now());
 
   const [typeSelect, setTypeSelect] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -125,6 +126,40 @@ const CustomOrderTable2 = () => {
     dispatch(searchChange(""))
   }, [])
 
+  useEffect(() => {
+    const timer = setInterval(() => setNowTick(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const resolveOrderDeadline = (order) => {
+    if (!order) return null;
+    if (order.deadline) return order.deadline;
+    if (typeof order.finalManufacturingTime === 'string') return order.finalManufacturingTime;
+    return null;
+  };
+
+  const formatDeadlineCountdown = (deadlineValue) => {
+    if (!deadlineValue) return { text: '—', exact: '' };
+    const target = new Date(deadlineValue);
+    if (!Number.isFinite(target.getTime())) return { text: '—', exact: '' };
+
+    const diff = target.getTime() - nowTick;
+    const totalSeconds = Math.floor(Math.abs(diff) / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    const chunks = [];
+    if (days > 0) chunks.push(`${days}д`);
+    chunks.push(`${String(hours).padStart(2, '0')}г`);
+    chunks.push(`${String(minutes).padStart(2, '0')}хв`);
+    chunks.push(`${String(seconds).padStart(2, '0')}с`);
+
+    const text = diff >= 0 ? chunks.join(' ') : `Прострочено: ${chunks.join(' ')}`;
+    const exact = target.toLocaleString('uk-UA');
+    return { text, exact };
+  };
 
   const getStatusColor = (status, isCancelled) => {
     if (isCancelled) return '#ee3c23'; // червоний для скасованих
@@ -371,11 +406,11 @@ const CustomOrderTable2 = () => {
                   <p><strong>Дата оновлення:</strong> {order.updatedAt ? new Date(order.updatedAt).toLocaleString() : '—'}</p>
                   <p><strong>Час початку виготовлення:</strong> {order.manufacturingStartTime ? new Date(order.manufacturingStartTime).toLocaleString() : '—'}</p>
                   <p><strong>Час виготовлення:</strong> {
-                    order.finalManufacturingTime
+                    order.finalManufacturingTime && typeof order.finalManufacturingTime === 'object'
                       ? `${order.finalManufacturingTime.days}д ${order.finalManufacturingTime.hours}год ${order.finalManufacturingTime.minutes}хв ${order.finalManufacturingTime.seconds}сек`
                       : order.manufacturingStartTime ? 'В процесі' : '—'
                   }</p>
-                  <p><strong>Дедлайн:</strong> {order.deadline ? new Date(order.deadline).toLocaleString() : '—'}</p>
+                  <p><strong>Дедлайн:</strong> <span title={formatDeadlineCountdown(resolveOrderDeadline(order)).exact || undefined}>{formatDeadlineCountdown(resolveOrderDeadline(order)).text}</span></p>
                   <p><strong>Виконавець:</strong> {order.executor ? `${order.executor.firstName} ${order.executor.lastName}` : '—'}</p>
 
                   <button

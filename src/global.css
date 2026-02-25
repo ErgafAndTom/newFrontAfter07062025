@@ -95,10 +95,23 @@ body {
   --font-size-3xl: 22px;
   --font-size-6xl: 25px;
   --font-size-xs: 12px;
+
   --font-size-smi-1: 12.1px;
   --font-size-sm-2: 13.2px;
-
+  --fontcard: 14px;
+  --fontsmall: 10px;
+  --font-size-s: 16px;
+  --font-size-pay: 24px;
   /* Colors */
+  --admingreen: #0e935b;
+  --admingrey: #666666;
+  --adminorange: #f5a623;
+  --adminblue: #3c60a6;
+  --adminfonelement: #f2f0e9;
+  --adminfon: #f7f5ee;
+  --adminrose: #ef7aaa;
+  --adminred: #ee3c23;
+
   --color-fon: #f2f0e7;
   --color-act: #f8f9fa;
   --color-black: #000;

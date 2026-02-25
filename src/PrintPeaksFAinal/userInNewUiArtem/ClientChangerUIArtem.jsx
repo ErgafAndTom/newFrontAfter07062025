@@ -183,7 +183,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
   }, [thisOrder?.client?.id]);
 
   return (
-    <>
+    <div className="nui-client-changer">
       <div
         onClick={handleShow}
       >
@@ -477,7 +477,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
           onClose={() => setClientCabinetOpen(false)}
         />
       )}
-    </>
+    </div>
   );
 };
 

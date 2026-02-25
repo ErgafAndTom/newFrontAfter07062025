@@ -19,7 +19,7 @@
   /*box-shadow: 0 8px 16px rgba(0,0,0,0.12);*/
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
 
 }
@@ -28,11 +28,12 @@
   top: 1vh;
   left: 1vw;
   padding: 0.6vh 1.4vw;
-  border-radius: 50px;
+  border-radius: 0;
   font-weight: 400;
   font-size: 1.1vw;
   color: white;
   white-space: nowrap;
+  min-width: 0;
   animation: slideFadeIn 0.6s ease forwards;
   opacity: 0;
   transform: translateX(-20px);
@@ -198,4 +199,873 @@
 @keyframes blink {
     0%, 100% { opacity: 0; }
     50% { opacity: 50; }
+}
+
+
+/* ===== New ProgressBar UI ===== */
+.nui-progressbar.pb-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr auto;
+  background: var(--adminfon, #f7f5ee);
+  border-radius: 0;
+  overflow: hidden;
+  padding: 0.45rem;
+  box-sizing: border-box;
+}
+
+.nui-progressbar.pb-shell {
+  --pb-action-color: var(--admingrey, #666666);
+  --pb-hover-bg: var(--adminblue, #3c60a6);
+}
+
+.nui-progressbar.pb-shell.tone-warn { --pb-action-color: var(--admingrey, #666666); }
+.nui-progressbar.pb-shell.tone-brown { --pb-action-color: var(--adminorange, #f5a623); }
+.nui-progressbar.pb-shell.tone-blue { --pb-action-color: var(--adminblue, #3c60a6); }
+.nui-progressbar.pb-shell.tone-pink { --pb-action-color: var(--adminrose, #ef7aaa); }
+.nui-progressbar.pb-shell.tone-green { --pb-action-color: var(--admingreen, #0e935b); }
+.nui-progressbar.pb-shell.tone-danger { --pb-action-color: var(--adminred, #ee3c23); }
+
+.nui-progressbar.pb-shell.hover-tone-warn { --pb-hover-bg: var(--admingrey, #666666); }
+.nui-progressbar.pb-shell.hover-tone-brown { --pb-hover-bg: var(--adminorange, #f5a623); }
+.nui-progressbar.pb-shell.hover-tone-blue { --pb-hover-bg: var(--adminblue, #3c60a6); }
+.nui-progressbar.pb-shell.hover-tone-pink { --pb-hover-bg: var(--adminrose, #ef7aaa); }
+.nui-progressbar.pb-shell.hover-tone-green { --pb-hover-bg: var(--admingreen, #0e935b); }
+.nui-progressbar.pb-shell.hover-tone-danger { --pb-hover-bg: var(--adminred, #ee3c23); }
+
+.nui-progressbar .pb-action-rail {
+  grid-row: 2;
+  border-top: 1px solid rgba(60, 96, 166, 0.16);
+  border-right: none;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.18rem;
+  padding: 0.18rem 0.2rem;
+  background: var(--adminfonelement, #f2f0e9);
+  min-height: 3.2rem;
+}
+
+.nui-progressbar .pb-action-btn {
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  width: 100% !important;
+  flex: 1 1 auto;
+  min-height: var(--pb-action-control-height) !important;
+  height: var(--pb-action-control-height) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0.35rem !important;
+  box-shadow: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--pb-action-color) !important;
+  color: var(--adminfon, #f7f5ee) !important;
+
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.nui-progressbar .pb-action-btn .pb-action-label {
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+  white-space: nowrap !important;
+  font-size: var(--pb-action-font-size) !important;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1 !important;
+  text-shadow: none;
+  width: auto !important;
+  display: block !important;
+  color: var(--adminfon) !important;
+  text-align: center;
+}
+
+.nui-progressbar .pb-action-awaiting-btn {
+  width: 100%;
+  min-height: var(--pb-action-control-height);
+  height: var(--pb-action-control-height);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0;
+  background: var(--adminfon, #f7f5ee);
+  color: var(--admingrey, #666666);
+  font-size: var(--pb-action-font-size) !important;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1 !important;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem 0.55rem;
+  cursor: default;
+
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.nui-progressbar .pb-action-placeholder {
+  color: var(--admingrey);
+  opacity: 0.35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.nui-progressbar .pb-action-placeholder.is-complete {
+  opacity: 0.85;
+  color: var(--admingreen, #0e935b);
+  font-size: clamp(0.7rem, 0.8vw, 0.95rem);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.nui-progressbar .pb-main {
+  --pb-price-field-height: 2.02rem;
+  grid-row: 1;
+  display: grid;
+  grid-template-rows: auto auto auto auto;
+  gap: 0.35rem;
+  padding: 0.4rem 0.6rem 0.35rem;
+  min-width: 0;
+  align-content: start;
+}
+
+.nui-progressbar .pb-top-row {
+  display: grid;
+  grid-template-columns: max-content max-content minmax(0, 1fr);
+  justify-content: start;
+  gap: 0.62rem;
+  align-items: start;
+}
+
+.nui-progressbar .pb-metrics {
+  display: grid;
+  width: max-content;
+  gap: 1rem;
+}
+
+.nui-progressbar .pb-metric {
+  display: grid;
+  grid-template-columns: 9.6rem 8.8rem;
+  align-items: center;
+  gap: 0.34rem;
+}
+
+.nui-progressbar .pb-metric-label {
+  color: var(--admingrey);
+  font-size: var(--font-size-pay) !important;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.nui-progressbar .pb-metric-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  width: 100%;
+  height: 1.95rem;
+  min-height: 1.95rem;
+  background: var(--adminfonelement, #f2f0e9);
+  color: var(--admingrey);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-left: 3px solid rgba(0, 0, 0, 0.12);
+  border-radius: 0;
+  padding: 0 0.55rem;
+  text-align: center;
+  font-size: var(--font-size-pay) !important;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nui-progressbar .pb-metric-value--strong {
+  font-weight: 700;
+}
+
+.nui-progressbar .pb-metric-value small {
+  font-size: calc(var(--font-size-s) * 0.88) !important;
+  line-height: 1 !important;
+  opacity: 1;
+  vertical-align: sub;
+  transform: translateY(0.14em);
+  display: inline-block;
+  color: var(--admingrey) !important;
+  text-transform: none !important;
+}
+
+.nui-progressbar .pb-metric--due .pb-metric-label {
+  color: var(--admingrey, #666666);
+}
+
+.nui-progressbar .pb-metric--due.is-discounted .pb-metric-label,
+.nui-progressbar .pb-metric--due.is-discounted .pb-metric-value,
+.nui-progressbar .pb-metric--due.is-discounted .pb-metric-value small {
+  color: var(--admingreen, #0e935b) !important;
+}
+
+.nui-progressbar .pb-metric--due.is-discounted .pb-metric-value {
+  border-left-color: var(--admingrey, #666666);
+}
+
+.nui-progressbar .pb-metric--due .pb-metric-value {
+  height: var(--pb-price-field-height);
+  min-height: var(--pb-price-field-height);
+  color: var(--adminred, #ee3c23);
+  border-left-color: var(--admingrey, #666666);
+  font-size: var(--font-size-pay) !important;
+  font-weight: 700;
+}
+
+.nui-progressbar .pb-metric--cost .pb-metric-value {
+  height: 1.9rem;
+  min-height: 1.9rem;
+  border-left-color: var(--admingrey, #666666);
+  color: var(--pb-action-color);
+  font-size: var(--font-size-pay) !important;
+  font-weight: 600;
+}
+
+.nui-progressbar .pb-metric--cost .pb-metric-label {
+  opacity: 0.92;
+  color: var(--admingrey, #666666);
+}
+
+.nui-progressbar .pb-metric--cost .pb-metric-value small {
+  font-size: calc(var(--font-size-pay) * 0.72) !important;
+  color: var(--pb-action-color) !important;
+}
+
+.nui-progressbar .pb-deadline-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  min-width: 0;
+  max-width: 52%;
+  height: 1.9rem;
+  padding: 0 0.5rem;
+  border: 1px solid rgba(60, 96, 166, 0.2);
+  border-left: 3px solid var(--adminblue, #3c60a6);
+  background: color-mix(in srgb, var(--adminblue, #3c60a6) 8%, var(--adminfonelement, #f2f0e9));
+  color: var(--adminred, #ee3c23);
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nui-progressbar .pb-metric--due .pb-metric-value small {
+  font-size: calc(var(--font-size-pay) * 0.72) !important;
+  color: var(--adminred, #ee3c23) !important;
+}
+
+.nui-progressbar .pb-track-row {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) auto;
+  gap: 0.28rem;
+  align-items: center;
+  min-height: 2.53rem;
+  height: 2.53rem;
+  min-width: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.nui-progressbar .pb-stage-pill {
+  min-height: 2.3rem;
+  height: 2.3rem;
+  border-radius: 0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--adminfon, #f7f5ee);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+  padding: 0.15rem 0.32rem;
+  transition: all 0.2s ease;
+}
+
+.nui-progressbar .pb-stage-pill { --stage-color: var(--admingrey, #666666); }
+.nui-progressbar .pb-stage-pill.tone-warn { --stage-color: var(--admingrey, #666666); }
+.nui-progressbar .pb-stage-pill.tone-brown { --stage-color: var(--adminorange, #f5a623); }
+.nui-progressbar .pb-stage-pill.tone-blue { --stage-color: var(--adminblue, #3c60a6); }
+.nui-progressbar .pb-stage-pill.tone-pink { --stage-color: var(--adminrose, #ef7aaa); }
+.nui-progressbar .pb-stage-pill.tone-green { --stage-color: var(--admingreen, #0e935b); }
+.nui-progressbar .pb-stage-pill.tone-danger { --stage-color: var(--adminred, #ee3c23); }
+.nui-progressbar .pb-stage-pill.tone-grey { --stage-color: var(--admingrey, #666666); }
+.nui-progressbar .pb-stage-pill.tone-track { --stage-color: color-mix(in srgb, var(--admingrey) 30%, transparent); }
+
+.nui-progressbar .pb-stage-pill .pb-stage-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 0;
+  background: color-mix(in srgb, var(--admingrey) 28%, transparent);
+  flex-shrink: 0;
+}
+
+.nui-progressbar .pb-stage-pill .pb-stage-name {
+  text-transform: uppercase !important;
+  font-size: var(--font-size-pay) !important;
+  line-height: 1;
+  color: var(--admingrey);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nui-progressbar .pb-stage-pill.is-completed {
+  border-color: color-mix(in srgb, var(--pb-action-color) 35%, transparent);
+  background: color-mix(in srgb, var(--pb-action-color) 12%, var(--adminfon, #f7f5ee));
+}
+
+.nui-progressbar .pb-stage-pill.is-completed .pb-stage-dot {
+  background: var(--pb-action-color);
+}
+
+.nui-progressbar .pb-stage-pill.is-completed .pb-stage-name {
+  color: var(--pb-action-color);
+}
+
+.nui-progressbar .pb-stage-pill.is-active {
+  border-color: color-mix(in srgb, var(--stage-color) 35%, transparent);
+  background: color-mix(in srgb, var(--stage-color) 12%, var(--adminfon, #f7f5ee));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--stage-color) 22%, transparent);
+}
+
+.nui-progressbar .pb-stage-pill.is-active .pb-stage-dot {
+  background: var(--stage-color);
+}
+
+.nui-progressbar .pb-stage-pill.is-active .pb-stage-name {
+  color: var(--stage-color);
+}
+
+.nui-progressbar .pb-bottom-row {
+  display: grid;
+  margin-top: 0.05rem;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.nui-progressbar .pb-title {
+  font-size: clamp(0.8rem, 1.05vw, 1.12rem);
+  line-height: 1.15;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nui-progressbar .pb-title.tone-warn { color: var(--admingrey); }
+.nui-progressbar .pb-title.tone-brown { color: var(--adminorange, #f5a623); }
+.nui-progressbar .pb-title.tone-blue { color: var(--adminblue, #3c60a6); }
+.nui-progressbar .pb-title.tone-pink { color: var(--adminrose, #ef7aaa); }
+.nui-progressbar .pb-title.tone-green { color: var(--admingreen, #0e935b); }
+.nui-progressbar .pb-title.tone-danger { color: var(--adminred, #ee3c23); }
+
+.nui-progressbar .pb-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.nui-progressbar .pb-meta:empty {
+  display: none;
+}
+
+.nui-progressbar .pb-stage-badge,
+.nui-progressbar .pb-pay-badge {
+  font-size: 0.68rem;
+  border-radius: 0;
+  padding: 0.12rem 0.42rem;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.nui-progressbar .pb-stage-badge {
+  background: rgba(60, 96, 166, 0.11);
+  color: var(--adminblue, #3c60a6);
+  font-weight: 600;
+}
+
+.nui-progressbar .pb-pay-badge {
+  font-weight: 600;
+}
+
+.nui-progressbar .pb-error {
+  width: 100%;
+  min-height: 1.42rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.12rem 0.35rem;
+  border: 1px solid rgba(238, 60, 35, 0.35);
+  background: color-mix(in srgb, var(--adminred, #ee3c23) 10%, var(--adminfon, #f7f5ee));
+  color: var(--adminred, #ee3c23);
+  font-size: var(--font-size-pay) !important;
+  font-weight: 500 !important;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+
+/* Discount calculator inside ProgressBar */
+.nui-progressbar .pb-discount-wrap {
+  min-width: 0;
+  width: max-content;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 0.26rem;
+  overflow: visible;
+  margin: 0;
+}
+
+.nui-progressbar .dc-shell {
+  width: 100%;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 0.6rem;
+  align-content: start;
+  overflow: visible;
+  margin: 0;
+}
+
+.nui-progressbar .pb-deadline-under {
+  width: max-content;
+  max-width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.55rem;
+  white-space: nowrap;
+}
+
+.nui-progressbar .pb-deadline-under-label {
+  color: var(--admingrey, #666666);
+  font-size: var(--font-size-pay) !important;
+  font-weight: 400 !important;
+  line-height: 1;
+}
+
+.nui-progressbar .pb-deadline-under-counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+  min-height: 2.02rem;
+  height: 2.02rem;
+  padding: 0 0.55rem;
+  background: var(--adminfonelement, #f2f0e9);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-left: 3px solid var(--admingrey, #666666);
+  color: var(--adminred, #ee3c23) !important;
+  font-size: var(--font-size-pay) !important;
+  font-weight: 700 !important;
+  box-sizing: border-box;
+  text-transform: none !important;
+}
+
+.nui-progressbar .pb-deadline-under.is-overdue .pb-deadline-under-counter {
+  border-left-color: var(--adminred, #ee3c23);
+}
+
+.nui-progressbar .dc-envelope {
+  width: 100%;
+  height: 1.9rem;
+  display: flex;
+  align-items: center;
+  background: var(--adminfon, #f7f5ee);
+  border: 0;
+  border-bottom: 2px solid var(--pb-action-color, var(--admingrey, #666666));
+  padding: 0;
+}
+
+.nui-progressbar .dc-input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.nui-progressbar .dc-prefix {
+  position: absolute;
+  top: 50%;
+  left: 0.48rem;
+  transform: translateY(-50%);
+  color: var(--admingreen, #0e935b);
+  font-weight: 700;
+  font-size: var(--font-size-s) !important;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.nui-progressbar .dc-input {
+  width: 100%;
+  height: 1.9rem;
+  border: 0;
+  border-radius: 0;
+  text-align: center;
+  background: transparent;
+  color: var(--admingreen, #0e935b);
+  font-weight: 700;
+  font-size: var(--font-size-s) !important;
+  line-height: 1;
+  outline: none;
+  padding: 0 0.4rem 0 1rem;
+}
+
+.nui-progressbar .dc-input:focus {
+  box-shadow: none;
+}
+
+.nui-progressbar .dc-input.is-readonly {
+  color: var(--admingrey, #666666);
+  cursor: default;
+}
+
+.nui-progressbar .dc-prefix.is-readonly {
+  color: var(--admingrey, #666666);
+}
+
+.nui-progressbar .dc-input.is-saving {
+  opacity: 0.78;
+}
+
+.nui-progressbar .dc-presets {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 10.4rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.24rem;
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+  transform: translateY(-0.2rem);
+  transition: opacity 0.22s ease, transform 0.28s ease;
+  pointer-events: none;
+  z-index: 30;
+}
+
+.nui-progressbar .dc-deadline-btn {
+  align-self: end;
+  margin-left: 0;
+  width: 100%;
+  height: var(--pb-price-field-height);
+  min-height: var(--pb-price-field-height);
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  border: 0;
+  border-bottom: 2px solid var(--adminrose, #ef7aaa);
+  background: transparent;
+  color: var(--adminrose, #ef7aaa);
+  font-size: var(--font-size-s) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0;
+  text-align: center;
+  cursor: pointer;
+}
+
+.nui-progressbar .dc-deadline-btn.is-readonly,
+.nui-progressbar .dc-deadline-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.nui-progressbar .dc-deadline-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nui-progressbar .pb-discount-wrap:hover .dc-presets,
+.nui-progressbar .pb-discount-wrap:focus-within .dc-presets,
+.nui-progressbar .dc-shell:hover .dc-presets,
+.nui-progressbar .dc-shell:focus-within .dc-presets {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.nui-progressbar .dc-preset-btn {
+  border: 0;
+  border-bottom: 1px solid var(--admingrey, #666666);
+  border-radius: 0;
+  background: transparent;
+  color: var(--admingrey, #666666);
+  height: 1.3rem;
+  font-size: var(--fontsmall) !important;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.nui-progressbar .dc-preset-btn:hover {
+  color: var(--pb-action-color, var(--admingrey, #666666));
+  border-bottom-color: var(--pb-action-color, var(--admingrey, #666666));
+}
+
+.nui-progressbar .dc-preset-btn.is-active {
+  color: var(--pb-action-color, var(--admingrey, #666666));
+  border-bottom-color: var(--pb-action-color, var(--admingrey, #666666));
+  font-weight: 700;
+}
+
+.nui-progressbar .dc-preset-btn.is-readonly,
+.nui-progressbar .dc-preset-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.nui-progressbar .dc-error {
+  width: 100%;
+  min-height: 1.42rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.12rem 0.35rem;
+  border: 1px solid rgba(238, 60, 35, 0.35);
+  background: color-mix(in srgb, var(--adminred, #ee3c23) 10%, var(--adminfon, #f7f5ee));
+  color: var(--adminred, #ee3c23);
+  font-size: var(--fontsmall) !important;
+  font-weight: 500 !important;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+
+.nui-progressbar .pb-status {
+  color: var(--admingrey) !important;
+  font-size: clamp(0.74rem, 0.85vw, 0.96rem) !important;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-top: 1px solid rgba(60, 96, 166, 0.14);
+  padding-top: 0.2rem;
+  display: block !important;
+}
+
+
+.nui-progressbar,
+.nui-progressbar * {
+  border-radius: 0 !important;
+  font-size: var(--fontcard) !important;
+}
+
+
+.nui-progressbar .pb-action-btn:hover {
+  background: var(--pb-hover-bg, var(--adminblue, #3c60a6)) !important;
+  color: #fff !important;
+}
+
+.nui-progressbar .pb-action-btn:hover .pb-action-label {
+  color: var(--adminfon, #f7f5ee) !important;
+}
+
+
+/* Global typography rule for ProgressBar (requested) */
+.nui-progressbar,
+.nui-progressbar * {
+  font-weight: 400 !important;
+  text-transform: uppercase !important;
+  line-height: 1.2 !important;
+}
+
+
+.nui-progressbar .pb-status--rail {
+  text-align: center;
+  color: var(--admingrey) !important;
+  border-top: none;
+  padding-top: 0;
+  font-size: 0.86rem !important;
+}
+
+
+.nui-progressbar .pb-action-row {
+  display: grid;
+  grid-template-columns: 3fr 4fr 3fr;
+  gap: 0.35rem;
+  align-items: stretch;
+  min-height: 2.53rem;
+  height: 2.53rem;
+  --pb-action-control-height: 2.53rem;
+  --pb-action-font-size: var(--font-size-s);
+}
+
+.nui-progressbar .pb-inline-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--pb-action-control-height);
+  min-height: var(--pb-action-control-height);
+  padding: 0.3rem 0.55rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--adminfonelement, #f2f0e9);
+  color: var(--admingrey) !important;
+  width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+  font-size: var(--pb-action-font-size) !important;
+  font-weight: 400;
+  line-height: 1 !important;
+  letter-spacing: 0;
+  text-align: center;
+
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.nui-progressbar .pb-inline-badge--status {
+  border-color: color-mix(in srgb, var(--pb-action-color) 35%, transparent);
+  background: color-mix(in srgb, var(--pb-action-color) 12%, var(--adminfon, #f7f5ee));
+  color: var(--pb-action-color) !important;
+  width: 100%;
+  min-width: 0;
+  justify-content: center;
+  align-items: center;
+  padding-inline: 0.35rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nui-progressbar .pb-inline-badge--pay {
+  border-color: rgba(14, 147, 91, 0.2);
+  width: 100%;
+  min-width: 0;
+}
+
+.nui-progressbar .pb-inline-badge--pay.pay-tone-pay {
+  color: var(--admingreen, #0e935b) !important;
+  background: rgba(14, 147, 91, 0.12);
+  border-color: rgba(14, 147, 91, 0.28);
+}
+
+.nui-progressbar .pb-inline-badge--pay.pay-tone-pending {
+  color: var(--admingrey, #666666) !important;
+  background: rgba(251, 191, 36, 0.14);
+  border-color: rgba(251, 191, 36, 0.28);
+}
+
+
+.nui-progressbar .pb-inline-badge--stage {
+  border-color: rgba(60, 96, 166, 0.22);
+  background: rgba(60, 96, 166, 0.11);
+  color: var(--adminblue) !important;
+  min-width: 2.7rem;
+  justify-content: center;
+}
+
+
+.nui-progressbar .pb-track-progress-badge {
+  font-size: var(--fontsmall, 10px) !important;
+  text-transform: uppercase !important;
+  align-self: center;
+  justify-self: end;
+  display: inline-flex;
+  white-space: nowrap;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.8rem;
+  height: 2.3rem;
+  min-height: 2.3rem;
+  padding: 0 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--pb-action-color) 35%, transparent);
+  background: color-mix(in srgb, var(--pb-action-color) 12%, var(--adminfon, #f7f5ee));
+  color: var(--pb-action-color) !important;
+  font-size: 0.9rem !important;
+  line-height: 1;
+}
+
+
+/* Final explicit sizing for metric block */
+.nui-progressbar .pb-metric-label,
+.nui-progressbar .pb-metric-value {
+  font-size: var(--font-size-pay) !important;
+}
+
+
+/* Final explicit sizing for top action controls */
+.nui-progressbar .pb-action-btn .pb-action-label,
+.nui-progressbar .pb-action-awaiting-btn,
+.nui-progressbar .pb-inline-badge {
+  font-size: calc(var(--font-size-s) * 0.88) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  font-family: inherit !important;
+}
+
+.nui-progressbar .pb-deadline-unit-sub {
+  font-size: 0.68em !important;
+  vertical-align: sub;
+  line-height: 1;
+  color: var(--adminred, #ee3c23) !important;
+  text-transform: none !important;
+}
+
+.nui-progressbar .pb-deadline-token {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.02rem;
+  margin-right: 0.24rem;
+  color: var(--adminred, #ee3c23) !important;
+  font-size: var(--font-size-pay) !important;
+  text-transform: none !important;
+}
+
+.nui-progressbar .pb-deadline-token:last-child {
+  margin-right: 0;
+}
+
+.nui-progressbar .pb-deadline-prefix {
+  margin-right: 0.3rem;
+}
+
+.nui-progressbar .pb-discount-wrap .dc-shell {
+  justify-self: start;
+  width: 5.8rem;
+  margin-left: 0;
+}
+
+.nui-progressbar .pb-deadline-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  align-self: end;
+  margin-bottom: 0.02rem;
+  padding-right: 0;
 }

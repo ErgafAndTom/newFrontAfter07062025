@@ -27,6 +27,8 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   const [showAwaitPays, setShowAwaitPays] = useState(false);
   const [showAwaitCashPays, setShowAwaitCashPays] = useState(false);
 
+  const firstCheckboxPayment = thisOrder?.Paymentts?.[0] || null;
+
   // --- Обробка вибору способу оплати ---
   const handleSelect = (method) => {
     const totalUAH = (thisOrder.OrderUnits || []).reduce(
@@ -447,7 +449,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
 
                   // onClick={invalidateInvoice}
 
-                  onClick={(event) => getPayment(thisOrder.Paymentts[0].checkboxReceiptId)}
+                  onClick={(event) => firstCheckboxPayment?.checkboxReceiptId && getPayment(firstCheckboxPayment.checkboxReceiptId)}
                   >
                   {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
                 </button>
@@ -523,13 +525,13 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
           >
             Замовлення оплачене: {thisOrder.Payment?.method}
           </button>
-          {thisOrder.Paymentts[0] && thisOrder.Paymentts.length > 0 &&(
+          {firstCheckboxPayment && (
             <>
-              {thisOrder.Paymentts[0].checkboxReceiptId && (
+              {firstCheckboxPayment?.checkboxReceiptId && (
                 <button
                   className="PayButtons check"
 
-                  onClick={(event) => getPayment(thisOrder.Paymentts[0].checkboxReceiptId)}
+                  onClick={(event) => firstCheckboxPayment?.checkboxReceiptId && getPayment(firstCheckboxPayment.checkboxReceiptId)}
                 >
                   {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
                 </button>
@@ -553,7 +555,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                       //   getPayment(receiptId);
                       // }}
 
-                      // onClick={(event) => getPayment(thisOrder.Paymentts[0].checkboxReceiptId)}
+                      // onClick={(event) => firstCheckboxPayment?.checkboxReceiptId && getPayment(firstCheckboxPayment.checkboxReceiptId)}
                     >
                       {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
                     </button>

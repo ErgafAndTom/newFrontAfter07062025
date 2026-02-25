@@ -5,6 +5,7 @@ import './CPM.css';
 import './adminStylesCrm.css';
 import './Wide.css';
 import './MainWindow.css';
+import './NewUIArtem.css';
 import { useNavigate, useParams } from "react-router-dom";
 import axios from '../api/axiosInstance';
 
@@ -58,7 +59,6 @@ import NewMagnets from "./poslugi/NewMagnets";
 import NewScans from "./poslugi/NewScans";
 import WideFactory from "./poslugi/WideFactory";
 import Delivery from "./poslugi/DeliveryPage";
-import OrderFilesPanel from "./commentsInOrders/OrderFilesPanel";
 import NewSheetCutBW from "./poslugi/NewSheetCutBW";
 import QuantumErrorBoundary from "../QuantumErrorBoundary";
 
@@ -76,6 +76,7 @@ const NewUIArtem = ({
   const [summ, setSumm] = useState(0);
   const [isLoad, setIsLoad] = useState(false);
   const [error, setError] = useState(null);
+  const [uiLockError, setUiLockError] = useState(null);
   const { id } = useParams();
   const [editingOrderUnit, setEditingOrderUnit] = useState(null);
   // Fallback: якщо сеттер не передали з батька — тримаємо локально, щоб не падало.
@@ -332,19 +333,112 @@ const NewUIArtem = ({
 
   }, [selectedThings2]);
 
+  const statusValue = Number.parseInt(thisOrder?.status, 10);
+  const isCancelledOrder = thisOrder?.status === 'Відміна' || statusValue === -1;
+
+  const orderListStatusTitle = (() => {
+    const orderId = thisOrder?.id ?? '—';
+    if (isCancelledOrder) return `Скасоване замовлення №${orderId}`;
+    if (!Number.isFinite(statusValue)) return `Обробка замовлення №${orderId}`;
+
+    switch (statusValue) {
+      case 0:
+        return `Обробка замовлення №${orderId}`;
+      case 1:
+        return `Замовлення №${orderId} друкується`;
+      case 2:
+        return `Замовлення №${orderId} у постпресі`;
+      case 3:
+        return `Готове замовлення №${orderId}`;
+      default:
+        return `Замовлення №${orderId} віддали`;
+    }
+  })();
+
+  const orderStatusColor = (() => {
+    if (isCancelledOrder) return 'var(--adminred, #ee3c23)';
+    switch (statusValue) {
+      case 1:
+        return 'var(--adminorange, #f5a623)';
+      case 2:
+        return 'var(--adminblue, #3c60a6)';
+      case 3:
+        return 'var(--adminrose, #ef7aaa)';
+      case 4:
+      case 5:
+        return 'var(--admingreen, #0e935b)';
+      default:
+        return 'var(--admingrey, #666666)';
+    }
+  })();
+
+  const serviceStripeColor = (() => {
+    if (isCancelledOrder) return 'var(--adminred, #ee3c23)';
+    switch (statusValue) {
+      case 1:
+        return 'var(--adminorange, #f5a623)';
+      case 2:
+        return 'var(--adminblue, #3c60a6)';
+      case 3:
+        return 'var(--adminrose, #ef7aaa)';
+      case 4:
+      case 5:
+        return 'var(--admingreen, #0e935b)';
+      default:
+        return 'var(--admingrey, #666666)';
+    }
+  })();
+
+  const serviceStripeStyle = Number.isFinite(statusValue) && statusValue >= 1
+    ? { '--nui-service-status-color': serviceStripeColor }
+    : undefined;
+
+  const isOrderLockedForEdit = Number.isFinite(statusValue) && [2, 3, 4, 5].includes(statusValue);
+  const lockStatusLabel = (() => {
+    switch (statusValue) {
+      case 2:
+        return 'постпресі';
+      case 3:
+        return 'статусі "готово"';
+      case 4:
+        return 'статусі "отримано"';
+      case 5:
+        return 'статусі "оплата"';
+      default:
+        return 'поточному статусі';
+    }
+  })();
+
+  const showLockedActionError = (mode = 'редагувати') => {
+    setUiLockError(`Замовлення неможливо ${mode} так як воно у ${lockStatusLabel}`);
+  };
+
+  const handleLockedZoneClickCapture = (e, mode = 'редагувати') => {
+    if (!isOrderLockedForEdit) return;
+    const interactiveTarget = e.target?.closest?.('button, p, .order-item, .buttonSkewedOrderClient, .battonClosed, .tileContent');
+    if (!interactiveTarget) return;
+    e.preventDefault();
+    e.stopPropagation();
+    showLockedActionError(mode);
+  };
+
+  useEffect(() => {
+    if (!isOrderLockedForEdit) setUiLockError(null);
+  }, [isOrderLockedForEdit]);
+
   if (thisOrder) {
     return (
-      <div>
+      <div className="nui-sheetcut-theme sc-wrap">
         <QuantumErrorBoundary/>
 
-
-        <div className="d-flex">
+        <div className="d-flex" style={serviceStripeStyle}>
           <div className="containerForContNewUI">
 
             {/* === GRID OF SERVICE TILES === */}
             <div
-              className="CardPrintersPoslugi"
-              style={{ position: 'absolute', top: "5%", left: "0%", width: "36.5%" }}
+              className={`CardPrintersPoslugi nui-services-grid nui-services-grid-primary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
+              style={{ position: 'absolute', top: "5%", left: "0%", width: "61.5%" }}
+              onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
 
             >
 
@@ -381,20 +475,6 @@ const NewUIArtem = ({
                 </div>
               </p>
 
-              {/* 3) PLOTTER CUT */}
-              <p
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditingOrderUnitSafe(null);
-                  setShowVishichka(true);
-                }}
-              >
-                <div className="tileContent">
-                  <span className="verticalText">PLOTTER CUT</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={plotterCutIcon} alt="" />
-                </div>
-              </p>
-
               {/* 4) PHOTO */}
               <p onClick={() => openEditorForOrderUnit(null, 'Photo')}>
                 <div className="tileContent">
@@ -411,18 +491,26 @@ const NewUIArtem = ({
                 </div>
               </p>
 
-              {/* 6) WIDE FACTORY */}
-              <p onClick={() => openEditorForOrderUnit(null, 'WideFactory')}>
+            </div>
+
+            <div
+              className={`CardPrintersPoslugi nui-services-grid nui-services-grid-middle nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
+              style={{ position: "absolute", top: "24%", left: "0%", width: "61.5%" }}
+              onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
+            >
+              <p
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingOrderUnitSafe(null);
+                  setShowVishichka(true);
+                }}
+              >
                 <div className="tileContent">
-                  <div className="verticalColumns">
-                    <span className="verticalText">WIDE FACTORY</span>
-                    <span className="verticalText"></span>
-                  </div>
-                  <img className="icon64 CardPrintersPoslugiImg" src={wideFactoryIcon} alt="" />
+                  <span className="verticalText">PLOTTER CUT</span>
+                  <img className="icon64 CardPrintersPoslugiImg" src={plotterCutIcon} alt="" />
                 </div>
               </p>
 
-              {/* 7) POSTPRESS */}
               <p onClick={() => openEditorForOrderUnit(null, 'Postpress')}>
                 <div className="tileContent">
                   <span className="verticalText">POSTPRESS</span>
@@ -430,15 +518,13 @@ const NewUIArtem = ({
                 </div>
               </p>
 
-              {/* 8) BINDING */}
-              <p onClick={() => openEditorForOrderUnit(null, 'Binding')}>
+              <p onClick={() => setShowNewMagnets(true)}>
                 <div className="tileContent">
-                  <span className="verticalText">BINDING</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={bindingIcon} alt="" />
+                  <span className="verticalText">MAGNETS</span>
+                  <img className="icon64 CardPrintersPoslugiImg" src={magnets} alt="" />
                 </div>
               </p>
 
-              {/* 9) LAMINATION */}
               <p onClick={() => openEditorForOrderUnit(null, 'Lamination')}>
                 <div className="tileContent">
                   <span className="verticalText">LAMINATION</span>
@@ -446,14 +532,20 @@ const NewUIArtem = ({
                 </div>
               </p>
 
+              <p onClick={() => openEditorForOrderUnit(null, 'Binding')}>
+                <div className="tileContent">
+                  <span className="verticalText">BINDING</span>
+                  <img className="icon64 CardPrintersPoslugiImg" src={bindingIcon} alt="" />
+                </div>
+              </p>
             </div>
 
-
           </div>
-          {/* Третя група */}
-          <div className="d-flex justify-content-end align-items-end">
-            <div className="CardPrintersPoslugi"
-              style={{ position: "absolute", bottom: "16%", right: "35%", width: "30%" }}>
+            {/* Третя група */}
+            <div className={`CardPrintersPoslugi nui-services-grid nui-services-grid-secondary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
+              style={{ position: "absolute", top: "43%", left: "0%", width: "61.5%" }}
+              onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
+>
               <p onClick={() => setShowNewNote(true)}>
                 <div className="tileContent">
                   <span className="verticalText">NOTE</span>
@@ -500,19 +592,7 @@ const NewUIArtem = ({
               </p>
 
 
-              <p onClick={() => setShowNewMagnets(true)}>
-                <div className="tileContent">
-                  <span className="verticalText">MAGNETS</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={magnets} alt="" />
-                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
-                  {/*     stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
-                  {/*  <path className="draw" pathLength="1" d="M20 20h8v12h-8a12 12 0 0 0 24 0h-8V20h8"/>*/}
-                  {/*</svg>*/}
-                </div>
-              </p>
-
-
-              <p onClick={() => setShowNewScans(true)}>
+              <p className="nui-pos-r3c1" onClick={() => setShowNewScans(true)}>
                 <div className="tileContent">
                   <span className="verticalText">SCANS</span>
                   {/*<img className="icon64 CardPrintersPoslugiImg" src={scansIcon} alt=""/>*/}
@@ -526,7 +606,7 @@ const NewUIArtem = ({
               </p>
 
 
-              <p onClick={() => setShowDelivery(true)}>
+              <p className="nui-pos-r3c2" onClick={() => setShowDelivery(true)}>
                 <div className="tileContent">
                   <span className="verticalText">DELIVERY</span>
                   <img className="icon64 CardPrintersPoslugiImg" src={deliveryIcon} alt="" />
@@ -540,14 +620,23 @@ const NewUIArtem = ({
                 </div>
               </p>
 
+              <p className="nui-pos-r3c3" onClick={() => openEditorForOrderUnit(null, 'WideFactory')}>
+                <div className="tileContent">
+                  <span className="verticalText">WIDE FACTORY</span>
+                  <img className="icon64 CardPrintersPoslugiImg" src={wideFactoryIcon} alt="" />
+                </div>
+              </p>
+
             </div>
-          </div>
 
 
           <div className="d-flex flex-column " style={{ width: "37.5vw", }}>
-            <div className="order-panel d-flex " style={{ width: "37.5vw", marginTop: "0.5vh", height: "65vh" }}>
+            {orderListStatusTitle && (
+              <div className="nui-order-delivered-title">{orderListStatusTitle}</div>
+            )}
+            <div className={`order-panel d-flex nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`} style={{ width: "37.5vw", marginTop: "0.5vh", height: "74vh", "--nui-order-status-color": orderStatusColor }} onClickCapture={(e) => handleLockedZoneClickCapture(e, 'редагувати')}>
               {selectedThings2 && selectedThings2.length !== 0 ? (
-                <div className="order-list" style={{ overflowX: "hidden", height: "78vh", }}>
+                <div className="order-list" style={{ overflowX: "hidden", height: "74vh", paddingBottom: "0.4vh" }}>
                   {selectedThings2.map((thing, index) => (
                     <div
                       key={index}
@@ -1086,53 +1175,34 @@ const NewUIArtem = ({
           />
         }
         {thisOrder ? (
-
-          <div className="ClientsMenuAll" style={{
-            width: "36.5vw", position: "fixed", bottom: "0vh", height: "15vh", right: "0"
-          }}>
-            <ProgressBar thisOrder={thisOrder} setThisOrder={setThisOrder}
-              newThisOrder={newThisOrder}
-              setNewThisOrder={setNewThisOrder}
-              handleThisOrderChange={handleThisOrderChange}
-              setSelectedThings2={setSelectedThings2}
-              selectedThings2={selectedThings2} />
+          <div
+            className="d-flex flex-row nui-bottom-shell"
+          >
+            <div className="containerNewUI nui-client-shell">
+              <ClientChangerUIArtem
+                thisOrder={thisOrder}
+                setThisOrder={setThisOrder}
+                setNewThisOrder={setNewThisOrder}
+                setSelectedThings2={setSelectedThings2}
+                handleThisOrderChange={handleThisOrderChange}
+              />
+            </div>
+            <div className="containerNewUI nui-progress-shell">
+              <ProgressBar thisOrder={thisOrder} setThisOrder={setThisOrder}
+                newThisOrder={newThisOrder}
+                setNewThisOrder={setNewThisOrder}
+                handleThisOrderChange={handleThisOrderChange}
+                setSelectedThings2={setSelectedThings2}
+                selectedThings2={selectedThings2}
+                externalError={uiLockError} />
+            </div>
           </div>
         ) : (
           <div>
             <Loader />
             <div>Як так сталося що у вас Order без User?!?</div>
           </div>
-          // <ClientChangerUIArtem client={thisOrder.User} thisOrder={thisOrder}
-          //                       setNewThisOrder={setNewThisOrder}
-          //                       handleThisOrderChange={handleThisOrderChange}/>
-          // <ClientChangerUIArtem client={{email: "null", id: 0, phone: "+00000000",}}/>
         )}
-        <div className="d-flex flex-row" style={{ position: "fixed", bottom: "-0.7vh", }}>
-          <div className="containerNewUI"
-            style={{
-              height: "17vh",
-              width: "30vw",
-              position: "relative",
-              padding: '1rem',
-              boxShadow: "0 5px 5px 3px rgba(0, 0, 0, 0.15)"
-            }}>
-            <OrderFilesPanel thisOrder={thisOrder} />
-          </div>
-          <div className="containerNewUI" style={{
-            height: "17vh", width: "30vw", position: "relative", boxShadow: "0 5px 5px 3px rgba(0, 0, 0, 0.15)",
-
-
-          }}>
-            <ClientChangerUIArtem
-              thisOrder={thisOrder}
-              setThisOrder={setThisOrder}
-              setNewThisOrder={setNewThisOrder}
-              setSelectedThings2={setSelectedThings2}
-              handleThisOrderChange={handleThisOrderChange}
-            />
-          </div>
-
-        </div>
       </div>
 
     );
