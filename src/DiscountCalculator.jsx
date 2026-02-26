@@ -6,9 +6,9 @@ import { useSelector } from 'react-redux';
 const normalizeDiscount = (value) => {
   const raw = String(value ?? '').replace(',', '.').trim();
   const numeric = Number.parseFloat(raw.replace('%', ''));
-  if (!Number.isFinite(numeric)) return '';
+  if (!Number.isFinite(numeric)) return '0%';
   const safeValue = Math.max(0, numeric);
-  if (safeValue === 0) return '';
+  if (safeValue === 0) return '0%';
   return `${safeValue}%`;
 };
 
@@ -107,11 +107,12 @@ function DiscountCalculator({ thisOrder, setThisOrder, setSelectedThings2, setGl
     <div className="dc-shell">
       <div className="dc-envelope">
         <div className="dc-input-wrap">
-          <span className={`dc-prefix${!canEdit ? ' is-readonly' : ''}`} aria-hidden="true">-</span>
+          <span className={`dc-prefix${!canEdit ? ' is-readonly' : ''}`} aria-hidden="true">−</span>
           <input
             type="text"
             value={inputValue}
             className={`dc-input${!canEdit ? ' is-readonly' : ''}${isSaving ? ' is-saving' : ''}`}
+            size={Math.max(1, String(inputValue || '').length)}
             onChange={(e) => {
               const nextValue = e.target.value;
               setInputValue(nextValue);

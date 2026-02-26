@@ -43,7 +43,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
   const [deadlineCountdown, setDeadlineCountdown] = useState('');
 
   const [bestDiscount, setBestDiscount] = useState(null);
-  const [thisUserIdToCabinet, setThisUserIdToCabinet] = useState(0);
+  const [thisUserIdToCabinet, setThisUserIdToCabinet] = useState(null);
 
   const [handleThisOrderChange, setHandleThisOrderChange] = useState(thisOrder);
   const [newThisOrder, setNewThisOrder] = useState(thisOrder);
@@ -267,132 +267,108 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
   };
 
   return (
-    <div className="" style={{ position: 'relative', height: '100%', padding: hidePaymentPanel ? '0.6rem 0.8rem 0.5rem' : '0.6rem 0.8rem 6.2rem' }}>
-      <div onClick={handleShow} style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', minWidth: 0 }}>
-          <div
-            onClick={handleCopy}
-            title="Натисни, щоб скопіювати 🤖:"
-            style={{
-              fontSize: 'clamp(0.95rem, 1.2vw, 1.2rem)',
-              textTransform: 'uppercase',
-              color: '#646462',
-              whiteSpace: 'nowrap',
-              textOverflow: 'ellipsis',
-              overflow: 'hidden',
-              fontWeight: 400,
-              cursor: 'pointer',
-              minWidth: 0,
-              flex: '1 1 auto'
-            }}
-          >
-            {thisOrder.client
-              ? `🤖:${thisOrder.client.id} – ${thisOrder.client.lastName} ${thisOrder.client.firstName} ${thisOrder.client.familyName}`
-              : 'Вибрати клієнта'}
-          </div>
+    <div className="" style={{ width: '100%' }}>
+      <div className="client-inline-row" onClick={handleShow}>
+        <div className="client-envelope client-envelope--left">
+          <div className="client-contact-stack">
+            <div
+              onClick={handleCopy}
+              title="Натисни, щоб скопіювати 🤖:"
+              className="client-inline-text client-name"
+            >
+              {thisOrder.client ? (
+                <span className="client-name-inner">
+                  <span className="client-name-text">
+                    <span className="client-id-badge">ID {thisOrder.client.id}</span>{' '}
+                    {`${thisOrder.client.lastName} ${thisOrder.client.firstName} ${thisOrder.client.familyName}`}
+                  </span>
+                </span>
+              ) : 'Вибрати клієнта'}
+            </div>
 
-          <div style={{ minWidth: 0, flex: '0 0 auto' }}>
             {thisOrder?.client?.phoneNumber && (
-              <span
-                style={{
-                  fontSize: 'clamp(0.95rem, 1.35vw, 1.25rem)',
-                  textTransform: 'uppercase',
-                  color: '#646462',
-                  whiteSpace: 'nowrap',
-                  display: 'block',
-                  maxWidth: '100%',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  fontWeight: 400,
-                }}
-              >
-                {thisOrder.client.phoneNumber}
-              </span>
-            )}
-          </div>
-
-          <div className="d-flex flex-row align-items-center justify-content-end" style={{ flex: '0 0 auto' }}>
-            {thisOrder.client && (
-              <div className="d-flex align-items-center gap-2" title={`@${thisOrder.client?.telegram?.replace(/^@/, '')}`}>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (thisOrder?.client?.id) {
-                      window.open(`https://drive.google.com/drive/folders/1zpPDvQF2g_QcE3i6SCemKhg81rqLHag3`, '_blank');
-                    } else {
-                      setError('Спочатку виберіть клієнта');
-                    }
-                  }}
-                  title="Файли клієнта"
-                  aria-label="Файли клієнта"
-                  className="icon-btn client-cabinet-icon icon-btn--outlined folder-btn"
-                  style={{ width: '2.7rem', height: '2.7rem', minWidth: '2.7rem' }}
-                >
-                  <FiFolder size={23} color="rgba(0,0,0,0.6)" />
-                </button>
-
-                <button
-                  className="clientCabinetButton client-cabinet-icon"
-                  onClick={(e) => setThisUserToCabinetFunc(true, thisOrder.client, e)}
-                  title="Кабінет клієнта"
-                  style={{ width: '2.7rem', height: '2.7rem', minWidth: '2.7rem' }}
-                >
-                  <FiUser size={23} />
-                </button>
-
-                <div onClick={() => openMessenger('telegram')} style={{ cursor: 'pointer' }}>
-                  <TelegramAvatar link={thisOrder.client?.telegram} size={44} />
+              <div className="client-phone-row">
+                <div className="client-inline-text client-phone">
+                  {thisOrder.client.phoneNumber}
                 </div>
+                <span className="client-name-avatar client-phone-avatar" onClick={(e) => e.stopPropagation()}>
+                  <TelegramAvatar
+                    link={thisOrder.client.telegram || ''}
+                    size="3em"
+                    defaultSrc=""
+                  />
+                </span>
               </div>
             )}
           </div>
+        </div>
 
-          <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+        <div className="client-envelope client-envelope--right">
+          <div className="client-buttons-wrap">
+          <button
+            type="button"
+            className="PayButtons client-action-btn client-select-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleShow();
+            }}
+            title="Вибрати клієнта"
+          >
+            Вибрати клієнта
+          </button>
+
+          {thisOrder.client && (
+            <>
+              <button
+                className="PayButtons client-action-btn"
+                onClick={(e) => setThisUserToCabinetFunc(true, thisOrder.client, e)}
+                title="Кабінет клієнта"
+              >
+                Кабінет клієнта
+              </button>
+
+            </>
+          )}
+
+          {!deadlineAt && (
             <button
               type="button"
+              className="PayButtons client-action-btn client-deadline-btn"
               onClick={(e) => {
                 e.stopPropagation();
                 openDeadlinePicker();
               }}
               disabled={!canEditDeadline}
-              style={{
-                height: '4vh',
-                minHeight: '4vh',
-                border: '2px solid var(--adminrose, #ef7aaa)',
-                background: 'var(--adminfon, #f7f5ee)',
-                color: 'var(--adminrose, #ef7aaa)',
-                fontWeight: 400,
-                padding: '0 0.6rem',
-                textTransform: 'uppercase',
-                opacity: canEditDeadline ? 1 : 0.6,
-                cursor: canEditDeadline ? 'pointer' : 'default'
-              }}
             >
               Дедлайн
             </button>
-            <span style={{ color: '#646462', fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
-              {deadlineCountdown || '—'}
-            </span>
-            <input
-              ref={deadlineInputRef}
-              type="datetime-local"
-              onChange={handleDeadlineInputChange}
-              style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
-            />
+          )}
+
+          {thisOrder.client && (
+            <button
+              className="PayButtons client-action-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (thisOrder?.client?.id) {
+                  window.open(`https://drive.google.com/drive/folders/1zpPDvQF2g_QcE3i6SCemKhg81rqLHag3`, '_blank');
+                } else {
+                  setError('Спочатку виберіть клієнта');
+                }
+              }}
+              title="Файли замовлення"
+            >
+              Файли замовлення
+            </button>
+          )}
+          
+          <input
+            ref={deadlineInputRef}
+            type="datetime-local"
+            onChange={handleDeadlineInputChange}
+            style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+          />
           </div>
         </div>
-
-        {thisOrder?.client?.address && (
-          <div style={{
-            color: '#8a8a86',
-            fontSize: '0.76rem',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}>
-            {thisOrder.client.address}
-          </div>
-        )}
       </div>
 
       {error && (
@@ -546,7 +522,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
         </Modal>
       </div>
 
-      {clientCabinetOpen && thisUserIdToCabinet && (
+      {clientCabinetOpen && Boolean(thisUserIdToCabinet) && (
         <ClientCabinet
           userId={thisUserIdToCabinet}
           onCreateOrder={() => {}}
