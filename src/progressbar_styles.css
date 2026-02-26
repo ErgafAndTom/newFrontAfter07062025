@@ -14,11 +14,11 @@
 }
 
 .nui-progressbar.pb-shell {
-  --pb-action-color: var(--admingrey, #666666);
+  --pb-action-color: var(--admingreen, #0e935b);
   --pb-hover-bg: var(--adminblue, #3c60a6);
 }
 
-.nui-progressbar.pb-shell.tone-warn { --pb-action-color: var(--admingrey, #666666); }
+.nui-progressbar.pb-shell.tone-warn { --pb-action-color: var(--admingreen, #0e935b); }
 .nui-progressbar.pb-shell.tone-brown { --pb-action-color: var(--adminorange, #f5a623); }
 .nui-progressbar.pb-shell.tone-blue { --pb-action-color: var(--adminblue, #3c60a6); }
 .nui-progressbar.pb-shell.tone-pink { --pb-action-color: var(--adminrose, #ef7aaa); }
@@ -92,7 +92,7 @@
   border-bottom: 2px solid rgba(0, 0, 0, 0.18);
   border-radius: 0;
   background: var(--adminfon, #f7f5ee);
-  color: var(--admingrey, #666666);
+  color: var(--admingreen, #0e935b);
   font-size: var(--pb-action-font-size) !important;
   font-weight: 400;
   letter-spacing: 0;
@@ -109,7 +109,7 @@
 }
 
 .nui-progressbar .pb-action-placeholder {
-  color: var(--admingrey);
+  color: var(--admingreen, #0e935b);
   opacity: 0.35;
   display: flex;
   align-items: center;
@@ -159,7 +159,7 @@
 }
 
 .nui-progressbar .pb-metric-label {
-  color: var(--admingrey);
+  color: var(--admingreen, #0e935b);
   font-size: var(--font-size-pay) !important;
   font-weight: 500;
   letter-spacing: 0.01em;
@@ -174,7 +174,7 @@
   height: 1.95rem;
   min-height: 1.95rem;
   background: var(--adminfon, #f7f5ee);
-  color: var(--admingrey);
+  color: var(--admingreen, #0e935b);
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-left: 3px solid rgba(0, 0, 0, 0.12);
   border-radius: 0;
@@ -205,7 +205,7 @@
 }
 
 .nui-progressbar .pb-metric--due .pb-metric-label {
-  color: var(--admingrey, #666666);
+  color: var(--admingreen, #0e935b);
 }
 
 .nui-progressbar .pb-metric--due.is-discounted .pb-metric-label,
@@ -215,14 +215,14 @@
 }
 
 .nui-progressbar .pb-metric--due.is-discounted .pb-metric-value {
-  border-left-color: var(--admingrey, #666666);
+  border-left-color: var(--admingreen, #0e935b);
 }
 
 .nui-progressbar .pb-metric--due .pb-metric-value {
   height: var(--pb-price-field-height);
   min-height: var(--pb-price-field-height);
   color: var(--adminred, #ee3c23);
-  border-left-color: var(--admingrey, #666666);
+  border-left-color: var(--admingreen, #0e935b);
   font-size: var(--font-size-pay) !important;
   font-weight: 700;
 }
@@ -230,15 +230,15 @@
 .nui-progressbar .pb-metric--cost .pb-metric-value {
   height: var(--pb-price-field-height);
   min-height: var(--pb-price-field-height);
-  border-left-color: var(--admingrey, #666666);
-  color: var(--admingrey, #666666);
+  border-left-color: var(--admingreen, #0e935b);
+  color: var(--admingreen, #0e935b);
   font-size: var(--font-size-pay) !important;
   font-weight: 600;
 }
 
 .nui-progressbar .pb-metric--cost .pb-metric-label {
   opacity: 0.92;
-  color: var(--admingrey, #666666);
+  color: var(--admingreen, #0e935b);
 }
 
 .nui-progressbar .pb-metric--cost .pb-metric-value small {
@@ -296,14 +296,14 @@
   transition: all 0.2s ease;
 }
 
-.nui-progressbar .pb-stage-pill { --stage-color: var(--admingrey, #666666); }
-.nui-progressbar .pb-stage-pill.tone-warn { --stage-color: var(--admingrey, #666666); }
+.nui-progressbar .pb-stage-pill { --stage-color: var(--admingreen, #0e935b); }
+.nui-progressbar .pb-stage-pill.tone-warn { --stage-color: var(--admingreen, #0e935b); }
 .nui-progressbar .pb-stage-pill.tone-brown { --stage-color: var(--adminorange, #f5a623); }
 .nui-progressbar .pb-stage-pill.tone-blue { --stage-color: var(--adminblue, #3c60a6); }
 .nui-progressbar .pb-stage-pill.tone-pink { --stage-color: var(--adminrose, #ef7aaa); }
 .nui-progressbar .pb-stage-pill.tone-green { --stage-color: var(--admingreen, #0e935b); }
 .nui-progressbar .pb-stage-pill.tone-danger { --stage-color: var(--adminred, #ee3c23); }
-.nui-progressbar .pb-stage-pill.tone-grey { --stage-color: var(--admingrey, #666666); }
+.nui-progressbar .pb-stage-pill.tone-grey { --stage-color: var(--admingreen, #0e935b); }
 .nui-progressbar .pb-stage-pill.tone-track { --stage-color: color-mix(in srgb, var(--admingrey) 30%, transparent); }
 
 .nui-progressbar .pb-stage-pill .pb-stage-dot {
@@ -318,7 +318,7 @@
   text-transform: uppercase !important;
   font-size: var(--fontsmall) !important;
   line-height: 1;
-  color: var(--admingrey);
+  color: var(--admingreen, #0e935b);
   font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
@@ -372,7 +372,7 @@
   text-overflow: ellipsis;
 }
 
-.nui-progressbar .pb-title.tone-warn { color: var(--admingrey); }
+.nui-progressbar .pb-title.tone-warn { color: var(--admingreen, #0e935b); }
 .nui-progressbar .pb-title.tone-brown { color: var(--adminorange, #f5a623); }
 .nui-progressbar .pb-title.tone-blue { color: var(--adminblue, #3c60a6); }
 .nui-progressbar .pb-title.tone-pink { color: var(--adminrose, #ef7aaa); }
@@ -463,7 +463,7 @@
 }
 
 .nui-progressbar .pb-deadline-under-label {
-  color: var(--admingrey, #666666);
+  color: var(--admingreen, #0e935b);
   font-size: var(--fontsmall) !important;
   font-weight: 400 !important;
   line-height: 1;
@@ -550,12 +550,12 @@
 }
 
 .nui-progressbar .dc-input.is-readonly {
-  color: var(--admingrey, #666666);
+  color: var(--admingreen, #0e935b);
   cursor: default;
 }
 
 .nui-progressbar .dc-prefix.is-readonly {
-  color: var(--admingrey, #666666);
+  color: var(--admingreen, #0e935b);
 }
 
 .nui-progressbar .dc-input.is-saving {
@@ -690,7 +690,7 @@
   border-bottom: 2px solid var(--admingrey, #666666);
   border-radius: 0;
   background: var(--adminfon, #f7f5ee);
-  color: var(--admingrey, #666666);
+  color: var(--admingreen, #0e935b);
   height: 1.3rem;
   font-size: var(--fontsmall) !important;
   font-weight: 500;
