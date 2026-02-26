@@ -51,7 +51,7 @@ import NewMagnets from "./poslugi/NewMagnets";
 import NewScans from "./poslugi/NewScans";
 import WideFactory from "./poslugi/WideFactory";
 import Delivery from "./poslugi/DeliveryPage";
-import NewSheetCutBW from "./poslugi/NewSheetCutBW";
+import NewSheetCutBW from "./poslugi/NewSheetCutBw";
 import QuantumErrorBoundary from "../QuantumErrorBoundary";
 
 const NewUIArtem = () => {
@@ -207,6 +207,11 @@ const NewUIArtem = () => {
     });
 
     text = text.replace(/магнітах/gi, 'магніт');
+
+    // Видалення дублікатів слів, що йдуть підряд
+    text = text.split(/\s+/).filter((word, i, arr) =>
+      i === 0 || word.toLowerCase() !== arr[i-1].toLowerCase()
+    ).join(' ');
 
     let result = text.charAt(0).toUpperCase() + text.slice(1);
 
@@ -375,7 +380,7 @@ const NewUIArtem = () => {
               >
 
 
-              <div className="tileContent">
+                <div className="tileContent">
                   <span className="verticalText">BLACK & WHITE</span>
                   <img className="icon64 CardPrintersPoslugiImg" src={blackWhitePrintIcon} alt="" />
                 </div>
@@ -457,8 +462,8 @@ const NewUIArtem = () => {
 
             {/* Третя група */}
             <div className={`CardPrintersPoslugi nui-services-grid nui-services-grid-secondary nui-services-position-secondary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
-              onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
->
+                 onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
+            >
               <p onClick={() => setShowNewNote(true)}>
                 <div className="tileContent">
                   <span className="verticalText">NOTE</span>
@@ -510,7 +515,7 @@ const NewUIArtem = () => {
                   <span className="verticalText">SCANS</span>
                   {/*<img className="icon64 CardPrintersPoslugiImg" src={scansIcon} alt=""/>*/}
                   <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
-                    stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="14" y="28" width="36" height="12" rx="2" />
                     <rect x="20" y="18" width="24" height="8" rx="1" />
                     <line className="draw" pathLength="1" x1="14" y1="40" x2="50" y2="40" />
@@ -550,29 +555,29 @@ const NewUIArtem = () => {
               )}
             </div>
             {hasOrders ? (
-                <div
-                  className={`nui-order-list nui-order-list-shell ${orderToneClass} nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
-                >
-                  {selectedThings2.map((thing, index) => {
-                    const editor = getEditorByThing(thing);
-                    const editorLabel = String(editor?.label || thing.newField6 || 'редагувати').toUpperCase();
-                    const editorAccentClass = getEditorAccentClass(thing);
-                    const formattedName = formatThingName(thing.name);
-                    const isNameParagraph = formattedName.length > 115;
-                    const hasDiscount = parseFloat(thing.priceForOneThis).toFixed(2) !== parseFloat(thing.priceForOneThisDiscount).toFixed(2);
-                    const unitPrice = hasDiscount
-                      ? parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)
-                      : parseFloat(thing.priceForOneThis).toFixed(2);
-                    const totalPrice = hasDiscount ? thing.priceForThisDiscount : thing.priceForAllThis;
+              <div
+                className={`nui-order-list nui-order-list-shell ${orderToneClass} nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
+              >
+                {selectedThings2.map((thing, index) => {
+                  const editor = getEditorByThing(thing);
+                  const editorLabel = String(editor?.label || thing.newField6 || 'редагувати').toUpperCase();
+                  const editorAccentClass = getEditorAccentClass(thing);
+                  const formattedName = formatThingName(thing.name);
+                  const isNameParagraph = formattedName.length > 115;
+                  const hasDiscount = parseFloat(thing.priceForOneThis).toFixed(2) !== parseFloat(thing.priceForOneThisDiscount).toFixed(2);
+                  const unitPrice = hasDiscount
+                    ? parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)
+                    : parseFloat(thing.priceForOneThis).toFixed(2);
+                  const totalPrice = hasDiscount ? thing.priceForThisDiscount : thing.priceForAllThis;
 
-                    return (
+                  return (
                     <div
                       key={index}
                       className={`nui-order-item${expandedThingIndex === index ? " is-expanded" : ""}`}
                       onClick={() => toggleExpandedThing(index)}
                     >
                       <div className="nui-item-header">
-                        <div className={`nui-item-name${isNameParagraph ? ' is-paragraph' : ''}`}>{formattedName}</div>
+                        <div className={`nui-item-name${isNameParagraph ? ' is-paragraph' : ''}`} style={!isCancelledOrder ? { color: 'var(--admingrey)' } : undefined}>{formattedName}</div>
                         <div className="nui-item-actions">
                           <div className="nui-item-btn nui-item-del" onClick={(e) => handleThingClickDelete2(thing, e)}>✕</div>
                         </div>
@@ -580,8 +585,8 @@ const NewUIArtem = () => {
 
                       <div className="nui-item-pricing">
                         <div className={`nui-price-row${hasDiscount ? ' is-discounted-active' : ''}`}>
-                          <span className="nui-price-calc">{thing.amount}<span className="nui-unit-sub">шт</span>{" х "}{unitPrice}<span className="nui-unit-sub">грн</span>{" = "}</span>
-                          <span className="nui-price-total">{totalPrice}<span className="nui-unit-sub">грн</span></span>
+                          <span className="nui-price-calc" style={!isCancelledOrder ? { color: 'var(--admingrey)' } : undefined}>{thing.amount}<span className="nui-unit-sub">шт</span>{" х "}{unitPrice}<span className="nui-unit-sub">грн</span>{" = "}</span>
+                          <span className="nui-price-total">{parseFloat(totalPrice)}<span className="nui-unit-sub">грн</span></span>
                           <button
                             type="button"
                             className={`nui-item-type-btn ${editorAccentClass}`}
@@ -604,61 +609,46 @@ const NewUIArtem = () => {
                             thisOrder={thisOrder}
                           />
                           <div className="nui-details-footer-row">
-                            <span>На аркуші розміщується: <span className="nui-bold-blue">{thing.newField4} {getPluralForm(thing.newField4, "виріб", "вироби", "виробів")}</span></span>
+                                                      <span>Розміщено на аркуші: <span
+                                                        className="nui-bold-blue" style={{ color: 'var(--adminblue, #3c60a6)' }}>{thing.newField4} {getPluralForm(thing.newField4, "виріб", "вiroби", "виробів")}</span></span>
                             <span className="nui-sep">|</span>
-                            <span>Загалом використано: <span className="nui-bold-blue">{thing.newField5} {getPluralForm(thing.newField5, "аркуш", "аркуші", "аркушів")}</span></span>
+                            <span>Загалом використано: <span
+                              className="nui-bold-blue" style={{ color: 'var(--adminblue, #3c60a6)' }}>{thing.newField5} {getPluralForm(thing.newField5, "аркуш", "аркуші", "аркушів")}</span></span>
                             <span className="nui-sep">|</span>
-                            {hasDiscount ? (
-                              <>
-                                <div className="nui-summary-line is-discount">
-                                  <span>За 1 аркуш (-%):</span>
-                                  <span className="nui-price">{parseFloat(thing.priceForThisDiscount / (thing.newField5 || 1)).toFixed(2)}<span className="nui-unit-sub-up">грн</span></span>
-                                </div>
-                                <span className="nui-sep">|</span>
-                                <div className="nui-summary-line is-discount">
-                                  <span>За 1 шт (-%):</span>
-                                  <span className="nui-price">{parseFloat(thing.priceForThisDiscount / (thing.amount || 1)).toFixed(2)}<span className="nui-unit-sub-up">грн</span></span>
-                                </div>
-                              </>
-                            ) : (
-                              <>
-                                <div className="nui-summary-line">
-                                  <span>За 1 аркуш:</span>
-                                  <span className="nui-price">{parseFloat(thing.priceForThis / (thing.newField5 || 1)).toFixed(2)}<span className="nui-unit-sub-up">грн</span></span>
-                                </div>
-                                <span className="nui-sep">|</span>
-                                <div className="nui-summary-line">
-                                  <span>За 1 шт:</span>
-                                  <span className="nui-price">{parseFloat(thing.priceForThis / (thing.amount || 1)).toFixed(2)}<span className="nui-unit-sub-up">грн</span></span>
-                                </div>
-                              </>
-                            )}
+                            <div className="nui-summary-line">
+                              <span>За 1 аркуш:</span><span className="nui-price">{parseFloat(parseFloat(totalPrice / (thing.newField5 || 1)).toFixed(2))}<span className="nui-unit-sub">грн</span></span>
+                            </div>
+                            <span className="nui-sep">|</span>
+                            <div className="nui-summary-line">
+                              <span>За 1 шт:</span><span className="nui-price">{parseFloat(unitPrice)}<span className="nui-unit-sub">грн</span></span>
+                            </div>
                           </div>
                         </div>
                       )}
                     </div>
                   );
-                  })}
-                </div>
-              ) : null}
+                })}
+              </div>
+            ) : null}
 
 
           </div>
           <div className="d-flex flex-row nui-bottom-shell">
-            <div className="containerNewUI nui-client-shell">
+            <div className="nui-bottom-pane nui-bottom-pane--progress">
+              <ProgressBar
+                thisOrder={thisOrder}
+                setThisOrder={setThisOrder}
+                setSelectedThings2={setSelectedThings2}
+                selectedThings2={selectedThings2}
+                externalError={uiLockError}
+              />
+            </div>
+            <div className="nui-bottom-pane nui-bottom-pane--client">
               <ClientChangerUIArtem
                 thisOrder={thisOrder}
                 setThisOrder={setThisOrder}
                 setSelectedThings2={setSelectedThings2}
-              />
-            </div>
-            <div className="containerNewUI nui-progress-shell">
-              <ProgressBar 
-                thisOrder={thisOrder} 
-                setThisOrder={setThisOrder}
-                setSelectedThings2={setSelectedThings2}
-                selectedThings2={selectedThings2}
-                externalError={uiLockError} 
+                hidePaymentPanel={true}
               />
             </div>
           </div>
@@ -678,7 +668,7 @@ const NewUIArtem = () => {
         {showNewSheetCutBW &&
           <NewSheetCutBW
             productName={productName}
-           thisOrder={thisOrder}
+            thisOrder={thisOrder}
             newThisOrder={newThisOrder}
             selectedThings2={selectedThings2}
             setNewThisOrder={setNewThisOrder}
@@ -933,7 +923,7 @@ const NewUIArtem = () => {
           />
         }
         {thisOrder ? (
-<div></div>
+          <div></div>
         ) : (
           <div>
             <Loader />

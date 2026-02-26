@@ -430,7 +430,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                   className="PayButtons wait"
                   style={{
                     background: "#f2f0e7",
-                    height: "6vh",
+                    height: "4vh",
                     width: "25vw",
                     display: "flex",
                     alignItems: "center",
@@ -465,7 +465,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                     backgroundColor: "#008249",
                     color: "white",
                     width: "3vw",
-                    height:"6vh"
+                    height:"4vh"
                   }}
                   onClick={() => {
                     window.open(thisOrder.Payment.pageUrl, "_blank");
@@ -477,7 +477,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                   className="PayButtons wait"
                   style={{
                     background: "#f2f0e7",
-                    height: "6vh",
+                    height: "4vh",
                     width: "25vw",
                     display: "flex",
                     alignItems: "center",
@@ -511,7 +511,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
             className="PayButtons link"
             style={{
               background: "#008249",
-              height: "6vh",
+              height: "4vh",
               width: "25vw",
               display: "flex",
               alignItems: "center",

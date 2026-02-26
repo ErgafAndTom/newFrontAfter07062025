@@ -31,7 +31,7 @@
 
 /* Модальное окно */
 .modalContainer {
-  position: fixed;
+  /*position: fixed;*/
   left: 31.4%;
   bottom: 18vh;
   transform: translate(-50%, -50%);

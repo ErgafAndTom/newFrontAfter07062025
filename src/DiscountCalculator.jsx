@@ -6,6 +6,15 @@ import { useSelector } from 'react-redux';
 const normalizeDiscount = (value) => {
   const raw = String(value ?? '').replace(',', '.').trim();
   const numeric = Number.parseFloat(raw.replace('%', ''));
+  if (!Number.isFinite(numeric)) return '';
+  const safeValue = Math.max(0, numeric);
+  if (safeValue === 0) return '';
+  return `${safeValue}%`;
+};
+
+const normalizeDiscountForSave = (value) => {
+  const raw = String(value ?? '').replace(',', '.').trim();
+  const numeric = Number.parseFloat(raw.replace('%', ''));
   if (!Number.isFinite(numeric)) return '0%';
   const safeValue = Math.max(0, numeric);
   return `${safeValue}%`;
@@ -38,9 +47,9 @@ function DiscountCalculator({ thisOrder, setThisOrder, setSelectedThings2, setGl
   }, [thisOrder?.prepayment]);
 
   const saveDiscount = async (rawValue) => {
-    const normalized = normalizeDiscount(rawValue);
+    const normalized = normalizeDiscountForSave(rawValue);
     const numeric = parseDiscountValue(normalized);
-    setInputValue(normalized);
+    setInputValue(normalizeDiscount(normalized));
 
     if (numeric > MAX_DISCOUNT) {
       syncError(DISCOUNT_LIMIT_ERROR);
@@ -52,7 +61,7 @@ function DiscountCalculator({ thisOrder, setThisOrder, setSelectedThings2, setGl
       return;
     }
 
-    if (normalized === normalizeDiscount(thisOrder?.prepayment)) {
+    if (normalized === normalizeDiscountForSave(thisOrder?.prepayment)) {
       syncError(null);
       return;
     }
@@ -85,7 +94,7 @@ function DiscountCalculator({ thisOrder, setThisOrder, setSelectedThings2, setGl
     const numericPercent = Number(percent);
     if (!Number.isFinite(numericPercent)) return;
     const normalized = `${Math.max(0, numericPercent)}%`;
-    setInputValue(normalized);
+    setInputValue(normalizeDiscount(normalized));
     saveDiscount(normalized);
   };
 
@@ -126,7 +135,7 @@ function DiscountCalculator({ thisOrder, setThisOrder, setSelectedThings2, setGl
           <button
             key={value}
             type="button"
-            className={`dc-preset-btn${normalizeDiscount(inputValue) === `${value}%` ? ' is-active' : ''}${!canEdit ? ' is-readonly' : ''}`}
+            className={`dc-preset-btn${normalizeDiscountForSave(inputValue) === `${value}%` ? ' is-active' : ''}${!canEdit ? ' is-readonly' : ''}`}
             onMouseDown={(event) => handlePresetMouseDown(event, value)}
             disabled={!canEdit}
           >

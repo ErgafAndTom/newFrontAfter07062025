@@ -7,10 +7,26 @@ const toNumber = (value) => {
   return Number.isFinite(numeric) ? numeric : 0;
 };
 
-const fmt2 = (value) => toNumber(value).toFixed(2);
+const fmt2 = (value) => {
+  const n = toNumber(value);
+  return n % 1 === 0 ? String(n) : n.toFixed(2);
+};
 
 function OneProductInOrders({ item }) {
   const units = Array.isArray(item?.OrderUnitUnits) ? item.OrderUnitUnits : [];
+
+  const extractMaterialName = (text) => {
+    if (!text) return "";
+    
+    // Спробуємо знайти назву в лапках (часто так позначається матеріал)
+    const match = text.match(/'([^']+)'/) || text.match(/"([^"]+)"/);
+    if (match && match[1]) return match[1];
+
+    // Якщо лапок немає, просто прибираємо дублікати слів
+    return text.split(/\s+/).filter((word, i, arr) => 
+      i === 0 || word.toLowerCase() !== arr[i-1].toLowerCase()
+    ).join(" ");
+  };
 
   return (
     <div className="unit-list">
@@ -23,7 +39,7 @@ function OneProductInOrders({ item }) {
           <div key={unit?.idKey ?? idx} className="unit-item">
             <div className="unit-title-row">
               <span className="unit-name-index">{idx + 1}.</span>
-              <span className="unit-name-text">{unit?.name}</span>
+              <span className="unit-name-text">{extractMaterialName(unit?.name)}</span>
             </div>
 
             <div className={`unit-calc-row${hasDiscount ? " is-discount" : ""}`}>

@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import DiscountCalculator from './DiscountCalculator';
 import axios from './api/axiosInstance';
 import { useSelector } from 'react-redux';
+import PaidButtomProgressBar from './PrintPeaksFAinal/tools/PaidButtomProgressBar';
+import PaysInOrderRestored_OrdersLike from './PrintPeaksFAinal/userInNewUiArtem/pays/PaysInOrderRestored_OrdersLike';
 import "./progressbar_styles.css"
 
 function formatNumber(num) {
@@ -104,6 +106,7 @@ const
   const [manufacturingStartTime, setManufacturingStartTime] = useState(null);
   const [deadlineAt, setDeadlineAt] = useState(resolveDeadlineValue(thisOrder));
   const [deadlineCountdown, setDeadlineCountdown] = useState('');
+  const [showPays, setShowPays] = useState(false);
 
 
 
@@ -501,12 +504,22 @@ return (
             </div>
           );
         })}
-        <span className="pb-track-progress-badge">{stageProgressLabel}</span>
+        <button type="button" className="pb-track-progress-badge" tabIndex={-1}>
+          {stageProgressLabel}
+        </button>
       </div>
     </div>
 
     <div className="pb-main">
       <div className="pb-top-row">
+        <div className="pb-payment-wrap">
+          <PaidButtomProgressBar
+            thisOrder={thisOrder}
+            setShowPays={setShowPays}
+            setThisOrder={setThisOrder}
+          />
+        </div>
+
         <div className="pb-metrics">
           <div className="pb-metric pb-metric--cost">
             <span className="pb-metric-label">ВАРТІСТЬ</span>
@@ -531,37 +544,21 @@ return (
             setGlobalError={handleDiscountError}
           />
         </div>
-
-        <div className="pb-deadline-wrap">
-          <button
-            type="button"
-            className={`dc-deadline-btn pb-deadline-btn${deadlineAt ? ' is-transparent' : ''}${!canEditDeadline ? ' is-readonly' : ''}`}
-            onClick={openDeadlinePicker}
-            disabled={!canEditDeadline}
-          >
-            <span className="pb-deadline-btn-label">{deadlineAt ? "ЗАЛИШИЛОСЬ" : "ДЕДЛАЙН"}</span>
-          </button>
-
-          {deadlineAt && (
-            <div className={`pb-deadline-under${deadlineCountdown.startsWith('Прострочено') || deadlineCountdown.startsWith('Не встигли') ? ' is-overdue' : ''}`} title={deadlineExactLabel || undefined}>
-              <span className="pb-deadline-under-label">ЗАЛИШИЛОСЬ:</span>
-              <span className="pb-deadline-under-counter">{renderDeadlineCountdown(deadlineCountdown)}</span>
-            </div>
-          )}
-
-          <input
-            ref={deadlineInputRef}
-            type="datetime-local"
-            className="dc-deadline-input"
-            onChange={handleDeadlineInputChange}
-          />
-        </div>
       </div>
 
       {activeError && (
         <div className="pb-error">
           {typeof activeError === 'string' ? activeError : activeError?.response?.data?.error || activeError?.message || 'Помилка'}
         </div>
+      )}
+
+      {showPays && (
+        <PaysInOrderRestored_OrdersLike
+          showPays={showPays}
+          setShowPays={setShowPays}
+          thisOrder={thisOrder}
+          setThisOrder={setThisOrder}
+        />
       )}
     </div>
   </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 
 import './ClientArtem.css';
 import './ClientsMenuu.css';
@@ -20,7 +20,7 @@ import { FiFolder } from "react-icons/fi";
 import "./ClientCabinet.css";
 import PaysInOrderRestored_OrdersLike from "./pays/PaysInOrderRestored_OrdersLike";
 
-const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) => {
+const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hidePaymentPanel = false }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
   const [showAddUser, setShowAddUser] = useState(false);
@@ -38,12 +38,16 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
   const [showVisible, setShowVisible] = useState(false);
   const [error, setError] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const deadlineInputRef = useRef(null);
+  const [deadlineAt, setDeadlineAt] = useState(thisOrder?.deadline || thisOrder?.finalManufacturingTime || null);
+  const [deadlineCountdown, setDeadlineCountdown] = useState('');
 
   const [bestDiscount, setBestDiscount] = useState(null);
   const [thisUserIdToCabinet, setThisUserIdToCabinet] = useState(0);
 
   const [handleThisOrderChange, setHandleThisOrderChange] = useState(thisOrder);
   const [newThisOrder, setNewThisOrder] = useState(thisOrder);
+  const canEditDeadline = currentUser?.role === 'admin';
 
   const handleClose = () => {
     setShowVisible(false);
@@ -182,142 +186,213 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
 
   }, [thisOrder?.client?.id]);
 
+  useEffect(() => {
+    setDeadlineAt(thisOrder?.deadline || thisOrder?.finalManufacturingTime || null);
+  }, [thisOrder?.deadline, thisOrder?.finalManufacturingTime]);
+
+  useEffect(() => {
+    if (!deadlineAt) {
+      setDeadlineCountdown('');
+      return undefined;
+    }
+
+    const formatDuration = (ms) => {
+      const totalSeconds = Math.floor(Math.abs(ms) / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+      if (days > 0) return `${days}д ${String(hours).padStart(2, '0')}г`;
+      return `${String(hours).padStart(2, '0')}г ${String(minutes).padStart(2, '0')}хв`;
+    };
+
+    const tick = () => {
+      const diff = new Date(deadlineAt).getTime() - Date.now();
+      if (Number.isNaN(diff)) {
+        setDeadlineCountdown('—');
+        return;
+      }
+      setDeadlineCountdown(diff >= 0 ? formatDuration(diff) : `-${formatDuration(diff)}`);
+    };
+
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, [deadlineAt]);
+
+  const openDeadlinePicker = () => {
+    if (!canEditDeadline) return;
+    if (deadlineInputRef.current?.showPicker) {
+      deadlineInputRef.current.showPicker();
+      return;
+    }
+    deadlineInputRef.current?.click();
+  };
+
+  const handleDeadlineInputChange = async (event) => {
+    const value = event.target.value;
+    if (!value || !thisOrder?.id) return;
+
+    const selectedDate = new Date(value);
+    if (!Number.isFinite(selectedDate.getTime())) return;
+
+    const isoDeadline = selectedDate.toISOString();
+    const startedAt = thisOrder?.manufacturingStartTime || new Date().toISOString();
+
+    setDeadlineAt(isoDeadline);
+    setThisOrder((prev) => (prev ? {
+      ...prev,
+      deadline: isoDeadline,
+      manufacturingStartTime: startedAt,
+    } : prev));
+
+    if (!canEditDeadline) return;
+
+    try {
+      const { data: deadlineData } = await axios.put('/orders/OneOrder/deadlineUpdate', {
+        thisOrderId: thisOrder.id,
+        deadlineNew: isoDeadline,
+      });
+
+      const persistedDeadline = deadlineData?.deadline || isoDeadline;
+      setDeadlineAt(persistedDeadline);
+      setThisOrder((prev) => (prev ? {
+        ...prev,
+        deadline: persistedDeadline,
+        manufacturingStartTime: startedAt,
+      } : prev));
+    } catch (err) {
+      setError(err?.response?.data?.error || err?.message || 'Помилка збереження дедлайну');
+    }
+  };
+
   return (
-    <div className="">
-      <div
-        onClick={handleShow}
-      >
-        <div style={{ display: 'flex', alignItems: 'start', justifyContent:"start", gap: '1vw', padding: '0vw' }}>
-          {thisOrder.client ? (
-            <div  style={{ position: "relative", padding:"0"}}>
-              <div
-                onClick={handleCopy}
-                style={{
-                  flexColumn: "row",
-                  fontSize: "clamp(1rem, 2.5vh, 3.5vh)",
-                  textTransform: "uppercase",
-                  color: "#646462",
-                  whiteSpace: "nowrap",
-                  textOverflow: "ellipsis",
-                  fontWeight: "400",
-                  width: "31.5vw",
-                  overflow: "hidden",
-                  maxWidth: "30vw",
-                  
-                  cursor: "pointer",
-                  userSelect: "none",
-
-                }}
-                title="Натисни, щоб скопіювати 🤖:"
-              >
-                🤖:{thisOrder.client.id} – {thisOrder.client.lastName}{" "}
-                {thisOrder.client.firstName} {thisOrder.client.familyName}
-                <div
-                  style={{
-                    marginTop: "0.5rem",
-                    height: "10px",
-                    background: "transparent",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.5)",
-                  }}
-                />
-              </div>
-
-              {/* Анімований текст підтвердження */}
-              {copied && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: "0",
-                    marginTop: "0.2rem",
-                    // fontSize: "0.9rem",
-                    color: "#62625d",
-                    opacity: copied ? 1 : 0,
-                    transition: "opacity 0.2s ease-in-out",
-                    animation: "fadeOut 3s forwards",
-                  }}
-                >
-                  Скопійовано до буферу обміну
-                </div>
-              )}
-
-              <style>
-                {`
-          @keyframes fadeOut {
-            0% { opacity: 1; }
-            70% { opacity: 0.5; }
-            100% { opacity: 0; }
-          }
-        `}
-              </style>
-              <strong className="adminTextBig" style={{ position: "fixed", bottom: "8vh",  }}>
-                <span className="adminTextBig">    </span>
-              </strong>
-            </div>
-          ) : (
-            <span style={{ background: "#f7f5ee" }}>Вибрати клієнта</span>
-          )}
-        </div>
-
-        <div style={{ position: "absolute", right: "0.5vw", top: "0.5vh" }}>
-          {thisOrder.client && (
-            <div className="client-details adminTextBig" style={{  marginLeft: "1vw" }}>
-              {thisOrder.client.address && <span className="adminTextBig">{thisOrder.client.address}</span>}
-            </div>
-          )}
-        </div>
-
-        <div className="d-flex flex-row justify-content-between" >
-        <div>
-          {thisOrder?.client?.phoneNumber && (
-            <span className="" style={{
-
-              fontSize: 'clamp(1rem, 2.5vh, 3.5vh)',
+    <div className="" style={{ position: 'relative', height: '100%', padding: hidePaymentPanel ? '0.6rem 0.8rem 0.5rem' : '0.6rem 0.8rem 6.2rem' }}>
+      <div onClick={handleShow} style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', minWidth: 0 }}>
+          <div
+            onClick={handleCopy}
+            title="Натисни, щоб скопіювати 🤖:"
+            style={{
+              fontSize: 'clamp(0.95rem, 1.2vw, 1.2rem)',
               textTransform: 'uppercase',
               color: '#646462',
               whiteSpace: 'nowrap',
               textOverflow: 'ellipsis',
-              fontWeight: '400',
-            }}>{thisOrder.client.phoneNumber}</span>
-          )}
-        </div>
-        <div className="d-flex flex-row align-items-center justify-content-end" >
-          {thisOrder.client && (
+              overflow: 'hidden',
+              fontWeight: 400,
+              cursor: 'pointer',
+              minWidth: 0,
+              flex: '1 1 auto'
+            }}
+          >
+            {thisOrder.client
+              ? `🤖:${thisOrder.client.id} – ${thisOrder.client.lastName} ${thisOrder.client.firstName} ${thisOrder.client.familyName}`
+              : 'Вибрати клієнта'}
+          </div>
 
-            <div className="d-flex align-items-center gap-3" style={{  right: '0vw', top: '0vh', cursor: 'pointer' }}
-                 title={`@${thisOrder.client?.telegram?.replace(/^@/, '')}`}
-                 onClick={() => openMessenger('telegram')}>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (thisOrder?.client?.id) {
-                    window.open(`https://drive.google.com/drive/folders/1zpPDvQF2g_QcE3i6SCemKhg81rqLHag3`, '_blank');
-                  } else {
-                    setError('Спочатку виберіть клієнта');
-                  }
+          <div style={{ minWidth: 0, flex: '0 0 auto' }}>
+            {thisOrder?.client?.phoneNumber && (
+              <span
+                style={{
+                  fontSize: 'clamp(0.95rem, 1.35vw, 1.25rem)',
+                  textTransform: 'uppercase',
+                  color: '#646462',
+                  whiteSpace: 'nowrap',
+                  display: 'block',
+                  maxWidth: '100%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  fontWeight: 400,
                 }}
-                title="Файли клієнта"
-                aria-label="Файли клієнта"
-                className="icon-btn client-cabinet-icon icon-btn--outlined folder-btn"
               >
-                <FiFolder size={30} color="rgba(0,0,0,0.6)" />
-              </button>
+                {thisOrder.client.phoneNumber}
+              </span>
+            )}
+          </div>
 
-              <button
-                className="clientCabinetButton client-cabinet-icon"
-                onClick={(e) => setThisUserToCabinetFunc(true, thisOrder.client, e)}
-                title="Кабінет клієнта"
-              >
-                <FiUser size={30} />
-              </button>
+          <div className="d-flex flex-row align-items-center justify-content-end" style={{ flex: '0 0 auto' }}>
+            {thisOrder.client && (
+              <div className="d-flex align-items-center gap-2" title={`@${thisOrder.client?.telegram?.replace(/^@/, '')}`}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (thisOrder?.client?.id) {
+                      window.open(`https://drive.google.com/drive/folders/1zpPDvQF2g_QcE3i6SCemKhg81rqLHag3`, '_blank');
+                    } else {
+                      setError('Спочатку виберіть клієнта');
+                    }
+                  }}
+                  title="Файли клієнта"
+                  aria-label="Файли клієнта"
+                  className="icon-btn client-cabinet-icon icon-btn--outlined folder-btn"
+                  style={{ width: '2.7rem', height: '2.7rem', minWidth: '2.7rem' }}
+                >
+                  <FiFolder size={23} color="rgba(0,0,0,0.6)" />
+                </button>
 
-              <TelegramAvatar link={thisOrder.client?.telegram} size={80} />
-            </div>
-          )}
+                <button
+                  className="clientCabinetButton client-cabinet-icon"
+                  onClick={(e) => setThisUserToCabinetFunc(true, thisOrder.client, e)}
+                  title="Кабінет клієнта"
+                  style={{ width: '2.7rem', height: '2.7rem', minWidth: '2.7rem' }}
+                >
+                  <FiUser size={23} />
+                </button>
+
+                <div onClick={() => openMessenger('telegram')} style={{ cursor: 'pointer' }}>
+                  <TelegramAvatar link={thisOrder.client?.telegram} size={44} />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                openDeadlinePicker();
+              }}
+              disabled={!canEditDeadline}
+              style={{
+                height: '4vh',
+                minHeight: '4vh',
+                border: '2px solid var(--adminrose, #ef7aaa)',
+                background: 'var(--adminfon, #f7f5ee)',
+                color: 'var(--adminrose, #ef7aaa)',
+                fontWeight: 400,
+                padding: '0 0.6rem',
+                textTransform: 'uppercase',
+                opacity: canEditDeadline ? 1 : 0.6,
+                cursor: canEditDeadline ? 'pointer' : 'default'
+              }}
+            >
+              Дедлайн
+            </button>
+            <span style={{ color: '#646462', fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
+              {deadlineCountdown || '—'}
+            </span>
+            <input
+              ref={deadlineInputRef}
+              type="datetime-local"
+              onChange={handleDeadlineInputChange}
+              style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+            />
+          </div>
         </div>
-        </div>
 
+        {thisOrder?.client?.address && (
+          <div style={{
+            color: '#8a8a86',
+            fontSize: '0.76rem',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
+            {thisOrder.client.address}
+          </div>
+        )}
       </div>
 
       {error && (
@@ -351,7 +426,8 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
         />
       </div>
 
-      <div style={{ position: "absolute", bottom: "0", left: "0vw" }}>
+      {!hidePaymentPanel && (
+      <div style={{ position: "absolute", bottom: "8vh", left: "0", right: "auto", width: "max-content" }}>
         <PaidButtomProgressBar
           thisOrder={thisOrder}
           setThisOrder={setThisOrder}
@@ -372,6 +448,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2 }) =
           )}
         </div>
       </div>
+      )}
 
       <div style={{ zIndex: 2000 }}>
         <Modal show={showDocGenerate} onHide={() => setShowDocGenerate(false)} size="lg" centered>
