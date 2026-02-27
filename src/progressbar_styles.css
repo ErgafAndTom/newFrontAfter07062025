@@ -812,7 +812,7 @@
 }
 
 .nui-progressbar .pb-payment-wrap {
-  width: max-content;
+  width: 100% !important;
   max-width: 100%;
   display: flex;
   align-items: center;
@@ -825,7 +825,7 @@
 
 .nui-progressbar .pb-payment-wrap .payment-methods-panel {
   margin: 0;
-  width: auto;
+  width: 100% !important;
   display: flex;
   flex-wrap: nowrap;
   white-space: nowrap;
