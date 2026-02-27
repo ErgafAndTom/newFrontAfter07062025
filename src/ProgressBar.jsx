@@ -102,7 +102,21 @@ const StageIcon = ({ kind }) => {
   }
 };
 
-const STAGE_TONES = ['warn', 'brown', 'blue', 'pink', 'green', 'green'];
+const STAGE_TONES = ['warn', 'brown', 'blue', 'pink', 'purple', 'green'];
+const ACTION_LABELS_BY_STAGE = {
+  0: 'Обробка',
+  1: 'Друк',
+  2: 'Постпрес',
+  3: 'Готово',
+  4: 'Отримано',
+  5: 'Оплата',
+};
+const ACTION_HOVER_LABELS_BY_STAGE = {
+  0: 'На друк',
+  1: 'На постпрес',
+  2: 'Завершити',
+  3: 'Віддати',
+};
 
 const EMPTY_ORDER_LIST_ERROR = 'Список замовлень порожній';
 
@@ -170,6 +184,7 @@ const
   const [deadlineAt, setDeadlineAt] = useState(resolveDeadlineValue(thisOrder));
   const [deadlineCountdown, setDeadlineCountdown] = useState('');
   const [showPays, setShowPays] = useState(false);
+  const [isActionHovered, setIsActionHovered] = useState(false);
 
 
 
@@ -279,17 +294,17 @@ const
     if (stageId < 0) return 'track';
 
     if (isPaid) {
-      const isPaymentStage = stageId === STAGES.length - 1;
-      if (stageId <= normalizedCurrentStage || isPaymentStage) return currentStageTone;
+      if (stageId === STAGES.length - 1) return 'green';
+      if (stageId <= normalizedCurrentStage) return STAGE_TONES[stageId] || 'warn';
       return 'grey';
     }
 
-    const paletteTone = STAGE_TONES[stageId] || 'track';
-    const isCompleted = normalizedCurrentStage > stageId;
-    const isActive = normalizedCurrentStage === stageId;
+    if (normalizedCurrentStage === STAGES.length - 1) {
+      if (stageId === STAGES.length - 1) return 'green';
+      return STAGE_TONES[stageId] || 'track';
+    }
 
-    if (isCompleted) return paletteTone;
-    if (isActive) return paletteTone;
+    if (stageId <= normalizedCurrentStage) return currentStageTone;
     return 'track';
   };
 
@@ -333,7 +348,7 @@ const
       );
 
   const isFullyCompleted = !isCancelled && completedStageCount >= STAGES.length;
-  const actionPlaceholderLabel = isFullyCompleted ? 'Замовлення завершено' : '—';
+  const actionPlaceholderLabel = isFullyCompleted ? 'Завершено' : '—';
 
   const deadlineExactLabel = useMemo(() => {
     if (!deadlineAt) return '';
@@ -394,17 +409,31 @@ const
 
   const actionConfig = useMemo(() => {
     const config = {
-      0: { label: 'Взяти в роботу', next: 1 },
-      1: { label: 'На постпрес', next: 2 },
-      2: { label: 'Виконано', next: 3 },
-      3: { label: 'Віддати', next: 4 },
+      0: { next: 1 },
+      1: { next: 2 },
+      2: { next: 3 },
+      3: { next: 4 },
     };
     if (isCancelled) return null;
     const key = Number.isFinite(currentStage) ? currentStage : 0;
     return config[key] ?? null;
   }, [currentStage, isCancelled]);
 
-  const actionTone = isCancelled ? 'danger' : currentStageTone;
+  const actionTone = useMemo(() => {
+    if (isCancelled) return 'danger';
+    return currentStageTone;
+  }, [isCancelled, currentStageTone]);
+
+  const actionButtonBaseLabel = ACTION_LABELS_BY_STAGE[normalizedCurrentStage] || 'Взяти в роботу';
+  const actionButtonHoverLabel = useMemo(() => {
+    if (!actionConfig || !Number.isFinite(actionConfig.next)) return actionButtonBaseLabel;
+    return ACTION_HOVER_LABELS_BY_STAGE[normalizedCurrentStage]
+      || ACTION_LABELS_BY_STAGE[actionConfig.next]
+      || STAGES[actionConfig.next]?.title
+      || actionButtonBaseLabel;
+  }, [actionConfig, actionButtonBaseLabel, normalizedCurrentStage]);
+
+  const isAwaitingPaymentState = !isCancelled && !isPaid && normalizedCurrentStage >= 4;
 
   const handleStageError = useCallback((nextError) => {
     setError(nextError);
@@ -450,7 +479,7 @@ const
       case 2:
         return 'pink';
       case 3:
-        return 'green';
+        return 'purple';
       default:
         return 'warn';
     }
@@ -542,11 +571,21 @@ return (
             type="button"
             className="pb-action-btn"
             onClick={() => handleStageUpdate(actionConfig.next)}
+            onMouseEnter={() => setIsActionHovered(true)}
+            onMouseLeave={() => setIsActionHovered(false)}
+            onFocus={() => setIsActionHovered(true)}
+            onBlur={() => setIsActionHovered(false)}
           >
-            <div className="pb-action-label">Наступний етап</div>
+            <div className="pb-action-label">{isActionHovered ? actionButtonHoverLabel : actionButtonBaseLabel}</div>
           </button>
         ) : (
-          <div className={`pb-action-placeholder${isFullyCompleted ? ' is-complete' : ''}`}>{actionPlaceholderLabel}</div>
+          <button
+            type="button"
+            className={`pb-action-btn pb-action-btn--locked${isFullyCompleted ? ' is-complete' : ''}${isAwaitingPaymentState ? ' is-awaiting-payment' : ''}`}
+            disabled
+          >
+            <div className="pb-action-label">{isAwaitingPaymentState ? ACTION_LABELS_BY_STAGE[4] : actionPlaceholderLabel}</div>
+          </button>
         )}
       </div>
       )}
@@ -574,7 +613,7 @@ return (
                 <StageIcon kind={stage.icon} />
               </span>
               <span className="pb-step-meta">
-                <span className="pb-step-num">Крок {stage.id + 1}</span>
+                {stage.id !== STAGES.length - 1 && <span className="pb-step-num">Крок {stage.id + 1}</span>}
                 <span className="pb-step-label">{stage.title}</span>
               </span>
             </div>
@@ -588,13 +627,15 @@ return (
     {showFinance && (
     <div className="pb-finance-wrapper">
       <div className="pb-top-row">
-        <div className="pb-payment-wrap">
-          <PaidButtomProgressBar
-            thisOrder={thisOrder}
-            setShowPays={setShowPays}
-            setThisOrder={setThisOrder}
-          />
-        </div>
+        {!isPaid && (
+          <div className="pb-payment-wrap">
+            <PaidButtomProgressBar
+              thisOrder={thisOrder}
+              setShowPays={setShowPays}
+              setThisOrder={setThisOrder}
+            />
+          </div>
+        )}
 
         <div className="pb-finance-row">
           <div className="pb-metrics">
@@ -606,15 +647,19 @@ return (
               </span>
             </div>
 
-            <div className="pb-discount-wrap">
-              <DiscountCalculator
-                thisOrder={thisOrder}
-                setThisOrder={setThisOrder}
-                selectedThings2={selectedThings2}
-                setSelectedThings2={setSelectedThings2}
-                setGlobalError={handleDiscountError}
-              />
-            </div>
+
+            {!isPaid && (
+              <div className="pb-discount-wrap">
+                <DiscountCalculator
+                  thisOrder={thisOrder}
+                  setThisOrder={setThisOrder}
+                  selectedThings2={selectedThings2}
+                  setSelectedThings2={setSelectedThings2}
+                  setGlobalError={handleDiscountError}
+                />
+              </div>
+            )}
+
 
             <div className={`pb-metric pb-metric--due${isDiscountApplied ? ' is-discounted' : ''}`}>
               <span className="pb-metric-label">ДО СПЛАТИ:</span>
@@ -627,9 +672,26 @@ return (
         </div>
       </div>
 
-      {deadlineCountdown && (
+      {isPaid && (
+        <div className="pb-payment-wrap pb-payment-wrap--under-metrics">
+          <PaidButtomProgressBar
+            thisOrder={thisOrder}
+            setShowPays={setShowPays}
+            setThisOrder={setThisOrder}
+          />
+        </div>
+      )}
+
+      {deadlineCountdown && !isPaid && (
         <div className="pb-finance-deadline-text">
           <span className="pb-finance-deadline-prefix">замовлення необхідно віддати через:</span>
+          <span className="pb-finance-deadline-counter">{renderDeadlineCountdown(deadlineCountdown)}</span>
+        </div>
+      )}
+
+      {deadlineCountdown && isPaid && (
+        <div className="pb-finance-deadline-strip">
+          <span className="pb-finance-deadline-prefix">дедлайн:</span>
           <span className="pb-finance-deadline-counter">{renderDeadlineCountdown(deadlineCountdown)}</span>
         </div>
       )}

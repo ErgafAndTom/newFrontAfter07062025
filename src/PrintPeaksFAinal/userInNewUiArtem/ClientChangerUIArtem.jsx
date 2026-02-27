@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
 
 import './ClientArtem.css';
 import './ClientsMenuu.css';
@@ -46,6 +46,32 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
   const [handleThisOrderChange, setHandleThisOrderChange] = useState(thisOrder);
   const [newThisOrder, setNewThisOrder] = useState(thisOrder);
   const canEditDeadline = currentUser?.role === 'admin';
+
+  const progressCounterLabel = useMemo(() => {
+    const stageCount = 6;
+    const rawStatus = Number.parseInt(thisOrder?.status, 10);
+    const normalizedStatus = Number.isFinite(rawStatus) ? Math.min(Math.max(rawStatus, 0), stageCount - 1) : 0;
+
+    const paymentStatus = String(thisOrder?.Payment?.status || '').toUpperCase();
+    let isPaid = paymentStatus === 'PAID';
+    if (!isPaid && Array.isArray(thisOrder?.Payments)) {
+      isPaid = thisOrder.Payments.some((item) => {
+        const statusValue = String(item?.status || item?.payStatus || '').toUpperCase();
+        return statusValue === 'PAID';
+      });
+    }
+
+    const completed = Math.min(stageCount, normalizedStatus + 1 + (isPaid ? 1 : 0));
+    return `${completed}/${stageCount}`;
+  }, [thisOrder?.status, thisOrder?.Payment?.status, thisOrder?.Payments]);
+
+  const progressCounterTone = useMemo(() => {
+    const rawStatus = Number.parseInt(thisOrder?.status, 10);
+    const normalizedStatus = Number.isFinite(rawStatus) ? Math.min(Math.max(rawStatus, 0), 5) : 0;
+
+    const tones = ['warn', 'brown', 'blue', 'pink', 'purple', 'green'];
+    return tones[normalizedStatus] || 'warn';
+  }, [thisOrder?.status]);
 
   const handleClose = () => {
     setShowVisible(false);
@@ -274,60 +300,55 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
   };
 
   return (
-    <div className="" style={{ position: 'relative', height: '100%', padding: hidePaymentPanel ? '0.6rem 0.8rem 0.5rem' : '0.6rem 0.8rem 6.2rem' }}>
+    <div className={`nui-client-envelope-shell tone-${progressCounterTone}`} style={{ position: 'relative', height: '100%', padding: hidePaymentPanel ? '0.6rem 0.8rem 0.5rem' : '0.6rem 0.8rem 6.2rem' }}>
       <div className="nui-client-envelope-grid">
         <div className="nui-client-envelope-card">
-          <div className="nui-client-main-row">
+          <div className="nui-client-card-layout">
             <div className="nui-client-avatar-wrap" onClick={() => openMessenger('telegram')} style={{ cursor: 'pointer' }}>
-              <TelegramAvatar link={thisOrder?.client?.telegram} size={60} square={true} />
+              <TelegramAvatar link={thisOrder?.client?.telegram} size={56} square={true} />
               <span className="nui-client-id-badge-on-avatar" onClick={handleCopy} title="Натисни, щоб скопіювати id">
                 ID {thisOrder?.client?.id ?? '—'}
               </span>
             </div>
 
-            <div className="nui-client-text-wrap">
-              <div className="nui-client-title-row">
-                <span className="nui-client-name-line">
-                  {thisOrder?.client
-                    ? `${thisOrder.client.lastName || ''} ${thisOrder.client.firstName || ''} ${thisOrder.client.familyName || ''}`.trim()
-                    : 'Клієнт не вибраний'}
-                </span>
+            <div className="nui-client-card-right">
+              <div className="nui-client-meta-block">
+                <div className="nui-client-title-row">
+                  <span className="nui-client-name-line">
+                    {thisOrder?.client
+                      ? `${thisOrder.client.lastName || ''} ${thisOrder.client.firstName || ''} ${thisOrder.client.familyName || ''}`.trim()
+                      : 'Клієнт не вибраний'}
+                  </span>
+                </div>
+                <span className="nui-client-phone-line">{thisOrder?.client?.phoneNumber || '—'}</span>
               </div>
 
-              <span className="nui-client-phone-line">{thisOrder?.client?.phoneNumber || '—'}</span>
-            </div>
-
-            <div className="nui-client-rect-actions">
-              <button
-                type="button"
-                className="nui-client-rect-btn"
-                onClick={(e) => setThisUserToCabinetFunc(true, thisOrder?.client, e)}
-                disabled={!thisOrder?.client}
+              <div className="nui-client-rect-actions">
+                <button
+                  type="button"
+                  className="nui-client-rect-btn"
+                  onClick={(e) => setThisUserToCabinetFunc(true, thisOrder?.client, e)}
+                  disabled={!thisOrder?.client}
               >
-                <span className="nui-client-rect-btn-text">Кабінет</span>
+                <span className="nui-client-rect-btn-text">Кабінет замовника</span>
               </button>
 
-              <button
-                type="button"
-                className="nui-client-rect-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleShow();
-                }}
-              >
-                <span className="nui-client-rect-btn-text">Вибрати</span>
-              </button>
+                <button
+                  type="button"
+                  className="nui-client-rect-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShow();
+                  }}
+                >
+                  <span className="nui-client-rect-btn-text">Вибрати клієнта</span>
+                </button>
+              </div>
             </div>
           </div>
 
           {thisOrder?.client?.address && (
-            <div style={{
-              color: '#8a8a86',
-              fontSize: '0.76rem',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis'
-            }}>
+            <div className="nui-client-address-line">
               {thisOrder.client.address}
             </div>
           )}
@@ -343,7 +364,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
                   openDeadlinePicker();
                 }}
                 disabled={!canEditDeadline}
-                className="nui-client-rect-btn"
+                className="nui-client-rect-btn nui-client-deadline-btn"
               >
                 <span className="nui-client-rect-btn-text">Дедлайн</span>
               </button>
@@ -355,6 +376,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
             >
               <span className="nui-client-rect-btn-text">Файли замовлення</span>
             </button>
+            <div className={`nui-client-step-counter-btn tone-${progressCounterTone}`} aria-hidden="true">{progressCounterLabel}</div>
             {actionButtonSlot}
             <input
               ref={deadlineInputRef}

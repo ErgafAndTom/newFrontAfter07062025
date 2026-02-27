@@ -185,3 +185,196 @@
   color: #fbfaf6;
   width: 3vw;
 }
+
+.PayButtons.pay-status-btn {
+  flex: 1 1 auto;
+  border-color: var(--admingreen, #0e935b) !important;
+  background: color-mix(in srgb, var(--admingreen, #0e935b) 12%, var(--adminfon, #f7f5ee)) !important;
+  color: var(--admingreen, #0e935b) !important;
+  cursor: default;
+  justify-content: center;
+  align-items: center;
+  padding: 0 0.7rem;
+  text-transform: none;
+}
+
+.PayButtons.pay-status-btn::before,
+.PayButtons.pay-status-btn::after {
+  display: none !important;
+}
+
+.pay-status-fulltext {
+  font-size: var(--fontsmall);
+  color: var(--admingreen, #0e935b);
+  line-height: 1;
+  text-decoration: none;
+}
+
+.PayButtons.pay-receipt-btn {
+  min-width: 8.2vw;
+  width: 8.2vw;
+  padding: 0 0.45rem;
+  background: color-mix(in srgb, var(--adminblue, #3c60a6) 12%, var(--adminfon, #f7f5ee)) !important;
+  border-color: var(--adminblue, #3c60a6) !important;
+  color: var(--adminblue, #3c60a6) !important;
+  justify-content: center;
+  align-items: center;
+  text-transform: none;
+}
+
+.pay-receipt-icon {
+  font-size: var(--fontsmall);
+  line-height: 1;
+  color: var(--adminblue, #3c60a6);
+  white-space: nowrap;
+}
+
+.PayButtons.pay-receipt-btn::before,
+.PayButtons.pay-receipt-btn::after {
+  display: none !important;
+}
+
+.payment-methods-panel.payment-methods-panel--paid {
+  border-bottom-color: transparent;
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+}
+
+.PayButtons.pay-status-strip {
+  flex: 1 1 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  border-top: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  background: color-mix(in srgb, var(--admingreen, #0e935b) 9%, var(--adminfon, #f7f5ee)) !important;
+  color: var(--admingreen, #0e935b) !important;
+  justify-content: center;
+  align-items: center;
+  text-transform: none;
+}
+
+.PayButtons.pay-status-strip::before,
+.PayButtons.pay-status-strip::after {
+  display: none !important;
+}
+
+.payment-methods-panel.payment-methods-panel--paid .pay-status-fulltext {
+  font-size: var(--fontsmall) !important;
+  color: var(--admingreen, #0e935b) !important;
+  text-decoration: none !important;
+  text-align: center;
+}
+
+.payment-methods-panel.payment-methods-panel--paid.has-receipt .pay-status-strip {
+  border-bottom-color: transparent !important;
+}
+
+.PayButtons.pay-receipt-strip {
+  flex: 1 1 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  border-top: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  background: color-mix(in srgb, var(--adminblue, #3c60a6) 10%, var(--adminfon, #f7f5ee)) !important;
+  color: var(--adminblue, #3c60a6) !important;
+  justify-content: center;
+  align-items: center;
+  text-transform: none;
+}
+
+.PayButtons.pay-receipt-strip::before,
+.PayButtons.pay-receipt-strip::after {
+  display: none !important;
+}
+
+.PayButtons.pay-receipt-strip .pay-receipt-icon {
+  font-size: var(--fontsmall) !important;
+  color: var(--adminblue, #3c60a6) !important;
+  text-decoration: none !important;
+}
+
+.payment-methods-panel.payment-methods-panel--paid:not(.has-receipt) {
+  display: flex !important;
+}
+
+.payment-methods-panel.payment-methods-panel--paid:not(.has-receipt) .PayButtons.pay-status-strip {
+  flex: 1 1 100% !important;
+}
+
+.payment-methods-panel.payment-methods-panel--await {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 100% !important;
+  border-bottom-color: transparent !important;
+}
+
+.PayButtons.pay-await-open,
+.PayButtons.pay-await-state,
+.PayButtons.pay-await-cancel,
+.PayButtons.pay-await-receipt {
+  width: 100% !important;
+  min-width: 0 !important;
+  text-transform: none;
+  font-size: var(--fontsmall) !important;
+}
+
+.PayButtons.pay-await-open {
+  border-top: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 2px solid var(--admingreen, #0e935b) !important;
+  background: transparent !important;
+  color: var(--admingreen, #0e935b) !important;
+}
+
+.PayButtons.pay-await-state {
+  border-top: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 2px solid var(--adminorange, #f5a623) !important;
+  background: transparent !important;
+  color: var(--adminorange, #f5a623) !important;
+}
+
+.PayButtons.pay-await-cancel {
+  border-top: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 2px solid var(--adminred, #ee3c23) !important;
+  background: transparent !important;
+  color: var(--adminred, #ee3c23) !important;
+}
+
+.PayButtons.pay-await-receipt {
+  border-top: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 2px solid var(--adminblue, #3c60a6) !important;
+  background: color-mix(in srgb, var(--adminblue, #3c60a6) 8%, var(--adminfon, #f7f5ee)) !important;
+  color: var(--adminblue, #3c60a6) !important;
+}
+
+.pay-await-cancel-text,
+.pay-await-receipt-text {
+  font-size: var(--fontsmall) !important;
+  line-height: 1;
+}
+
+.PayButtons.pay-await-open::before,
+.PayButtons.pay-await-open::after,
+.PayButtons.pay-await-state::before,
+.PayButtons.pay-await-state::after,
+.PayButtons.pay-await-cancel::before,
+.PayButtons.pay-await-cancel::after,
+.PayButtons.pay-await-receipt::before,
+.PayButtons.pay-await-receipt::after {
+  display: none !important;
+}

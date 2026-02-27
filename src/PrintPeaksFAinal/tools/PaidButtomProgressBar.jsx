@@ -27,7 +27,20 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   const [showAwaitPays, setShowAwaitPays] = useState(false);
   const [showAwaitCashPays, setShowAwaitCashPays] = useState(false);
 
+  const paymentMethodLabel = (method) => {
+    const normalized = String(method || '').toLowerCase();
+    if (normalized === 'link') return 'за посиланням';
+    if (normalized === 'terminal') return 'терміналом';
+    if (normalized === 'cash') return 'готівкою';
+    return '—';
+  };
+
   const firstCheckboxPayment = thisOrder?.Paymentts?.[0] || null;
+
+  const hasFiscalReceipt = Boolean(
+    firstCheckboxPayment?.checkboxReceiptId
+    || (currentUser?.role === "admin" && thisOrder?.Payment?.method === "link" && thisOrder?.Payment?.invoiceId)
+  );
 
   // --- Обробка вибору способу оплати ---
   const handleSelect = (method) => {
@@ -301,8 +314,10 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
     }
   }, [thisOrder]);
 
+  const isPaidOrAwait = thisOrder.Payment?.status === "PAID" || thisOrder.Payment?.status === "CREATED";
+
   return (
-    <div className="payment-methods-panel adminTextBig">
+    <div className={`payment-methods-panel adminTextBig ${isPaidOrAwait ? "payment-methods-panel--paid" : ""}`}>
 
       {showAwaitCashPays && (
         <AwaitPaysCash
@@ -415,88 +430,51 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
         <>
           {thisOrder.Payment?.method === 'terminal' && (
             <>
-              <div className="payment-methods-panel d-flex align-items-center">
+              <div className="payment-methods-panel payment-methods-panel--await d-flex align-items-center">
                 <button
-                  className="PayButtons link"
-                  style={{
-                    backgroundColor: "#008249",
-                    color: "white",
-                    width: "3vw",
-                  }}
+                  className="PayButtons pay-await-open"
                 >
                   <Loader/>
                 </button>
                 <div
-                  className="PayButtons wait"
-                  style={{
-                    background: "#f2f0e7",
-                    height: "4vh",
-                    width: "25vw",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textAlign: "center",
-                    fontSize: "1vw",
-                    fontWeight: 400,
-                    borderRadius: "0vw",
-                    color: "#9f9e9d",
-                  }}
+                  className="PayButtons wait pay-await-state"
                 >
                   {formats[index]}
                 </div>
                 <button
-                  className="PayButtons check"
+                  className="PayButtons check pay-await-receipt"
 
                   // onClick={invalidateInvoice}
 
                   onClick={(event) => firstCheckboxPayment?.checkboxReceiptId && getPayment(firstCheckboxPayment.checkboxReceiptId)}
                   >
-                  {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
+                  {loading ? <Loader/> : <span className="pay-await-receipt-text">Чек</span>}
                 </button>
               </div>
             </>
           )}
           {thisOrder.Payment?.method === 'link' && (
             <>
-              <div className="payment-methods-panel d-flex align-items-center">
+              <div className="payment-methods-panel payment-methods-panel--await d-flex align-items-center">
                 <button
-                  className="PayButtons link"
-                  style={{
-                    backgroundColor: "#008249",
-                    color: "white",
-                    width: "3vw",
-                    height:"4vh"
-                  }}
+                  className="PayButtons pay-await-open"
                   onClick={() => {
                     window.open(thisOrder.Payment.pageUrl, "_blank");
                   }}
                 >
-                  +&nbsp;
+                  Відкрити посилання
                 </button>
                 <div
-                  className="PayButtons wait"
-                  style={{
-                    background: "#f2f0e7",
-                    height: "4vh",
-                    width: "25vw",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textAlign: "center",
-                    fontSize: "1vw",
-                    fontWeight: 400,
-                    borderRadius: "0vw",
-                    color: "#9f9e9d",
-                  }}
+                  className="PayButtons wait pay-await-state"
                 >
                   {formats[index]}
                 </div>
                 <button
-                  className="PayButtons end"
+                  className="PayButtons end pay-await-cancel"
                   // style={{background:"#e01729"}}
                   onClick={invalidateInvoice}>
 
-                  {loading ? <Loader/> : <div className="pay-button-end-x">X</div>}
+                  {loading ? <Loader/> : <span className="pay-await-cancel-text">Скасувати</span>}
                 </button>
               </div>
             </>
@@ -506,65 +484,30 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
       )}
 
       {thisOrder.Payment?.status === "PAID" && (
-        <div className="payment-methods-panel d-flex align-items-center">
-          <button
-            className="PayButtons link"
-            style={{
-              background: "#008249",
-              height: "4vh",
-              width: "25vw",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              textAlign: "center",
-              fontSize: "1vw",
-              fontWeight: 400,
-              borderRadius: "0vw",
-              color: "#f2f0e7",
-            }}
-          >
-            Замовлення оплачене: {thisOrder.Payment?.method}
-          </button>
-          {firstCheckboxPayment && (
-            <>
-              {firstCheckboxPayment?.checkboxReceiptId && (
-                <button
-                  className="PayButtons check"
+        <>
+          <div className={`payment-methods-panel payment-methods-panel--paid${hasFiscalReceipt ? ' has-receipt' : ''}`}>
+            <button className="PayButtons pay-status-strip" disabled>
+              <span className="pay-status-fulltext">Оплатили {paymentMethodLabel(thisOrder.Payment?.method)}</span>
+            </button>
 
-                  onClick={(event) => firstCheckboxPayment?.checkboxReceiptId && getPayment(firstCheckboxPayment.checkboxReceiptId)}
-                >
-                  {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
-                </button>
-              )}
-            </>
-          )}
-          {currentUser && currentUser.role === "admin"  && (
-            <>
-              {thisOrder.Payment?.method === "link" && (
-                <>
-                  {thisOrder.Payment && thisOrder.Payment.invoiceId && (
-                    <button
-                      className="PayButtons check"
-                      onClick={(event) => getPayment(thisOrder.Payment.invoiceId, "mono")}
-                      // onClick={() => {
-                      //   const receiptId = thisOrder?.CheckboxPayment?.checkboxReceiptId;
-                      //   if (!receiptId) {
-                      //     alert("Чек ще не сформований або не фіскалізований");
-                      //     return;
-                      //   }
-                      //   getPayment(receiptId);
-                      // }}
-
-                      // onClick={(event) => firstCheckboxPayment?.checkboxReceiptId && getPayment(firstCheckboxPayment.checkboxReceiptId)}
-                    >
-                      {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
-                    </button>
-                  )}
-                </>
-              )}
-            </>
-          )}
-        </div>
+            {hasFiscalReceipt && (
+              <button
+                className="PayButtons pay-receipt-strip"
+                onClick={() => {
+                  if (firstCheckboxPayment?.checkboxReceiptId) {
+                    getPayment(firstCheckboxPayment.checkboxReceiptId);
+                    return;
+                  }
+                  if (currentUser?.role === "admin" && thisOrder.Payment?.method === "link" && thisOrder.Payment?.invoiceId) {
+                    getPayment(thisOrder.Payment.invoiceId, "mono");
+                  }
+                }}
+              >
+                {loading ? <Loader/> : <div className="pay-receipt-icon">Фіскальний чек</div>}
+              </button>
+            )}
+          </div>
+        </>
       )}
 
       {/*{thisOrder.Payment.status && (*/}
