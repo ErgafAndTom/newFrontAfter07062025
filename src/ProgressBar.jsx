@@ -12,6 +12,13 @@ function formatNumber(num) {
   if (!Number.isFinite(n)) return '0.00';
   return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
+
+function formatCompactNumber(num) {
+  const full = formatNumber(num);
+  return full
+    .replace(/\.0+$/, '')
+    .replace(/(\.\d*[1-9])0+$/, '$1');
+}
 const UI = {
   fs: { xs: '0.75rem', sm: '0.85rem', md: '0.95rem', lg: '1.05rem', xl: '1.35rem' },
   color: {
@@ -37,13 +44,63 @@ const UI = {
 };
 
 const STAGES = [
-  { id: 0, title: '_          ', subtitle: 'Нове замовлення', color: UI.color.warn },
-  { id: 1, title: 'Друк', subtitle: 'Виріб друкується', color: UI.color.brown },
-  { id: 2, title: 'Постпрес', subtitle: 'Постобробка', color: UI.color.blue },
-  { id: 3, title: 'Готово', subtitle: 'Виріб готовий', color: UI.color.pink },
-  { id: 4, title: 'Отримано', subtitle: 'Очікує видачі', color: UI.color.green },
-  { id: 5, title: 'Оплата', subtitle: 'Замовлення оплачено', color: UI.color.green },
+  { id: 0, title: 'Обробка', subtitle: 'Нове замовлення', color: UI.color.warn, icon: 'clock' },
+  { id: 1, title: 'Друк', subtitle: 'Виріб друкується', color: UI.color.brown, icon: 'printer' },
+  { id: 2, title: 'Постпрес', subtitle: 'Постобробка', color: UI.color.blue, icon: 'box' },
+  { id: 3, title: 'Готово', subtitle: 'Виріб готовий', color: UI.color.pink, icon: 'check' },
+  { id: 4, title: 'Отримано', subtitle: 'Очікує видачі', color: UI.color.green, icon: 'truck' },
+  { id: 5, title: 'Оплата', subtitle: 'Замовлення оплачено', color: UI.color.green, icon: 'dollar' },
 ];
+
+const StageIcon = ({ kind }) => {
+  switch (kind) {
+    case 'printer':
+      return (
+        <svg viewBox="0 0 16 16" className="pb-step-icon" aria-hidden="true">
+          <rect x="4" y="2" width="8" height="3" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          <rect x="3" y="6" width="10" height="4" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          <rect x="5" y="10" width="6" height="4" fill="none" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+      );
+    case 'box':
+      return (
+        <svg viewBox="0 0 16 16" className="pb-step-icon" aria-hidden="true">
+          <path d="M8 2 13 4.6 8 7.2 3 4.6Z" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          <path d="M3 4.6V11.4L8 14V7.2" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          <path d="M13 4.6V11.4L8 14" fill="none" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+      );
+    case 'check':
+      return (
+        <svg viewBox="0 0 16 16" className="pb-step-icon" aria-hidden="true">
+          <circle cx="8" cy="8" r="5.4" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          <path d="m5.5 8.2 1.8 1.9 3.3-3.4" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    case 'truck':
+      return (
+        <svg viewBox="0 0 16 16" className="pb-step-icon" aria-hidden="true">
+          <rect x="2" y="4.5" width="7" height="5" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          <path d="M9 6h2l1.5 1.5V9.5H9Z" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          <circle cx="5" cy="11.5" r="1.2" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          <circle cx="11" cy="11.5" r="1.2" fill="none" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+      );
+    case 'dollar':
+      return (
+        <svg viewBox="0 0 16 16" className="pb-step-icon" aria-hidden="true">
+          <path d="M8 2.4v11.2M10.2 4.6c-0.6-.5-1.4-.8-2.2-.8-1.3 0-2.3.7-2.3 1.8 0 1.1 1 1.6 2.3 1.9 1.3.3 2.3.8 2.3 1.9 0 1.1-1 1.8-2.3 1.8-0.9 0-1.8-.3-2.4-.9" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+        </svg>
+      );
+    default:
+      return (
+        <svg viewBox="0 0 16 16" className="pb-step-icon" aria-hidden="true">
+          <circle cx="8" cy="8" r="5.4" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          <path d="M8 5.2V8l1.8 1" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+  }
+};
 
 const STAGE_TONES = ['warn', 'brown', 'blue', 'pink', 'green', 'green'];
 
@@ -63,7 +120,13 @@ const
                        selectedThings2,
                        setSelectedThings2,
                        externalError = null,
-                     }) => {
+                       showActionRail = true,
+                       showFinance = true,
+                       showActionButton = true,
+                       showTrack = true,
+                       compactActionButton = false,
+                       showError = true,
+                       }) => {
 
 
   const currentUser = useSelector((state) => state.auth.user);
@@ -114,8 +177,11 @@ const
 
 
 
-  const effectiveDiscountNum = useMemo(() => getEffectiveDiscount(thisOrder), [getEffectiveDiscount, thisOrder]);
-  const isDiscountApplied = effectiveDiscountNum > 0;
+  const selectedDiscountNum = useMemo(() => {
+    const rawSelected = thisOrder?.prepayment ?? thisOrder?.discount ?? thisOrder?.effectiveDiscount ?? 0;
+    return norm(rawSelected);
+  }, [norm, thisOrder?.prepayment, thisOrder?.discount, thisOrder?.effectiveDiscount]);
+  const isDiscountApplied = selectedDiscountNum > 0;
 
   useEffect(() => {
     if (!thisOrder) return;
@@ -234,7 +300,7 @@ const
     const body = isOverdueText ? value.slice(overduePrefix.length) : value;
 
     const tokens = body.split(' ');
-    const unitsToSubscript = new Set(['г', 'хв', 'с']);
+    const unitsToSubscript = new Set(['д', 'г', 'хв', 'с']);
 
     return (
       <>
@@ -265,10 +331,6 @@ const
         STAGES.length,
         normalizedCurrentStage + 1 + (isPaid && normalizedCurrentStage < STAGES.length - 1 ? 1 : 0)
       );
-
-  const stageProgressLabel = isCancelled
-    ? '—'
-    : `${completedStageCount}/${STAGES.length}`;
 
   const isFullyCompleted = !isCancelled && completedStageCount >= STAGES.length;
   const actionPlaceholderLabel = isFullyCompleted ? 'Замовлення завершено' : '—';
@@ -464,8 +526,16 @@ const
       });
   };
 return (
-  <div className={`nui-progressbar pb-shell tone-${actionTone} hover-tone-${actionHoverTone}`}>
+  <div className={`nui-progressbar pb-shell tone-${actionTone} hover-tone-${actionHoverTone}${showActionRail && !showFinance ? ' pb-shell--action-only' : ''}${!showActionRail && showFinance ? ' pb-shell--finance-only' : ''}${compactActionButton ? ' pb-shell--compact-action' : ''}`}>
+    {showError && activeError && (
+      <div className="pb-error">
+        {typeof activeError === 'string' ? activeError : activeError?.response?.data?.error || activeError?.message || 'Помилка'}
+      </div>
+    )}
+
+    {showActionRail && (
     <div className="pb-action-rail">
+      {showActionButton && (
       <div className="pb-action-row">
         {actionConfig ? (
           <button
@@ -473,13 +543,15 @@ return (
             className="pb-action-btn"
             onClick={() => handleStageUpdate(actionConfig.next)}
           >
-            <span className="pb-action-label">{actionConfig.label}</span>
+            <div className="pb-action-label">Наступний етап</div>
           </button>
         ) : (
           <div className={`pb-action-placeholder${isFullyCompleted ? ' is-complete' : ''}`}>{actionPlaceholderLabel}</div>
         )}
       </div>
+      )}
 
+      {showTrack && (
       <div className="pb-track-row">
         {STAGES.map((stage) => {
           const isPaymentStage = stage.id === STAGES.length - 1;
@@ -492,25 +564,29 @@ return (
             ? false
             : (isPaid ? isPaymentStage : stage.id === normalizedCurrentStage);
           const indicatorTone = getSegmentTone(stage.id);
-          const stageLabel = stage.id === 0 ? 'Обробка' : stage.title;
 
           return (
             <div
               key={stage.id}
-              className={`pb-stage-pill tone-${indicatorTone}${isActive ? ' is-active' : ''}${isCompleted ? ' is-completed' : ''}`}
+              className={`pb-step-card tone-${indicatorTone}${isActive ? ' is-active' : ''}${isCompleted ? ' is-completed' : ''}`}
             >
-              <span className="pb-stage-dot" />
-              <span className="pb-stage-name">{stageLabel}</span>
+              <span className="pb-step-icon-box" aria-hidden="true">
+                <StageIcon kind={stage.icon} />
+              </span>
+              <span className="pb-step-meta">
+                <span className="pb-step-num">Крок {stage.id + 1}</span>
+                <span className="pb-step-label">{stage.title}</span>
+              </span>
             </div>
           );
         })}
-        <button type="button" className="pb-track-progress-badge" tabIndex={-1}>
-          {stageProgressLabel}
-        </button>
       </div>
+      )}
     </div>
+    )}
 
-    <div className="pb-main">
+    {showFinance && (
+    <div className="pb-finance-wrapper">
       <div className="pb-top-row">
         <div className="pb-payment-wrap">
           <PaidButtomProgressBar
@@ -520,35 +596,41 @@ return (
           />
         </div>
 
-        <div className="pb-metrics">
-          <div className="pb-metric pb-metric--cost">
-            <span className="pb-metric-label">ВАРТІСТЬ</span>
-            <span className="pb-metric-value">
-              {formatNumber(thisOrder?.price ?? 0)} <small>грн</small>
-            </span>
-          </div>
-          <div className={`pb-metric pb-metric--due${isDiscountApplied ? ' is-discounted' : ''}`}>
-            <span className="pb-metric-label">ДО СПЛАТИ</span>
-            <span className="pb-metric-value pb-metric-value--strong">
-              {formatNumber(thisOrder?.allPrice ?? 0)} <small>грн</small>
-            </span>
-          </div>
-        </div>
+        <div className="pb-finance-row">
+          <div className="pb-metrics">
+            <div className="pb-metric pb-metric--cost">
+              <span className="pb-metric-label">ВАРТІСТЬ:</span>
+              <span className="pb-metric-inline pb-metric-inline--cost">
+                <span className="pb-cost-value-main">{formatCompactNumber(thisOrder?.price ?? 0)}</span>{' '}
+                <small className="pb-metric-currency">грн</small>
+              </span>
+            </div>
 
-        <div className="pb-discount-wrap">
-          <DiscountCalculator
-            thisOrder={thisOrder}
-            setThisOrder={setThisOrder}
-            selectedThings2={selectedThings2}
-            setSelectedThings2={setSelectedThings2}
-            setGlobalError={handleDiscountError}
-          />
+            <div className="pb-discount-wrap">
+              <DiscountCalculator
+                thisOrder={thisOrder}
+                setThisOrder={setThisOrder}
+                selectedThings2={selectedThings2}
+                setSelectedThings2={setSelectedThings2}
+                setGlobalError={handleDiscountError}
+              />
+            </div>
+
+            <div className={`pb-metric pb-metric--due${isDiscountApplied ? ' is-discounted' : ''}`}>
+              <span className="pb-metric-label">ДО СПЛАТИ:</span>
+              <span className="pb-metric-inline pb-metric-inline--due">
+                <span className="pb-metric-value-main">{formatCompactNumber(thisOrder?.allPrice ?? 0)}</span>{' '}
+                <small className="pb-metric-currency">грн</small>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {activeError && (
-        <div className="pb-error">
-          {typeof activeError === 'string' ? activeError : activeError?.response?.data?.error || activeError?.message || 'Помилка'}
+      {deadlineCountdown && (
+        <div className="pb-finance-deadline-text">
+          <span className="pb-finance-deadline-prefix">замовлення необхідно віддати через:</span>
+          <span className="pb-finance-deadline-counter">{renderDeadlineCountdown(deadlineCountdown)}</span>
         </div>
       )}
 
@@ -561,6 +643,7 @@ return (
         />
       )}
     </div>
+    )}
   </div>
 );
 

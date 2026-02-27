@@ -73,6 +73,7 @@ const NewUIArtem = () => {
   const productName = '';
   const [showDeleteOrderUnitModal, setShowDeleteOrderUnitModal] = useState(false);
   const [thisOrderUnit, setThisOrderUnit] = useState(null);
+  const [orderDeadlineCountdown, setOrderDeadlineCountdown] = useState('');
 
 
   const [showNewSheetCut, setShowNewSheetCut] = useState(false);
@@ -273,6 +274,37 @@ const NewUIArtem = () => {
         })
     }
   }, [id]);
+
+  useEffect(() => {
+    const deadlineAt = thisOrder?.deadline || thisOrder?.finalManufacturingTime || null;
+    if (!deadlineAt) {
+      setOrderDeadlineCountdown('');
+      return undefined;
+    }
+
+    const formatDuration = (ms) => {
+      const totalSeconds = Math.floor(Math.abs(ms) / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+      if (days > 0) return `${days}Д ${String(hours).padStart(2, '0')}Г`;
+      return `${String(hours).padStart(2, '0')}Г ${String(minutes).padStart(2, '0')}ХВ`;
+    };
+
+    const tick = () => {
+      const diff = new Date(deadlineAt).getTime() - Date.now();
+      if (!Number.isFinite(diff)) {
+        setOrderDeadlineCountdown('—');
+        return;
+      }
+      setOrderDeadlineCountdown(diff >= 0 ? formatDuration(diff) : `ПРОСТРОЧЕНО: ${formatDuration(diff)}`);
+    };
+
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, [thisOrder?.deadline, thisOrder?.finalManufacturingTime]);
 
   const statusValue = Number.parseInt(thisOrder?.status, 10);
   const isCancelledOrder = thisOrder?.status === 'Відміна' || statusValue === -1;
@@ -554,6 +586,7 @@ const NewUIArtem = () => {
                 <div className="nui-order-delivered-title">{orderListStatusTitle}</div>
               )}
             </div>
+
             {hasOrders ? (
               <div
                 className={`nui-order-list nui-order-list-shell ${orderToneClass} nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
@@ -583,9 +616,9 @@ const NewUIArtem = () => {
                         </div>
                       </div>
 
-                      <div className="nui-item-pricing">
-                        <div className={`nui-price-row${hasDiscount ? ' is-discounted-active' : ''}`}>
-                          <span className="nui-price-calc" style={!isCancelledOrder ? { color: 'var(--admingrey)' } : undefined}>{thing.amount}<span className="nui-unit-sub">шт</span>{" х "}{unitPrice}<span className="nui-unit-sub">грн</span>{" = "}</span>
+                      <div >
+                        <div >
+                          <span className="" style={!isCancelledOrder ? { color: 'var(--admingrey)' } : undefined}>{thing.amount}<span className="nui-unit-sub">шт</span>{" х "}{unitPrice}<span className="nui-unit-sub">грн</span>{" = "}</span>
                           <span className="nui-price-total">{parseFloat(totalPrice)}<span className="nui-unit-sub">грн</span></span>
                           <button
                             type="button"
@@ -631,25 +664,60 @@ const NewUIArtem = () => {
               </div>
             ) : null}
 
-
-          </div>
-          <div className="d-flex flex-row nui-bottom-shell">
-            <div className="nui-bottom-pane nui-bottom-pane--progress">
+            <div className="nui-order-status-inline">
               <ProgressBar
                 thisOrder={thisOrder}
                 setThisOrder={setThisOrder}
                 setSelectedThings2={setSelectedThings2}
                 selectedThings2={selectedThings2}
                 externalError={uiLockError}
+                showActionRail={true}
+                showFinance={false}
+                showActionButton={false}
+                showTrack={true}
               />
             </div>
-            <div className="nui-bottom-pane nui-bottom-pane--client">
-              <ClientChangerUIArtem
-                thisOrder={thisOrder}
-                setThisOrder={setThisOrder}
-                setSelectedThings2={setSelectedThings2}
-                hidePaymentPanel={true}
-              />
+
+          </div>
+          <div className="d-flex flex-row nui-bottom-shell">
+            <div className="nui-bottom-pane nui-bottom-pane--progress">
+              <div className="nui-bottom-main-row">
+                <div className="nui-bottom-finance-inline">
+                  <ProgressBar
+                    thisOrder={thisOrder}
+                    setThisOrder={setThisOrder}
+                    setSelectedThings2={setSelectedThings2}
+                    selectedThings2={selectedThings2}
+                    externalError={uiLockError}
+                    showActionRail={false}
+                    showFinance={true}
+                    showError={false}
+                  />
+                </div>
+                <div className="nui-bottom-client-inline">
+                  <ClientChangerUIArtem
+                    thisOrder={thisOrder}
+                    setThisOrder={setThisOrder}
+                    setSelectedThings2={setSelectedThings2}
+                    hidePaymentPanel={true}
+                    actionButtonSlot={(
+                      <ProgressBar
+                        thisOrder={thisOrder}
+                        setThisOrder={setThisOrder}
+                        setSelectedThings2={setSelectedThings2}
+                        selectedThings2={selectedThings2}
+                        externalError={uiLockError}
+                        showActionRail={true}
+                        showFinance={false}
+                        showActionButton={true}
+                        showTrack={false}
+                        compactActionButton={true}
+                        showError={false}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>

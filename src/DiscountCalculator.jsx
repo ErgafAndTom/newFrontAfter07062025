@@ -8,7 +8,7 @@ const normalizeDiscount = (value) => {
   const numeric = Number.parseFloat(raw.replace('%', ''));
   if (!Number.isFinite(numeric)) return '';
   const safeValue = Math.max(0, numeric);
-  if (safeValue === 0) return '';
+  if (safeValue === 0) return '0%';
   return `${safeValue}%`;
 };
 

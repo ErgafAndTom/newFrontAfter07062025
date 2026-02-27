@@ -15,12 +15,10 @@ import TelegramAvatar from "../../PrintPeaksFAinal/Messages/TelegramAvatar";
 import PaidButtomProgressBar from "../../PrintPeaksFAinal/tools/PaidButtomProgressBar";
 import ClientSelectionModal from "./ClientSelectionModal";
 import ClientCabinet from "./ClientCabinet";
-import { FiUser } from "react-icons/fi";
-import { FiFolder } from "react-icons/fi";
 import "./ClientCabinet.css";
 import PaysInOrderRestored_OrdersLike from "./pays/PaysInOrderRestored_OrdersLike";
 
-const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hidePaymentPanel = false }) => {
+const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hidePaymentPanel = false, actionButtonSlot = null, statusTrackSlot = null }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
   const [showAddUser, setShowAddUser] = useState(false);
@@ -164,7 +162,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
 
   const handleCopy = (e) => {
     e.stopPropagation();
-    navigator.clipboard.writeText("🤖:").then(() => {
+    navigator.clipboard.writeText(String(thisOrder?.client?.id ?? '')).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 3000); // прибрати через 3 секунди
     });
@@ -266,113 +264,98 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
     }
   };
 
+  const openFilesFolder = (e) => {
+    e?.stopPropagation?.();
+    if (thisOrder?.client?.id) {
+      window.open('https://drive.google.com/drive/folders/1zpPDvQF2g_QcE3i6SCemKhg81rqLHag3', '_blank');
+      return;
+    }
+    setError('Спочатку виберіть клієнта');
+  };
+
   return (
     <div className="" style={{ position: 'relative', height: '100%', padding: hidePaymentPanel ? '0.6rem 0.8rem 0.5rem' : '0.6rem 0.8rem 6.2rem' }}>
-      <div onClick={handleShow} style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', minWidth: 0 }}>
-          <div
-            onClick={handleCopy}
-            title="Натисни, щоб скопіювати 🤖:"
-            style={{
-              fontSize: 'clamp(0.95rem, 1.2vw, 1.2rem)',
-              textTransform: 'uppercase',
-              color: '#646462',
-              whiteSpace: 'nowrap',
-              textOverflow: 'ellipsis',
-              overflow: 'hidden',
-              fontWeight: 400,
-              cursor: 'pointer',
-              minWidth: 0,
-              flex: '1 1 auto'
-            }}
-          >
-            {thisOrder.client
-              ? `🤖:${thisOrder.client.id} – ${thisOrder.client.lastName} ${thisOrder.client.firstName} ${thisOrder.client.familyName}`
-              : 'Вибрати клієнта'}
-          </div>
+      <div className="nui-client-envelope-grid">
+        <div className="nui-client-envelope-card">
+          <div className="nui-client-main-row">
+            <div className="nui-client-avatar-wrap" onClick={() => openMessenger('telegram')} style={{ cursor: 'pointer' }}>
+              <TelegramAvatar link={thisOrder?.client?.telegram} size={60} square={true} />
+              <span className="nui-client-id-badge-on-avatar" onClick={handleCopy} title="Натисни, щоб скопіювати id">
+                ID {thisOrder?.client?.id ?? '—'}
+              </span>
+            </div>
 
-          <div style={{ minWidth: 0, flex: '0 0 auto' }}>
-            {thisOrder?.client?.phoneNumber && (
-              <span
-                style={{
-                  fontSize: 'clamp(0.95rem, 1.35vw, 1.25rem)',
-                  textTransform: 'uppercase',
-                  color: '#646462',
-                  whiteSpace: 'nowrap',
-                  display: 'block',
-                  maxWidth: '100%',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  fontWeight: 400,
+            <div className="nui-client-text-wrap">
+              <div className="nui-client-title-row">
+                <span className="nui-client-name-line">
+                  {thisOrder?.client
+                    ? `${thisOrder.client.lastName || ''} ${thisOrder.client.firstName || ''} ${thisOrder.client.familyName || ''}`.trim()
+                    : 'Клієнт не вибраний'}
+                </span>
+              </div>
+
+              <span className="nui-client-phone-line">{thisOrder?.client?.phoneNumber || '—'}</span>
+            </div>
+
+            <div className="nui-client-rect-actions">
+              <button
+                type="button"
+                className="nui-client-rect-btn"
+                onClick={(e) => setThisUserToCabinetFunc(true, thisOrder?.client, e)}
+                disabled={!thisOrder?.client}
+              >
+                <span className="nui-client-rect-btn-text">Кабінет</span>
+              </button>
+
+              <button
+                type="button"
+                className="nui-client-rect-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShow();
                 }}
               >
-                {thisOrder.client.phoneNumber}
-              </span>
-            )}
+                <span className="nui-client-rect-btn-text">Вибрати</span>
+              </button>
+            </div>
           </div>
 
-          <div className="d-flex flex-row align-items-center justify-content-end" style={{ flex: '0 0 auto' }}>
-            {thisOrder.client && (
-              <div className="d-flex align-items-center gap-2" title={`@${thisOrder.client?.telegram?.replace(/^@/, '')}`}>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (thisOrder?.client?.id) {
-                      window.open(`https://drive.google.com/drive/folders/1zpPDvQF2g_QcE3i6SCemKhg81rqLHag3`, '_blank');
-                    } else {
-                      setError('Спочатку виберіть клієнта');
-                    }
-                  }}
-                  title="Файли клієнта"
-                  aria-label="Файли клієнта"
-                  className="icon-btn client-cabinet-icon icon-btn--outlined folder-btn"
-                  style={{ width: '2.7rem', height: '2.7rem', minWidth: '2.7rem' }}
-                >
-                  <FiFolder size={23} color="rgba(0,0,0,0.6)" />
-                </button>
+          {thisOrder?.client?.address && (
+            <div style={{
+              color: '#8a8a86',
+              fontSize: '0.76rem',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>
+              {thisOrder.client.address}
+            </div>
+          )}
+        </div>
 
-                <button
-                  className="clientCabinetButton client-cabinet-icon"
-                  onClick={(e) => setThisUserToCabinetFunc(true, thisOrder.client, e)}
-                  title="Кабінет клієнта"
-                  style={{ width: '2.7rem', height: '2.7rem', minWidth: '2.7rem' }}
-                >
-                  <FiUser size={23} />
-                </button>
-
-                <div onClick={() => openMessenger('telegram')} style={{ cursor: 'pointer' }}>
-                  <TelegramAvatar link={thisOrder.client?.telegram} size={44} />
-                </div>
-              </div>
+        <div className="nui-client-controls-card" onClick={(e) => e.stopPropagation()}>
+          <div className="nui-client-controls-row">
+            {!deadlineCountdown && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openDeadlinePicker();
+                }}
+                disabled={!canEditDeadline}
+                className="nui-client-rect-btn"
+              >
+                <span className="nui-client-rect-btn-text">Дедлайн</span>
+              </button>
             )}
-          </div>
-
-          <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                openDeadlinePicker();
-              }}
-              disabled={!canEditDeadline}
-              style={{
-                height: '4vh',
-                minHeight: '4vh',
-                border: '2px solid var(--adminrose, #ef7aaa)',
-                background: 'var(--adminfon, #f7f5ee)',
-                color: 'var(--adminrose, #ef7aaa)',
-                fontWeight: 400,
-                padding: '0 0.6rem',
-                textTransform: 'uppercase',
-                opacity: canEditDeadline ? 1 : 0.6,
-                cursor: canEditDeadline ? 'pointer' : 'default'
-              }}
+              onClick={openFilesFolder}
+              className="nui-client-rect-btn"
             >
-              Дедлайн
+              <span className="nui-client-rect-btn-text">Файли замовлення</span>
             </button>
-            <span style={{ color: '#646462', fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
-              {deadlineCountdown || '—'}
-            </span>
+            {actionButtonSlot}
             <input
               ref={deadlineInputRef}
               type="datetime-local"
@@ -381,18 +364,6 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
             />
           </div>
         </div>
-
-        {thisOrder?.client?.address && (
-          <div style={{
-            color: '#8a8a86',
-            fontSize: '0.76rem',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}>
-            {thisOrder.client.address}
-          </div>
-        )}
       </div>
 
       {error && (
@@ -546,7 +517,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
         </Modal>
       </div>
 
-      {clientCabinetOpen && thisUserIdToCabinet && (
+      {clientCabinetOpen && Boolean(thisUserIdToCabinet) && (
         <ClientCabinet
           userId={thisUserIdToCabinet}
           onCreateOrder={() => {}}

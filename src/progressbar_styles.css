@@ -36,7 +36,7 @@
 .nui-progressbar .pb-action-rail {
   margin-top: auto;
   width: calc(100% + 1rem);
-  margin-left: -0.5rem;
+
   border-top: 1px solid rgba(0, 0, 0, 0.2);
   border-right: none;
   display: flex;
@@ -44,7 +44,7 @@
   align-items: stretch;
   justify-content: center;
   gap: 0;
-  padding: 0;
+  padding: 1 rem;
   background: var(--adminfonelement, #f2f0e9);
   min-height: 2.8rem;
 }
@@ -56,15 +56,15 @@
 }
 
 .nui-progressbar .pb-action-btn {
-  position: relative !important;
+
   left: auto !important;
   top: auto !important;
   width: 100% !important;
-  flex: 0 0 var(--pb-action-control-height);
-  min-height: var(--pb-action-control-height) !important;
-  height: var(--pb-action-control-height) !important;
+
+  /*min-height: var(--pb-action-control-height) !important;*/
+  height: auto;
   border: 0 !important;
-  border-bottom: 2px solid color-mix(in srgb, var(--pb-action-color) 55%, transparent) !important;
+  /*border-bottom: 2px solid color-mix(in srgb, var(--pb-action-color) 55%, transparent) !important;*/
   border-radius: 0 !important;
   padding: 0 !important;
   box-shadow: none !important;
@@ -73,22 +73,19 @@
   justify-content: center !important;
   background: var(--pb-action-color) !important;
   color: var(--adminfon, #f7f5ee) !important;
+  /*box-sizing: border-box;*/
 
-  box-sizing: border-box;
-  margin: 0;
 }
 
 .nui-progressbar .pb-action-btn .pb-action-label {
   writing-mode: horizontal-tb;
   text-orientation: mixed;
   white-space: nowrap !important;
-  font-size: var(--font-size-paybig) !important;
+  font-size: var(--font-size-pay) !important;
   font-weight: 400;
-  letter-spacing: 0;
-  line-height: 1 !important;
   text-shadow: none;
   width: auto !important;
-  display: block !important;
+
   color: var(--adminfon, #f7f5ee) !important;
   text-align: center;
 }
@@ -131,7 +128,7 @@
 .nui-progressbar .pb-action-placeholder.is-complete {
   opacity: 0.85;
   color: var(--admingreen, #0e935b);
-  font-size: clamp(0.7rem, 0.8vw, 0.95rem);
+  font-size: var(--font-size-pay);
   letter-spacing: 0.03em;
   text-transform: uppercase;
 }
@@ -148,31 +145,31 @@
 }
 
 .nui-progressbar .pb-top-row {
-  display: grid;
-  grid-template-columns: max-content max-content minmax(0, 1fr);
+  display: flex;
   justify-content: start;
   gap: 0.1rem;
   align-items: start;
 }
 
 .nui-progressbar .pb-metrics {
-  display: grid;
+  display: flex;
+  align-items: center;
   width: max-content;
   gap: 0.6rem;
 }
 
 .nui-progressbar .pb-metric {
-  display: grid;
-  grid-template-columns: 9.6rem 8.8rem;
+  display: flex;
   align-items: center;
   gap: 0.34rem;
 }
 
 .nui-progressbar .pb-metric-label {
-  color: var(--admingreen, #0e935b);
-  font-size: var(--font-size-pay) !important;
-  font-weight: 500;
-  letter-spacing: 0.01em;
+  color: var(--admingrey, #666666);
+  font-size: var(--font-size-paybig) !important;
+  font-weight: 400;
+
+  /*letter-spacing: 0.01em;*/
 }
 
 .nui-progressbar .pb-metric-value {
@@ -181,8 +178,7 @@
   justify-content: center;
   justify-self: start;
   width: 100%;
-  height: 1.95rem;
-  min-height: 1.95rem;
+
   background: var(--adminfon, #f7f5ee);
   color: var(--admingreen, #0e935b);
   border: 1px solid rgba(0, 0, 0, 0.2);
@@ -190,7 +186,7 @@
   border-radius: 0;
   padding: 0 0.55rem;
   text-align: center;
-  font-size: var(--font-size-pay) !important;
+  font-size: var(--font-size-s) !important;
   font-weight: 500;
   line-height: 1;
   white-space: nowrap;
@@ -214,47 +210,58 @@
   text-transform: none !important;
 }
 
+.nui-progressbar .pb-metric--cost .pb-metric-label,
 .nui-progressbar .pb-metric--due .pb-metric-label {
-  color: var(--admingreen, #0e935b);
+  font-size: var(--font-size-s) !important;
+  color: var(--admingrey, #666666) !important;
+  font-weight: 400 !important;
 }
 
-.nui-progressbar .pb-metric--due.is-discounted .pb-metric-label,
-.nui-progressbar .pb-metric--due.is-discounted .pb-metric-value,
-.nui-progressbar .pb-metric--due.is-discounted .pb-metric-value small {
+.nui-progressbar .pb-metric-inline {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  white-space: nowrap;
+}
+
+.nui-progressbar .pb-cost-value-main {
+  color: var(--admingrey, #666666) !important;
+  font-size: var(--font-size-paybig) !important;
+  font-weight: 500 !important;
+}
+
+.nui-progressbar .pb-metric-inline--due {
+  color: var(--adminred, #ee3c23) !important;
+  font-weight: 500 !important;
+}
+
+.nui-progressbar .pb-metric-inline--due .pb-metric-value-main {
+  color: var(--adminred, #ee3c23) !important;
+  font-size: var(--font-size-paybig) !important;
+  font-weight: 500 !important;
+}
+
+.nui-progressbar .pb-metric--due.is-discounted .pb-metric-inline--due,
+.nui-progressbar .pb-metric--due.is-discounted .pb-metric-inline--due .pb-metric-value-main {
   color: var(--admingreen, #0e935b) !important;
 }
 
-.nui-progressbar .pb-metric--due.is-discounted .pb-metric-value {
-  border-left-color: var(--admingreen, #0e935b);
+.nui-progressbar .pb-metric-currency {
+  font-size: var(--fontcard) !important;
+  color: var(--admingrey);
+  margin-left: 0.35rem;
 }
 
-.nui-progressbar .pb-metric--due .pb-metric-value {
-  height: var(--pb-price-field-height);
-  min-height: var(--pb-price-field-height);
-  color: var(--adminred, #ee3c23);
-  border-left-color: var(--admingreen, #0e935b);
-  font-size: var(--font-size-pay) !important;
-  font-weight: 700;
+.nui-progressbar .pb-metric-inline--due .pb-metric-currency {
+  color: inherit !important;
 }
 
-.nui-progressbar .pb-metric--cost .pb-metric-value {
-  height: var(--pb-price-field-height);
-  min-height: var(--pb-price-field-height);
-  border-left-color: var(--admingreen, #0e935b);
-  color: var(--admingreen, #0e935b);
-  font-size: var(--font-size-pay) !important;
-  font-weight: 600;
-}
-
-.nui-progressbar .pb-metric--cost .pb-metric-label {
-  opacity: 0.92;
-  color: var(--admingreen, #0e935b);
-}
-
-.nui-progressbar .pb-metric--cost .pb-metric-value small {
-  font-size: calc(var(--font-size-pay) * 0.72) !important;
-  color: var(--admingrey, #666666) !important;
-}
 
 .nui-progressbar .pb-deadline-inline {
   display: inline-flex;
@@ -274,15 +281,10 @@
   text-overflow: ellipsis;
 }
 
-.nui-progressbar .pb-metric--due .pb-metric-value small {
-  font-size: calc(var(--font-size-pay) * 0.72) !important;
-  color: var(--adminred, #ee3c23) !important;
-}
 
 .nui-progressbar .pb-track-row {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr)) auto;
-  gap: 0.28rem;
+  display: flex;
+  gap: 0;
   align-items: center;
   width: 100%;
   min-height: 4vh;
@@ -292,18 +294,27 @@
   padding-bottom: 0;
 }
 
+.nui-progressbar .pb-track-row .pb-stage-pill {
+  flex: 1 1 0;
+}
+
+.nui-progressbar .pb-track-row .pb-track-progress-badge {
+  flex: 0 0 auto;
+}
+
 /* Unified bottom section: top row split with aligned rhythm */
 .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar.pb-shell {
   background: transparent;
-  padding: 0.45rem 0.55rem 0;
+  padding: 0.45rem 0 0;
   overflow: visible;
 }
 
 .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-main {
   position: relative;
-  padding: 0.25rem 0.2rem 8.2vh;
+  padding: 0.25rem 0 8.2vh;
   display: flex;
   justify-content: flex-start;
+  width: 100%;
 }
 
 .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-deadline-wrap {
@@ -312,58 +323,248 @@
   left: 0.2rem;
   margin-left: 0 !important;
   justify-items: start;
-  z-index: 6;
+
 }
 
 .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-top-row {
-  margin-top: 0.15rem;
+  position: relative;
+  left: 0;
+  right: 0;
+  bottom: auto;
   min-height: 4vh;
+  margin-top: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
-  grid-template-columns: max-content minmax(0, 1fr) max-content;
-  gap: 0.35rem;
+  gap: 1vw;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  z-index: 5;
+  overflow: visible;
 }
 
-.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-metrics {
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-top-row {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2vh !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar.pb-shell.pb-shell--finance-only {
+  height: 100% !important; display: flex;
+  flex-direction: column;
+
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap,
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row {
+
+
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel {
+  width: 100%;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 6vw;
+  justify-content: center;
+  gap: 0;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .PayButtons {
+  width: 6vw !important;
+  min-width: 6vw !important;
+  flex: 0 0 6vw !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr;
+
+  align-items: center;
+  gap: 0 !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metrics {
+  display: contents !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric {
+  width: 100%;
+  min-width: 0;
+  justify-content: flex-start;
+  justify-self: stretch;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 0.1rem;
+  padding: 0;
+  margin-top: 0;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--cost {
+  grid-column: 1;
+  padding-left: 0;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due {
+  grid-column: 3;
+  padding-left: 0;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-label {
+  font-size: var(--font-size-s) !important;
+  color: var(--admingrey, #666666) !important;
+  font-weight: 400 !important;
+  text-transform: uppercase;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-cost-value-main,
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due .pb-metric-value-main {
+  font-size: var(--font-size-pay) !important;
+  font-weight: 500 !important;
+  line-height: 1;
+  margin-right: 0.15rem;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-cost-value-main {
+  color: var(--admingrey, #666666) !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due .pb-metric-value-main {
+  color: var(--adminred, #ee3c23) !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due.is-discounted .pb-metric-inline--due .pb-metric-value-main {
+  color: var(--admingreen, #0e935b) !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline,
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due {
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-currency {
+  font-size: var(--fontcard) !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap {
+  grid-column: 2;
+  transform: none !important;
+  margin-left: 0 !important;
+  margin-top: 0;
+  display: flex;
+  justify-content: center;
+  align-self: end;
+  align-items: center;
+  padding-left: 0;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-shell {
+
+  display: flex;
+  justify-content: center;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-envelope {
+  width: 4.2vw;
+  min-width: 4.2vw;
+  min-height: 1.62rem;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 0;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-deadline-text {
+  width: 24vw;
+  max-width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-deadline-counter {
+  font-size: var(--font-size-s) !important;
+  color: var(--adminred, #ee3c23) !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-deadline-text .pb-deadline-token,
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-deadline-text .pb-deadline-prefix,
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-deadline-text .pb-deadline-unit-sub {
+  font-size: var(--font-size-s) !important;
+  color: var(--adminred, #ee3c23) !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-input-wrap,
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-envelope {
+  justify-content: center !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-input-wrap {
+  align-items: center !important;
+  text-align: center;
+}
+
+.nui-progressbar .pb-payment-wrap {
+  width: 100%;
+  max-width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  width: 100%;
+  justify-content: flex-start;
+  min-width: 0;
 }
 
-.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-metric {
-  display: grid;
-  grid-template-columns: max-content minmax(7.6rem, 9.2rem);
-  align-items: center;
-  gap: 0.25rem;
-}
+/* legacy generic finance-row rules removed in favor of scoped
+   .nui-bottom-finance-inline styles and final lock block */
 
 .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-metric-label,
 .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-metric-value,
 .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-metric-value small,
-.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .dc-input,
+
 .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .dc-prefix,
 .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-deadline-btn .pb-deadline-btn-label {
-  font-size: var(--font-size-paybig) !important;
+  font-size: var(--font-size-s) !important;
 }
 
 .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-metric-value,
 .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .dc-envelope,
 .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-deadline-btn {
-  height: 4vh !important;
-  min-height: 4vh !important;
+  height: auto !important;
+  min-height: 0 !important;
 }
 
 .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-action-rail {
-  position: absolute;
+  position: relative;
   left: 0;
-  bottom: 0;
-  width: 66vw;
-  max-width: 66vw;
+  bottom: auto;
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
   margin-top: 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-  z-index: 4;
+  border-top: 0;
   background: var(--adminfonelement, #f2f0e9);
+  order: 2;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-action-row {
+  order: 2;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-track-row {
+  order: 3;
 }
 
 .nui-progressbar .pb-stage-pill {
@@ -372,7 +573,7 @@
   border-radius: 0;
   border: 0;
   border-bottom: 2px solid rgba(0, 0, 0, 0.16);
-  background: transparent;
+  background: var(--adminfon, #f7f5ee);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -399,6 +600,10 @@
   flex-shrink: 0;
 }
 
+.nui-progressbar .pb-stage-pill:not(.is-active):not(.is-completed) .pb-stage-dot {
+  background: var(--stage-color);
+}
+
 .nui-progressbar .pb-stage-pill .pb-stage-name {
   text-transform: uppercase !important;
   font-size: var(--font-size-paybig) !important;
@@ -417,11 +622,9 @@
   border-bottom: 2px solid color-mix(in srgb, var(--pb-action-color) 65%, transparent);
   background: color-mix(in srgb, var(--pb-action-color) 12%, var(--adminfon, #f7f5ee));
   color: var(--pb-action-color);
-  font-size: var(--font-size-paybig) !important;
+  font-size: var(--font-size-pay) !important;
   font-weight: 400 !important;
-  line-height: 1;
-  padding: 0 0.5rem;
-  display: inline-flex;
+
   align-items: center;
   justify-content: center;
   cursor: default;
@@ -458,9 +661,9 @@
 }
 
 .nui-progressbar .pb-bottom-row {
-  display: grid;
+  display: flex;
   margin-top: 0.05rem;
-  grid-template-columns: 1fr auto;
+  justify-content: space-between;
   gap: 0.5rem;
   align-items: center;
   min-width: 0;
@@ -535,7 +738,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: stretch;
+
   gap: 0.26rem;
   overflow: visible;
   margin: 0 !important;
@@ -549,21 +752,59 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  flex: 0 0 auto;
+  min-width: 0;
 }
+
+
 
 .nui-progressbar .pb-payment-wrap .payment-methods-panel {
   margin: 0;
+  width: auto;
+  display: flex;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  justify-content: flex-start;
+}
+
+.nui-progressbar .pb-payment-wrap .PayButtons {
+  width: 6vw;
+  min-width: 6vw;
+  padding: 0 0.2rem;
+  font-size: var(--font-size-s) !important;
+  height: 4vh !important;
+  min-height: 4vh !important;
+  flex-direction: column;
+}
+
+.nui-progressbar .pb-payment-wrap .pay-button-wait {
+  width: 6vw;
+  min-width: 6vw;
+  height: 4vh !important;
+  min-height: 4vh !important;
+}
+
+.nui-progressbar .pb-payment-wrap .PayButtons.link,
+.nui-progressbar .pb-payment-wrap .PayButtons.check,
+.nui-progressbar .pb-payment-wrap .PayButtons.end {
+  width: 6vw;
+  min-width: 6vw;
+  height: 4vh !important;
+  min-height: 4vh !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-top-row .pb-finance-row {
+  width: 100%;
 }
 
 .nui-progressbar .dc-shell {
   position: relative;
   width: 100%;
-  display: grid;
-  grid-template-rows: auto;
+
   gap: 0;
-  align-content: start;
+
   overflow: visible;
-  margin: 0;
+
 }
 
 .nui-progressbar .pb-deadline-under {
@@ -580,8 +821,9 @@
 .nui-progressbar .pb-deadline-under-label {
   color: var(--admingreen, #0e935b);
   font-size: var(--fontsmall) !important;
-  font-weight: 400 !important;
+  font-weight: 500 !important;
   line-height: 1;
+  margin-right: 0.15rem;
 }
 
 .nui-progressbar .pb-deadline-under-counter {
@@ -608,12 +850,13 @@
 
 .nui-progressbar .dc-envelope {
   width: 100%;
-  height: var(--pb-price-field-height);
+  height: auto;
+  min-height: 0;
   display: flex;
   align-items: center;
-  background: var(--adminfon, #f7f5ee);
+  background: transparent;
   border: 0;
-  border-bottom: 4px solid var(--admingreen, #0e935b);
+  border-bottom: 2px solid var(--admingreen, #0e935b);
   border-radius: 0 !important;
   padding: 0;
 }
@@ -621,34 +864,53 @@
 .nui-progressbar .dc-input-wrap {
   position: relative;
   width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
 }
 
 .nui-progressbar .dc-prefix {
-  position: absolute;
-  top: 50%;
-  left: -0.08rem;
-  transform: translateY(-50%);
+  position: static;
+  transform: none;
+  margin-right: 0.04em;
   color: var(--admingreen, #0e935b);
-  font-weight: 700;
-  font-size: var(--fontsmall) !important;
+  font-weight: 500;
+  font-size: var(--font-size-pay) !important;
   line-height: 1;
   pointer-events: none;
   user-select: none;
+  display: inline-flex;
+  align-items: center;
 }
 
 .nui-progressbar .dc-input {
-  width: 100%;
-  height: var(--pb-price-field-height);
+  width: auto;
+  min-width: 2.2ch;
+  max-width: 4.2ch;
+  height: auto;
+  min-height: 0;
   border: 0;
   border-radius: 0;
   text-align: left;
-  background: var(--adminfon, #f7f5ee);
+  background: transparent;
   color: var(--admingreen, #0e935b);
-  font-weight: 700;
-  font-size: var(--fontsmall) !important;
+  font-weight: 500;
+  font-size: var(--font-size-pay) !important;
   line-height: 1;
   outline: none;
-  padding: 0 0.4rem 0 0;
+  padding: 0;
+  margin: 0;
+  caret-color: var(--admingreen, #0e935b);
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-finance-row .pb-discount-wrap,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-shell,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-envelope,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-input-wrap {
+  align-items: center !important;
+  justify-content: center;
 }
 
 .nui-progressbar .dc-input:focus {
@@ -662,7 +924,7 @@
 .nui-progressbar .dc-shell:focus-within .dc-envelope,
 .nui-progressbar .dc-input:hover,
 .nui-progressbar .dc-input:focus {
-  background: var(--adminfon, #f7f5ee);
+  background: transparent;
 }
 
 .nui-progressbar .dc-input.is-readonly {
@@ -680,20 +942,20 @@
 
 .nui-progressbar .dc-presets {
   position: absolute;
-  top: auto;
-  bottom: 0;
-  left: 100%;
-  width: auto;
-  display: grid;
+  top: 100%;
+  bottom: auto;
+  left: 0;
+  width: 100%;
+  display: flex;
   align-items: end;
   white-space: nowrap;
-  grid-template-columns: repeat(4, minmax(2.15rem, 2.15rem));
+  justify-content: space-between;
   gap: 0;
   opacity: 0;
   visibility: hidden;
   overflow: visible;
   background: var(--adminfon, #f7f5ee);
-  transform: translateX(-0.28rem);
+  transform: translateY(-0.22rem);
   transition: opacity 0.22s ease, transform 0.28s ease;
   pointer-events: none;
   z-index: 400;
@@ -800,7 +1062,7 @@
 .nui-progressbar .dc-presets:hover {
   opacity: 1;
   visibility: visible;
-  transform: translateX(0);
+  transform: translateY(0);
   pointer-events: auto;
 }
 
@@ -810,7 +1072,7 @@
   border-radius: 0;
   background: var(--adminfon, #f7f5ee);
   color: var(--admingreen, #0e935b);
-  height: 1.3rem;
+  height: 1.5rem;
   font-size: var(--fontsmall) !important;
   font-weight: 500;
   line-height: 1;
@@ -874,7 +1136,7 @@
 /* Final explicit sizing for metric block */
 .nui-progressbar .pb-metric-label,
 .nui-progressbar .pb-metric-value {
-  font-size: var(--font-size-pay) !important;
+  font-size: var(--font-size-s) !important;
 }
 
 
@@ -882,26 +1144,33 @@
 .nui-progressbar .pb-action-btn .pb-action-label,
 .nui-progressbar .pb-action-awaiting-btn,
 .nui-progressbar .pb-inline-badge {
-  font-size: var(--font-size-paybig) !important;
+  font-size: var(--font-size-status) !important;
   font-weight: 400 !important;
   letter-spacing: 0 !important;
   line-height: 1 !important;
   font-family: inherit !important;
 }
 
+.nui-progressbar .pb-stage-pill .pb-stage-name,
+.nui-progressbar .pb-track-progress-badge,
+.nui-progressbar .pb-status,
+.nui-progressbar .pb-status--rail {
+  font-size: var(--font-size-status) !important;
+}
+
 .nui-progressbar .pb-deadline-unit-sub {
-  font-size: 0.68em !important;
+  font-size: var(--fontsmall) !important;
   vertical-align: sub;
   line-height: 1;
   color: var(--adminred, #ee3c23) !important;
-  text-transform: none !important;
+  text-transform: uppercase !important;
 }
 
 .nui-progressbar .pb-deadline-token {
   display: inline-flex;
   align-items: baseline;
   gap: 0.02rem;
-  margin-right: 0.24rem;
+  margin-right: 0.8rem;
   color: var(--adminred, #ee3c23) !important;
   font-size: var(--font-size-pay) !important;
   text-transform: none !important;
@@ -915,19 +1184,12 @@
   margin-right: 0.3rem;
 }
 
-.nui-progressbar .pb-discount-wrap .dc-shell {
-  justify-self: start;
-  width: 5.8rem;
-  min-width: 5.8rem;
-  margin-left: 0;
-}
-
 .nui-progressbar .pb-deadline-wrap {
   width: max-content;
   max-width: 100%;
   margin-left: 0;
-  display: grid;
-  grid-template-rows: var(--pb-price-field-height) var(--pb-price-field-height);
+  display: flex;
+  flex-direction: column;
   gap: 0.35rem;
   align-content: start;
   justify-items: start;
@@ -954,6 +1216,8 @@
 .nui-progressbar .pb-action-btn:hover {
   background: var(--pb-hover-bg, var(--adminblue, #3c60a6)) !important;
   color: #fff !important;
+  border-bottom-color: transparent !important;
+  box-shadow: none !important;
 }
 
 .nui-progressbar .pb-action-btn:hover .pb-action-label {
@@ -966,7 +1230,7 @@
 .nui-progressbar * {
   font-weight: 400 !important;
   text-transform: uppercase !important;
-  line-height: 1.2 !important;
+
 }
 
 
@@ -983,4 +1247,823 @@
 .nui-progressbar * {
   border-radius: 0 !important;
   font-size: var(--fontcard) !important;
+}
+
+
+/* Finance Wrapper and Separator */
+.pb-finance-wrapper {
+  order: 1;
+  width: 100%;
+  border-top: 0;
+  padding-top: 0.5vh;
+  margin-top: 0.5vh;
+  margin-bottom: 0.5vh;
+  display: block;
+}
+
+/* Client Inline Block */
+.client-inline-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+  align-items: center;
+  gap: 0.7vw;
+  width: 100%;
+  min-height: 100%;
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.client-envelope {
+  min-height: calc(4vh + 1rem);
+  height: calc(4vh + 1rem);
+  display: flex;
+  align-items: center;
+  background: var(--adminfonelement, #f2f0e9);
+  border: 0;
+  box-sizing: border-box;
+}
+
+.client-envelope--left {
+  width: 100%;
+  min-width: 0;
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0.2rem 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.client-contact-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.08rem;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  padding-right: 3.2em;
+}
+
+.client-phone-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.3rem;
+  width: 100%;
+}
+
+.client-envelope--right {
+  width: 100%;
+  min-width: 0;
+  justify-content: flex-end;
+  padding: 0.5rem;
+  overflow: visible;
+}
+
+.client-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  color: var(--admingrey, #666666);
+  font-size: var(--font-size-s) !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  font-family: inherit !important;
+  text-transform: uppercase;
+}
+
+.client-name::before,
+.client-name::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: transparent !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.client-name-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  gap: 0.45em;
+  max-width: 100%;
+}
+
+.client-name-avatar {
+  width: 2.8em;
+  height: 2.8em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  line-height: 0;
+}
+
+.client-phone-avatar {
+  width: 2.6em;
+  height: 2.6em;
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+}
+
+.client-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--admingrey, #666666);
+  font-size: var(--font-size-s) !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+}
+
+.client-id-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.45em;
+  padding: 0.08em 0.46em;
+  border: 1px solid color-mix(in srgb, var(--admingrey, #666666) 40%, transparent);
+  background: color-mix(in srgb, var(--admingrey, #666666) 8%, transparent);
+  color: color-mix(in srgb, var(--admingrey, #666666) 78%, transparent);
+  font-size: var(--font-size-s) !important;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.client-envelope--left .client-inline-text,
+.client-envelope--left .client-name-text,
+.client-envelope--left .client-phone,
+.client-envelope--left .client-id-badge {
+  font-size: var(--font-size-s) !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+}
+
+.client-phone {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-left: 0;
+  text-align: left;
+  font-size: var(--font-size-s) !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  font-family: inherit !important;
+  text-transform: uppercase;
+}
+
+.client-buttons-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0;
+  width: 100%;
+  padding-right: 0;
+  flex: 0 0 auto;
+}
+
+.client-inline-row .client-buttons-wrap {
+  margin-left: 0 !important;
+  justify-content: center !important;
+}
+
+.client-inline-text {
+  color: var(--admingrey, #666666);
+  font-size: var(--font-size-s) !important;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.client-action-btn {
+  width: auto !important;
+  min-width: 0 !important;
+  flex: 1 1 0 !important;
+  padding: 0 !important;
+  font-size: var(--font-size-s) !important;
+
+  height: 4vh !important;
+  border-color: var(--adminorange, #f5a623) !important;
+  color: var(--admingrey, #666666) !important;
+  justify-content: center !important;
+}
+
+.client-buttons-wrap .PayButtons.client-action-btn {
+  font-size: var(--font-size-s) !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-transform: uppercase !important;
+  font-family: inherit !important;
+
+}
+
+.client-buttons-wrap .PayButtons + .PayButtons {
+  margin-left: 0 !important;
+}
+
+.client-action-btn::before,
+.client-action-btn::after {
+  background-color: var(--adminfonelement, #f2f0e9) !important;
+}
+
+.client-action-btn:hover,
+.client-action-btn:focus-visible,
+.client-action-btn.pay-btn-active {
+  border-color: var(--adminorange, #f5a623) !important;
+  color: var(--adminorange, #f5a623) !important;
+}
+
+.client-buttons-wrap .PayButtons.client-action-btn:not(.pay-btn-active):hover {
+  color: var(--adminorange, #f5a623) !important;
+}
+
+.client-select-btn {
+  min-width: 0 !important;
+}
+
+.client-deadline-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45vw;
+  height: 4vh;
+  min-height: 4vh;
+  padding: 0 0.6vw;
+  background: var(--adminfonelement, #f2f0e9);
+  color: var(--admingrey, #666666);
+  border: 1px solid color-mix(in srgb, var(--admingrey, #666666) 25%, transparent);
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.client-deadline-floating {
+  position: relative;
+  margin-left: auto;
+  margin-bottom: 0.45vh;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55vw;
+  min-width: 21vw;
+  max-width: 30vw;
+  height: 4vh;
+  min-height: 4vh;
+  padding: 0 0.75vw;
+  background: var(--adminfonelement, #f2f0e9);
+  color: var(--admingrey, #666666);
+  border: 1px solid color-mix(in srgb, var(--admingrey, #666666) 22%, transparent);
+  box-sizing: border-box;
+  white-space: nowrap;
+  z-index: 3;
+}
+
+.client-deadline-label,
+.client-deadline-value {
+  color: var(--admingrey, #666666);
+  text-transform: none;
+}
+
+.client-deadline-label {
+  font-size: var(--font-size-s);
+  opacity: 0.95;
+}
+
+.client-deadline-value {
+  font-size: var(--font-size-pay);
+  font-weight: 500;
+}
+
+/* Exact spacing between finance row and work-status row */
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-finance-wrapper {
+  margin-top: 0 !important;
+  padding: 0.5rem !important;
+  margin-bottom: 0.7vh !important;
+  border: 0 !important;
+  background: var(--adminfonelement, #f2f0e9) !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-action-rail {
+  margin-top: 0 !important;
+  padding: 0 0.5rem !important;
+  box-sizing: border-box;
+  border: 0 !important;
+  background: transparent !important;
+  min-height: calc(4vh + 1rem) !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-action-row {
+  margin-top: 0 !important;
+  order: 2 !important;
+  flex: 0 0 20% !important;
+  width: 20% !important;
+  min-height: calc(4vh + 1rem) !important;
+  height: calc(4vh + 1rem) !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-action-row .pb-action-btn,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-action-row .pb-action-placeholder {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: calc(4vh + 1rem) !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-track-row {
+  order: 1 !important;
+  flex: 1 1 80% !important;
+  width: 80% !important;
+  min-height: calc(4vh + 1rem) !important;
+  height: calc(4vh + 1rem) !important;
+}
+
+/* Bottom status/action button label size */
+.nui-progressbar .pb-action-btn .pb-action-label,
+.nui-progressbar .pb-stage-pill .pb-stage-name,
+.nui-progressbar .pb-track-progress-badge {
+  font-size: var(--font-size-s) !important;
+}
+
+/* Unified typography for all buttons using --font-size-s */
+.nui-progressbar .pb-payment-wrap .PayButtons,
+.client-buttons-wrap .PayButtons.client-action-btn,
+.nui-progressbar .pb-action-btn .pb-action-label,
+.nui-progressbar .pb-stage-pill .pb-stage-name,
+.nui-progressbar .pb-track-progress-badge {
+  font-size: var(--font-size-s) !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+}
+
+/* Keep status buttons same height as finance envelope row */
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-track-row .pb-stage-pill,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-track-row .pb-track-progress-badge {
+  min-height: calc(4vh + 1rem) !important;
+  height: calc(4vh + 1rem) !important;
+}
+
+/* Inactive order-status buttons must be transparent */
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-track-row .pb-stage-pill:not(.is-active):not(.is-completed) {
+  background: transparent !important;
+}
+
+/* New step-style status rail */
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-action-rail {
+  order: 1 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  gap: 0 !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  min-height: calc(4vh + 1rem) !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-finance-wrapper {
+  order: 2 !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-action-row {
+  order: 1 !important;
+  flex: 0 0 20% !important;
+  width: 20% !important;
+  min-height: calc(4vh + 1rem) !important;
+  height: calc(4vh + 1rem) !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-track-row {
+  order: 2 !important;
+  flex: 1 1 80% !important;
+  width: 80% !important;
+  min-height: calc(4vh + 1rem) !important;
+  height: calc(4vh + 1rem) !important;
+  gap: 0 !important;
+}
+
+.nui-progressbar .pb-track-row .pb-step-card {
+  --step-color: var(--admingreen, #0e935b);
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: calc(4vh + 1rem);
+  height: calc(4vh + 1rem);
+  margin: 0 !important;
+  border: 1px solid color-mix(in srgb, var(--admingrey, #666666) 24%, transparent);
+  border-left-width: 0;
+  background: transparent;
+  color: var(--admingrey, #666666);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.32rem;
+  padding: 0 0.35rem;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.nui-progressbar .pb-track-row .pb-step-card:first-child {
+  border-left-width: 1px;
+}
+
+.nui-progressbar .pb-track-row .pb-step-card.tone-warn { --step-color: var(--admingreen, #0e935b); }
+.nui-progressbar .pb-track-row .pb-step-card.tone-brown { --step-color: var(--adminorange, #f5a623); }
+.nui-progressbar .pb-track-row .pb-step-card.tone-blue { --step-color: var(--adminblue, #3c60a6); }
+.nui-progressbar .pb-track-row .pb-step-card.tone-pink { --step-color: var(--adminrose, #ef7aaa); }
+.nui-progressbar .pb-track-row .pb-step-card.tone-green { --step-color: var(--admingreen, #0e935b); }
+.nui-progressbar .pb-track-row .pb-step-card.tone-danger { --step-color: var(--adminred, #ee3c23); }
+
+.nui-progressbar .pb-track-row .pb-step-card.is-completed,
+.nui-progressbar .pb-track-row .pb-step-card.is-active {
+  background: color-mix(in srgb, var(--step-color) 12%, var(--adminfon, #f7f5ee));
+  border-color: color-mix(in srgb, var(--step-color) 40%, transparent);
+}
+
+.nui-progressbar .pb-track-row .pb-step-icon-box {
+  width: 1.3rem;
+  min-width: 1.3rem;
+  height: 1.3rem;
+  border: 1px solid color-mix(in srgb, var(--admingrey, #666666) 42%, transparent);
+  background: color-mix(in srgb, var(--admingrey, #666666) 8%, transparent);
+  color: var(--admingrey, #666666);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: var(--font-size-s) !important;
+}
+
+.nui-progressbar .pb-track-row .pb-step-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  display: block;
+}
+
+@media (max-width: 1280px) {
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-action-rail {
+    width: 100% !important;
+  }
+}
+
+.nui-progressbar.pb-shell.pb-shell--action-only {
+  padding: 0 !important;
+  margin-top: 0.35rem;
+  background: transparent !important;
+}
+
+.nui-progressbar.pb-shell.pb-shell--action-only .pb-action-rail {
+  width: 100% !important;
+  margin: 0 !important;
+  border-top: 0 !important;
+  padding: 0 !important;
+}
+
+.nui-progressbar.pb-shell.pb-shell--finance-only {
+  padding-top: 0.35rem;
+}
+
+.nui-progressbar.pb-shell.pb-shell--compact-action {
+  width: auto !important;
+  min-width: 0 !important;
+  height: 4vh !important;
+  min-height: 4vh !important;
+  padding: 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+
+.nui-progressbar.pb-shell.pb-shell--compact-action.pb-shell--action-only {
+  margin-top: 0 !important;
+  align-self: center !important;
+}
+
+.nui-progressbar.pb-shell.pb-shell--compact-action .pb-action-rail {
+  width: auto !important;
+  min-height: 4vh !important;
+  height: 4vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.nui-progressbar.pb-shell.pb-shell--compact-action .pb-action-row {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-height: 4vh !important;
+  height: 4vh !important;
+}
+
+.nui-progressbar.pb-shell.pb-shell--compact-action .pb-action-btn,
+.nui-progressbar.pb-shell.pb-shell--compact-action .pb-action-placeholder {
+  width: auto !important;
+  min-width: 9.2rem !important;
+  height: 4vh !important;
+  min-height: 4vh !important;
+  padding: 0 0.65rem !important;
+  box-sizing: border-box !important;
+}
+
+.nui-progressbar.pb-shell.pb-shell--compact-action .pb-action-btn {
+  border: 0 !important;
+  border-bottom: 0 !important;
+}
+
+.nui-progressbar.pb-shell.pb-shell--compact-action .pb-action-label {
+  font-size: var(--font-size-s) !important;
+}
+
+.nui-progressbar .pb-track-row .pb-step-card.is-completed .pb-step-icon-box,
+.nui-progressbar .pb-track-row .pb-step-card.is-active .pb-step-icon-box {
+  border-color: var(--step-color);
+  background: color-mix(in srgb, var(--step-color) 16%, transparent);
+  color: var(--step-color);
+}
+
+.nui-progressbar .pb-track-row .pb-step-meta {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 0;
+  gap: 0.06rem;
+}
+
+.nui-progressbar .pb-track-row .pb-step-num,
+.nui-progressbar .pb-track-row .pb-step-label {
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nui-progressbar .pb-track-row .pb-step-num {
+  font-size: var(--fontsmall) !important;
+  color: color-mix(in srgb, var(--admingrey, #666666) 92%, transparent);
+}
+
+.nui-progressbar .pb-track-row .pb-step-label {
+  font-size: var(--font-size-s) !important;
+  color: var(--admingrey, #666666);
+}
+
+.nui-progressbar .pb-track-row .pb-step-card.is-completed .pb-step-num,
+.nui-progressbar .pb-track-row .pb-step-card.is-completed .pb-step-label,
+.nui-progressbar .pb-track-row .pb-step-card.is-active .pb-step-num,
+.nui-progressbar .pb-track-row .pb-step-card.is-active .pb-step-label {
+  color: var(--step-color);
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-action-row .pb-action-btn,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-action-row .pb-action-placeholder {
+  min-height: calc(4vh + 1rem) !important;
+  height: calc(4vh + 1rem) !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar.pb-shell.pb-shell--compact-action .pb-action-row .pb-action-btn,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar.pb-shell.pb-shell--compact-action .pb-action-row .pb-action-placeholder {
+  min-height: 4vh !important;
+  height: 4vh !important;
+}
+
+/* Finance discount: single canonical style */
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap {
+  grid-column: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  justify-self: center;
+  align-self: center;
+  margin: 0 !important;
+  padding: 0;
+  height: 100%;
+  position: relative;
+  top: -0.28rem !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-shell {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-envelope {
+  width: 4.2vw;
+  min-width: 4.2vw;
+  min-height: 1.5rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-input-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-input {
+  text-align: center;
+  min-width: 2.4ch;
+  max-width: 2.4ch;
+}
+
+/* Final lock: center payment buttons in finance envelope */
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap {
+  width: 24vw !important;
+  min-width: 24vw !important;
+  max-width: 24vw !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  justify-content: center !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel {
+  width: 24vw !important;
+  min-width: 24vw !important;
+  max-width: 24vw !important;
+  margin: 0 auto !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, 6vw) !important;
+  justify-content: stretch !important;
+}
+
+/* Final lock for finance deadline row alignment */
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-deadline-text {
+  width: 24vw !important;
+  min-width: 24vw !important;
+  max-width: 24vw !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-top: 2vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.5rem !important;
+}
+
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-deadline-text .pb-deadline-token {
+  font-size: var(--font-size-paybig) !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-deadline-prefix {
+  font-size: var(--font-size-s) !important;
+  color: var(--admingrey, #666666) !important;
+  text-align: left !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-deadline-counter {
+  text-align: right !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-deadline-text .pb-deadline-unit-sub {
+  font-size: var(--font-size-xs) !important;
+  text-transform: uppercase !important;
+}
+
+/* Final lock: one-line finance metrics and due color at 0% */
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: baseline !important;
+  gap: 0.34rem !important;
+  white-space: nowrap;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-label,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due {
+  white-space: nowrap;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due .pb-metric-value-main {
+  color: var(--adminred, #ee3c23) !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due.is-discounted .pb-metric-inline--due,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due.is-discounted .pb-metric-inline--due .pb-metric-value-main {
+  color: var(--admingreen, #0e935b) !important;
+}
+
+/* Final lock: align "ДО СПЛАТИ" to right edge */
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due {
+  justify-self: end !important;
+  justify-content: flex-end !important;
+  align-items: flex-end !important;
+  text-align: right !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due .pb-metric-inline--due {
+  justify-content: flex-end !important;
+  text-align: right !important;
+}
+
+/* Final lock: finance metrics typography */
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-label {
+  font-size: var(--font-size-s) !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-cost-value-main,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due .pb-metric-value-main {
+  font-size: var(--font-size-pay) !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-currency {
+  font-size: var(--fontcard) !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--cost .pb-metric-currency,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due .pb-metric-currency {
+  font-size: var(--fontcard) !important;
+}
+
+/* Final lock: align metrics to payment button edges */
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row {
+  width: 24vw !important;
+  min-width: 24vw !important;
+  max-width: 24vw !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  display: grid !important;
+  grid-template-columns: max-content 1fr max-content !important;
+  align-items: center !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metrics {
+  display: contents !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--cost {
+  grid-column: 1 !important;
+  justify-self: start !important;
+  text-align: left !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap {
+  grid-column: 2 !important;
+  justify-self: center !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due {
+  grid-column: 3 !important;
+  justify-self: end !important;
+  text-align: right !important;
+}
+
+/* Final lock: keep discount centered and prevent percent clipping */
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap {
+  grid-column: 2 !important;
+  justify-self: center !important;
+  align-self: center !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-envelope {
+  width: 5.2vw !important;
+  min-width: 5.2vw !important;
+  overflow: visible !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-input-wrap {
+  overflow: visible !important;
+}
+
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-input {
+  min-width: 3.6ch !important;
+  max-width: 4.4ch !important;
+}
+
+/* Final lock: "ДО СПЛАТИ" turns green when discount selected */
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due.is-discounted .pb-metric-inline--due,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due.is-discounted .pb-metric-inline--due .pb-metric-value-main,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due.is-discounted .pb-metric-inline--due .pb-metric-currency {
+  color: var(--admingreen, #0e935b) !important;
 }

@@ -14,7 +14,7 @@ import notTrueTelegramNoAcc from "./notTrueTelegramNoAcc.svg";
  * @param {number} size - Розмір аватарки в пікселях (за замовчуванням 32).
  * @param {string} defaultSrc - Посилання на дефолтне зображення при помилці (або для телефону).
  */
-const TelegramAvatar = ({ link, size = 32, defaultSrc = '/default-avatar.png' }) => {
+const TelegramAvatar = ({ link, size = 32, defaultSrc = '/default-avatar.png', square = false }) => {
   if (!link) return (
     <div
       rel="noopener noreferrer"
@@ -25,7 +25,7 @@ const TelegramAvatar = ({ link, size = 32, defaultSrc = '/default-avatar.png' })
         style={{
           width: size,
           height: size,
-          borderRadius: '50%',
+          borderRadius: square ? '0' : '50%',
           objectFit: 'cover'
         }}
         onError={e => {
@@ -92,7 +92,7 @@ const TelegramAvatar = ({ link, size = 32, defaultSrc = '/default-avatar.png' })
         style={{
           width: size,
           height: size,
-          borderRadius: '50%',
+          borderRadius: square ? '0' : '50%',
           objectFit: 'cover'
         }}
         onError={e => {
@@ -108,7 +108,8 @@ const TelegramAvatar = ({ link, size = 32, defaultSrc = '/default-avatar.png' })
 TelegramAvatar.propTypes = {
   link: PropTypes.string.isRequired,
   size: PropTypes.number,
-  defaultSrc: PropTypes.string
+  defaultSrc: PropTypes.string,
+  square: PropTypes.bool
 };
 
 export default TelegramAvatar;
