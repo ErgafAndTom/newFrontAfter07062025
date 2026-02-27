@@ -73,7 +73,6 @@ const NewUIArtem = () => {
   const productName = '';
   const [showDeleteOrderUnitModal, setShowDeleteOrderUnitModal] = useState(false);
   const [thisOrderUnit, setThisOrderUnit] = useState(null);
-  const [orderDeadlineCountdown, setOrderDeadlineCountdown] = useState('');
 
 
   const [showNewSheetCut, setShowNewSheetCut] = useState(false);
@@ -274,37 +273,6 @@ const NewUIArtem = () => {
         })
     }
   }, [id]);
-
-  useEffect(() => {
-    const deadlineAt = thisOrder?.deadline || thisOrder?.finalManufacturingTime || null;
-    if (!deadlineAt) {
-      setOrderDeadlineCountdown('');
-      return undefined;
-    }
-
-    const formatDuration = (ms) => {
-      const totalSeconds = Math.floor(Math.abs(ms) / 1000);
-      const days = Math.floor(totalSeconds / 86400);
-      const hours = Math.floor((totalSeconds % 86400) / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-
-      if (days > 0) return `${days}Д ${String(hours).padStart(2, '0')}Г`;
-      return `${String(hours).padStart(2, '0')}Г ${String(minutes).padStart(2, '0')}ХВ`;
-    };
-
-    const tick = () => {
-      const diff = new Date(deadlineAt).getTime() - Date.now();
-      if (!Number.isFinite(diff)) {
-        setOrderDeadlineCountdown('—');
-        return;
-      }
-      setOrderDeadlineCountdown(diff >= 0 ? formatDuration(diff) : `ПРОСТРОЧЕНО: ${formatDuration(diff)}`);
-    };
-
-    tick();
-    const timer = setInterval(tick, 1000);
-    return () => clearInterval(timer);
-  }, [thisOrder?.deadline, thisOrder?.finalManufacturingTime]);
 
   const statusValue = Number.parseInt(thisOrder?.status, 10);
   const isCancelledOrder = thisOrder?.status === 'Відміна' || statusValue === -1;
@@ -585,12 +553,6 @@ const NewUIArtem = () => {
               {orderListStatusTitle && (
                 <div className="nui-order-delivered-title">{orderListStatusTitle}</div>
               )}
-              {orderDeadlineCountdown && (
-                <div className="nui-order-deadline-box">
-                  <span className="nui-order-deadline-label">Замовлення потрібно віддати через:</span>
-                  <span className="nui-order-deadline-value">{orderDeadlineCountdown}</span>
-                </div>
-              )}
             </div>
             {hasOrders ? (
               <div
@@ -673,20 +635,20 @@ const NewUIArtem = () => {
           </div>
           <div className="d-flex flex-row nui-bottom-shell">
             <div className="nui-bottom-pane nui-bottom-pane--progress">
-              <div className="nui-bottom-client-inline">
-                <ClientChangerUIArtem
-                  thisOrder={thisOrder}
-                  setThisOrder={setThisOrder}
-                  setSelectedThings2={setSelectedThings2}
-                  hidePaymentPanel={true}
-                />
-              </div>
               <ProgressBar
                 thisOrder={thisOrder}
                 setThisOrder={setThisOrder}
                 setSelectedThings2={setSelectedThings2}
                 selectedThings2={selectedThings2}
                 externalError={uiLockError}
+              />
+            </div>
+            <div className="nui-bottom-pane nui-bottom-pane--client">
+              <ClientChangerUIArtem
+                thisOrder={thisOrder}
+                setThisOrder={setThisOrder}
+                setSelectedThings2={setSelectedThings2}
+                hidePaymentPanel={true}
               />
             </div>
           </div>

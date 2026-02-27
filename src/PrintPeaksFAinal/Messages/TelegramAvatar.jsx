@@ -107,7 +107,7 @@ const TelegramAvatar = ({ link, size = 32, defaultSrc = '/default-avatar.png' })
 
 TelegramAvatar.propTypes = {
   link: PropTypes.string.isRequired,
-  size: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  size: PropTypes.number,
   defaultSrc: PropTypes.string
 };
 

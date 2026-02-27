@@ -12,13 +12,6 @@ function formatNumber(num) {
   if (!Number.isFinite(n)) return '0.00';
   return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
-
-function formatCompactNumber(num) {
-  const full = formatNumber(num);
-  return full
-    .replace(/\.0+$/, '')
-    .replace(/(\.\d*[1-9])0+$/, '$1');
-}
 const UI = {
   fs: { xs: '0.75rem', sm: '0.85rem', md: '0.95rem', lg: '1.05rem', xl: '1.35rem' },
   color: {
@@ -511,11 +504,13 @@ return (
             </div>
           );
         })}
-        <button type="button" className="pb-track-progress-badge" tabIndex={-1}>{stageProgressLabel}</button>
+        <button type="button" className="pb-track-progress-badge" tabIndex={-1}>
+          {stageProgressLabel}
+        </button>
       </div>
     </div>
 
-    <div className="pb-finance-wrapper">
+    <div className="pb-main">
       <div className="pb-top-row">
         <div className="pb-payment-wrap">
           <PaidButtomProgressBar
@@ -525,33 +520,29 @@ return (
           />
         </div>
 
-        <div className="pb-finance-row">
-          <div className="pb-metrics">
-            <div className="pb-metric pb-metric--cost">
-              <span className="pb-metric-label">ВАРТІСТЬ:</span>
-              <span className="pb-metric-inline pb-metric-inline--cost">
-                <span className="pb-cost-value-main">{formatCompactNumber(thisOrder?.price ?? 0)}</span>{' '}
-                <small className="pb-metric-currency">грн</small>
-              </span>
-            </div>
-            <div className={`pb-metric pb-metric--due${isDiscountApplied ? ' is-discounted' : ''}`}>
-              <span className="pb-metric-label">ДО СПЛАТИ:</span>
-              <span className=" pb-metric-inline--due">
-                <span className="pb-metric-value-main">{formatCompactNumber(thisOrder?.allPrice ?? 0)}</span>{' '}
-                <small className="pb-metric-currency">грн</small>
-              </span>
-            </div>
+        <div className="pb-metrics">
+          <div className="pb-metric pb-metric--cost">
+            <span className="pb-metric-label">ВАРТІСТЬ</span>
+            <span className="pb-metric-value">
+              {formatNumber(thisOrder?.price ?? 0)} <small>грн</small>
+            </span>
           </div>
+          <div className={`pb-metric pb-metric--due${isDiscountApplied ? ' is-discounted' : ''}`}>
+            <span className="pb-metric-label">ДО СПЛАТИ</span>
+            <span className="pb-metric-value pb-metric-value--strong">
+              {formatNumber(thisOrder?.allPrice ?? 0)} <small>грн</small>
+            </span>
+          </div>
+        </div>
 
-          <div className="pb-discount-wrap">
-            <DiscountCalculator
-              thisOrder={thisOrder}
-              setThisOrder={setThisOrder}
-              selectedThings2={selectedThings2}
-              setSelectedThings2={setSelectedThings2}
-              setGlobalError={handleDiscountError}
-            />
-          </div>
+        <div className="pb-discount-wrap">
+          <DiscountCalculator
+            thisOrder={thisOrder}
+            setThisOrder={setThisOrder}
+            selectedThings2={selectedThings2}
+            setSelectedThings2={setSelectedThings2}
+            setGlobalError={handleDiscountError}
+          />
         </div>
       </div>
 

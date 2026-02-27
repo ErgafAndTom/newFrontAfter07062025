@@ -23,6 +23,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   const [oplata, setOplata] = useState(false);
   const intervalRef = useRef(null);
   const currentUser = useSelector((state) => state.auth.user);
+  const buttonStyles = {};
   const [showAwaitPays, setShowAwaitPays] = useState(false);
   const [showAwaitCashPays, setShowAwaitCashPays] = useState(false);
 
@@ -350,6 +351,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 <button
                   onClick={() => setShowPays(true)}
                   title="Платежі"
+                  style={{ ...buttonStyles.base, ...buttonStyles.iconButton }}
                   className="PayButtons adminTextBigPay invoices"
                 >
                   Рахунок
@@ -364,7 +366,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 >
                   Готівка
                   {thisOrder.Payment && thisOrder.Payment.method === 'cash' && (
-                    <div className="pay-status-tag">
+                    <div style={{color: "red",  fontSize: "0.5vw"}}>
                       {thisOrder.Payment.status}
                     </div>
                   )}
@@ -375,7 +377,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 >
                   Картка
                   {thisOrder.Payment && thisOrder.Payment.method === 'terminal' && (
-                    <div className="pay-status-tag">
+                    <div style={{color: "red",  fontSize: "0.5vw"}}>
                       {thisOrder.Payment.status}
                     </div>
                   )}
@@ -386,12 +388,12 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 >
                   Посилання
                   {thisOrder.Payment && thisOrder.Payment.method === 'link' && (
-                    <div className="pay-status-tag">
+                    <div style={{color: "red",  fontSize: "0.5vw"}}>
                       {thisOrder.Payment.status}
                     </div>
                   )}
                   {thisOrder.Payment && thisOrder.Payment.method === null && (
-                    <div className="pay-status-tag">
+                    <div style={{color: "red",  fontSize: "0.5vw"}}>
                       {thisOrder.Payment.status}
                     </div>
                   )}
@@ -399,6 +401,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 <button
                   onClick={() => setShowPays(true)}
                   title="Платежі"
+                  style={{ ...buttonStyles.base, ...buttonStyles.iconButton }}
                   className="PayButtons adminTextBigPay invoices"
                 >
                   Рахунок
@@ -412,14 +415,32 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
         <>
           {thisOrder.Payment?.method === 'terminal' && (
             <>
-              <div className="payment-methods-panel payment-methods-panel--equal d-flex align-items-center">
+              <div className="payment-methods-panel d-flex align-items-center">
                 <button
-                  className="PayButtons link pay-btn-active"
+                  className="PayButtons link"
+                  style={{
+                    backgroundColor: "#008249",
+                    color: "white",
+                    width: "3vw",
+                  }}
                 >
                   <Loader/>
                 </button>
                 <div
-                  className="PayButtons pay-button-wait pay-btn-active"
+                  className="PayButtons wait"
+                  style={{
+                    background: "#f2f0e7",
+                    height: "4vh",
+                    width: "25vw",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                    fontSize: "1vw",
+                    fontWeight: 400,
+                    borderRadius: "0vw",
+                    color: "#9f9e9d",
+                  }}
                 >
                   {formats[index]}
                 </div>
@@ -430,16 +451,22 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
 
                   onClick={(event) => firstCheckboxPayment?.checkboxReceiptId && getPayment(firstCheckboxPayment.checkboxReceiptId)}
                   >
-                  {loading ? <Loader/> : <div className="pay-icon">📄</div>}
+                  {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
                 </button>
               </div>
             </>
           )}
           {thisOrder.Payment?.method === 'link' && (
             <>
-              <div className="payment-methods-panel payment-methods-panel--equal d-flex align-items-center">
+              <div className="payment-methods-panel d-flex align-items-center">
                 <button
-                  className="PayButtons link pay-btn-active"
+                  className="PayButtons link"
+                  style={{
+                    backgroundColor: "#008249",
+                    color: "white",
+                    width: "3vw",
+                    height:"4vh"
+                  }}
                   onClick={() => {
                     window.open(thisOrder.Payment.pageUrl, "_blank");
                   }}
@@ -447,7 +474,20 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                   +&nbsp;
                 </button>
                 <div
-                  className="PayButtons pay-button-wait pay-btn-active"
+                  className="PayButtons wait"
+                  style={{
+                    background: "#f2f0e7",
+                    height: "4vh",
+                    width: "25vw",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                    fontSize: "1vw",
+                    fontWeight: 400,
+                    borderRadius: "0vw",
+                    color: "#9f9e9d",
+                  }}
                 >
                   {formats[index]}
                 </div>
@@ -456,7 +496,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                   // style={{background:"#e01729"}}
                   onClick={invalidateInvoice}>
 
-                  {loading ? <Loader/> : <div className="pay-icon">X</div>}
+                  {loading ? <Loader/> : <div className="pay-button-end-x">X</div>}
                 </button>
               </div>
             </>
@@ -466,11 +506,24 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
       )}
 
       {thisOrder.Payment?.status === "PAID" && (
-        <div className="payment-methods-panel payment-methods-panel--equal d-flex align-items-center">
+        <div className="payment-methods-panel d-flex align-items-center">
           <button
-            className="PayButtons link pay-btn-active pay-button-wait"
+            className="PayButtons link"
+            style={{
+              background: "#008249",
+              height: "4vh",
+              width: "25vw",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              fontSize: "1vw",
+              fontWeight: 400,
+              borderRadius: "0vw",
+              color: "#f2f0e7",
+            }}
           >
-            Оплачено
+            Замовлення оплачене: {thisOrder.Payment?.method}
           </button>
           {firstCheckboxPayment && (
             <>
@@ -480,7 +533,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
 
                   onClick={(event) => firstCheckboxPayment?.checkboxReceiptId && getPayment(firstCheckboxPayment.checkboxReceiptId)}
                 >
-                  {loading ? <Loader/> : <div className="pay-icon">📄</div>}
+                  {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
                 </button>
               )}
             </>
@@ -504,7 +557,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
 
                       // onClick={(event) => firstCheckboxPayment?.checkboxReceiptId && getPayment(firstCheckboxPayment.checkboxReceiptId)}
                     >
-                      {loading ? <Loader/> : <div className="pay-icon">📄</div>}
+                      {loading ? <Loader/> : <div style={{fontSize:"2.5vh", marginRight:"1.5vw"}}>📄</div>}
                     </button>
                   )}
                 </>
