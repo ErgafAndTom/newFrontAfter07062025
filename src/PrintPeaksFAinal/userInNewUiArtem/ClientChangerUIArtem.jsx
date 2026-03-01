@@ -300,7 +300,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
   };
 
   return (
-    <div className={`nui-client-envelope-shell tone-${progressCounterTone}`} style={{ position: 'relative', height: '100%', padding: hidePaymentPanel ? '0.6rem 0.8rem 0.5rem' : '0.6rem 0.8rem 6.2rem' }}>
+    <div className={`nui-client-envelope-shell tone-${progressCounterTone}`} >
       <div className="nui-client-envelope-grid">
         <div className="nui-client-envelope-card">
           <div className="nui-client-card-layout">

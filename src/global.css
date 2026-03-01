@@ -64,7 +64,8 @@ body {
   font-size: clamp(1rem, 1vh, 2.5vh);
   color: #646462;
   font-weight: 400;
-
+  background: var(--adminfon);
+  background-color: var(--adminfon);
 }
 .form-control {
   font-family: inherit !important;
@@ -79,6 +80,7 @@ body {
   inset: 0;
 }
 :root {
+  --bs-body-font-family: 'HelveticaNeueCyr', sans-serif;
   /* fonts */
   --font-Comfortaa: 'Comfortaa';
   --font-ink-free: 'Ink Free';
@@ -98,22 +100,34 @@ body {
 
   --font-size-smi-1: 12.1px;
   --font-size-sm-2: 13.2px;
-  --fontcard: 14px;
+  --fontcard: 12px;
+  --font-size-status: 13px;
   --fontsmall: 15px;
   --font-size-s: 17px;
-  --font-size-pay: 22px;
+  --font-size-pay: 21px;
   --font-size-paybig: 26px;
   /* Colors */
+  --adminfonelement: #f2f0e9;
+  --adminfon: #ffffff;
+
   --admingreen: #0e935b;
   --admingrey: #666666;
   --adminorange: #f5a623;
   --adminblue: #3c60a6;
-  --adminfonelement: #f2f0e9;
-  --adminfon: #f7f5ee;
   --adminrose: #ef7aaa;
   --adminred: #ee3c23;
   --adminpurple: #6a5acd;
   --admincyan: #00A8C6;
+  --admincoral: #ff7f50;
+
+  --adminlightgreen: #e2f2eb;
+  --adminlightgrey: #666666;
+  --adminlightorange: #fef4e5;
+  --adminlightblue: #e8ecf4;
+  --adminlightrose: #fdeff5;
+  --adminlightred: #ee3c23;
+  --adminlightpurple: #edebf9;
+  --adminlightcyan: #e0f5f8;
 
   --color-fon: #f2f0e7;
   --color-act: #f8f9fa;

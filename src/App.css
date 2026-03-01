@@ -4,12 +4,7 @@
 /*  font-weight: normal;*/
 /*  font-style: normal;*/
 /*}*/
-@font-face {
 
-  src: url('https://fonts.googleapis.com/css2?family=Shantell+Sans:ital,wght@0,300..800;1,300..800&display=swap');
-  font-weight: normal;
-  font-style: normal;
-}
 
 /*@font-face {*/
 /*   */
@@ -41,7 +36,6 @@
 }
 
 body {
-  background: #faf9f5;
 }
 
 @keyframes App-logo-spin {

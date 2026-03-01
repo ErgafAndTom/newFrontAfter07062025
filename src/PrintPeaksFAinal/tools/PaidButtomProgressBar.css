@@ -21,7 +21,7 @@
   padding: 5px 18px;
   border: 2px solid var(--adminorange, #f5a623) !important;
   border-radius: 0;
-  background: transparent !important;
+  background-color: transparent !important;
   font-size: var(--font-size-s) !important;
   text-align: center;
   align-items: center;
@@ -312,9 +312,15 @@
 
 .payment-methods-panel.payment-methods-panel--await {
   display: grid !important;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
   width: 100% !important;
+  max-width: 100% !important;
   border-bottom-color: transparent !important;
+  align-items: stretch !important;
+  column-gap: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .PayButtons.pay-await-open,
@@ -323,46 +329,97 @@
 .PayButtons.pay-await-receipt {
   width: 100% !important;
   min-width: 0 !important;
+  height: 100% !important;
+  min-height: 0 !important;
   text-transform: none;
-  font-size: var(--fontsmall) !important;
+  font-size: var(--font-size-s) !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+align-content: flex-end;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 1 0 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin: 0 !important;
+  font-weight: 400 !important;
+  justify-content: flex-end;
 }
 
 .PayButtons.pay-await-open {
-  height: 100% !important;
-  min-height: 0 !important;
-  border-top: 0 !important;
-  border-left: 0 !important;
-  border-right: 0 !important;
-  border-bottom: 2px solid var(--admingreen, #0e935b) !important;
-  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 0.5em !important;
+  text-decoration-color: var(--admingreen, #0e935b) !important;
+  background-color: transparent !important;
   color: var(--admingreen, #0e935b) !important;
+  font-size: var(--font-size-s) !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  padding-left: 0 !important;
+  padding-right: 0.25rem !important;
+  position: relative !important;
+  overflow: hidden !important;
+  cursor: pointer !important;
 }
 
 .PayButtons.pay-await-state {
-  height: 100% !important;
-  min-height: 0 !important;
-  border-top: 0 !important;
-  border-left: 0 !important;
-  border-right: 0 !important;
-  border-bottom: 2px solid var(--adminorange, #f5a623) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-decoration: none;
   background: transparent !important;
-  color: var(--adminorange, #f5a623) !important;
+  color: var(--admingrey, #666666) !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  justify-content: center !important;
+  justify-self: stretch !important;
+  text-align: center !important;
+  margin: 0 !important;
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
 }
 
-.PayButtons.pay-await-cancel {
-  height: 100% !important;
-  min-height: 0 !important;
-  border-top: 0 !important;
-  border-left: 0 !important;
-  border-right: 0 !important;
-  border-bottom: 2px solid var(--adminred, #ee3c23) !important;
+.PayButtons.pay-await-cancel,
+.PayButtons.end.pay-await-cancel {
+  border: 0 !important;
+  box-shadow: none !important;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.5em;
+  text-decoration-color: var(--adminred, #ee3c23);
   background: transparent !important;
   color: var(--adminred, #ee3c23) !important;
+  justify-content: flex-end !important;
+  justify-self: stretch !important;
+  text-align: right !important;
+  padding-left: 0.25rem !important;
+  padding-right: 0 !important;
+  margin-left: auto !important;
+}
+
+.payment-methods-panel.payment-methods-panel--await .PayButtons.end.pay-await-cancel {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  font-size: var(--font-size-s) !important;
+  font-weight: 400 !important;
+}
+
+.payment-methods-panel.payment-methods-panel--await .PayButtons.end.pay-await-cancel,
+.payment-methods-panel.payment-methods-panel--await .PayButtons.end.pay-await-cancel * {
+  font-size: var(--font-size-s) !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
 }
 
 .PayButtons.pay-await-receipt {
-  height: 100% !important;
-  min-height: 0 !important;
   border-top: 0 !important;
   border-left: 0 !important;
   border-right: 0 !important;
@@ -372,13 +429,13 @@
 }
 
 .PayButtons.pay-await-open,
-.PayButtons.pay-await-open * {
+.PayButtons.pay-await-open *:not(::before):not(::after) {
   color: var(--admingreen, #0e935b) !important;
 }
 
 .PayButtons.pay-await-state,
 .PayButtons.pay-await-state * {
-  color: var(--adminorange, #f5a623) !important;
+  color: var(--admingrey, #666666) !important;
 }
 
 .PayButtons.pay-await-cancel,
@@ -394,13 +451,13 @@
 .PayButtons.pay-await-open:hover,
 .PayButtons.pay-await-open:hover * {
   color: var(--admingreen, #0e935b) !important;
-  border-bottom-color: var(--admingreen, #0e935b) !important;
+  border-color: var(--admingreen, #0e935b) !important;
 }
 
 .PayButtons.pay-await-state:hover,
 .PayButtons.pay-await-state:hover * {
-  color: var(--adminorange, #f5a623) !important;
-  border-bottom-color: var(--adminorange, #f5a623) !important;
+  color: var(--admingrey, #666666) !important;
+  text-decoration: none;
 }
 
 .PayButtons.pay-await-cancel:hover,
@@ -415,28 +472,22 @@
   border-bottom-color: var(--adminblue, #3c60a6) !important;
 }
 
-.PayButtons.pay-await-receipt {
-  border-top: 0 !important;
-  border-left: 0 !important;
-  border-right: 0 !important;
-  border-bottom: 2px solid var(--adminblue, #3c60a6) !important;
-  background: color-mix(in srgb, var(--adminblue, #3c60a6) 8%, var(--adminfon, #f7f5ee)) !important;
-  color: var(--adminblue, #3c60a6) !important;
-}
-
 .pay-await-cancel-text,
 .pay-await-receipt-text {
-  font-size: var(--fontsmall) !important;
-  line-height: 1;
+  font-size: inherit !important;
+  line-height: inherit;
 }
 
-.PayButtons.pay-await-open::before,
-.PayButtons.pay-await-open::after,
 .PayButtons.pay-await-state::before,
 .PayButtons.pay-await-state::after,
 .PayButtons.pay-await-cancel::before,
 .PayButtons.pay-await-cancel::after,
 .PayButtons.pay-await-receipt::before,
 .PayButtons.pay-await-receipt::after {
+  display: none !important;
+}
+
+.PayButtons.pay-await-open::before,
+.PayButtons.pay-await-open::after {
   display: none !important;
 }

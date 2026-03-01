@@ -1,11 +1,8 @@
-
-import './bootstrap.css';
-import './bootstrap.css.map';
-import './App.css';
-import './Colors.css';
+import './global.css';
 import './StylesOld.css';
 import './index.css';
-import './global.css';
+import './bootstrap.css';
+import './bootstrap.css.map';
 import {Provider} from "react-redux";
 import {store} from "./stores/store";
 import {BrowserRouter as Router} from 'react-router-dom'

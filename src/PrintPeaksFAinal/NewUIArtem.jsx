@@ -1,10 +1,6 @@
-import React, { useEffect, useState } from "react";
-
-import './userInNewUiArtem/StyleArtem.css';
-import './CPM.css';
+import React, { useEffect, useState, useRef } from "react";
+// import './CPM.css';
 import './adminStylesCrm.css';
-import './Wide.css';
-import './MainWindow.css';
 import './NewUIArtem.css';
 import { useNavigate, useParams } from "react-router-dom";
 import axios from '../api/axiosInstance';
@@ -74,6 +70,7 @@ const NewUIArtem = () => {
   const [showDeleteOrderUnitModal, setShowDeleteOrderUnitModal] = useState(false);
   const [thisOrderUnit, setThisOrderUnit] = useState(null);
   const [orderDeadlineCountdown, setOrderDeadlineCountdown] = useState('');
+
 
 
   const [showNewSheetCut, setShowNewSheetCut] = useState(false);
@@ -230,6 +227,15 @@ const NewUIArtem = () => {
       .replace(/[aа]\s*4\+?/gi, 'A4')
       .replace(/[aа]\s*3\+?/gi, 'A3');
 
+    // прибрати "на матеріалі" і лапки навколо назви матеріалу
+    result = result.replace(/,?\s*на матеріалі\s+["«"„""'']?([^"»""'']+)["»""'']?/gi, ', $1');
+
+    // замінити gsm на г/м²
+    result = result.replace(/\bgsm\b/gi, 'г/м²');
+
+    // прибрати кому в кінці
+    result = result.replace(/,\s*$/, '');
+
     return result;
   };
   // ✅ ВАЖЛИВО: функція має бути в scope компонента, а не всередині іншої функції
@@ -276,7 +282,7 @@ const NewUIArtem = () => {
   }, [id]);
 
   useEffect(() => {
-    const deadlineAt = thisOrder?.deadline || thisOrder?.finalManufacturingTime || null;
+    const deadlineAt = thisOrder?.deadline || (typeof thisOrder?.finalManufacturingTime === 'string' ? thisOrder.finalManufacturingTime : null);
     if (!deadlineAt) {
       setOrderDeadlineCountdown('');
       return undefined;
@@ -288,7 +294,7 @@ const NewUIArtem = () => {
       const hours = Math.floor((totalSeconds % 86400) / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
 
-      if (days > 0) return `${days}Д ${String(hours).padStart(2, '0')}Г`;
+      if (days > 0) return `${days}Д ${String(hours).padStart(2, '0')}Г ${String(minutes).padStart(2, '0')}ХВ`;
       return `${String(hours).padStart(2, '0')}Г ${String(minutes).padStart(2, '0')}ХВ`;
     };
 
@@ -304,7 +310,7 @@ const NewUIArtem = () => {
     tick();
     const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
-  }, [thisOrder?.deadline, thisOrder?.finalManufacturingTime]);
+  }, [thisOrder?.id, thisOrder?.deadline, thisOrder?.finalManufacturingTime]);
 
   const statusValue = Number.parseInt(thisOrder?.status, 10);
   const isCancelledOrder = thisOrder?.status === 'Відміна' || statusValue === -1;
@@ -389,15 +395,15 @@ const NewUIArtem = () => {
 
   if (thisOrder) {
     return (
-      <div className="nui-sheetcut-theme sc-wrap">
+      <div className="nui-sheetcut-theme">
         <QuantumErrorBoundary/>
 
-        <div className={`d-flex  ${serviceToneClass}${hasOrders ? "" : " no-orders"}`}>
-          <div className="containerForContNewUI">
+        <div className={`d-flex  ${serviceToneClass}${hasOrders ? "" : " no-orders"}`} style={{ background: 'transparent' }}>
+          <div className="">
 
             {/* === GRID OF SERVICE TILES === */}
             <div
-              className={`CardPrintersPoslugi nui-services-grid nui-services-grid-primary nui-services-position-primary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
+              className={`CardPrintersPoslugi nui-services-grid nui-services-grid-primary`}
               onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
 
             >
@@ -427,9 +433,7 @@ const NewUIArtem = () => {
                 }}
               >
                 <div className="tileContent">
-                  <div className="verticalColumns nui-vertical-columns-tight">
-                    <span className="verticalText">DIGITAL PRINT CUTING</span>
-                  </div>
+                  <span className="verticalText">DIGITAL PRINT CUTING</span>
                   <img className="icon64 CardPrintersPoslugiImg" src={colorPrintIcon} alt="" />
                 </div>
               </p>
@@ -492,60 +496,39 @@ const NewUIArtem = () => {
               </p>
             </div>
 
-            {/* Третя група */}
-            <div className={`CardPrintersPoslugi nui-services-grid nui-services-grid-secondary nui-services-position-secondary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
+            {/* Третя група — NOTE, BOOKLET, MUG (purple) */}
+            <div className={`CardPrintersPoslugi nui-services-grid nui-services-grid-tertiary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
                  onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
             >
               <p onClick={() => setShowNewNote(true)}>
                 <div className="tileContent">
                   <span className="verticalText">NOTE</span>
                   <img className="icon64 CardPrintersPoslugiImg" src={noteIcon} alt="" />
-                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
-                  {/*     stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
-                  {/*  <rect x="18" y="12" width="28" height="40" rx="2"/>*/}
-                  {/*  <line className="draw" pathLength="1" x1="22" y1="16" x2="22" y2="48"/>*/}
-                  {/*  <circle className="draw" pathLength="1" cx="22" cy="20" r="1"/>*/}
-                  {/*  <circle className="draw" pathLength="1" cx="22" cy="26" r="1"/>*/}
-                  {/*  <circle className="draw" pathLength="1" cx="22" cy="32" r="1"/>*/}
-                  {/*</svg>*/}
                 </div>
               </p>
-
 
               <p onClick={() => setShowNewBooklet(true)}>
                 <div className="tileContent">
                   <span className="verticalText">BOOKLET</span>
                   <img className="icon64 CardPrintersPoslugiImg" src={bookletIcon} alt="" />
-                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
-                  {/*     stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
-                  {/*  <rect x="16" y="14" width="32" height="36" rx="2"/>*/}
-                  {/*  <line className="draw" pathLength="1" x1="32" y1="14" x2="32" y2="50"/>*/}
-                  {/*</svg>*/}
                 </div>
               </p>
-
 
               <p onClick={() => setShowNewCup(true)}>
                 <div className="tileContent">
                   <span className="verticalText">MUG</span>
                   <img className="icon64 CardPrintersPoslugiImg" src={MUG} alt="" />
-                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64"*/}
-                  {/*     fill="none" stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
-                  {/*  <rect className="draw" pathLength="1" x="20" y="24" width="20" height="16" rx="2"/>*/}
-                  {/*  <circle className="draw" pathLength="1" cx="42" cy="28" r="5"/>*/}
-                  {/*  <path className="draw" pathLength="1" d="M26 20c0-4 4-4 4-8"/>*/}
-                  {/*  <path className="draw" pathLength="1" d="M34 20c0-4 4-4 4-8"/>*/}
-                  {/*</svg>*/}
-
-
                 </div>
               </p>
+            </div>
 
-
-              <p className="nui-pos-r3c1" onClick={() => setShowNewScans(true)}>
+            {/* Четверта група — SCANS, DELIVERY, WIDE FACTORY (rose) */}
+            <div className={`CardPrintersPoslugi nui-services-grid nui-services-grid-secondary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
+                 onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
+            >
+              <p onClick={() => setShowNewScans(true)}>
                 <div className="tileContent">
                   <span className="verticalText">SCANS</span>
-                  {/*<img className="icon64 CardPrintersPoslugiImg" src={scansIcon} alt=""/>*/}
                   <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
                        stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="14" y="28" width="36" height="12" rx="2" />
@@ -555,28 +538,19 @@ const NewUIArtem = () => {
                 </div>
               </p>
 
-
-              <p className="nui-pos-r3c2" onClick={() => setShowDelivery(true)}>
+              <p onClick={() => setShowDelivery(true)}>
                 <div className="tileContent">
                   <span className="verticalText">DELIVERY</span>
                   <img className="icon64 CardPrintersPoslugiImg" src={deliveryIcon} alt="" />
-                  {/*<svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"*/}
-                  {/*     stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">*/}
-                  {/*  <rect x="12" y="28" width="40" height="12" rx="2"/>*/}
-                  {/*  <path className="draw" pathLength="1" d="M12 28l8-8h24l8 8"/>*/}
-                  {/*  <circle cx="20" cy="44" r="4"/>*/}
-                  {/*  <circle cx="44" cy="44" r="4"/>*/}
-                  {/*</svg>*/}
                 </div>
               </p>
 
-              <p className="nui-pos-r3c3" onClick={() => openEditorForOrderUnit(null, 'WideFactory')}>
+              <p onClick={() => openEditorForOrderUnit(null, 'WideFactory')}>
                 <div className="tileContent">
                   <span className="verticalText">WIDE FACTORY</span>
                   <img className="icon64 CardPrintersPoslugiImg" src={wideFactoryIcon} alt="" />
                 </div>
               </p>
-
             </div>
           </div>
 
@@ -596,7 +570,7 @@ const NewUIArtem = () => {
                   const editorLabel = String(editor?.label || thing.newField6 || 'редагувати').toUpperCase();
                   const editorAccentClass = getEditorAccentClass(thing);
                   const formattedName = formatThingName(thing.name);
-                  const isNameParagraph = formattedName.length > 115;
+                  const isNameParagraph = String(formattedName).length > 55;
                   const hasDiscount = parseFloat(thing.priceForOneThis).toFixed(2) !== parseFloat(thing.priceForOneThisDiscount).toFixed(2);
                   const unitPrice = hasDiscount
                     ? parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)
@@ -606,11 +580,15 @@ const NewUIArtem = () => {
                   return (
                     <div
                       key={index}
-                      className={`nui-order-item${expandedThingIndex === index ? " is-expanded" : ""}`}
+                      className={`nui-order-item ${orderToneClass}${expandedThingIndex === index ? " is-expanded" : ""}`}
                       onClick={() => toggleExpandedThing(index)}
                     >
                       <div className="nui-item-header">
-                        <div className={`nui-item-name${isNameParagraph ? ' is-paragraph' : ''}`} style={!isCancelledOrder ? { color: 'var(--admingrey)' } : undefined}>{formattedName}</div>
+                        <div className={`nui-item-name${isNameParagraph ? ' is-paragraph' : ''}`} style={!isCancelledOrder ? { color: 'var(--admingrey)' } : undefined}>
+                          {String(formattedName).split(/(²)/).map((part, i) =>
+                            part === '²' ? <sup key={i} style={{color: 'var(--admingrey)'}}>2</sup> : part
+                          )}
+                        </div>
                         <div className="nui-item-actions">
                           <div className="nui-item-btn nui-item-del" onClick={(e) => handleThingClickDelete2(thing, e)}>✕</div>
                         </div>
@@ -664,6 +642,11 @@ const NewUIArtem = () => {
               </div>
             ) : null}
 
+            {uiLockError && (
+              <div className="nui-error-bar">
+                {uiLockError}
+              </div>
+            )}
             <div className="nui-order-status-inline">
               <ProgressBar
                 thisOrder={thisOrder}
@@ -675,6 +658,7 @@ const NewUIArtem = () => {
                 showFinance={false}
                 showActionButton={false}
                 showTrack={true}
+                showError={false}
               />
             </div>
 
@@ -683,6 +667,7 @@ const NewUIArtem = () => {
             <div className="nui-bottom-pane nui-bottom-pane--progress">
               <div className="nui-bottom-main-row">
                 <div className="nui-bottom-finance-inline">
+                  <div className="nui-finance-pb-wrap">
                   <ProgressBar
                     thisOrder={thisOrder}
                     setThisOrder={setThisOrder}
@@ -692,7 +677,29 @@ const NewUIArtem = () => {
                     showActionRail={false}
                     showFinance={true}
                     showError={false}
+                    onDiscountError={setUiLockError}
                   />
+                  </div>
+                  <div className="nui-deadline-envelope">
+                    {orderDeadlineCountdown ? (
+                      <>
+                        <span className="nui-deadline-envelope__prefix">Замовлення необхідно віддати через:</span>
+                        <span className="nui-deadline-envelope__counter">
+                          {orderDeadlineCountdown.split(' ').map((token, i) => {
+                            const m = token.match(/^(\d+)(Д|Г|ХВ|ПРОСТРОЧЕНО:?)$/i);
+                            if (!m) return <span key={i}>{token} </span>;
+                            return (
+                              <span key={i} className="nui-deadline-token">
+                                {m[1]}<span className="nui-deadline-unit">{m[2]}</span>{' '}
+                              </span>
+                            );
+                          })}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="nui-deadline-envelope__placeholder">have a nice print</span>
+                    )}
+                  </div>
                 </div>
                 <div className="nui-bottom-client-inline">
                   <ClientChangerUIArtem

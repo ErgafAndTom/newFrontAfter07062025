@@ -314,10 +314,8 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
     }
   }, [thisOrder]);
 
-  const isPaidOrAwait = thisOrder.Payment?.status === "PAID" || thisOrder.Payment?.status === "CREATED";
-
   return (
-    <div className={`payment-methods-panel adminTextBig ${isPaidOrAwait ? "payment-methods-panel--paid" : ""}`}>
+    <div className="adminTextBig">
 
       {showAwaitCashPays && (
         <AwaitPaysCash
@@ -448,7 +446,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
 
                   onClick={(event) => firstCheckboxPayment?.checkboxReceiptId && getPayment(firstCheckboxPayment.checkboxReceiptId)}
                   >
-                  {loading ? <Loader/> : <span className="pay-await-receipt-text">Чек</span>}
+                  {loading ? <Loader/> : "Чек"}
                 </button>
               </div>
             </>
@@ -474,7 +472,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                   // style={{background:"#e01729"}}
                   onClick={invalidateInvoice}>
 
-                  {loading ? <Loader/> : <span className="pay-await-cancel-text">Скасувати</span>}
+                  {loading ? <Loader/> : "Скасувати"}
                 </button>
               </div>
             </>
