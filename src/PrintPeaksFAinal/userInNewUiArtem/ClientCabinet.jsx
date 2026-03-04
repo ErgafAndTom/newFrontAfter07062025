@@ -4,13 +4,13 @@ import axios from "../../api/axiosInstance";
 import {Link} from "react-router-dom";
 import Loader from "../../components/calc/Loader";
 import {useSelector} from "react-redux";
+import "./ClientCabinet.css";
 
 export default function ClientCabinet({
                                         user = {},
                                         userId = 0,
                                         orders = [],
                                         thisOrder = {id: 0},
-                                        // onCreateOrder,
                                         onOpenChat,
                                         onClose,
                                       }) {
@@ -21,126 +21,73 @@ export default function ClientCabinet({
   const [userInBase, setUserInBase] = useState(null);
   const currentUser = useSelector((state) => state.auth.user);
 
-  // useEffect(() => {
-  //   const h = (e) => e.key === "Escape" && onClose?.();
-  //   document.addEventListener("keydown", h);
-  //   return () => document.removeEventListener("keydown", h);
-  // }, [onClose]);
+  /* ---------- actions ---------- */
 
-  const handleSearchChange = (e) => {
-    // console.log(e.target.value);
-    setSearchQuery(e.target.value);
+  const onOpenProfile = (u) => {
+    if (u?.id) window.location.href = `/Users/${u.id}`;
   };
 
-  const onOpenProfile = (userInBase) => {
-    if(userInBase.id){
-      window.location.href = `/Users/${userInBase.id}`;
+  const onOpenCompanyProfile = (u) => {
+    if (u?.Company?.id) {
+      window.location.href = `/Companys/${u.Company.id}`;
+    } else if (u?.id) {
+      window.location.href = `/Users/${u.id}`;
     }
-    // console.log(e.target.value);
-  };
-
-  const onOpenCompanyProfile = (userInBase) => {
-    if(userInBase.Company?.id){
-      window.location.href = `/Companys/${userInBase.Company?.id}`;
-    }
-    // console.log(e.target.value);
   };
 
   const onCreateOrder = () => {
-    // Створюємо новий запит для створення замовлення
-    const postData = {
-      userId: userInBase.id,
-    };
-    axios.post(`/orders/createForThisUser`, postData)
-      .then(response => {
-        // Сповіщаємо всіх про створення замовлення
-        // const event = new CustomEvent('orderCreated', { detail: response.data });
-        // event.log = 'orderCreated';
-        // window.orderEvents.dispatchEvent(event);
-
-        window.location.href = `/Orders/${response.data.id}`;
-      })
-      .catch(error => {
-        console.log(error.message);
-      });
+    if (!userInBase?.id) return;
+    axios.post(`/orders/createForThisUser`, { userId: userInBase.id })
+      .then(res => { window.location.href = `/Orders/${res.data.id}`; })
+      .catch(err => console.log(err.message));
   };
 
-  useEffect(() => {
-    if (userInBase) {
-      const fetchData = async () => {
-        try {
-          // const url = user.role === 'admin' || user.role === 'operator' ? '/orders/all' : '/orders/my';
-          let url = '/orders/all';
-          if(currentUser.role === 'user'){
-            url = '/orders/my';
-            setClientOrders(orders);
-          } else {
-            const postData = {
-              inPageCount: 9999,
-              currentPage: 1,
-              search: "",
-              columnName: {column: 'id', reverse: true},
-              startDate: "",
-              endDate: "",
-              statuses: {
-                status0: true,
-                status1: true,
-                status2: true,
-                status3: true,
-                status4: true,
-                status5: true
-              },
-              user: userInBase.id,
-            };
-
-
-            setLoading(true);
-            const res = await axios.post(url, postData);
-            // console.log(res.data);
-            setClientOrders(res.data.rows);
-            setLoading(false);
-          }
-
-        } catch (err) {
-          // if (err.response?.status === 403) navigate('/login');
-          setError(err.message);
-          setLoading(false);
-        }
-      };
-
-      fetchData();
-    }
-  }, [userInBase]);
+  /* ---------- data fetching ---------- */
 
   useEffect(() => {
-    console.log(userId);
-    if (userId) {
-      const fetchData = async () => {
-        try {
-          // const url = user.role === 'admin' || user.role === 'operator' ? '/orders/all' : '/orders/my';
-          let url = `/user/getOneUser/${userId}`;
-          setLoading(true);
-          const res = await axios.get(url);
-          console.log(res.data);
-          setUserInBase(res.data);
-          setLoading(false);
-
-        } catch (err) {
-          // if (err.response?.status === 403) navigate('/login');
-          setError(err.message);
-          setLoading(false);
-        }
-      };
-
-      fetchData();
-    }
+    if (!userId) return;
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`/user/getOneUser/${userId}`);
+        setUserInBase(res.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  // const stats = useMemo(() => {
-  //   const total = orders.reduce((s, o) => s + (+o.total || 0), 0);
-  //   const paid = orders.reduce((s, o) => s + (+o.paid || 0), 0);
-  //   return { total, paid, balance: total - paid, count: orders.length };
-  // }, [clientOrders]);
+  useEffect(() => {
+    if (!userInBase) return;
+    (async () => {
+      try {
+        if (currentUser.role === 'user') {
+          setClientOrders(orders);
+          return;
+        }
+        setLoading(true);
+        const res = await axios.post('/orders/all', {
+          inPageCount: 9999,
+          currentPage: 1,
+          search: "",
+          columnName: { column: 'id', reverse: true },
+          startDate: "",
+          endDate: "",
+          statuses: { status0: true, status1: true, status2: true, status3: true, status4: true, status5: true },
+          user: userInBase.id,
+        });
+        setClientOrders(res.data.rows);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [userInBase]);
+
+  /* ---------- computed ---------- */
 
   const fullName = useMemo(() => {
     const base = [userInBase?.firstName, userInBase?.lastName].filter(Boolean).join(" ");
@@ -155,199 +102,154 @@ export default function ClientCabinet({
     return { total, paid, balance: total - paid, count: clientOrders.length };
   }, [clientOrders]);
 
+  /* ---------- helpers ---------- */
+
+  const statusLabel = (s) => {
+    const v = String(s || "");
+    if (v === "-1") return "Скасоване";
+    if (v === "0") return "Оформлення";
+    if (v === "1") return "Друкується";
+    if (v === "2") return "Постпрес";
+    if (v === "3") return "Готове";
+    if (v === "4") return "Віддали";
+    return "Віддали";
+  };
+
+  const statusToneClass = (s) => {
+    const v = String(s || "");
+    if (v === "-1") return "cc-tone-red";
+    if (v === "0") return "cc-tone-cyan";
+    if (v === "1") return "cc-tone-orange";
+    if (v === "2") return "cc-tone-blue";
+    if (v === "3") return "cc-tone-rose";
+    if (v === "4") return "cc-tone-purple";
+    return "cc-tone-purple";
+  };
+
+  const paymentLabel = (o) => {
+    if (!o.Payment) return { text: "Не оплачено", cls: "cc-pay--nopay" };
+    switch (o.Payment.status) {
+      case 'PAID': {
+        const m = o.Payment.method;
+        const t = m === 'terminal' ? 'Карткою' : m === 'link' ? 'За посиланням' : m === 'cash' ? 'Готівкою' : 'Оплачено';
+        return { text: t, cls: "cc-pay--paid" };
+      }
+      case 'CREATED': return { text: "Очікування", cls: "cc-pay--wait" };
+      case 'CANCELLED': return { text: "Відміна", cls: "cc-pay--cancel" };
+      case 'EXPIRED': return { text: "Прострочено", cls: "cc-pay--expired" };
+      default: return { text: "Не оплачено", cls: "cc-pay--nopay" };
+    }
+  };
+
+  const fmtMoney = (v) => {
+    const n = +v || 0;
+    return n % 1 === 0 ? String(n) : n.toFixed(2);
+  };
+
+  /* ---------- render ---------- */
+
   return (
     <div className="cc-overlay" onClick={onClose}>
       <div className="cc-panel" onClick={(e) => e.stopPropagation()}>
+
+        {/* ── Header ── */}
         <header className="cc-header">
-          <div className="cc-avatar">
-            {userInBase?.telegram ? (
-              <TelegramAvatar
-                link={userInBase?.telegram}
-                size={70}
-                // defaultSrc={
-                //   "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%20width%3D'70'%20height%3D'70'%20fill%3D'none'%20stroke%3D'currentColor'%20stroke-width%3D'1.6'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'12'%20cy%3D'8'%20r%3D'3.2'/%3E%3Cpath%20d%3D'M4%2020c0-3.3%203.6-6%208-6s8%202.7%208%206'/%3E%3C%2Fsvg%3E"
-                // }
-              />
-            ) : userInBase?.photoLink ? (
-              <img src={userInBase?.photoLink} alt={fullName} />
-            ) : (
-              <div className="cc-avatar-fallback" aria-hidden="true">
-                {/* Inline SVG fallback */}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  width="45"
-                  height="45"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.6}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  role="img"
-                  aria-label="Аватар"
-                >
-                  <circle cx="12" cy="8" r="3.2" />
-                  <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" />
-                </svg>
-              </div>
-            )}
+          <div className="cc-avatar-wrap">
+            <TelegramAvatar link={userInBase?.telegram} size={56} square={true} />
+            <span className="cc-id-badge">ID {userInBase?.id ?? '—'}</span>
           </div>
-          <div className="cc-title d-flex flex-row gap-1 ">
+
+          <div className="cc-title">
             <div className="cc-name">{fullName}</div>
-            <div className="cc-meta">
-             {userInBase?.company && <span className="cc-chip">{userInBase?.company}</span>}
-
-
-            </div>
+            {userInBase?.company && <span className="cc-chip">{userInBase.company}</span>}
             <section className="cc-contacts">
-
-              {userInBase?.phoneNumber && <a className="cc-contact" href={`tel:${userInBase?.phoneNumber}`}>{userInBase?.phoneNumber}</a>}
-              {userInBase?.email && <a className="cc-contact" href={`mailto:${userInBase?.email}`}>{userInBase?.email}</a>}
-              {userInBase?.telegram && (
-                <a className="cc-contact" target="_blank" rel="noreferrer"
-                   href={`https://t.me/${String(userInBase?.telegram).replace("@","")}`}>
-                  {String(userInBase?.telegram).replace("@","")}
-                </a>
-              )}
+              {userInBase?.phoneNumber && <a className="cc-contact" href={`tel:${userInBase.phoneNumber}`}>{userInBase.phoneNumber}</a>}
+              {userInBase?.email && <a className="cc-contact" href={`mailto:${userInBase.email}`}>{userInBase.email}</a>}
             </section>
           </div>
 
           <button className="cc-close" onClick={onClose} aria-label="Закрити">✕</button>
         </header>
 
+        {/* ── Action buttons ── */}
         <div className="cc-actions">
-          <button className="cc-btn" onClick={() => onCreateOrder?.(userInBase)}>Нове замовлення</button>
-          {/*<button className="cc-btn" onClick={() => onOpenChat?.(userInBase)}>💬 Чат</button>*/}
-          <button className="cc-btn" onClick={() => onOpenProfile?.(userInBase)}>↗ Профіль</button>
-          <button className="cc-btn" onClick={() => onOpenCompanyProfile?.(userInBase)}>↗ Компанія ({userInBase?.Company?.companyName})</button>
+          <button className="cc-btn" onClick={() => onCreateOrder()}>
+            <span className="cc-btn-text">Нове замовлення</span>
+          </button>
+          <button className="cc-btn" onClick={() => onOpenProfile(userInBase)}>
+            <span className="cc-btn-text">Профіль</span>
+          </button>
+          <button
+            className="cc-btn"
+            onClick={() => onOpenCompanyProfile(userInBase)}
+          >
+            <span className="cc-btn-text">Компанія</span>
+          </button>
         </div>
 
-
-
+        {/* ── Stats ── */}
         <section className="cc-stats">
-          <div className="cc-stat"><div className="cc-stat-v">{stats.count}</div><div className="cc-stat-l">Кількість замовлень</div></div>
-          <div className="cc-stat"><div className="cc-stat-v">{stats.total.toFixed(2)}</div><div className="cc-stat-l">нараховано</div></div>
-          <div className="cc-stat"><div className="cc-stat-v">{stats.paid.toFixed(2)}</div><div className="cc-stat-l">Оплачено</div></div>
-          <div className="cc-stat"><div className="cc-stat-v">{stats.balance.toFixed(2)}</div><div className="cc-stat-l">Баланс</div></div>
-        </section>
-
-        <section className="cc-orders">
-          {/*<div className="cc-orders-head">Замовлення</div>*/}
-          <div className="cc-order-list">
-            {loading &&
-              <div className="d-flex justify-content-center align-items-center" style={{ height: "100%" }}>
-                <h1 className="d-flex justify-content-center align-items-center">
-                  <Loader/>
-                </h1>
-              </div>
-            }
-            {clientOrders.length === 0 && <div className="cc-empty">Замовлень немає.</div>}
-            {clientOrders.map((o) => (
-              <Link key={o.id} style={{textDecoration: 'none'}} to={`/Orders/${o.id}`}>
-                <div className="d-flex cc-order " style={{background: `${statusClass(o.status)}`}}>
-                  <div key={o.id || o._id}>
-                    <div className="cc-order-top">
-                      {thisOrder.id === o.id &&
-                        <div className="cc-order-title" style={{color: "red"}}>{o.title || o.name || `Замовлення №${o.id}`}</div>
-                      }
-                      {thisOrder.id !== o.id &&
-                        <div className="cc-order-title">{o.title || o.name || `Замовлення №${o.id}`}</div>
-                      }
-                    </div>
-                    {/*<div className="cc-order-meta">*/}
-                    {/*  <span>ID: {o.id || o._id}</span>*/}
-                    {/*  {o.createdAt && <span>{formatDate(o.createdAt)}</span>}*/}
-                    {/*</div>*/}
-                    <div className="cc-order-sum">💳 {fmtMoney(o.allPrice, o.currency)}
-                      {o.paid != null && <span className="cc-paid"> • Опл.: {fmtMoney(o.paid, o.currency)}</span>}
-                    </div>
-                  </div>
-                  <div className="cc-order-status-icon m-auto">
-                    {o.Payment?.status === 'CREATED' &&
-                      <div className={`adminButtonAddOrder wait`} style={{}}>
-                        {"Очікування️"}
-                      </div>
-                    }
-                    {o.Payment?.status === 'PAID' &&
-                      <>
-                        {o.Payment && o.Payment.method === 'terminal' && (
-                          <div className={`adminButtonAddOrder pay`} style={{}}>
-                            {"Оплата карткою"}
-                          </div>
-                        )}
-                        {o.Payment && o.Payment.method === 'link' && (
-                          <div className={`adminButtonAddOrder pay`} style={{}}>
-                            {"Оплата за посиланням"}
-                          </div>
-                        )}
-                        {o.Payment && o.Payment.method === 'cash' && (
-                          <div className={`adminButtonAddOrder pay`} style={{}}>
-                            {"Оплата готівкрю"}
-                          </div>
-                        )}
-                      </>
-                    }
-                    {o.Payment?.status === 'CANCELLED' &&
-                      <button className={`adminButtonAddOrder cancel`} style={{}}>
-                        {"Відміна"}
-                      </button>
-                    }
-                    {o.Payment?.status === 'EXPIRED' &&
-                      <button className={`adminButtonAddOrder nopay`} style={{}}>
-                        Не оплачено (EXPIRED)
-                      </button>
-                    }
-                    {o.Payment === null &&
-                      <button className={`adminButtonAddOrder nopay`} >
-                        {"Не оплачено"}
-                      </button>
-                    }
-                  </div>
-                  {/*<div className="cc-order-status">{o.status || "—"}</div>*/}
-                  <div className="adminFontTable d-flex align-content-center justify-content-center m-auto" style={{fontWeight:"200", textTransform:"uppercase", fontSize:"20px" }}>
-                    {/*{item.status}*/}
-                    {o.status === "-1"
-                      ? 'Скасоване'
-                      : o.status === "0"
-                        ? 'Оформлення'
-                        : o.status === "1"
-                          ? 'Друкується'
-                          : o.status === "2"
-                            ? 'Постпресc'
-                            : o.status === "3"
-                              ? 'Готове'
-                              : o.status === "4"
-                                ? 'Віддали'
-                                : 'Віддали'}
-                  </div>
-                </div>
-              </Link>
-            ))}
+          <div className="cc-stat">
+            <div className="cc-stat-v">{stats.count}</div>
+            <div className="cc-stat-l">Замовлень</div>
+          </div>
+          <div className="cc-stat">
+            <div className="cc-stat-v">{fmtMoney(stats.total)}<span className="cc-stat-unit">грн</span></div>
+            <div className="cc-stat-l">Нараховано</div>
+          </div>
+          <div className="cc-stat">
+            <div className="cc-stat-v cc-stat-v--green">{fmtMoney(stats.paid)}<span className="cc-stat-unit">грн</span></div>
+            <div className="cc-stat-l">Оплачено</div>
+          </div>
+          <div className="cc-stat">
+            <div className={`cc-stat-v${stats.balance > 0 ? ' cc-stat-v--red' : ''}`}>{fmtMoney(stats.balance)}<span className="cc-stat-unit">грн</span></div>
+            <div className="cc-stat-l">Баланс</div>
           </div>
         </section>
+
+        {/* ── Orders list ── */}
+        <section className="cc-orders">
+          <div className="cc-order-list">
+            {loading && (
+              <div className="cc-loader-wrap">
+                <Loader />
+              </div>
+            )}
+            {!loading && clientOrders.length === 0 && (
+              <div className="cc-empty">Замовлень немає</div>
+            )}
+            {clientOrders.map((o) => {
+              const isCurrent = thisOrder.id === o.id;
+              const tone = statusToneClass(o.status);
+              const pay = paymentLabel(o);
+              return (
+                <Link key={o.id} className="cc-order-link" to={`/Orders/${o.id}`}>
+                  <div className={`cc-order ${tone}${isCurrent ? ' is-current' : ''}`}>
+                    <div className="cc-order-col cc-order-col--title">
+                      <span className="cc-order-title">
+                        Замовлення <span className={`cc-order-id${isCurrent ? ' is-current' : ''}`}>№{o.id}</span>
+                      </span>
+                    </div>
+                    <div className={`cc-order-col cc-order-col--sum ${pay.cls}`}>
+                      <span className="cc-order-sum-value">{fmtMoney(o.allPrice)}</span><span className="cc-order-sum-unit">грн</span>
+                    </div>
+                    <div className="cc-order-col cc-order-col--date">
+                      {o.createdAt ? new Date(o.createdAt).toLocaleDateString('uk-UA') : '—'}
+                    </div>
+                    <div className="cc-order-col cc-order-col--status">
+                      <span className="cc-order-status">{statusLabel(o.status)}</span>
+                    </div>
+                    <div className={`cc-order-col cc-order-col--pay ${pay.cls}`}>
+                      <span className="cc-pay-badge">{pay.text}</span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
       </div>
     </div>
   );
-}
-
-function statusClass(s) {
-  const v = String(s||"").toLowerCase();
-  if (v.includes("0")) return '#FBFAF6';
-  if (v.includes("1")) return '#d3bda7';
-  if (v.includes("2")) return '#bbc5d3';
-  if (v.includes("3")) return '#f1cbd4';
-  if (v.includes("4")) return '#a9cfb7';
-  if (v.includes("відміна")) return '#ee3c23';
-  return '#FBFAF6';
-}
-function formatDate(d){
-  try{
-    const dt = new Date(d);
-    return dt.toLocaleString("uk-UA",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
-  }catch{return "";}
-}
-function fmtMoney(v,c="UAH"){
-  const n=+v||0;
-  try{ return new Intl.NumberFormat("uk-UA",{style:"currency",currency:c}).format(n); }
-  catch{ return `${n.toFixed(2)} ${c}`; }
 }

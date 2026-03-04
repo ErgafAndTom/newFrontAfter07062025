@@ -1,205 +1,267 @@
-/* Загальний оверлей */
+/* ============================================================
+   Client Cabinet — scoped styles
+   ============================================================ */
+
+/* ── Overlay ── */
 .cc-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: saturate(120%) blur(2px);
+  background: rgba(15, 15, 15, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
 }
 
-/* Панель — світлий елемент на контрасті фону */
+/* ── Panel ── */
 .cc-panel {
-  width: min(100vw, 900px);
+  position: relative;
+  z-index: 10000;
+  width: min(96vw, 860px);
   max-height: 90vh;
-  background: #f7f5ee; /* фон елементів */
-  color: #000;         /* шрифт чорний */
-  border-radius: 12px;
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.12), /* великий глибокий контур для панелі */
-    0 1px 3px rgba(0, 0, 0, 0.15);    /* тонкий "border" як тінь */
+  background: var(--adminfonelement, #f2f0e9);
+  color: var(--admingrey, #666666);
+  border-radius: 0;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* Хедер панелі */
+/* ── Header ── */
 .cc-header {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);    /* тонкий "border" як тінь */
   display: flex;
   align-items: center;
-  gap: 12px;
-
-  padding: 14px 16px;
-  background: transparent;
+  gap: 1rem;
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
 }
 
-/* Аватар */
+.cc-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+}
 
-
-.cc-avatar img {
+.cc-avatar-wrap img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-
-.cc-avatar-fallback {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 100%;
-  color: #000;
-  font-size: 20px;
+.cc-id-badge {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  height: 1.35rem;
+  padding: 0 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--adminorange, #f5a623);
+  border: 2px solid var(--adminfon, #f7f5ee);
+  color: var(--adminfon, #f7f5ee);
+  font-size: 0.78rem;
+  line-height: 1;
+  white-space: nowrap;
 }
-/* Назва та мета */
+
 .cc-title {
   flex: 1;
   min-width: 0;
-  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1rem;
 }
 
 .cc-name {
-  font-weight: 200;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-size: var(--font-size-pay, 21px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
   white-space: nowrap;
   overflow: hidden;
-  color: #646462;
-  align-items: center;
   text-overflow: ellipsis;
-  width: 30vw;
-}
-
-.cc-meta {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: 2px;
-  color: #646462;
-
-
+  max-width: 28vw;
 }
 
 .cc-chip {
-
-  border-radius: 999px;
-
-  background: transparent; /* легка відмінність для чіпа */
-  color: #646462;
-
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--adminblue, #3c60a6);
 }
 
-/* Кнопка закриття */
-.cc-close {
-margin-top: -2rem;
-  background: transparent;
-  border: 0;
-  color: #000;
-  cursor: pointer;
-  align-items: start;
-  padding: 0px;
-  border-radius: 8px;
-  justify-content: start;
-}
-
-.cc-close:hover {
-color: red
-}
-
-/* Дії під хедером */
-.cc-actions {
-  display: flex;
-  gap: 8px;
-  padding: 12px 16px;
-  background: transparent;
-  flex-wrap: wrap;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);   /* тонкий "border" як тінь */
-
-}
-
-.cc-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #ebebe6;
-  color: #646462;
-  font-size: clamp(0.5rem, 1.5vh, 2.5vh);
-  height: 3vh;
-  padding: 20px 20px;
-  border-radius: 10px;
-  letter-spacing: 0.1em;
-  cursor: pointer;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  border: none;
-  font-weight: 200;
-  text-transform: uppercase;
-}
-
-.cc-btn:hover {
-  transform: translateY(-1px);
-  background: #fab416;
-}
-
-/* Контакти */
 .cc-contacts {
+  width: 100%;
   display: flex;
-  gap: 12px;
+  gap: 1rem;
   flex-wrap: wrap;
-  padding-left: 2rem;
-  font-weight: 200;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  width: 25vw;
-
 }
 
 .cc-contact {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: #646462;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
   text-decoration: none;
-
-
 }
 
 .cc-contact:hover {
+  color: var(--adminblue, #3c60a6);
   text-decoration: underline;
 }
 
-/* Статистичні блоки */
+/* Close button */
+.cc-close {
+  align-self: flex-start;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: var(--font-size-pay, 21px);
+  color: var(--admingrey, #666666);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.cc-close:hover {
+  color: var(--adminred, #ee3c23);
+}
+
+/* ── Action buttons ── */
+.cc-actions {
+  display: flex;
+  gap: 0;
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.cc-btn {
+  position: relative;
+  isolation: isolate;
+  flex: 1 1 0;
+  height: 4vh;
+  min-height: 4vh;
+  padding: 5px 18px;
+  border: 2px solid var(--adminorange, #f5a623);
+  border-radius: 0;
+  background: transparent;
+  color: var(--admingrey, #666666);
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  transition: 0.3s;
+}
+
+.cc-btn-text {
+  position: relative;
+  z-index: 3;
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+}
+
+/* ::before — covers everything except the bottom line */
+.cc-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background: var(--adminfonelement, #f2f0e9);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -2;
+}
+
+/* ::after — covers top half to leave only bottom segment */
+.cc-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background: var(--adminfonelement, #f2f0e9);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -1;
+}
+
+.cc-btn:not(:disabled):hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.cc-btn:not(:disabled):hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+.cc-btn:not(:disabled):hover .cc-btn-text {
+  color: var(--admingrey, #666666);
+}
+
+
+
+/* ── Stats ── */
 .cc-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  padding: 12px 16px;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  gap: 0;
+  padding: 0.8rem 1.4rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
 }
 
 .cc-stat {
-  background: #f7f5ee;
-  border-radius: 12px;
-  padding: 10px 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  color: #000;
+  padding: 0.5rem 0.6rem;
+}
+
+.cc-stat + .cc-stat {
+  border-left: 1px solid rgba(0, 0, 0, 0.07);
 }
 
 .cc-stat-v {
-  font-weight: 200;
+  font-size: var(--font-size-pay, 21px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  line-height: 1.2;
+}
 
-  color: #646462;
+.cc-stat-v--green {
+  color: var(--admingreen, #0e935b);
+}
+
+.cc-stat-v--red {
+  color: var(--adminred, #ee3c23);
+}
+
+.cc-stat-unit {
+  font-size: 0.65em;
+  font-weight: 400;
+  margin-left: 0.15em;
+  color: inherit;
 }
 
 .cc-stat-l {
-  opacity: 0.8;
-  font-size: 12px;
-  margin-top: 2px;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  opacity: 0.7;
+  margin-top: 0.15rem;
 }
 
-/* Список замовлень */
+/* ── Orders section ── */
 .cc-orders {
   flex: 1;
   min-height: 0;
@@ -207,120 +269,227 @@ color: red
   flex-direction: column;
 }
 
-.cc-orders-head {
-  padding: 10px 16px;
-  font-weight: 200;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  border-bottom: 1px solid rgba(0,0,0,0.04);
-  background: transparent;
-  color: #646462;
+.cc-order-list {
+  overflow-y: auto;
+  padding: 0.8rem 1.4rem;
+  display: grid;
+  grid-template-columns: 1fr minmax(5rem, auto) auto auto auto;
+  grid-auto-rows: minmax(3rem, auto);
+  row-gap: 0.5rem;
+  column-gap: 0;
 }
 
-.cc-order-list {
-  overflow: auto;
-  padding: 10px 16px;
-  display: grid;
-  gap: 10px;
+.cc-loader-wrap {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 0;
+}
+
+.cc-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem 0;
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  opacity: 0.6;
+}
+
+/* ── Order row ── */
+.cc-order-link {
+  display: contents;
+  text-decoration: none !important;
+  color: inherit !important;
 }
 
 .cc-order {
-  background: #fbfaf6;
-  border-radius: 12px;
-  padding: 10px 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  color: #000;
-}
-.cc-order:hover {
-  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.15);
-  cursor: pointer;
+  display: contents;
 }
 
-.cc-order-top {
+/* Стилі рядка застосовуємо до кожної комірки */
+.cc-order > .cc-order-col {
+  padding: 0.7rem 0.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: filter 0.15s;
   display: flex;
-  justify-content: space-between;
-  gap: 8px;
+  align-items: center;
+}
+
+/* Ліва полоска тону — через border-left першої комірки */
+.cc-order > .cc-order-col:first-child {
+  border-left: 3px solid transparent;
+  padding-left: 0.8rem;
+}
+
+/* Hover — підсвічуємо всі комірки рядка */
+.cc-order:hover > .cc-order-col {
+  filter: brightness(0.96);
+}
+
+.cc-order.is-current > .cc-order-col {
+  filter: brightness(0.94);
+}
+
+/* ── Tone colors (left border on first cell + background on all cells) ── */
+/* 0 — Обробка */
+.cc-order.cc-tone-cyan > .cc-order-col:first-child { border-left-color: var(--admincyan, #00A8C6); }
+.cc-order.cc-tone-cyan > .cc-order-col { background: color-mix(in srgb, var(--admincyan, #00A8C6) 8%, transparent); }
+
+/* 1 — Друк */
+.cc-order.cc-tone-orange > .cc-order-col:first-child { border-left-color: var(--adminorange, #f5a623); }
+.cc-order.cc-tone-orange > .cc-order-col { background: color-mix(in srgb, var(--adminorange, #f5a623) 8%, transparent); }
+
+/* 2 — Постпрес */
+.cc-order.cc-tone-blue > .cc-order-col:first-child { border-left-color: var(--adminblue, #3c60a6); }
+.cc-order.cc-tone-blue > .cc-order-col { background: color-mix(in srgb, var(--adminblue, #3c60a6) 8%, transparent); }
+
+/* 3 — Готово */
+.cc-order.cc-tone-rose > .cc-order-col:first-child { border-left-color: var(--adminrose, #ef7aaa); }
+.cc-order.cc-tone-rose > .cc-order-col { background: color-mix(in srgb, var(--adminrose, #ef7aaa) 8%, transparent); }
+
+/* 4 — Отримано */
+.cc-order.cc-tone-purple > .cc-order-col:first-child { border-left-color: var(--adminpurple, #6a5acd); }
+.cc-order.cc-tone-purple > .cc-order-col { background: color-mix(in srgb, var(--adminpurple, #6a5acd) 8%, transparent); }
+
+/* -1 — Скасоване */
+.cc-order.cc-tone-red > .cc-order-col:first-child { border-left-color: var(--adminred, #ee3c23); }
+.cc-order.cc-tone-red > .cc-order-col { background: color-mix(in srgb, var(--adminred, #ee3c23) 8%, transparent); }
+
+/* ── Order columns ── */
+.cc-order-col {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cc-order-col--title {
+  flex: 1;
 }
 
 .cc-order-title {
-  font-weight: 200;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #646462;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+}
 
+.cc-order-id {
+  color: var(--admingrey, #666666);
+  font-weight: 400;
+}
+
+.cc-order-id.is-current {
+  color: var(--adminred, #ee3c23);
+}
+
+.cc-order-col--sum {
+  font-size: var(--font-size-s, 17px);
+  font-weight: 500;
+  color: var(--admingrey, #666666);
+  text-align: left;
+  justify-content: flex-start;
+  align-items: flex-end;
+}
+
+.cc-order-sum-value {
+  color: inherit;
+}
+
+.cc-order-sum-unit {
+  font-size: 0.72em;
+  font-weight: 500;
+  margin-left: 0.15em;
+  margin-bottom: 0.08em;
+  color: inherit;
+}
+
+/* Колір суми залежить від статусу оплати */
+.cc-order-col--sum.cc-pay--paid { color: var(--admingreen, #0e935b); }
+.cc-order-col--sum.cc-pay--wait { color: var(--adminorange, #f5a623); }
+.cc-order-col--sum.cc-pay--nopay { color: var(--adminred, #ee3c23); }
+.cc-order-col--sum.cc-pay--cancel { color: var(--adminred, #ee3c23); opacity: 0.7; }
+.cc-order-col--sum.cc-pay--expired { color: color-mix(in srgb, var(--adminorange, #f5a623) 80%, var(--adminred, #ee3c23)); }
+
+.cc-order-col--date {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-align: center;
+}
+
+.cc-order-col--pay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+.cc-pay-badge {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+/* Фон оплати на комірці */
+.cc-order-col--pay.cc-pay--paid {
+  background: var(--admingreen, #0e935b) !important;
+  color: var(--adminfon, #f7f5ee);
+}
+.cc-order-col--pay.cc-pay--paid .cc-pay-badge { color: var(--adminfon, #f7f5ee); }
+
+.cc-order-col--pay.cc-pay--wait {
+  background: var(--adminorange, #f5a623) !important;
+  color: var(--adminfon, #f7f5ee);
+}
+.cc-order-col--pay.cc-pay--wait .cc-pay-badge { color: var(--adminfon, #f7f5ee); }
+
+.cc-order-col--pay.cc-pay--nopay {
+  background: var(--adminred, #ee3c23) !important;
+  color: var(--adminfon, #f7f5ee);
+}
+.cc-order-col--pay.cc-pay--nopay .cc-pay-badge { color: var(--adminfon, #f7f5ee); }
+
+.cc-order-col--pay.cc-pay--cancel {
+  background: color-mix(in srgb, var(--adminred, #ee3c23) 70%, transparent) !important;
+  color: var(--adminfon, #f7f5ee);
+}
+.cc-order-col--pay.cc-pay--cancel .cc-pay-badge { color: var(--adminfon, #f7f5ee); }
+
+.cc-order-col--pay.cc-pay--expired {
+  background: color-mix(in srgb, var(--adminorange, #f5a623) 80%, var(--adminred, #ee3c23)) !important;
+  color: var(--adminfon, #f7f5ee);
+}
+.cc-order-col--pay.cc-pay--expired .cc-pay-badge { color: var(--adminfon, #f7f5ee); }
+
+.cc-order-col--status {
+  min-width: 6em;
+  text-align: right;
 }
 
 .cc-order-status {
-  font-size: 12px;
-  opacity: 0.8;
-  color: #000;
-}
-
-.cc-order-meta {
-  display: flex;
-  gap: 10px;
-  opacity: 0.8;
-  font-size: 12px;
-  margin-top: 4px;
-  color: #000;
-}
-
-.cc-order-sum {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 6px;
-  font-weight: 700;
-  color: #646462;
-}
-
-.cc-paid {
-  font-weight: 200;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
   text-transform: uppercase;
-  color: #646462;
-}
-.cc-order-status-icon
-{
-  font-weight: 200;
-  text-transform: uppercase;
-  font-size: 20px;
-  color: #646462;
-  letter-spacing: 0.1em;
-}
-/* Стани замовлень — легка кольорова підказка через тінь/фон */
-.cc-order.is-paid {
-  box-shadow: 0 1px 6px rgba(17, 94, 54, 0.06);
+  letter-spacing: 0.03em;
 }
 
-.cc-order.is-cancel {
-  box-shadow: 0 1px 6px rgba(94, 17, 17, 0.06);
-}
-
-.cc-order.is-done {
-  box-shadow: 0 1px 6px rgba(43, 75, 124, 0.06);
-}
-
-.cc-order.is-inwork {
-  box-shadow: 0 1px 6px rgba(108, 75, 18, 0.06);
-}
-
-/* Дрібні поліпшення для читабельності */
-* {
-  box-sizing: border-box;
-  color: #000;
-  /*font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;*/
-}
-
-/* Скрол у списках — більш тонкий та акуратний */
+/* ── Scrollbar ── */
 .cc-order-list::-webkit-scrollbar {
-  height: 10px;
-  width: 10px;
+  width: 6px;
 }
+
 .cc-order-list::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.08);
-  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.cc-order-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.18);
 }

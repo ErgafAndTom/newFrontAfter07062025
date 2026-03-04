@@ -177,11 +177,15 @@ const NewUIArtem = () => {
     const raw = getOrderUnitType(thing);
     const type = TYPE_ALIASES[raw] || raw;
 
-    const primary = new Set(['SheetCutBW', 'SheetCut', 'Photo', 'Wide']);
-    const middle = new Set(['Vishichka', 'Magnets', 'Laminator', 'PerepletMet', 'BigOvshik', 'Postpress', 'Binding', 'Lamination']);
+    const orange = new Set(['SheetCutBW', 'SheetCut', 'Photo', 'Wide']);
+    const blue   = new Set(['Vishichka', 'Magnets', 'Laminator', 'PerepletMet', 'BigOvshik', 'Postpress', 'Binding', 'Lamination']);
+    const coral  = new Set(['Note', 'BOOKLET', 'Cup']);
+    const purple = new Set(['Scans', 'Delivery', 'WideFactory']);
 
-    if (primary.has(type)) return 'nui-editor-accent-orange';
-    if (middle.has(type)) return 'nui-editor-accent-green';
+    if (orange.has(type)) return 'nui-editor-accent-orange';
+    if (blue.has(type))   return 'nui-editor-accent-blue';
+    if (coral.has(type))  return 'nui-editor-accent-coral';
+    if (purple.has(type)) return 'nui-editor-accent-purple';
     return 'nui-editor-accent-blue';
   };
 
@@ -317,20 +321,14 @@ const NewUIArtem = () => {
 
   const orderListStatusTitle = (() => {
     const orderId = thisOrder?.id ?? '—';
-    if (isCancelledOrder) return `Скасоване замовлення №${orderId}`;
-    if (!Number.isFinite(statusValue)) return `Обробка замовлення №${orderId}`;
-
+    if (isCancelledOrder) return { text: 'Скасоване замовлення ', id: orderId };
+    if (!Number.isFinite(statusValue)) return { text: 'Обробка замовлення ', id: orderId };
     switch (statusValue) {
-      case 0:
-        return `Обробка замовлення №${orderId}`;
-      case 1:
-        return `Замовлення №${orderId} друкується`;
-      case 2:
-        return `Замовлення №${orderId} у постпресі`;
-      case 3:
-        return `Готове замовлення №${orderId}`;
-      default:
-        return `Замовлення №${orderId} віддали`;
+      case 0:  return { text: 'Обробка замовлення ', id: orderId };
+      case 1:  return { text: 'Замовлення ', id: `${orderId} друкується` };
+      case 2:  return { text: 'Замовлення ', id: `${orderId} у постпресі` };
+      case 3:  return { text: 'Готове замовлення ', id: orderId };
+      default: return { text: 'Замовлення ', id: `${orderId} віддали` };
     }
   })();
 
@@ -557,7 +555,9 @@ const NewUIArtem = () => {
           <div className={`d-flex flex-column nui-orders-column${hasOrders ? "" : " nui-orders-column-empty"}`} style={!hasOrders ? { display: "none" } : undefined}>
             <div className={`nui-order-header-shell ${orderToneClass}`}>
               {orderListStatusTitle && (
-                <div className="nui-order-delivered-title">{orderListStatusTitle}</div>
+                <div className="nui-order-delivered-title">
+                  {orderListStatusTitle.text}<span className="nui-order-delivered-id">№{orderListStatusTitle.id}</span>
+                </div>
               )}
             </div>
 
@@ -573,8 +573,8 @@ const NewUIArtem = () => {
                   const isNameParagraph = String(formattedName).length > 55;
                   const hasDiscount = parseFloat(thing.priceForOneThis).toFixed(2) !== parseFloat(thing.priceForOneThisDiscount).toFixed(2);
                   const unitPrice = hasDiscount
-                    ? parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2)
-                    : parseFloat(thing.priceForOneThis).toFixed(2);
+                    ? parseFloat(parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2))
+                    : parseFloat(parseFloat(thing.priceForOneThis).toFixed(2));
                   const totalPrice = hasDiscount ? thing.priceForThisDiscount : thing.priceForAllThis;
 
                   return (
@@ -594,20 +594,18 @@ const NewUIArtem = () => {
                         </div>
                       </div>
 
-                      <div >
-                        <div >
-                          <span className="" style={!isCancelledOrder ? { color: 'var(--admingrey)' } : undefined}>{thing.amount}<span className="nui-unit-sub">шт</span>{" х "}{unitPrice}<span className="nui-unit-sub">грн</span>{" = "}</span>
-                          <span className="nui-price-total">{parseFloat(totalPrice)}<span className="nui-unit-sub">грн</span></span>
-                          <button
-                            type="button"
-                            className={`nui-item-type-btn ${editorAccentClass}`}
-                            onClick={(e) => { e.stopPropagation(); openEditor(thing, e); }}
-                            title={editorLabel}
-                          >
-                            <span className="nui-type-icon">✎</span>
-                            <span className="nui-type-label">{editorLabel}</span>
-                          </button>
-                        </div>
+                      <div className="nui-price-row">
+                        <span className="nui-price-left">{thing.amount}<span className="nui-unit-sub">шт</span>{" х "}{unitPrice}<span className="nui-unit-sub">грн</span>{" = "}</span>
+                        <span className={`nui-price-total${hasDiscount ? ' nui-price-total--discount' : ''}`}>{parseFloat(totalPrice)}<span className="nui-price-total-unit">грн</span></span>
+                        <button
+                          type="button"
+                          className={`nui-item-type-btn ${editorAccentClass}`}
+                          onClick={(e) => { e.stopPropagation(); openEditor(thing, e); }}
+                          title={editorLabel}
+                        >
+                          <span className="nui-type-icon">✎</span>
+                          <span className="nui-type-label">{editorLabel}</span>
+                        </button>
                       </div>
 
                       {expandedThingIndex === index && (
@@ -620,18 +618,16 @@ const NewUIArtem = () => {
                             thisOrder={thisOrder}
                           />
                           <div className="nui-details-footer-row">
-                                                      <span>Розміщено на аркуші: <span
-                                                        className="nui-bold-blue" style={{ color: 'var(--adminblue, #3c60a6)' }}>{thing.newField4} {getPluralForm(thing.newField4, "виріб", "вiroби", "виробів")}</span></span>
+                            <span>Розміщено на аркуші: <span className="nui-footer-accent">{thing.newField4} {getPluralForm(thing.newField4, "виріб", "вiroби", "виробів")}</span></span>
                             <span className="nui-sep">|</span>
-                            <span>Загалом використано: <span
-                              className="nui-bold-blue" style={{ color: 'var(--adminblue, #3c60a6)' }}>{thing.newField5} {getPluralForm(thing.newField5, "аркуш", "аркуші", "аркушів")}</span></span>
+                            <span>Загалом надруковано: <span className="nui-footer-accent">{thing.newField5} {getPluralForm(thing.newField5, "аркуш", "аркуші", "аркушів")}</span></span>
                             <span className="nui-sep">|</span>
                             <div className="nui-summary-line">
-                              <span>За 1 аркуш:</span><span className="nui-price">{parseFloat(parseFloat(totalPrice / (thing.newField5 || 1)).toFixed(2))}<span className="nui-unit-sub">грн</span></span>
+                              <span>За 1 аркуш:</span>{' '}<span className="nui-footer-price">{parseFloat(parseFloat(totalPrice / (thing.newField5 || 1)).toFixed(2))}<span className="nui-footer-price-unit">грн</span></span>
                             </div>
                             <span className="nui-sep">|</span>
                             <div className="nui-summary-line">
-                              <span>За 1 шт:</span><span className="nui-price">{parseFloat(unitPrice)}<span className="nui-unit-sub">грн</span></span>
+                              <span>За 1 шт:</span>{' '}<span className="nui-footer-price">{parseFloat(unitPrice)}<span className="nui-footer-price-unit">грн</span></span>
                             </div>
                           </div>
                         </div>
