@@ -94,7 +94,7 @@ body {
     line-height: var(--bs-body-line-height);
     color: var(--bs-body-color);
     text-align: var(--bs-body-text-align);
-    background-color: var(--bs-body-bg);
+    background: var(--adminfon);
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
@@ -2363,7 +2363,7 @@ progress {
     background-color: #dde0e3;
 }
 .list-group-item {
-  background-color: #ffffff; /* базовий фон */
+  /* базовий фон */
   transition: background-color 0.2s ease, transform 0.15s ease;
   cursor: pointer;
 }

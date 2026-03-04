@@ -28,15 +28,19 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
   const [showNP, setShowNP] = useState(false);
   const [showPays, setShowPays] = useState(false);
   const [load, setLoad] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchId, setSearchId] = useState(false);
   const [typeSelect, setTypeSelect] = useState("");
-  const [users, setUsers] = useState({ rows: [] });
+  const [users, setUsers] = useState({ rows: [], count: 0 });
+  const [usersPage, setUsersPage] = useState(1);
   const [show, setShow] = useState(false);
   const [showVisible, setShowVisible] = useState(false);
   const [error, setError] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const PAGE_SIZE = 20;
   const deadlineInputRef = useRef(null);
+  const searchMountedRef = useRef(false);
   const [deadlineAt, setDeadlineAt] = useState(thisOrder?.deadline || thisOrder?.finalManufacturingTime || null);
   const [deadlineCountdown, setDeadlineCountdown] = useState('');
 
@@ -82,39 +86,70 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
 
   const handleShow = () => {
     if (currentUser.role === "admin" || currentUser.role === "operator") {
+      setSearchQuery("");
       setShowVisible(true);
       setShow(true);
-      setSearchQuery("");
     }
   };
 
-  const fetchUsers = async () => {
-    const data = {
-      name: "",
-      inPageCount: 9999,
-      currentPage: 1,
-      search: searchQuery,
-      searchId: searchId,
-      columnName: { column: "id", reverse: false },
-    };
-    setLoad(true);
+  const fetchUsers = async (query = searchQuery, byId = searchId, page = 1) => {
+    const isFirst = page === 1;
+    isFirst ? setLoad(true) : setLoadingMore(true);
     setError(null);
     try {
-      const response = await axios.post(`/user/all`, data);
-      setUsers(response.data);
-      setFilteredUsers(response.data.rows);
+      const response = await axios.post(`/user/all`, {
+        name: "",
+        inPageCount: PAGE_SIZE,
+        currentPage: page,
+        search: query,
+        searchId: byId,
+        columnName: { column: "id", reverse: true },
+      });
+      const newRows = response.data.rows || [];
+      if (isFirst) {
+        setUsers(response.data);
+        setFilteredUsers(newRows);
+      } else {
+        setUsers(prev => ({ ...prev, rows: [...prev.rows, ...newRows] }));
+        setFilteredUsers(prev => [...prev, ...newRows]);
+      }
+      setUsersPage(page);
     } catch (error) {
       if (error.response && error.response.status === 403) navigate('/login');
       setError(error.message);
       console.error(error.message);
     } finally {
-      setLoad(false);
+      isFirst ? setLoad(false) : setLoadingMore(false);
     }
   };
 
+  const loadMoreUsers = useCallback(() => {
+    const totalLoaded = filteredUsers.length;
+    const total = users.count || 0;
+    if (loadingMore || load || totalLoaded >= total) return;
+    fetchUsers(searchQuery, searchId, usersPage + 1);
+  }, [filteredUsers.length, users.count, loadingMore, load, searchQuery, searchId, usersPage]);
+
+  // перше завантаження при відкритті модалки
   useEffect(() => {
-    if (show) fetchUsers();
-  }, [searchQuery, show, searchId]);
+    if (!show) {
+      searchMountedRef.current = false;
+      return;
+    }
+    searchMountedRef.current = true;
+    setUsersPage(1);
+    fetchUsers(searchQuery, searchId, 1);
+  }, [show]);
+
+  // debounce пошуку — тільки коли змінюється запит після відкриття
+  useEffect(() => {
+    if (!show || !searchMountedRef.current) return;
+    const timer = setTimeout(() => {
+      setUsersPage(1);
+      fetchUsers(searchQuery, searchId, 1);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchQuery, searchId]);
 
   const applyBestDiscount = useCallback(
     async (userId) => {
@@ -321,18 +356,12 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
                   </span>
                 </div>
                 <span className="nui-client-phone-line">{thisOrder?.client?.phoneNumber || '—'}</span>
+                {thisOrder?.client?.Company?.companyName && (
+                  <span className="nui-client-company-line">{thisOrder.client.Company.companyName}</span>
+                )}
               </div>
 
               <div className="nui-client-rect-actions">
-                <button
-                  type="button"
-                  className="nui-client-rect-btn"
-                  onClick={(e) => setThisUserToCabinetFunc(true, thisOrder?.client, e)}
-                  disabled={!thisOrder?.client}
-              >
-                <span className="nui-client-rect-btn-text">Кабінет замовника</span>
-              </button>
-
                 <button
                   type="button"
                   className="nui-client-rect-btn"
@@ -342,6 +371,15 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
                   }}
                 >
                   <span className="nui-client-rect-btn-text">Вибрати клієнта</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="nui-client-rect-btn"
+                  onClick={(e) => setThisUserToCabinetFunc(true, thisOrder?.client, e)}
+                  disabled={!thisOrder?.client}
+                >
+                  <span className="nui-client-rect-btn-text">Кабінет</span>
                 </button>
               </div>
             </div>
@@ -408,6 +446,8 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
           handleSelectUser={handleSelectUser}
           users={users}
           load={load}
+          loadingMore={loadingMore}
+          loadMoreUsers={loadMoreUsers}
           error={error}
           modalVisible={modalVisible}
           handleCloseAddUser={handleCloseAddUser}

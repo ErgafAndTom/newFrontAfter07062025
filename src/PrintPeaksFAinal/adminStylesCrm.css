@@ -4,12 +4,12 @@
 }
 
 .adminBackGround {
-    background: #FBFAF6;
+    background: var(--adminfone);
     min-height: 86.5vh;
 }
 
 .adminNavBackGround {
-    background: #FBFAF6;
+  background: var(--adminfone);
 
 }
 

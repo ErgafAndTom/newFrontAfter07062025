@@ -388,7 +388,7 @@
   max-width: 100%;
   box-sizing: border-box;
   padding: 0;
-  z-index: 5;
+
   overflow: visible;
 }
 
@@ -1039,7 +1039,7 @@
   transform: translateY(-0.22rem);
   transition: opacity 0.22s ease, transform 0.28s ease;
   pointer-events: none;
-  z-index: 400;
+
 }
 
 .nui-progressbar .dc-deadline-btn {
@@ -1078,7 +1078,7 @@
   background-color: var(--adminfon, #f7f5ee);
   transition: 0.3s ease-out;
   transform: scaleY(1);
-  z-index: 1;
+
   pointer-events: none;
   border-radius: 0 !important;
 }
@@ -1093,7 +1093,7 @@
   background-color: var(--adminfon, #f7f5ee);
   transition: 0.3s ease-out;
   transform: scaleY(1);
-  z-index: 2;
+
   pointer-events: none;
   border-radius: 0 !important;
 }
@@ -1114,7 +1114,7 @@
 
 .nui-progressbar .dc-deadline-btn .pb-deadline-btn-label {
   position: relative;
-  z-index: 3;
+
   padding: 0 0.6rem;
   color: var(--adminrose, #ef7aaa) !important;
   text-decoration: none;
@@ -1616,7 +1616,7 @@
   border: 1px solid color-mix(in srgb, var(--admingrey, #666666) 22%, transparent);
   box-sizing: border-box;
   white-space: nowrap;
-  z-index: 3;
+
 }
 
 .client-deadline-label,
@@ -2139,7 +2139,7 @@
   left: 0 !important;
   right: 0 !important;
   width: auto !important;
-  z-index: 10 !important;
+
 }
 
 /* Final lock: fully stretch 6 status buttons */

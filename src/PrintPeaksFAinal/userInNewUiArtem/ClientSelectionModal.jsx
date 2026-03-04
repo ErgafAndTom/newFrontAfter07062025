@@ -1,30 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './ClientSelectionModal.css';
 import TelegramAvatar from '../../PrintPeaksFAinal/Messages/TelegramAvatar';
 import {fetchUser} from "../../actions/authActions";
-import AddUserButton from "../user/AddUserButton";
-import { FiUser } from "react-icons/fi";
 import ClientCabinet from "./ClientCabinet.jsx";
 
-/* 🔹 Додали нормалізатор */
+/* Нормалізатор — підтримує "10%", "10", 10 */
 const norm = v => {
-  const n = Number(v);
+  if (v === null || v === undefined || v === '') return 0;
+  const n = Number(String(v).replace('%', '').trim());
   return isNaN(n) ? 0 : n;
 };
 
 /* Головна функція */
 export const getEffectiveDiscount = order => {
   if (!order) return 0;
-
-  /* якщо бекенд уже віддав готове поле */
   if (order.effectiveDiscount !== undefined && order.effectiveDiscount !== null)
     return norm(order.effectiveDiscount);
-
-  /* fallback */
   const server  = norm(order.discount ?? order.prepayment);
   const client  = norm(order.client?.discount);
   const company = norm(order.client?.Company?.discount ?? order.client?.company?.discount);
-
   return Math.max(server, client, company);
 };
 
@@ -34,6 +28,8 @@ const ClientSelectionModal = ({
                                 fetchUsers,
                                 users,
                                 load,
+                                loadingMore,
+                                loadMoreUsers,
                                 error,
                                 handleSelectUser,
                                 setModalVisible,
@@ -43,192 +39,170 @@ const ClientSelectionModal = ({
                                 searchQuery, searchId, setSearchId
                               }) => {
   const [expandedThingIndex, setExpandedThingIndex] = useState(null);
-
-  const [isClosing, setIsClosing] = useState(false); // ✅ тут
   const [thisUserIdToCabinet2, setThisUserIdToCabinet2] = useState(0);
   const [clientCabinetOpen2, setClientCabinetOpen2] = useState(false);
+  const sentinelRef = useRef(null);
 
-  const filteredUsers = users.rows || []
-  // const filteredUsers = users.rows?.filter(u => u.firstName || u.lastName) || [];
+  const filteredUsers = users.rows || [];
+  const hasMore = filteredUsers.length < (users.count || 0);
 
-  // const [searchQuery, setSearchQuery] = useState('');
+  // IntersectionObserver — коли sentinel видно, завантажуємо наступну сторінку
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting && hasMore && !loadingMore) loadMoreUsers(); },
+      { threshold: 0.1 }
+    );
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, loadMoreUsers]);
 
   const handleSearchChange = (e) => {
-    // console.log(e.target.value);
     setSearchQuery(e.target.value);
   };
 
   const handleSearchChangeId = (e) => {
-    // console.log(e);
     setSearchId(e);
   };
 
   const setThisUserToCabinetFunc2 = (open, user, e) => {
     e.stopPropagation();
-    setThisUserIdToCabinet2(user.id)
-    setClientCabinetOpen2(open)
+    setThisUserIdToCabinet2(user.id);
+    setClientCabinetOpen2(open);
   };
 
   const handleChooseUser = (userId) => {
     handleSelectUser(userId);
     setModalVisible(false);
   };
+
   if (!showVisible) return null;
+
   return (
     <>
-      <div className="modalOverlay " onClick={handleClose}
-           style={{
-             position: 'fixed',
-             inset: 0,
-             width: '100vw',
-             height: '100vh',
-             backgroundColor: 'rgba(15, 15, 15, 0.45)',
-             backdropFilter: 'blur(2px)',
-             WebkitBackdropFilter: 'blur(2px)',
+      {/* Overlay */}
+      <div className="csm-overlay" onClick={handleClose} />
 
-             // opacity: isAnimating ? 1 : 0,
-             transition: 'opacity 200ms ease'
+      {/* Panel */}
+      <div className="csm-panel">
 
-           }}
-      />
-      <div className="modalContainer animate-slide-up" >
-        <div className="noScrollbar">
-          {!load && !error && filteredUsers.length > 0 && (
-            <>
-              <ul className="userList">
-                {filteredUsers.map((user, index) => {
-                  const isExpanded = index === expandedThingIndex;
-                  const personalDiscount = user?.discount;
-                  const companyDiscount = user?.Company?.discount ?? user?.companyDiscount;
-                  const effectiveDiscount = Math.max(personalDiscount ?? 0, companyDiscount ?? 0);
-                  const hasDiscount = personalDiscount != null || companyDiscount != null;
-                  return (
+        {/* User list */}
+        <div className="csm-list">
+          {load && (
+            <div className="csm-empty">Завантаження...</div>
+          )}
+          {!load && error && (
+            <div className="csm-empty csm-empty--error">Помилка: {error?.message || error}</div>
+          )}
+          {!load && !error && filteredUsers.length === 0 && (
+            <div className="csm-empty">Клієнтів не знайдено</div>
+          )}
+          {!load && !error && filteredUsers.map((user, index) => {
+            const isExpanded = index === expandedThingIndex;
+            const personalDiscount = norm(user?.discount ?? user?.prepayment);
+            const companyDiscount = norm(user?.Company?.discount ?? user?.companyDiscount ?? user?.company?.discount);
+            const effectiveDiscount = Math.max(personalDiscount, companyDiscount);
+            const hasDiscount = effectiveDiscount > 0;
 
-                    <li
-                      key={user.id}
-                      className={`userListItem ${isExpanded ? 'expanded' : 'compact'}`}
-                      onClick={() => setExpandedThingIndex(isExpanded ? null : index)}
+            return (
+              <div
+                key={user.id}
+                className={`csm-user${isExpanded ? ' is-expanded' : ''}`}
+                onClick={() => setExpandedThingIndex(isExpanded ? null : index)}
+              >
+                {/* Compact row */}
+                <div className="csm-user-row">
+                  <span className="csm-user-id-col">{user.id}</span>
+                  <div className="csm-user-avatar-wrap">
+                    <TelegramAvatar link={user.telegram} size={60} square={true} />
+                  </div>
+                  <div className="csm-user-info">
+                    <div className="csm-user-name">{user.lastName} {user.firstName}</div>
+                    {(user.Company?.companyName || user.company) && (
+                      <span className="csm-user-company">{user.Company?.companyName || user.company}</span>
+                    )}
+                    {hasDiscount && effectiveDiscount > 0 && (
+                      <span className="csm-user-discount">Знижка: {effectiveDiscount}%</span>
+                    )}
+                  </div>
+                  <div className="csm-user-actions">
+                    <button
+                      className="csm-action-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleChooseUser(user.id);
+                        handleClose();
+                      }}
                     >
+                      <span className="csm-action-btn-text">Вибрати</span>
+                    </button>
+                  </div>
+                </div>
 
-                      {!isExpanded ? (
+                {/* Expanded details */}
+                {isExpanded && (
+                  <div className="csm-user-details">
+                    <div className="csm-user-details-grid">
+                      <span className="csm-detail-label">Телефон:</span>
+                      <span className="csm-detail-value">{user.phoneNumber || '—'}</span>
+                      <span className="csm-detail-label">Email:</span>
+                      <span className="csm-detail-value">{user.email || '—'}</span>
+                      <span className="csm-detail-label">Компанія:</span>
+                      <span className="csm-detail-value">{user.company || '—'}</span>
+                      {hasDiscount && (
                         <>
-
-                          <div>
-                            <div className="userName">
-                              {user.lastName} {user.firstName} 🤖:{user.id}
-                            </div>
-                            <div className="discount">
-                              Знижка: {hasDiscount ? `${effectiveDiscount}` : '—'}
-                            </div>
-                          </div>
-
-                          <span className="labelTelegram d-flex flex-row justify-content-start align-items-center gap-2">
-
-                             <button
-                               className="clientCabinetButton client-cabinet-icon"
-                               onClick={(e) => setThisUserToCabinetFunc2(true, user, e)}
-                             >
-                             <FiUser />
-                            </button>
-                            <TelegramAvatar link={user.telegram} size={50} />
-
-
-                            </span>
-                        </>
-                      ) : (
-                        <>
-                          <div className="d-flex flex-row">
-                            <div>
-                              <div className="userName">
-                                {user.lastName} {user.firstName} <small>🤖:{user.id}</small>
-                              </div>
-                              <div className="userDetail">Телефон: {user.phoneNumber || '—'}</div>
-                              <div className="userDetail">Email: {user.email || '—'}</div>
-                              <div className="userDetail">Signal: {user.signal || '—'}</div>
-                              <div className="userDetail">Компанія: {user.company || '—'}</div>
-                              <div className="userBarcode">Штрих-код: {user.barcode || '—'}</div>
-                              <div className="discount">
-                                Знижка: {hasDiscount ? `${effectiveDiscount}` : '—'}
-                              </div>
-                            </div>
-
-                            <div className="userCard">
-                              <div className="userTelegramIcon">
-                                {user.telegram && (
-                                  <div className="labelTelegram">
-                                    <TelegramAvatar link={user.telegram} size={50} />
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="buttonRow">
-                              <button
-                                className="adminButtonAdd"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleChooseUser(user.id);
-                                  handleClose()
-
-                                }}
-                              >
-                                Вибрати
-                              </button>
-                            </div>
-                          </div>
+                          <span className="csm-detail-label">Знижка:</span>
+                          <span className="csm-detail-value">{effectiveDiscount}%</span>
                         </>
                       )}
-                    </li>
-                  );
-                })}
-              </ul>
-            </>
+                    </div>
+                    <button
+                      className="csm-action-btn csm-cabinet-side-btn"
+                      onClick={(e) => setThisUserToCabinetFunc2(true, user, e)}
+                    >
+                      <span className="csm-action-btn-text">Кабінет</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {/* Sentinel для infinite scroll */}
+          <div ref={sentinelRef} style={{ height: 1 }} />
+          {loadingMore && (
+            <div className="csm-empty" style={{ opacity: 0.5 }}>Завантаження...</div>
           )}
         </div>
 
-        <div className="searchSection d-flex flex-row justify-content-start align-items-center">
-          <label style={{ cursor: "pointer", fontSize: "1.7rem" }}>
+        {/* Search bar — знизу */}
+        <div className="csm-search">
+          <label className="csm-search-id-toggle" style={{ cursor: "pointer" }}>
             <input
               type="checkbox"
               checked={searchId}
               onChange={(e) => handleSearchChangeId(e.target.checked)}
-              style={{ display: "none" }} // ховаємо стандартний чекбокс
+              style={{ display: "none" }}
             />
-            <div
-              style={{
-                opacity: searchId ? 1 : 0.6, // прозорий якщо не натиснутий
-                transition: "opacity 0.3s",
-                height: "35px",
-                lineHeight: "35px",
-              }}
-            >    🤖      </div>
+            <span className={`csm-search-id-label${searchId ? ' is-active' : ''}`}>Пошук по ID</span>
           </label>
           <input
             type="text"
-            className="searchInput"
+            className="csm-search-input"
             value={searchQuery}
             onChange={handleSearchChange}
-            placeholder="Пошук клієнта..."
+            placeholder={searchId ? "Пошук клієнта по ID..." : "Пошук клієнта по назві..."}
           />
 
-          {/*<button className="adminButtonAdd" onClick={fetchUsers}>*/}
-          {/*  Пошук*/}
-          {/*</button>*/}
-          <AddUserButton
-            fetchUsers={fetchUsers}
-            thisOrder={thisOrder}
-            setThisOrder={setThisOrder}
-          />
-          {/*<AddUserButton fetchUsers={() => dispatch(fetchUser())} thisOrder={thisOrder} setThisOrder={setThisOrder} />*/}
         </div>
       </div>
+
       {clientCabinetOpen2 && thisUserIdToCabinet2 && (
         <ClientCabinet
           userId={thisUserIdToCabinet2}
-          onCreateOrder={()=>{}}
-          onOpenChat={()=>{}}
-          onOpenProfile={()=>{}}
-          onClose={()=>setClientCabinetOpen2(false)}
+          onCreateOrder={() => {}}
+          onOpenChat={() => {}}
+          onOpenProfile={() => {}}
+          onClose={() => setClientCabinetOpen2(false)}
         />
       )}
     </>

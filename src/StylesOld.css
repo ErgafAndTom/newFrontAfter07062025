@@ -18,7 +18,7 @@
 
 .fileActive {
     background: #2a2a2a;
-    color: #ffffff;
+
     border: #2a2a2a solid 0.1vw;
 }
 
@@ -29,8 +29,8 @@
 }
 
 .fileActive:hover {
-    background: #2a2a2a;
-    color: #ffffff;
+
+
     border: #2a2a2a solid 0.1vw;
 }
 

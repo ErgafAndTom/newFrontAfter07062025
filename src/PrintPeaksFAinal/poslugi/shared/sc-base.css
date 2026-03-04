@@ -251,11 +251,10 @@ label.switch:has(input:checked) {
 
 /* Картки для секцій Сторонність, Матеріал */
 .sc-wrap .sc-left-sections > .sc-section-card {
-  background: linear-gradient(270deg, #f2f0e9, #efece5, #f5f3ec, #f0ede6, #f2f0e9);
-  background-size: 100% 100%;
-  animation: cardShimmer 5s linear infinite;
+  background: var(--adminfonelement);
   padding: 1.2vh 1vw;
   border-radius: 0;
+  overflow: hidden;
   /*box-shadow: 0 1px 3px rgba(0,0,0,0.08);*/
 }
 
@@ -2245,7 +2244,7 @@ label.switch:has(input:checked) {
   transition: color 0.22s ease;
 }
 .sc-wrap .wf-card.is-active .wf-icon {
-  color: #fff;
+
 }
 .sc-wrap .wf-caption {
   margin-top: 0.3rem;
@@ -2255,5 +2254,5 @@ label.switch:has(input:checked) {
   transition: color 0.22s ease;
 }
 .sc-wrap .wf-card.is-active .wf-caption {
-  color: #fff;
+
 }

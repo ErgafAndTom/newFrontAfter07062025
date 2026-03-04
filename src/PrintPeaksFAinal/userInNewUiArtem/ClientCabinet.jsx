@@ -1,10 +1,14 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import TelegramAvatar from "../Messages/TelegramAvatar";
 import axios from "../../api/axiosInstance";
 import {Link} from "react-router-dom";
 import Loader from "../../components/calc/Loader";
 import {useSelector} from "react-redux";
+import ClientProfileModal from "./ClientProfileModal";
+import CompanyProfileModal from "./CompanyProfileModal";
 import "./ClientCabinet.css";
+
+const PAGE_SIZE = 50;
 
 export default function ClientCabinet({
                                         user = {},
@@ -16,23 +20,24 @@ export default function ClientCabinet({
                                       }) {
 
   const [clientOrders, setClientOrders] = useState([]);
+  const [ordersTotal, setOrdersTotal] = useState(0);
+  const [ordersPage, setOrdersPage] = useState(1);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [userInBase, setUserInBase] = useState(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [companyOpen, setCompanyOpen] = useState(false);
   const currentUser = useSelector((state) => state.auth.user);
+  const currentOrderRef = useRef(null);
+  const sentinelRef = useRef(null);
 
   /* ---------- actions ---------- */
 
-  const onOpenProfile = (u) => {
-    if (u?.id) window.location.href = `/Users/${u.id}`;
-  };
+  const onOpenProfile = () => setProfileOpen(true);
 
-  const onOpenCompanyProfile = (u) => {
-    if (u?.Company?.id) {
-      window.location.href = `/Companys/${u.Company.id}`;
-    } else if (u?.id) {
-      window.location.href = `/Users/${u.id}`;
-    }
+  const onOpenCompanyProfile = () => {
+    if (userInBase?.Company?.id) setCompanyOpen(true);
   };
 
   const onCreateOrder = () => {
@@ -41,6 +46,14 @@ export default function ClientCabinet({
       .then(res => { window.location.href = `/Orders/${res.data.id}`; })
       .catch(err => console.log(err.message));
   };
+
+  /* ---------- keyboard ---------- */
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose?.(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
 
   /* ---------- data fetching ---------- */
 
@@ -59,33 +72,70 @@ export default function ClientCabinet({
     })();
   }, []);
 
+  const fetchOrders = useCallback(async (uid, page = 1) => {
+    if (currentUser.role === 'user') {
+      setClientOrders(orders);
+      setOrdersTotal(orders.length);
+      return;
+    }
+    const isFirst = page === 1;
+    isFirst ? setLoading(true) : setLoadingMore(true);
+    try {
+      const res = await axios.post('/orders/all', {
+        inPageCount: PAGE_SIZE,
+        currentPage: page,
+        search: "",
+        columnName: { column: 'id', reverse: true },
+        startDate: "",
+        endDate: "",
+        statuses: { status0: true, status1: true, status2: true, status3: true, status4: true, status5: true },
+        user: uid,
+      });
+      const newRows = res.data.rows || [];
+      if (isFirst) {
+        setClientOrders(newRows);
+        setOrdersTotal(res.data.count || 0);
+      } else {
+        setClientOrders(prev => [...prev, ...newRows]);
+      }
+      setOrdersPage(page);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      isFirst ? setLoading(false) : setLoadingMore(false);
+    }
+  }, [currentUser.role, orders]);
+
   useEffect(() => {
     if (!userInBase) return;
-    (async () => {
-      try {
-        if (currentUser.role === 'user') {
-          setClientOrders(orders);
-          return;
-        }
-        setLoading(true);
-        const res = await axios.post('/orders/all', {
-          inPageCount: 9999,
-          currentPage: 1,
-          search: "",
-          columnName: { column: 'id', reverse: true },
-          startDate: "",
-          endDate: "",
-          statuses: { status0: true, status1: true, status2: true, status3: true, status4: true, status5: true },
-          user: userInBase.id,
-        });
-        setClientOrders(res.data.rows);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    fetchOrders(userInBase.id, 1);
   }, [userInBase]);
+
+  /* ---------- infinite scroll ---------- */
+
+  const hasMore = clientOrders.length < ordersTotal;
+
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore && !loading) {
+          fetchOrders(userInBase?.id, ordersPage + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, loading, ordersPage, userInBase?.id]);
+
+  /* ---------- scroll to current order ---------- */
+
+  useEffect(() => {
+    if (!loading && currentOrderRef.current) {
+      currentOrderRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [loading, clientOrders]);
 
   /* ---------- computed ---------- */
 
@@ -99,8 +149,8 @@ export default function ClientCabinet({
     const paid = clientOrders.reduce((s, o) =>
         s + (o.Payment?.status === 'PAID' ? (+o.allPrice || 0) : 0),
       0);
-    return { total, paid, balance: total - paid, count: clientOrders.length };
-  }, [clientOrders]);
+    return { total, paid, balance: total - paid, count: ordersTotal || clientOrders.length };
+  }, [clientOrders, ordersTotal]);
 
   /* ---------- helpers ---------- */
 
@@ -149,6 +199,7 @@ export default function ClientCabinet({
   /* ---------- render ---------- */
 
   return (
+    <>
     <div className="cc-overlay" onClick={onClose}>
       <div className="cc-panel" onClick={(e) => e.stopPropagation()}>
 
@@ -160,8 +211,25 @@ export default function ClientCabinet({
           </div>
 
           <div className="cc-title">
-            <div className="cc-name">{fullName}</div>
-            {userInBase?.company && <span className="cc-chip">{userInBase.company}</span>}
+            {/* Рядок 1: ім'я + особиста знижка */}
+            <div className="cc-name-row">
+              <div className="cc-name">{fullName}</div>
+              {(() => {
+                const d = parseInt(String(userInBase?.discount ?? '0').replace(/\D/g, ''), 10) || 0;
+                return d > 0 ? <span className="cc-header-discount">Знижка: {d}%</span> : null;
+              })()}
+            </div>
+            {/* Рядок 2: компанія + знижка компанії */}
+            <div className="cc-header-sub">
+              {(userInBase?.Company?.companyName || userInBase?.company) && (
+                <span className="cc-header-company">{userInBase.Company?.companyName || userInBase.company}</span>
+              )}
+              {(() => {
+                const cd = parseInt(String(userInBase?.Company?.discount ?? '0').replace(/\D/g, ''), 10) || 0;
+                return cd > 0 ? <span className="cc-header-discount">Знижка компанії: {cd}%</span> : null;
+              })()}
+            </div>
+            {/* Рядок 3: контакти */}
             <section className="cc-contacts">
               {userInBase?.phoneNumber && <a className="cc-contact" href={`tel:${userInBase.phoneNumber}`}>{userInBase.phoneNumber}</a>}
               {userInBase?.email && <a className="cc-contact" href={`mailto:${userInBase.email}`}>{userInBase.email}</a>}
@@ -176,12 +244,13 @@ export default function ClientCabinet({
           <button className="cc-btn" onClick={() => onCreateOrder()}>
             <span className="cc-btn-text">Нове замовлення</span>
           </button>
-          <button className="cc-btn" onClick={() => onOpenProfile(userInBase)}>
+          <button className="cc-btn" onClick={onOpenProfile}>
             <span className="cc-btn-text">Профіль</span>
           </button>
           <button
             className="cc-btn"
-            onClick={() => onOpenCompanyProfile(userInBase)}
+            onClick={onOpenCompanyProfile}
+            disabled={!userInBase?.Company?.id}
           >
             <span className="cc-btn-text">Компанія</span>
           </button>
@@ -215,15 +284,20 @@ export default function ClientCabinet({
                 <Loader />
               </div>
             )}
-            {!loading && clientOrders.length === 0 && (
+            {!loading && !loadingMore && clientOrders.length === 0 && (
               <div className="cc-empty">Замовлень немає</div>
             )}
-            {clientOrders.map((o) => {
+            {!loading && clientOrders.map((o) => {
               const isCurrent = thisOrder.id === o.id;
               const tone = statusToneClass(o.status);
               const pay = paymentLabel(o);
               return (
-                <Link key={o.id} className="cc-order-link" to={`/Orders/${o.id}`}>
+                <Link
+                  key={o.id}
+                  className="cc-order-link"
+                  to={`/Orders/${o.id}`}
+                  ref={isCurrent ? currentOrderRef : null}
+                >
                   <div className={`cc-order ${tone}${isCurrent ? ' is-current' : ''}`}>
                     <div className="cc-order-col cc-order-col--title">
                       <span className="cc-order-title">
@@ -246,10 +320,32 @@ export default function ClientCabinet({
                 </Link>
               );
             })}
+            {/* Sentinel для infinite scroll */}
+            <div ref={sentinelRef} style={{ height: 1, gridColumn: '1 / -1' }} />
+            {loadingMore && (
+              <div className="cc-loader-wrap">
+                <Loader />
+              </div>
+            )}
           </div>
         </section>
 
       </div>
     </div>
+
+    {profileOpen && userInBase?.id && (
+      <ClientProfileModal
+        userId={userInBase.id}
+        onClose={() => setProfileOpen(false)}
+        onUserUpdated={(updatedUser) => setUserInBase(updatedUser)}
+      />
+    )}
+    {companyOpen && userInBase?.Company?.id && (
+      <CompanyProfileModal
+        companyId={userInBase.Company.id}
+        onClose={() => setCompanyOpen(false)}
+      />
+    )}
+    </>
   );
 }

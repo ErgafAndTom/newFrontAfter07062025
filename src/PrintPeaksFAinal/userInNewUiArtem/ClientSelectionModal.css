@@ -1,318 +1,318 @@
-/* Скрыть скроллбар и задать внутренние отступы */
-.noScrollbar,
-.no-scrollbar {
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding: 1vw 0.4vw 0.4vw;
-}
-.noScrollbar::-webkit-scrollbar,
-.no-scrollbar::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
+/* ============================================================
+   Client Selection Modal — scoped styles
+   ============================================================ */
 
-/* Hover effect */
-.userListItem:hover {
-  background-color: #fbfaf6;
-}
-
-/* Оверлей */
-.modalOverlay {
+/* ── Overlay ── */
+.csm-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 83vh;
-  /*z-index: 0; !* <= додати *!*/
-  background-color: rgba(0, 0, 0, 0.5);
-
+  inset: 0;
+  background: rgba(15, 15, 15, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 9000;
 }
 
-/* Модальное окно */
-.modalContainer {
-  /*position: fixed;*/
-  left: 31.4%;
-  bottom: 18vh;
+/* ── Panel ── */
+.csm-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  min-width: 400px;
-  max-height: 80vh;
-  width: 30vw;
-  background-color: #f2f0e7;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  /*z-index: 1000; !* <= додати *!*/
+  z-index: 9001;
+  width: min(96vw, 624px);
+  max-height: 85vh;
+  background: var(--adminfon, #f7f5ee);
   display: flex;
-  padding-bottom: 1vh;
-  padding-top: 1vh;
-
   flex-direction: column;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+
+  animation: csm-slide-up 0.25s ease-out;
 }
 
-/* Список пользователей */
-.userList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-
-
+@keyframes csm-slide-up {
+  from { opacity: 0; transform: translate(-50%, -46%); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
 }
 
-/* Элемент списка */
-.userListItem {
-  padding: 0.5vw 1vw;
-  margin-bottom: 0.5vh;
-  border-bottom: 1px solid #eee;
-  background-color: #f2f0e7;
-  border-radius: 1vh;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  cursor: pointer;
-
-  width: 100%;
-}
-
-/* Компактный режим */
-.userListItem.compact {
+/* ── Search bar — знизу ── */
+.csm-search {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-
-}
-.userListItem.compact .labelTelegram {
-  margin-left: auto;
-
+  gap: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
 }
 
-/* Развернутый режим */
-.userListItem.expanded {
-  position: relative;
-  /*display: flex;*/
-  flex-direction: column;
-
-  /*height: 17vh;!* место для кнопки *!*/
-
-}
-
-
-
-/* Имя */
-.userName {
-  font-weight: 400;
-  margin-bottom: 0vw;
-  text-transform: uppercase;
-
-}
-
-/* Детали */
-.userDetail,
-.discount,
-.userBarcode {
-  font-size: 14px;
-  color: #333;
-  margin-bottom: 0.2vw;
-
-}
-
-/* Ряд кнопки */
-.buttonRow {
-  position: absolute;
-  bottom: 0.8vw;
-  right: 2vw;
-  display: flex;
-  justify-content: flex-end;
-  background: transparent;
-
-
-}
-.labelTelegram{
-  /*position: absolute;*/
-
-}
-
-/* Кнопка выбора */
-
-
-/* Поиск */
-.searchSection {
-
-  border-top: none;
-  display: flex;
-padding-left: 0.3vw;
-gap: 0.3vw;
-
-
-}
-.searchInput {
-
-
-  font-size: 16px;
-  border: none;
-  padding: 0.4rem;
-  border-radius: 9px;
-  outline: none;
-  width: 17vw;
-  height: 35px;          /* висота інпута */
-  line-height: 35px;     /* текст по середині */
-  box-sizing: border-box;
-}
-
-
-/* Нет клиентов */
-.no-clients {
-  background-color: transparent;
-  text-align: center;
-  padding:  0;
-}
-.no-clients button {
-
-  font-size: 14px;
-  border: 1px solid #28a745;
-  background-color: #28a745;
-  color: #fbfaf6;
-  border-radius: 4px;
+.csm-search-id-toggle {
   cursor: pointer;
+  flex-shrink: 0;
 }
 
-.animate-slide-up {
-  animation: slideUp 0.7s ease-out forwards;
+.csm-search-id-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 4vh;
+  min-height: 36px;
+  padding: 0 0.8rem;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--admingrey, #666666);
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  transition: color 0.2s;
+  user-select: none;
+  white-space: nowrap;
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0.7;
-    transform: translateY(100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0%);
-  }
+.csm-search-id-label.is-active {
+  color: var(--adminorange, #f5a623);
 }
 
-.userCard {
-  position: relative;
-  width: 30vw;
-
+.csm-search-input {
+  flex: 1;
+  height: 4vh;
+  min-height: 36px;
+  padding: 0 1rem;
+  border: none;
+  outline: none;
   background: transparent;
-  border-radius: 1vw;
-  margin-bottom: 1vh;
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
 }
 
-.userTelegramIcon {
-  position: absolute;
-  top: 0vh;
-  right: 0vw;
-  animation: slideUpFadeIn 0.5s ease-out;
+.csm-search-input::placeholder {
+  color: var(--admingrey, #666666);
+  opacity: 0.4;
+  text-transform: uppercase;
+  font-size: var(--fontsmall, 15px);
 }
-/* кругла кнопка-іконка */
-.client-cabinet-icon{
-  --pp-size: 50px;             /* змінюй розмір тут */
-  inline-size: var(--pp-size);
-  block-size: var(--pp-size);
-  border-radius: 50%;
-  padding: 0;
+
+/* ── User list ── */
+.csm-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.csm-list::-webkit-scrollbar { width: 6px; }
+.csm-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.csm-empty {
+  padding: 2rem;
+  text-align: center;
+  font-size: var(--fontsmall, 15px);
+  color: var(--admingrey, #666666);
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+
+.csm-empty--error {
+  color: var(--adminred, #ee3c23);
+  opacity: 1;
+}
+
+/* ── User row ── */
+.csm-user {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.csm-user:hover {
+  background: var(--adminfonelement, #f2f0e9);
+}
+
+.csm-user.is-expanded {
+  background: var(--adminfonelement, #f2f0e9);
+}
+
+.csm-user-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.55rem 1rem;
+  overflow: hidden;
+}
+
+/* ── Avatar + ID badge ── */
+.csm-user-id-col {
+  flex-shrink: 0;
+  width: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  line-height: 1;
+}
+
+.csm-user-avatar-wrap {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+}
+
+/* ── User info ── */
+.csm-user-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.csm-user-name {
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--admingrey, #666666);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.csm-user-company {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--adminblue, #3c60a6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.csm-user-discount {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingreen, #0e935b);
+}
+
+/* ── Action buttons (Вибрати / Кабінет) ── */
+.csm-user-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.csm-action-btn {
+  position: relative;
+  isolation: isolate;
+  height: 2vh;
+  min-height: 18px;
+  width: 110px;
+  padding: 5px 18px;
+  border: 2px solid var(--adminorange, #f5a623);
+  border-radius: 0;
+  background: var(--adminfonelement, #f2f0e9);
+  color: var(--admingrey, #666666);
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border:1px solid var(--pp-border, #DADDE2);
-  background: transparent;
-  color: #696462;
-  cursor: pointer;
-  /*transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease, border-color .15s ease;*/
-}
-.client-cabinet-icon svg {
-  color: rgba(0,0,0,0.6);
-  stroke: rgba(0,0,0,0.6);
+  box-sizing: border-box;
+  transition: 0.3s;
 }
 
-.client-cabinet-icon svg{
-
+.csm-action-btn-text {
+  position: relative;
+  z-index: 3;
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
 }
 
-.client-cabinet-icon:hover{
-
-  color:#fff;
-
-  transform: translateY(-1px);
-  box-shadow: 0 1px 6px rgba(0,0,0,.1);
+.csm-action-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background: var(--adminfonelement, #f2f0e9);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -2;
 }
 
-.client-cabinet-icon:active{ transform: translateY(0); }
-
-/* доступність */
-.client-cabinet-icon:focus-visible{
-  outline: 2px solid color-mix(in oklab, var(--pp-primary, #111) 60%, white);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--pp-primary, #111) 20%, transparent);
+.csm-action-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background: var(--adminfonelement, #f2f0e9);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -1;
 }
-/* Важливо: box-sizing щоб padding не «псував» розміри */
+
+.csm-action-btn:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.csm-action-btn:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+.csm-action-btn:hover {
+  background: var(--adminfonelement, #f2f0e9);
+}
+
+.csm-action-btn:hover .csm-action-btn-text {
+  color: var(--admingrey, #666666);
+}
+
+/* ── Expanded details ── */
+.csm-user-details {
+  padding: 0.6rem 1rem 0.6rem calc(60px + 1.8rem);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.csm-cabinet-side-btn {
+  flex-shrink: 0;
+}
+
+.csm-user-details-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem 1rem;
+}
+
+.csm-detail-label {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+.csm-detail-value {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+}
+
+
 *,
 *::before,
 *::after { box-sizing: border-box; }
-
-/* Базовий круглий контрол іконки */
-.icon-btn {
-  display: inline-grid;
-  place-items: center;
-  width: 60px;              /* підганяй під потрібний розмір */
-  height: 60px;
-  padding: 0;               /* ніяких внутрішніх відступів */
-  margin: 0;
-  border-radius: 50%;       /* Ось воно — круг */
-  overflow: hidden;         /* обтинає будь-які внутрішні прямокутники */
-  background: transparent;  /* прозорий фон */
-  cursor: pointer;
-  color: #000;              /* іконка буде чорна через currentColor */
-  -webkit-tap-highlight-color: transparent;
-  vertical-align: middle;
-  line-height: 0;           /* вимикає weird baseline spacing */
-  border: none;             /* прибираємо дефолт border (обведення додаємо окремо) */
-}
-.icon-btn:hover{
-
-  color:#fff;
-
-  transform: translateY(-1px);
-  box-shadow: 0 1px 6px rgba(0,0,0,.1);
-}
-/* Тонка сіра рамка (як у іконки клієнта) */
-.icon-btn--outlined {
-  border: 1px solid rgba(0,0,0,0.08);
-}
-
-/* Якщо у тебе глобальні стилі для button сильно зашиті — пробити останньою інструкцією: */
-.icon-btn.icon-btn--outlined.folder-btn {
-  border-radius: 50% !important;
-  overflow: hidden !important;
-}
-
-/* Розмір SVG всередині та вирівнювання */
-.icon-btn .icon-svg {
-  width: 60px;
-  height: 60px;
-  display: block;
-}
-
-/* Забезпечуємо, що SVG та його path не мають власного background */
-.icon-btn .icon-svg, .icon-btn .icon-svg * {
-  background: transparent;
-}
-.client-cabinet-icon {
-  width: 3.5vw;
-  height: 3.5vw;
-  /*position: absolute;*/
-  right: 3vw;
-  gap: 0.2vw;
-  padding: 1vh;
-  /*display: inline-grid;*/
-  /*place-items: center;*/
-  border-radius: 50%;
-  background: transparent;
-  border: 1.5px solid rgba(0,0,0,0.08); /* тонка сіра рамка, як у інших іконок */
-  color: #000; /* іконка чорна */
-}
-
-.client-cabinet-icon .icon-svg {
-  width: 60px;
-  height: 60px;
-  display: block;
-}
