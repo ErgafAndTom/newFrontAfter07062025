@@ -53,6 +53,7 @@
   border: none;
   height: 100%;
   padding-left: 1rem;
+  padding-bottom: 0.5rem;
 }
 
 /* Single nav link — стиль nui-client-rect-btn */
@@ -166,6 +167,7 @@
   align-items: stretch;
   justify-content: flex-end;
   padding-right: 1rem;
+  padding-bottom: 0.5rem;
   box-sizing: border-box;
 }
 
@@ -380,3 +382,53 @@
 .inputLogin { width: 20vw; height: 4vw; margin: auto; font-size: 1.1vw; }
 .titleLogin { margin: auto; margin-top: 4vw; margin-bottom: 1.5vw; }
 .buttonLogin { margin: auto; width: 19.5vw; height: 3.4vw; margin-top: 1.5vw; font-size: 1.1vw; }
+
+/* Notification popup action button — стиль adminButtonAdd з градієнтом */
+.notification-check-btn {
+  position: relative;
+  border: none !important;
+  border-radius: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0 0.4vw;
+  min-width: 18px;
+  height: calc(var(--nav-h, 3.5vh) / 2);
+  min-height: calc(var(--nav-min-h, 36px) / 2);
+  font-size: var(--font-size-s, 17px);
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  backface-visibility: hidden;
+  will-change: transform, background-position;
+  background:
+    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.35), transparent 42%),
+    linear-gradient(130deg,
+      var(--notif-btn-1, #12a864),
+      var(--notif-btn-2, #0e935b),
+      var(--notif-btn-3, #0b7d4d),
+      var(--notif-btn-2, #0e935b));
+  background-size: 250% 250%, 320% 320%;
+  background-position: 30% 18%, 0% 50%;
+  animation: btnGlow 3s ease-in-out infinite;
+  transition: transform .18s ease, color .18s ease;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.notification-check-btn:hover {
+  color: #f2f0e7 !important;
+  transform: scale(1.05);
+}
+
+.notification-check-btn > * {
+  position: relative;
+  z-index: 3;
+}
+
+
+
+
+
+

@@ -316,3 +316,186 @@
 *,
 *::before,
 *::after { box-sizing: border-box; }
+
+/* Create-client action in search bar */
+.csm-create-btn {
+  position: relative;
+  isolation: isolate;
+  flex: 0 0 auto;
+  height: 4vh;
+  min-height: 36px;
+  padding: 0 0.85rem;
+  border: 2px solid var(--admingreen, #0e935b);
+  border-radius: 0;
+  background: var(--adminfonelement, #f2f0e9);
+  color: var(--admingreen, #0e935b);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.3s;
+  box-sizing: border-box;
+}
+
+.csm-create-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background: var(--adminfonelement, #f2f0e9);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+
+.csm-create-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background: var(--adminfonelement, #f2f0e9);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+
+.csm-create-btn:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.csm-create-btn:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+.csm-create-btn-text {
+  position: relative;
+  z-index: 3;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  text-transform: uppercase;
+  color: inherit;
+}
+
+/* Create-client modal above all local overlays */
+.csm-add-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 15, 15, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 1000000;
+}
+
+.csm-add-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(96vw, 760px);
+  max-height: 90vh;
+  background: var(--adminfon, #f7f5ee);
+  border-bottom: 2px solid var(--admingreen, #0e935b);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.32);
+  z-index: 1000001;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: csm-add-pop 0.2s ease-out;
+}
+
+@keyframes csm-add-pop {
+  from { opacity: 0; transform: translate(-50%, -48%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+.csm-add-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 4.2vh;
+  padding: 0 0.75rem;
+  border-bottom: 2px solid var(--admingreen, #0e935b);
+  background: var(--adminfonelement, #f2f0e9);
+}
+
+.csm-add-title {
+  color: var(--admingreen, #0e935b);
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.csm-add-close {
+  border: none;
+  background: transparent;
+  color: var(--admingreen, #0e935b);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.csm-add-body {
+  padding: 0.75rem;
+  overflow-y: auto;
+}
+/* Compact form styling in NewUIArtem tone */
+.csm-add-panel .user-form-error {
+  color: var(--adminred, #ee3c23);
+  margin-bottom: 0.5rem;
+  font-size: var(--fontsmall, 15px);
+}
+
+.csm-add-panel .form-group-floating {
+  margin-bottom: 0.5rem;
+}
+
+.csm-add-panel .input-wrapper {
+  display: flex;
+  align-items: center;
+  min-height: 4vh;
+  padding-left: 2.2rem;
+  background: var(--adminfonelement, #f2f0e9);
+  border-radius: 0;
+  border-bottom: 2px solid var(--admingreen, #0e935b);
+}
+
+.csm-add-panel .input-icon {
+  left: 0.65rem;
+  color: var(--admingreen, #0e935b);
+}
+
+.csm-add-panel .form-input {
+  color: var(--admingrey, #666666);
+  font-size: var(--font-size-s, 17px);
+  padding: 0.45rem 0.55rem;
+}
+
+.csm-add-panel .form-input::placeholder {
+  color: color-mix(in srgb, var(--admingrey, #666666) 70%, transparent);
+  text-transform: uppercase;
+  font-size: var(--fontsmall, 15px);
+}
+
+.csm-add-panel .adminButtonAdd {
+  position: static !important;
+  margin-left: auto;
+  margin-top: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 4vh;
+  padding: 0 1rem;
+  border-radius: 0 !important;
+  border: 2px solid var(--admingreen, #0e935b) !important;
+  border-bottom: 2px solid var(--admingreen, #0e935b) !important;
+  background: var(--adminlightgreen, #e2f2eb) !important;
+  color: var(--admingreen, #0e935b) !important;
+  font-weight: 400 !important;
+  text-transform: uppercase;
+}

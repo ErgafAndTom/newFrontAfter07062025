@@ -3,6 +3,7 @@ import './ClientSelectionModal.css';
 import TelegramAvatar from '../../PrintPeaksFAinal/Messages/TelegramAvatar';
 import {fetchUser} from "../../actions/authActions";
 import ClientCabinet from "./ClientCabinet.jsx";
+import CompactAddUserForm from "./CompactAddUserForm";
 
 /* Нормалізатор — підтримує "10%", "10", 10 */
 const norm = v => {
@@ -36,7 +37,8 @@ const ClientSelectionModal = ({
                                 thisOrder,
                                 setThisOrder,
                                 setSearchQuery,
-                                searchQuery, searchId, setSearchId
+                                searchQuery, searchId, setSearchId,
+                                modalVisible, handleCloseAddUser, handleUserAdded
                               }) => {
   const [expandedThingIndex, setExpandedThingIndex] = useState(null);
   const [thisUserIdToCabinet2, setThisUserIdToCabinet2] = useState(0);
@@ -192,9 +194,34 @@ const ClientSelectionModal = ({
             onChange={handleSearchChange}
             placeholder={searchId ? "Пошук клієнта по ID..." : "Пошук клієнта по назві..."}
           />
+          <button
+            type="button"
+            className="csm-create-btn"
+            onClick={() => setModalVisible(true)}
+          >
+            <span className="csm-create-btn-text">CREATE CLIENT</span>
+          </button>
 
         </div>
       </div>
+
+      {modalVisible && (
+        <>
+          <div className="csm-add-overlay" onClick={handleCloseAddUser} />
+          <div className="csm-add-panel" role="dialog" aria-modal="true">
+            <div className="csm-add-header">
+              <span className="csm-add-title">CREATE CLIENT</span>
+              <button type="button" className="csm-add-close" onClick={handleCloseAddUser}>X</button>
+            </div>
+            <div className="csm-add-body">
+              <CompactAddUserForm
+                handleCloseAddUser={handleCloseAddUser}
+                onUserAdded={handleUserAdded}
+              />
+            </div>
+          </div>
+        </>
+      )}
 
       {clientCabinetOpen2 && thisUserIdToCabinet2 && (
         <ClientCabinet

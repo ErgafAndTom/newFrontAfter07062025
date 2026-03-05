@@ -493,11 +493,12 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
           setSearchQuery={setSearchQuery}
           searchId={searchId}
           setSearchId={setSearchId}
+          handleUserAdded={handleUserAdded}
         />
       </div>
 
       {!hidePaymentPanel && (
-      <div style={{ position: "absolute", bottom: "8vh", left: "0", right: "auto", width: "max-content" }}>
+      <div style={{ position: "absolute", bottom: "8vh", left: "0", right: "0", width: "100%" }}>
         <PaidButtomProgressBar
           thisOrder={thisOrder}
           setThisOrder={setThisOrder}

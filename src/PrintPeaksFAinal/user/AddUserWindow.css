@@ -1,4 +1,136 @@
-.ModeBodyAddUserWindow
-{
+/* ===== AddUserWindow — модалка створення клієнта ===== */
 
+.auw-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem 1.2vw;
+}
+
+.auw-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+/* --- Поле: іконка + input --- */
+.auw-field {
+  display: flex;
+  align-items: center;
+  background: var(--adminfonelement, #f2f0e9);
+  padding: 0.6vh 0.6vw;
+  gap: 0.4vw;
+}
+
+.auw-field svg {
+  color: var(--admingrey, #666);
+  flex-shrink: 0;
+  font-size: 1.2em;
+}
+
+.auw-field input,
+.auw-field textarea {
+  flex: 1;
+  border: none;
+  border-bottom: 2px solid var(--adminblue, #3c60a6);
+  background: transparent;
+  font-size: var(--font-size-s, 17px);
+  color: var(--admingrey, #666);
+  padding: 0.3vh 0.2vw;
+  outline: none;
+  font-family: inherit;
+}
+
+.auw-field input::placeholder,
+.auw-field textarea::placeholder {
+  color: var(--admingrey, #666);
+  opacity: 0.6;
+}
+
+.auw-field input:focus,
+.auw-field textarea:focus {
+  border-bottom-color: var(--admingreen, #0e935b);
+}
+
+/* --- Секція "Місце роботи" --- */
+.auw-company-section {
+  background: var(--adminfonelement, #f2f0e9);
+  padding: 0.8vh 0.6vw;
+}
+
+.auw-company-section .auw-section-title {
+  font-size: var(--font-size-s, 17px);
+  color: var(--admingrey, #666);
+  text-transform: uppercase;
+  margin-bottom: 0.4vh;
+  font-weight: 400;
+}
+
+.auw-company-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5vw;
+  margin-top: 0.5vh;
+  flex-wrap: wrap;
+}
+
+.auw-company-row > span {
+  font-size: var(--font-size-s, 17px);
+  color: var(--admingrey, #666);
+  white-space: nowrap;
+}
+
+/* --- Textarea --- */
+.auw-textarea-wrap {
+  background: var(--adminfonelement, #f2f0e9);
+  padding: 0.6vh 0.6vw;
+}
+
+.auw-textarea-wrap textarea {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid var(--adminblue, #3c60a6);
+  background: transparent;
+  font-size: var(--font-size-s, 17px);
+  color: var(--admingrey, #666);
+  padding: 0.4vh 0.2vw;
+  outline: none;
+  resize: vertical;
+  min-height: 8vh;
+  font-family: inherit;
+}
+
+.auw-textarea-wrap textarea::placeholder {
+  color: var(--admingrey, #666);
+  opacity: 0.6;
+}
+
+.auw-textarea-wrap textarea:focus {
+  border-bottom-color: var(--admingreen, #0e935b);
+}
+
+/* --- Кнопка submit --- */
+.auw-submit-row {
+  display: flex;
+  justify-content: center;
+  padding: 1.2vh 0 0.6vh;
+}
+
+/* --- Помилка --- */
+.auw-error {
+  background: var(--adminlightred, #fde8e5);
+  color: var(--adminred, #ee3c23);
+  padding: 0.6vh 1vw;
+  font-size: var(--font-size-s, 17px);
+  text-align: center;
+}
+
+/* --- Preset company badge --- */
+.auw-preset-badge {
+  display: inline-flex;
+  align-items: center;
+  background: var(--admingreen, #0e935b);
+  color: #fff;
+  padding: 0.3vh 0.6vw;
+  font-size: var(--font-size-s, 17px);
+  font-weight: 500;
 }

@@ -11,6 +11,7 @@ const METHOD_LABELS = {
   terminal: 'карткою',
   link: 'посиланням',
   invoice: 'за рахунком',
+  expired: 'протерміновано',
 };
 
 const PopupLeftNotification = () => {
@@ -110,57 +111,81 @@ const PopupLeftNotification = () => {
             backgroundColor: 'var(--adminfon, #f2f0e7)',
             boxShadow: '0 0 10px rgba(0,0,0,0.1)',
             borderRadius: '0',
-            padding: '1vh 1vw',
+            padding: '0.5rem',
             maxHeight: '90vh',
             overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.5rem',
             zIndex: 9999,
           }}
         >
           {/* Сповіщення оплат */}
-          {paymentData.map((notif) => (
-            <div
-              key={`pay-${notif.id}`}
-              style={{
-                background: 'var(--adminlightgreen, #e2f2eb)',
-                borderBottom: '2px solid var(--admingreen, #0e935b)',
-                borderRadius: '0',
-                padding: '0.8vh 0.6vw',
-                marginBottom: '1vh',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: '0.5vw',
-                cursor: 'pointer',
-              }}
-            >
+          {paymentData.map((notif) => {
+            const isExpired = notif.method === 'expired';
+            const isRepeat = notif.isRepeat;
+
+            let bgColor, borderColor, accentColor, btnStyle;
+            if (isExpired) {
+              bgColor = 'var(--adminlightred, #fde8e5)';
+              borderColor = 'var(--adminred, #ee3c23)';
+              accentColor = 'var(--adminred, #ee3c23)';
+              btnStyle = { '--notif-btn-1': '#f25040', '--notif-btn-2': '#ee3c23', '--notif-btn-3': '#d42f1a' };
+            } else if (isRepeat) {
+              bgColor = 'var(--adminlightpurple, #edebf9)';
+              borderColor = 'var(--adminpurple, #6a5acd)';
+              accentColor = 'var(--adminpurple, #6a5acd)';
+              btnStyle = { '--notif-btn-1': '#8070d4', '--notif-btn-2': '#6a5acd', '--notif-btn-3': '#5a4abf' };
+            } else {
+              bgColor = 'var(--adminlightgreen, #e2f2eb)';
+              borderColor = 'var(--admingreen, #0e935b)';
+              accentColor = 'var(--admingreen, #0e935b)';
+              btnStyle = undefined;
+            }
+
+            const label = isExpired
+              ? 'Оплата протермінована'
+              : isRepeat ? 'Повторна оплата' : 'Оплата';
+            const methodSuffix = isExpired ? '' : ` ${METHOD_LABELS[notif.method] || notif.method}`;
+
+            return (
               <div
-                style={{ flexGrow: 1, fontSize: 'var(--font-size-s, 17px)', color: 'var(--admingrey, #666)' }}
-                onClick={() => handlePaymentClick(notif.orderId)}
-              >
-                Оплата {METHOD_LABELS[notif.method] || notif.method} замовлення №{notif.orderId} на суму{' '}
-                <strong style={{ color: 'var(--admingreen, #0e935b)' }}>{notif.amount} грн</strong>
-              </div>
-              <button
+                key={`pay-${notif.id}`}
                 style={{
-                  background: 'transparent',
-                  border: '2px solid var(--admingreen, #0e935b)',
+                  background: bgColor,
+                  borderBottom: `2px solid ${borderColor}`,
                   borderRadius: '0',
-                  padding: '0.3vh 0.6vw',
-                  color: 'var(--admingreen, #0e935b)',
-                  fontWeight: 400,
+                  padding: '0.8vh 0.6vw',
+                  marginBottom: 0,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '0.5vw',
                   cursor: 'pointer',
-                  fontSize: 'var(--font-size-s, 17px)',
-                  flexShrink: 0,
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDismissPayment(notif.id);
                 }}
               >
-                ✓
-              </button>
-            </div>
-          ))}
+                <div
+                  style={{ flexGrow: 1, fontSize: 'var(--font-size-s, 17px)', color: 'var(--admingrey, #666)', fontWeight: 400 }}
+                  onClick={() => handlePaymentClick(notif.orderId)}
+                >
+                  {label}{methodSuffix} замовлення №{notif.orderId} на суму{' '}
+                  <strong style={{ color: accentColor, fontWeight: 700 }}>{notif.amount} грн</strong>
+                </div>
+                {!isExpired && (
+                  <button
+                    className="notification-check-btn"
+                    style={btnStyle}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDismissPayment(notif.id);
+                    }}
+                  >
+                    <span>&#10003;</span>
+                  </button>
+                )}
+              </div>
+            );
+          })}
 
           {/* Завдання (trello cards) */}
           {taskData.map((card) => (
@@ -169,14 +194,14 @@ const PopupLeftNotification = () => {
               borderBottom: '2px solid var(--adminorange, #f5a623)',
               borderRadius: '0',
               padding: '0.8vh 0.6vw',
-              marginBottom: '1vh',
+              marginBottom: 0,
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'flex-start',
               gap: '0.5vw'
             }}>
               <div style={{ flexGrow: 1 }}>
-                <div style={{ marginBottom: '0.5vh', fontSize: 'var(--font-size-s, 17px)', color: 'var(--admingrey, #666)' }}>
+                <div style={{ marginBottom: '0.5vh', fontSize: 'var(--font-size-s, 17px)', color: 'var(--admingrey, #666)', fontWeight: 400 }}>
                   {card.content}
                 </div>
                 {card.inTrelloPhoto && (
@@ -196,19 +221,15 @@ const PopupLeftNotification = () => {
                 )}
               </div>
               <button
+                className="notification-check-btn"
                 style={{
-                  background: 'transparent',
-                  border: '2px solid var(--adminorange, #f5a623)',
-                  borderRadius: '0',
-                  padding: '0.3vh 0.6vw',
-                  color: 'var(--adminorange, #f5a623)',
-                  fontWeight: 400,
-                  cursor: 'pointer',
-                  fontSize: 'var(--font-size-s, 17px)',
+                  '--notif-btn-1': '#f7c23b',
+                  '--notif-btn-2': '#f5a623',
+                  '--notif-btn-3': '#e89810',
                 }}
                 onClick={() => handleCompleteTask(card.id)}
               >
-                ✓
+                <span>&#10003;</span>
               </button>
             </div>
           ))}
@@ -231,3 +252,4 @@ const PopupLeftNotification = () => {
 };
 
 export default PopupLeftNotification;
+

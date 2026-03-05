@@ -1,0 +1,1348 @@
+/* Root Variables & Theme */
+.nui-sheetcut-theme {
+  --nui-right-col-width: 33vw;
+  --nui-left-col-width: 50vw;
+  --nui-bottom-total-width: 66vw;
+  --nui-bottom-finance-width: 25vw;
+  --nui-bottom-envelope-padding: 0.35rem;
+  --nui-bottom-envelope-bg: var(--adminfonelement, #f2f0e9);
+  background: var(--adminfone);
+}
+
+/* ============================================================
+   Service Tiles Grid
+   ============================================================ */
+
+
+
+
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  padding-bottom: 0 !important;
+  margin-left: 1rem;
+  margin-bottom: 2rem;
+}
+
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-primary {
+  margin-top: 1rem;
+}
+
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p {
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--adminfonelement, #f2f0e9);
+  border-bottom: 2px solid var(--adminorange, #f5a623);
+  color: var(--adminorange, #f5a623);
+  cursor: pointer;
+  height: 12vh !important;
+  width: 7.5vw !important;
+  border-radius: 0 !important;
+  justify-content: center;
+  padding: 1rem 1rem 0 1rem;
+
+}
+
+/* border появляється знизу вгору і до центру через ::before (вертикалі) і ::after (горизонталі) */
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p::before,
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+}
+
+/* вертикальні лінії — ростуть знизу вгору (поява), зникають вниз з затримкою (зникнення) */
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p::before {
+  border-left: 2px solid var(--adminorange, #f5a623);
+  border-right: 2px solid var(--adminorange, #f5a623);
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 0.35s ease 0.25s;
+}
+
+/* горизонтальні лінії — ростуть з боків до центру (поява з затримкою), зникають одразу (зникнення) */
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p::after {
+  border-top: 2px solid var(--adminorange, #f5a623);
+  clip-path: inset(0 0 0 0);
+  -webkit-mask: linear-gradient(to right, black 0%, black 50%, transparent 50%) left/200% 100%,
+                linear-gradient(to left,  black 0%, black 50%, transparent 50%) right/200% 100%;
+  mask: linear-gradient(to right, black 0%, black 50%, transparent 50%) left/200% 100%,
+        linear-gradient(to left,  black 0%, black 50%, transparent 50%) right/200% 100%;
+  -webkit-mask-size: 200% 100%, 200% 100%;
+  mask-size: 200% 100%, 200% 100%;
+  -webkit-mask-position: 100% 0, 0% 0;
+  mask-position: 100% 0, 0% 0;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  transition: -webkit-mask-position 0.3s ease 0s, mask-position 0.3s ease 0s;
+}
+
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p:hover {
+  box-shadow: none;
+}
+
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p:hover::before {
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 0.35s ease 0s;
+}
+
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p:hover::after {
+  -webkit-mask-position: 0% 0, 100% 0;
+  mask-position: 0% 0, 100% 0;
+  transition: -webkit-mask-position 0.3s ease 0.25s, mask-position 0.3s ease 0.25s;
+}
+
+/* PLOTTER CUT, MAGNETS, LAMINATION, BINDING — blue */
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-middle p {
+  border-bottom-color: var(--adminblue, #3c60a6) !important;
+  color: var(--adminblue, #3c60a6) !important;
+}
+
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-middle p::before {
+  border-left-color: var(--adminblue, #3c60a6) !important;
+  border-right-color: var(--adminblue, #3c60a6) !important;
+}
+
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-middle p::after {
+  border-top-color: var(--adminblue, #3c60a6) !important;
+}
+
+/* NOTE, BOOKLET, MUG — coral */
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-tertiary p {
+  border-bottom-color: var(--admincoral, #ff7f50) !important;
+  color: var(--admincoral, #ff7f50) !important;
+}
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-tertiary p::before {
+  border-left-color: var(--admincoral, #ff7f50) !important;
+  border-right-color: var(--admincoral, #ff7f50) !important;
+}
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-tertiary p::after {
+  border-top-color: var(--admincoral, #ff7f50) !important;
+}
+
+/* SCANS, DELIVERY, WIDE FACTORY — purple */
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-secondary p {
+  border-bottom-color: var(--adminpurple, #6a5acd) !important;
+  color: var(--adminpurple, #6a5acd) !important;
+}
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-secondary p::before {
+  border-left-color: var(--adminpurple, #6a5acd) !important;
+  border-right-color: var(--adminpurple, #6a5acd) !important;
+}
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-secondary p::after {
+  border-top-color: var(--adminpurple, #6a5acd) !important;
+}
+
+/* tileContent */
+.nui-sheetcut-theme .CardPrintersPoslugi .tileContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  color: inherit;
+  position: relative;
+
+}
+
+/* Label */
+.nui-sheetcut-theme .CardPrintersPoslugi .verticalText {
+  writing-mode: horizontal-tb;
+  transform: none;
+  font-weight: 400;
+  font-size: var(--font-size-s);
+  color: inherit !important;
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: 0.2rem;
+  margin-bottom: 0.0rem;
+  line-height: 1.1;
+}
+
+/* tileContent passes color down from p */
+.nui-sheetcut-theme .CardPrintersPoslugi .tileContent {
+  color: inherit;
+}
+
+/* Icons */
+.nui-sheetcut-theme .CardPrintersPoslugi .tileContent img {
+  width: 3.6rem;
+  height: 3.6rem;
+  object-fit: contain;
+  opacity: 0.95;
+  filter: grayscale(1);
+  transition: transform 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
+  margin-top: auto;
+  margin-bottom: 1vh;
+}
+
+.nui-sheetcut-theme .CardPrintersPoslugi .tileContent img[src*="delivery"],
+.nui-sheetcut-theme .CardPrintersPoslugi .tileContent img[src*="note"],
+.nui-sheetcut-theme .CardPrintersPoslugi .tileContent img[src*="booklet"],
+.nui-sheetcut-theme .CardPrintersPoslugi .tileContent img[src*="magnets"],
+.nui-sheetcut-theme .CardPrintersPoslugi .tileContent img[src*="photo"] {
+  width: 3.84rem;
+  height: 3.84rem;
+}
+
+.nui-sheetcut-theme .CardPrintersPoslugi p:hover .tileContent img {
+  transform: scale(1.1);
+  opacity: 1;
+  filter: grayscale(0);
+}
+
+.nui-sheetcut-theme .CardPrintersPoslugi .tileContent > svg {
+  opacity: 0.5;
+  width: 3.6rem;
+  height: 3.6rem;
+  transition: transform 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
+  filter: grayscale(1);
+  margin-top: 0;
+}
+
+.nui-sheetcut-theme .CardPrintersPoslugi p:hover .tileContent > svg {
+  transform: scale(1.1);
+  opacity: 1;
+  filter: grayscale(0);
+}
+
+/* Order List Styles (RESTORING) */
+.nui-orders-column {
+  width: var(--nui-right-col-width);
+  height: 90vh;
+  overflow-y: auto;
+  padding: 1rem;
+  padding-bottom: 15vh;
+  background: transparent;
+  /*border-left: 1px solid #eee;*/
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.nui-order-delivered-title {
+  width: 100%;
+  background: var(--adminfonelement, #f2f0e9);
+  padding: 1rem;
+  text-align: center;
+  font-size: var(--font-size-paybig, 26px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: none;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+}
+
+.nui-order-delivered-id {
+  color: var(--adminred, #ee3c23);
+  font-weight: 400;
+}
+
+.nui-order-delivered-suffix {
+  color: var(--admingrey, #666666);
+  font-weight: 400;
+}
+
+.nui-order-item {
+  --order-item-tone: var(--admingrey, #666666);
+  background: var(--adminfonelement, #f2f0e9);
+  border-radius: 0px;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  box-shadow: none;
+  position: relative;
+}
+
+.nui-order-item.nui-order-tone-orange { --order-item-tone: var(--adminorange, #f5a623); }
+.nui-order-item.nui-order-tone-blue   { --order-item-tone: var(--adminblue,   #3c60a6); }
+.nui-order-item.nui-order-tone-rose   { --order-item-tone: var(--adminrose,   #ef7aaa); }
+.nui-order-item.nui-order-tone-green  { --order-item-tone: var(--adminpurple,  #0e935b); }
+.nui-order-item.nui-order-tone-red    { --order-item-tone: var(--adminred,    #ee3c23); }
+.nui-order-item.nui-order-tone-grey   { --order-item-tone: var(--admincyan,   #666666); }
+
+.nui-order-item.nui-editor-accent-orange { --editor-tone: var(--adminorange, #f5a623); }
+.nui-order-item.nui-editor-accent-blue   { --editor-tone: var(--adminblue,   #3c60a6); }
+.nui-order-item.nui-editor-accent-coral  { --editor-tone: var(--admincoral,  #ff7f50); }
+.nui-order-item.nui-editor-accent-purple { --editor-tone: var(--adminpurple, #6a5acd); }
+.nui-order-item.nui-editor-accent-green  { --editor-tone: var(--admingreen,  #0e935b); }
+
+.nui-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 2px solid var(--editor-tone, var(--admingrey, #666666));
+}
+
+.nui-item-name {
+  color: var(--admingreen, #0e935b);
+  font-weight: 400;
+  font-size: var(--font-size-pay);
+  line-height: 1.4;
+  flex: 1;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  text-indent: 1em;
+}
+
+
+.nui-item-del {
+  cursor: pointer;
+  color: var(--admingrey, #666666);
+  font-size: 1rem;
+  position: absolute;
+  top: 0.1rem;
+  right: 0.3rem;
+
+  line-height: 1;
+}
+
+.nui-item-del:hover {
+  color: var(--adminred, #ee3c23);
+}
+
+.nui-price-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1vh;
+  font-size: var(--font-size-pay);
+}
+
+.nui-price-left {
+  color: var(--admingrey, #666666);
+  font-size: var(--font-size-paybig);
+  font-weight: 400;
+}
+
+.nui-price-total {
+  color: var(--adminred, #ee3c23);
+  font-size: var(--font-size-paybig);
+  font-weight: 400;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1px;
+}
+
+.nui-price-total--discount {
+  color: var(--admingreen, #0e935b);
+}
+
+.nui-price-total-unit {
+  font-size: var(--fontsmall, 15px);
+  color: inherit;
+  margin-left: 1px;
+}
+
+.nui-item-type-btn {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  border-bottom: 2px solid var(--adminblue, #3c60a6);
+  color: var(--adminblue, #3c60a6);
+  text-transform: uppercase;
+  font-size: var(--font-size-s);
+  padding: 0 0.3rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.nui-item-type-btn.nui-editor-accent-orange {
+  border-bottom-color: var(--adminorange, #f5a623);
+  color: var(--adminorange, #f5a623);
+}
+
+.nui-item-type-btn.nui-editor-accent-green {
+  border-bottom-color: var(--admingreen, #0e935b);
+  color: var(--admingreen, #0e935b);
+}
+
+.nui-item-type-btn.nui-editor-accent-blue {
+  border-bottom-color: var(--adminblue, #3c60a6);
+  color: var(--adminblue, #3c60a6);
+}
+
+.nui-item-type-btn.nui-editor-accent-coral {
+  border-bottom-color: var(--admincoral, #ff7f50);
+  color: var(--admincoral, #ff7f50);
+}
+
+.nui-item-type-btn.nui-editor-accent-purple {
+  border-bottom-color: var(--adminpurple, #6a5acd);
+  color: var(--adminpurple, #6a5acd);
+}
+
+.nui-item-type-btn .nui-type-icon {
+  font-size: var(--font-size-s);
+  color: inherit !important;
+  line-height: 1;
+}
+
+.nui-item-type-btn .nui-type-label {
+  color: inherit !important;
+}
+
+.nui-details-footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+  border-top: 2px solid color-mix(in srgb, var(--order-item-tone) 35%, transparent);
+  font-size: var(--fontsmall, 15px) !important;
+  font-weight: 400 !important;
+  color: var(--admingrey, #666666) !important;
+}
+
+.nui-details-footer-row span,
+.nui-details-footer-row div {
+  color: var(--admingrey, #666666) !important;
+  font-weight: 400 !important;
+}
+
+.nui-details-footer-row .nui-footer-accent {
+  color: var(--adminblue, #3c60a6) !important;
+  font-weight: 500 !important;
+}
+
+.nui-details-footer-row .nui-footer-price {
+  color: var(--adminred, #ee3c23) !important;
+  font-size: var(--fontsmall, 15px) !important;
+  font-weight: 500 !important;
+}
+
+.nui-details-footer-row .nui-footer-price-unit {
+  color: var(--adminred, #ee3c23) !important;
+  font-size: var(--fontcard, 12px) !important;
+  font-weight: 500 !important;
+  margin-left: 1px;
+}
+
+.nui-unit-sub {
+  font-size: var(--fontsmall, 15px);
+  margin-left: 1px;
+  color: var(--admingrey, #666666);
+}
+
+/* Bottom Shell Layout */
+.nui-sheetcut-theme .nui-bottom-shell {
+  position: fixed;
+  left: 0.5vw;
+  right: 0.5vw;
+  width: calc(100vw - 1vw);
+  bottom: 0.5vh;
+  height: auto;
+  display: flex !important;
+  align-items: stretch;
+  gap: 0;
+
+  background: transparent;
+  overflow: visible;
+  box-shadow: none;
+}
+
+.nui-sheetcut-theme .nui-bottom-shell > .nui-bottom-pane {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  background: transparent;
+  position: relative;
+}
+
+.nui-sheetcut-theme .nui-bottom-shell > .nui-bottom-pane--progress {
+  width: 100%;
+  flex-basis: 100%;
+  border-right: 0;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+}
+
+.nui-sheetcut-theme .nui-bottom-main-row {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  margin-top: 0.22rem;
+  gap: 0.5rem;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline {
+  flex: 0 0 var(--nui-bottom-finance-width);
+  width: var(--nui-bottom-finance-width);
+  min-width: var(--nui-bottom-finance-width);
+  max-width: var(--nui-bottom-finance-width);
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  align-self: flex-start;
+  background: transparent;
+  padding: 0;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline {
+  flex: 0 0 0vw;
+  width: 25vw;
+  min-width: 25vw;
+  max-width: 25vw;
+  display: flex;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+.nui-sheetcut-theme .nui-bottom-shell > .nui-bottom-pane {
+  width: 100%;
+  background: transparent;
+  position: relative;
+}
+
+.nui-sheetcut-theme .nui-bottom-shell > .nui-bottom-pane--progress {
+  width: 100%;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+}
+
+.nui-sheetcut-theme .nui-bottom-main-row {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-top: 0.45rem;
+  gap: 1rem;
+}
+
+.nui-sheetcut-theme .nui-bottom-shell .nui-progressbar.pb-shell {
+  background: transparent;
+  flex: 1 1 0;
+  min-height: 0;
+  position: relative;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline {
+
+  flex: 0 0 20vw;
+  min-width: 0;
+
+
+  display: flex;
+  align-items: flex-start;
+  align-self: flex-start;
+
+  box-sizing: border-box;
+}
+
+.nui-sheetcut-theme .nui-client-envelope-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.6rem;
+}
+
+.nui-sheetcut-theme .nui-client-envelope-card {
+  background: var(--adminfonelement, #f2f0e9);
+  padding: 0rem 0.6rem;
+  box-sizing: border-box;
+  min-height: 8.5vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.nui-sheetcut-theme .nui-client-controls-row {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.nui-sheetcut-theme .nui-client-main-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.nui-sheetcut-theme .nui-client-text-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 0.18rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.nui-sheetcut-theme .nui-client-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Full-width title aligned to avatar top edge */
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-envelope-card .nui-client-title-row {
+  position: relative;
+  top: 1.05rem;
+  margin-bottom: -1.05rem;
+}
+
+
+.nui-sheetcut-theme .nui-client-avatar-wrap {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex: 0 0 auto;
+}
+
+.nui-sheetcut-theme .nui-client-id-badge-on-avatar {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  height: 1.35rem;
+  padding: 0 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--adminorange, #f5a623);
+  border: 2px solid var(--adminfon, #f7f5ee);
+  color: var(--adminfon, #f7f5ee);
+  font-size: 0.78rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.nui-sheetcut-theme .nui-client-name-line,
+.nui-sheetcut-theme .nui-client-phone-line {
+  color: var(--admingrey, #666666);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nui-sheetcut-theme .nui-client-name-line {
+  width: 100%;
+  text-align: right;
+  font-size: var(--font-size-pay);
+  text-transform: uppercase;
+  color: var(--admingrey, #666666);
+}
+
+.nui-sheetcut-theme .nui-client-phone-line {
+  width: 100%;
+  text-align: right;
+  font-size: var(--font-size-s);
+  color: var(--admingrey, #666666);
+}
+
+.nui-sheetcut-theme .nui-client-company-line {
+  width: 100%;
+  text-align: right;
+  font-size: var(--fontsmall, 15px);
+  color: var(--adminblue, #3c60a6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nui-sheetcut-theme .nui-client-rect-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  gap: 0;
+  flex: 0 0 auto;
+  align-self: flex-start;
+}
+
+.nui-sheetcut-theme .nui-client-rect-btn {
+  position: relative;
+  isolation: isolate;
+  flex: 1 1 0;
+  height: 4vh;
+  min-height: 4vh;
+  padding: 5px 18px;
+  border: 2px solid var(--client-accent, #666666) !important;
+  border-radius: 0;
+  background-color: transparent !important;
+  font-size: var(--font-size-s) !important;
+  font-weight: 400;
+  color: var(--admingrey, #666666) !important;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-sizing: border-box !important;
+  transition: 0.3s;
+}
+
+.nui-sheetcut-theme .nui-client-rect-btn + .nui-client-rect-btn {
+  margin-left: 0;
+}
+
+.nui-sheetcut-theme .nui-client-rect-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfonelement, #f2f0e9);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+
+}
+
+.nui-sheetcut-theme .nui-client-rect-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background-color: var(--adminfonelement, #f2f0e9);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -1;
+}
+
+.nui-sheetcut-theme .nui-client-rect-btn-text {
+  position: relative;
+  z-index: 3;
+  font-size: var(--font-size-s);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+}
+
+.nui-sheetcut-theme .nui-client-rect-btn:not(:disabled):hover {
+  color: var(--client-accent, #666666) !important;
+  border-color: var(--client-accent, #666666) !important;
+}
+
+.nui-sheetcut-theme .nui-client-rect-btn:not(:disabled):hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.nui-sheetcut-theme .nui-client-rect-btn:not(:disabled):hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+.nui-sheetcut-theme .nui-client-rect-btn:not(:disabled):hover .nui-client-rect-btn-text {
+  color: var(--client-accent, #666666) !important;
+}
+
+.nui-sheetcut-theme .nui-client-rect-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.nui-sheetcut-theme .nui-client-controls-row .nui-progressbar.pb-shell.pb-shell--compact-action {
+  flex: 1 1 0;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.nui-sheetcut-theme .nui-client-controls-row .nui-progressbar.pb-shell.pb-shell--compact-action .pb-action-rail,
+.nui-sheetcut-theme .nui-client-controls-row .nui-progressbar.pb-shell.pb-shell--compact-action .pb-action-row,
+.nui-sheetcut-theme .nui-client-controls-row .nui-progressbar.pb-shell.pb-shell--compact-action .pb-action-btn,
+.nui-sheetcut-theme .nui-client-controls-row .nui-progressbar.pb-shell.pb-shell--compact-action .pb-action-placeholder {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline {
+  flex: 0 0 var(--nui-bottom-finance-width);
+  width: var(--nui-bottom-finance-width);
+  min-width: var(--nui-bottom-finance-width);
+  max-width: var(--nui-bottom-finance-width);
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  align-self: flex-start;
+  background: transparent;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+
+}
+
+.nui-sheetcut-theme .nui-bottom-status-inline {
+  flex: 0 0 38%;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  background: var(--adminfonelement, #f2f0e9);
+  padding: 0.35rem;
+  box-sizing: border-box;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar.pb-shell {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  height: auto;
+}
+
+.nui-sheetcut-theme .nui-bottom-status-inline .nui-progressbar.pb-shell {
+  width: 100%;
+}
+
+.nui-sheetcut-theme .nui-bottom-status-inline .nui-progressbar.pb-shell.pb-shell--action-only {
+  margin-top: 0;
+}
+
+.nui-sheetcut-theme .nui-order-status-inline {
+  position: fixed;
+  right: 0.5vw;
+  bottom: calc(0.5vh + 0.5rem);
+  width: var(--nui-right-col-width);
+  margin-top: 0;
+  background: var(--adminfon);
+  padding: 0;
+  box-sizing: border-box;
+
+  overflow: hidden;
+  height: 4vh;
+  min-height: 4vh;
+  max-height: 4vh;
+}
+
+.nui-sheetcut-theme .nui-order-status-inline .nui-progressbar.pb-shell.pb-shell--action-only {
+  margin-top: 0;
+}
+
+@media (max-width: 1280px) {
+  .nui-sheetcut-theme .nui-client-envelope-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nui-sheetcut-theme .nui-bottom-main-row {
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .nui-sheetcut-theme .nui-bottom-client-inline,
+  .nui-sheetcut-theme .nui-bottom-finance-inline {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .nui-sheetcut-theme .nui-order-status-inline {
+    position: static;
+    width: 100%;
+    margin-top: 0.6rem;
+  }
+}
+
+.nui-order-header-shell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75vw;
+}
+
+.nui-order-deadline-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45vw;
+  min-height: 3.8vh;
+  padding: 0 0.6vw;
+  background: var(--adminfonelement, #f2f0e9);
+  border: 1px solid color-mix(in srgb, var(--admingrey, #666666) 22%, transparent);
+  color: var(--admingrey, #666666);
+  white-space: nowrap;
+}
+
+.nui-order-deadline-box--bottom {
+  margin-top: auto;
+  border-top: 1px solid #eee;
+  width: 100%;
+  justify-content: center;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  background: white;
+}
+
+.nui-order-deadline-label {
+  color: var(--admingrey, #666666);
+  font-size: var(--font-size-s);
+  opacity: 0.92;
+  text-transform: none;
+}
+
+.nui-order-deadline-value {
+  color: var(--admingrey, #666666);
+  font-size: var(--font-size-pay);
+  font-weight: 500;
+  text-transform: none;
+}
+
+
+
+
+.icon64 {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+/* Final lock: restore client and action envelopes */
+.nui-sheetcut-theme .nui-bottom-main-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  gap: 1rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline {
+  flex: 0 0 24vw !important;
+  width: 24vw !important;
+  min-width: 24vw !important;
+  max-width: 24vw !important;
+  display: flex !important;
+  align-items: stretch !important;
+  align-self: flex-end !important;
+  overflow: visible !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-envelope-grid {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 1rem !important;
+  align-self: flex-end !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-envelope-card,
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-controls-card {
+
+
+
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-controls-card {
+  min-height: 4vh !important;
+  padding-top: 0rem !important;
+  padding-bottom: 0rem !important;
+}
+
+/* Final lock: client + action envelopes refactor */
+.nui-sheetcut-theme .nui-client-envelope-shell {
+  width: 100%;
+  --client-accent: var(--admingrey, #666666);
+}
+
+.nui-sheetcut-theme .nui-client-envelope-shell.tone-warn { --client-accent: var(--admincyan, #00A8C6); }
+.nui-sheetcut-theme .nui-client-envelope-shell.tone-brown { --client-accent: var(--adminorange, #f5a623); }
+.nui-sheetcut-theme .nui-client-envelope-shell.tone-blue { --client-accent: var(--adminblue, #3c60a6); }
+.nui-sheetcut-theme .nui-client-envelope-shell.tone-pink { --client-accent: var(--adminrose, #ef7aaa); }
+.nui-sheetcut-theme .nui-client-envelope-shell.tone-purple { --client-accent: var(--adminpurple, #6a5acd); }
+.nui-sheetcut-theme .nui-client-envelope-shell.tone-green { --client-accent: var(--admingreen, #0e935b); }
+
+.nui-sheetcut-theme .nui-client-envelope-shell .nui-client-id-badge-on-avatar {
+  background: var(--client-accent) !important;
+}
+
+/* client-accent color applied via base .nui-client-rect-btn */
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-envelope-card,
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-controls-card {
+  background: var(--adminfonelement, #f2f0e9) !important;
+  /*padding-left: 0.6rem !important;*/
+  /*padding-right: 0.6rem !important;*/
+  border-radius: 0;
+  box-sizing: border-box;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-envelope-card {
+  height: 11vh !important;
+  min-height: 11vh !important;
+  max-height: 11vh !important;
+  padding: 0.6rem 0.75rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  gap: 0.2rem !important;
+  overflow: visible !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-card-layout {
+  width: 100%;
+  min-height: calc(11vh - 1.2rem);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: stretch;
+  gap: 0.4rem;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-avatar-wrap {
+  height: calc(11vh - 1.2rem);
+  width: calc(11vh - 1.2rem);
+  align-self: flex-start;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-avatar-wrap > a,
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-avatar-wrap > div,
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-avatar-wrap img {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-card-right {
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 0;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-meta-block {
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 0.18rem;
+  flex: 1 1 auto;
+  padding-top: 0;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-envelope-card .nui-client-title-row {
+  position: static;
+  top: auto;
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-name-line,
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-phone-line {
+  width: 100%;
+  text-align: right;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-name-line {
+  color: var(--client-accent) !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-phone-line {
+  width: auto;
+  max-width: 50%;
+  margin-left: auto;
+  font-size: var(--font-size-s) !important;
+  color: var(--client-accent) !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-rect-actions {
+  display: flex;
+  align-items: stretch;
+  align-self: stretch;
+  justify-content: flex-start;
+  gap: 0;
+  flex: 0 0 auto;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-address-line {
+  color: #8a8a86;
+  font-size: 0.76rem;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-controls-card {
+  height: 4vh !important;
+
+  align-items: center !important;
+  overflow: hidden !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-controls-row {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0;
+  height: 4vh;
+  min-height: 4vh;
+  max-height: 4vh;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-controls-row {
+  width: 100%;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-rect-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+  align-items: end;
+  white-space: nowrap;
+  margin-left: 0;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-controls-row .nui-client-rect-btn {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  height: 4vh !important;
+  min-height: 4vh !important;
+  max-height: 4vh !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-controls-row .nui-client-deadline-btn {
+  flex: 0.75 1 0 !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-step-counter-btn {
+  --counter-tone: var(--admingrey, #666666);
+  flex: 0 0 auto;
+  min-width: 2.4rem;
+  height: 4vh;
+  min-height: 4vh;
+  max-height: 4vh;
+  border: 1px solid color-mix(in srgb, var(--counter-tone) 36%, transparent);
+  border-top: 0;
+  border-bottom: 2px solid var(--counter-tone);
+  background: color-mix(in srgb, var(--counter-tone) 12%, var(--adminfon, #f7f5ee));
+  color: var(--counter-tone);
+  font-size: var(--fontsmall);
+  font-weight: 400;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.35rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-step-counter-btn.tone-warn { --counter-tone: var(--admincyan, #00A8C6); }
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-step-counter-btn.tone-brown { --counter-tone: var(--adminorange, #f5a623); }
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-step-counter-btn.tone-blue { --counter-tone: var(--adminblue, #3c60a6); }
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-step-counter-btn.tone-pink { --counter-tone: var(--adminrose, #ef7aaa); }
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-step-counter-btn.tone-purple { --counter-tone: var(--adminpurple, #6a5acd); }
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-step-counter-btn.tone-green { --counter-tone: var(--admingreen, #0e935b); }
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-rect-actions .nui-client-rect-btn {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  min-height: 3.35vh !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+
+/* Deadline envelope */
+.nui-sheetcut-theme .nui-bottom-finance-inline {
+  flex-direction: column !important;
+  align-self: flex-end !important;
+  justify-content: flex-end !important;
+  gap: 1rem !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+/* Обгортка ProgressBar у фінансовій колонці — жорстка висота як у клієнтського конверта */
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-finance-pb-wrap {
+  flex: 0 0 auto !important;
+  width: 100% !important;
+  height: 11vh !important;
+  min-height: 11vh !important;
+  max-height: 11vh !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* pb-shell всередині обгортки заповнює її повністю */
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-finance-pb-wrap .nui-progressbar.pb-shell {
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+
+.nui-sheetcut-theme .nui-deadline-envelope {
+  width: var(--nui-bottom-finance-width);
+  height: 4vh;
+  min-height: 4vh;
+  max-height: 4vh;
+  flex: 0 0 4vh;
+  margin: 0;
+  background: var(--adminfonelement, #f2f0e9);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.75rem;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.nui-sheetcut-theme .nui-deadline-envelope__prefix {
+  font-size: var(--font-size-s) !important;
+  font-weight: 400;
+  color: var(--admingrey, #666666) !important;
+  line-height: 1;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.nui-sheetcut-theme .nui-deadline-envelope__counter {
+  font-size: var(--font-size-paybig);
+  font-weight: 400;
+  color: var(--admingreen, #0e935b);
+  text-align: center;
+  line-height: 1;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+}
+
+.nui-sheetcut-theme .nui-deadline-token {
+  display: inline-flex;
+  align-items: baseline;
+  color: var(--admingreen, #0e935b) !important;
+}
+
+.nui-sheetcut-theme .nui-deadline-unit {
+  font-size: var(--font-size-s) !important;
+  color: var(--admingreen, #0e935b) !important;
+  margin-right: 0.3em;
+}
+
+/* Прострочений дедлайн — червоний */
+.nui-sheetcut-theme .nui-deadline--overdue .nui-deadline-envelope__counter {
+  color: var(--adminred, #ee3c23);
+}
+.nui-sheetcut-theme .nui-deadline--overdue .nui-deadline-token {
+  color: var(--adminred, #ee3c23) !important;
+}
+.nui-sheetcut-theme .nui-deadline--overdue .nui-deadline-unit {
+  color: var(--adminred, #ee3c23) !important;
+}
+
+.nui-sheetcut-theme .nui-deadline-envelope__placeholder {
+  font-size: var(--font-size-s);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-align: center;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+  width: 100%;
+}
+
+/* Discount calculator — admingreen color for stripe and value */
+.nui-sheetcut-theme .nui-bottom-finance-inline .dc-envelope {
+  border-bottom-color: var(--admingreen, #0e935b) !important;
+}
+
+.nui-sheetcut-theme .nui-bottom-finance-inline .dc-prefix,
+.nui-sheetcut-theme .nui-bottom-finance-inline .dc-input,
+.nui-sheetcut-theme .nui-bottom-finance-inline .dc-input.is-readonly,
+.nui-sheetcut-theme .nui-bottom-finance-inline .dc-prefix.is-readonly {
+  color: var(--admingreen, #0e935b) !important;
+}
+
+/* Step cards in status rail */
+.nui-sheetcut-theme .nui-order-status-inline .pb-track-row .pb-step-card {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.nui-sheetcut-theme .nui-order-status-inline .pb-track-row .pb-step-num {
+  position: absolute !important;
+  top: 0.2rem !important;
+  right: 0.35rem !important;
+  font-size: var(--fontcard) !important;
+  opacity: 0.5 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+.nui-sheetcut-theme .nui-order-status-inline .pb-track-row .pb-step-meta {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.3rem !important;
+}
+
+.nui-sheetcut-theme .nui-order-status-inline .pb-track-row .pb-step-label {
+  font-size: var(--font-size-s) !important;
+}
+
+
+/* Final lock: stretch status rail block to the right edge */
+.nui-sheetcut-theme .nui-order-status-inline {
+  left: calc(0.5vw + var(--nui-bottom-finance-width) + 1rem + 24vw + 1rem) !important;
+  right: 0.5vw !important;
+  bottom: calc(0.5vh + 0.5rem) !important;
+  width: auto !important;
+  max-width: none !important;
+}
+
+/* Конверт помилки над рядком статусів */
+.nui-sheetcut-theme .nui-error-bar {
+  position: fixed;
+  left: calc(0.5vw + var(--nui-bottom-finance-width) + 1rem + 24vw + 1rem);
+  right: 0.5vw;
+  bottom: calc(0.5vh + 0.5rem + 4vh + 1rem);
+  width: auto;
+  height: 1.8rem;
+  min-height: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.6rem;
+  background: color-mix(in srgb, var(--adminred, #ee3c23) 10%, var(--adminfon));
+  border: 1px solid rgba(238, 60, 35, 0.35);
+  color: var(--adminred, #ee3c23);
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 1000;
+  box-sizing: border-box;
+}

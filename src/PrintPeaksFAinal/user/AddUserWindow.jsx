@@ -1,34 +1,31 @@
-// import "AddUserWindow.css"
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
+import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 import axios from "../../api/axiosInstance";
-import {useNavigate} from "react-router-dom";
-import {Form, Button, Row, Col, InputGroup, Spinner, Alert} from "react-bootstrap";
-import {BsPerson, BsEnvelope, BsTelephone, BsTelegram, BsGeoAlt, BsPercent, BsX} from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { BsPerson, BsEnvelope, BsTelephone, BsTelegram, BsGeoAlt, BsPercent } from "react-icons/bs";
 import DropDownList from "../tools/DropDownList";
-import {useSelector} from "react-redux";
 import AddCompanyModal from "../company/AddCompanyModal";
+import "./AddUserWindow.css";
 
-// ключ: используем те же стили и геометрию, что у ClientSelectionModal
-import "../userInNewUiArtem/ClientSelectionModal.css";
-
-function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder, setThisOrder, presetCompany }) {
+function AddUserWindow({ show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder, setThisOrder, presetCompany }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
-  const [validated, setValidated] = useState(false);
   const [showAddCompany, setShowAddCompany] = useState(false);
   const userr = useSelector(state => state.auth.user);
 
   const [user, setUser] = useState({
-    firstName:'', lastName:'', familyName:'', phoneNumber:'', email:'',
+    firstName: '', lastName: '', familyName: '', phoneNumber: '', email: '',
     companyId: presetCompany?.id || '', companyName: presetCompany?.name || '',
-    telegram:'', address:'', notes:'', discount: 0
+    telegram: '', address: '', notes: '', discount: 0
   });
-  useEffect(()=>{
+
+  useEffect(() => {
     if (presetCompany?.id) {
-      setUser(prev=>({ ...prev, companyId: presetCompany.id, companyName: presetCompany.name }));
+      setUser(prev => ({ ...prev, companyId: presetCompany.id, companyName: presetCompany.name }));
     }
   }, [presetCompany]);
 
@@ -40,35 +37,21 @@ function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder
       .replace(/(\d{3})(\d)/, '$1 $2')
       .replace(/(\d{3}) (\d{3})(\d)/, '$1 $2-$3')
       .replace(/-(\d{2})(\d{1,2})/, '-$1-$2');
-    setUser(prev => ({...prev, phoneNumber: formattedValue.trim()}));
+    setUser(prev => ({ ...prev, phoneNumber: formattedValue.trim() }));
   };
 
   const handleChange = (e) => {
-    const {name, value} = e.target;
-    setUser(prev => ({...prev, [name]: value}));
+    const { name, value } = e.target;
+    setUser(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleAddCompany = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setShowAddCompany(true);
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      event.stopPropagation();
-      setValidated(true);
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
-    let url = '/orders/createUserAndOrder';
     if (!thisOrder || !thisOrder.id) {
-      console.log(user);
-      axios.post(url, user)
+      axios.post('/orders/createUserAndOrder', user)
         .then(response => {
           setLoading(false);
           onUserAdded && onUserAdded(response.data);
@@ -77,13 +60,11 @@ function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder
         })
         .catch(error => {
           setLoading(false);
-          if (error.response && error.response.status === 403) navigate('/login');
+          if (error.response?.status === 403) navigate('/login');
           setError(error.response?.data?.message || 'Помилка при додаванні клієнта');
         });
     } else {
-      url = '/orders/createUserAndUpdateOrder';
-      const dataToSend = { user, orderId: thisOrder.id };
-      axios.post(url, dataToSend)
+      axios.post('/orders/createUserAndUpdateOrder', { user, orderId: thisOrder.id })
         .then(response => {
           setLoading(false);
           setThisOrder && setThisOrder(response.data);
@@ -91,7 +72,7 @@ function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder
         })
         .catch(error => {
           setLoading(false);
-          if (error.response && error.response.status === 403) navigate('/login');
+          if (error.response?.status === 403) navigate('/login');
           setError(error.response?.data?.message || 'Помилка при додаванні клієнта');
         });
     }
@@ -99,274 +80,183 @@ function AddUserWindow({show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrder
 
   if (!show) return null;
 
-  return (
-    <>
-      {/* Оверлей как у ClientSelectionModal */}
+  return ReactDOM.createPortal(
+    <div className="sc-wrap">
+      <div className="bw-overlay" onClick={onHide} />
       <div
-        className="modalOverlay"
-        onClick={onHide}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          width: '200vw',
-          height: '200vh',
-          left: "-31.5vw",
-          top:"0vh",
-          backgroundColor: 'rgba(15,15,15,0.45)',
-          backdropFilter: 'blur(2px)',
-          WebkitBackdropFilter: 'blur(2px)',
-          // zIndex: 999,
-          transition: 'opacity 200ms ease',
-          zIndex:"20"
-        }}
-      />
-      {/* Контейнер в том же месте и размере */}
-      <div className="modalContainer animate-slide-up" style={{
-        bottom:"25%",
-        left:"35%",
-        borderRadius: '12px',
-        zIndex:"20"
+        className="sc-modal"
+        style={{ width: '50vw', maxHeight: '85vh', overflowY: 'auto' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <form onSubmit={handleSubmit}>
+          <div className="sc-body" style={{ flexDirection: 'column', padding: '1.5vh 1.5vw', gap: '1rem' }}>
 
-      }}>
-        {/* Заголовок */}
+            {/* Два стовпці полів */}
+            <div className="auw-grid">
+              {/* Ліва колонка */}
+              <div className="auw-col">
+                <div className="auw-field">
+                  <BsPerson />
+                  <input
+                    type="text"
+                    name="firstName"
+                    value={user.firstName}
+                    onChange={handleChange}
+                    placeholder="Ім'я"
+                  />
+                </div>
+                <div className="auw-field">
+                  <BsPerson />
+                  <input
+                    type="text"
+                    name="lastName"
+                    value={user.lastName}
+                    onChange={handleChange}
+                    placeholder="По-батькові"
+                  />
+                </div>
+                <div className="auw-field">
+                  <BsPerson />
+                  <input
+                    type="text"
+                    name="familyName"
+                    value={user.familyName}
+                    onChange={handleChange}
+                    placeholder="Прізвище"
+                  />
+                </div>
+                <div className="auw-field">
+                  <BsPercent />
+                  <input
+                    type="number"
+                    name="discount"
+                    min="0"
+                    max="50"
+                    step="1"
+                    value={user.discount}
+                    onChange={handleChange}
+                    placeholder="Знижка (%)"
+                  />
+                </div>
+              </div>
 
-
-        {/* Тіло з тими ж кольорами і прокруткою */}
-        <div className="noScrollbar" style={{background:'#f2f0e7'}}>
-          {error && (
-            <div style={{padding: '0.8rem'}}>
-              <Alert variant="danger" onClose={() => setError(null)} dismissible>
-                {error}
-              </Alert>
+              {/* Права колонка */}
+              <div className="auw-col">
+                <div className="auw-field">
+                  <BsTelephone />
+                  <input
+                    type="tel"
+                    name="phoneNumber"
+                    value={user.phoneNumber}
+                    onChange={handlePhoneChange}
+                    placeholder="+38 XXX XXX-XX-XX"
+                    maxLength="17"
+                  />
+                </div>
+                <div className="auw-field">
+                  <BsGeoAlt />
+                  <input
+                    type="text"
+                    name="address"
+                    value={user.address || ''}
+                    onChange={handleChange}
+                    placeholder="Введіть адресу"
+                  />
+                </div>
+                <div className="auw-field">
+                  <BsEnvelope />
+                  <input
+                    type="email"
+                    name="email"
+                    value={user.email}
+                    onChange={handleChange}
+                    placeholder="E-mail"
+                  />
+                </div>
+                <div className="auw-field">
+                  <BsTelegram />
+                  <input
+                    type="text"
+                    name="telegram"
+                    value={user.telegram || ''}
+                    onChange={handleChange}
+                    placeholder="@telegram"
+                  />
+                </div>
+              </div>
             </div>
-          )}
-<div
-  style={{
-  position: "absolute",
-  top: "20vh",
-  left: "15vw",
-  transform: "translate(-50%, -50%)",
-  fontSize: "20vw",       // великий розмір
-  opacity:"0.08",
-  pointerEvents: "none",  // щоб не заважала клікам
-  // zIndex: 0
-}}>🤖
-</div>
-          <Form noValidate validated={validated} onSubmit={handleSubmit} style={{padding: '0.8rem'}}>
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <InputGroup>
-                    <InputGroup.Text><BsPerson/></InputGroup.Text>
-                    <Form.Control
-                      type="text"
-                      name="firstName"
-                      value={user.firstName}
-                      onChange={handleChange}
-                      placeholder="Імʼя"
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      Будь ласка, введіть імʼя клієнта
-                    </Form.Control.Feedback>
-                  </InputGroup>
-                </Form.Group>
 
-                <Form.Group className="mb-3">
-                  <InputGroup>
-                    <InputGroup.Text><BsPerson/></InputGroup.Text>
-                    <Form.Control
-                      type="text"
-                      name="lastName"
-                      value={user.lastName}
-                      onChange={handleChange}
-                      placeholder="По-батькові"
-                    />
-                  </InputGroup>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <InputGroup>
-                    <InputGroup.Text><BsPerson/></InputGroup.Text>
-                    <Form.Control
-                      // required
-                      type="text"
-                      name="familyName"
-                      value={user.familyName}
-                      onChange={handleChange}
-                      placeholder="Прізвище"
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      Будь ласка, введіть прізвище клієнта
-                    </Form.Control.Feedback>
-                  </InputGroup>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <InputGroup>
-                    <InputGroup.Text><BsPercent/></InputGroup.Text>
-                    <Form.Control
-                      // required
-                      type="number"
-                      name="discount"
-                      min="0"
-                      max="50"
-                      step="1"
-                      value={user.discount}
-                      onChange={handleChange}
-                      placeholder="Знижка (%)"
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      Будь ласка, введіть знижку клієнта
-                    </Form.Control.Feedback>
-                  </InputGroup>
-                </Form.Group>
-
-                <div>Місце роботи</div>
-                {presetCompany?.id ? (
-                  <div className="d-flex align-items-center" style={{gap:"0.5rem"}}>
-                    <span className="badge bg-success">Компанія: {presetCompany.name} (id: {presetCompany.id})</span>
-                  </div>
-                ) : (
-                  <div>
-                    <DropDownList
+            {/* Місце роботи */}
+            <div className="auw-company-section">
+              <div className="auw-section-title">Місце роботи</div>
+              {presetCompany?.id ? (
+                <span className="auw-preset-badge">
+                  Компанія: {presetCompany.name}
+                </span>
+              ) : (
+                <>
+                  <DropDownList
                     formData={user}
                     setFormData={setUser}
                     user={user}
                     data={data}
                     setData={setData}
                   />
-                    <div className="d-flex flex-row align-items-center" style={{width:"30vw"}}>
-                      <div>Якщо у списку немає компанії, то можна:</div>
-                      <button
-                        type="button"
-                        className="adminButtonAdd"
-                        style={{marginLeft:"0.3vw"}}
-                        onClick={handleAddCompany}
-                      >
-                        Додати компанію
-                      </button>
-                    </div>
+                  <div className="auw-company-row">
+                    <span>Якщо у списку немає компанії, то можна:</span>
+                    <button
+                      type="button"
+                      className="adminButtonAdd"
+                      onClick={(e) => { e.preventDefault(); setShowAddCompany(true); }}
+                    >
+                      <span>Додати компанію</span>
+                    </button>
                   </div>
-                )}
-              </Col>
-
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <InputGroup>
-                    <InputGroup.Text><BsTelephone/></InputGroup.Text>
-                    <Form.Control
-                      // required
-                      type="tel"
-                      name="phoneNumber"
-                      value={user.phoneNumber}
-                      onChange={handlePhoneChange}
-                      placeholder="+38 XXX XXX-XX-XX"
-                      maxLength="17"
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      Будь ласка, введіть номер телефону
-                    </Form.Control.Feedback>
-                  </InputGroup>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <InputGroup>
-                    <InputGroup.Text><BsGeoAlt/></InputGroup.Text>
-                    <Form.Control
-                      type="text"
-                      name="address"
-                      value={user.address || ''}
-                      onChange={handleChange}
-                      placeholder="Введіть адресу"
-                    />
-                  </InputGroup>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <InputGroup>
-                    <InputGroup.Text><BsEnvelope/></InputGroup.Text>
-                    <Form.Control
-                      type="email"
-                      name="email"
-                      value={user.email}
-                      onChange={handleChange}
-                      placeholder="E-mail"
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      Будь ласка, введіть коректний email
-                    </Form.Control.Feedback>
-                  </InputGroup>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <InputGroup>
-                    <InputGroup.Text><BsTelegram/></InputGroup.Text>
-                    <Form.Control
-                      type="text"
-                      name="telegram"
-                      value={user.telegram || ''}
-                      onChange={handleChange}
-                      placeholder="@telegram"
-                    />
-                  </InputGroup>
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col md={12}>
-                <Form.Group className="mb-3">
-                  <Form.Control
-                    as="textarea"
-                    name="notes"
-                    value={user.notes}
-                    onChange={handleChange}
-                    placeholder="Додаткова інформація про клієнта"
-                    style={{height: '12vh', width: '100%'}}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <div className="d-flex justify-content-end" style={{gap:'0.6rem'}}>
-              {/*<Button*/}
-              {/*  type="button"*/}
-              {/*  variant="secondary"*/}
-              {/*  className="adminButtonAdd"*/}
-              {/*  onClick={onHide}*/}
-              {/*  disabled={loading}*/}
-              {/*>*/}
-              {/*  Закрити*/}
-              {/*</Button>*/}
-              <Button
-                type="submit"
-                variant="success"
-                className="adminButtonAdd d-flex justify-content-center align-items-center"
-                style={{justifyContent:"center", width:"30vw"}}
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
-                    Зберігаємо...
-                  </>
-                ) : (
-                  <>Додати клієнта</>
-                )}
-              </Button>
+                </>
+              )}
             </div>
-          </Form>
-        </div>
+
+            {/* Додаткова інформація */}
+            <div className="auw-textarea-wrap">
+              <textarea
+                name="notes"
+                value={user.notes}
+                onChange={handleChange}
+                placeholder="Додаткова інформація про клієнта"
+              />
+            </div>
+
+            {/* Кнопка */}
+            <div className="auw-submit-row">
+              <button
+                type="submit"
+                className="adminButtonAdd"
+                disabled={loading}
+                style={{ width: '25vw' }}
+              >
+                <span>{loading ? 'Зберігаємо...' : 'Додати клієнта'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Помилка */}
+          {error && (
+            <div className="auw-error" onClick={() => setError(null)}>
+              {error}
+            </div>
+          )}
+        </form>
       </div>
 
-      {showAddCompany &&
+      {showAddCompany && (
         <AddCompanyModal
           user={userr}
           setShowAddCompany={setShowAddCompany}
           showAddCompany={showAddCompany}
         />
-      }
-    </>
+      )}
+    </div>,
+    document.body
   );
 }
 

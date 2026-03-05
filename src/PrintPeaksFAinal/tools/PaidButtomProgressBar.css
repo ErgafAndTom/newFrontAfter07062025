@@ -491,3 +491,45 @@ align-content: flex-end;
 .PayButtons.pay-await-open::after {
   display: none !important;
 }
+
+/* --- Invoice (рахунок) await panel --- */
+.payment-methods-panel.payment-methods-panel--invoice {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 0.7fr) !important;
+}
+
+.PayButtons.pay-await-open--wide {
+  padding-left: 0.1rem !important;
+  padding-right: 0.3rem !important;
+}
+
+.PayButtons.pay-await-state--small {
+  font-size: calc(var(--font-size-s) * 0.78) !important;
+  padding-left: 6vw !important;
+  padding-right: 0.1rem !important;
+}
+
+/* --- Кнопка "Рахунок оплачено з іншого рахунку" --- */
+.pay-invoice-manual-confirm {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 0.3rem;
+}
+
+.pay-invoice-manual-confirm-btn {
+  background: transparent;
+  border: none;
+  color: var(--admingrey, #999);
+  font-size: calc(var(--font-size-s) * 0.75);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--admingrey, #999);
+  text-underline-offset: 0.3em;
+  padding: 0.15rem 0.5rem;
+  transition: color 0.2s;
+}
+
+.pay-invoice-manual-confirm-btn:hover {
+  color: var(--admingreen, #0e935b);
+  text-decoration-color: var(--admingreen, #0e935b);
+}

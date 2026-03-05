@@ -2222,9 +2222,9 @@
 }
 
 .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap--under-metrics {
-  width: 24vw !important;
-  min-width: 24vw !important;
-  max-width: 24vw !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
   margin: 0.25rem auto 0 !important;
 }
 

@@ -8,6 +8,8 @@ import Loader from "../../components/calc/Loader";
 import AwaitPaysCash from "./AwaitPaysCash";
 import ReceipGet from "./ReceipGet";
 
+const PAY_STATUS_UA = { CREATED: 'Очікування', PAID: 'Оплачено', CANCELLED: 'Скасовано', EXPIRED: 'Прострочено' };
+
 const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   const [paymentState, setPaymentState] = useState("initial");
   const [invoiceId, setInvoiceId] = useState(null);
@@ -26,12 +28,14 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   const buttonStyles = {};
   const [showAwaitPays, setShowAwaitPays] = useState(false);
   const [showAwaitCashPays, setShowAwaitCashPays] = useState(false);
+  const [showInvoiceDocs, setShowInvoiceDocs] = useState(false);
 
   const paymentMethodLabel = (method) => {
     const normalized = String(method || '').toLowerCase();
     if (normalized === 'link') return 'за посиланням';
     if (normalized === 'terminal') return 'терміналом';
     if (normalized === 'cash') return 'готівкою';
+    if (normalized === 'invoice') return 'за рахунком';
     return '—';
   };
 
@@ -137,6 +141,82 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
     } finally {
       clearInterval(intervalRef.current);
       setInvoiceId(null);
+    }
+  };
+
+  // --- Завантажити документи повторно (з Payment.raw) ---
+  const downloadInvoiceDocs = async () => {
+    const raw = thisOrder.Payment?.raw;
+    const supplierId = raw?.supplierId;
+    const buyerId = raw?.buyerId;
+    if (!supplierId || !buyerId) {
+      // Якщо немає збережених ID — відкриваємо модалку вибору
+      setShowPays(true);
+      return;
+    }
+    try {
+      setLoading(true);
+      const resp = await axios.post(
+        `/api/invoices/from-order/${thisOrder.id}/docInZip`,
+        { supplierId, buyerId },
+        { responseType: "blob" }
+      );
+      const cd = resp.headers?.["content-disposition"];
+      let fileName = "documents.zip";
+      if (cd) {
+        const m = cd.match(/filename="(.+)"/);
+        if (m?.[1]) fileName = m[1];
+      }
+      const url = window.URL.createObjectURL(new Blob([resp.data]));
+      const a = document.createElement("a");
+      a.href = url;
+      a.setAttribute("download", fileName);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("downloadInvoiceDocs error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- Скасування оплати за рахунком (документами) ---
+  const cancelInvoiceDoc = async () => {
+    if (!thisOrder?.id) return;
+    try {
+      const { data } = await axios.post("/api/payment/cancel-invoice-doc", {
+        orderId: thisOrder.id,
+      });
+      setThisOrder((prev) => ({
+        ...prev,
+        Payment: data?.status ? data : { ...prev.Payment, status: "CANCELLED" },
+      }));
+    } catch (err) {
+      console.error("Помилка скасування оплати за рахунком:", err);
+    }
+  };
+
+  // --- Ручне підтвердження оплати рахунку (з іншого рахунку) ---
+  const markInvoicePaid = async () => {
+    console.log("[markInvoicePaid] called, orderId:", thisOrder?.id, "current Payment:", thisOrder?.Payment);
+    if (!thisOrder?.id) return;
+    try {
+      const { data } = await axios.post("/api/payment/mark-invoice-paid", {
+        orderId: thisOrder.id,
+      });
+      console.log("[markInvoicePaid] response data:", JSON.stringify(data));
+      setThisOrder((prev) => {
+        const updated = {
+          ...prev,
+          Payment: { ...prev.Payment, ...data, status: "PAID" },
+        };
+        console.log("[markInvoicePaid] new thisOrder.Payment:", JSON.stringify(updated.Payment));
+        return updated;
+      });
+    } catch (err) {
+      console.error("Помилка підтвердження оплати:", err?.response?.status, err?.response?.data, err);
     }
   };
 
@@ -268,6 +348,43 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
     return () => clearInterval(interval);
   }, []);
 
+  // --- Анімація "В очікуванні оплати рахунку" ---
+  const [indexInvoice, setIndexInvoice] = useState(0);
+  const formatsInvoice = [
+    "В|",
+    "В о|",
+    "В оч|",
+    "В очі|",
+    "В очік|",
+    "В очіку|",
+    "В очікув|",
+    "В очікува|",
+    "В очікуван|",
+    "В очікуванн|",
+    "В очікуванні|",
+    "В очікуванні |",
+    "В очікуванні о|",
+    "В очікуванні оп|",
+    "В очікуванні опл|",
+    "В очікуванні опла|",
+    "В очікуванні оплат|",
+    "В очікуванні оплати|",
+    "В очікуванні оплати |",
+    "В очікуванні оплати р|",
+    "В очікуванні оплати ра|",
+    "В очікуванні оплати рах|",
+    "В очікуванні оплати раху|",
+    "В очікуванні оплати рахун|",
+    "В очікуванні оплати рахунк|",
+    "В очікуванні оплати рахунку|",
+  ];
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndexInvoice((prev) => (prev + 1) % formatsInvoice.length);
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
+
   // --- Автоматична перевірка статусу при CREATED ---
   useEffect(() => {
     if (thisOrder.Payment?.status === "CREATED") {
@@ -314,8 +431,31 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
     }
   }, [thisOrder]);
 
+  // --- Polling для оплати за рахунком (method=invoice) ---
+  useEffect(() => {
+    if (thisOrder?.Payment?.method === 'invoice' && thisOrder?.Payment?.status === 'CREATED') {
+      const interval = setInterval(async () => {
+        try {
+          const { data } = await axios.get("/api/payment/invoice-status-without-invoiceId", {
+            params: { orderId: thisOrder.id },
+          });
+          if (data?.status === 'PAID') {
+            setThisOrder((prev) => ({
+              ...prev,
+              Payment: data,
+            }));
+            clearInterval(interval);
+          }
+        } catch (err) {
+          console.error("Polling invoice payment status error:", err);
+        }
+      }, 30000); // кожні 30 секунд
+      return () => clearInterval(interval);
+    }
+  }, [thisOrder?.Payment?.status, thisOrder?.Payment?.method]);
+
   return (
-    <div className="adminTextBig">
+    <div className="adminTextBig" style={{ width: "100%" }}>
 
       {showAwaitCashPays && (
         <AwaitPaysCash
@@ -380,7 +520,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                   Готівка
                   {thisOrder.Payment && thisOrder.Payment.method === 'cash' && (
                     <div style={{color: "red",  fontSize: "0.5vw"}}>
-                      {thisOrder.Payment.status}
+                      {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}
                     </div>
                   )}
                 </button>
@@ -391,7 +531,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                   Картка
                   {thisOrder.Payment && thisOrder.Payment.method === 'terminal' && (
                     <div style={{color: "red",  fontSize: "0.5vw"}}>
-                      {thisOrder.Payment.status}
+                      {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}
                     </div>
                   )}
                 </button>
@@ -402,12 +542,12 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                   Посилання
                   {thisOrder.Payment && thisOrder.Payment.method === 'link' && (
                     <div style={{color: "red",  fontSize: "0.5vw"}}>
-                      {thisOrder.Payment.status}
+                      {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}
                     </div>
                   )}
                   {thisOrder.Payment && thisOrder.Payment.method === null && (
                     <div style={{color: "red",  fontSize: "0.5vw"}}>
-                      {thisOrder.Payment.status}
+                      {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}
                     </div>
                   )}
                 </button>
@@ -477,13 +617,43 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
               </div>
             </>
           )}
+          {thisOrder.Payment?.method === 'invoice' && (
+            <>
+              <div className="payment-methods-panel payment-methods-panel--await payment-methods-panel--invoice d-flex align-items-center">
+                <button
+                  className="PayButtons pay-await-open pay-await-open--wide"
+                  onClick={downloadInvoiceDocs}
+                >
+                  {loading ? <Loader/> : "Завантажити документи"}
+                </button>
+                <div
+                  className="PayButtons wait pay-await-state pay-await-state--small"
+                >
+                  {formatsInvoice[indexInvoice]}
+                </div>
+                <button
+                  className="PayButtons end pay-await-cancel"
+                  onClick={cancelInvoiceDoc}>
+                  Скасувати
+                </button>
+              </div>
+              <div className="pay-invoice-manual-confirm">
+                <button
+                  className="pay-invoice-manual-confirm-btn"
+                  onClick={markInvoicePaid}
+                >
+                  Рахунок оплачено з іншого рахунку
+                </button>
+              </div>
+            </>
+          )}
         </>
 
       )}
 
       {thisOrder.Payment?.status === "PAID" && (
         <>
-          <div className={`payment-methods-panel payment-methods-panel--paid${hasFiscalReceipt ? ' has-receipt' : ''}`}>
+          <div className={`payment-methods-panel payment-methods-panel--paid${(hasFiscalReceipt || thisOrder.Payment?.method === 'invoice') ? ' has-receipt' : ''}`}>
             <button className="PayButtons pay-status-strip" disabled>
               <span className="pay-status-fulltext">Оплатили {paymentMethodLabel(thisOrder.Payment?.method)}</span>
             </button>
@@ -502,6 +672,15 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 }}
               >
                 {loading ? <Loader/> : <div className="pay-receipt-icon">Фіскальний чек</div>}
+              </button>
+            )}
+
+            {thisOrder.Payment?.method === 'invoice' && (
+              <button
+                className="PayButtons pay-receipt-strip"
+                onClick={downloadInvoiceDocs}
+              >
+                {loading ? <Loader/> : <div className="pay-receipt-icon">Завантажити документи</div>}
               </button>
             )}
           </div>

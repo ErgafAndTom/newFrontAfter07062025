@@ -70,6 +70,7 @@ const NewUIArtem = () => {
   const [showDeleteOrderUnitModal, setShowDeleteOrderUnitModal] = useState(false);
   const [thisOrderUnit, setThisOrderUnit] = useState(null);
   const [orderDeadlineCountdown, setOrderDeadlineCountdown] = useState('');
+  const [isDeadlineOverdue, setIsDeadlineOverdue] = useState(false);
 
 
 
@@ -308,7 +309,8 @@ const NewUIArtem = () => {
         setOrderDeadlineCountdown('—');
         return;
       }
-      setOrderDeadlineCountdown(diff >= 0 ? formatDuration(diff) : `ПРОСТРОЧЕНО: ${formatDuration(diff)}`);
+      setIsDeadlineOverdue(diff < 0);
+      setOrderDeadlineCountdown(formatDuration(diff));
     };
 
     tick();
@@ -676,13 +678,15 @@ const NewUIArtem = () => {
                     onDiscountError={setUiLockError}
                   />
                   </div>
-                  <div className="nui-deadline-envelope">
+                  <div className={`nui-deadline-envelope${isDeadlineOverdue ? ' nui-deadline--overdue' : ''}`}>
                     {orderDeadlineCountdown ? (
                       <>
-                        <span className="nui-deadline-envelope__prefix">Замовлення необхідно віддати через:</span>
+                        <span className="nui-deadline-envelope__prefix">
+                          {isDeadlineOverdue ? 'Замовлення необхідно було віддати:' : 'Замовлення необхідно віддати через:'}
+                        </span>
                         <span className="nui-deadline-envelope__counter">
                           {orderDeadlineCountdown.split(' ').map((token, i) => {
-                            const m = token.match(/^(\d+)(Д|Г|ХВ|ПРОСТРОЧЕНО:?)$/i);
+                            const m = token.match(/^(\d+)(Д|Г|ХВ)$/i);
                             if (!m) return <span key={i}>{token} </span>;
                             return (
                               <span key={i} className="nui-deadline-token">

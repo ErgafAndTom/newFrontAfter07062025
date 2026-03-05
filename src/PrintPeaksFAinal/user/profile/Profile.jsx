@@ -11,6 +11,7 @@ import UserPageDetails from "../UserPageDetails";
 import UserPageDetailsSelf from "./UserPageDetailsSelf";
 import Cash from "../../checkbox/CashCash/Cash";
 import CodesOffline from "../../checkbox/codesOffline/CodesOffline";
+import PrivatBankAccounts from "./PrivatBankAccounts";
 
 function ClientUserProfile() {
   const dispatch = useDispatch();
@@ -122,6 +123,12 @@ function ClientUserProfile() {
           style={{...tabStyles.tabButton, ...(activeTab === 'OfflineCodes' ? tabStyles.activeTab : {})}}
           onClick={() => setActiveTab('OfflineCodes')}
         >Офлайн фиск. коди(Checkbox)</button>
+        {thisUser?.role === 'admin' && (
+          <button
+            style={{...tabStyles.tabButton, ...(activeTab === 'payments' ? tabStyles.activeTab : {})}}
+            onClick={() => setActiveTab('payments')}
+          >Оплати</button>
+        )}
       </div>
 
       {activeTab === 'profile' && (
@@ -153,6 +160,11 @@ function ClientUserProfile() {
       {activeTab === 'OfflineCodes' && (
         <div style={containerStyles.contentContainer}>
           <CodesOffline/>
+        </div>
+      )}
+      {activeTab === 'payments' && (
+        <div style={containerStyles.contentContainer}>
+          <PrivatBankAccounts/>
         </div>
       )}
     </div>

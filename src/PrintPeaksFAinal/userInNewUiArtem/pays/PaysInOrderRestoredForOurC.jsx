@@ -106,21 +106,42 @@ export default function PaysInOrderRestoredForOurC({
     window.URL.revokeObjectURL(url);
   };
 
-  const generateDocInZip = (e, item) => {
+  const generateDocInZip = async (e, item) => {
     e.preventDefault();
     const supplierId = item?.Contractor?.id;
     if (!supplierId || !buyerId) return;
 
     setLoad(true);
-    axios
-      .post(
+    try {
+      // 1. Завантажуємо документи
+      const docResp = await axios.post(
         `/api/invoices/from-order/${thisOrder.id}/docInZip`,
         { supplierId, buyerId },
         { responseType: "blob" }
-      )
-      .then((resp) => downloadBlob(resp, "documents.zip"))
-      .catch(handleAxiosError)
-      .finally(() => setLoad(false));
+      );
+      downloadBlob(docResp, "documents.zip");
+
+      // 2. Створюємо Payment з method='invoice' для очікування оплати
+      const payResp = await axios.post("/api/payment/create-invoice-doc", {
+        orderId: thisOrder.id,
+        supplierId,
+        buyerId,
+      });
+
+      if (payResp?.data) {
+        setThisOrder((prev) => ({
+          ...prev,
+          Payment: payResp.data,
+        }));
+      }
+
+      handleClose();
+    } catch (err) {
+      console.error("generateDocInZip error:", err);
+      handleAxiosError(err);
+    } finally {
+      setLoad(false);
+    }
   };
 
   // fetch
@@ -281,7 +302,7 @@ export default function PaysInOrderRestoredForOurC({
                           onClick={(e) => e.stopPropagation()}
                         >
                           <button className="adminButtonAdd" onClick={(e) => generateDocInZip(e, item)}>
-                            Завантажити ZIP
+                            Завантажити документи
                           </button>
                         </div>
                       </div>
