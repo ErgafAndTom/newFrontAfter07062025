@@ -1,4 +1,6 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import ReactDOM from "react-dom";
+import { usePortalDropdown } from "./newnomodals/usePortalDropdown";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
@@ -44,10 +46,8 @@ const NewCup = ({
   const [error, setError] = useState(null);
 
   // Dropdown
-  const [materialDropdownOpen, setMaterialDropdownOpen] = useState(false);
   const [materials, setMaterials] = useState([]);
-
-  const materialDropdownRef = useRef(null);
+  const { open: materialDropdownOpen, setOpen: setMaterialDropdownOpen, style: dropStyle, toggle: toggleMaterial, triggerRef: materialDropdownRef, portalRef } = usePortalDropdown();
 
   // Pricing hook
   const calcData = useMemo(
@@ -126,17 +126,6 @@ const NewCup = ({
         if (err?.response?.status === 403) navigate("/login");
       });
   }, [showNewCup, navigate]);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (materialDropdownRef.current && !materialDropdownRef.current.contains(event.target)) {
-        setMaterialDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   // ========== HANDLERS ==========
 
@@ -233,7 +222,7 @@ const NewCup = ({
         >
           <div
             className="custom-select-header"
-            onClick={() => setMaterialDropdownOpen(!materialDropdownOpen)}
+            onClick={toggleMaterial}
           >
             {materialTitle}
             {material.material && (
@@ -242,8 +231,8 @@ const NewCup = ({
               </span>
             )}
           </div>
-          {materialDropdownOpen && (
-            <div className="custom-select-dropdown">
+          {materialDropdownOpen && ReactDOM.createPortal(
+            <div className="custom-select-dropdown" ref={portalRef} style={dropStyle}>
               {materials.map((item) => (
                 <div
                   key={item.id}
@@ -258,7 +247,8 @@ const NewCup = ({
                   )}
                 </div>
               ))}
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       </ScSection>

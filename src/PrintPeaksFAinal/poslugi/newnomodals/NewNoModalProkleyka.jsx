@@ -1,23 +1,14 @@
-import React, {useState, useEffect, useRef} from "react";
+import React from "react";
+import ReactDOM from "react-dom";
+import { usePortalDropdown } from "./usePortalDropdown";
 
 const NewNoModalProkleyka = ({prokleyka, setProkleyka, selectArr}) => {
-    const [open, setOpen] = useState(false);
-    const ref = useRef(null);
+    const { open, setOpen, style: dropStyle, toggle, triggerRef: ref, portalRef } = usePortalDropdown();
 
     const handleSelectChange = (val) => {
         setProkleyka(val);
         setOpen(false);
     }
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (ref.current && !ref.current.contains(event.target)) {
-                setOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
 
     const title = prokleyka && prokleyka !== "Не потрібно" ? `${prokleyka} стор.` : "Кількість";
 
@@ -35,12 +26,12 @@ const NewNoModalProkleyka = ({prokleyka, setProkleyka, selectArr}) => {
               >
                 <div
                   className="custom-select-header"
-                  onClick={() => setOpen(!open)}
+                  onClick={toggle}
                 >
                   {title}
                 </div>
-                {open && (
-                  <div className="custom-select-dropdown">
+                {open && ReactDOM.createPortal(
+                  <div className="custom-select-dropdown" ref={portalRef} style={dropStyle}>
                     {(selectArr || []).filter(item => item !== "").map((item) => (
                       <div
                         key={item}
@@ -50,7 +41,8 @@ const NewNoModalProkleyka = ({prokleyka, setProkleyka, selectArr}) => {
                         <span className="name">{item} стор.</span>
                       </div>
                     ))}
-                  </div>
+                  </div>,
+                  document.body
                 )}
               </div>
             </div>

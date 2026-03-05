@@ -1,4 +1,9 @@
 import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import ReactDOM from "react-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { registerLocale } from "react-datepicker";
+import uk from "date-fns/locale/uk";
 
 import './ClientArtem.css';
 import './ClientsMenuu.css';
@@ -39,7 +44,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
   const [error, setError] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const PAGE_SIZE = 20;
-  const deadlineInputRef = useRef(null);
+
   const searchMountedRef = useRef(false);
   const [deadlineAt, setDeadlineAt] = useState(thisOrder?.deadline || thisOrder?.finalManufacturingTime || null);
   const [deadlineCountdown, setDeadlineCountdown] = useState('');
@@ -50,6 +55,10 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
   const [handleThisOrderChange, setHandleThisOrderChange] = useState(thisOrder);
   const [newThisOrder, setNewThisOrder] = useState(thisOrder);
   const canEditDeadline = currentUser?.role === 'admin';
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [datePickerPos, setDatePickerPos] = useState({ top: 0, left: 0 });
+  const deadlineBtnRef = useRef(null);
+  registerLocale('uk', uk);
 
   const progressCounterLabel = useMemo(() => {
     const stageCount = 6;
@@ -281,14 +290,22 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
 
   const openDeadlinePicker = () => {
     if (!canEditDeadline) return;
-    if (deadlineInputRef.current?.showPicker) {
-      deadlineInputRef.current.showPicker();
-      return;
+    if (deadlineBtnRef.current) {
+      const rect = deadlineBtnRef.current.getBoundingClientRect();
+      const calHeight = 360;
+      const top = rect.top - calHeight > 0 ? rect.top - calHeight : rect.bottom;
+      setDatePickerPos({ top, left: rect.left });
     }
-    deadlineInputRef.current?.click();
+    setShowDatePicker(true);
   };
 
-  const handleDeadlineInputChange = async (event) => {
+  const handleDeadlineInputChange = async (date) => {
+    setShowDatePicker(false);
+    const event = { target: { value: date ? date.toISOString().slice(0,16) : '' } };
+    return handleDeadlineInputChangeOld(event);
+  };
+
+  const handleDeadlineInputChangeOld = async (event) => {
     const value = event.target.value;
     if (!value || !thisOrder?.id) return;
 
@@ -396,6 +413,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
           <div className="nui-client-controls-row">
             {!deadlineCountdown && (
               <button
+                ref={deadlineBtnRef}
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -416,12 +434,31 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
             </button>
             <div className={`nui-client-step-counter-btn tone-${progressCounterTone}`} aria-hidden="true">{progressCounterLabel}</div>
             {actionButtonSlot}
-            <input
-              ref={deadlineInputRef}
-              type="datetime-local"
-              onChange={handleDeadlineInputChange}
-              style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
-            />
+            {showDatePicker && ReactDOM.createPortal(
+              <div
+                style={{
+                  position: 'fixed',
+                  top: datePickerPos.top,
+                  left: datePickerPos.left,
+                  zIndex: 999999,
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <DatePicker
+                  inline
+                  showTimeSelect
+                  locale="uk"
+                  selected={deadlineAt ? new Date(deadlineAt) : null}
+                  onChange={handleDeadlineInputChange}
+                  onClickOutside={() => setShowDatePicker(false)}
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  dateFormat="dd.MM.yyyy HH:mm"
+                  calendarClassName="nui-datepicker"
+                />
+              </div>,
+              document.body
+            )}
           </div>
         </div>
       </div>

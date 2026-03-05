@@ -212,7 +212,7 @@ label.switch:has(input:checked) {
   overflow: visible;
   display: flex;
   flex-direction: column;
-  gap: 1.2vh;
+  gap: 1.5rem;
   padding-right: 8px;
   position: relative;
   z-index: 10;
@@ -224,9 +224,7 @@ label.switch:has(input:checked) {
   align-items: stretch;
 }
 .sc-wrap .sc-count-size-row .sc-section-card {
-  background: linear-gradient(270deg, #f2f0e9, #efece5, #f5f3ec, #f0ede6, #f2f0e9);
-  background-size: 100% 100%;
-  animation: cardShimmer 5s linear infinite;
+  background: var(--adminfonelement);
   padding: 0.8vh 0.7vw;
   border-radius: 0;
 }
@@ -299,7 +297,15 @@ label.switch:has(input:checked) {
 /* --- switch toggle: 1.5x bigger --- */
 .sc-wrap .scale04ForButtonToggle {
   transform: scale(0.56);
+  transform-origin: left center;
   margin-right: 0;
+  flex-shrink: 0;
+}
+
+.sc-wrap .sc-section-card .scale04ForButtonToggle {
+  transform: scale(0.42);
+  transform-origin: left center;
+  margin-right: -2.5rem;
 }
 
 /* --- section row --- */
@@ -449,7 +455,7 @@ label.switch:has(input:checked) {
 }
 
 .sc-wrap .sc-lam-row button.buttonsArtem:last-of-type {
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 0px 0px 0;
 }
 
 /* --- post-press rows: hide internal switch and label --- */
@@ -695,41 +701,54 @@ label.switch:has(input:checked) {
   border-top-color: #1e90ff;
 }
 
-.sc-wrap .custom-select-dropdown {
+.sc-wrap .custom-select-dropdown,
+.custom-select-dropdown {
   max-height: 30vh;
   overflow-y: auto;
   background: var(--adminfon) !important;
 }
 
-.sc-wrap .custom-option {
+.sc-wrap .custom-option,
+.custom-select-dropdown .custom-option {
   background: var(--adminfon) !important;
-  border-bottom: 1px solid #D3D3D3;
+  color: var(--admingrey) !important;
+  font-weight: 400 !important;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
 }
 
-.sc-wrap .custom-option:last-child {
+.sc-wrap .custom-option:last-child,
+.custom-select-dropdown .custom-option:last-child {
   border-bottom: none;
 }
 
-.sc-wrap .custom-option:hover {
-  background: var(--admingreen) !important;
-  color: var(--adminfon) !important;
+.sc-wrap .custom-option:hover,
+.custom-select-dropdown .custom-option:hover {
+  background: var(--adminfonelement) !important;
+  color: var(--admingrey) !important;
 }
 
 .sc-wrap .custom-option:hover .name,
 .sc-wrap .custom-option:hover .gsm-sub,
-.sc-wrap .custom-option:hover sub {
-  color: var(--adminfon) !important;
+.sc-wrap .custom-option:hover sub,
+.custom-select-dropdown .custom-option:hover .name,
+.custom-select-dropdown .custom-option:hover .gsm-sub,
+.custom-select-dropdown .custom-option:hover sub {
+  color: var(--admingrey) !important;
 }
 
-.sc-wrap .custom-option.active {
-  background: var(--admingreen) !important;
-  color: var(--adminfon) !important;
+.sc-wrap .custom-option.active,
+.custom-select-dropdown .custom-option.active {
+  background: var(--adminlightgreen) !important;
+  color: var(--admingreen) !important;
 }
 
 .sc-wrap .custom-option.active .name,
 .sc-wrap .custom-option.active .gsm-sub,
-.sc-wrap .custom-option.active sub {
-  color: var(--adminfon) !important;
+.sc-wrap .custom-option.active sub,
+.custom-select-dropdown .custom-option.active .name,
+.custom-select-dropdown .custom-option.active .gsm-sub,
+.custom-select-dropdown .custom-option.active sub {
+  color: var(--admingreen) !important;
 }
 
 /* --- material buttons: Uiverse border-reveal animation --- */
@@ -748,7 +767,7 @@ label.switch:has(input:checked) {
   transition: 0.3s;
   background-color: transparent !important;
   color: var(--admingrey) !important;
-  padding: 5px 0.72vw;
+  padding: 5px 0.6vw;
   margin-right: 0;
   position: relative;
   z-index: 1;
@@ -818,15 +837,16 @@ label.switch:has(input:checked) {
 /* --- active: admingreen background + light text --- */
 .sc-wrap .buttonsArtem.buttonsArtemActive,
 .sc-wrap .buttonsArtem[style*="background-color: rgb(245, 166, 35)"] {
-  background-color: var(--admingreen) !important;
-  border: 2px solid var(--admingreen) !important;
-  color: var(--adminfon) !important;
+  background-color: var(--adminlightgreen) !important;
+  border: 2px solid transparent !important;
+  border-bottom: 2px solid var(--admingreen) !important;
+  color: var(--admingreen) !important;
   z-index: 2;
 }
 
 .sc-wrap .buttonsArtem.buttonsArtemActive > div,
 .sc-wrap .buttonsArtem[style*="background-color: rgb(245, 166, 35)"] > div {
-  color: var(--adminfon) !important;
+  color: var(--admingreen) !important;
 }
 
 .sc-wrap .buttonsArtem.buttonsArtemActive::before,
@@ -990,14 +1010,15 @@ label.switch:has(input:checked) {
 
 /* --- active: admingreen background + light text --- */
 .sc-wrap .sc-side-btn.sc-side-active {
-  background-color: var(--admingreen) !important;
-  border: 2px solid var(--admingreen) !important;
-  color: var(--adminfon) !important;
+  background-color: var(--adminlightgreen) !important;
+  border: 2px solid transparent !important;
+  border-bottom: 2px solid var(--admingreen) !important;
+  color: var(--admingreen) !important;
   z-index: 2;
 }
 
 .sc-wrap .sc-side-btn.sc-side-active .sc-side-text {
-  color: var(--adminfon) !important;
+  color: var(--admingreen) !important;
 }
 
 .sc-wrap .sc-side-btn.sc-side-active::before,
@@ -1130,8 +1151,8 @@ label.switch:has(input:checked) {
 /* --- tab buttons: Uiverse border-reveal animation --- */
 .sc-wrap .sc-tabs .btn {
   position: relative !important;
-  background: transparent !important;
-  background-color: transparent !important;
+  background: var(--adminfon) !important;
+  background-color: var(--adminfon) !important;
   background-image: none !important;
   border: 2px solid var(--adminorange) !important;
   border-radius: 0 !important;
@@ -1168,7 +1189,7 @@ label.switch:has(input:checked) {
   left: -2px;
   width: calc(100% + 4px);
   height: calc(100% + 2px);
-  background-color: var(--adminfonelement);
+  background-color: var(--adminfon);
   transition: 0.3s ease-out;
   transform: scaleY(1);
   z-index: 1;
@@ -1182,7 +1203,7 @@ label.switch:has(input:checked) {
   left: -2px;
   width: calc(100% + 4px);
   height: calc(100% - 50%);
-  background-color: var(--adminfonelement);
+  background-color: var(--adminfon);
   transition: 0.3s ease-out;
   transform: scaleY(1);
   z-index: 2;
@@ -1208,24 +1229,25 @@ label.switch:has(input:checked) {
   color: var(--adminorange) !important;
 }
 
-/* --- active tab: admingreen background + light text --- */
+/* --- active tab: lightgreen background + green border/text --- */
 .sc-wrap .sc-tabs .adminButtonAdd {
-  background: var(--admingreen) !important;
-  background-color: var(--admingreen) !important;
+  background: var(--adminlightgreen) !important;
+  background-color: var(--adminlightgreen) !important;
   background-image: none !important;
-  border: 2px solid var(--admingreen) !important;
-  color: var(--adminfon) !important;
+  border: 2px solid transparent !important;
+  border-bottom: 2px solid var(--admingreen) !important;
+  color: var(--admingreen) !important;
   animation: none !important;
 }
 
 .sc-wrap .sc-tabs .adminButtonAdd .sc-tab-text {
-  color: var(--adminfon) !important;
+  color: var(--admingreen) !important;
 }
 
 .sc-wrap .sc-tabs .adminButtonAdd:hover {
-  background: var(--admingreen) !important;
-  background-color: var(--admingreen) !important;
-  color: var(--adminfon) !important;
+  background: var(--adminlightgreen) !important;
+  background-color: var(--adminlightgreen) !important;
+  color: var(--admingreen) !important;
 }
 
 .sc-wrap .sc-tabs .adminButtonAdd::before,
@@ -1928,7 +1950,7 @@ label.switch:has(input:checked) {
   width: 100%;
   padding: 18px 24px;
   height: 60px;
-  background-color: var(--adminorange);
+  background-color: var(--adminlightorange);
   border: none;
   font-size: 12px;
   font-weight: 450;
@@ -1946,8 +1968,8 @@ label.switch:has(input:checked) {
   transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
-  background-color: var(--adminorange);
-  box-shadow: inset 0 0 0 2px var(--admingrey);
+  background-color: var(--adminlightorange);
+  box-shadow: inset 0 0 0 2px var(--adminorange);
   transition: all var(--transtion);
   z-index: 0;
 }
@@ -1959,7 +1981,7 @@ label.switch:has(input:checked) {
   --active: 1;
 }
 .sc-add-btn:is(:hover, :focus-visible)::before {
-  background-color: var(--adminorange);
+  background-color: var(--adminlightorange);
 }
 .sc-add-btn:is(:hover, :focus-visible) .sc-add-btn__outline::before {
   background-color: transparent;

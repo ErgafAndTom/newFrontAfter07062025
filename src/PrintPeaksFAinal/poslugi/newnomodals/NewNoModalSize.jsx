@@ -1,4 +1,6 @@
 import React, {useEffect, useState, useRef} from "react";
+import ReactDOM from "react-dom";
+import { usePortalDropdown } from "./usePortalDropdown";
 import Form from "react-bootstrap/Form";
 import './CornerRounding.css';
 import './ArtemStyles.css';
@@ -12,11 +14,10 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
   const [yVal, setYVal] = useState(false);
   const [isCustom, setIsCustom] = useState(false);
   const [thisNameVal, setThisNameVal] = useState(defaultt);
-  const [open, setOpen] = useState(false);
   const [dropdownWidth, setDropdownWidth] = useState("auto");
 
-  const dropdownRef = useRef(null);
   const measureRef = useRef(null);
+  const { open, setOpen, style: dropStyle, toggle, triggerRef: dropdownRef, portalRef } = usePortalDropdown();
 
   let formats = []
   let invalid = ""
@@ -222,17 +223,6 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
     }
   }, [formats]);
 
-  // Клік поза dropdown
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   return (
     <div className="d-flex flex-row justify-content-between align-items-center w-100" style={{marginTop: "1vw", marginLeft: "1.5vw", gap: "3"}}>
 
@@ -283,13 +273,13 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
         >
           <div
             className="custom-select-header"
-            onClick={() => setOpen(!open)}
+            onClick={toggle}
           >
             {thisNameVal}
           </div>
 
-          {open && (
-            <div className="custom-select-dropdown" style={{minWidth: dropdownWidth}}>
+          {open && ReactDOM.createPortal(
+            <div className="custom-select-dropdown" ref={portalRef} style={{...dropStyle, minWidth: dropdownWidth}}>
               {formats.map((item) => (
                 <div
                   key={item.name}
@@ -301,7 +291,8 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
                   <span className="name">{item.name}</span>
                 </div>
               ))}
-            </div>
+            </div>,
+            document.body
           )}
 
           {/* Hidden measure */}

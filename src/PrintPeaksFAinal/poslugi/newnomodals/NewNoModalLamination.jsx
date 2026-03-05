@@ -1,4 +1,6 @@
-import React, {useEffect, useState, useRef} from "react";
+import React, {useEffect, useState} from "react";
+import ReactDOM from "react-dom";
+import { usePortalDropdown } from "./usePortalDropdown";
 import axios from '../../../api/axiosInstance';
 import {Navigate, useNavigate} from "react-router-dom";
 import "../Poslugy.css";
@@ -8,8 +10,7 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
     const [thisLaminationSizes, setThisLaminationSizes] = useState([]);
     const [error, setError] = useState(null);
     const [load, setLoad] = useState(true);
-    const [openThickness, setOpenThickness] = useState(false);
-    const thicknessRef = useRef(null);
+    const { open: openThickness, setOpen: setOpenThickness, style: dropStyle, toggle, triggerRef: thicknessRef, portalRef } = usePortalDropdown();
     const navigate = useNavigate();
 
     let handleSelectChange = (e) => {
@@ -131,16 +132,6 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
             })
     }, [lamination.material, lamination.type, size]);
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (thicknessRef.current && !thicknessRef.current.contains(event.target)) {
-                setOpenThickness(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
     const handleSelectItem = (item) => {
         setLamination({
             type: lamination.type,
@@ -193,12 +184,12 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
                 >
                   <div
                     className="custom-select-header"
-                    onClick={() => setOpenThickness(!openThickness)}
+                    onClick={toggle}
                   >
                     {thicknessTitle}
                   </div>
-                  {openThickness && (
-                    <div className="custom-select-dropdown">
+                  {openThickness && ReactDOM.createPortal(
+                    <div className="custom-select-dropdown" ref={portalRef} style={dropStyle}>
                       {thisLaminationSizes.map((item) => (
                         <div
                           key={item.thickness}
@@ -208,7 +199,8 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
                           <span className="name">{item.thickness} мкм</span>
                         </div>
                       ))}
-                    </div>
+                    </div>,
+                    document.body
                   )}
                 </div>
               </div>

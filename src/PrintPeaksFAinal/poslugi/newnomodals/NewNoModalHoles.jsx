@@ -1,4 +1,6 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, {useState} from "react";
+import ReactDOM from "react-dom";
+import { usePortalDropdown } from "./usePortalDropdown";
 import holeIcon0 from "./iconbuttons/hole1.svg";
 import holeIcon1 from "./iconbuttons/hole2.svg";
 import holeIcon2 from "./iconbuttons/hole3.svg";
@@ -12,8 +14,7 @@ const iconArray = [
 ];
 
 const NewNoModalHoles = ({holes, setHoles, holesR, setHolesR, prices, buttonsArr, selectArr}) => {
-    const [openSize, setOpenSize] = useState(false);
-    const sizeRef = useRef(null);
+    const { open: openSize, setOpen: setOpenSize, style: dropStyle, toggle, triggerRef: sizeRef, portalRef } = usePortalDropdown();
 
     let handleSelectChange = (val) => {
         setHolesR(val);
@@ -24,16 +25,6 @@ const NewNoModalHoles = ({holes, setHoles, holesR, setHolesR, prices, buttonsArr
         setHoles(e)
         setHolesR(holesR || "5 мм")
     }
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (sizeRef.current && !sizeRef.current.contains(event.target)) {
-                setOpenSize(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
 
     const sizeTitle = holesR ? holesR : "Розмір";
 
@@ -51,12 +42,12 @@ const NewNoModalHoles = ({holes, setHoles, holesR, setHolesR, prices, buttonsArr
               >
                 <div
                   className="custom-select-header"
-                  onClick={() => setOpenSize(!openSize)}
+                  onClick={toggle}
                 >
                   {sizeTitle}
                 </div>
-                {openSize && (
-                  <div className="custom-select-dropdown">
+                {openSize && ReactDOM.createPortal(
+                  <div className="custom-select-dropdown" ref={portalRef} style={dropStyle}>
                     {(selectArr || []).filter(item => item !== "").map((item) => (
                       <div
                         key={item}
@@ -66,7 +57,8 @@ const NewNoModalHoles = ({holes, setHoles, holesR, setHolesR, prices, buttonsArr
                         <span className="name">{item}</span>
                       </div>
                     ))}
-                  </div>
+                  </div>,
+                  document.body
                 )}
               </div>
 

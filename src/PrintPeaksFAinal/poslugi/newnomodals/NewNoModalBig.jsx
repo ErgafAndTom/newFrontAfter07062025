@@ -1,23 +1,14 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, {useState} from "react";
+import ReactDOM from "react-dom";
+import { usePortalDropdown } from "./usePortalDropdown";
 
 const NewNoModalBig = ({big, setBig, prices, buttonsArr, selectArr}) => {
-    const [openBig, setOpenBig] = useState(false);
-    const bigRef = useRef(null);
+    const { open: openBig, setOpen: setOpenBig, style: dropStyle, toggle, triggerRef: bigRef, portalRef } = usePortalDropdown();
 
     let handleSelectChange = (val) => {
         setBig(val);
         setOpenBig(false);
     }
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (bigRef.current && !bigRef.current.contains(event.target)) {
-                setOpenBig(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
 
     const bigTitle = big && big !== "Не потрібно" ? `${big} згин.` : "Кількість";
 
@@ -35,12 +26,12 @@ const NewNoModalBig = ({big, setBig, prices, buttonsArr, selectArr}) => {
               >
                 <div
                   className="custom-select-header"
-                  onClick={() => setOpenBig(!openBig)}
+                  onClick={toggle}
                 >
                   {bigTitle}
                 </div>
-                {openBig && (
-                  <div className="custom-select-dropdown">
+                {openBig && ReactDOM.createPortal(
+                  <div className="custom-select-dropdown" ref={portalRef} style={dropStyle}>
                     {(selectArr || []).filter(item => item !== "").map((item) => (
                       <div
                         key={item}
@@ -50,7 +41,8 @@ const NewNoModalBig = ({big, setBig, prices, buttonsArr, selectArr}) => {
                         <span className="name">{item} згин.</span>
                       </div>
                     ))}
-                  </div>
+                  </div>,
+                  document.body
                 )}
               </div>
             </div>

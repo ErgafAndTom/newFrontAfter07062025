@@ -1,7 +1,7 @@
 import React from "react";
 
 const ScToggleSection = ({ label, title, isOn, onToggle, children, style }) => (
-  <div className="sc-section" style={style}>
+  <div className="sc-section sc-section-card" style={style}>
     <div className="d-flex align-items-center">
       <label className="switch scale04ForButtonToggle">
         <input type="checkbox" checked={isOn} onChange={onToggle} />

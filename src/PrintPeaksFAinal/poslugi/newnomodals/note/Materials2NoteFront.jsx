@@ -1,4 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
+import ReactDOM from "react-dom";
+import { usePortalDropdown } from "../usePortalDropdown";
 import axios from "../../../../api/axiosInstance";
 import { Spinner } from "react-bootstrap";
 import "../../Poslugy.css";
@@ -24,10 +26,8 @@ const Materials2NoteFront = ({
 
   const [lamination, setLamination] = useState([]);
   const [loadLamination, setLoadLamination] = useState(false);
-  const [openPaper, setOpenPaper] = useState(false);
-  const [openLam, setOpenLam] = useState(false);
-  const dropdownPaperRef = useRef(null);
-  const dropdownLamRef = useRef(null);
+  const { open: openPaper, setOpen: setOpenPaper, style: dropStylePaper, toggle: togglePaper, triggerRef: dropdownPaperRef, portalRef: portalPaperRef } = usePortalDropdown();
+  const { open: openLam, setOpen: setOpenLam, style: dropStyleLam, toggle: toggleLam, triggerRef: dropdownLamRef, portalRef: portalLamRef } = usePortalDropdown();
 
   const buttonsArrLamination = [
     { value: "з глянцевим ламінуванням", label: "Глянцеве" },
@@ -153,16 +153,6 @@ const Materials2NoteFront = ({
       });
   }, [materialAndDrukFront.laminationType, materialAndDrukFront.laminationTypeUse, size]);
 
-  // закриття dropdown при кліку за межами
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownPaperRef.current && !dropdownPaperRef.current.contains(e.target)) setOpenPaper(false);
-      if (dropdownLamRef.current && !dropdownLamRef.current.contains(e.target)) setOpenLam(false);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   const paperTitle = materialAndDrukFront.material && materialAndDrukFront.material !== "Немає"
     ? materialAndDrukFront.material
     : "Виберіть матеріал";
@@ -253,7 +243,7 @@ const Materials2NoteFront = ({
               ref={dropdownPaperRef}
               style={{ flex: 1, marginLeft: "0.5vw", position: "relative" }}
             >
-              <div className="custom-select-header" onClick={() => setOpenPaper(!openPaper)}>
+              <div className="custom-select-header" onClick={togglePaper}>
                 {paperTitle}
                 <span className="gsm-sub" style={{ marginRight: "0.8vw" }}>
                   {paper.find((p) => p.name === materialAndDrukFront.material)?.thickness && (
@@ -261,8 +251,8 @@ const Materials2NoteFront = ({
                   )}
                 </span>
               </div>
-              {openPaper && (
-                <div className="custom-select-dropdown">
+              {openPaper && ReactDOM.createPortal(
+                <div className="custom-select-dropdown" ref={portalPaperRef} style={dropStylePaper}>
                   {paper.map((item) => (
                     <div
                       key={item.id}
@@ -278,7 +268,8 @@ const Materials2NoteFront = ({
                       </span>
                     </div>
                   ))}
-                </div>
+                </div>,
+                document.body
               )}
             </div>
             {load && <Spinner animation="border" variant="danger" size="sm" style={{ marginLeft: "0.5vw" }} />}
@@ -314,11 +305,11 @@ const Materials2NoteFront = ({
                 ref={dropdownLamRef}
                 style={{ marginLeft: "0.5vw", position: "relative" }}
               >
-                <div className="custom-select-header" onClick={() => setOpenLam(!openLam)}>
+                <div className="custom-select-header" onClick={toggleLam}>
                   {lamTitle}
                 </div>
-                {openLam && (
-                  <div className="custom-select-dropdown">
+                {openLam && ReactDOM.createPortal(
+                  <div className="custom-select-dropdown" ref={portalLamRef} style={dropStyleLam}>
                     {lamination.map((item) => (
                       <div
                         key={item.id}
@@ -331,7 +322,8 @@ const Materials2NoteFront = ({
                         <span className="name">{item.thickness} мкм</span>
                       </div>
                     ))}
-                  </div>
+                  </div>,
+                  document.body
                 )}
               </div>
             )}

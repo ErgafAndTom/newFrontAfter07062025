@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
+import ReactDOM from "react-dom";
+import { usePortalDropdown } from "./usePortalDropdown";
 import axios from "../../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import "../Poslugy.css";
@@ -27,12 +29,11 @@ const NewNoModalLaminationNew = ({
                                    showOptions = true,
                                  }) => {
   const [thisLaminationSizes, setThisLaminationSizes] = useState([]);
-  const [open, setOpen] = useState(false);
   const [dropdownWidth, setDropdownWidth] = useState("auto");
 
   const navigate = useNavigate();
-  const dropdownRef = useRef(null);
   const measureRef = useRef(null);
+  const { open, setOpen, style: dropStyle, toggle, triggerRef: dropdownRef, portalRef } = usePortalDropdown();
 
   const safeSelectArr = Array.isArray(selectArr) ? selectArr : [];
   const safeMaterials = Array.isArray(materials) ? materials : [];
@@ -97,17 +98,6 @@ const NewNoModalLaminationNew = ({
       setDropdownWidth(`${maxWidth}px`);
     }
   }, [thisLaminationSizes]);
-
-  // Клік поза dropdown
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const selectedThickness = lamination.size
     ? `${lamination.size} мкм`
@@ -225,13 +215,13 @@ const NewNoModalLaminationNew = ({
             >
               <div
                 className="custom-select-header"
-                onClick={() => setOpen(!open)}
+                onClick={toggle}
               >
                 {selectedThickness}
               </div>
 
-              {open && (
-                <div className="custom-select-dropdown" style={{minWidth: dropdownWidth}}>
+              {open && ReactDOM.createPortal(
+                <div className="custom-select-dropdown" ref={portalRef} style={{...dropStyle, minWidth: dropdownWidth}}>
                   {thisLaminationSizes.map((item) => (
                     <div
                       key={item.id}
@@ -243,7 +233,8 @@ const NewNoModalLaminationNew = ({
                       <span className="name">{item.thickness} мкм</span>
                     </div>
                   ))}
-                </div>
+                </div>,
+                document.body
               )}
 
               {/* Hidden measure */}

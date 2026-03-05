@@ -1,4 +1,6 @@
-import React, {useEffect, useState, useRef} from "react";
+import React, {useEffect, useState} from "react";
+import ReactDOM from "react-dom";
+import { usePortalDropdown } from "./usePortalDropdown";
 import Form from "react-bootstrap/Form";
 import './CornerRounding.css';
 import './ArtemStyles.css';
@@ -11,8 +13,7 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
     const [yVal, setYVal] = useState(false);
     const [isCustom, setIsCustom] = useState(false);
     const [thisNameVal, setThisNameVal] = useState(defaultt);
-    const [openSize, setOpenSize] = useState(false);
-    const sizeDropdownRef = useRef(null);
+    const { open: openSize, setOpen: setOpenSize, style: dropStyle, toggle, triggerRef: sizeDropdownRef, portalRef } = usePortalDropdown();
 
     //initial main -------------------------------------------------------------------------------------------
     let formats = []
@@ -299,16 +300,6 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
         }
     }, [size.x, size.y]);
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (sizeDropdownRef.current && !sizeDropdownRef.current.contains(event.target)) {
-                setOpenSize(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
     const handleSelectItem = (item) => {
         if (item.name === "Задати свій розмір") {
             setThisNameVal(item.name);
@@ -332,13 +323,13 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
             >
                 <div
                     className="custom-select-header"
-                    onClick={() => setOpenSize(!openSize)}
+                    onClick={toggle}
                 >
                     {thisNameVal}
                 </div>
 
-                {openSize && (
-                    <div className="custom-select-dropdown" style={{ top: "100%", left: "50%", transform: "translateX(-50%)" }}>
+                {openSize && ReactDOM.createPortal(
+                    <div className="custom-select-dropdown" ref={portalRef} style={dropStyle}>
                         {formats.map((item) => (
                             <div
                                 key={item.name}
@@ -348,7 +339,8 @@ const ModalSize = ({size, setSize, type, buttonsArr, color, setColor, count, set
                                 <span className="name">{item.name}</span>
                             </div>
                         ))}
-                    </div>
+                    </div>,
+                    document.body
                 )}
             </div>
 

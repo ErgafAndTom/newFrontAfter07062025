@@ -1,4 +1,6 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import ReactDOM from "react-dom";
+import { usePortalDropdown } from "./newnomodals/usePortalDropdown";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
@@ -67,11 +69,8 @@ const Laminator = ({
 
   // Lamination sizes from API
   const [thisLaminationSizes, setThisLaminationSizes] = useState([]);
-  const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
-  const [thicknessDropdownOpen, setThicknessDropdownOpen] = useState(false);
-
-  const sizeDropdownRef = useRef(null);
-  const thicknessDropdownRef = useRef(null);
+  const { open: sizeDropdownOpen, setOpen: setSizeDropdownOpen, style: dropStyleSize, toggle: toggleSize, triggerRef: sizeDropdownRef, portalRef: portalSizeRef } = usePortalDropdown();
+  const { open: thicknessDropdownOpen, setOpen: setThicknessDropdownOpen, style: dropStyleThickness, toggle: toggleThickness, triggerRef: thicknessDropdownRef, portalRef: portalThicknessRef } = usePortalDropdown();
 
   // Pricing hook
   const calcData = useMemo(
@@ -165,20 +164,6 @@ const Laminator = ({
         if (err?.response?.status === 403) navigate("/login");
       });
   }, [lamination.material, lamination.type, size, showLaminator, navigate]);
-
-  // Close dropdowns on outside click
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (sizeDropdownRef.current && !sizeDropdownRef.current.contains(event.target)) {
-        setSizeDropdownOpen(false);
-      }
-      if (thicknessDropdownRef.current && !thicknessDropdownRef.current.contains(event.target)) {
-        setThicknessDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   // ========== HANDLERS ==========
 
@@ -282,12 +267,12 @@ const Laminator = ({
           >
             <div
               className="custom-select-header"
-              onClick={() => setSizeDropdownOpen(!sizeDropdownOpen)}
+              onClick={toggleSize}
             >
               {sizeTitle}
             </div>
-            {sizeDropdownOpen && (
-              <div className="custom-select-dropdown">
+            {sizeDropdownOpen && ReactDOM.createPortal(
+              <div className="custom-select-dropdown" ref={portalSizeRef} style={dropStyleSize}>
                 {SIZE_FORMATS.map((item) => (
                   <div
                     key={item.name}
@@ -297,7 +282,8 @@ const Laminator = ({
                     <span className="name">{item.name}</span>
                   </div>
                 ))}
-              </div>
+              </div>,
+              document.body
             )}
           </div>
         }
@@ -327,12 +313,12 @@ const Laminator = ({
         >
           <div
             className="custom-select-header"
-            onClick={() => setThicknessDropdownOpen(!thicknessDropdownOpen)}
+            onClick={toggleThickness}
           >
             {thicknessTitle}
           </div>
-          {thicknessDropdownOpen && (
-            <div className="custom-select-dropdown">
+          {thicknessDropdownOpen && ReactDOM.createPortal(
+            <div className="custom-select-dropdown" ref={portalThicknessRef} style={dropStyleThickness}>
               {thisLaminationSizes.map((item) => (
                 <div
                   key={item.id}
@@ -342,7 +328,8 @@ const Laminator = ({
                   <span className="name">{item.thickness} мкм</span>
                 </div>
               ))}
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       </ScSection>

@@ -325,10 +325,10 @@ const NewUIArtem = () => {
     if (!Number.isFinite(statusValue)) return { text: 'Обробка замовлення ', id: orderId };
     switch (statusValue) {
       case 0:  return { text: 'Обробка замовлення ', id: orderId };
-      case 1:  return { text: 'Замовлення ', id: `${orderId} друкується` };
-      case 2:  return { text: 'Замовлення ', id: `${orderId} у постпресі` };
+      case 1:  return { text: 'Замовлення ', id: orderId, suffix: ' друкується' };
+      case 2:  return { text: 'Замовлення ', id: orderId, suffix: ' у постпресі' };
       case 3:  return { text: 'Готове замовлення ', id: orderId };
-      default: return { text: 'Замовлення ', id: `${orderId} віддали` };
+      default: return { text: 'Замовлення ', id: orderId, suffix: ' віддали' };
     }
   })();
 
@@ -556,7 +556,7 @@ const NewUIArtem = () => {
             <div className={`nui-order-header-shell ${orderToneClass}`}>
               {orderListStatusTitle && (
                 <div className="nui-order-delivered-title">
-                  {orderListStatusTitle.text}<span className="nui-order-delivered-id">№{orderListStatusTitle.id}</span>
+                  {orderListStatusTitle.text}<span className="nui-order-delivered-id">№{orderListStatusTitle.id}</span>{orderListStatusTitle.suffix && <span className="nui-order-delivered-suffix">{orderListStatusTitle.suffix}</span>}
                 </div>
               )}
             </div>
@@ -580,7 +580,7 @@ const NewUIArtem = () => {
                   return (
                     <div
                       key={index}
-                      className={`nui-order-item ${orderToneClass}${expandedThingIndex === index ? " is-expanded" : ""}`}
+                      className={`nui-order-item ${orderToneClass} ${editorAccentClass}${expandedThingIndex === index ? " is-expanded" : ""}`}
                       onClick={() => toggleExpandedThing(index)}
                     >
                       <div className="nui-item-header">

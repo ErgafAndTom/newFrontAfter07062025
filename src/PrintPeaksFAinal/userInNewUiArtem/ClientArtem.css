@@ -392,3 +392,119 @@
     width: 157px;
     height: 58px;
 }
+
+/* ===== DATEPICKER — нашого стилю ===== */
+.nui-datepicker {
+  background: var(--adminfonelement) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  font-family: inherit;
+}
+
+/* Хедер (місяць + рік) */
+.nui-datepicker .react-datepicker__header {
+  background: var(--adminfonelement) !important;
+  border-bottom: 1px solid var(--adminorange) !important;
+  border-radius: 0 !important;
+  padding: 10px 0 8px;
+}
+
+.nui-datepicker .react-datepicker__current-month,
+.nui-datepicker .react-datepicker-year-header {
+  color: var(--admingrey) !important;
+  font-weight: 400;
+  font-size: 0.9rem;
+  text-transform: lowercase;
+}
+
+/* Навігаційні стрілки */
+.nui-datepicker .react-datepicker__navigation-icon::before {
+  border-color: var(--adminorange) !important;
+}
+
+.nui-datepicker .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+  border-color: var(--admingrey) !important;
+}
+
+/* Дні тижня */
+.nui-datepicker .react-datepicker__day-name {
+  color: var(--admingrey) !important;
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+
+/* Дні */
+.nui-datepicker .react-datepicker__day {
+  color: var(--admingrey) !important;
+  border-radius: 0 !important;
+  font-weight: 400;
+}
+
+.nui-datepicker .react-datepicker__day:hover {
+  background: var(--adminlightgreen) !important;
+  color: var(--admingreen) !important;
+  border-radius: 0 !important;
+}
+
+/* Сьогодні */
+.nui-datepicker .react-datepicker__day--today {
+  background: transparent !important;
+  border-bottom: 2px solid var(--adminorange) !important;
+  color: var(--adminorange) !important;
+  font-weight: 400;
+}
+
+/* Вибраний день */
+.nui-datepicker .react-datepicker__day--selected,
+.nui-datepicker .react-datepicker__day--keyboard-selected {
+  background: var(--adminlightgreen) !important;
+  color: var(--admingreen) !important;
+  border-bottom: 2px solid var(--admingreen) !important;
+  border-radius: 0 !important;
+  font-weight: 400;
+}
+
+/* Дні поза місяцем */
+.nui-datepicker .react-datepicker__day--outside-month {
+  color: #ccc !important;
+}
+
+/* Time picker */
+.nui-datepicker .react-datepicker__time-container {
+  border-left: 1px solid var(--adminorange) !important;
+}
+
+.nui-datepicker .react-datepicker__time-container .react-datepicker__header {
+  border-bottom: 1px solid var(--adminorange) !important;
+}
+
+.nui-datepicker .react-datepicker__time-list-item {
+  color: var(--admingrey) !important;
+  border-radius: 0 !important;
+}
+
+.nui-datepicker .react-datepicker__time-list-item:hover {
+  background: var(--adminlightgreen) !important;
+  color: var(--admingreen) !important;
+}
+
+.nui-datepicker .react-datepicker__time-list-item--selected {
+  background: var(--adminlightgreen) !important;
+  color: var(--admingreen) !important;
+  font-weight: 400 !important;
+}
+
+/* Кнопки Очистити / Сьогодні */
+.nui-datepicker .react-datepicker__today-button {
+  background: var(--adminfonelement) !important;
+  border-top: 1px solid var(--adminorange) !important;
+  color: var(--adminorange) !important;
+  border-radius: 0 !important;
+  font-weight: 400;
+}
+
+/* Triangle */
+.nui-datepicker .react-datepicker__triangle {
+  display: none !important;
+}

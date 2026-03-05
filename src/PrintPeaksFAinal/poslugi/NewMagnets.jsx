@@ -1,4 +1,6 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import ReactDOM from "react-dom";
+import { usePortalDropdown } from "./newnomodals/usePortalDropdown";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
@@ -62,12 +64,9 @@ const NewMagnets = ({
   const [error, setError] = useState(null);
 
   // Dropdowns
-  const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
-  const [materialDropdownOpen, setMaterialDropdownOpen] = useState(false);
   const [materials, setMaterials] = useState([]);
-
-  const sizeDropdownRef = useRef(null);
-  const materialDropdownRef = useRef(null);
+  const { open: sizeDropdownOpen, setOpen: setSizeDropdownOpen, style: dropStyleSize, toggle: toggleSize, triggerRef: sizeDropdownRef, portalRef: portalSizeRef } = usePortalDropdown();
+  const { open: materialDropdownOpen, setOpen: setMaterialDropdownOpen, style: dropStyleMaterial, toggle: toggleMaterial, triggerRef: materialDropdownRef, portalRef: portalMaterialRef } = usePortalDropdown();
 
   // Pricing hook
   const calcData = useMemo(
@@ -167,20 +166,6 @@ const NewMagnets = ({
         if (err?.response?.status === 403) navigate("/login");
       });
   }, [material?.type, size, showNewMagnets, navigate]);
-
-  // Close dropdowns on outside click
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (sizeDropdownRef.current && !sizeDropdownRef.current.contains(event.target)) {
-        setSizeDropdownOpen(false);
-      }
-      if (materialDropdownRef.current && !materialDropdownRef.current.contains(event.target)) {
-        setMaterialDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   // ========== HANDLERS ==========
 
@@ -289,12 +274,12 @@ const NewMagnets = ({
             >
               <div
                 className="custom-select-header"
-                onClick={() => setSizeDropdownOpen(!sizeDropdownOpen)}
+                onClick={toggleSize}
               >
                 {sizeTitle}
               </div>
-              {sizeDropdownOpen && (
-                <div className="custom-select-dropdown">
+              {sizeDropdownOpen && ReactDOM.createPortal(
+                <div className="custom-select-dropdown" ref={portalSizeRef} style={dropStyleSize}>
                   {SIZE_FORMATS.map((item) => (
                     <div
                       key={item.name}
@@ -304,7 +289,8 @@ const NewMagnets = ({
                       <span className="name">{item.name}</span>
                     </div>
                   ))}
-                </div>
+                </div>,
+                document.body
               )}
             </div>
             {isCustomSize && (
@@ -340,12 +326,12 @@ const NewMagnets = ({
         >
           <div
             className="custom-select-header"
-            onClick={() => setMaterialDropdownOpen(!materialDropdownOpen)}
+            onClick={toggleMaterial}
           >
             {materialTitle}
           </div>
-          {materialDropdownOpen && (
-            <div className="custom-select-dropdown">
+          {materialDropdownOpen && ReactDOM.createPortal(
+            <div className="custom-select-dropdown" ref={portalMaterialRef} style={dropStyleMaterial}>
               {materials.map((item) => (
                 <div
                   key={item.id}
@@ -355,7 +341,8 @@ const NewMagnets = ({
                   <span className="name">{item.name}</span>
                 </div>
               ))}
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       </ScSection>

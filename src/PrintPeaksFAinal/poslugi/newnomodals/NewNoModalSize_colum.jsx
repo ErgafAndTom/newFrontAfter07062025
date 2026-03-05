@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
+import ReactDOM from "react-dom";
+import { usePortalDropdown } from "./usePortalDropdown";
 import './CornerRounding.css';
 import './ArtemStyles.css';
 
@@ -44,11 +46,10 @@ const NewNoModalSize_colum = ({
 
   const [localX, setLocalX] = useState(s.x);
   const [localY, setLocalY] = useState(s.y);
-  const [open, setOpen] = useState(false);
   const [dropdownWidth, setDropdownWidth] = useState("auto");
 
-  const dropdownRef = useRef(null);
   const measureRef = useRef(null);
+  const { open, setOpen, style: dropStyle, toggle, triggerRef: dropdownRef, portalRef } = usePortalDropdown();
 
   /* ================= FORMAT LIST ================= */
   const formats = useMemo(() => {
@@ -102,17 +103,6 @@ const NewNoModalSize_colum = ({
       setDropdownWidth(`${maxWidth}px`);
     }
   }, [formats]);
-
-  // Клік поза dropdown
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const selectedFormat = formats.find((f) => f.x === s.x && f.y === s.y);
   const title = selectedFormat?.name || defaultt;
@@ -173,13 +163,13 @@ const NewNoModalSize_colum = ({
         >
           <div
             className="custom-select-header"
-            onClick={() => setOpen(!open)}
+            onClick={toggle}
           >
             {title}
           </div>
 
-          {open && (
-            <div className="custom-select-dropdown" style={{minWidth: dropdownWidth}}>
+          {open && ReactDOM.createPortal(
+            <div className="custom-select-dropdown" ref={portalRef} style={{...dropStyle, minWidth: dropdownWidth}}>
               {formats.map((item) => (
                 <div
                   key={item.name}
@@ -191,7 +181,8 @@ const NewNoModalSize_colum = ({
                   <span className="name">{item.name}</span>
                 </div>
               ))}
-            </div>
+            </div>,
+            document.body
           )}
 
           {/* hidden measure */}

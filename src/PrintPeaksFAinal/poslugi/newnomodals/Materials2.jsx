@@ -1,4 +1,5 @@
 import React, {useEffect, useState, useRef} from "react";
+import ReactDOM from "react-dom";
 import axios from "../../../api/axiosInstance";
 import {useNavigate} from "react-router-dom";
 import {Spinner} from "react-bootstrap";
@@ -19,9 +20,11 @@ const Materials2 = ({
   const [load, setLoad] = useState(true);
   const [open, setOpen] = useState(false);
   const [dropdownWidth, setDropdownWidth] = useState("auto");
+  const [dropdownStyle, setDropdownStyle] = useState({});
 
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+  const portalRef = useRef(null);
   const measureRef = useRef(null);
 
   const isEdit = Boolean(editingOrderUnit?.idKey || editingOrderUnit?.id);
@@ -140,9 +143,9 @@ const Materials2 = ({
   // клік поза селектом
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpen(false);
-      }
+      const inContainer = dropdownRef.current?.contains(event.target);
+      const inPortal = portalRef.current?.contains(event.target);
+      if (!inContainer && !inPortal) setOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -207,7 +210,20 @@ const Materials2 = ({
         )}
         <div
           className="custom-select-header"
-          onClick={() => !disabled && setOpen(!open)}
+          onClick={() => {
+            if (disabled) return;
+            if (!open && dropdownRef.current) {
+              const rect = dropdownRef.current.getBoundingClientRect();
+              setDropdownStyle({
+                position: "fixed",
+                top: rect.bottom + 2,
+                left: rect.left,
+                width: rect.width,
+                zIndex: 99999,
+              });
+            }
+            setOpen(!open);
+          }}
           style={disabled ? { pointerEvents: "none", opacity: 0.7 } : undefined}
         >
           {title}
@@ -227,8 +243,8 @@ const Materials2 = ({
         </span>
         </div>
 
-        {open && (
-          <div className="custom-select-dropdown" style={{ minWidth: hasButtons ? dropdownWidth : "100%" }}>
+        {open && ReactDOM.createPortal(
+          <div ref={portalRef} className="custom-select-dropdown" style={{ ...dropdownStyle, minWidth: hasButtons ? dropdownWidth : dropdownStyle.width }}>
             {paper.map((item) => (
               <div
                 key={item.id}
@@ -252,7 +268,8 @@ const Materials2 = ({
               </span>
               </div>
             ))}
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* hidden measure */}

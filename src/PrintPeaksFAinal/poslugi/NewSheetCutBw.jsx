@@ -283,10 +283,10 @@ export default function NewSheetCutBW({
     <ScModal
       show={showNewSheetCutBW}
       onClose={handleClose}
-      modalStyle={{ width: "35vw" }}
+      modalStyle={{ width: "40.25vw" }}
       modalClassName="sc-modal-bw"
       leftStyle={{ flex: 1.2 }}
-      rightStyle={{ width: "11.2vw", minWidth: "144px", maxWidth: "208px" }}
+      rightStyle={{ width: "12.9vw", minWidth: "144px", maxWidth: "240px" }}
       rightContent={
         <>
           {pricesThis && (

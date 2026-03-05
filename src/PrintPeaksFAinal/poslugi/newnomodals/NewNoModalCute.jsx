@@ -1,4 +1,6 @@
-import React, {useEffect, useState, useRef} from "react";
+import React, {useState} from "react";
+import ReactDOM from "react-dom";
+import { usePortalDropdown } from "./usePortalDropdown";
 import borderRadiusIcon0 from "../../public/borderradius.svg";
 import borderRadiusIcon1 from "../../public/borderradius1.svg";
 import borderRadiusIcon2 from "../../public/borderradius2.svg";
@@ -13,8 +15,7 @@ const iconArray = [
 ];
 
 const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttonsArr, selectArr}) => {
-    const [openRadius, setOpenRadius] = useState(false);
-    const radiusRef = useRef(null);
+    const { open: openRadius, setOpen: setOpenRadius, style: dropStyle, toggle, triggerRef: radiusRef, portalRef } = usePortalDropdown();
 
     let handleSelectChange = (val) => {
         setCuteLocal({
@@ -106,16 +107,6 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
         }
     }
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (radiusRef.current && !radiusRef.current.contains(event.target)) {
-                setOpenRadius(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
     const radiusTitle = cuteLocal.radius ? `${cuteLocal.radius} мм` : "Радіус";
 
   return (
@@ -143,12 +134,12 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
               >
                 <div
                   className="custom-select-header"
-                  onClick={() => setOpenRadius(!openRadius)}
+                  onClick={toggle}
                 >
                   {radiusTitle}
                 </div>
-                {openRadius && (
-                  <div className="custom-select-dropdown">
+                {openRadius && ReactDOM.createPortal(
+                  <div className="custom-select-dropdown" ref={portalRef} style={dropStyle}>
                     {(selectArr || []).map((item) => (
                       <div
                         key={item}
@@ -158,7 +149,8 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
                         <span className="name">{item} мм</span>
                       </div>
                     ))}
-                  </div>
+                  </div>,
+                  document.body
                 )}
               </div>
 
