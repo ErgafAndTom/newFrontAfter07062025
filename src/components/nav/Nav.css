@@ -1,413 +1,382 @@
+/* =====================================================
+   NAV — PrintPeaks design system
+   ===================================================== */
 
-.inputLogin {
-    width: 20vw;
-    height: 4vw;
-    margin: auto;
-    font-size: 1.1vw;
-    text-align: left;
-
-}
-.titleLogin {
-    margin: auto;
-    margin-top: 4vw;
-    margin-bottom: 1.5vw;
-
-}
-.buttonLogin {
-    margin: auto;
-    width: 19.5vw;
-    height: 3.4vw;
-    margin-top: 1.5vw;
-    font-size: 1.1vw;
-
+:root {
+  --nav-h: 3.5vh;
+  --nav-min-h: 36px;
 }
 
-
-.logo h1 {
-    margin: 0.3vw;
-    text-align: left;
-    flex-direction: column;
-    display: flex;
-    font-size: 1vw;
-    font-weight: bold;
-    line-height: 0.9vw;
-    width: 4vw;
+/* Wrapper */
+.flipNav {
+  background: var(--adminfon);
+  height: var(--nav-h);
+  min-height: var(--nav-min-h);
+  display: flex;
+  align-items: stretch;
 }
 
-.ButtonClients {
-    border: transparent;
-    border-radius: 0;
-    border-top-left-radius: 10px;
-    border-bottom-left-radius:  10px;
-}
-.ButtonSetting {
-    border: transparent;
-    border-radius: 0;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-}
-.top-menu {
-    /*align-items: left;*/
-    margin-top: 0.1vw;
-    background-color: #F2F0E7;
-    display: flex;
-    margin-left: 0.9vw;
+.navTheme-amber {
+  background: var(--adminfon);
 }
 
-.top-menu button {
-    display: flex;
-    margin:auto;
-    background-color: #FBFAF6;
-    padding: 1vw;
-    cursor: pointer;
-    font-size: 0.8vw;
-}
-.top-menu button:hover {
-    background-color: #FAB416;
-}
-.ButtonVimogi {
-    border: transparent;
-    /*border-radius: 0;*/
-}
-.ButtonVimogia {
-    background-color: #e1a313;
-    border: #FAB416;
+/* Головний рядок навбару */
+.nav-bar-row {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
 }
 
-.Search
-{
-    background-color: #FBFAF6;
-    /*display: flex;*/
-    height: 4.2vh;
-    width: 14vw;
-
-    cursor: pointer;
-    font-size: 0.8vw;
-    border-radius: 0.5vw;
-    /*margin: auto;*/
-    text-align: left;
+/* Ліва група (nav links) — природна ширина по контенту, розтягується */
+.btnBlock {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
 }
 
-/* Анімація для появи кнопки логін */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+/* Центральна група: по центру між лівою і правою */
+.nav-center-group {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0;
+  flex-shrink: 0;
+  padding-left: 20vw;
 }
 
-.login-button-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* Nav row */
+.btnRow {
+  display: inline-flex;
+  gap: 0;
+  border: none;
+  height: 100%;
+  padding-left: 1rem;
 }
 
-.login-button-container button:hover {
-    background-color: #FAB416 !important;
+/* Single nav link — стиль nui-client-rect-btn */
+.btn {
+  position: relative;
+  isolation: isolate;
+  height: 100%;
+  min-height: var(--nav-min-h);
+  width: auto;
+  padding: 0 1rem;
+  white-space: nowrap;
+  font-size: var(--font-size-s);
+  font-weight: 400;
+  color: var(--admingrey) !important;
+  text-align: center;
+  border: 2px solid var(--adminorange) !important;
+  border-radius: 0 !important;
+  text-transform: uppercase;
+  text-decoration: none !important;
+  background: var(--adminfon) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+  cursor: pointer;
+  box-sizing: border-box !important;
 }
 
-/* Стилі для всіх адміністративних кнопок */
+/* cover layer 1 — ховає бордер */
+.btn::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfon);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
 
-.adminButtonAddNav {
-  padding: 0 1vw;
-  font-size: 0.7vw;
+/* cover layer 2 — верхня половина */
+.btn::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background-color: var(--adminfon);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+
+/* текст поверх псевдоелементів */
+.flip-front {
+  position: relative;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  border-bottom-left-radius: 12px;
-  text-transform: uppercase;
-  cursor: pointer;
-  font-weight: 500;
-  background:
-    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.25), transparent 42%),
-    linear-gradient(
-      130deg,
-      #007a43,
-      #008249,
-      #009054,
-      #008249
-    );
-  background-size: 250% 250%, 320% 320%;
-  background-position: 30% 18%, 0% 50%;
-  animation: btnGlow 4s ease-in-out infinite;
-  color: rgba(0, 0, 0, 0.7);
-  height: 3.5vh ;
-}
-.settingsIcon:hover {
-  color: #ffffff;
+  width: 100%;
+  height: 100%;
 }
 
-.adminButtonAddNav:hover {
-  color: white;
+.flip-back {
+  display: none;
 }
-.adminButtonAddNav .ico{
+
+/* Hover — відкриває бордер */
+.btn:not([aria-current="page"]):hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.btn:not([aria-current="page"]):hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+.btn:not([aria-current="page"]):hover {
+  color: var(--adminorange) !important;
+  border-color: var(--adminorange) !important;
+  background: var(--adminfon) !important;
+  text-decoration: none !important;
+}
+
+/* Active route */
+.btn[aria-current="page"] {
+  color: var(--admingreen) !important;
+  background: var(--adminlightgreen) !important;
+  border: 2px solid transparent !important;
+  border-bottom: 2px solid var(--admingreen) !important;
+}
+
+.btn[aria-current="page"]::before,
+.btn[aria-current="page"]::after {
+  display: none;
+}
+
+/* =====================================================
+   RIGHT SIDE BUTTONS
+   ===================================================== */
+
+/* Права група — та сама вага що й ліва, кнопки притиснуті до правого краю */
+.nav-right-group {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  padding-right: 1rem;
+  box-sizing: border-box;
+}
+
+/* Базовий стиль для всіх правих кнопок — як nui-client-rect-btn */
+.adminButtonAddNav,
+.adminButtonAddNavExit {
+  position: relative;
+  isolation: isolate;
+  height: var(--nav-h, 3.5vh);
+  min-height: var(--nav-min-h, 36px);
+  padding: 0 1vw;
+  font-size: var(--font-size-s);
+  font-weight: 400;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-radius: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: 0.3s;
+}
+
+/* User (⚙) — --adminblue */
+.adminButtonAddNav {
+  color: var(--adminblue) !important;
+  background: var(--adminfon) !important;
+  border: 2px solid var(--adminblue) !important;
+}
+
+.adminButtonAddNav::before {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfon);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+
+.adminButtonAddNav::after {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background-color: var(--adminfon);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+
+.adminButtonAddNav:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+.adminButtonAddNav:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+.adminButtonAddNav:hover {
+  color: var(--adminblue) !important;
+  border-color: var(--adminblue) !important;
+}
+
+.adminButtonAddNav > * {
+  position: relative;
+  z-index: 3;
+}
+
+.adminButtonAddNav .ico {
   width: 1em;
   height: 1em;
-  margin-right: .4em;
   stroke: currentColor;
   fill: none;
   stroke-width: 2;
-  vertical-align: -2px;
-}
-
-.adminButtonAddNav:hover{
-  color:#fff; /* перекрашивает текст и иконку (currentColor) */
-}
-
-.adminButtonAddNav:hover .ico{
-  stroke:#fff; /* страховка на случай переопределений */
-}
-.adminButtonAddNavExit {
-  border-radius: 0 0px 9px 0;
-  margin-right: 1vw;
-  height: 3.5vh;
-  width: 3vw;
-  border: none;
-  cursor: pointer;
-  background:
-    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.25), transparent 42%),
-    linear-gradient(
-      130deg,
-      #ff0017,
-      #ff3345,
-      #cc0012,
-      #ff3345
-    );
-  background-size: 250% 250%, 320% 320%;
-  background-position: 30% 18%, 0% 50%;
-  animation: btnGlow 14s ease-in-out infinite;
-  color: black; /* базовий колір тексту */
-}
-
-.adminButtonAddNavExit:hover {
-  color: white; /* при hover текст стає білим */
-}
-
-
-.navbar-section {
-  height: 3.5vh;
-  display: flex;
-  align-items: center;
-  gap: 0.5vw;
-}
-/* Забезпечення правильного розташування елементів у верхньому правому куті */
-@media screen and (max-width: 1400px) {
-    .Search {
-        /*width: 120px !important;*/
-    }
-}
-.button-angled-border {
+  flex-shrink: 0;
   position: relative;
-  background: #008249;
-  color: white;
-  height: 4vh;
-  padding: 0 1vw;
-  font-size: 0.8vw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  overflow: hidden;
+  z-index: 3;
 }
 
-.button-angled-border::after {
+/* Logout ([→) — --adminred */
+.adminButtonAddNavExit {
+  color: var(--adminred) !important;
+  background: var(--adminfon) !important;
+  border: 2px solid var(--adminred) !important;
+  width: auto;
+  min-width: 36px;
+  margin-right: 0;
+}
+
+.adminButtonAddNavExit::before {
   content: "";
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 8px;
-  height: 100%;
-  background: white; /* або будь-який колір бордера */
-  transform: skewY(45deg);
-  transform-origin: top right;
-}/* параметри і тема */
-.flipNav{
-  --h: 3.5vh;                 /* висота кнопки */
-  --z: calc(var(--h)/2);     /* половина для translateZ */
-  --pad-x: 14px;
-  --radius: 12px;
-  --btn-w: 5.5vw;
-  --gap: 0vw;
-}
-.navTheme-amber{
-  --front-bg: transparent;   --front-text: rgba(0, 0, 0, 0.6); --front-b:transparent;
-  --back-bg:transparent;         --back-text:#fff;     --back-b:transparent;
-}
-
-/* блок з нижніми заокругленнями 12px */
-/*.btnBlock{ display:inline-block; border-radius:0 0 var(--radius) var(--radius); overflow:hidden }*/
-
-/* ряд кнопок */
-.btnRow{
-  display:inline-flex;
-  gap: var(--gap);
-  /*padding: 0;*/
-  border: none;
-  border-bottom-right-radius: 12px;
-  border-bottom-left-radius: 12px;
-}
-
-
-/* базові стилі з адаптацією до ряду (знято абсолютне центрування) */
-.btn{
-  position:relative;
-  /*display:inline-block;*/
-  height:var(--h);
-  /*perspective:600px;*/
-  /*transform-style:preserve-3d;*/
-  align-items: center;
-  transition:all .3s ease-out;
-  width: 7vw;
-  white-space:normal;
-  /*line-height:1;*/
-  /*letter-spacing:.06em;*/
-  font-size:0.7vw;
-  font-weight:500;
-  color: rgba(0, 0, 0, 0.6);
-  text-align: start;
-  border: none;
-  text-transform: uppercase;
-  writing-mode: horizontal-tb;
-  text-orientation:initial;
-  border-bottom-right-radius: 12px;
-  border-bottom-left-radius: 12px;
-}
-
-/* обидві грані */
-.flip-front, .flip-back{
-  position:absolute; inset:0;
-  display:flex; align-items:center; justify-content:center;
-  /*padding:0 var(--pad-x);*/
-  /*text-transform:uppercase;*/
-  /*border:1px solid;*/
-  box-shadow:  1px 0.5px 1px rgba(0,0,0,0.2);
-  backface-visibility:hidden;
-  transition: transform .3s ease-out;
-  white-space:nowrap;
-  border-bottom-right-radius: 12px;
-  border-bottom-left-radius: 12px;
-}
-
-/* фронт */
-.flip-front{
-  color:var(--front-text); background:var(--front-bg); border-color:transparent;
-  transform:rotateX(0deg) translateZ(var(--z));
-  border-bottom-right-radius: 12px;
-  border-bottom-left-radius: 12px;
-
-}
-/* верх */
-.flip-back{
-  color: rgba(0, 0, 0, 0.6);
-  background:
-    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.35), transparent 42%),
-    linear-gradient(130deg, var(--btn-bg-1), var(--btn-bg-2), var(--btn-bg-3), var(--btn-bg-2));
-  background-size: 250% 250%, 320% 320%;
-  background-position: 30% 18%, 0% 50%;
-  animation: btnGlow 2s ease-in-out infinite;
-  border-color:transparent;
-  transform:rotateX(90deg) translateZ(var(--z));
-  border-bottom-right-radius: 12px;
-  border-bottom-left-radius: 12px;
-}
-.btn svg{
-  color: rgba(0,0,0,0.6);
-  stroke: rgba(0,0,0,0.6);
-}
-/* наведення/фокус */
-.btn:hover .flip-front, .btn:focus-visible .flip-front{
-  transform:rotateX(-90deg) translateZ(var(--z));
-}
-.btn:hover .flip-back, .btn:focus-visible .flip-back{
-  transform:rotateX(0deg) translateZ(var(--z));
-  outline:none;
-}
-/* общие стили для всех иконок меню */
-.ico > * {
-  stroke: rgba(0,0,0,0.6);
-  /*fill: rgba(0,0,0,0.6);*/
-}
-
-/* активний маршрут (NavLink додає aria-current="page") */
-.btn[aria-current="page"] .flip-front{
-  transform:rotateX(-90deg) translateZ(var(--z));
-}
-.btn[aria-current="page"] .flip-back{
-  transform:rotateX(0deg) translateZ(var(--z));
-}
-
-/* компактні розділювачі без зазорів у зливний блок */
-.btnRow .btn{ margin-right: 0px}
-
-.buttonSkewedSearch{
-  height: 3vh;
-  font-size: 0.7vw;
-  margin-left: -1rem;
-  margin-right: -1rem;
-  background-color: #fbfaf6;
-  color: rgba(0, 0, 0, 0.6);
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /*white-space: nowrap;*/
-  clip-path: polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%);
-  position: relative;
+  top: -2px; left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfon);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
   z-index: 1;
 }
-@keyframes spinIcon {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+
+.adminButtonAddNavExit::after {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background-color: var(--adminfon);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+
+.adminButtonAddNavExit:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+.adminButtonAddNavExit:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+.adminButtonAddNavExit:hover {
+  color: var(--adminred) !important;
+  border-color: var(--adminred) !important;
+}
+
+.adminButtonAddNavExit > * {
+  position: relative;
+  z-index: 3;
+}
+
+/* Search input */
+.buttonSkewedSearch {
+  height: var(--nav-h);
+  min-height: var(--nav-min-h);
+  background: var(--adminfonelement);
+  border: none;
+  border-bottom: 2px solid var(--adminblue);
+  clip-path: none;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  transition: border-color 0.2s;
 }
 
 .buttonSkewedSearchLupa {
   width: 2rem;
-  /*transition: width 0.5s ease, padding 0.5s ease;*/
-  padding-left: 2vw;
+  padding-left: 2rem;
   border: none;
-  background-color: #fbfaf6;
-  font-size: 14px;
-  /*font-family: inherit;*/
-  color: black;
-opacity: 0.7;
-  background-image: url("data:image/svg+xml;utf8, <svg fill='black' xmlns='http://www.w3.org/2000/svg' viewBox='4 4 20 24'> <g transform='rotate(70,11,16)'> <path d='M10,2A8,8 0 0,1 18,10C18,12.1 17.2,14 15.9,15.4L21.7,21.2L20.3,22.6L14.5,16.8C13.1,18.1 11.1,19 9,19A8,8 0 0,1 1,11A8,8 0 0,1 9,3A8,8 0 0,1 10,2M10,4A6,6 0 0,0 4,10A6,6 0 0,0 10,16A6,6 0 0,0 16,10A6,6 0 0,0 10,4Z'/> </g></svg>");
+  border-bottom: 2px solid var(--adminblue);
+  background-color: var(--adminfonelement);
+  font-size: var(--font-size-s);
+  color: var(--admingrey);
+  opacity: 1;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%23888' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='11' cy='11' r='7' stroke='%23888' stroke-width='2' fill='none'/><line x1='16.5' y1='16.5' x2='22' y2='22' stroke='%23888' stroke-width='2'/></svg>");
   background-repeat: no-repeat;
-  background-position: 1vw center;
+  background-position: 0.5rem center;
   background-size: 14px;
-
-  position: relative;
   cursor: text;
-
+  transition: width 0.3s ease, border-color 0.2s;
 }
 
 .buttonSkewedSearchLupa:focus {
-  width: 15vw;
-  background-color: #fbfaf6;
-  /*box-shadow: 0 0 0.4vh #00824955;*/
+  width: 14vw;
+  outline: none;
+  border-bottom-color: var(--adminorange);
 }
-
-
 
 .buttonSkewedSearchLupa::placeholder {
-  color: #fbfaf6;
-
-  transition: opacity 0.3s ease;
+  color: var(--admingrey);
+  opacity: 0.5;
 }
 
-.buttonSkewedSearchLupa:focus::placeholder {
+/* Login button (not logged in) */
+.buttonSkewedOrderClient {
+  background: var(--admingreen) !important;
+  border: none;
+  border-bottom: 2px solid var(--admingreen);
+  color: #fff !important;
+  height: var(--nav-h);
+  min-height: var(--nav-min-h);
+  padding: 0 1.2vw;
+  font-size: var(--font-size-s);
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: 400;
+  border-radius: 0 !important;
+  transition: background 0.2s;
 }
 
-/* іконки для flip-back */
-.flipNav{ --btn-w:5.5vw; --gap:.3vw; }
-.btnRow{ gap:var(--gap); }
-.btn{ width:var(--btn-w); }
+.buttonSkewedOrderClient:hover {
+  background: var(--adminlightgreen) !important;
+  color: var(--admingreen) !important;
+}
 
-.flip-back .ico{
+/* Navbar section helper */
+.navbar-section {
+  height: var(--nav-h);
+  min-height: var(--nav-min-h);
+  display: flex;
   align-items: center;
-  width:calc(var(--h) - 10px);
-  height:calc(var(--h) - 10px);
-  stroke:currentColor;
-  fill:none;
-  stroke-width:2;
-  stroke-linecap:round;
-  stroke-linejoin:round;
+  gap: 0.5vw;
 }
+
+/* Legacy / unused — kept for safety */
+.inputLogin { width: 20vw; height: 4vw; margin: auto; font-size: 1.1vw; }
+.titleLogin { margin: auto; margin-top: 4vw; margin-bottom: 1.5vw; }
+.buttonLogin { margin: auto; width: 19.5vw; height: 3.4vw; margin-top: 1.5vw; font-size: 1.1vw; }

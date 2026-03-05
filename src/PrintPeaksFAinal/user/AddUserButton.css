@@ -1,45 +1,68 @@
 .buttonSkewedUser {
-  height: 3.5vh;
-  width: 7.5vw;
-  font-weight: 700;
-  font-size: 0.65vw;
-  margin-top: -0.4vh;
-  background-color: #fab416;
-  color: black;
-  border: none;
-  display: flex;
+  position: relative;
+  isolation: isolate;
+  height: var(--nav-h, 3.5vh);
+  min-height: var(--nav-min-h, 36px);
+  width: auto;
+  padding: 0 1.2vw;
+  font-size: var(--font-size-s);
+  font-weight: 400;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--admingrey) !important;
+  background: var(--adminfon) !important;
+  border: 2px solid var(--adminorange) !important;
+  border-radius: 0 !important;
+  clip-path: none !important;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  white-space: nowrap;
-  clip-path: polygon(1.6vh 0, 100% 0, 100% 100%, 0 100%);
-  /*border-bottom-right-radius: 1vh;*/
-margin-right: -0.5vw;
-  position: relative;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: 0.3s;
+}
+
+/* cover layer 1 */
+.buttonSkewedUser::before {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfon);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
   z-index: 1;
 }
 
-.buttonSkewed.last {
-  clip-path: polygon(1.6vh 0, 100% 0, 100% 100%, 0 100%);
-  margin-right: 0;
-  border-bottom-right-radius: 1vh;
+/* cover layer 2 */
+.buttonSkewedUser::after {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background-color: var(--adminfon);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
 }
 
-.buttonSkewed.first {
-  clip-path: polygon(0 0, 100% 0, calc(100% - 1.6vh) 100%, 0 100%);
-  border-bottom-left-radius: 1vh;
+.buttonSkewedUser:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+.buttonSkewedUser:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
 }
 .buttonSkewedUser:hover {
-  background-color: #fab416;
-  color: white;
-  transform: scale(1.025);
-  font-size: 1.5vh;
+  color: var(--adminorange) !important;
+  border-color: var(--adminorange) !important;
+}
 
+/* текст поверх псевдоелементів */
+.buttonSkewedUser > * {
+  position: relative;
+  z-index: 3;
 }
-.buttonSkewed:hover::after {
-  background: #0a5c38;
-}
-.buttonSkewed:active {
-  background-color: #fbbf36;
-  color: white;
-}
-.buttonSkewed:active::after {}

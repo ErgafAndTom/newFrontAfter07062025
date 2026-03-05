@@ -22,10 +22,8 @@ const BellButton = ({ count, onClick }) => {
       onClick={onClick}
       className={`bell-button ${count > 0 ? 'pulse' : ''}`}
     >
-      <span className={`bell-symbol ${count > 0 ? 'shake' : ''}`}
-      >🕭</span>
-      {/*{lists?.[0]?.Cards?.length}*/}
-      {count}
+      <span className={`bell-symbol ${count > 0 ? 'shake' : ''}`}>🕭</span>
+      <span className="bell-count">{count}</span>
     </button>
   );
 };

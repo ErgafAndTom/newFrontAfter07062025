@@ -2,8 +2,8 @@
    GLOBAL VARIABLES
    ============================================================= */
 :root {
-
-
+  /* unified height for all sc- buttons (buttonsArtem, sc-side-btn, sc-tabs .btn) */
+  --sc-btn-h: 3.84vh;
 }
 
 /* =============================================================
@@ -754,23 +754,26 @@ label.switch:has(input:checked) {
 /* --- material buttons: Uiverse border-reveal animation --- */
 .sc-wrap .buttonsArtem {
   flex: 1 1 auto;
-  height: auto;
-  min-height: 3.84vh;
+  height: var(--sc-btn-h, 3.84vh);
+  min-height: var(--sc-btn-h, 3.84vh);
   width: auto;
   min-width: fit-content;
   border: 2px solid var(--adminorange) !important;
   border-radius: 0;
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--font-size-pay);
   font-weight: 450;
   text-transform: uppercase;
   transition: 0.3s;
   background-color: transparent !important;
   color: var(--admingrey) !important;
-  padding: 5px 0.6vw;
+  padding: 0 0.6vw;
   margin-right: 0;
   position: relative;
   z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* text stays above pseudo-elements */
@@ -937,12 +940,12 @@ label.switch:has(input:checked) {
 
 .sc-wrap .sc-side-btn {
   flex: 1;
-  height: auto;
-  min-height: 3.84vh;
+  height: var(--sc-btn-h, 3.84vh);
+  min-height: var(--sc-btn-h, 3.84vh);
   border: 2px solid var(--adminorange) !important;
   border-radius: 0;
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--font-size-pay);
   font-weight: 450;
   text-transform: uppercase;
   transition: 0.3s;
@@ -950,7 +953,10 @@ label.switch:has(input:checked) {
   color: var(--admingrey) !important;
   position: relative;
   min-width: fit-content;
-  padding: 5px 14px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* text stays above pseudo-elements */
@@ -1141,7 +1147,7 @@ label.switch:has(input:checked) {
   gap: 0;
   row-gap: 5px;
   padding: 8px 16px;
-  margin-top: 1.5vh;
+  margin-top: 1rem;
   flex-wrap: wrap;
   border-top: 1px solid rgba(0,0,0,0.06);
   position: relative;
@@ -1163,9 +1169,9 @@ label.switch:has(input:checked) {
   animation: none !important;
   box-shadow: none !important;
   padding: 0 0.72vw !important;
-  height: 3.84vh !important;
-  min-height: 3.84vh !important;
-  font-size: 13px !important;
+  height: var(--sc-btn-h, 3.84vh) !important;
+  min-height: var(--sc-btn-h, 3.84vh) !important;
+  font-size: var(--font-size-pay) !important;
   font-weight: 450 !important;
   text-transform: uppercase !important;
   display: inline-flex !important;

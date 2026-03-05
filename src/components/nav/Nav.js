@@ -91,26 +91,18 @@ const Nav = () => {
   }
 
   return (
-    <div>
+    <div style={{marginTop: '1rem'}}>
 
-      <div className="d-flex justify-content-between align-items-start "
+      <div className="nav-bar-row"
            style={{borderRadius: '0vh', marginBottom: '0vh'}}>
         {/* Ліва панель з кнопками */}
         <>
           {currentUser?.role === "user" && (
-            <div className="btnBlock flipNav navTheme-amber d-flex align-items-center" style={{paddingLeft: "5px"}}>
+            <div className="btnBlock flipNav navTheme-amber d-flex align-items-center">
               <nav className="btnRow">
-                {/*    <NavLink to="/Desktop" className="btn">*/}
-                {/*      <span className="flip-front" >Головна</span>*/}
-                {/*      <span className="flip-back"  >*/}
-                {/*  /!* home *!/*/}
-                {/*        <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">*/}
-                {/*    <path d="M3 10.5L12 3l9 7.5" />*/}
-                {/*    <path d="M5 10.5V21h14V10.5" />*/}
-                {/*    <path d="M9 21v-6h6v6" />*/}
-                {/*  </svg>*/}
-                {/*</span>*/}
-                {/*    </NavLink>*/}
+                <NavLink to="/Desktop" className="btn">
+                  <span className="flip-front">Головна</span>
+                </NavLink>
 
                 {/*    <NavLink to="/Users" className="btn">*/}
                 {/*      <span className="flip-front">Клієнти</span>*/}
@@ -253,19 +245,11 @@ const Nav = () => {
             </div>
           )}
           {currentUser?.role === "operator" && (
-            <div className="btnBlock flipNav navTheme-amber d-flex align-items-center" style={{paddingLeft: "5px"}}>
+            <div className="btnBlock flipNav navTheme-amber d-flex align-items-center">
               <nav className="btnRow">
-                {/*    <NavLink to="/Desktop" className="btn">*/}
-                {/*      <span className="flip-front" >Головна</span>*/}
-                {/*      <span className="flip-back"  >*/}
-                {/*  /!* home *!/*/}
-                {/*        <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">*/}
-                {/*    <path d="M3 10.5L12 3l9 7.5" />*/}
-                {/*    <path d="M5 10.5V21h14V10.5" />*/}
-                {/*    <path d="M9 21v-6h6v6" />*/}
-                {/*  </svg>*/}
-                {/*</span>*/}
-                {/*    </NavLink>*/}
+                <NavLink to="/Desktop" className="btn">
+                  <span className="flip-front">Головна</span>
+                </NavLink>
 
                 <NavLink to="/Users" className="btn">
                   <span className="flip-front">Клієнти</span>
@@ -410,19 +394,11 @@ const Nav = () => {
           {/* навбар */}
           {/* блок навігації з радіусом низу 12px */}
           {currentUser?.role === "admin" && (
-            <div className="btnBlock flipNav navTheme-amber d-flex align-items-center" style={{paddingLeft: "5px"}}>
+            <div className="btnBlock flipNav navTheme-amber d-flex align-items-center">
               <nav className="btnRow">
-                {/*    <NavLink to="/Desktop" className="btn">*/}
-                {/*      <span className="flip-front" >Головна</span>*/}
-                {/*      <span className="flip-back"  >*/}
-                {/*  /!* home *!/*/}
-                {/*        <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">*/}
-                {/*    <path d="M3 10.5L12 3l9 7.5" />*/}
-                {/*    <path d="M5 10.5V21h14V10.5" />*/}
-                {/*    <path d="M9 21v-6h6v6" />*/}
-                {/*  </svg>*/}
-                {/*</span>*/}
-                {/*    </NavLink>*/}
+                <NavLink to="/Desktop" className="btn">
+                  <span className="flip-front">Головна</span>
+                </NavLink>
 
                 <NavLink to="/Users" className="btn">
                   <span className="flip-front">Клієнти</span>
@@ -619,81 +595,50 @@ const Nav = () => {
 
         {/*<TermActiveWidget />*/}
 
-        {/* Права частина */}
-        <div className="d-flex align-items-start" style={{borderRadius: "0"}}>
-          <div>
-            {/*<LogoWithText />*/}
-            {currentUser &&
-              <>
-                <AddNewOrder/>
-              </>
-            }
+        {/* Центр: Нове замовлення + Створити клієнта */}
+        {currentUser && (
+          <div className="nav-center-group">
+            <AddNewOrder/>
+            {(currentUser.role === "admin" || currentUser.role === "operator") && (
+              <AddUserButton fetchUsers={() => dispatch(fetchUser())}/>
+            )}
           </div>
+        )}
 
+        {/* Права частина */}
+        <div className="nav-right-group">
           <Form.Control
             className="buttonSkewedSearch buttonSkewedSearchLupa"
-
             name="search"
             type="text"
             placeholder=""
             value={search}
             style={{borderRadius: '0', height: "3.5vh", zIndex: "0"}}
-            onChange={(e) => {
-              handleSearchChange(e)
-            }}
+            onChange={(e) => { handleSearchChange(e) }}
           />
-          {currentUser &&
-            <>
-              {currentUser.role === "admin" &&
-                <>
-                  <AddUserButton fetchUsers={() => dispatch(fetchUser())}/>
-                </>
-              }
-              {currentUser.role === "operator" &&
-                <>
-                  <AddUserButton fetchUsers={() => dispatch(fetchUser())}/>
-                </>
-              }
-            </>
-          }
           {currentUser ? (
-            <div className="d-flex align-items-center">
-              <Link to="/currentUser" style={{textDecoration: 'none'}}>
+            <>
+              <Link to="/currentUser" style={{textDecoration: 'none', display: 'flex'}}>
                 <button className="adminButtonAddNav">
-                  <svg
-                    className="ico"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
+                  <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
                     <circle cx="12" cy="12" r="3"></circle>
-                    <path
-                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82a2 2 0 1 1-2.83 2.83a1.65 1.65 0 0 0-1.82.33a1.65 1.65 0 0 0-.5 1.47a2 2 0 1 1-3.9 0a1.65 1.65 0 0 0-1.47-.5a1.65 1.65 0 0 0-1.82-.33a2 2 0 1 1-2.83-2.83a1.65 1.65 0 0 0-.33-1.82a1.65 1.65 0 0 0-1.47-.5a2 2 0 1 1 0-3.9a1.65 1.65 0 0 0 1.47-.5a1.65 1.65 0 0 0 .33-1.82a2 2 0 1 1 2.83-2.83a1.65 1.65 0 0 0 1.82-.33a1.65 1.65 0 0 0 .5-1.47a2 2 0 1 1 3.9 0a1.65 1.65 0 0 0 1.47.5a1.65 1.65 0 0 0 1.82.33a2 2 0 1 1 2.83 2.83a1.65 1.65 0 0 0 .33 1.82a1.65 1.65 0 0 0 1.47.5a2 2 0 1 1 0 3.9a1.65 1.65 0 0 0-1.47.5z"></path>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82a2 2 0 1 1-2.83 2.83a1.65 1.65 0 0 0-1.82.33a1.65 1.65 0 0 0-.5 1.47a2 2 0 1 1-3.9 0a1.65 1.65 0 0 0-1.47-.5a1.65 1.65 0 0 0-1.82-.33a2 2 0 1 1-2.83-2.83a1.65 1.65 0 0 0-.33-1.82a1.65 1.65 0 0 0-1.47-.5a2 2 0 1 1 0-3.9a1.65 1.65 0 0 0 1.47-.5a1.65 1.65 0 0 0 .33-1.82a2 2 0 1 1 2.83-2.83a1.65 1.65 0 0 0 1.82-.33a1.65 1.65 0 0 0 .5-1.47a2 2 0 1 1 3.9 0a1.65 1.65 0 0 0 1.47.5a1.65 1.65 0 0 0 1.82.33a2 2 0 1 1 2.83 2.83a1.65 1.65 0 0 0 .33 1.82a1.65 1.65 0 0 0 1.47.5a2 2 0 1 1 0 3.9a1.65 1.65 0 0 0-1.47.5z"></path>
                   </svg>
-                  {currentUser?.username} ({currentUser?.role})
+                  <span>{currentUser?.username} ({currentUser?.role})</span>
                 </button>
               </Link>
 
-
               <PopupLeftNotification/>
 
-              <button
-                onClick={logoutt}
-                className="adminButtonAddNavExit"
-
-              >
+              <button onClick={logoutt} className="adminButtonAddNavExit">
                 <FiLogOut/>
               </button>
-            </div>
+            </>
           ) : (
             <button
               onClick={handleClick}
               className="adminButtonAddNav buttonSkewedOrderClient"
-              style={{
-                background: '#008249',
-                borderRadius: '0 0 9px 0',
-                height: '3rem',
-                cursor: 'pointer'
-              }}
+              style={{background: '#008249', borderRadius: '0', height: '3.5vh', cursor: 'pointer'}}
             >
               Логін
             </button>

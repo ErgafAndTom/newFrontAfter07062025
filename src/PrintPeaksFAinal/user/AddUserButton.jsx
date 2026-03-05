@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import AddUserWindow from './AddUserWindow';
-// import './AddUserButton.css';
+import './AddUserButton.css';
 
 function AddUserButton({ fetchUsers, addOrdOrOnlyClient, thisOrder, setThisOrder }) {
     const [showAddUser, setShowAddUser] = useState(false);
@@ -43,12 +43,10 @@ function AddUserButton({ fetchUsers, addOrdOrOnlyClient, thisOrder, setThisOrder
 
 
           <div
-            className={`buttonSkewedOrderClient adminButtonAdd`}
+            className="buttonSkewedUser"
             onClick={handleAddUser}
-
-            style={{marginLeft:'0.5vw', alignItems:'center', justifyContent:'center', borderTopLeftRadius:"0",  borderTopRightRadius:"0", borderBottomLeftRadius:"0", height:"4vh", width:"10vw", fontWeight:500, marginRight:"1vw"}}
           >
-            Створити клієнта
+            <span>Створити клієнта</span>
           </div>
           <div style={{  }}>
             {showAddUser && (

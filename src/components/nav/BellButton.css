@@ -1,109 +1,103 @@
 .bell-button {
-  height: 3.5vh;
-  /*z-index: 510;*/
-  background:
-    radial-gradient(120% 180% at 10% 0%, rgba(255,255,255,0.35), transparent 42%),
-    linear-gradient(
-      130deg,
-      #f075aa,
-      #f184b3,
-      #ee6da0,
-      #f184b3
-    );
-  background-size: 250% 250%, 320% 320%;
-  background-position: 30% 18%, 0% 50%;
-  animation: btnGlow 10s ease-in-out infinite;
-
-  color: black;
-  border: none;
-  padding: 0.6em 1em;
+  position: relative;
+  isolation: isolate;
+  height: var(--nav-h, 3.5vh);
+  min-height: var(--nav-min-h, 36px);
+  padding: 0 0.8em;
+  background: var(--adminfon) !important;
+  color: var(--adminorange) !important;
+  border: 2px solid var(--adminorange) !important;
   border-radius: 0;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5em;
-  /*font-size: 14px;*/
+  justify-content: center;
+  gap: 0.4em;
+  font-size: var(--font-size-s);
   cursor: pointer;
-  transition: background 0.5s ease;
-
-
-  justify-content: center
+  white-space: nowrap;
+  transition: 0.3s;
+  box-sizing: border-box;
 }
 
+.bell-button::before {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfon);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+
+.bell-button::after {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background-color: var(--adminfon);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+
+.bell-button:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+.bell-button:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
 .bell-button:hover {
-
-  color: white;
-
-}
-.bell-symbol{
-  font-weight: bold;
-}
-@keyframes pulse {
-  0% { transform: scale(1.05); }
-  50% { transform: scale(1.12); }
-  100% { transform: scale(1.05); }
+  color: var(--adminorange) !important;
+  border-color: var(--adminorange) !important;
 }
 
-@keyframes shake {
-  0% { transform: rotate(0deg); }
-  20% { transform: rotate(-20deg); }
-  40% { transform: rotate(20deg); }
-  60% { transform: rotate(-6deg); }
-  80% { transform: rotate(6deg); }
-  100% { transform: rotate(0deg); }
-}
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  25% {
-    background-position: 50% 100%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  75% {
-    background-position: 50% 0%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+.bell-button > * {
+  position: relative;
+  z-index: 3;
 }
 
-.pulse {
-  animation: pulse 0.5s ease-in-out infinite, gradient 3s linear infinite;
-  height: 4.5vh;
-  border-radius: 0vh 0vh 0.5vh 0.5vh;
-  padding-top: 1.4vh;
+.bell-symbol,
+.bell-count {
+  position: relative;
+  z-index: 3;
+  color: inherit;
+  font-weight: 400;
+}
 
+/* є непрочитані — зелений акцент */
+.bell-button.pulse {
+  color: var(--admingreen) !important;
+  border-color: var(--admingreen) !important;
+  animation: none;
+}
 
-  background: linear-gradient(
-    60deg,
-    #f075aa,
-    #f075aa,
-    #ea96b1,
-    #f075aa,
-    #db5f94
+.bell-button.pulse::before,
+.bell-button.pulse::after {
+  background-color: var(--adminfon);
+}
 
-  );
-  background-size: 300% 300%;}
+.bell-button.pulse:hover {
+  color: var(--admingreen) !important;
+  border-color: var(--admingreen) !important;
+}
 
 .shake {
   display: inline-block;
-  animation: shake 1.2s infinite, gradient 3s linear infinite;
-  background: linear-gradient(42deg, #000000, #000000,
-  #333333, #ffffff,
-  #272727, #000000,
-  #000000, #000000);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-size: 100% 400%;
+  animation: shake 1.8s ease-in-out infinite;
 }
-.bell-button:hover {
-  animation-play-state: paused;
-}
-.bell-button:hover .bell-symbol {
-  color: white;
-  -webkit-text-fill-color: white;
-  background: none;
-  -webkit-background-clip: initial;
+
+@keyframes shake {
+  0%   { transform: rotate(0deg); }
+  15%  { transform: rotate(-18deg); }
+  30%  { transform: rotate(18deg); }
+  45%  { transform: rotate(-8deg); }
+  60%  { transform: rotate(8deg); }
+  75%  { transform: rotate(-4deg); }
+  90%  { transform: rotate(4deg); }
+  100% { transform: rotate(0deg); }
 }

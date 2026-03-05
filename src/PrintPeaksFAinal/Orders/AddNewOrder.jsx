@@ -48,14 +48,12 @@ function AddNewOrder({namem, data, setData, inPageCount, setInPageCount, current
             {/*    +*/}
             {/*</Button>*/}
             <div
-              className={`buttonSkewedOrder adminButtonAdd ${namem === 'orders' ? 'skewedOrder' : ''}`}
-                onClick={handleShow}
-
-                data-testid="new-order-button"
-                id="new-order-button"
-              style={{marginLeft:'0vw', alignItems:'center', justifyContent:'center', borderTopLeftRadius:"0",  borderTopRightRadius:"0", height:"4vh", width:"10vw", fontWeight:500}}
+              className={`buttonSkewedOrder ${namem === 'orders' ? 'skewedOrder' : ''}`}
+              onClick={handleShow}
+              data-testid="new-order-button"
+              id="new-order-button"
             >
-                Нове замовлення&nbsp;&nbsp;&nbsp;
+              <span>Нове замовлення</span>
             </div>
 
 
