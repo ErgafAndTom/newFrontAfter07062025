@@ -72,7 +72,10 @@ function OneProductInOrders({ item }) {
       {units.map((unit, idx) => {
         const hasDiscount = toNumber(unit?.priceForOneThis) !== toNumber(unit?.priceForOneThisDiscount);
         const unitPrice = hasDiscount ? unit?.priceForOneThisDiscount : unit?.priceForOneThis;
-        const totalPrice = hasDiscount ? unit?.priceForAllThisDiscount : unit?.priceForAllThis;
+        const qty = toNumber(unit?.newField5) || 1;
+        const rawTotal = hasDiscount ? unit?.priceForAllThisDiscount : unit?.priceForAllThis;
+        // fallback: якщо priceForAllThis/Discount null — рахуємо з priceForOne * qty
+        const totalPrice = toNumber(rawTotal) || (toNumber(unitPrice) * qty);
 
         return (
           <div key={unit?.idKey ?? idx} className="unit-item">
@@ -82,7 +85,7 @@ function OneProductInOrders({ item }) {
             </div>
             <div className="unit-calc-row">
               <span className="unit-val qty">
-                {toNumber(unit?.newField5)}<span className="unit-sub">шт</span>
+                {toNumber(unit?.newField5)}<span className="unit-sub">{unit?.units || 'шт'}</span>
               </span>
               <span className="unit-sep">×</span>
               <span className="unit-val one">

@@ -319,71 +319,6 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   };
 
 
-  // --- Анімація "В очікуванні оплати" ---
-  const [index, setIndex] = useState(0);
-  const formats = [
-    "В|",
-    "В о|",
-    "В оч|",
-    "В очі|",
-    "В очік|",
-    "В очіку|",
-    "В очікув|",
-    "В очікува|",
-    "В очікуван|",
-    "В очікуванн|",
-    "В очікуванні|",
-    "В очікуванні |",
-    "В очікуванні о|",
-    "В очікуванні оп|",
-    "В очікуванні опл|",
-    "В очікуванні опла|",
-    "В очікуванні оплат|",
-    "В очікуванні оплати|",
-  ];
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % formats.length);
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
-
-  // --- Анімація "В очікуванні оплати рахунку" ---
-  const [indexInvoice, setIndexInvoice] = useState(0);
-  const formatsInvoice = [
-    "В|",
-    "В о|",
-    "В оч|",
-    "В очі|",
-    "В очік|",
-    "В очіку|",
-    "В очікув|",
-    "В очікува|",
-    "В очікуван|",
-    "В очікуванн|",
-    "В очікуванні|",
-    "В очікуванні |",
-    "В очікуванні о|",
-    "В очікуванні оп|",
-    "В очікуванні опл|",
-    "В очікуванні опла|",
-    "В очікуванні оплат|",
-    "В очікуванні оплати|",
-    "В очікуванні оплати |",
-    "В очікуванні оплати р|",
-    "В очікуванні оплати ра|",
-    "В очікуванні оплати рах|",
-    "В очікуванні оплати раху|",
-    "В очікуванні оплати рахун|",
-    "В очікуванні оплати рахунк|",
-    "В очікуванні оплати рахунку|",
-  ];
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndexInvoice((prev) => (prev + 1) % formatsInvoice.length);
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
 
   // --- Автоматична перевірка статусу при CREATED ---
   useEffect(() => {
@@ -577,7 +512,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 <div
                   className="PayButtons wait pay-await-state"
                 >
-                  {formats[index]}
+                  <span className="pay-shimmer-txt">В очікуванні оплати</span>
                 </div>
                 <button
                   className="PayButtons check pay-await-receipt"
@@ -605,7 +540,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 <div
                   className="PayButtons wait pay-await-state"
                 >
-                  {formats[index]}
+                  <span className="pay-shimmer-txt">В очікуванні оплати</span>
                 </div>
                 <button
                   className="PayButtons end pay-await-cancel"
@@ -629,7 +564,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 <div
                   className="PayButtons wait pay-await-state pay-await-state--small"
                 >
-                  {formatsInvoice[indexInvoice]}
+                  <span className="pay-shimmer-txt">В очікуванні оплати рахунку</span>
                 </div>
                 <button
                   className="PayButtons end pay-await-cancel"

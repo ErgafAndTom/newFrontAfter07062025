@@ -386,6 +386,26 @@ align-content: flex-end;
   padding-right: 0.25rem !important;
 }
 
+@keyframes pay-await-shimmer {
+  0%   { background-position: -500%; }
+  100% { background-position:  500%; }
+}
+
+/* Shimmer span — підсвічення букв у "В очікуванні оплати" */
+.pay-shimmer-txt {
+  background: linear-gradient(90deg,
+    var(--adminfon, #f7f5ee) 10%,
+    var(--admingrey, #666666) 20%
+  );
+  background-size: 80%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent !important;
+  animation: pay-await-shimmer 1.8s linear infinite;
+  display: inline;
+}
+
 .PayButtons.pay-await-cancel,
 .PayButtons.end.pay-await-cancel {
   border: 0 !important;

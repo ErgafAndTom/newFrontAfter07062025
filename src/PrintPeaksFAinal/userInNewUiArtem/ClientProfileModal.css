@@ -20,7 +20,7 @@
   position: relative;
   width: min(96vw, 900px);
   max-height: 90vh;
-  background: var(--adminfonelement, #f2f0e9);
+  background: var(--adminfon, #f7f5ee);
   color: var(--admingrey, #666666);
   border-radius: 0;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
@@ -182,7 +182,6 @@
   font-size: var(--fontsmall, 15px);
   font-weight: 400;
   color: var(--admingrey, #666666);
-  opacity: 0.6;
   white-space: nowrap;
 }
 
@@ -204,7 +203,11 @@
 
 .cpm-field-input:focus {
   border-color: var(--adminorange, #f5a623);
-  background: var(--adminfon, #f7f5ee);
+  background: var(--adminfonelement, #f2f0e9);
+}
+
+.cpm-field-input[data-field="discount"] {
+  color: var(--admingreen, #0e935b);
 }
 
 .cpm-field-input.is-changed {
@@ -330,7 +333,7 @@
   left: -2px;
   width: calc(100% + 6px);
   height: calc(100% + 2px);
-  background: var(--adminfonelement, #f2f0e9);
+  background: var(--adminfon, #f7f5ee);
   transform: scaleY(1);
   transition: 0.3s ease-out;
   z-index: -2;
@@ -343,7 +346,7 @@
   left: -2px;
   width: calc(100% + 4px);
   height: calc(100% - 45%);
-  background: var(--adminfonelement, #f2f0e9);
+  background: var(--adminfon, #f7f5ee);
   transform: scaleY(1);
   transition: 0.3s ease-out;
   z-index: -1;
@@ -369,7 +372,7 @@
 
 .cpm-add-company-btn--red::before,
 .cpm-add-company-btn--red::after {
-  background: var(--adminfonelement, #f2f0e9);
+  background: var(--adminfon, #f7f5ee);
 }
 
 .cpm-add-company-btn--red:hover .cpm-add-company-btn-text {

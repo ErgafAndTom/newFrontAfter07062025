@@ -21,11 +21,66 @@ const PopupLeftNotification = () => {
   const [taskData, setTaskData] = useState([]);
   const [paymentData, setPaymentData] = useState([]);
   const [show, setShow] = useState(false);
+  const [popupPos, setPopupPos] = useState({ top: 0, left: 0 });
   const popupRef = useRef(null);
+  const bellWrapRef = useRef(null);
+  const prevCountRef = useRef(0);
 
   const totalCount = taskData.length + paymentData.length;
 
-  const toggle = () => setShow((prev) => !prev);
+  // Звук сповіщення (синтетичний спуск затвору камери)
+  const playShutterSound = () => {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioContext.currentTime;
+
+      // Перший клік (вищий тон)
+      const osc1 = audioContext.createOscillator();
+      const gain1 = audioContext.createGain();
+      osc1.connect(gain1);
+      gain1.connect(audioContext.destination);
+      osc1.frequency.setValueAtTime(180, now);
+      osc1.frequency.exponentialRampToValueAtTime(80, now + 0.08);
+      gain1.gain.setValueAtTime(0.3, now);
+      gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+      osc1.start(now);
+      osc1.stop(now + 0.08);
+
+      // Другий клік (нижчий тон)
+      const osc2 = audioContext.createOscillator();
+      const gain2 = audioContext.createGain();
+      osc2.connect(gain2);
+      gain2.connect(audioContext.destination);
+      osc2.frequency.setValueAtTime(100, now + 0.1);
+      osc2.frequency.exponentialRampToValueAtTime(50, now + 0.18);
+      gain2.gain.setValueAtTime(0.25, now + 0.1);
+      gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+      osc2.start(now + 0.1);
+      osc2.stop(now + 0.18);
+    } catch (err) {
+      console.warn('Помилка звуку:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (totalCount > prevCountRef.current) {
+      playShutterSound();
+    }
+    prevCountRef.current = totalCount;
+  }, [totalCount]);
+
+  const toggle = () => {
+    if (!show) {
+      const navCenterGroup = document.querySelector('.nav-center-group');
+      if (navCenterGroup) {
+        const rect = navCenterGroup.getBoundingClientRect();
+        const popupWidth = 0.18 * window.innerWidth;
+        const left = Math.max(0, rect.right - popupWidth);
+        setPopupPos({ top: rect.bottom, left });
+      }
+    }
+    setShow((prev) => !prev);
+  };
 
   // Завдання (trello cards)
   const handleCompleteTask = async (id) => {
@@ -84,9 +139,9 @@ const PopupLeftNotification = () => {
   // Click outside
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (popupRef.current && !popupRef.current.contains(e.target)) {
-        setShow(false);
-      }
+      const inPopup = popupRef.current && popupRef.current.contains(e.target);
+      const inBell  = bellWrapRef.current && bellWrapRef.current.contains(e.target);
+      if (!inPopup && !inBell) setShow(false);
     };
     if (show) document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -97,21 +152,22 @@ const PopupLeftNotification = () => {
 
   return (
     <>
-      <BellButton count={totalCount} onClick={toggle} />
+      <div ref={bellWrapRef} style={{ flex: 1, display: 'flex', alignItems: 'stretch' }}>
+        <BellButton count={totalCount} onClick={toggle} />
+      </div>
 
       {show && createPortal(
         <div
           ref={popupRef}
           style={{
             position: 'fixed',
-            top: 0,
-            right: 0,
-            width: '22vw',
-            marginTop: '5vh',
-            backgroundColor: 'var(--adminfon, #f2f0e7)',
-            boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+            top: popupPos.top + 32,
+            left: popupPos.left,
+            width: '18vw',
+            backgroundColor: 'var(--adminfonelement, #f2f0e9)',
+            boxShadow: 'none',
             borderRadius: '0',
-            padding: '0.5rem',
+            padding: '0.7rem',
             maxHeight: '90vh',
             overflowY: 'auto',
             display: 'flex',

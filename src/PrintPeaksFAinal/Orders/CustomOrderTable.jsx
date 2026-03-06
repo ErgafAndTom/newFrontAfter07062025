@@ -263,7 +263,7 @@ const OrderUnitUnit = ({unit, index, orderUnit}) => {
                      }}>{index + 1}</div>
                 <div className="adminFontTable">{unit.name}</div>
                 <div className="adminFontTable">{unit.quantity}</div>
-                <div className="adminFontTable" style={{marginTop: "0.5vw", fontSize: "0.5vw"}}> шт</div>
+                <div className="adminFontTable" style={{marginTop: "0.5vw", fontSize: "0.5vw"}}> {unit.units || 'шт'}</div>
                 <div className="adminFontTable">x</div>
                 <div className="adminFontTable">{unit.priceForOneThis}</div>
                 <div className="adminFontTable" style={{marginTop: "0.5vw", fontSize: "0.5vw"}}>грн</div>

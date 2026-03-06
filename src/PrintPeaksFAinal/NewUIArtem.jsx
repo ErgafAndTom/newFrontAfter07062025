@@ -577,7 +577,8 @@ const NewUIArtem = () => {
                   const unitPrice = hasDiscount
                     ? parseFloat(parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2))
                     : parseFloat(parseFloat(thing.priceForOneThis).toFixed(2));
-                  const totalPrice = hasDiscount ? thing.priceForThisDiscount : thing.priceForAllThis;
+                  const _rawTotal = hasDiscount ? thing.priceForThisDiscount : thing.priceForAllThis;
+                  const totalPrice = parseFloat(_rawTotal) || (unitPrice * (thing.amount || 1));
 
                   return (
                     <div

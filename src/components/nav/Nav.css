@@ -3,7 +3,7 @@
    ===================================================== */
 
 :root {
-  --nav-h: 3.5vh;
+  --nav-h: 4vh;
   --nav-min-h: 36px;
 }
 
@@ -27,23 +27,183 @@
   width: 100%;
 }
 
-/* Ліва група (nav links) — природна ширина по контенту, розтягується */
+/* Конверт 1: ЗЛІВА — кнопки дій (Нове замовлення, Створити клієнта) */
+/* Ширина як у nui-bottom-finance-inline: 25vw; зліва 0.5vw як у nui-bottom-shell */
+.nav-actions-group {
+  flex: 0 0 auto;
+  width: 24vw;
+  height: 4vh;
+  min-height: var(--nav-min-h, 36px);
+  margin: 1rem;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  background: var(--adminfonelement, #f2f0e9);
+  overflow: hidden;
+}
+
+/* Кнопки всередині конверту 1 — розтягнути на увесь конверт, фон --adminfonelement */
+.nav-actions-group .buttonSkewedOrder,
+.nav-actions-group .buttonSkewedUser {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  background: var(--adminfonelement, #f2f0e9) !important;
+}
+
+.nav-actions-group .buttonSkewedOrder::before,
+.nav-actions-group .buttonSkewedUser::before,
+.nav-actions-group .buttonSkewedOrder::after,
+.nav-actions-group .buttonSkewedUser::after {
+  background-color: var(--adminfonelement, #f2f0e9);
+}
+
+/* Конверт 2: ПО ЦЕНТРУ — пошук, юзер, сповіщення, вихід */
+.nav-center-group {
+  flex: 0 0 auto;
+  width: 26vw;
+  height: 4vh;
+  min-height: var(--nav-min-h, 36px);
+  margin: 1rem 1rem 1rem 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0;
+  background: var(--adminfonelement, #f2f0e9);
+  overflow: hidden;
+}
+
+/* Права група кнопок — юзер, дзвоник, вихід */
+.nav-right-controls {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  max-width: 40vw;
+  opacity: 1;
+  transition: max-width 0.35s ease, opacity 0.25s ease;
+}
+
+/* Схлопуємо ТІЛЬКИ коли фокус всередині search-wrap (не на кнопках) */
+.nav-search-wrap:focus-within ~ .nav-right-controls {
+  max-width: 0;
+  opacity: 0;
+}
+
+/* Link-обгортка навколо adminButtonAddNav */
+.nav-right-controls > a {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+}
+
+/* Усі кнопки — розтягнуті по ширині і висоті */
+.nav-center-group .adminButtonAddNav,
+.nav-center-group .adminButtonAddNavExit {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background: var(--adminfonelement, #f2f0e9) !important;
+}
+
+.nav-center-group .adminButtonAddNav::before,
+.nav-center-group .adminButtonAddNav::after,
+.nav-center-group .adminButtonAddNavExit::before,
+.nav-center-group .adminButtonAddNavExit::after {
+  background-color: var(--adminfonelement, #f2f0e9);
+}
+
+/* Search wrapper */
+.nav-search-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+/* Search input */
+.nav-center-group .buttonSkewedSearch {
+  flex: 1;
+  width: 100% !important;
+  height: 100% !important;
+  background: var(--adminfonelement, #f2f0e9) !important;
+  background-color: var(--adminfonelement, #f2f0e9) !important;
+  border-bottom: 2px solid var(--adminorange, #f5a623) !important;
+  padding-right: 1.8rem;
+  padding-left: 0.4rem;
+}
+
+.nav-center-group .buttonSkewedSearchLupa {
+  width: 100% !important;
+  background-color: var(--adminfonelement, #f2f0e9) !important;
+  background-image: none !important;
+  border-bottom: 2px solid var(--adminorange, #f5a623) !important;
+  padding-left: 0.4rem !important;
+}
+
+/* Animated search icon */
+.nav-search-icon {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--adminlightgrey, #aaaaaa);
+  pointer-events: none;
+  z-index: 2;
+  animation: nav-search-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes nav-search-pulse {
+  0%, 100% { transform: translateY(-50%) scale(1); }
+  50%       { transform: translateY(-50%) scale(1.18); }
+}
+
+/* Кнопка сповіщень */
+.nav-center-group .bell-button {
+  flex: 1;
+  height: 100%;
+  background: var(--adminfonelement, #f2f0e9) !important;
+  color: var(--admingreen, #0e935b) !important;
+  border: 2px solid var(--admingreen, #0e935b) !important;
+  border-radius: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  cursor: pointer;
+  padding: 0 0.6rem;
+  transition: background 0.2s;
+}
+
+/* ::before і ::after у BellButton.css мають background: --adminfon і z-index:1,
+   вони накривають реальний фон — перебиваємо їх */
+.nav-center-group .bell-button::before,
+.nav-center-group .bell-button::after,
+.nav-center-group .bell-button.pulse::before,
+.nav-center-group .bell-button.pulse::after {
+  background-color: var(--adminfonelement, #f2f0e9) !important;
+}
+
+.nav-center-group .bell-button:hover {
+  background: var(--adminfonelement, #f2f0e9) !important;
+  color: var(--admingreen, #0e935b) !important;
+}
+
+.nav-center-group .bell-button .bell-symbol,
+.nav-center-group .bell-button .bell-count {
+  color: var(--admingreen, #0e935b) !important;
+}
+
+/* Конверт 3: СПРАВА — навігаційні посилання (Головна → Зміни) */
 .btnBlock {
   flex: 1;
   min-width: 0;
   display: flex;
   align-items: stretch;
-}
-
-/* Центральна група: по центру між лівою і правою */
-.nav-center-group {
-  flex: 1;
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
-  gap: 0;
-  flex-shrink: 0;
-  padding-left: 20vw;
+  justify-content: flex-end;
 }
 
 /* Nav row */
@@ -53,8 +213,7 @@
   border: none;
   height: 100%;
   padding-left: 1rem;
-  padding-bottom: 0.5rem;
-}
+  }
 
 /* Single nav link — стиль nui-client-rect-btn */
 .btn {
@@ -63,7 +222,7 @@
   height: 100%;
   min-height: var(--nav-min-h);
   width: auto;
-  padding: 0 1rem;
+
   white-space: nowrap;
   font-size: var(--font-size-s);
   font-weight: 400;

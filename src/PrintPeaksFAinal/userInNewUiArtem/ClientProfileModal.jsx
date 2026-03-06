@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "../../api/axiosInstance";
 import TelegramAvatar from "../Messages/TelegramAvatar";
+import AddCompanyModal from "../company/AddCompanyModal";
 import "./ClientProfileModal.css";
 
 /* ── Модалка вибору компанії ── */
@@ -127,6 +128,7 @@ function FieldRow({ label, field, value, userId, type = "text", onSaved, disable
         className={`cpm-field-input${changed ? " is-changed" : ""}${disabled ? " is-disabled" : ""}`}
         value={val}
         type={type}
+        data-field={field}
         disabled={disabled || saving}
         onChange={(e) => setVal(e.target.value)}
         onKeyDown={onKey}
@@ -149,6 +151,7 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showAttach, setShowAttach] = useState(false);
+  const [showAddNew, setShowAddNew] = useState(false);
 
   /* Escape */
   useEffect(() => {
@@ -176,6 +179,17 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
     load();
   };
 
+  /* Нова компанія створена → прикріпити до юзера і перезавантажити */
+  const onNewCompanyAdded = async (company) => {
+    setShowAddNew(false);
+    try {
+      await axios.post(`/api/users/${userId}/attach-company`, { companyId: company.id });
+      load();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const detachCompany = async () => {
     try {
       await axios.post(`/api/users/${userId}/detach-company`);
@@ -200,6 +214,13 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
         userId={userId}
         onClose={() => setShowAttach(false)}
         onAttached={onCompanyAttached}
+      />
+    )}
+    {showAddNew && (
+      <AddCompanyModal
+        showAddCompany={showAddNew}
+        setShowAddCompany={setShowAddNew}
+        onCompanyAdded={onNewCompanyAdded}
       />
     )}
     <div className="cpm-overlay" onClick={onClose}>
@@ -285,9 +306,14 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
                 </div>
               </>
             ) : (
-              <button className="cpm-add-company-btn" onClick={() => setShowAttach(true)}>
-                <span className="cpm-add-company-btn-text">Додати компанію</span>
-              </button>
+              <div className="cpm-company-actions">
+                <button className="cpm-add-company-btn" onClick={() => setShowAttach(true)}>
+                  <span className="cpm-add-company-btn-text">Вибрати компанію</span>
+                </button>
+                <button className="cpm-add-company-btn" onClick={() => setShowAddNew(true)}>
+                  <span className="cpm-add-company-btn-text">Додати компанію</span>
+                </button>
+              </div>
             )}
           </footer>
         )}
