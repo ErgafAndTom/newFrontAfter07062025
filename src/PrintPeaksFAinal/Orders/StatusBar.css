@@ -1,0 +1,25 @@
+/* ── StatusBar — sb-* класи ── */
+.sb-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: var(--font-size-pay);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.sb-badge--s0  { color: var(--admingrey, #666666); }
+.sb-badge--s1  { color: var(--adminorange, #f5a623); }
+.sb-badge--s2  { color: var(--adminblue, #3c60a6); }
+.sb-badge--s3  { color: var(--adminrose, #ef7aaa); }
+.sb-badge--s4  { color: var(--adminpurple, #6a5acd); }
+.sb-badge--s5,
+.sb-badge--cancel { color: var(--adminred, #ee3c23); }

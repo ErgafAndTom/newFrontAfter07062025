@@ -1,0 +1,259 @@
+/* ============================================================
+   AddCompanyModal — модалка створення компанії
+   Стиль: auw/cpm pattern (без Bootstrap)
+   ============================================================ */
+
+/* ── Overlay ── */
+.acm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 15, 15, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10600;
+}
+
+/* ── Panel ── */
+.acm-panel {
+  position: relative;
+  width: min(96vw, 820px);
+  max-height: 90vh;
+  background: var(--adminfon, #f7f5ee);
+  border-radius: 0;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  animation: acm-slide-up 0.25s ease-out;
+}
+
+.acm-panel,
+.acm-panel input,
+.acm-panel textarea,
+.acm-panel button,
+.acm-panel label,
+.acm-panel span,
+.acm-panel div {
+  color: var(--admingrey, #666666);
+}
+
+@keyframes acm-slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ── */
+.acm-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  flex-shrink: 0;
+}
+
+.acm-header-title {
+  flex: 1;
+  font-size: var(--font-size-pay, 21px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+}
+
+.acm-close {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: var(--font-size-pay, 21px);
+  color: var(--admingrey, #666666);
+  cursor: pointer;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.acm-close:hover { color: var(--adminred, #ee3c23); }
+
+/* ── Body — two columns ── */
+.acm-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  padding: 0;
+}
+
+.acm-section {
+  padding: 1rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.acm-section:first-child {
+  border-right: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+/* ── Field row ── */
+.acm-field-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.4rem;
+}
+
+.acm-field-label {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  white-space: nowrap;
+}
+
+.acm-field-input {
+  height: 2.4rem;
+  padding: 0 0.6rem;
+  border: 1px solid transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: transparent;
+  border-radius: 0;
+  outline: none;
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s, background 0.2s;
+  font-family: inherit;
+}
+
+.acm-field-input:focus {
+  border-color: var(--adminorange, #f5a623);
+  background: var(--adminfonelement, #f2f0e9);
+}
+
+.acm-field-input[name="discount"] {
+  color: var(--admingreen, #0e935b);
+}
+
+.acm-field-input::placeholder {
+  color: var(--admingrey, #666666);
+  opacity: 0.4;
+}
+
+/* ── Notes ── */
+.acm-notes-row {
+  padding: 0.8rem 1.4rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.acm-notes-textarea {
+  width: 100%;
+  min-height: 8vh;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: transparent;
+  border-radius: 0;
+  outline: none;
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.acm-notes-textarea:focus {
+  border-color: var(--adminorange, #f5a623);
+  background: var(--adminfonelement, #f2f0e9);
+}
+
+.acm-notes-textarea::placeholder {
+  color: var(--admingrey, #666666);
+  opacity: 0.4;
+}
+
+/* ── Error ── */
+.acm-error {
+  padding: 0.4rem 1.4rem;
+  font-size: var(--fontsmall, 15px);
+  color: var(--adminred, #ee3c23);
+  text-align: center;
+  cursor: pointer;
+}
+
+/* ── Submit row ── */
+.acm-submit-row {
+  flex-shrink: 0;
+  padding: 0.8rem 1.4rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  display: flex;
+  justify-content: center;
+}
+
+/* ── Rect button (same animation as auw) ── */
+.acm-rect-btn {
+  position: relative;
+  isolation: isolate;
+  height: 4vh;
+  min-height: 36px;
+  padding: 5px 18px;
+  border: 2px solid var(--adminorange, #f5a623);
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  transition: 0.3s;
+}
+
+.acm-rect-btn-text {
+  position: relative;
+  z-index: 3;
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.acm-rect-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -2;
+}
+
+.acm-rect-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -1;
+}
+
+.acm-rect-btn:hover::before { transform: translateY(-25px); height: 0; }
+.acm-rect-btn:hover::after  { transform: scaleX(0); transition-delay: 0.15s; }
+.acm-rect-btn:hover .acm-rect-btn-text { color: var(--adminorange, #f5a623); }
+
+.acm-rect-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.acm-rect-btn--green { border-color: var(--admingreen, #0e935b); }
+.acm-rect-btn--green:hover .acm-rect-btn-text { color: var(--admingreen, #0e935b); }

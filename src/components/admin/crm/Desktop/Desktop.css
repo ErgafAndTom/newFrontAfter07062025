@@ -1,0 +1,340 @@
+/* === Desktop Dashboard — dsh-* === */
+
+.dsh-wrap {
+    background: var(--adminfon, #f7f5ee);
+    color: var(--admingrey, #666666);
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex-grow: 1;
+}
+
+/* ── Row 1: Calendar + KPIs ── */
+.dsh-row-top {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.dsh-calendar-wrap {
+    flex: 0 0 auto;
+    background: var(--adminfonelement, #f2f0e9);
+    padding: 0.5rem;
+}
+
+.dsh-kpi-group {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12vw, 1fr));
+    gap: 0.5rem;
+}
+
+.dsh-kpi-card {
+    background: var(--adminfonelement, #f2f0e9);
+    padding: 0.8rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.dsh-kpi-label {
+    font-size: 0.65vw;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--admingrey, #666666);
+    opacity: 0.7;
+}
+
+.dsh-kpi-value {
+    font-size: 1.4vw;
+    font-weight: 500;
+    color: var(--admingrey, #666666);
+}
+
+.dsh-kpi-suffix {
+    font-size: 0.9vw;
+    font-weight: 400;
+    opacity: 0.6;
+}
+
+.dsh-kpi-change {
+    font-size: 0.6vw;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.dsh-kpi-sub {
+    font-size: 0.6vw;
+    color: var(--admingrey, #666666);
+    opacity: 0.6;
+}
+
+/* ── Row 2: Charts ── */
+.dsh-row-charts {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.dsh-chart-main {
+    flex: 2;
+    background: var(--adminfonelement, #f2f0e9);
+    padding: 0.8rem;
+    min-height: 22vw;
+}
+
+.dsh-chart-side {
+    flex: 1;
+    background: var(--adminfonelement, #f2f0e9);
+    padding: 0.8rem;
+    min-height: 22vw;
+    display: flex;
+    flex-direction: column;
+}
+
+.dsh-chart-title {
+    font-size: 0.75vw;
+    color: var(--admingrey, #666666);
+    margin-bottom: 0.5rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.dsh-chart-body {
+    flex: 1;
+    position: relative;
+    min-height: 0;
+}
+
+/* ── Side cards column (next to chart) ── */
+.dsh-row-cards-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* ── Rows 3-4: Cards ── */
+.dsh-row-cards {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.dsh-card {
+    flex: 1;
+    background: var(--adminfonelement, #f2f0e9);
+    padding: 0.8rem 1rem;
+    min-height: 8vw;
+}
+
+.dsh-card-title {
+    font-size: 0.75vw;
+    font-weight: 400;
+    color: var(--admingrey, #666666);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* ── Top Clients Card ── */
+.dsh-clients-list {
+    max-height: 20vw;
+    overflow-y: auto;
+}
+
+.dsh-client-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 1rem;
+    position: relative;
+    font-size: 0.65vw;
+    color: var(--admingrey, #666666);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.dsh-client-row:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.dsh-client-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(14, 147, 91, 0.06);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.dsh-client-rank {
+    position: relative;
+    z-index: 1;
+    width: 1.2rem;
+    text-align: center;
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+.dsh-client-name {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dsh-client-count {
+    position: relative;
+    z-index: 1;
+    font-weight: 600;
+    color: var(--admingreen, #0e935b);
+    flex-shrink: 0;
+    min-width: 1.5rem;
+    text-align: right;
+}
+
+.dsh-client-sum {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    min-width: 4rem;
+    text-align: right;
+    opacity: 0.7;
+}
+
+/* ── Expenses Card ── */
+.dsh-exp-add-btn {
+    background: none;
+    border: 1px solid var(--admingrey, #666666);
+    color: var(--admingrey, #666666);
+    width: 1.4rem;
+    height: 1.4rem;
+    font-size: 0.8vw;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+}
+
+.dsh-exp-add-btn:hover {
+    border-color: var(--adminorange, #f5a623);
+    color: var(--adminorange, #f5a623);
+}
+
+.dsh-exp-total {
+    padding: 0.3rem 1rem 0.5rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.dsh-exp-total-value {
+    font-size: 1.2vw;
+    font-weight: 500;
+    color: var(--adminred, #ee3c23);
+}
+
+.dsh-exp-total-count {
+    font-size: 0.6vw;
+    color: var(--admingrey, #666666);
+    opacity: 0.6;
+}
+
+.dsh-exp-form {
+    padding: 0.4rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.dsh-exp-input {
+    border: none;
+    border-bottom: 1px solid var(--adminblue, #3c60a6);
+    background: transparent;
+    font-size: 0.65vw;
+    padding: 0.2rem 0;
+    color: var(--admingrey, #666666);
+    outline: none;
+}
+
+.dsh-exp-input:focus {
+    border-bottom-color: var(--adminorange, #f5a623);
+}
+
+.dsh-exp-save-btn {
+    background: var(--admingreen, #0e935b);
+    color: var(--adminfon, #f7f5ee);
+    border: none;
+    padding: 0.3rem;
+    font-size: 0.6vw;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.dsh-exp-save-btn:hover {
+    opacity: 0.85;
+}
+
+.dsh-exp-categories {
+    max-height: 12vw;
+    overflow-y: auto;
+}
+
+.dsh-exp-cat-row {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 1rem;
+    position: relative;
+    font-size: 0.6vw;
+    color: var(--admingrey, #666666);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.dsh-exp-cat-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.dsh-exp-cat-dot {
+    position: relative;
+    z-index: 1;
+    width: 0.4rem;
+    height: 0.4rem;
+    flex-shrink: 0;
+}
+
+.dsh-exp-cat-name {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+}
+
+.dsh-exp-cat-sum {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    font-weight: 500;
+    text-align: right;
+}
+
+.dsh-exp-cat-pct {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    min-width: 2rem;
+    text-align: right;
+    opacity: 0.5;
+}

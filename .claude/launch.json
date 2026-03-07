@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "FRONTEND_DEV_SERVER",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["start"],
+      "env": { "DISABLE_ESLINT_PLUGIN": "true" },
+      "port": 3000
+    }
+  ]
+}

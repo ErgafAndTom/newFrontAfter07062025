@@ -1,0 +1,119 @@
+/* ============================================================
+   User Settings Modal — scoped styles (usm-*)
+   ============================================================ */
+
+.usm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 15, 15, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10500;
+}
+
+.usm-panel {
+  position: relative;
+  background: var(--adminfon, #f7f5ee);
+  color: var(--admingrey, #666666);
+  border-radius: 0;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: usm-slide-up 0.22s ease-out;
+}
+
+.usm-panel--full {
+  width: min(98vw, 1400px);
+  height: 65vh;
+}
+
+@keyframes usm-slide-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ── */
+.usm-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 1.2rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  flex-shrink: 0;
+  background: var(--adminfon, #f7f5ee);
+}
+
+.usm-header-icon-wrap {
+  color: var(--admingrey, #666666);
+  opacity: 0.6;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.usm-header-title {
+  flex: 1;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.usm-close {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: var(--font-size-pay, 21px);
+  color: var(--admingrey, #666666);
+  cursor: pointer;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.usm-close:hover { color: var(--adminred, #ee3c23); }
+
+/* ── Content area — scrollable ── */
+.usm-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--adminfon, #f7f5ee);
+}
+
+.usm-content::-webkit-scrollbar { width: 6px; }
+.usm-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); }
+
+/* ── Scoped overrides: rectangular project-style buttons inside modal ── */
+.usm-content .adminButtonAdd,
+.usm-content .adminButtonAdd:link,
+.usm-content .adminButtonAdd:visited {
+  border-radius: 0 !important;
+  animation: none !important;
+  box-shadow: none !important;
+  font-size: var(--fontsmall, 15px) !important;
+  min-width: auto !important;
+  height: 32px !important;
+  padding: 0 1rem !important;
+  background-size: 100% 100% !important;
+  transition: filter 0.2s, opacity 0.2s !important;
+}
+
+.usm-content .adminButtonAdd:hover {
+  filter: brightness(1.1) !important;
+  opacity: 0.92 !important;
+}
+
+/* Bootstrap buttons (if any appear inside modal) */
+.usm-content .btn {
+  border-radius: 0 !important;
+}
+
+/* Sort/filter icon buttons — keep circular for icon-only buttons */
+.usm-content .adminButtonAdd[style*="borderRadius: \"50%\""],
+.usm-content .adminButtonAdd[style*="border-radius: 50%"] {
+  border-radius: 50% !important;
+}

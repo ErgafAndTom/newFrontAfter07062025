@@ -1,0 +1,697 @@
+/* ============================================================
+   Profile / UserPageDetailsSelf — redesigned in project style
+   pp-* prefix
+   ============================================================ */
+
+/* ── Tabs ── */
+.pp-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40vh;
+  color: var(--admingrey, #666666);
+  font-size: var(--fontsmall, 15px);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.5;
+}
+
+.pp-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  background: var(--adminfon, #f7f5ee);
+  padding: 0 1.2rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.pp-tab-btn {
+  height: 3rem;
+  padding: 0 1.2rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  border-radius: 0;
+  margin-bottom: -1px;
+}
+
+.pp-tab-btn:hover {
+  color: var(--adminorange, #f5a623);
+}
+
+.pp-tab-btn--active {
+  border-bottom-color: var(--adminorange, #f5a623);
+  color: var(--adminorange, #f5a623);
+}
+
+/* ── Content wrapper ── */
+.pp-content {
+  padding: 0;
+  background: var(--adminfon, #f7f5ee);
+}
+
+/* ── Profile header ── */
+.pp-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.pp-profile-name-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.pp-company-link {
+  text-decoration: none;
+}
+
+.pp-profile-name {
+  flex: 1;
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.pp-profile-id {
+  font-size: var(--fontsmall, 15px);
+  color: var(--admingrey, #666666);
+  opacity: 0.45;
+  margin-left: 0.5rem;
+}
+
+/* ── Create order button ── */
+.pp-create-order-btn {
+  position: relative;
+  isolation: isolate;
+  height: 3.5vh;
+  min-height: 32px;
+  padding: 0 1.2rem;
+  border: 2px solid var(--adminorange, #f5a623);
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pp-create-order-btn-text {
+  position: relative;
+  z-index: 3;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.pp-create-order-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -2;
+}
+
+.pp-create-order-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -1;
+}
+
+.pp-create-order-btn:hover::before { transform: translateY(-25px); height: 0; }
+.pp-create-order-btn:hover::after  { transform: scaleX(0); transition-delay: 0.15s; }
+.pp-create-order-btn:hover .pp-create-order-btn-text { color: var(--adminorange, #f5a623); }
+
+/* ── Divider ── */
+.pp-divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.06);
+  margin: 0;
+  border: none;
+}
+
+/* ── Fields grid ── */
+.pp-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0;
+}
+
+.pp-fields-col {
+  padding: 1rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.pp-fields-col:first-child {
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.pp-col-title {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  opacity: 0.45;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+}
+
+/* ── Field row ── */
+.pp-field-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 32px;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.4rem;
+}
+
+.pp-field-label {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  white-space: nowrap;
+}
+
+.pp-field-input {
+  height: 2.4rem;
+  padding: 0 0.5rem;
+  border: none;
+  border-bottom: 1px solid rgba(102, 102, 102, 0.5);
+  background: transparent;
+  outline: none;
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s, background 0.2s;
+  border-radius: 0;
+}
+
+.pp-field-input:focus {
+  border-bottom-color: var(--adminorange, #f5a623);
+  background: var(--adminfonelement, #f2f0e9);
+}
+
+.pp-field-input.pp-field-input--changed {
+  border-bottom-color: var(--adminorange, #f5a623);
+}
+
+.pp-field-input.pp-field-input--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+/* ── Field save button ── */
+.pp-field-save {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--adminorange, #f5a623);
+  border-radius: 0;
+  background: transparent;
+  color: var(--adminorange, #f5a623);
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, background 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.pp-field-save.pp-field-save--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.pp-field-save:hover {
+  background: var(--adminorange, #f5a623);
+  color: var(--adminfon, #f7f5ee);
+}
+
+.pp-field-save--disabled-slot {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.pp-field-err {
+  grid-column: 2 / -1;
+  font-size: var(--fontsmall, 15px);
+  color: var(--adminred, #ee3c23);
+}
+
+/* ── Company footer ── */
+.pp-company-footer {
+  padding: 1rem 1.4rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.pp-company-info {
+  display: flex;
+  align-items: baseline;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.pp-company-name {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--adminblue, #3c60a6);
+  text-transform: uppercase;
+}
+
+.pp-company-detail {
+  font-size: var(--fontsmall, 15px);
+  color: var(--admingrey, #666666);
+  opacity: 0.5;
+}
+
+.pp-company-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+/* Company action button — same animation as cpm-add-company-btn */
+.pp-company-btn {
+  position: relative;
+  isolation: isolate;
+  height: 3.5vh;
+  min-height: 32px;
+  padding: 0 1.2rem;
+  border: 2px solid var(--adminorange, #f5a623);
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pp-company-btn--red { border-color: var(--adminred, #ee3c23); }
+
+.pp-company-btn-text {
+  position: relative;
+  z-index: 3;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.pp-company-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -2;
+}
+
+.pp-company-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -1;
+}
+
+.pp-company-btn:hover::before { transform: translateY(-25px); height: 0; }
+.pp-company-btn:hover::after  { transform: scaleX(0); transition-delay: 0.15s; }
+.pp-company-btn:hover .pp-company-btn-text { color: var(--adminorange, #f5a623); }
+.pp-company-btn--red:hover .pp-company-btn-text { color: var(--adminred, #ee3c23); }
+
+/* ============================================================
+   ContrAgentsInUserProfile — caip-* prefix
+   ============================================================ */
+
+.caip-wrap {
+  background: var(--adminfon, #f7f5ee);
+  width: 100%;
+}
+
+/* ── Top bar ── */
+.caip-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.8rem 1.4rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.caip-title {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── Table header ── */
+.caip-table-header {
+  background: var(--adminfon, #f7f5ee);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.caip-table-header .summary-cell {
+  font-size: var(--fontsmall, 15px) !important;
+  color: var(--admingrey, #666666);
+  opacity: 0.55;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.5rem 0.3rem;
+}
+
+/* ── Section label ── */
+.caip-section-label {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.45;
+  padding: 0.5rem 0;
+  margin: 0;
+}
+
+/* ── Data rows ── */
+.caip-wrap .OrderRow-summary .summary-cell {
+  font-size: var(--fontsmall, 15px) !important;
+  color: var(--admingrey, #666666);
+}
+
+.caip-wrap .OrderBlock:not(:last-child) {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+/* ── Buttons ── */
+.caip-btn {
+  position: relative;
+  isolation: isolate;
+  height: 28px;
+  padding: 0 0.9rem;
+  border: 2px solid var(--adminorange, #f5a623);
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.caip-btn--red {
+  border-color: var(--adminred, #ee3c23);
+}
+
+.caip-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -2;
+}
+
+.caip-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -1;
+}
+
+.caip-btn:hover::before { transform: translateY(-25px); height: 0; }
+.caip-btn:hover::after  { transform: scaleX(0); transition-delay: 0.15s; }
+.caip-btn:hover         { color: var(--adminorange, #f5a623); }
+.caip-btn--red:hover    { color: var(--adminred, #ee3c23); }
+
+.caip-btn-gap {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* ── Scoped table resets (override CustomOrderTable.css) ── */
+
+/* Remove rounded corners, shadows from rows */
+.caip-wrap .OrderRow-summary {
+  border-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  height: auto !important;
+  margin-bottom: 0 !important;
+  background: var(--adminfon, #f7f5ee) !important;
+}
+
+/* Remove the side-shift on hover */
+.caip-wrap .OrderRow-hover:hover {
+  margin-left: 0 !important;
+  background: var(--adminfon, #f7f5ee) !important;
+}
+
+/* ============================================================
+   AddContrAgentInProfile modal — redesign
+   ============================================================ */
+
+.acaip-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1.4rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.acaip-close-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--admingrey, #666666);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.acaip-close-btn:hover {
+  opacity: 1;
+  color: var(--adminorange, #f5a623);
+}
+
+.AddContractorInOrderTitle {
+  font-size: var(--fontsmall, 15px) !important;
+  font-weight: 400 !important;
+  color: var(--admingrey, #666666) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  margin: 0 !important;
+}
+
+.AddContractorInOrderSubtitle {
+  font-size: var(--fontsmall, 15px) !important;
+  font-weight: 400 !important;
+  color: var(--admingrey, #666666) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  opacity: 0.55 !important;
+  margin: 0.9rem 0 0.3rem !important;
+  border: none !important;
+  background: none !important;
+}
+
+.AddContractorInOrderFieldGroup {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+}
+
+.AddContractorInOrderFieldRow {
+  display: grid !important;
+  grid-template-columns: 160px 1fr !important;
+  align-items: stretch !important;
+  min-height: 2.6rem !important;
+  gap: 0.5rem !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+}
+
+.AddContractorInOrderFieldRow label {
+  display: flex !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  max-width: 160px !important;
+  width: 160px !important;
+  font-size: var(--fontsmall, 15px) !important;
+  font-weight: 400 !important;
+  color: var(--admingrey, #666666) !important;
+  white-space: nowrap !important;
+  opacity: 0.7 !important;
+}
+
+.AddContractorInOrderInput,
+.AddContractorInOrderSelect {
+  height: 100% !important;
+  min-height: 2.2rem !important;
+  margin: 0 !important;
+  padding: 0 0.4rem !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(102, 102, 102, 0.5) !important;
+  background: transparent !important;
+  outline: none !important;
+  font-size: var(--fontsmall, 15px) !important;
+  font-weight: 400 !important;
+  color: var(--admingrey, #666666) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border-radius: 0 !important;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.AddContractorInOrderTextarea {
+  min-height: 5rem !important;
+  resize: vertical !important;
+  padding: 0.3rem 0.4rem !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(102, 102, 102, 0.5) !important;
+  background: transparent !important;
+  outline: none !important;
+  font-size: var(--fontsmall, 15px) !important;
+  font-weight: 400 !important;
+  color: var(--admingrey, #666666) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border-radius: 0 !important;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.AddContractorInOrderInput:focus,
+.AddContractorInOrderSelect:focus,
+.AddContractorInOrderTextarea:focus {
+  border-bottom-color: var(--adminorange, #f5a623) !important;
+  background: var(--adminfonelement, #f2f0e9) !important;
+}
+
+.AddContractorInOrderSubmitBlock {
+  display: flex !important;
+  justify-content: flex-end !important;
+  padding-top: 1rem !important;
+  margin-top: 0.5rem !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Submit / Edit button — animated orange border */
+.AddContractorInOrderSubmitBtn {
+  position: relative !important;
+  isolation: isolate !important;
+  height: 2.6rem !important;
+  padding: 0 1.8rem !important;
+  border: 2px solid var(--adminorange, #f5a623) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: var(--fontsmall, 15px) !important;
+  font-weight: 400 !important;
+  color: var(--admingrey, #666666) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+.AddContractorInOrderSubmitBtn::before {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -2;
+}
+
+.AddContractorInOrderSubmitBtn::after {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -1;
+}
+
+.AddContractorInOrderSubmitBtn:hover::before { transform: translateY(-25px); height: 0; }
+.AddContractorInOrderSubmitBtn:hover::after  { transform: scaleX(0); transition-delay: 0.15s; }
+.AddContractorInOrderSubmitBtn:hover { color: var(--adminorange, #f5a623) !important; }
