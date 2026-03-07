@@ -125,7 +125,7 @@ const SizeNoSize = ({size, setSize, type, buttonsArr, color, setColor, count, se
                 className="inputsArtem inputsArtemNumber"
                 style={{
                     marginLeft: "1vw",
-                    background: "#FBFAF6"
+                    background: "#f1eee7"
                 }}
                 type="number"
                 value={count}

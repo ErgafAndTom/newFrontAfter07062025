@@ -82,7 +82,7 @@ export const TableStorage = ({name}) => {
                         <tr className="">
                             {data.metadata.map((item) => (
                                 <th
-                                    style={{background: "#FBFAF6",borderColor:"#FBFAF6" }}
+                                    style={{background: "#f1eee7",borderColor:"#f1eee7" }}
                                     className="adminFontTable"
                                     key={item}
                                     onClick={(event) => setCol(item)}

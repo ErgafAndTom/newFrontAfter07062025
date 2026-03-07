@@ -4,14 +4,16 @@ import {logout} from '../../../actions/authActions';
 import {Link, useParams} from 'react-router-dom';
 import axios from '../../../api/axiosInstance';
 import ContrAgentsInUserProfile from '../profile/ContrAgentsInUserProfile';
-import {buttonStyles, containerStyles, formStyles, avatarStyles, tabStyles} from './styles';
 import TelegramAvatar from "../../Messages/TelegramAvatar";
+import './ProfileNew.css';
 import PaysInOrderRestoredForAdmin from "../../userInNewUiArtem/pays/PaysInOrderRestoredForAdmin";
 import UserPageDetails from "../UserPageDetails";
 import UserPageDetailsSelf from "./UserPageDetailsSelf";
 import Cash from "../../checkbox/CashCash/Cash";
 import CodesOffline from "../../checkbox/codesOffline/CodesOffline";
 import PrivatBankAccounts from "./PrivatBankAccounts";
+import Graph2DForBD from "../../Graph2DForBD";
+import Shifts from "../../checkbox/shifts/Shifts";
 
 function ClientUserProfile() {
   const dispatch = useDispatch();
@@ -100,73 +102,36 @@ function ClientUserProfile() {
   if (!thisUser) return <div>Користувач не знайдений</div>;
 
   return (
-    <div style={{...containerStyles.profileContainer, margin: '0', padding: '0'}}>
-      {/*<h2 style={containerStyles.header}>Профіль користувача ({thisUser.id})</h2>*/}
-      <div style={{...containerStyles.tabsContainer, margin: '0'}}>
-        <button
-          style={{...tabStyles.tabButton, ...(activeTab === 'profile' ? tabStyles.activeTab : {})}}
-          onClick={() => setActiveTab('profile')}
-        >Основна інформація</button>
-        <button
-          style={{...tabStyles.tabButton, ...(activeTab === 'counterparties' ? tabStyles.activeTab : {})}}
-          onClick={() => setActiveTab('counterparties')}
-        >Контрагенти</button>
-        <button
-          style={{...tabStyles.tabButton, ...(activeTab === 'counterpartiesAdmin' ? tabStyles.activeTab : {})}}
-          onClick={() => setActiveTab('counterpartiesAdmin')}
-        >Контрагенти (спільні)</button>
-        <button
-          style={{...tabStyles.tabButton, ...(activeTab === 'Cashs' ? tabStyles.activeTab : {})}}
-          onClick={() => setActiveTab('Cashs')}
-        >Касси(Checkbox)</button>
-        <button
-          style={{...tabStyles.tabButton, ...(activeTab === 'OfflineCodes' ? tabStyles.activeTab : {})}}
-          onClick={() => setActiveTab('OfflineCodes')}
-        >Офлайн фиск. коди(Checkbox)</button>
+    <div style={{ margin: 0, padding: 0 }}>
+      {/* Tabs */}
+      <div className="pp-tabs">
+        <button className={`pp-tab-btn${activeTab === 'profile'             ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('profile')}>Основна інформація</button>
+        <button className={`pp-tab-btn${activeTab === 'counterparties'      ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('counterparties')}>Контрагенти</button>
+        <button className={`pp-tab-btn${activeTab === 'counterpartiesAdmin' ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('counterpartiesAdmin')}>РЕКВІЗИТИ</button>
+        <button className={`pp-tab-btn${activeTab === 'Cashs'               ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('Cashs')}>Касси(Checkbox)</button>
+        <button className={`pp-tab-btn${activeTab === 'OfflineCodes'        ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('OfflineCodes')}>Офлайн фіск. коди(Checkbox)</button>
         {thisUser?.role === 'admin' && (
-          <button
-            style={{...tabStyles.tabButton, ...(activeTab === 'payments' ? tabStyles.activeTab : {})}}
-            onClick={() => setActiveTab('payments')}
-          >Оплати</button>
+          <button className={`pp-tab-btn${activeTab === 'payments' ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('payments')}>Оплати</button>
+        )}
+        {thisUser?.role === 'admin' && (
+          <button className={`pp-tab-btn${activeTab === 'база' ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('база')}>База</button>
+        )}
+        {thisUser?.role === 'admin' && (
+          <button className={`pp-tab-btn${activeTab === 'зміни' ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('зміни')}>Зміни</button>
         )}
       </div>
 
-      {activeTab === 'profile' && (
-        <div>
-          <UserPageDetailsSelf thisUser={thisUser}/>
-        </div>
-      )}
-
-      {activeTab === 'counterparties' && (
-        <div style={containerStyles.contentContainer}>
-          <ContrAgentsInUserProfile user={thisUser}/>
-        </div>
-      )}
-      {activeTab === 'counterpartiesAdmin' && (
-        <div style={containerStyles.contentContainer}>
-          <PaysInOrderRestoredForAdmin user={thisUser}/>
-        </div>
-      )}
-      {activeTab === 'cashierAdmin' && (
-        <div style={containerStyles.contentContainer}>
-          <PaysInOrderRestoredForAdmin user={thisUser}/>
-        </div>
-      )}
-      {activeTab === 'Cashs' && (
-        <div style={containerStyles.contentContainer}>
-          <Cash/>
-        </div>
-      )}
-      {activeTab === 'OfflineCodes' && (
-        <div style={containerStyles.contentContainer}>
-          <CodesOffline/>
-        </div>
-      )}
-      {activeTab === 'payments' && (
-        <div style={containerStyles.contentContainer}>
-          <PrivatBankAccounts/>
-        </div>
-      )}
+      <div className="pp-content">
+        {activeTab === 'profile'             && <UserPageDetailsSelf thisUser={thisUser}/>}
+        {activeTab === 'counterparties'      && <ContrAgentsInUserProfile user={thisUser}/>}
+        {activeTab === 'counterpartiesAdmin' && <div style={{padding:'1rem'}}><PaysInOrderRestoredForAdmin user={thisUser}/></div>}
+        {activeTab === 'cashierAdmin'        && <div style={{padding:'1rem'}}><PaysInOrderRestoredForAdmin user={thisUser}/></div>}
+        {activeTab === 'Cashs'               && <div style={{padding:'1rem'}}><Cash/></div>}
+        {activeTab === 'OfflineCodes'        && <div style={{padding:'1rem'}}><CodesOffline/></div>}
+        {activeTab === 'payments'            && <div style={{padding:'1rem'}}><PrivatBankAccounts/></div>}
+        {activeTab === 'база'                && <Graph2DForBD/>}
+        {activeTab === 'зміни'               && <div style={{padding:'1rem'}}><Shifts/></div>}
+      </div>
     </div>
   );
 }

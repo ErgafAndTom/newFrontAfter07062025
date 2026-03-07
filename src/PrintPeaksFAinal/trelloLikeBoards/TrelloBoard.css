@@ -13,7 +13,7 @@
     }
 
 .trello-list {
-    background-color: #fbfaf6;
+    background-color: #f1eee7;
     padding: 0.5vw;
     border-radius: 1vh;
     width: 20vw;
@@ -132,7 +132,7 @@
     margin-left: 0.3vw;
     border-radius: 0.7vh;
     border: none;
-    background-color: #FBFAF6;
+    background-color: #f1eee7;
 }
 .InputInTrello {
     width: 100%;
@@ -151,7 +151,7 @@
   resize: both;
   padding: 0.7vh;
   border-radius: 1vh;
-background-color: #fbfaf6;
+background-color: #f1eee7;
   border: none;
   margin-left: 0;        /* прибирає відступ зліва */
   display: block;        /* щоб елемент не був inline */

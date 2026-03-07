@@ -149,7 +149,7 @@ const ShiftControlModal = () => {
                 : "translate(-50%, -50%) scale(0.8)",
               opacity: isAnimating ? 1 : 0,
               transition: "opacity .3s, transform .3s",
-              backgroundColor: "#FBFAF6",
+              backgroundColor: "#f1eee7",
               width: "95vw",
               height: "95vh",
               borderRadius: "1vw",

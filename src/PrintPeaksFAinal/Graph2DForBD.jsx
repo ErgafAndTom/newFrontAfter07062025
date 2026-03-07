@@ -272,146 +272,93 @@ const Graph2DForBD = () => {
 
   // прорисовка
   return (
-    <div ref={containerRef} style={{ width: "100%", height: "95vh", position: "relative" }}>
-      {/* Панель инструментов */}
+    <div style={{ width: "100%", height: "50vh", display: "flex", flexDirection: "column" }}>
 
-      <div style={{ position: "absolute", zIndex: 2, background: "rgba(77,77,77,0.77)", padding: 0 }}>
+      {/* ── Рядок 1: головна панель керування ── */}
+      <div style={{ flexShrink: 0, background: "rgba(77,77,77,0.77)", display: "flex", alignItems: "center", flexWrap: "nowrap", gap: "0.4vw", padding: "0 0.4vw", zIndex: 2 }}>
+        <label style={{ margin: 0, color: "#fff", fontSize: "1vw", display: "flex", alignItems: "center", gap: "0.2vw", whiteSpace: "nowrap" }}>
+          Mode:
+          <button style={{ margin: 0, fontSize: "1vw", background: mode === "schema" ? "rgb(255,173,0)" : "rgb(255,255,255)", whiteSpace: "nowrap" }} onClick={() => setMode("schema")}>Schema</button>
+          <button style={{ margin: 0, fontSize: "1vw", background: mode === "data" ? "rgb(255,173,0)" : "rgb(255,255,255)", whiteSpace: "nowrap" }} onClick={() => setMode("data")}>Data</button>
+        </label>
+        <label style={{ margin: 0, color: "#fff", fontSize: "1vw", display: "flex", alignItems: "center", gap: "0.2vw", whiteSpace: "nowrap" }}>
+          Group:
+          <input style={{ margin: 0, fontSize: "1vw", width: 80 }} value={groupField} onChange={(e) => setGroupField(e.target.value)} />
+        </label>
+        <label style={{ margin: 0, color: "#fff", fontSize: "1vw", display: "flex", alignItems: "center", gap: "0.2vw", whiteSpace: "nowrap" }}>
+          Cluster gap
+          <input style={{ margin: 0, color: "#fff", fontSize: "1vw", height: "0.3vw" }} type="range" min="120" max="520" value={clusterGap} onChange={(e) => setClusterGap(+e.target.value)} />
+        </label>
+        <label style={{ margin: 0, color: "#fff", fontSize: "1vw", display: "flex", alignItems: "center", gap: "0.2vw", whiteSpace: "nowrap" }}>
+          In-cluster R
+          <input style={{ margin: 0, color: "#fff", fontSize: "1vw", height: "0.3vw" }} type="range" min="40" max="240" value={inClusterRadius} onChange={(e) => setInClusterRadius(+e.target.value)} />
+        </label>
+        <button style={{ margin: 0, fontSize: "1vw", whiteSpace: "nowrap" }} onClick={() => { apply2DProjectionWithGrouping(graphData, { groupKey: groupField, clusterSpacing: clusterGap, nodeRingRadius: inClusterRadius }); fgRef.current?.d3ReheatSimulation(); }}>
+          Apply layout
+        </button>
+        {!isFrozen
+          ? <button style={{ margin: 0, fontSize: "1vw", whiteSpace: "nowrap" }} onClick={freezeEngine}>Freeze</button>
+          : <button style={{ margin: 0, fontSize: "1vw", whiteSpace: "nowrap" }} onClick={releaseEngine}>Release</button>
+        }
+        <label style={{ margin: 0, padding: "0 0.3vw", color: showLabels ? '#d55200' : '#000000', fontSize: "1vw", display: "flex", alignItems: "center", whiteSpace: "nowrap", boxShadow: showLabels ? '0 0 1vw rgba(255,255,0,0.5)' : 'none', background: showLabels ? "rgb(245,255,58)" : "rgb(255,255,255)", cursor: "pointer" }}>
+          {showLabels ? <>labels on</> : <>labels off</>}
+          <input style={{ width: 0, height: 0, margin: 0 }} type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} />
+        </label>
+      </div>
+
+      {/* ── Рядок 2: панель експорту/імпорту ── */}
+      <div style={{ flexShrink: 0, background: "rgba(77,77,77,0.77)", zIndex: 2 }}>
         <ExportImportComponent/>
       </div>
 
-      <div style={{ position: "absolute", zIndex: 2, right: "0.01vw", background: "rgba(77,77,77,0.77)", padding: 0 }}>
-        <label style={{ margin: 0, color: "#fff", fontSize: "1vw" }}>
-          Mode:
-          <button style={{
-            margin: 0,
-            fontSize: "1vw",
-            background: mode === "schema" ? "rgb(255,173,0)" : "rgb(255,255,255)",
-          }} onClick={() => setMode("schema")}>Schema</button>
-          <button style={{
-            margin: 0,
-            fontSize: "1vw",
-            background: mode === "data" ? "rgb(255,173,0)" : "rgb(255,255,255)",
-          }} onClick={() => setMode("data")}>Data</button>
-        </label>
-        <label style={{ margin: 0, color: "#fff", fontSize: "1vw" }}>
-          Group:
-          <input
-            style={{ margin: 0, fontSize: "1vw", width: 100, }}
-            value={groupField}
-            onChange={(e) => setGroupField(e.target.value)}
-          />
-        </label>
-        <label style={{ margin: 0, color: "#fff", fontSize: "1vw" }}>
-          Cluster gap
-          <input
-            style={{ margin: 0, color: "#fff", fontSize: "1vw", height: "0.3vw" }}
-            type="range"
-            min="120"
-            max="520"
-            value={clusterGap}
-            onChange={(e) => setClusterGap(+e.target.value)}
-          />
-        </label>
-        <label style={{ margin: 0, color: "#fff", fontSize: "1vw" }}>
-          In-cluster R
-          <input
-            style={{ margin: 0, color: "#fff", fontSize: "1vw", height: "0.3vw" }}
-            type="range"
-            min="40"
-            max="240"
-            value={inClusterRadius}
-            onChange={(e) => setInClusterRadius(+e.target.value)}
-          />
-        </label>
-        <button
-          style={{ margin: 0, fontSize: "1vw" }}
-          onClick={() => {
-            apply2DProjectionWithGrouping(graphData, {
-              groupKey: groupField,
-              clusterSpacing: clusterGap,
-              nodeRingRadius: inClusterRadius,
-            });
-            fgRef.current?.d3ReheatSimulation();
-          }}
-        >
-          Apply layout
-        </button>
-        {!isFrozen ? <button style={{ margin: 0, fontSize: "1vw" }} onClick={freezeEngine}>Freeze</button> : <button style={{ margin: 0, fontSize: "1vw" }} onClick={releaseEngine}>Release</button>}
-
-        <label style={{ margin: 8,
-          color: showLabels ? '#d55200' : '#000000',
-          fontSize: "1vw",
-          boxShadow: showLabels ? '0 0 1vw rgba(255,255,0,0.5)' : 'none',
-          background: showLabels ? "rgb(245,255,58)" : "rgb(255,255,255)",
-          cursor: "pointer",
-        }}>
-          {!showLabels &&
-            <>labels off</>
-          }
-          {showLabels &&
-            <>labels on</>
-          }
-          <input
-            style={{
-              width:'0vw',
-              height:'0vw',
-              margin: '0'
-          }}
-            type="checkbox"
-            checked={showLabels}
-            onChange={(e) => setShowLabels(e.target.checked)}
-          />
-        </label>
-      </div>
-
-      {loading ? (
-        <div style={{ height: `95vh`, backgroundColor: "#000422", textAlign: "center", paddingTop: "40vh" }}>
-          {/*Loading graph...*/}
-          <Loader/>
-        </div>
-      ) : (
-        <ForceGraph2D
-          ref={fgRef}
-          width={dims.width}
-          height={dims.height}
-          graphData={safeGraph}
-          // nodeRelSize={5}
-          linkColor={linkColor}
-          linkWidth={linkWidth}
-          linkOpacity={linkOpacity}
-          linkCanvasObjectMode={() => "after"}
-          nodeColor={nodeColor}
-          linkLabel={(link) => link.label}
-          nodeLabel={(node) =>
-            mode === "schema"
-              ? String(node.id ?? "")
-              : `${node.table ?? ""}\n${JSON.stringify(node.data ?? {}, null, 2)}`
-          }
-          onNodeHover={setHoverNode}
-          onLinkHover={setHoverLink}
-          onNodeClick={handleSelectNode}
-          cooldownTicks={isFrozen ? 0 : 80}
-          backgroundColor="#000422"
-          nodeCanvasObject={(node, ctx, globalScale) => {
-            const size = 5;
-            ctx.beginPath();
-            ctx.arc(node.x, node.y, size, 0, 2 * Math.PI, false);
-            ctx.fillStyle = nodeColor(node);
-            ctx.fill();
-
-            if (showLabels) {
-              const label = getDiagramLabel(node);
-              const fontSize = 0.7 / globalScale;
-              ctx.font = `${fontSize}vw Sans-Serif`;
-              ctx.fillStyle = "#fff";
-              ctx.fillText(label, node.x + 6, node.y + 2);
+      {/* ── Рядок 3: полотно графу (займає всю решту висоти) ── */}
+      <div ref={containerRef} style={{ flex: 1, minHeight: 0, position: "relative" }}>
+        {loading ? (
+          <div style={{ height: "100%", backgroundColor: "#000422", textAlign: "center", paddingTop: "40%" }}>
+            <Loader/>
+          </div>
+        ) : (
+          <ForceGraph2D
+            ref={fgRef}
+            width={dims.width}
+            height={dims.height}
+            graphData={safeGraph}
+            // nodeRelSize={5}
+            linkColor={linkColor}
+            linkWidth={linkWidth}
+            linkOpacity={linkOpacity}
+            linkCanvasObjectMode={() => "after"}
+            nodeColor={nodeColor}
+            linkLabel={(link) => link.label}
+            nodeLabel={(node) =>
+              mode === "schema"
+                ? String(node.id ?? "")
+                : `${node.table ?? ""}\n${JSON.stringify(node.data ?? {}, null, 2)}`
             }
-          }}
-          style={{
-            backgroundColor: "#000422",
-          }}
-        />
-      )}
+            onNodeHover={setHoverNode}
+            onLinkHover={setHoverLink}
+            onNodeClick={handleSelectNode}
+            cooldownTicks={isFrozen ? 0 : 80}
+            backgroundColor="#000422"
+            nodeCanvasObject={(node, ctx, globalScale) => {
+              const size = 5;
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, size, 0, 2 * Math.PI, false);
+              ctx.fillStyle = nodeColor(node);
+              ctx.fill();
+
+              if (showLabels) {
+                const label = getDiagramLabel(node);
+                const fontSize = 0.7 / globalScale;
+                ctx.font = `${fontSize}vw Sans-Serif`;
+                ctx.fillStyle = "#fff";
+                ctx.fillText(label, node.x + 6, node.y + 2);
+              }
+            }}
+            style={{ backgroundColor: "#000422" }}
+          />
+        )}
+      </div>
     </div>
   );
 };

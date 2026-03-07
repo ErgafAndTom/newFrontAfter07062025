@@ -246,7 +246,7 @@ const PopupLeftNotification = () => {
           {/* Завдання (trello cards) */}
           {taskData.map((card) => (
             <div key={`task-${card.id}`} style={{
-              background: 'var(--adminfonelement, #fbfaf6)',
+              background: 'var(--adminfonelement, #f1eee7)',
               borderBottom: '2px solid var(--adminorange, #f5a623)',
               borderRadius: '0',
               padding: '0.8vh 0.6vw',

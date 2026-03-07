@@ -1,5 +1,6 @@
-// ContrAgentsInUserProfile_StyledLikeRef.jsx
+// ContrAgentsInUserProfile.jsx
 import "./styles.css";
+import "../../userInNewUiArtem/pays/styles.css"; // pays-tbl-btn, pays-add-btn
 import React, { useState, useEffect } from "react";
 import axios from "../../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
@@ -7,121 +8,12 @@ import { Spinner } from "react-bootstrap";
 import AddContrAgentInProfile from "./AddContrAgentInProfile";
 import ModalDeleteOrder from "../../Orders/ModalDeleteOrder";
 
+// ── Розгорнутий рядок ─────────────────────────────────────────────
 function RowExpanded({ item }) {
   return (
-    <div className="OrderRow-expanded pastel-panel" onClick={(e) => e.stopPropagation()}>
-      <div className="ExpandedRow-details">
-        <p><strong>Дата створення:</strong> {new Date(item.createdAt).toLocaleString()}</p>
-        <p><strong>Дата оновлення:</strong> {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : '—'}</p>
-      </div>
-      {/*<div className="OrderRow-units d-flex flex-row" style={{ gap: "0.8vw", flexWrap: "wrap" }}>*/}
-      {/*  <div className="OrderUnit-card">*/}
-      {/*    <div className="UsersOrdersLikeTable-contract-text"><strong>ID:</strong> {item.id}</div>*/}
-      {/*    <div className="UsersOrdersLikeTable-contract-text"><strong>Назва:</strong> {item.name || "—"}</div>*/}
-      {/*    <div className="UsersOrdersLikeTable-contract-text"><strong>Тип:</strong> {item.type || "—"}</div>*/}
-      {/*    <div className="UsersOrdersLikeTable-contract-text"><strong>Система оподаткування:</strong> {item.taxSystem || "—"}</div>*/}
-      {/*    <div className="UsersOrdersLikeTable-contract-text"><strong>ПДВ:</strong> {item.pdv === "true" || item.pdv === true ? "так" : "ні"}</div>*/}
-      {/*    <div className="UsersOrdersLikeTable-contract-text"><strong>Банк:</strong> {item.bankName || "—"}</div>*/}
-      {/*    <div className="UsersOrdersLikeTable-contract-text"><strong>IBAN:</strong> {item.iban || "—"}</div>*/}
-      {/*    <div className="UsersOrdersLikeTable-contract-text"><strong>ЄДРПОУ:</strong> {item.edrpou || "—"}</div>*/}
-      {/*    <div className="UsersOrdersLikeTable-contract-text"><strong>Телефон:</strong> {item.phone || "—"}</div>*/}
-      {/*    <div className="UsersOrdersLikeTable-contract-text"><strong>Email:</strong> {item.email || "—"}</div>*/}
-      {/*    <div className="UsersOrdersLikeTable-contract-text"><strong>Адреса:</strong> {item.address || "—"}</div>*/}
-      {/*    <div className="UsersOrdersLikeTable-contract-text"><strong>Оновлено:</strong> {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : "—"}</div>*/}
-      {/*    <div className="UsersOrdersLikeTable-contract-text"><strong>Користувач:</strong> {item.User ? `${item.User.firstName || ""} ${item.User.lastName || ""} ${item.User.familyName || ""} (${item.User.phoneNumber || "—"})` : "—"}</div>*/}
-      {/*    {item.comment && (*/}
-      {/*      <div className="UsersOrdersLikeTable-contract-text"><strong>Коментар:</strong> {item.comment}</div>*/}
-      {/*    )}*/}
-      {/*  </div>*/}
-      {/*</div>*/}
-    </div>
-  );
-}
-
-function Section({
-                   title,
-                   data,
-                   filterKey,
-                   expandedId,
-                   setExpandedId,
-                   generateInvoice,
-                   openSeePay,
-                   openDeletePay,
-                 }) {
-  const filtered = Array.isArray(data) ? data.filter((x) => x?.[filterKey]) : [];
-
-  return (
-    <div className="mb-2">
-      <h5 className="d-flex m-auto fw-bold">{title}</h5>
-      {filtered.map((item, idx) => {
-        const isOpen = expandedId === item.id;
-        return (
-          <div key={item.id} className="OrderBlock">
-            <div
-              className="OrderRow-summary OrderRow-hover contractors-like-cols"
-              onClick={() => setExpandedId(isOpen ? null : item.id)}
-            >
-              <div className="summary-cell d-flex justify-content-center contragentId" style={{fontSize: "0.5vw"}}>{idx + 1}</div>
-
-              <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentName" style={{fontSize: "0.5vw"}}>
-                {item.name || "—"}
-              </div>
-
-              <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentGrupa" style={{fontSize: "0.5vw"}}>
-                {item.taxSystem || "—"}
-              </div>
-
-              <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentBank" style={{fontSize: "0.5vw"}}>
-                {item.bankName || "—"}
-              </div>
-
-              <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentIBAN" style={{fontSize: "0.5vw"}}>
-                {item.iban || "—"}
-              </div>
-
-              <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentPDV" style={{fontSize: "0.5vw"}}>
-                {(item.pdv === "true" || item.pdv === true) ? "+" : "-"}
-              </div>
-
-              <div
-                className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentClient"
-                // style={{ width: "12vw", maxWidth: "12vw" }}
-                style={{fontSize: "0.5vw"}}
-              >
-                {item.User
-                  ? `${item.User.firstName || ""} ${item.User.lastName || ""} ${item.User.familyName || ""} (${item.User.phoneNumber || "—"})`
-                  : "—"}
-              </div>
-
-              <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentEDRPOU"  style={{fontSize: "0.5vw"}}>
-                {item.edrpou || "—"}
-              </div>
-
-              <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentTelephone"  style={{fontSize: "0.5vw"}}>
-                {item.phone || "—"}
-              </div>
-
-              <div
-                className="summary-cell contragentDii d-flex justify-content-center"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button className="adminButtonAdd" onClick={(e) => openSeePay(e, item)}>
-                  Редагувати
-                </button>
-                <button
-                  className="adminButtonAdd"
-                  style={{ background: "#ee3c23", marginLeft: 8 }}
-                  onClick={(e) => openDeletePay(e, item)}
-                >
-                  Видалити
-                </button>
-              </div>
-            </div>
-
-            {isOpen && <RowExpanded item={item} />}
-          </div>
-        );
-      })}
+    <div className="cap-expanded" onClick={(e) => e.stopPropagation()}>
+      <span>Створено: {new Date(item.createdAt).toLocaleString()}</span>
+      {item.updatedAt && <span>Оновлено: {new Date(item.updatedAt).toLocaleString()}</span>}
     </div>
   );
 }
@@ -132,6 +24,7 @@ function ContrAgentsInUserProfile({ user }) {
   const [load, setLoad] = useState(false);
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const [expandedId, setExpandedId] = useState(null);
 
   const [thisOrderForDelete, setThisOrderForDelete] = useState(null);
   const [showDeleteOrderModal, setShowDeleteOrderModal] = useState(false);
@@ -139,19 +32,9 @@ function ContrAgentsInUserProfile({ user }) {
   const [showAddPay, setShowAddPay] = useState(false);
   const [showAddPayView, setShowAddPayView] = useState(false);
   const [showAddPayWriteId, setShowAddPayWriteId] = useState(false);
-  const [expandedId, setExpandedId] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
-    type: "",
-    address: "",
-    bankName: "",
-    iban: "",
-    edrpou: "",
-    email: "",
-    phone: "",
-    taxSystem: "ФОП",
-    pdv: "",
-    comment: "",
+    name: "", type: "", address: "", bankName: "", iban: "",
+    edrpou: "", email: "", phone: "", taxSystem: "ФОП", pdv: "", comment: "",
   });
 
   const [inPageCount] = useState(500);
@@ -165,19 +48,7 @@ function ContrAgentsInUserProfile({ user }) {
     setShowAddPay(true);
     setShowAddPayView(false);
     setShowAddPayWriteId(false);
-    setFormData({
-      name: "",
-      type: "",
-      address: "",
-      bankName: "",
-      iban: "",
-      edrpou: "",
-      email: "",
-      phone: "",
-      taxSystem: "ФОП",
-      pdv: "",
-      comment: "",
-    });
+    setFormData({ name: "", type: "", address: "", bankName: "", iban: "", edrpou: "", email: "", phone: "", taxSystem: "ФОП", pdv: "", comment: "" });
   };
 
   const openSeePay = (e, item) => {
@@ -186,17 +57,10 @@ function ContrAgentsInUserProfile({ user }) {
     setShowAddPayView(true);
     setShowAddPayWriteId(item.id);
     setFormData({
-      name: item.name,
-      type: item.type,
-      address: item.address,
-      bankName: item.bankName,
-      iban: item.iban,
-      edrpou: item.edrpou,
-      email: item.email,
-      phone: item.phone,
-      taxSystem: item.taxSystem,
-      pdv: item.pdv,
-      comment: item.comment,
+      name: item.name || "", type: item.type || "", address: item.address || "",
+      bankName: item.bankName || "", iban: item.iban || "", edrpou: item.edrpou || "",
+      email: item.email || "", phone: item.phone || "",
+      taxSystem: item.taxSystem || "ФОП", pdv: item.pdv, comment: item.comment || "",
     });
   };
 
@@ -213,101 +77,82 @@ function ContrAgentsInUserProfile({ user }) {
   };
 
   useEffect(() => {
-    const payload = {
-      inPageCount,
-      currentPage,
-      search: typeSelect,
-      columnName: thisColumn,
-      startDate,
-      endDate,
-      clientId: user.id,
-    };
-
+    const payload = { inPageCount, currentPage, search: typeSelect, columnName: thisColumn, startDate, endDate, clientId: user.id };
     setLoad(true);
-    axios
-      .post(`/api/contractorsN/getContractors`, payload)
-      .then((resp) => {
-        setData(resp.data?.rows || []);
-        setError(null);
-        setLoad(false);
-      })
+    axios.post(`/api/contractorsN/getContractors`, payload)
+      .then((resp) => { setData(resp.data?.rows || []); setError(null); setLoad(false); })
       .catch(handleAxiosError);
-  }, [typeSelect, thisColumn, startDate, endDate, user?.id]);
+  }, [typeSelect, thisColumn, startDate, endDate, user?.id]); // eslint-disable-line
+
+  const rows = Array.isArray(data) ? data.filter((x) => x?.isClientOwner) : [];
 
   return (
-    <div
-      className="OrderList"
-      style={{
-        backgroundColor: "#FBFAF6",
-        borderRadius: "1vw",
-        padding: "1vw",
-        width: "100%",
-      }}
-    >
-      <div className="d-flex align-items-center justify-content-between mb-2">
-        <div className="fontProductName">Контрагенти користувача</div>
-        <button className="adminButtonAdd" onClick={openAddPay}>
-          Додати контрагента
+    <div className="cap-wrap">
+
+      {/* Top bar */}
+      <div className="cap-topbar">
+        <button className="pays-add-btn" onClick={openAddPay}>
+          + Додати контрагента
         </button>
       </div>
 
-      {/* header */}
-      <div className="OrderRow-summary OrderRow-header contractors-like-cols">
-        <div className="summary-cell contragentId d-flex justify-content-center" style={{fontSize: "0.7vw"}}>№</div>
-        <div className="summary-cell contragentName" style={{fontSize: "0.7vw"}}>Найменування1</div>
-        <div className="summary-cell contragentGrupa" style={{fontSize: "0.7vw"}}>Система оподаткування</div>
-        <div className="summary-cell contragentBank" style={{fontSize: "0.7vw"}}>Банк</div>
-        <div className="summary-cell contragentIBAN" style={{fontSize: "0.7vw"}}>IBAN</div>
-        <div className="summary-cell contragentPDV" style={{fontSize: "0.7vw"}}>ПДВ</div>
-        <div className="summary-cell contragentClient" style={{fontSize: "0.7vw"}}>Клієнт</div>
-        <div className="summary-cell contragentEDRPOU" style={{fontSize: "0.7vw"}}>ЄДРПОУ</div>
-        <div className="summary-cell contragentTelephone" style={{fontSize: "0.7vw"}}>Тел.</div>
-        {/*<div className="summary-cell contragentDocu d-flex justify-content-center" style={{fontSize: "0.7vw"}}>Документи</div>*/}
-        <div className="summary-cell contragentDii d-flex justify-content-center" style={{fontSize: "0.7vw"}}>Дії</div>
+      {/* Шапка таблиці */}
+      <div className="cap-tbl-head">
+        <div className="cap-cell cap-cell--center">№</div>
+        <div className="cap-cell">Найменування</div>
+        <div className="cap-cell">СО</div>
+        <div className="cap-cell">Банк</div>
+        <div className="cap-cell">IBAN</div>
+        <div className="cap-cell cap-cell--center">ПДВ</div>
+        <div className="cap-cell">Клієнт</div>
+        <div className="cap-cell">ЄДРПОУ</div>
+        <div className="cap-cell">Дії</div>
       </div>
 
-      {error && <div className="text-danger mb-2">{error}</div>}
+      {error && <div className="cap-error">{error}</div>}
 
       {load ? (
-        <div className="d-flex justify-content-center align-items-center" style={{ height: 240 }}>
+        <div className="cap-loader">
           <Spinner animation="border" variant="dark" />
         </div>
       ) : (
-        <div className="d-flex flex-column">
-          <Section
-            title="Особисті Контрагенти"
-            data={data}
-            filterKey="isClientOwner"
-            expandedId={expandedId}
-            setExpandedId={setExpandedId}
-            openSeePay={openSeePay}
-            openDeletePay={openDeletePay}
-          />
-
-          <hr className="my-2" />
-
-          {/*<Section*/}
-          {/*  title="Контрагенти спільні у компанії"*/}
-          {/*  data={data}*/}
-          {/*  filterKey="isCompanyOwner"*/}
-          {/*  expandedId={expandedId}*/}
-          {/*  setExpandedId={setExpandedId}*/}
-          {/*  openSeePay={openSeePay}*/}
-          {/*  openDeletePay={openDeletePay}*/}
-          {/*/>*/}
-
-          {/*<hr className="my-2" />*/}
-
-          {/*<Section*/}
-          {/*  title="Особисті контрагенти інших учасників компанії"*/}
-          {/*  data={data}*/}
-          {/*  filterKey="isColleagueOwner"*/}
-          {/*  expandedId={expandedId}*/}
-          {/*  setExpandedId={setExpandedId}*/}
-          {/*  openSeePay={openSeePay}*/}
-          {/*  openDeletePay={openDeletePay}*/}
-          {/*/>*/}
-        </div>
+        <>
+          {rows.map((item, idx) => {
+            const isOpen = expandedId === item.id;
+            return (
+              <div key={item.id}>
+                <div
+                  className={`cap-tbl-row${isOpen ? ' cap-tbl-row--open' : ''}`}
+                  onClick={() => setExpandedId(isOpen ? null : item.id)}
+                >
+                  <div className="cap-cell cap-cell--center">{idx + 1}</div>
+                  <div className="cap-cell">{item.name || '—'}</div>
+                  <div className="cap-cell">{item.taxSystem || '—'}</div>
+                  <div className="cap-cell">{item.bankName || '—'}</div>
+                  <div className="cap-cell">{item.iban || '—'}</div>
+                  <div className="cap-cell cap-cell--center">
+                    {(item.pdv === 'true' || item.pdv === true) ? '+' : '—'}
+                  </div>
+                  <div className="cap-cell">
+                    {item.User
+                      ? `${item.User.firstName || ''} ${item.User.lastName || ''} ${item.User.familyName || ''} (${item.User.phoneNumber || '—'})`.trim()
+                      : '—'}
+                  </div>
+                  <div className="cap-cell">{item.edrpou || '—'}</div>
+                  <div className="cap-cell cap-cell--actions" onClick={(e) => e.stopPropagation()}>
+                    <button className="pays-tbl-btn" onClick={(e) => openSeePay(e, item)}>
+                      Редагувати
+                    </button>
+                    <button className="pays-tbl-btn pays-tbl-btn--red" onClick={(e) => openDeletePay(e, item)}>
+                      Видалити
+                    </button>
+                  </div>
+                </div>
+                {isOpen && <RowExpanded item={item} />}
+              </div>
+            );
+          })}
+        </>
       )}
 
       {showAddPay && (

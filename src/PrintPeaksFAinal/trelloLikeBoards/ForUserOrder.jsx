@@ -167,7 +167,7 @@ function ForUserOrder({showAddPay, setShowAddPay, openCardData}) {
         display: "flex",
         flexDirection: "column",
         position: "fixed",
-        // backgroundColor: '#FBFAF6',
+        // backgroundColor: '#f1eee7',
         backgroundColor: '#FAF8F3FF',
         left: "50%",
         top: "50%",

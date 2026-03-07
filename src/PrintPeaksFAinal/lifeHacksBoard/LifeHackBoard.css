@@ -10,7 +10,7 @@
     }
 
 .lifehack-list {
-    background-color: #FBFAF6;
+    background-color: #f1eee7;
     padding: 2vh;
     border-radius: 1vh;
     width: 21vw;
@@ -42,7 +42,7 @@
     border-radius: 0.5vw;
 }
 .lifehack-add {
-    background-color: #FBFAF6;
+    background-color: #f1eee7;
     padding: 1vh;
     margin-bottom: 1vh;
     border-radius: 1vh;
@@ -65,7 +65,7 @@
     margin-left: 0.3vw;
     border-radius: 0.7vh;
     border: none;
-    background-color: #FBFAF6;
+    background-color: #f1eee7;
 }
 .InputInLifeHack {
     width: 100%;

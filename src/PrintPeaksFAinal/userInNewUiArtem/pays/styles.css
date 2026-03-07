@@ -1,14 +1,3 @@
-
-.AddContractorInOrderTitle {
-    font-size: 1.5vw;
-    margin-bottom: 0.1vh;
-    font-weight: bold;
-}
-
-.AddContractorInOrderTabs {
-    display: flex;
-    margin-bottom: 1vh;
-}
 /* Контейнер зі зміщеним та тонким скролбаром */
 .custom-scroll {
   scrollbar-width: thin;              /* Firefox */
@@ -36,177 +25,523 @@
   background: #7a7a7a;
 }
 
-.AddContractorInOrderTab {
-    flex: 1;
-    padding: 1vh 0;
-    font-size: 1vw;
-    border: 0.1vw solid #ccc;
-    background-color: #f2f2f2;
-    cursor: pointer;
-}
-
-.AddContractorInOrderTabActive {
-    background-color: #bde0fe;
-    font-weight: bold;
-    border-color: #bde0fe;
-}
-
-.AddContractorInOrderSubtitle {
-    font-size: 1vw;
-    font-weight: bold;
-    margin: 2vh 0 1vh 0;
-}
-
-.AddContractorInOrderFieldGroup {
-    display: flex;
-    flex-direction: column;
-    /*gap: 1.5vh;*/
-    /*margin-bottom: 2vh;*/
-}
-
-.AddContractorInOrderInput,
-.AddContractorInOrderSelect,
-.AddContractorInOrderTextarea {
-    font-size: 0.7vw;
-    padding: 1.2vh 1vw;
-    border-radius: 10px;
-    border: 0.1vw solid #ccc;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.AddContractorInOrderTextarea {
-    resize: vertical;
-    min-height: 10vh;
-}
-
-.AddContractorInOrderSubmitBlock {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.AddContractorInOrderSubmitBtn {
-    background-color: black;
-    color: white;
-    padding: 1.2vh 2vw;
-    border: none;
-    border-radius: 0.4vw;
-    font-size: 1vw;
-    cursor: pointer;
-}
-
-.ContractorRow {
-    background-color: #faf8f3;
-    border-bottom: 1px solid #e1e1e1;
-    font-size: 0.8em;
-    justify-content: center;
-  align-items: center;
-}
-
-.ContractorCell {
-    padding: 1.2vh 1vw;
-    vertical-align: middle;
-    white-space: nowrap;
-    border-right: 1px solid #e1e1e1;
-  font-size: 0.7vw;
-}
-
-.ContractorName {
-    font-weight: bold;
-}
-
-.ContractorActions {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 0.5vw;
-}
-
-.ContractorViewBtn {
-    background-color: black;
-    color: white;
-    border: none;
-    border-radius: 0.4vw;
-    padding: 0.8vh 1.5vw;
-    font-size: 0.6vw;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.ContractorViewBtn:hover {
-    background-color: #333;
-}
-
-.ContractorMoreBtn {
-    background-color: black;
-    color: white;
-    border: none;
-    border-radius: 0.4vw;
-    padding: 0.8vh 1vw;
-    font-size: 1vw;
-    font-weight: bold;
-    cursor: pointer;
-    line-height: 1;
-}
-.ContractorTable {
-    width: 100%;
-    border-collapse: collapse;
 
 
-    border-radius: 0.5vw;
-    overflow: hidden;
-    background-color: #faf8f3;
-}
-
-.AddContractorInOrderFieldRow {
-    display: flex;
-    align-items: center;
-    /*margin-bottom: 10px;*/
-    gap: 1vh;
-}
-
-.AddContractorInOrderFieldRow label {
-    min-width: 250px;
-    font-weight: 500;
-}
-
-
-
-/* колонки для модального списку контрагентів у стилі OrderList */
-.contractors-like-cols {
-  display: grid;
-  grid-template-columns:
-    4rem         /* № */
-    18rem        /* Найменування */
-    14rem        /* Система оподаткування */
-    12rem        /* Банк */
-    16rem        /* IBAN */
-    6rem         /* ПДВ */
-    16rem        /* Клієнт */
-    12rem        /* ЄДРПОУ */
-    12rem        /* Тел. */
-    12rem        /* Документи */
-    12rem;       /* Дії */
-  gap: 0.4rem;
-  align-items: center;
-  padding: 0.45rem 0.6rem;
-  border-bottom: 1px solid #eee;
-  background: #fbfaf6;
-}
 
 /* з попереднього блоку, якщо ще не додано */
 
-.OrderRow-hover:hover { background: #f6f6f6; cursor: pointer; }
 
-LikeTable-contract-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.UsersOrdersLikeTable-contract-text-multiline {
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+
+
+/* ── Кнопки в рядках таблиці контрагентів (стиль PayButtons) ── */
+.pays-tbl-btn {
+  position: relative;
+  background-color: transparent;
+  border: 1.5px solid var(--adminorange, #f5a623);
+  border-radius: 0;
+  color: var(--admingrey, #666666);
+  font-size: var(--fontsmall, 15px) !important;
+  padding: 2px 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+  transition: color 0.3s ease-out, border-color 0.3s ease-out;
 }
-.OrderBlock { border-radius: 10px; margin-bottom: 6px; overflow: hidden; }
-.OrderRow-expanded { padding: 0.6rem 0.8rem; background: rgba(0,0,0,0.03); border-left: 2px solid #e3e3e3; }
-.OrderUnit-card { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 0.6rem 0.8rem; min-width: 22rem; }
 
-.summary-celluser
-{
+.pays-tbl-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -2;
+}
 
+.pays-tbl-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 4px);
+  height: calc(55% + 2px);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -1;
+}
+
+.pays-tbl-btn:hover {
+  color: var(--admingreen, #0e935b);
+  border-color: var(--admingreen, #0e935b);
+}
+
+.pays-tbl-btn:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.pays-tbl-btn:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+/* ── Кнопка "+ Додати особистого контрагента" ── */
+.pays-add-btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  background-color: transparent;
+  border: 1.5px solid var(--adminorange, #f5a623);
+  border-radius: 0;
+  color: var(--admingrey, #666666);
+  font-size: var(--fontsmall, 15px) !important;
+  padding: 8px 1.2rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: right;
+  white-space: nowrap;
+  z-index: 0;
+  transition: color 0.3s ease-out, border-color 0.3s ease-out;
+}
+
+.pays-add-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -2;
+}
+
+.pays-add-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 4px);
+  height: calc(55% + 2px);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: -1;
+}
+
+.pays-add-btn:hover {
+  color: var(--admingreen, #0e935b);
+  border-color: var(--admingreen, #0e935b);
+}
+
+.pays-add-btn:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.pays-add-btn:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+/* Placeholder з 50% прозорістю */
+.pay-input::placeholder {
+  opacity: 0.5;
+}
+
+/* Зелена — Сформувати рахунок */
+.pays-tbl-btn--green {
+  border-color: var(--admingreen, #0e935b);
+  color: var(--admingreen, #0e935b);
+}
+
+/* Червона — Видалити */
+.pays-tbl-btn--red {
+  border-color: var(--adminred, #ee3c23);
+  color: var(--adminred, #ee3c23);
+}
+
+.pays-tbl-btn--red:hover {
+  color: var(--adminred, #ee3c23);
+  border-color: var(--adminred, #ee3c23);
+}
+
+/* Hover залишається помаранчевим */
+.pays-tbl-btn--hover-orange:hover {
+  color: var(--adminorange, #f5a623);
+  border-color: var(--adminorange, #f5a623);
+}
+
+/* Фон кнопки --adminfonelement (для кнопок всередині розгорнутих рядків) */
+.pays-tbl-btn--bg-element::before,
+.pays-tbl-btn--bg-element::after {
+  background-color: var(--adminfonelement, #f2f0e9);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Нові класи для PaysInOrderRestored_OrdersLike
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Overlay ── */
+.pays-overlay {
+  position: fixed; inset: 0;
+  background-color: rgba(15,15,15,0.45);
+  backdrop-filter: blur(2px);
+  z-index: 10400;
+  opacity: 0;
+  transition: opacity 0.25s ease-out;
+}
+.pays-overlay--visible { opacity: 1; }
+
+/* ── Panel ── */
+.pays-panel {
+  position: fixed;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -52%);
+  background-color: var(--adminfon, #f7f5ee);
+  color: var(--admingrey, #666666);
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  width: 66vw;
+  height: 77vh;
+  border-radius: 0;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  z-index: 10401;
+  opacity: 0;
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+.pays-panel--visible {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+
+/* ── Header bar ── */
+.pays-header {
+  display: flex; align-items: center;
+  padding: 0.6rem 1.2rem;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  flex-shrink: 0;
+  background: var(--adminfon, #f7f5ee);
+}
+.pays-header-title {
+  flex: 1; text-align: center;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pays-close-btn {
+  background: transparent; border: 0; padding: 0;
+  font-size: var(--fontsmall, 15px);
+  color: var(--admingrey, #666666);
+  cursor: pointer; line-height: 1;
+}
+
+/* ── Content area ── */
+.pays-content {
+  flex: 1;
+  overflow-y: auto; overflow-x: auto;
+  padding: 1rem 1.2rem;
+  background: var(--adminfon, #f7f5ee);
+}
+
+/* ── Top bar ── */
+.pays-topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.8rem;
+}
+
+/* ── Table header ── */
+.pays-tbl-head {
+  display: grid; width: 100%;
+  grid-template-columns: 3% 16% 7% 8% calc(17% + 1vw) 4% 10% 7% auto;
+  gap: 0; padding: 0.3rem 0.6rem;
+  font-size: var(--fontsmall, 15px);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  background: var(--adminfonelement, #f2f0e9);
+  margin-bottom: 1rem;
+}
+
+/* ── Table row ── */
+.pays-tbl-row {
+  display: grid; width: 100%; box-sizing: border-box;
+  grid-template-columns: 3% 16% 7% 8% calc(17% + 1vw) 4% 10% 7% auto;
+  gap: 0; padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  align-items: center; cursor: pointer;
+  overflow: hidden;
+  transition: background 0.15s;
+}
+.pays-tbl-row:hover    { background: rgba(0,0,0,0.025); }
+.pays-tbl-row--open    { background: var(--adminfonelement, #f2f0e9); }
+
+/* ── Cell ── */
+.pays-cell {
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  font-size: var(--fontsmall, 15px);
+  color: var(--admingrey, #666666);
+  padding: 0 0.3rem;
+}
+.pays-cell--center  { text-align: center; }
+.pays-cell--actions { display: flex; align-items: center; gap: 0.4rem; }
+.pays-cell--italic  { font-style: italic; padding: 0.5rem 0.3rem; }
+
+/* ── Column label ── */
+.pays-cell-label {
+  font-size: var(--fontsmall, 15px); font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 0 0.3rem;
+}
+
+/* ── Section ── */
+.pays-section { margin-bottom: 1.5rem; }
+
+/* ── Section title ── */
+.pays-section-title {
+  font-size: var(--fontsmall, 15px); font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase; letter-spacing: 0.07em;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+
+/* ── Expanded row ── */
+.pays-expanded {
+  background: var(--adminfonelement, #f2f0e9);
+  padding: 0.7rem 1rem 0.9rem;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0 1rem;
+  overflow: hidden;
+}
+.pays-expanded-field {
+  display: flex; flex-direction: column; gap: 0.1rem;
+  flex: 1 0 0;
+  min-width: 0;
+}
+.pays-expanded-key {
+  font-size: var(--fontcard);
+  font-weight: 400;
+  color: var(--admingrey, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.65;
+  white-space: nowrap;
+}
+.pays-expanded-val {
+  font-size: var(--fontcard);
+  font-weight: 400;
+  color: var(--admingrey, #666);
+  word-break: break-word;
+}
+
+/* ── Error ── */
+.pays-error {
+  color: var(--adminred, #ee3c23);
+  padding: 0.5rem 0;
+  font-size: var(--fontsmall, 15px);
+}
+
+/* ── Loader ── */
+.pays-loader {
+  display: flex; justify-content: center; padding: 3rem 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PaysInOrderRestoredForOurC — класи
+   ═══════════════════════════════════════════════════════════ */
+
+.ourc-overlay {
+  position: fixed; inset: 0;
+  background-color: rgba(15,15,15,0.45);
+  backdrop-filter: blur(2px);
+  z-index: 10500;
+  opacity: 0;
+  transition: opacity 0.25s ease-out;
+}
+.ourc-overlay--visible { opacity: 1; }
+
+.ourc-panel {
+  position: fixed;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -52%);
+  background-color: var(--adminfon, #f7f5ee);
+  color: var(--admingrey, #666666);
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  width: 66vw; height: 77vh;
+  border-radius: 0;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  z-index: 10501;
+  opacity: 0;
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+.ourc-panel--visible {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+
+.ourc-header {
+  display: flex; align-items: center;
+  padding: 0.6rem 1.2rem;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  flex-shrink: 0;
+  background: var(--adminfon, #f7f5ee);
+}
+.ourc-header-title {
+  flex: 1; text-align: center;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.ourc-close-btn {
+  background: transparent; border: 0; padding: 0;
+  font-size: var(--fontsmall, 15px);
+  color: var(--admingrey, #666666);
+  cursor: pointer; line-height: 1;
+}
+
+.ourc-body {
+  flex: 1; overflow-y: auto; overflow-x: auto;
+  padding: 0.8rem 1.2rem;
+}
+
+.ourc-tbl-head {
+  display: grid; width: 100%;
+  grid-template-columns: 3rem 1fr 6rem 1fr 1.6fr 4rem 1fr 7rem 8rem 16rem;
+  padding: 0.35rem 0.6rem;
+  background: var(--adminfonelement, #f2f0e9);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ourc-tbl-row {
+  display: grid; width: 100%;
+  grid-template-columns: 3rem 1fr 6rem 1fr 1.6fr 4rem 1fr 7rem 8rem 16rem;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  font-size: var(--fontsmall, 15px);
+  color: var(--admingrey, #666666);
+  align-items: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 0.15s;
+}
+.ourc-tbl-row:hover    { background: rgba(0,0,0,0.025); }
+.ourc-tbl-row--open    { background: var(--adminfonelement, #f2f0e9); }
+
+.ourc-cell {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding-right: 0.4rem;
+  font-size: var(--fontsmall, 15px);
+  color: var(--admingrey, #666666);
+}
+.ourc-cell--center  { text-align: center; }
+.ourc-cell--actions { display: flex; gap: 4px; justify-content: center; overflow: visible; }
+
+.ourc-expanded {
+  padding: 0.5rem 0.8rem 0.5rem 3.5rem;
+  background: var(--adminfonelement, #f2f0e9);
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  font-size: var(--fontsmall, 15px);
+  color: var(--admingrey, #666666);
+  display: flex; gap: 2rem;
+}
+
+.ourc-error {
+  color: var(--adminred, #ee3c23);
+  font-size: var(--fontsmall, 15px);
+  padding: 0.5rem 0;
+}
+.ourc-loader {
+  display: flex; justify-content: center; align-items: center;
+  height: 40vh;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PaysInOrderRestoredForAdmin — класи
+   ═══════════════════════════════════════════════════════════ */
+
+.admin-wrap {
+  background: var(--adminfon, #f7f5ee);
+  color: var(--admingrey, #666666);
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  padding: 1rem 1.2rem;
+}
+
+.admin-topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.8rem;
+}
+
+.admin-tbl-head {
+  display: grid; width: 100%;
+  grid-template-columns: 3% 13% 7% 19% 4% 26% 10% 18%;
+  gap: 0; padding: 0.3rem 0.6rem;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  background: var(--adminfonelement, #f2f0e9);
+  margin-bottom: 1rem;
+}
+
+.admin-tbl-row {
+  display: grid; width: 100%; box-sizing: border-box;
+  grid-template-columns: 3% 13% 7% 19% 4% 26% 10% 18%;
+  gap: 0; padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  align-items: center; cursor: pointer;
+  overflow: hidden;
+  transition: background 0.15s;
+}
+.admin-tbl-row:hover  { background: rgba(0,0,0,0.025); }
+.admin-tbl-row--open  { background: var(--adminfonelement, #f2f0e9); }
+
+.admin-cell {
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  min-width: 0;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  padding: 0 0.3rem;
+}
+.admin-cell--center  { text-align: center; }
+.admin-cell--actions { display: flex; align-items: center; gap: 0.4rem; overflow: visible; }
+
+.admin-expanded {
+  background: var(--adminfonelement, #f2f0e9);
+  padding: 0.5rem 0.8rem 0.5rem 1rem;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  display: flex; gap: 2rem;
 }

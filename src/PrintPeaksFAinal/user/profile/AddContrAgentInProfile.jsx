@@ -132,43 +132,29 @@ function AddContrAgentInProfile({
             }}>
             </div>
             <div style={{
-                zIndex: "101",
+                zIndex: "102",
                 display: "flex",
                 flexDirection: "column",
                 position: "fixed",
-                // backgroundColor: '#FBFAF6',
-                backgroundColor: '#FAF8F3FF',
+                backgroundColor: 'var(--adminfon, #f7f5ee)',
                 left: "50%",
                 top: "50%",
-                transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)", // анимация масштаба
-                opacity: isAnimating ? 1 : 0, // анимация прозрачности
-                transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out", // плавная анимация
-                borderRadius: "1vw",
-                width: "50vw",
-                // height: "50vh",
+                transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)",
+                opacity: isAnimating ? 1 : 0,
+                transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
+                borderRadius: 0,
+                width: "25vw",
+                maxHeight: "90vh",
+                overflowY: "auto",
                 cursor: "auto",
             }}>
-                <div className="d-flex">
-                    <div className="m-auto text-center fontProductName ">
-                        <h2 className="AddContractorInOrderTitle">Додати контрагента</h2>
-                    </div>
-                    <div
-                        className="btn btn-close btn-lg"
-                        style={{
-                            margin: "0.5vw",
-                        }}
-                        onClick={handleClose}
-                    >
-                    </div>
+                <div className="acaip-modal-header">
+                    <h2 className="AddContractorInOrderTitle">
+                        {showAddPayView ? "Редагувати контрагента" : "Додати контрагента"}
+                    </h2>
+                    <button className="acaip-close-btn" onClick={handleClose}>×</button>
                 </div>
-                <div style={{
-                    border: "none",
-                    borderRadius: "1vw",
-                    marginTop: "0",
-                    marginLeft: "0.3vw",
-                }}>
-
-                    <div style={{padding: "1vw"}}>
+                <div style={{padding: "0.5rem 1.4rem 1.4rem"}}>
                         {load && (
                             <div className="d-flex justify-content-center align-items-center" style={{height: "100%"}}>
                                 <Spinner animation="border" className="mainLoader" variant="dark"/></div>
@@ -240,11 +226,11 @@ function AddContrAgentInProfile({
                                     </div>
                                 </div>
 
-                                <h3 className="AddContractorInOrderSubtitle">Система оподаткування та Опис</h3>
+                                <h3 className="AddContractorInOrderSubtitle">Система оподаткування</h3>
 
                                 <div className="AddContractorInOrderFieldGroup">
                                     <div className="AddContractorInOrderFieldRow">
-                                        <label className="adminFontTable">Система оподаткування</label>
+                                        <label className="adminFontTable">С/О</label>
                                         <select value={formData.taxSystem} name="taxSystem" onChange={handleChange}
                                                 required className="AddContractorInOrderSelect">
                                             {/*<option value="">Оберіть систему оподаткування</option>*/}
@@ -281,17 +267,12 @@ function AddContrAgentInProfile({
                                             onChange={handleChange}
                                         />
                                     </div>
-                                    <div className="AddContractorInOrderFieldRow">
-                                        <label className="adminFontTable">Коментар</label>
-                                        <textarea name="comment" placeholder="Залиште коментар" onChange={handleChange}
-                                                  className="AddContractorInOrderTextarea"/>
-                                    </div>
                                 </div>
 
                                 {showAddPayView &&
                                     <div className="AddContractorInOrderSubmitBlock">
                                         <button className="AddContractorInOrderSubmitBtn"
-                                                onClick={handleSubmitUpdate}>Редагувати
+                                                onClick={handleSubmitUpdate}>Зберігти
                                         </button>
                                     </div>
                                 }
@@ -309,7 +290,6 @@ function AddContrAgentInProfile({
                             </form>
                         )}
                     </div>
-                </div>
             </div>
         </div>
     );

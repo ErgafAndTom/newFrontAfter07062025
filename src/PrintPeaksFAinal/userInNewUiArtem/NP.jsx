@@ -186,7 +186,7 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder }) {
                 display: "flex",
                 flexDirection: "column",
                 position: "fixed",
-                backgroundColor: '#FBFAF6',
+                backgroundColor: '#f1eee7',
                 left: "50%",
                 top: "50%",
                 transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)", // анимация масштаба

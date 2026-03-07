@@ -1,113 +1,51 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from "../../api/axiosInstance";
-import Loader from "../../components/calc/Loader";
 
-const ActivatorCheckPaymentStatus = ({order}) => {
+const ActivatorCheckPaymentStatus = ({ order }) => {
   const [thisOrder, setThisOrder] = useState(order);
-  const [load, setLoad] = useState(order);
-  const checkStatus = async () => {
-    if (!order.Payment) {
-      return
-    }
-    if (order.Payment.invoiceId) {
-      setLoad(true);
-      const invoiceId = order.Payment.invoiceId;
-      try {
-        const {data} = await axios.get("/api/payment/invoice-status", {
-          params: {invoiceId},
-        });
-        setLoad(false);
-        console.log(data);
-        setThisOrder((prev) => ({
-          ...prev,
-          Payment: data,
-        }));
-      } catch (err) {
-        console.error("Помилка перевірки статусу:", err);
-      }
-    } else {
+  const [load, setLoad] = useState(false);
 
+  const checkStatus = async () => {
+    if (!order.Payment?.invoiceId) return;
+    setLoad(true);
+    try {
+      const { data } = await axios.get("/api/payment/invoice-status", {
+        params: { invoiceId: order.Payment.invoiceId },
+      });
+      setThisOrder(prev => ({ ...prev, Payment: data }));
+    } catch (err) {
+      console.error("Помилка перевірки статусу:", err);
+    } finally {
+      setLoad(false);
     }
   };
 
   useEffect(() => {
-    if (thisOrder.Payment?.status === "CREATED") {
-      checkStatus();
-    }
+    if (thisOrder.Payment?.status === 'CREATED') checkStatus();
   }, []);
 
-  return (
-    <>
-      {thisOrder.Payment?.status === 'FAILED' &&
-      <button className={`adminButtonAddOrder adminFont nopay`} style={{}}>
-        {"Помилка або відмова"}
-      </button>
-      }
+  const p = thisOrder.Payment;
+  if (!p || p.status === null)
+    return <span className="ort-pay-badge ort-pay-badge--none">—</span>;
 
+  if (p.status === 'CREATED')
+    return <span className="ort-pay-badge ort-pay-badge--wait">Очікування{load ? '…' : ''}</span>;
 
-      {thisOrder.Payment?.status === 'PAID' &&
-        <>
-          {thisOrder.Payment && thisOrder.Payment.method === 'terminal' && (
-            <div className={`adminButtonAddOrder adminFont pay`} style={{}}>
-              {"Оплата карткою"}
-            </div>
-          )}
-          {thisOrder.Payment && thisOrder.Payment.method === 'link' && (
-            <div className={`adminButtonAddOrder adminFont pay`} style={{}}>
-              {"Оплата за посиланням"}
-            </div>
-          )}
-          {thisOrder.Payment && thisOrder.Payment.method === 'cash' && (
-            <div className={`adminButtonAddOrder adminFont pay`} style={{}}>
-              {"Оплата готівкрю"}
-            </div>
-          )}
-          {thisOrder.Payment && thisOrder.Payment.method === null && (
-            <div className={`adminButtonAddOrder pay`} style={{}}>
-              {"Оплата за посиланням"}
-            </div>
-          )}
-        </>
-      }
-      {thisOrder.Payment?.status === 'CANCELLED' &&
-        <button className={`adminButtonAddOrder cancel`} style={{}}>
-          {"Відміна"}
-        </button>
-      }
-      {thisOrder.Payment?.status === 'EXPIRED' &&
-        <button className={`adminButtonAddOrder nopay`} style={{}}>
-          {"Прострочено"}
-        </button>
-      }
-      {thisOrder.Payment?.status === 'FAILED' &&
-        <button className={`adminButtonAddOrder nopay`} style={{}}>
-          {"Помилка або відмова"}
-        </button>
-      }
+  if (p.status === 'PAID') {
+    const labels = { terminal: 'Оплата карткою', link: 'Інтернет-оплата', cash: 'Оплата готівкою', invoice: 'Оплата рахунком' };
+    return <span className="ort-pay-badge ort-pay-badge--paid">{labels[p.method] || 'Інтернет-оплата'}</span>;
+  }
 
-      {thisOrder.Payment === null &&
-        <button className={`adminButtonAddOrder`} style={{color:'#000000'}}>
-          {"-"}
-        </button>
-      }
-      {thisOrder.Payment?.status === null &&
-        <button className={`adminButtonAddOrder`} style={{color:'#000000'}}>
-          {"-"}
-        </button>
-      }
+  if (p.status === 'CANCELLED')
+    return <span className="ort-pay-badge ort-pay-badge--cancel">Відміна</span>;
 
-      {thisOrder.Payment?.status === 'CREATED' &&
-        <div className={`adminButtonAddOrder wait`} style={{}}>
-          {"Очікування️"}
-          <>
-            {load &&
-              <Loader/>
-            }
-          </>
-        </div>
-      }
-    </>
-  );
+  if (p.status === 'EXPIRED')
+    return <span className="ort-pay-badge ort-pay-badge--expired">Протерміновано</span>;
+
+  if (p.status === 'FAILED')
+    return <span className="ort-pay-badge ort-pay-badge--expired">Помилка</span>;
+
+  return <span className="ort-pay-badge ort-pay-badge--none">—</span>;
 };
 
 export default ActivatorCheckPaymentStatus;

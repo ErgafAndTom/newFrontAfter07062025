@@ -3,7 +3,7 @@
     width: 98.3% !important; /* Зменшено розмір на 5% */
     margin: auto;
     border-radius: 0.5vw !important; /* Скруглення кутів у самого Tabs */
-    background: #FBFAF6;
+    background: #f1eee7;
     height: 5vh;
 }
 /*.vimogiclas:hover {*/
@@ -17,7 +17,7 @@
     align-items: stretch;
     border-radius: 0.5vw !important; /* Скруглення у самого Tabs */
 
-    background: #FBFAF6;
+    background: #f1eee7;
 }
 
 /* Всі вкладки мають однакову висоту */
@@ -81,7 +81,7 @@
     width: 100% !important; /* Половина попередньої ширини */
     color: black !important; /* Чорний текст */
     transition: background-color 0.3s ease-in-out;
-    background-color: #FBFAF6 !important; /* Фон неактивної вкладки */
+    background-color: #f1eee7 !important; /* Фон неактивної вкладки */
     border-radius: 0 !important; /* Видаляємо загальне скруглення */
     text-align: center;
     height: 100%;

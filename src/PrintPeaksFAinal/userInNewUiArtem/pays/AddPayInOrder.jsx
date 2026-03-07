@@ -2,72 +2,144 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "../../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import {Spinner} from "react-bootstrap";
-import {Form} from "react-bootstrap";
 
-function AddPaysInOrder({ showAddPay, setShowAddPay,  data, setData, showAddPayView, setShowAddPayView, showAddPayWriteId, setShowAddPayWriteId, thisOrder, setThisOrder }) {
+// ── Стилі ───────────────────────────────────────────────────────────
+const S = {
+  overlay: {
+    position: 'fixed', inset: 0,
+    backgroundColor: 'rgba(15,15,15,0.45)',
+    backdropFilter: 'blur(2px)',
+    zIndex: 10500,
+    transition: 'opacity 0.22s ease-out',
+  },
+  panel: {
+    position: 'fixed',
+    left: '50%', top: '50%',
+    backgroundColor: 'var(--adminfon, #f7f5ee)',
+    color: 'var(--admingrey, #666666)',
+    width: 'min(96vw, 480px)',
+    borderRadius: 0,
+    boxShadow: '0 8px 40px rgba(0,0,0,0.18)',
+    display: 'flex', flexDirection: 'column',
+    overflow: 'hidden',
+    zIndex: 10501,
+    transition: 'opacity 0.22s ease-out, transform 0.22s ease-out',
+    cursor: 'auto',
+  },
+  header: {
+    display: 'flex', alignItems: 'center',
+    padding: '0.6rem 1.2rem',
+    borderBottom: '1px solid rgba(0,0,0,0.07)',
+    background: 'var(--adminfon, #f7f5ee)',
+    flexShrink: 0,
+  },
+  headerTitle: {
+    flex: 1,
+    fontSize: 'var(--font-size-paybig)',
+    fontWeight: 400,
+    color: 'var(--admingrey, #666666)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em',
+  },
+  closeBtn: {
+    background: 'transparent', border: 0, padding: 0,
+    fontSize: '21px', color: 'var(--admingrey, #666666)',
+    cursor: 'pointer', lineHeight: 1,
+  },
+  body: {
+    padding: '1rem 1.2rem',
+    overflowY: 'auto',
+  },
+  fieldRow: {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '0.6rem',
+    gap: '1rem',
+  },
+  label: {
+    minWidth: '160px',
+    fontSize: 'var(--fontsmall, 13px)',
+    fontWeight: 400,
+    color: 'var(--admingrey, #666666)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+  },
+  input: {
+    flex: 1,
+    background: 'transparent',
+    border: 'none',
+    borderBottom: '1px solid rgba(0,0,0,0.2)',
+    borderRadius: 0,
+    padding: '0.35rem 0',
+    fontSize: 'var(--fontsmall, 13px)',
+    fontWeight: 400,
+    color: 'var(--admingrey, #666666)',
+    outline: 'none',
+    width: '100%',
+  },
+  textarea: {
+    flex: 1,
+    background: 'transparent',
+    border: 'none',
+    borderBottom: '1px solid rgba(0,0,0,0.2)',
+    borderRadius: 0,
+    padding: '0.35rem 0',
+    fontSize: 'var(--fontsmall, 13px)',
+    fontWeight: 400,
+    color: 'var(--admingrey, #666666)',
+    outline: 'none',
+    width: '100%',
+    resize: 'vertical',
+    minHeight: '60px',
+  },
+  footer: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    padding: '0.8rem 1.2rem',
+    borderTop: '1px solid rgba(0,0,0,0.07)',
+    gap: '0.5rem',
+  },
+};
+
+function AddPaysInOrder({ showAddPay, setShowAddPay, data, setData, showAddPayView, setShowAddPayView, showAddPayWriteId, setShowAddPayWriteId, thisOrder, setThisOrder, initialData }) {
     const [load, setLoad] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-    const [isVisible, setIsVisible] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
-   const dropdownRef = useRef(null);  // ✅ для доступу до контейнера селекта
-  const [open, setOpen] = useState(false);  // ✅ відкриття / закриття випадаючого списку
-  const [formData, setFormData] = useState({
-    taxSystem: "ФОП", //   ✅ обране значення системи оподаткування
-    // ...інші поля твоєї форми
-  });
-    const handleClose = () => {
-        setIsAnimating(false); // Начинаем анимацию закрытия
-        setTimeout(() => {
-            setIsVisible(false)
-            setShowAddPay(false);
-        }, 300); // После завершения анимации скрываем модальное окно
-    }
+    const dropdownRef = useRef(null);
+    const [open, setOpen] = useState(false);
+    const [formData, setFormData] = useState(() =>
+        (initialData && showAddPayWriteId)
+            ? { taxSystem: "ФОП", ...initialData }
+            : { taxSystem: "ФОП" }
+    );
 
-    // const handleChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setFormData(prev => ({ ...prev, [name]: value }));
-    // };
+    const handleClose = () => {
+        setIsAnimating(false);
+        setTimeout(() => setShowAddPay(false), 280);
+    };
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: type === 'checkbox'
-                ? (checked ? "true" : "false")
-                : value,
+            [name]: type === 'checkbox' ? (checked ? "true" : "false") : value,
         }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
     };
 
     const handleSubmitUpdate = async (e) => {
         e.preventDefault();
         setLoad(true);
-        let dataToSend = {
-            formData: formData,
-            contractorId: showAddPayWriteId
-        };
-        axios.post(`/api/contractorsN/updateContractor`, dataToSend)
+        axios.post(`/api/contractorsN/updateContractor`, { formData, contractorId: showAddPayWriteId })
             .then(response => {
-                // console.log(response.data);
-                setData(prevData =>
-                    prevData.map(obj =>
-                        obj.id === response.data.id ? response.data : obj
-                    )
-                );
+                setData(prev => prev.map(o => o.id === response.data.id ? response.data : o));
                 setError(null);
                 setLoad(false);
-                setShowAddPay(false)
-                // setPageCount(Math.ceil(response.data.count / inPageCount));
+                setShowAddPay(false);
             })
-            .catch(error => {
-                if (error.response.status === 403) {
-                    navigate('/login');
-                }
-                setError(error.message);
+            .catch(err => {
+                if (err.response?.status === 403) navigate('/login');
+                setError(err.message);
                 setLoad(false);
             });
     };
@@ -75,264 +147,162 @@ function AddPaysInOrder({ showAddPay, setShowAddPay,  data, setData, showAddPayV
     const handleSubmitAdd = async (e) => {
         e.preventDefault();
         setLoad(true);
-        let dataToSend = {
-            formData: formData,
-            clientId: thisOrder.clientId,
-        };
-        axios.post(`/api/contractorsN/addContractor`, dataToSend)
+        axios.post(`/api/contractorsN/addContractor`, { formData, clientId: thisOrder.clientId })
             .then(response => {
-                console.log(response.data);
-                console.log(data);
-                setData([
-                    ...data,
-                    response.data
-                ]);
+                setData(prev => [...prev, response.data]);
                 setError(null);
                 setLoad(false);
-                setShowAddPay(false)
-                // setPageCount(Math.ceil(response.data.count / inPageCount));
+                setShowAddPay(false);
             })
-            .catch(error => {
-                if (error.response.status === 403) {
-                    navigate('/login');
-                }
-                setError(error.message);
+            .catch(err => {
+                if (err.response?.status === 403) navigate('/login');
+                setError(err.message);
                 setLoad(false);
             });
     };
 
     useEffect(() => {
-        if (showAddPay) {
-            setIsVisible(true); // Сначала показываем модальное окно
-            setTimeout(() => setIsAnimating(true), 100); // После короткой задержки запускаем анимацию появления
-        } else {
-            setIsAnimating(false); // Начинаем анимацию закрытия
-            setTimeout(() => setIsVisible(false), 300); // После завершения анимации скрываем модальное окно
-        }
+        if (showAddPay) setTimeout(() => setIsAnimating(true), 20);
+        else setIsAnimating(false);
     }, [showAddPay]);
 
+    const panelStyle = {
+        ...S.panel,
+        opacity: isAnimating ? 1 : 0,
+        transform: isAnimating ? 'translate(-50%, -50%)' : 'translate(-50%, -52%)',
+    };
+
     return (
-        <div>
-            <div className="" onClick={handleClose} style={{
-                width: "150vw",
-                zIndex: "101",
-                height: "150vh",
-                background: "rgba(0, 0, 0, 0.2)",
-                opacity: isAnimating ? 1 : 0, // для анимации прозрачности
-                transition: "opacity 0.3s ease-in-out", // плавная анимация
-                position: "fixed",
-                // transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)", // анимация масштаба
-                left: "-10vw",
-                bottom: "-10vh"
-            }}>
-            </div>
-            <div style={{
-                zIndex: "101",
-                display: "flex",
-                flexDirection: "column",
-                position: "fixed",
-                // backgroundColor: '#FBFAF6',
-                backgroundColor: '#FAF8F3FF',
-                left: "50%",
-                top: "50%",
-                transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)", // анимация масштаба
-                opacity: isAnimating ? 1 : 0, // анимация прозрачности
-                transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out", // плавная анимация
-                borderRadius: "1vw",
-                width: "40vw",
-                // height: "50vh",
-                cursor: "auto",
-            }}>
-                <div className="d-flex">
-                    {/*<div className="m-auto text-center fontProductName ">*/}
-                    {/*    <h2 className="AddContractorInOrderTitle">Додати контрагента</h2>*/}
-                    {/*</div>*/}
-                    {/*<div*/}
-                    {/*    className="btn btn-close btn-lg"*/}
-                    {/*    style={{*/}
-                    {/*        margin: "0.5vw",*/}
-                    {/*    }}*/}
-                    {/*    onClick={handleClose}*/}
-                    {/*>*/}
-                    {/*</div>*/}
+        <>
+            {/* Overlay */}
+            <div style={{ ...S.overlay, opacity: isAnimating ? 1 : 0 }} onClick={handleClose} />
+
+            {/* Panel */}
+            <div style={panelStyle}>
+
+                {/* Header */}
+                <div style={S.header}>
+                    <span style={S.headerTitle}>
+                        {showAddPayView ? '' : ''}
+                    </span>
+                    <button style={S.closeBtn} onClick={handleClose}>✕</button>
                 </div>
-                <div style={{
-                    border: "none",
-                    borderRadius: "1vw",
-                    marginTop: "0",
-                    marginLeft: "0.3vw",
-                }}>
 
-                    <div style={{padding: "1vw"}}>
-                        {load && (
-                            <div className="d-flex justify-content-center align-items-center" style={{height: "100%"}}><Spinner animation="border" className="mainLoader" variant="dark" /></div>
-                        )}
-                        {!load && (
+                {/* Body */}
+                <div style={S.body}>
+                    {load ? (
+                        <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+                            <Spinner animation="border" variant="dark" />
+                        </div>
+                    ) : (
+                        <form onSubmit={e => e.preventDefault()}>
 
-                            <form className="AddContractorInOrderContainer" onSubmit={handleSubmit}>
-                                {/*<h2 className="AddContractorInOrderTitle">Додати контрагента</h2>*/}
+                            <div style={S.fieldRow}>
+                                <span style={S.label}>Контрагент</span>
+                                <input required value={formData.name || ''} name="name" type="text"
+                                    placeholder="Назва ФОП / компанії / організації"
+                                    className="pay-input" style={S.input} onChange={handleChange} />
+                            </div>
 
-                                {/*<div className="AddContractorInOrderTabs">*/}
-                                {/*    <button className="AddContractorInOrderTab AddContractorInOrderTabActive">Українська Компанія</button>*/}
-                                {/*    <button className="AddContractorInOrderTab">Іноземна Компанія</button>*/}
-                                {/*</div>*/}
-
-                                {/*<div className="AddContractorInOrderSubtitle">Банківські реквізити:</div>*/}
-
-                                <div className="AddContractorInOrderFieldGroup">
-                                    <div className="AddContractorInOrderFieldRow">
-                                        <div className="adminFontTable">Контрагент </div>
-                                        <input required value={formData.name} name="name" type="text" placeholder="Назва ФОП / компанії / організації" className="AddContractorInOrderInput" onChange={handleChange} />
+                            {/* Система оподаткування + ПДВ */}
+                            <div style={{ ...S.fieldRow, alignItems: 'center' }}>
+                                <span style={S.label}>Система оподат.</span>
+                                <div ref={dropdownRef} style={{ flex: 1, position: 'relative' }}>
+                                    <div
+                                        onClick={() => setOpen(!open)}
+                                        style={{
+                                            ...S.input,
+                                            cursor: 'pointer',
+                                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                        }}
+                                    >
+                                        <span>{formData.taxSystem || 'Оберіть'}</span>
+                                        <span style={{ color: 'var(--adminorange, #f5a623)', fontSize: '18px' }}>▾</span>
                                     </div>
-                                    {/*<div className="AddContractorInOrderFieldRow">*/}
-                                    {/*    <div className="adminFontTable">Тип</div>*/}
-                                    {/*    <select value={formData.type} name="type" onChange={handleChange} className="AddContractorInOrderSelect">*/}
-                                    {/*        <option value="Фізична особа">Фізична особа</option>*/}
-                                    {/*        <option value="Юридична особа">Юридична особа</option>*/}
-                                    {/*    </select>*/}
-                                    {/*</div>*/}
-                                  <div className="AddContractorInOrderFieldGroup d-flex flex-row justify-content-start  ">
-                                    <div className="AddContractorInOrderFieldRow">
-                                      <div className="adminFontTable">Система оподаткування</div>
-                                      {/* CUSTOM SELECT: Система оподаткування */}
-                                      <div
-                                        className="custom-select-container-rah selectArtem-rah justify-content-start align-items-center"
-                                        ref={dropdownRef}
-                                        style={{  width: "18vw", fontSize: "1.5vh" }}
-                                      >
-                                        <div
-                                          className="custom-select-header-rah"
-                                          style={{  }}
-                                          onClick={() => setOpen(!open)}
-                                        >
-                                          {formData.taxSystem
-                                            ? formData.taxSystem
-                                            : "Оберіть систему оподаткування"}
-                                          <span
-                                            className={`arrow-rah ${open ? "up" : "down"}`}
-                                            style={{ color: "#f2a901", fontSize:"3vh", marginLeft:"1vh" }}
-                                          >
-      ▾                                  </span>
-                                        </div>
-
-                                        {open && (
-                                          <div className="custom-select-dropdown-rah">
-                                            {[
-                                              { value: "ФОП", label: "ФОП" },
-                                              { value: "ТОВ", label: "ТОВ" },
-                                              { value: "Неприбуткова організація", label: "Неприбуткова організація" },
-                                            ].map((option, i) => (
-                                              <div
-                                                key={i}
-                                                className={`custom-option-rah ${
-                                                  formData.taxSystem === option.value ? "active" : ""
-                                                }`}
-                                                onClick={() => {
-                                                  setFormData({ ...formData, taxSystem: option.value });
-                                                  setOpen(false);
-                                                }}
-                                              >
-                                                <span className="name">{option.label}</span>
-                                              </div>
+                                    {open && (
+                                        <div style={{
+                                            position: 'absolute', top: '100%', left: 0, right: 0,
+                                            background: 'var(--adminfonelement, #f2f0e9)',
+                                            border: '1px solid rgba(0,0,0,0.1)',
+                                            zIndex: 10,
+                                        }}>
+                                            {['ФОП', 'ТОВ', 'Неприбуткова організація'].map(opt => (
+                                                <div key={opt}
+                                                    onClick={() => { setFormData(p => ({ ...p, taxSystem: opt })); setOpen(false); }}
+                                                    style={{
+                                                        padding: '0.4rem 0.8rem',
+                                                        fontSize: 'var(--fontsmall, 13px)',
+                                                        fontWeight: 400,
+                                                        color: 'var(--admingrey, #666)',
+                                                        cursor: 'pointer',
+                                                        background: formData.taxSystem === opt ? 'var(--adminlightgreen, #e2f2eb)' : 'transparent',
+                                                    }}
+                                                >{opt}</div>
                                             ))}
-                                          </div>
-                                        )}
-
-                                      </div>
-                                      <div className="AddContractorInOrderFieldRow" style={{
-                                        width: "4vw", position: "absolute", right: "3.2vw",
-                                      }}>
-                                        <div className="adminFontTable" >
-                                          ПДВ
                                         </div>
-
-                                        <div className="checkbox-wrapper-10" >
-                                          <input
-                                            type="checkbox"
-                                            name="pdv"
-                                            id="pdv-checkbox"
-                                            // style={{ height: "2vw", width:"3vw"}}
-                                            className="tgl tgl-flip"
-                                            // checked={formData.pdv === "true"}
-                                            onChange={handleChange}
-                                            style={{
-                                              maxWidth: "2vw"
-                                            }}
-                                          />
-                                          <label
-                                            htmlFor="pdv-checkbox"
-                                            data-tg-on="Так"
-                                            data-tg-off="Ні"
-                                            className="tgl-btn"
-
-                                          ></label>
-                                        </div>
-                                      </div>
-
-
-                                    </div>
-
-
-
-                                  </div>
-                                    <div className="AddContractorInOrderFieldRow">
-                                        <div className="adminFontTable">Адреса</div>
-                                        <input value={formData.address} name="address" type="text" placeholder="Адреса ФОП / компанії / організації" className="AddContractorInOrderInput" onChange={handleChange} />
-                                    </div>
-                                    <div className="AddContractorInOrderFieldRow">
-                                        <div className="adminFontTable">Банк</div>
-                                        <input value={formData.bankName} name="bankName" type="text" placeholder="Банк контрагента" className="AddContractorInOrderInput" onChange={handleChange} />
-                                    </div>
-                                    <div className="AddContractorInOrderFieldRow">
-                                        <div className="adminFontTable">IBAN</div>
-                                        <input value={formData.iban} name="iban" type="text" placeholder="UA 123456789 123456789123456" className="AddContractorInOrderInput" onChange={handleChange} />
-                                    </div>
-                                    <div className="AddContractorInOrderFieldRow">
-                                        <div className="adminFontTable">ЄДРПОУ</div>
-                                        <input value={formData.edrpou} name="edrpou" type="text" placeholder="123456789" className="AddContractorInOrderInput" onChange={handleChange} />
-                                    </div>
+                                    )}
                                 </div>
+                                <label htmlFor="pdv-checkbox" style={{
+                                    display: 'flex', alignItems: 'center', gap: '0.4rem',
+                                    cursor: 'pointer', marginLeft: '1.5rem',
+                                    fontSize: 'var(--fontsmall, 13px)', fontWeight: 400,
+                                    color: 'var(--admingrey, #666666)',
+                                    textTransform: 'uppercase', letterSpacing: '0.05em',
+                                }}>
+                                    <input type="checkbox" name="pdv" id="pdv-checkbox"
+                                        checked={formData.pdv === 'true' || formData.pdv === true}
+                                        onChange={handleChange}
+                                        style={{
+                                            width: '16px', height: '16px',
+                                            accentColor: 'var(--admingreen, #0e935b)',
+                                            cursor: 'pointer', flexShrink: 0,
+                                        }} />
+                                    ПДВ
+                                </label>
+                            </div>
 
-                                {/*<h3 className="AddContractorInOrderSubtitle">Контакти:</h3>*/}
-
-                                <div className="AddContractorInOrderFieldGroup">
-                                    <div className="AddContractorInOrderFieldRow">
-                                        <div className="adminFontTable">E-mail</div>
-                                        <input value={formData.email} name="email" type="email" placeholder="example@mail.com" className="AddContractorInOrderInput" onChange={handleChange} />
-                                    </div>
-                                    <div className="AddContractorInOrderFieldRow">
-                                        <div className="adminFontTable">Номер телефону:</div>
-                                        <input value={formData.phone} name="phone" type="text" placeholder="+380 111 111 111" className="AddContractorInOrderInput" onChange={handleChange} />
-                                    </div>
+                            {[
+                                { label: 'Адреса',   name: 'address',  placeholder: 'Адреса ФОП / компанії' },
+                                { label: 'Банк',     name: 'bankName', placeholder: 'Банк контрагента' },
+                                { label: 'IBAN',     name: 'iban',     placeholder: 'UA 123456789 123456789123456' },
+                                { label: 'ЄДРПОУ',  name: 'edrpou',   placeholder: '123456789' },
+                                { label: 'E-mail',   name: 'email',    placeholder: 'example@mail.com', type: 'email' },
+                                { label: 'Телефон',  name: 'phone',    placeholder: '+380 111 111 111' },
+                            ].map(f => (
+                                <div key={f.name} style={S.fieldRow}>
+                                    <span style={S.label}>{f.label}</span>
+                                    <input value={formData[f.name] || ''} name={f.name} type={f.type || 'text'}
+                                        placeholder={f.placeholder} className="pay-input" style={S.input} onChange={handleChange} />
                                 </div>
-                              <div className="AddContractorInOrderFieldRow">
-                                <div className="adminFontTable">Коментар</div>
-                                <textarea name="comment" placeholder="Залиште коментар" onChange={handleChange} className="AddContractorInOrderTextarea" />
-                              </div>
-                                {/*<h3 className="AddContractorInOrderSubtitle">Система оподаткування та Опис</h3>*/}
+                            ))}
 
+                            <div style={S.fieldRow}>
+                                <span style={S.label}>Коментар</span>
+                                <textarea name="comment" placeholder="Залиште коментар"
+                                    value={formData.comment || ''}
+                                    onChange={handleChange} className="pay-input" style={S.textarea} />
+                            </div>
 
-
-                                {showAddPayView &&
-                                    <div className="AddContractorInOrderSubmitBlock">
-                                        <button className="adminButtonAdd" style={{background: "lightgray", fontSize: "1.2vh"}} onClick={handleSubmitUpdate}>Редагувати</button>
-                                    </div>
-                                }
-                                {!showAddPayView &&
-                                    <div className="AddContractorInOrderSubmitBlock">
-                                        <button type="submit" className="adminButtonAdd" style={{marginTop:"1.5vh"}} onClick={handleSubmitAdd}>Додати</button>
-                                    </div>
-                                }
-
-                                {error && (
-                                    <div>{error}v</div>
-                                )}
-                            </form>
-                        )}
-                    </div>
+                            {error && (
+                                <div style={{ color: 'var(--adminred, #ee3c23)', fontSize: '13px', marginBottom: '0.5rem' }}>
+                                    {error}
+                                </div>
+                            )}
+                        </form>
+                    )}
                 </div>
+
+                {/* Footer */}
+                {!load && (
+                    <div style={S.footer}>
+                        {showAddPayView
+                            ? <button className="pays-tbl-btn" style={{ fontSize: 'var(--font-size-s)' }} onClick={handleSubmitUpdate}>Редагувати</button>
+                            : <button className="pays-tbl-btn pays-tbl-btn--green" style={{ fontSize: 'var(--font-size-s)' }} onClick={handleSubmitAdd}>Додати</button>
+                        }
+                    </div>
+                )}
             </div>
-        </div>
+        </>
     );
 }
 

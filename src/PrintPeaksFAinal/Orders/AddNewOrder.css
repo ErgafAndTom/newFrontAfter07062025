@@ -10,7 +10,7 @@
   text-transform: uppercase;
   white-space: nowrap;
   color: var(--admingrey) !important;
-  background: var(--adminfon) !important;
+  background: var(--adminfonelement) !important;
   border: 2px solid var(--adminorange) !important;
   border-radius: 0 !important;
   clip-path: none !important;
@@ -29,7 +29,7 @@
   top: -2px; left: -2px;
   width: calc(100% + 6px);
   height: calc(100% + 2px);
-  background-color: var(--adminfon);
+  background-color: var(--adminfonelement);
   transform: scaleY(1);
   transition: 0.3s ease-out;
   z-index: 1;
@@ -42,7 +42,7 @@
   top: -2px; left: -2px;
   width: calc(100% + 4px);
   height: calc(100% - 45%);
-  background-color: var(--adminfon);
+  background-color: var(--adminfonelement);
   transform: scaleY(1);
   transition: 0.3s ease-out;
   z-index: 1;

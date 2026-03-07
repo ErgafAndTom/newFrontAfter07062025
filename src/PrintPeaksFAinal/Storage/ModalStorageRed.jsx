@@ -181,7 +181,7 @@ const ModalStorageRed = ({
                             ...modalStyle,
                             zIndex: "100", // модальное окно поверх затемненного фона
 
-                            background: "#FBFAF6",
+                            background: "#f1eee7",
                             borderRadius: "0.7vw",
                             maxWidth: "90vw", // ограничение по ширине
                             padding: "0.5vw",

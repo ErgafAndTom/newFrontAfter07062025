@@ -1,356 +1,169 @@
 import React, { useEffect, useState } from 'react';
-import '../Orders/CustomOrderTable.css';
+import './UsersOrdersLikeTable.css';
+import '../../PrintPeaksFAinal/userInNewUiArtem/pays/styles.css'; // pays-tbl-btn
 import axios from "../../api/axiosInstance";
-import StatusBar from "../Orders/StatusBar";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ModalDeleteOrder from "../Orders/ModalDeleteOrder";
-import { Spinner } from "react-bootstrap";
-import Barcode from 'react-barcode';
-import {useDispatch, useSelector} from "react-redux";
-import { FiFile, FiFolder, FiPhone} from 'react-icons/fi';
-import { RiCalculatorLine } from 'react-icons/ri';
+import { useDispatch, useSelector } from "react-redux";
 import TelegramAvatar from "../Messages/TelegramAvatar";
-import ViberAvatar from "../Messages/ViberAvatar";
-import { FiPhoneCall } from 'react-icons/fi';
-import {FaTelegramPlane, FaViber} from 'react-icons/fa';
+import { FaTelegramPlane } from 'react-icons/fa';
+import { FiPhone } from 'react-icons/fi';
 import Pagination from "../tools/Pagination";
-import Vishichka from "../poslugi/Vishichka";
-import FiltrOrders from "../Orders/FiltrOrders";
-import {searchChange} from "../../actions/searchAction";
 import Loader from "../../components/calc/Loader";
-import {Settings} from "lucide-react";
-
-
+import { Settings } from "lucide-react";
+import { searchChange } from "../../actions/searchAction";
+import ClientCabinet from "../userInNewUiArtem/ClientCabinet";
 
 const UsersOrdersLikeTable = () => {
-  const [data, setData] = useState(null);
-  const dispatch = useDispatch();
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [data, setData]           = useState(null);
+  const [error, setError]         = useState(null);
+  const [loading, setLoading]     = useState(false);
   const [thisOrderForDelete, setThisOrderForDelete] = useState(null);
   const [showDeleteOrderModal, setShowDeleteOrderModal] = useState(false);
   const [expandedOrderId, setExpandedOrderId] = useState(null);
-  const [activeBarcodeId, setActiveBarcodeId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [limit]                   = useState(100);
+  const [cabinetUserId, setCabinetUserId] = useState(null);
+  const [sortColumn, setSortColumn]   = useState('id');
+  const [sortReverse, setSortReverse] = useState(true);
+
+  const dispatch    = useDispatch();
   const currentUser = useSelector((state) => state.auth.user);
-  const search = useSelector((state) => state.search.search);
-  const navigate = useNavigate();
-  const [limit, setLimit] = useState(100);
+  const search      = useSelector((state) => state.search.search);
+  const navigate    = useNavigate();
 
-  const [typeSelect, setTypeSelect] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [statuses, setStatuses] = useState({
-    status0: true,
-    status1: true,
-    status2: true,
-    status3: true,
-    status4: true,
-    status5: true
-  });
+  const toggleRow = (id) => setExpandedOrderId(prev => (prev === id ? null : id));
 
-  const toggleOrder = (orderId) => {
-    setExpandedOrderId(prevId => (prevId === orderId ? null : orderId));
-  };
-
-  const handleOrderClickDelete = (order) => {
+  const handleDelete = (order) => {
     setShowDeleteOrderModal(true);
     setThisOrderForDelete(order);
   };
 
-  useEffect(() => {
-    if (currentUser) {
-      const fetchData = async () => {
-        try {
-          const url = '/api/user/all'
-          const postData = {
-            inPageCount: limit,
-            currentPage: currentPage,
-            search: search,
-            columnName: {column: 'id', reverse: true},
-            startDate: startDate,
-            endDate: endDate,
-            statuses: statuses
-          };
-
-
-          setLoading(true);
-          const res = await axios.post(url, postData);
-          console.log(res.data);
-          setData(res.data);
-          setLoading(false);
-        } catch (err) {
-          if (err.response?.status === 403) navigate('/login');
-          setError(err.message);
-          setLoading(false);
-        }
-      };
-
-      fetchData();
+  const handleSort = (col) => {
+    if (sortColumn === col) {
+      setSortReverse(prev => !prev);
+    } else {
+      setSortColumn(col);
+      setSortReverse(true); // перший клік — DESC (більше → менше)
     }
-  }, [search, currentPage, limit, currentUser?.role, startDate, endDate, statuses.status0, statuses.status1, statuses.status2, statuses.status3, statuses.status4, statuses.status5,
-  ]);
-
-  useEffect(() => {
-    // console.log(document.location.pathname);
-    dispatch(searchChange(""))
-  }, [])
-
-
-  const getStatusColor = (status, isCancelled) => {
-    if (isCancelled) return '#ee3c23'; // червоний для скасованих
-
-    switch (parseInt(status)) {
-      case 0: return '#fbfaf6';       // сірий — оформлення
-      case 4: return '#008249';       // зелений — друк
-      case 1: return '#8b4513';       // коричневий — постпрес
-      case 2: return '#3c60a6';       // синій — готове
-      case 3: return '#f075aa';       // рожевий — віддали
-      default: return '#fbfaf6';      // дефолтний
-    }
+    setCurrentPage(1);
   };
 
-  const hexToRgba = (hex, alpha) => {
-    const parsed = hex.replace('#', '');
-    const bigint = parseInt(parsed, 16);
-    const r = (bigint >> 16) & 255;
-    const g = (bigint >> 8) & 255;
-    const b = bigint & 255;
-    return `rgba(${r},${g},${b},${alpha})`;
-  };
+  const SortArrow = ({ col }) => (
+    <span className={`uol-sort-icon${sortColumn === col ? ' uol-sort-icon--active' : ''}`}>
+      {sortColumn === col ? (sortReverse ? ' ↓' : ' ↑') : ' ↕'}
+    </span>
+  );
 
-  // if (loading) {
-  //   return <div className="d-flex justify-content-center align-items-center" style={{ height: "100%" }}>
-  //     <Spinner animation="border" variant="dark" />
-  //   </div>;
-  // }
+  useEffect(() => {
+    if (!currentUser) return;
+    setLoading(true);
+    axios.post('/api/user/all', {
+      inPageCount: limit,
+      currentPage,
+      search,
+      columnName: { column: sortColumn, reverse: sortReverse },
+      startDate: '',
+      endDate: '',
+    })
+      .then(res => { setData(res.data); setLoading(false); })
+      .catch(err => {
+        if (err.response?.status === 403) navigate('/login');
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [search, currentPage, sortColumn, sortReverse, currentUser?.role]); // eslint-disable-line
 
-  if (error) {
-    return <div className="text-center text-danger">{error}</div>;
-  }
+  useEffect(() => { dispatch(searchChange('')); }, []); // eslint-disable-line
+
+  if (error) return <div style={{ color: 'var(--adminred)', padding: '1rem' }}>{error}</div>;
 
   return (
-    <div className="OrderList">
-      <div className="d-flex justify-content-start">
-        <FiltrOrders
-          typeSelect={typeSelect}
-          setTypeSelect={setTypeSelect}
-          startDate={startDate}
-          setStartDate={setStartDate}
-          endDate={endDate}
-          setEndDate={setEndDate}
-          statuses={statuses}
-          setStatuses={setStatuses}
-        />
-        <div className="d-flex justify-content-center" style={{opacity: "0.5", fontSize: "1.5rem", margin: "auto",  position:"unset", top:"0", right:"32%"}}>🤖: {data?.count}</div>
+    <div className="uol-wrap">
+
+      {/* Шапка */}
+      <div className="uol-tbl-head">
+        <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('id')}>ID<SortArrow col="id" /></div>
+        <div className="uol-cell uol-cell--center"><FaTelegramPlane size={14} /></div>
+        <div className="uol-cell uol-cell--sortable" onClick={() => handleSort('firstName')}>Ім'я<SortArrow col="firstName" /></div>
+        <div className="uol-cell uol-cell--sortable" onClick={() => handleSort('phoneNumber')}><FiPhone size={14} /><SortArrow col="phoneNumber" /></div>
+        <div className="uol-cell">Компанія</div>
+        <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('discount')}>Знижка<SortArrow col="discount" /></div>
+        <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('ordersCount')}>Замовлень<SortArrow col="ordersCount" /></div>
+        <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('totalCharged')}>Нараховано<SortArrow col="totalCharged" /></div>
+        <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('totalPaid')}>Оплачено<SortArrow col="totalPaid" /></div>
+        <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('balance')}>Баланс<SortArrow col="balance" /></div>
+        <div className="uol-cell uol-cell--center"><Settings size={14} /></div>
       </div>
-      <div className="OrderRow-summary OrderRow-header">
 
-        <div className="summary-cell id d-flex justify-content-center">ID</div>
-        <div className="summary-cell phoneNumber d-flex justify-content-center">Ім'я</div>
-        <div className="summary-cell telegram d-flex justify-content-center">
-          <FaTelegramPlane size={20} style={{ color: '#000' }} />
-        </div>
-        <div className="summary-cell phoneNumber">E-mail</div>
-        <div className="summary-cell phoneNumber">Адреса</div>
-        <div className="summary-cell phoneNumber">Компанія</div>
-        <div className="summary-cell phoneNumber">Знижка</div>
-        <div className="summary-cell phoneNumber">Реквізити</div>
-        <div className="summary-cell phoneNumber">К-ть замовлень</div>
-        <div className="summary-cell phoneNumber d-flex justify-content-center"><FiPhone size={20} style={{ color: '#000' }}/></div>
+      {loading && <div className="uol-loader"><Loader /></div>}
 
-        {/*<div className="summary-cell viber d-flex justify-content-center">*/}
-        {/*  <FaViber size={20} style={{ color: '#000' }} />*/}
-        {/*</div>*/}
-
-
-        <div className="summary-cell  settingclientsummary-cell settingclient d-flex justify-content-center"><Settings size={20} /></div>
-        {/*<div className="summary-cell documents d-flex justify-content-center">Документи</div>*/}
-        {/*<div className="summary-cell files d-flex justify-content-sm-around ">Файли</div>*/}
-        {/*<div className="summary-cell barcode-orders d-flex justify-content-center" style={{opacity:"1"}}>Штрих-код</div>*/}
-      </div>
-      {/* data rows */}
-
-
-
-      {loading &&
-        <div className="d-flex justify-content-center align-items-center" style={{ height: "100%" }}>
-          <h1 className="d-flex justify-content-center align-items-center">
-            <Loader/>
-          </h1>
-        </div>
-      }
       {data?.rows.map(order => {
-        const isExpanded = expandedOrderId === order.id;
-        const isCancelled = parseInt(order.status) === 5; // або адаптуй під свою логіку
-        const baseColor = getStatusColor(order.status, isCancelled);
-        const expandedStyle = {
-          backgroundColor: hexToRgba(baseColor, 0.15)
-        };
-
-
+        const isOpen = expandedOrderId === order.id;
+        const charged = Number(order.totalCharged) || 0;
+        const paid    = Number(order.totalPaid)    || 0;
+        const balance = paid - charged;
         return (
-          <div key={order.id} className="OrderBlock">
-            <div className="OrderRow-summary OrderRow-hover"
-                 style={expandedStyle}
-                 onMouseEnter={(e) => {
-                   e.currentTarget.style.backgroundColor =
-                     order.status === '0'
-                       ? '#fbfaf6'
-                       : hexToRgba(baseColor, 0.3);                 }}
-                 onMouseLeave={(e) => {
-                   e.currentTarget.style.backgroundColor = hexToRgba(baseColor, 0.2);
-                 }}
-                 onClick={() => toggleOrder(order.id)}>
-
-              <div className="summary-cell id d-flex justify-content-center">{order.id}</div>
-              <div className="summary-cell phoneNumber d-flex justify-content-center UsersOrdersLikeTable-contract-text-multiline" style={{width: "12vw", maxWidth: "12vw"}}>
-                <div className=" d-flex flex-column UsersOrdersLikeTable-contract-text">
-                  {/*<div className="UsersOrdersLikeTable-contract-text">[{order.username || "···"}]</div>*/}
-                  <div className="d-flex">
-                    <div className="UsersOrdersLikeTable-contract-text">{order.firstName }</div>
-                    <div className="UsersOrdersLikeTable-contract-text">{order.lastName }</div>
-                    <div className="UsersOrdersLikeTable-contract-text">{order.familyName }</div>
-                  </div>
-                </div>
-              </div>
-              <div className="summary-cell telegram d-flex justify-content-center">
+          <div key={order.id}>
+            <div
+              className={`uol-tbl-row${isOpen ? ' uol-tbl-row--open' : ''}`}
+              onClick={() => toggleRow(order.id)}
+            >
+              <div className="uol-cell uol-cell--center">{order.id}</div>
+              <div className="uol-cell uol-cell--center">
                 {order.telegram
-                  ? <TelegramAvatar link={order.telegram} size={45} defaultSrc="" />
-                  : "···"}
-                {/*<TelegramAvatar link={order.telegram} size={45} defaultSrc="" />*/}
+                  ? <TelegramAvatar link={order.telegram} size={52} defaultSrc="" square />
+                  : '—'}
               </div>
-              <div className="summary-cell phoneNumber d-flex justify-content-center UsersOrdersLikeTable-contract-text">{order.email || "···"}</div>
-              <div className="summary-cell phoneNumber UsersOrdersLikeTable-contract-text-multiline UsersOrdersLikeTable-contract-text">
-                {order.address || "···"}
+              <div className="uol-cell">
+                {[order.firstName, order.lastName, order.familyName].filter(Boolean).join(' ') || '—'}
               </div>
-              <div className="summary-cell phoneNumber d-flex justify-content-center UsersOrdersLikeTable-contract-text-multiline">
-                {order.Company
-                  ? <div className="UsersOrdersLikeTable-contract-text-multiline">
-                    <div className="UsersOrdersLikeTable-contract-text">{order.Company.companyName || `Компанія#${order.Company.id} noName`}</div>
-                    {/*<div className="UsersOrdersLikeTable-contract-text" style={{fontSize: "0.7vw"}}>{order.Company.address || 'noAddress'}</div>*/}
-                    {/*<div className="UsersOrdersLikeTable-contract-text" style={{fontSize: "0.7vw"}}>{order.Company.edrpou || 'noEdrpou'}</div>*/}
-                  </div>
-                  : "···"}
+              <div className="uol-cell">{order.phoneNumber || '—'}</div>
+              <div className="uol-cell">{order.Company?.companyName || '—'}</div>
+              <div className="uol-cell uol-cell--center">{order.discount || '0'}</div>
+              <div className="uol-cell uol-cell--center">{order.ordersCount ?? '—'}</div>
+              <div className="uol-cell uol-cell--center"
+                style={charged > 0 ? { color: 'var(--adminred)' } : undefined}>
+                {charged > 0 ? charged : '—'}
               </div>
-              <div className="summary-cell phoneNumber ">{order.discount || "···"}</div>
-              <div className="summary-cell phoneNumber d-flex justify-content-center UsersOrdersLikeTable-contract-text-multiline">
-                {order.Contractors.length > 0
-                  ? <div className="UsersOrdersLikeTable-contract-text-multiline">
-                      {order.Contractors.map((contr, iter) => {
-                        return (
-                          <div className="d-flex">
-                            <div className="UsersOrdersLikeTable-contract-text " style={{marginRight: "0.1vw"}}>{iter+1}) </div>
-                            <div className="UsersOrdersLikeTable-contract-text">{contr.name || 'noName'}</div>
-                            {/*<div style={{fontSize: "0.9vh"}}>{contr.address || 'noAddress'}</div>*/}
-                            {/*<div style={{fontSize: "0.8vh"}}>{contr.edrpou || 'noEdrpou'}</div>*/}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  : "···"}
+              <div className="uol-cell uol-cell--center"
+                style={paid > 0 ? { color: 'var(--admingreen)' } : undefined}>
+                {paid > 0 ? paid : '—'}
               </div>
-              <div className="summary-cell phoneNumber ">{order.Orders?.length || "···"}</div>
-              <div className="summary-cell phoneNumber ">{
-                <div>
-                  {order.phoneNumber || "···"}
-                  {/*{order.phoneNumber && (*/}
-                  {/*  <ViberAvatar link={order.phoneNumber} size={64}/>*/}
-                  {/*)}*/}
-                </div> || "···"}</div>
-
-
-              {/*<div className="summary-cell viber d-flex justify-content-center">*/}
-              {/*  {order.client?.phoneNumber*/}
-              {/*    ? <ViberAvatar link={order.client.phoneNumber} size={32} defaultSrc="/viber-icon.png" />*/}
-              {/*    : "···"}*/}
-              {/*</div>*/}
-
-              <div className="summary-cell settingclient d-flex justify-content-center">
-                <Link to={`/Users/${order.id}`}
-                      style={{ textDecoration: 'none', outline: 'none' }}>
-                  <button className="adminButtonAddOrder" > <Settings size={20} /></button>
-                </Link>
+              <div className="uol-cell uol-cell--center"
+                style={balance !== 0 ? { color: balance < 0 ? 'var(--adminred)' : 'var(--admingreen)' } : undefined}>
+                {charged > 0 || paid > 0 ? balance : '—'}
               </div>
-              {/*<div className="summary-cell documents d-flex justify-content-center">*/}
-              {/*  <Link to={`/Orders/${order.id}`}*/}
-              {/*        style={{ textDecoration: 'none', outline: 'none' }}>*/}
-              {/*    <button className="adminButtonAddOrder" ><FiFile size={19} /></button>*/}
-              {/*  </Link>*/}
-              {/*</div>*/}
-              {/*<div className="summary-cell files d-flex justify-content-center">*/}
-              {/*  <Link to={`/Orders/${order.id}`}*/}
-              {/*        style={{ textDecoration: 'none', outline: 'none',  }}>*/}
-              {/*    <button className="adminButtonAddOrder"> <FiFolder size={18} /></button>*/}
-
-              {/*  </Link>*/}
-              {/*</div>*/}
-
-              {/*<div*/}
-              {/*  className={`summary-cell barcode-orders ${*/}
-              {/*    activeBarcodeId === order.id ? 'active' : ''*/}
-              {/*  }`}*/}
-              {/*  onClick={e => {*/}
-              {/*    e.stopPropagation();*/}
-              {/*    setActiveBarcodeId(prev =>*/}
-              {/*      prev === order.id ? null : order.id*/}
-              {/*    );*/}
-              {/*  }}*/}
-              {/*>*/}
-              {/*  {order.barcode ? (*/}
-              {/*    <Barcode*/}
-              {/*      value={order.barcode.toString()}*/}
-              {/*      width={1.1}*/}
-              {/*      height={34}*/}
-              {/*      background={'transparent'}*/}
-              {/*      fontSize={14}*/}
-              {/*      displayValue={false}*/}
-              {/*    />*/}
-              {/*  ) : "···"}*/}
-              {/*</div>*/}
+              <div className="uol-cell uol-cell--actions" onClick={e => e.stopPropagation()}>
+                <button className="uol-settings-btn" onClick={() => setCabinetUserId(order.id)}>
+                  <Settings size={16} />
+                </button>
+              </div>
             </div>
 
-            {isExpanded && (
-              <div
-                className="OrderRow-expanded pastel-panel"
-
-              >
-
-                <div className="ExpandedRow-details">
-                  <p><strong>Дата створення:</strong> {new Date(order.createdAt).toLocaleString()}</p>
-                  <p><strong>Дата оновлення:</strong> {order.updatedAt ? new Date(order.updatedAt).toLocaleString() : "···"}</p>
-
+            {isOpen && (
+              <div className="uol-expanded" onClick={e => e.stopPropagation()}>
+                {[
+                  ['Створено',  new Date(order.createdAt).toLocaleString()],
+                  ['Оновлено',  order.updatedAt ? new Date(order.updatedAt).toLocaleString() : '—'],
+                  ['Username',  order.username],
+                  ['Роль',      order.role],
+                  ['Телефон',   order.phoneNumber],
+                  ['E-mail',    order.email],
+                  ['Адреса',    order.address],
+                ].map(([k, v]) => (
+                  <div key={k} className="uol-expanded-field">
+                    <span className="uol-expanded-key">{k}:</span>
+                    <span className="uol-expanded-val">{v || '—'}</span>
+                  </div>
+                ))}
+                <div className="uol-expanded-actions">
                   <button
-                    className="btn pastel-delete"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleOrderClickDelete(order);
-                    }}
+                    className="pays-tbl-btn pays-tbl-btn--red pays-tbl-btn--bg-element"
+                    onClick={() => handleDelete(order)}
                   >
                     Видалити
                   </button>
-                </div>
-                <div className="d-flex">Контрагенти:
-                  {order.Contractors.length < 1 &&
-                    <p style={{marginLeft: "0.1vw"}}>Немає</p>
-                  }
-                </div>
-                <div className="OrderRow-units d-flex flex-row">
-                  {order.Contractors?.map((unit, i) => (
-                    <div key={i} className="OrderUnit-card">
-                      <div className="UsersOrdersLikeTable-contract-text"><strong>id:</strong>{unit.name}</div>
-                      <div className="UsersOrdersLikeTable-contract-text"><strong>Назва:</strong> {unit.name}</div>
-                      <div className="UsersOrdersLikeTable-contract-text"><strong>тип:</strong> {unit.type}</div>
-                      <div className="UsersOrdersLikeTable-contract-text"><strong>Адреса:</strong> {unit.address}</div>
-                      <div className="UsersOrdersLikeTable-contract-text"><strong>Банк:</strong> {unit.bankName}</div>
-                      <div className="UsersOrdersLikeTable-contract-text"><strong>iban:</strong> {unit.iban}</div>
-                      <div className="UsersOrdersLikeTable-contract-text"><strong>edrpou:</strong> {unit.edrpou}</div>
-                      <div className="UsersOrdersLikeTable-contract-text"><strong>email:</strong> {unit.email}</div>
-                      <div className="UsersOrdersLikeTable-contract-text"><strong>phone:</strong> {unit.phone}</div>
-                      <div className="UsersOrdersLikeTable-contract-text"><strong>taxSystem:</strong> {unit.taxSystem}</div>
-                      <div className="UsersOrdersLikeTable-contract-text"><strong>pdv:</strong> {unit.pdv}</div>
-                    </div>
-                  ))}
                 </div>
               </div>
             )}
@@ -365,15 +178,27 @@ const UsersOrdersLikeTable = () => {
         setThisOrderForDelete={setThisOrderForDelete}
         data={data}
         setData={setData}
-        url={"/orders/OneOrder"}
+        url="/api/user"
+        title={`Видалити клієнта №${thisOrderForDelete?.id ?? '—'}?`}
+        subLabel={[thisOrderForDelete?.firstName, thisOrderForDelete?.lastName, thisOrderForDelete?.familyName].filter(Boolean).join(' ') || thisOrderForDelete?.username || '—'}
+        showTotal={false}
       />
-      {data?.count > 1 && (
+
+      {data?.count > limit && (
         <Pagination
           currentPage={currentPage}
           totalPages={Math.ceil(data.count / limit)}
           onPageChange={setCurrentPage}
-          onLimitChange={setLimit}
           limit={limit}
+        />
+      )}
+
+      {cabinetUserId && (
+        <ClientCabinet
+          userId={cabinetUserId}
+          onCreateOrder={() => {}}
+          onOpenChat={() => {}}
+          onClose={() => setCabinetUserId(null)}
         />
       )}
     </div>

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import axios from '../../api/axiosInstance';
+import '../userInNewUiArtem/pays/styles.css';
 
 function ModalDeleteOrder({
                             thisOrderForDelete,
@@ -9,7 +10,10 @@ function ModalDeleteOrder({
                             setShowDeleteOrderModal,
                             data,
                             setData,
-                            url
+                            url,
+                            title,
+                            showTotal = true,
+                            subLabel,
                           }) {
   const [load, setLoad] = useState(false);
   const [isVisible, setIsVisible] = useState(showDeleteOrderModal);
@@ -142,112 +146,7 @@ function ModalDeleteOrder({
 
   if (!isVisible) return null;
 
-  // Стилі
-  const overlayStyle = {
-    position: 'fixed',
-    inset: 0,
-    width: '100vw',
-    height: '100vh',
-    backgroundColor: 'rgba(15, 15, 15, 0.45)',
-    backdropFilter: 'blur(2px)',
-    WebkitBackdropFilter: 'blur(2px)',
-    zIndex: 999,
-    opacity: isAnimating ? 1 : 0,
-    transition: 'opacity 200ms ease'
-  };
-
-  const modalStyle = {
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    zIndex: 1000,
-    transform: isAnimating ? 'translate(-50%, -50%) scale(1)' : 'translate(-50%, -40%) scale(0.96)',
-    opacity: isAnimating ? 1 : 0,
-    transition: 'opacity 200ms ease, transform 200ms ease',
-    background: '#fbfaf6',
-    borderRadius: '16px',
-    boxShadow: '0 12px 35px rgba(0,0,0,0.25)',
-    border: '1px solid rgba(0,0,0,0.06)',
-    width: 'min(500px, 92vw)',
-    overflow: 'hidden'
-  };
-
-  const bodyStyle = {
-    padding: '16px 18px 8px 18px',
-    color: '#222',
-    fontSize: '14px',
-    lineHeight: 1
-  };
-
-  const metaStyle = {
-    padding: '0 18px 10px 18px',
-    color: '#444',
-    fontSize: '16px'
-  };
-
-  const footerStyle = {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    gap: '16px',
-    padding: '12px 18px 16px 18px',
-    borderTop: '1px solid rgba(0,0,0,0.06)',
-    background: '#fbfaf6'
-  };
-
-  const bigIdStyle = {
-    fontSize: '20px',
-    fontWeight: 700,
-    color: '#111',
-    marginBottom: 4
-  };
-
-  const subLineStyle = {
-    fontSize: '16px',
-    color: '#333',
-    marginBottom: 4
-  };
-
-  const warningStyle = {
-    marginTop: 10,
-    color: '#b00020',
-    fontSize: 13
-  };
-
-  const btnBase = {
-    padding: '8px 14px',
-    borderRadius: '10px',
-    border: '1px solid rgba(0,0,0,0.08)',
-    fontSize: '14px',
-    lineHeight: 1.2,
-    cursor: 'pointer',
-    transition: 'transform 80ms ease, box-shadow 140ms ease, background 140ms ease',
-    outline: 'none'
-  };
-
-  const btnSecondary = {
-    ...btnBase,
-    background: '#fff',
-    color: '#111'
-  };
-
-  const btnDanger = {
-    ...btnBase,
-    background: isLocked ? '#fbfaf6' : '#ff5d5d',
-    color: '#fbfaf6',
-    border: `1px solid ${isLocked ? '#fbfaf6' : '#ff5d5d'}`
-  };
-
-  const btnDisabled = {
-    filter: 'grayscale(35%)',
-    opacity: 0.7,
-    cursor: 'not-allowed'
-  };
-
-  const overlayClick = () => {
-    if (load) return;
-    handleClose();
-  };
-
+  const overlayClick = () => { if (load) return; handleClose(); };
   const stop = (e) => e.stopPropagation();
 
   const count = thisOrderForDelete?.count;
@@ -259,59 +158,97 @@ function ModalDeleteOrder({
         ? ` за ціною ${thisOrderForDelete.priceForThis} грн`
         : '';
 
+  const modalTitle = title || `Видалити замовлення №${thisOrderForDelete?.id || '—'}?`;
+
   return createPortal(
     <>
-      <div style={overlayStyle} onClick={overlayClick} onKeyDown={onKeyDown} />
+      <div style={{
+        position: 'fixed', inset: 0,
+        backgroundColor: 'rgba(15,15,15,0.45)',
+        backdropFilter: 'blur(2px)',
+        zIndex: 10600,
+        opacity: isAnimating ? 1 : 0,
+        transition: 'opacity 0.22s ease-out',
+      }} onClick={overlayClick} onKeyDown={onKeyDown} />
+
       <div
         ref={dialogRef}
-        style={modalStyle}
-        role="dialog"
-        aria-modal="true"
+        role="dialog" aria-modal="true"
         aria-labelledby="modal-delete-title"
-        aria-describedby="modal-delete-desc"
-        onClick={stop}
-        onKeyDown={onKeyDown}
+        onClick={stop} onKeyDown={onKeyDown}
+        style={{
+          position: 'fixed', top: '50%', left: '50%',
+          zIndex: 10601,
+          transform: isAnimating ? 'translate(-50%, -50%)' : 'translate(-50%, -52%)',
+          opacity: isAnimating ? 1 : 0,
+          transition: 'opacity 0.22s ease-out, transform 0.22s ease-out',
+          background: 'var(--adminfon, #f7f5ee)',
+          borderRadius: 0,
+          boxShadow: '0 8px 40px rgba(0,0,0,0.18)',
+          width: 'min(420px, 92vw)',
+          overflow: 'hidden',
+          fontWeight: 400,
+          color: 'var(--admingrey, #666666)',
+        }}
       >
-        <div style={bodyStyle} id="modal-delete-desc">
-          <div style={bigIdStyle}>
-            Видалити замовлення №{thisOrderForDelete?.id || '—'}?
+        {/* Body */}
+        <div style={{ padding: '1.4rem 1.4rem 0.8rem' }}>
+          <div style={{
+            fontSize: 'var(--font-size-pay)',
+            fontWeight: 400,
+            color: 'var(--admingrey, #666666)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.06em',
+            marginBottom: '0.6rem',
+          }}>
+            {modalTitle}
           </div>
-          <div style={subLineStyle}>
-            Клієнт: {clientName}
+
+          <div style={{ fontSize: 'var(--font-size-s)', color: 'var(--admingrey, #666666)', marginBottom: '0.3rem' }}>
+            {subLabel != null ? subLabel : `Клієнт: ${clientName}`}
           </div>
-          <div style={subLineStyle}>
-            Сума: {totalPrice}
-          </div>
-          <div style={{ marginTop: 10 }}>
-               {count ? <> — {count} шт</> : null}
-            {priceLine || null}
-          </div>
+
+          {showTotal && (
+            <div style={{ fontSize: 'var(--font-size-s)', color: 'var(--admingrey, #666666)', marginBottom: '0.3rem' }}>
+              Сума: {totalPrice}
+            </div>
+          )}
+
+          {(count || priceLine) && (
+            <div style={{ fontSize: 'var(--font-size-s)', color: 'var(--admingrey, #666666)' }}>
+              {count ? `${count} шт` : ''}{priceLine}
+            </div>
+          )}
+
           {(isLocked || error) && (
-            <div style={warningStyle}>
+            <div style={{ marginTop: '0.6rem', color: 'var(--adminred, #ee3c23)', fontSize: 'var(--font-size-s)' }}>
               {isLocked ? 'Замовлення не можна видалити (замовлення в роботі)' : error}
             </div>
           )}
         </div>
 
-
-
-        <div style={footerStyle}>
+        {/* Footer */}
+        <div style={{
+          display: 'flex', justifyContent: 'flex-end', gap: '0.6rem',
+          padding: '0.8rem 1.4rem 1.2rem',
+          borderTop: '1px solid rgba(0,0,0,0.07)',
+        }}>
           <button
             type="button"
-            className="adminButtonAdd hoverOrange"
-            style={{ ...btnSecondary, ...(load ? btnDisabled : null) }}
+            className="pays-tbl-btn pays-tbl-btn--hover-orange"
             onClick={handleClose}
             disabled={load}
+            style={{ fontSize: 'var(--font-size-s)', opacity: load ? 0.6 : 1 }}
           >
             Закрити
           </button>
           <button
             type="button"
             ref={deleteBtnRef}
-            className="adminButtonAdd hoverOrange"
-            style={{ ...btnDanger, ...(load || isLocked ? btnDisabled : null) }}
+            className={`pays-tbl-btn pays-tbl-btn--red${isLocked ? ' pays-tbl-btn--disabled' : ''}`}
             onClick={deleteThis}
             disabled={load || isLocked}
+            style={{ fontSize: 'var(--font-size-s)', opacity: (load || isLocked) ? 0.5 : 1 }}
           >
             {load ? 'Видалення…' : 'Видалити'}
           </button>

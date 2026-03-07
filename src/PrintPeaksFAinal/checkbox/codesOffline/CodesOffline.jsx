@@ -174,7 +174,7 @@ const Cash = () => {
 
     switch (parseInt(status)) {
       case 0:
-        return '#fbfaf6';       // сірий — оформлення
+        return '#f1eee7';       // сірий — оформлення
       case 4:
         return '#008249';       // зелений — друк
       case 1:
@@ -184,7 +184,7 @@ const Cash = () => {
       case 3:
         return '#f075aa';       // рожевий — віддали
       default:
-        return '#fbfaf6';      // дефолтний
+        return '#f1eee7';      // дефолтний
     }
   };
 
@@ -301,11 +301,11 @@ const Cash = () => {
               //    onMouseEnter={(e) => {
               //      e.currentTarget.style.backgroundColor =
               //        order.status === '0'
-              //          ? '#fbfaf6'
-              //          : hexToRgba("#fbfaf6", 0.3);
+              //          ? '#f1eee7'
+              //          : hexToRgba("#f1eee7", 0.3);
               //    }}
               //    onMouseLeave={(e) => {
-              //      e.currentTarget.style.backgroundColor = hexToRgba("#fbfaf6", 0.2);
+              //      e.currentTarget.style.backgroundColor = hexToRgba("#f1eee7", 0.2);
               //    }}
                  onClick={() => toggleOrder(order.id)}>
 

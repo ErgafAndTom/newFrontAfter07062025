@@ -53,7 +53,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
       0
     );
     if (totalUAH <= 0) {
-      console.error("Сума замовлення = 0. Рахунок не буде створено.");
+      console.error("Сума замовлення = 0.  не буде створено.");
       return;
     }
     if (method === "online") {

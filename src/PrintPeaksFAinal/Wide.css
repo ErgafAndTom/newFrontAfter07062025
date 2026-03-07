@@ -328,7 +328,7 @@
   right: 420.47px;
   bottom: 8.49px;
   border-radius: 5px;
-  background-color: #FBFAF6;
+  background-color: #f1eee7;
   border: 1px solid #707070;
   box-sizing: border-box;
   width: 283px;
@@ -339,7 +339,7 @@
 .size-wide1 {
   border: 1px solid #707070;
   outline: none;
-  background-color: #FBFAF6;
+  background-color: #f1eee7;
   position: absolute;
   height: calc(100% - 10.2px);
   top: 1.61px;
@@ -366,7 +366,7 @@
 .size-hight1 {
   border: 1px solid #707070;
   outline: none;
-  background-color: #FBFAF6;
+  background-color: #f1eee7;
   position: absolute;
   height: calc(100% - 10.2px);
   top: 1.61px;
@@ -420,7 +420,7 @@
   top: calc(50% - 21.05px);
   left: calc(50% + 90.93px);
   border-radius: 5px;
-  background-color: #FBFAF6;
+  background-color: #f1eee7;
   border: 1px solid #707070;
   box-sizing: border-box;
   width: 283px;
@@ -436,7 +436,7 @@
 .input3 {
   border: 1px solid #707070;
   outline: none;
-  background-color: #FBFAF6;
+  background-color: #f1eee7;
   position: absolute;
   height: calc(100% - 8.5px);
   width: 100%;
@@ -465,7 +465,7 @@
   position: absolute;
   right: 11.98px;
   bottom: 8.5px;
-  background-color: #FBFAF6;
+  background-color: #f1eee7;
   width: 23.5px;
   height: 3px;
 }

@@ -28,7 +28,6 @@
 }
 
 /* Конверт 1: ЗЛІВА — кнопки дій (Нове замовлення, Створити клієнта) */
-/* Ширина як у nui-bottom-finance-inline: 25vw; зліва 0.5vw як у nui-bottom-shell */
 .nav-actions-group {
   flex: 0 0 auto;
   width: 24vw;
@@ -42,21 +41,28 @@
   overflow: hidden;
 }
 
-/* Кнопки всередині конверту 1 — розтягнути на увесь конверт, фон --adminfonelement */
+/* Кнопки всередині конверту 1 — розтягнути на увесь конверт, стиль як .btn */
 .nav-actions-group .buttonSkewedOrder,
 .nav-actions-group .buttonSkewedUser {
-  flex: 1;
-  width: 100%;
-  height: 100%;
-  padding: 0;
+  flex: 1 !important;
+  width: auto !important;
+  height: 100% !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   background: var(--adminfonelement, #f2f0e9) !important;
+  border: 2px solid var(--adminorange, #f5a623) !important;
+  border-radius: 0 !important;
+  color: var(--adminblue, #3c60a6) !important;
 }
 
 .nav-actions-group .buttonSkewedOrder::before,
 .nav-actions-group .buttonSkewedUser::before,
 .nav-actions-group .buttonSkewedOrder::after,
 .nav-actions-group .buttonSkewedUser::after {
-  background-color: var(--adminfonelement, #f2f0e9);
+  background-color: var(--adminfonelement, #f2f0e9) !important;
 }
 
 /* Конверт 2: ПО ЦЕНТРУ — пошук, юзер, сповіщення, вихід */
@@ -111,6 +117,22 @@
 .nav-center-group .adminButtonAddNavExit::before,
 .nav-center-group .adminButtonAddNavExit::after {
   background-color: var(--adminfonelement, #f2f0e9);
+}
+
+/* Кнопка ЛОГІН (коли не авторизований) — зелена, на всю ширину */
+.nav-center-group .buttonSkewedOrderClient {
+  background: var(--admingreen, #0e935b) !important;
+  color: #fff !important;
+  border: none !important;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+.nav-center-group .buttonSkewedOrderClient::before,
+.nav-center-group .buttonSkewedOrderClient::after {
+  display: none !important;
 }
 
 /* Search wrapper */
@@ -199,11 +221,19 @@
 
 /* Конверт 3: СПРАВА — навігаційні посилання (Головна → Зміни) */
 .btnBlock {
-  flex: 1;
-  min-width: 0;
+  flex: 0 0 auto;
+  width: 47.5vw;
+  height: 4vh;
+  min-height: var(--nav-min-h, 36px);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  margin-right: 1rem;
   display: flex;
   align-items: stretch;
   justify-content: flex-end;
+  background: var(--adminfonelement, #f2f0e9);
+  overflow: hidden;
+  padding-right: 0;
 }
 
 /* Nav row */
@@ -214,6 +244,20 @@
   height: 100%;
   padding-left: 1rem;
   }
+
+/* Розтягнути btnRow та кнопки по ширині конверта */
+.btnBlock .btnRow {
+  display: flex;
+  width: 100%;
+  padding-left: 0;
+}
+
+.btnBlock .btnRow .btn {
+  flex: 1 !important;
+  display: flex !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+}
 
 /* Single nav link — стиль nui-client-rect-btn */
 .btn {
@@ -232,7 +276,7 @@
   border-radius: 0 !important;
   text-transform: uppercase;
   text-decoration: none !important;
-  background: var(--adminfon) !important;
+  background: var(--adminfonelement) !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -249,7 +293,7 @@
   left: -2px;
   width: calc(100% + 6px);
   height: calc(100% + 2px);
-  background-color: var(--adminfon);
+  background-color: var(--adminfonelement);
   transform: scaleY(1);
   transition: 0.3s ease-out;
   z-index: 1;
@@ -263,7 +307,7 @@
   left: -2px;
   width: calc(100% + 4px);
   height: calc(100% - 45%);
-  background-color: var(--adminfon);
+  background-color: var(--adminfonelement);
   transform: scaleY(1);
   transition: 0.3s ease-out;
   z-index: 1;
@@ -298,8 +342,27 @@
 .btn:not([aria-current="page"]):hover {
   color: var(--adminorange) !important;
   border-color: var(--adminorange) !important;
-  background: var(--adminfon) !important;
+  background: var(--adminfonelement) !important;
   text-decoration: none !important;
+}
+
+/* Кнопка виходу у правому конверті */
+.nav-logout-btn {
+  flex: 0 0 auto !important;
+  width: 3.5rem !important;
+  color: var(--adminred, #ee3c23) !important;
+  border-color: var(--adminred, #ee3c23) !important;
+}
+
+.nav-logout-btn::before,
+.nav-logout-btn::after {
+  background-color: var(--adminfonelement) !important;
+}
+
+.nav-logout-btn:hover {
+  color: var(--adminred, #ee3c23) !important;
+  border-color: var(--adminred, #ee3c23) !important;
+  background: var(--adminfonelement) !important;
 }
 
 /* Active route */
@@ -352,11 +415,11 @@
   transition: 0.3s;
 }
 
-/* User (⚙) — --adminblue */
+/* User (⚙) — --adminorange */
 .adminButtonAddNav {
-  color: var(--adminblue) !important;
+  color: var(--adminorange) !important;
   background: var(--adminfon) !important;
-  border: 2px solid var(--adminblue) !important;
+  border: 2px solid var(--adminorange) !important;
 }
 
 .adminButtonAddNav::before {
@@ -392,8 +455,8 @@
   transition-delay: 0.15s;
 }
 .adminButtonAddNav:hover {
-  color: var(--adminblue) !important;
-  border-color: var(--adminblue) !important;
+  color: var(--adminorange) !important;
+  border-color: var(--adminorange) !important;
 }
 
 .adminButtonAddNav > * {
@@ -401,7 +464,12 @@
   z-index: 3;
 }
 
+.adminButtonAddNav span {
+  color: var(--admingrey, #666666) !important;
+}
+
 .adminButtonAddNav .ico {
+  color: var(--admingrey, #666666) !important;
   width: 1em;
   height: 1em;
   stroke: currentColor;

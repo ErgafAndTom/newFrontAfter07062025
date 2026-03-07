@@ -1,133 +1,9 @@
 import React, {useState} from "react";
-import {Button, Form} from "react-bootstrap";
 import {useDispatch, useSelector} from "react-redux";
 import {login} from "../../actions/authActions";
 import {useNavigate} from "react-router-dom";
 
 export const Login = () => {
-  const css = `
-
-
-/* From Uiverse.io by micaelgomestavares */
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background-color: #ffffff;
-  padding: 30px;
-  width: 450px;
-  border-radius: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
-
-::placeholder {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
-
-.form button {
-  align-self: flex-end;
-}
-
-.flex-column > label {
-  color: #151717;
-  font-weight: 600;
-}
-
-.inputForm {
-  border: 1.5px solid #ecedec;
-  border-radius: 10px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  padding-left: 10px;
-  transition: 0.2s ease-in-out;
-}
-
-.input {
-  margin-left: 10px;
-  border-radius: 10px;
-  border: none;
-  width: 85%;
-  height: 100%;
-}
-
-.input:focus {
-  outline: none;
-}
-
-.inputForm:focus-within {
-  border: 1.5px solid #2d79f3;
-}
-
-.flex-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  justify-content: space-between;
-}
-
-.flex-row > div > label {
-  font-size: 14px;
-  color: black;
-  font-weight: 400;
-}
-
-.span {
-  font-size: 14px;
-  margin-left: 5px;
-  color: #2d79f3;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.button-submit {
-  margin: 20px 0 10px 0;
-  background-color: #151717;
-  border: none;
-  color: white;
-  font-size: 15px;
-  font-weight: 500;
-  border-radius: 10px;
-  height: 50px;
-  width: 100%;
-  cursor: pointer;
-}
-
-.button-submit:hover {
-  background-color: #252727;
-}
-
-.p {
-  text-align: center;
-  color: black;
-  font-size: 14px;
-  margin: 5px 0;
-}
-
-.btn {
-  margin-top: 10px;
-  width: 100%;
-  height: 50px;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: 500;
-  gap: 10px;
-  border: 1px solid #ededef;
-  background-color: white;
-  cursor: pointer;
-  transition: 0.2s ease-in-out;
-}
-
-.btn:hover {
-  border: 1px solid #2d79f3;
-;
-}
-
-
-  `
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const error = useSelector((state) => state.auth.error);
@@ -135,10 +11,7 @@ export const Login = () => {
     const [credentials, setCredentials] = useState({ username: '', password: '' });
 
     const handleChange = (e) => {
-        setCredentials({
-            ...credentials,
-            [e.target.name]: e.target.value
-        });
+        setCredentials({ ...credentials, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = (e) => {
@@ -147,58 +20,94 @@ export const Login = () => {
     };
 
     return (
-        <div className="text-center">
-            <main className="">
-                <Form onSubmit={handleSubmit}>
+        <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '80vh',
+        }}>
+            <form onSubmit={handleSubmit} style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0',
+                background: 'var(--adminfonelement, #f2f0e9)',
+                width: '340px',
+            }}>
+                <div style={{ padding: '2rem 2rem 0.5rem', borderBottom: '1px solid var(--adminorange, #f5a623)' }}>
+                    <div style={{ fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--admingrey, #666)', marginBottom: '1.5rem' }}>
+                        PrintPeaks ERP
+                    </div>
 
-                    <Form.Group className="" controlId="formBasicLogin">
-                        <Form.Control style={{
-                            height: "5vh",
-                            background: "#F2F0E7",
-                        }}
-                            className="inputLogin"
+                    <div style={{ marginBottom: '1.2rem' }}>
+                        <input
                             name="username"
                             type="text"
-                            onChange={handleChange}
                             placeholder="Логін"
                             value={credentials.username}
+                            onChange={handleChange}
                             required
+                            style={{
+                                width: '100%',
+                                background: 'transparent',
+                                border: 'none',
+                                borderBottom: '2px solid var(--adminblue, #3c60a6)',
+                                outline: 'none',
+                                padding: '0.4rem 0',
+                                fontSize: '0.9rem',
+                                color: 'var(--admingrey, #666)',
+                                boxSizing: 'border-box',
+                            }}
                         />
-                    </Form.Group>
+                    </div>
 
-                    <Form.Group className="" controlId="formBasicPassword"
-                              >
-                        <Form.Control   style={{
-                            height: "5vh",
-                            background: "#F2F0E7",
-                            marginTop: "2vh"
-                        }}
-                            className="inputLogin"
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <input
                             name="password"
                             type="password"
-                            onChange={handleChange}
                             placeholder="Пароль"
                             value={credentials.password}
+                            onChange={handleChange}
                             required
+                            style={{
+                                width: '100%',
+                                background: 'transparent',
+                                border: 'none',
+                                borderBottom: '2px solid var(--adminblue, #3c60a6)',
+                                outline: 'none',
+                                padding: '0.4rem 0',
+                                fontSize: '0.9rem',
+                                color: 'var(--admingrey, #666)',
+                                boxSizing: 'border-box',
+                            }}
                         />
-                    </Form.Group>
-                    {error && <p style={{ color: 'red' }}>{error}</p>}
-                    <Button style={{
-                        height: "5vh",
-                        background: "#FAB416",
-                        border: "#FAB416",
-                        color: "black"
+                    </div>
+
+                    {error && (
+                        <p style={{ color: 'var(--adminred, #ee3c23)', fontSize: '0.8rem', margin: '0 0 0.8rem' }}>
+                            {error}
+                        </p>
+                    )}
+                </div>
+
+                <button
+                    type="submit"
+                    disabled={loading}
+                    style={{
+                        background: 'var(--admingreen, #0e935b)',
+                        border: 'none',
+                        color: '#fff',
+                        fontSize: '0.8rem',
+                        fontWeight: '500',
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        height: '3rem',
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        opacity: loading ? 0.7 : 1,
                     }}
-                        className="text-center buttonLogin"
-                        // onClick={loginSend}
-                        variant="secondary"
-                        type="submit"
-                        disabled={loading}
-                    >
-                        {loading ? 'Вхід...' : 'Увійти'}
-                    </Button>
-                </Form>
-            </main>
+                >
+                    {loading ? 'Вхід...' : 'Увійти'}
+                </button>
+            </form>
         </div>
-    )
-}
+    );
+};

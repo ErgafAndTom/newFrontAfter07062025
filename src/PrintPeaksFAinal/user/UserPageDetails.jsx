@@ -168,7 +168,7 @@ function AttachCompanyModal({ userId, onClose, onAttached }) {
             justifyContent: "center",
             width: "100%",
             padding: "0rem 0rem",
-            // background: "#fbfaf6",
+            // background: "#f1eee7",
             borderBottom: "1px solid rgba(0,0,0,0.06)",
           }}
         >
@@ -188,8 +188,8 @@ function AttachCompanyModal({ userId, onClose, onAttached }) {
         </div>
 
         {/* Body */}
-        <div className="noScrollbar" style={{ background: "#fbfaf6" }}>
-          <div style={{ padding: "0rem 1rem", opacity:"0.7",  background:"#fbfaf6"}}>
+        <div className="noScrollbar" style={{ background: "#f1eee7" }}>
+          <div style={{ padding: "0rem 1rem", opacity:"0.7",  background:"#f1eee7"}}>
             <input
               ref={inputRef}
               className="form-control"
@@ -303,7 +303,7 @@ export default function UserPageDetails({thisUser = null}) {
         boxShadow: "0px 2px 7px 0px rgba(0,0,0,0.2)",
         border: "white",
         borderRadius: 8,
-        background: "#fbfaf6",
+        background: "#f1eee7",
         padding: "1Vw",
         minWidth:"25vw"
       }}

@@ -165,7 +165,7 @@ export const containerStyles = {
 
   // Стиль для модальних вікон
   modal: {
-    backgroundColor: '#FBFAF6',
+    backgroundColor: '#f1eee7',
     borderRadius: '1vw',
     padding: '2vh',
   },

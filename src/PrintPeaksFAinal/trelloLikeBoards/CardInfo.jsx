@@ -424,7 +424,7 @@ export default function CardInfo({
                                         border: "none",
                                         borderRadius: "0.5vw",
                                         padding: "0.5vw",
-                                        background:'#fbfaf6'
+                                        background:'#f1eee7'
                                     }}
                                     onPaste={async (e) => {
                                         const clipboardFiles = e.clipboardData.files;

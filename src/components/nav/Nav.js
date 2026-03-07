@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef} from "react";
-import {NavLink} from "react-router-dom";
+import {NavLink, useLocation} from "react-router-dom";
 import {useSelector} from "react-redux";
 import "./Nav.css";
 import {Link} from "react-router-dom";
@@ -10,20 +10,24 @@ import {Form} from "react-bootstrap";
 import './logo/Logo.css';
 import AddNewOrder from "../../PrintPeaksFAinal/Orders/AddNewOrder";
 import AddUserButton from "../../PrintPeaksFAinal/user/AddUserButton.jsx";
+import AddCompanyButton from "../../PrintPeaksFAinal/company/AddCompanyButton.jsx";
 import {useNavigate} from "react-router-dom";
 import PopupLeftNotification from "./PopupLeftNotification";
 import {searchChange} from "../../actions/searchAction";
 import TermActiveWidget from "./TermActiveVidget";
 import TelegramDrawer from "..//Telegram/TelegramDrawer";
 import {openDrawer} from "../../telegram/telegramSlice";
+import UserSettingsModal from "./UserSettingsModal";
 
 
 const Nav = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const totalUnread = useSelector((s) => s.telegram.totalUnread);
   const currentUser = useSelector((state) => state.auth.user);
   const search = useSelector((state) => state.search.search);
   const [basicActive, setBasicActive] = useState('/');
+  const [showSettings, setShowSettings] = useState(false);
   const newOrderButtonRef = useRef(null);
   const navigate = useNavigate();
   const openTelegramDrawer = (e) => {
@@ -72,26 +76,31 @@ const Nav = () => {
     navigate('/login')
   }
 
+  if (location.pathname === '/login') return null;
+
   return (
+    <>
     <div style={{marginTop: '0'}}>
 
 
       <div className="nav-bar-row"
            style={{borderRadius: '0vh', marginBottom: '0vh'}}>
 
-        {/* ── Конверт 1: ЗЛІВА — Нове замовлення + Створити клієнта ── */}
+        {/* ── Конверт 1: ЗЛІВА — Нове замовлення + Створити клієнта / компанію ── */}
         {currentUser && (
           <div className="nav-actions-group">
             <AddNewOrder/>
             {(currentUser.role === "admin" || currentUser.role === "operator") && (
-              <AddUserButton fetchUsers={() => dispatch(fetchUser())}/>
+              location.pathname.startsWith('/Companys')
+                ? <AddCompanyButton />
+                : <AddUserButton fetchUsers={() => dispatch(fetchUser())} />
             )}
           </div>
         )}
 
         {/* ── Конверт 2: ПО ЦЕНТРУ — Пошук + Юзер + Сповіщення + Вихід ── */}
         <div className="nav-center-group">
-          <div className="nav-search-wrap">
+          {currentUser && <div className="nav-search-wrap">
             <Form.Control
               className="buttonSkewedSearch buttonSkewedSearchLupa"
               name="search"
@@ -109,32 +118,38 @@ const Nav = () => {
                 <path d="M22 22L20 20" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </span>
-          </div>
+          </div>}
           {currentUser ? (
             <>
               <div className="nav-right-controls">
-                <Link to="/currentUser" style={{textDecoration: 'none', display: 'flex'}}>
-                  <button className="adminButtonAddNav">
-                    <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
-                      <circle cx="12" cy="12" r="3"></circle>
-                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82a2 2 0 1 1-2.83 2.83a1.65 1.65 0 0 0-1.82.33a1.65 1.65 0 0 0-.5 1.47a2 2 0 1 1-3.9 0a1.65 1.65 0 0 0-1.47-.5a1.65 1.65 0 0 0-1.82-.33a2 2 0 1 1-2.83-2.83a1.65 1.65 0 0 0-.33-1.82a1.65 1.65 0 0 0-1.47-.5a2 2 0 1 1 0-3.9a1.65 1.65 0 0 0 1.47-.5a1.65 1.65 0 0 0 .33-1.82a2 2 0 1 1 2.83-2.83a1.65 1.65 0 0 0 1.82-.33a1.65 1.65 0 0 0 .5-1.47a2 2 0 1 1 3.9 0a1.65 1.65 0 0 0 1.47.5a1.65 1.65 0 0 0 1.82.33a2 2 0 1 1 2.83 2.83a1.65 1.65 0 0 0 .33 1.82a1.65 1.65 0 0 0 1.47.5a2 2 0 1 1 0 3.9a1.65 1.65 0 0 0-1.47.5z"></path>
-                    </svg>
-                    <span>{currentUser?.username} ({currentUser?.role})</span>
-                  </button>
-                </Link>
+                <button className="adminButtonAddNav" onClick={() => setShowSettings(true)}>
+                  <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82a2 2 0 1 1-2.83 2.83a1.65 1.65 0 0 0-1.82.33a1.65 1.65 0 0 0-.5 1.47a2 2 0 1 1-3.9 0a1.65 1.65 0 0 0-1.47-.5a1.65 1.65 0 0 0-1.82-.33a2 2 0 1 1-2.83-2.83a1.65 1.65 0 0 0-.33-1.82a1.65 1.65 0 0 0-1.47-.5a2 2 0 1 1 0-3.9a1.65 1.65 0 0 0 1.47-.5a1.65 1.65 0 0 0 .33-1.82a2 2 0 1 1 2.83-2.83a1.65 1.65 0 0 0 1.82-.33a1.65 1.65 0 0 0 .5-1.47a2 2 0 1 1 3.9 0a1.65 1.65 0 0 0 1.47.5a1.65 1.65 0 0 0 1.82.33a2 2 0 1 1 2.83 2.83a1.65 1.65 0 0 0 .33 1.82a1.65 1.65 0 0 0 1.47.5a2 2 0 1 1 0 3.9a1.65 1.65 0 0 0-1.47.5z"></path>
+                  </svg>
+                  <span>{currentUser?.username} ({currentUser?.role})</span>
+                </button>
 
                 <PopupLeftNotification/>
-
-                <button onClick={logoutt} className="adminButtonAddNavExit">
-                  <FiLogOut/>
-                </button>
               </div>
             </>
           ) : (
             <button
               onClick={handleClick}
               className="adminButtonAddNav buttonSkewedOrderClient"
-              style={{background: '#008249', borderRadius: '0', height: '3.5vh', cursor: 'pointer'}}
+              style={{
+                background: 'var(--admingreen, #0e935b)',
+                border: 'none',
+                borderRadius: '0',
+                width: '100%',
+                height: '100%',
+                cursor: 'pointer',
+                color: '#fff',
+                fontSize: '0.8rem',
+                fontWeight: '500',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+              }}
             >
               Логін
             </button>
@@ -170,6 +185,10 @@ const Nav = () => {
                     </svg>
                   </span>
                 </NavLink>
+
+                <button onClick={logoutt} className="btn nav-logout-btn">
+                  <span className="flip-front"><FiLogOut/></span>
+                </button>
               </nav>
             </div>
           )}
@@ -244,6 +263,10 @@ const Nav = () => {
                     </svg>
                   </span>
                 </NavLink>
+
+                <button onClick={logoutt} className="btn nav-logout-btn">
+                  <span className="flip-front"><FiLogOut/></span>
+                </button>
               </nav>
             </div>
           )}
@@ -298,17 +321,6 @@ const Nav = () => {
                   </span>
                 </NavLink>
 
-                <NavLink to="/dbGraph2" className="btn">
-                  <span className="flip-front">База</span>
-                  <span className="flip-back">
-                    <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
-                      <ellipse cx="12" cy="5" rx="7" ry="3"/>
-                      <path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/>
-                      <path d="M5 11c0 1.7 3.1 3 7 3s7-1.3 7-3"/>
-                    </svg>
-                  </span>
-                </NavLink>
-
                 <NavLink to="/Trello" className="btn">
                   <span className="flip-front">Завдання</span>
                   <span className="flip-back">
@@ -330,15 +342,9 @@ const Nav = () => {
                   </span>
                 </NavLink>
 
-                <NavLink to="/Shifts" className="btn">
-                  <span className="flip-front">Зміни</span>
-                  <span className="flip-back">
-                    <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
-                      <rect x="6" y="3" stroke="rgba(0,0,0,0.6)" width="12" height="18" rx="2"/>
-                      <path d="M9 7h6M9 11h6M9 15h6" stroke="rgba(0,0,0,0.6)"/>
-                    </svg>
-                  </span>
-                </NavLink>
+                <button onClick={logoutt} className="btn nav-logout-btn">
+                  <span className="flip-front"><FiLogOut/></span>
+                </button>
               </nav>
             </div>
           )}
@@ -348,6 +354,8 @@ const Nav = () => {
 
     </div>
 
+    {showSettings && <UserSettingsModal onClose={() => setShowSettings(false)} />}
+    </>
   )
 
 };

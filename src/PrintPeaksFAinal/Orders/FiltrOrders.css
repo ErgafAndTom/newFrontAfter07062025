@@ -1,178 +1,96 @@
-/* Весь рядок */
-.pp-filters-row {
+/* ═══════════════════════════════════════════
+   FiltrOrders — flt-* класи (redesign 2026-03-07)
+   ═══════════════════════════════════════════ */
+
+/* ── Вся панель фільтрів ── */
+.flt-bar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.6vw;
-  /*padding: 0.2vw 0vw;*/
-  background: #FAF8F2;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.35rem 0.5rem;
+  background: var(--adminfonelement, #f2f0e9);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+/* ── Конверт (група кнопок) ── */
+.flt-group {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  background: var(--adminfon, #f7f5ee);
+  padding: 0.2rem 0.35rem;
   flex-wrap: nowrap;
-}
-
-/* Лейбли */
-.pp-label-title {
-  font-size: 1.4vw;
-  color: #62625d;
-  font-weight: 400; /* НЕ ЖИРНИЙ */
-  margin-left: 0.4vw;
-  white-space: nowrap;
-  align-items: center;
-  filter: grayscale(100%);
-}
-.pp-label-title:hover {
-    font-size: 3.5vh;
-}
-.pp-label-small {
-  font-size: 1.2vw;
-  color: #62625d;
-  font-weight: 400; /* НЕ ЖИРНИЙ */
-  /*margin-right: 0.1vw;*/
   white-space: nowrap;
 }
 
-/* Тумблер + текст */
-.pp-inline-item {
-  display: flex;
-  align-items: center;
-  gap: 0.1vw;
-  white-space: nowrap;
+/* ── Роздільник між конвертами ── */
+.flt-divider {
+  width: 1px;
+  height: 1.3rem;
+  background: rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+  margin: 0 0.15rem;
 }
 
-/* Toggle */
-.pp-toggle {
-  position: relative;
-  width: 34px;
-  height: 18px;
-}
-.pp-toggle input { opacity: 0; }
-.pp-toggle-slider {
-  position: absolute;
-  inset: 0;
-  border-radius: 20px;
-  background: #E1DFDA;
-  transition: 0.25s;
-}
-.pp-toggle-slider:before {
-  content: "";
-  width: 14px;
-  height: 14px;
-  position: absolute;
-  left: 2px;
-  top: 2px;
-  border-radius: 50%;
-  background: #faf9f5;
-  transition: 0.25s;
-}
-.pp-toggle input:checked + .pp-toggle-slider {
-  background: #FAB416;
-}
-.pp-toggle input:checked + .pp-toggle-slider:before {
-  transform: translateX(16px);
-}
-
-/* Дати */
-.pp-date-row {
-  display: flex;
-  align-items: center;
-  gap: 0.1vw;
-  white-space: nowrap;
-}
-
-.pp-date-item-inline {
-  display: flex;
-  align-items: center;
-  gap: 0.4vw;
-}
-
-/* Input дати */
-.pp-input {
-  padding: 0.2vw 0.6vw;
-  border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+/* ── Кнопка фільтра (статус замовлення) ── */
+.flt-btn {
+  background: transparent;
   border: none;
-  color: #62625d;
-  font-size: 0.7vw;
-  font-weight: 400; /* НЕ ЖИРНИЙ */
-  background: #faf9f5;
+  border-bottom: 1.5px solid transparent;
+  padding: 0.12rem 0.4rem;
+  font-size: var(--fontcard, 0.72rem);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  cursor: pointer;
   white-space: nowrap;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: color 0.15s, border-color 0.15s, opacity 0.15s;
+  line-height: 1.4;
+}
+.flt-btn:hover {
+  color: var(--adminorange, #f5a623);
+}
+/* Активна (помаранчева) — статус включено */
+.flt-btn--on {
+  color: var(--adminorange, #f5a623);
+  border-bottom-color: var(--adminorange, #f5a623);
+}
+/* Неактивна (виключено) */
+.flt-btn--off {
+  opacity: 0.35;
 }
 
-/* Статуси */
-.pp-status-row {
-  display: flex;
-  align-items: center;
-  gap: 0.3vw;
-  white-space: nowrap;
-  margin: 0;
+/* ── Кнопки статусів замовлення — без рамки, лише текст з кольором статуса ── */
+.flt-btn--status {
+  border-bottom: none !important;
 }
+.flt-btn--status:hover {
+  opacity: 1;
+}
+.flt-btn--status.flt-btn--on {
+  color: inherit;
+  border-bottom-color: transparent !important;
+}
+.flt-btn--status.flt-status--s0 { color: var(--admingrey, #666666); }
+.flt-btn--status.flt-status--s1 { color: var(--adminorange, #f5a623); }
+.flt-btn--status.flt-status--s2 { color: var(--adminblue, #3c60a6); }
+.flt-btn--status.flt-status--s3 { color: var(--adminrose, #ef7aaa); }
+.flt-btn--status.flt-status--s4 { color: var(--adminpurple, #6a5acd); }
+.flt-btn--status.flt-status--s5 { color: var(--adminred, #ee3c23); }
 
-/* Плитка статусу */
-.pp-status-tile {
-  background: #faf9f5;
-  padding: 0.2vw 0.6vw;
-  border-radius: 10px;
-  border: none;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  font-size: 0.7vw;
-  font-weight: 400; /* НЕ ЖИРНИЙ */
-  color: #62625d;
-  cursor: pointer;
-  transition: 0.2s;
-  white-space: nowrap;
-  margin: 0;
-}
-.pp-status-tile:hover {
-  font-weight: 500; /* НЕ ЖИРНИЙ */
-  font-size: 0.75vw;
-}
-.pp-status-tile.active {
-  background: #FAB416;
+/* ── Кнопки оплати — кольори ── */
+.flt-btn--status.flt-pay--p-orange { color: var(--admingreen, #0e935b); }
+.flt-btn--status.flt-pay--p-green  { color: var(--admingreen, #0e935b); }
+.flt-btn--status.flt-pay--p-red    { color: var(--admingreen, #0e935b); }
+.flt-btn--status.flt-pay--p-grey   { color: var(--admingreen, #0e935b); }
+.flt-btn--status.flt-pay--p-blue   { color: var(--admingreen, #0e935b); }
 
-  color: #4c4a46;
-  font-weight: 500; /* НЕ ЖИРНИЙ */
-  font-size: 0.75vw;
-
-}
-.pp-filters-strelka{
-  font-size: 2vh;
-  font-weight: 600;
-  color: #4c4a46
-}
-.pp-filters-button{
-  min-width: 2vw;
-  width: 3vw;
-  padding: 0.3vh 0.7vw;
-  margin: 0.3vh 0.5vw
-}
-/* Іконки (🗓, 🛒, ₴) */
-.pp-icon {
-  cursor: pointer;
-  filter: grayscale(100%);
-  transition: 0.25s;
-}
-
-.pp-icon.active-icon {
-  filter: none;
-  color: #FAB416;
-}
-
-.pp-icon.active-icon-green {
-  filter: none;
-  color: #008349;
-}
-
-
-/* Плитки статусів */
-.pp-status-tile.active-green {
-  background: #008349;
-  color: white;
-  font-weight: 500;
-  font-size: 0.75vw;
-}
-
-/* ₴ Активний */
-.pp-label-title.active-icon-green {
-  color: #008349;
-  filter: none;
+/* ── Стрілка між датами ── */
+.flt-arrow {
+  font-size: var(--fontcard, 0.72rem);
+  color: var(--admingrey, #666666);
+  opacity: 0.5;
+  padding: 0 0.15rem;
 }

@@ -3,133 +3,93 @@ import "./styles.css";
 import AddPaysInOrder from "./AddPayInOrder";
 import ModalDeleteOrder from "../../Orders/ModalDeleteOrder";
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import axios from "../../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
-import { Spinner } from "react-bootstrap";
 import PaysInOrderRestoredForOurC from "./PaysInOrderRestoredForOurC";
+import Loader from "../../../components/calc/Loader";
 
+// ── Розгорнутий рядок ─────────────────────────────────────────────
 function RowExpanded({ item }) {
+  // 3-й елемент: число = flex-grow, об'єкт = кастомний style
+  const S = { flex: '0 0 1vw', maxWidth: '1vw', overflow: 'hidden' };
+  const fields = [
+    ['ID',        item.id,       S],
+    ['Назва',     item.name,     1.2],
+    ['Тип',       item.type,     S],
+    ['Оподатк.',  item.taxSystem],
+    ['ПДВ',       (item.pdv === 'true' || item.pdv === true) ? 'Так' : 'Ні', S],
+    ['Банк',      item.bankName, 1.2],
+    ['ЄДРПОУ',   item.edrpou],
+    ['Телефон',   item.phone],
+    ['Email',     item.email],
+    ['IBAN',      item.iban,    2],
+    ['Адреса',    item.address, 3],
+    ['Оновлено',  item.updatedAt ? new Date(item.updatedAt).toLocaleString() : '—'],
+    ['Створено',  item.createdAt ? new Date(item.createdAt).toLocaleString() : '—'],
+  ];
+  if (item.User) fields.push([
+    'Користувач',
+    [item.User.firstName, item.User.lastName, item.User.familyName, (item.User.phoneNumber || '').trim()].filter(Boolean).join(' ')
+  ]);
+  if (item.comment) fields.push(['Коментар', item.comment, 2]);
+
   return (
-    <div className="OrderRow-expanded pastel-panel" style={{border:"0px"}} onClick={(e) => e.stopPropagation()}>
-      <div className="ExpandedRow-details">
-        <p><strong>Дата створення:</strong> {new Date(item.createdAt).toLocaleString()}</p>
-        <p><strong>Дата оновлення:</strong> {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : '—'}</p>
-      </div>
-      <div className="OrderRow-units d-flex flex-row" style={{ gap: "0.5vw", flexWrap: "wrap" }}>
-        <div className="OrderUnit-card">
-          <div className="UsersOrdersLikeTable-contract-text"><strong>ID:</strong> {item.id}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Назва:</strong> {item.name || "···"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Тип:</strong> {item.type || "···"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Система оподаткування:</strong> {item.taxSystem || "···"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>ПДВ:</strong> {item.pdv === "true" || item.pdv === true ? "так" : "ні"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Банк:</strong> {item.bankName || "···"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>IBAN:</strong> {item.iban || "···"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>ЄДРПОУ:</strong> {item.edrpou || "···"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Телефон:</strong> {item.phone || "···"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Email:</strong> {item.email || "···"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Адреса:</strong> {item.address || "···"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Оновлено:</strong> {item.updatedAt ? new Date(item.updatedAt).toLocaleString() : "···"}</div>
-          <div className="UsersOrdersLikeTable-contract-text"><strong>Користувач:</strong> {item.User ? `${item.User.firstName || ""} ${item.User.lastName || ""} ${item.User.familyName || ""} (${item.User.phoneNumber || "···"})` : "···"}</div>
-          {item.comment && (
-            <div className="UsersOrdersLikeTable-contract-text"><strong>Коментар:</strong> {item.comment}</div>
-          )}
+    <div className="pays-expanded" onClick={(e) => e.stopPropagation()}>
+      {fields.map(([k, v, s]) => (
+        <div
+          key={k}
+          className="pays-expanded-field"
+          style={typeof s === 'object' ? s : { flex: `${s || 1} 0 0` }}
+        >
+          <span className="pays-expanded-key">{k}:</span>
+          <span className="pays-expanded-val">{v || '—'}</span>
         </div>
-      </div>
+      ))}
     </div>
   );
 }
 
-function Section({
-                   title,
-                   data,
-                   filterKey,
-                   expandedId,
-                   setExpandedId,
-                   generateInvoice,
-                   openSeePay,
-                   openDeletePay,
-                 }) {
+// ── Секція з рядками ──────────────────────────────────────────────
+function Section({ title, data, filterKey, expandedId, setExpandedId, generateInvoice, openSeePay, openDeletePay }) {
   const filtered = Array.isArray(data) ? data.filter((x) => x?.[filterKey]) : [];
 
   return (
-    <div className="">
-      <div className="d-flex ">{title}</div>
+    <div className="pays-section">
+      <div className="pays-section-title">{title}</div>
+
+      {filtered.length === 0 && (
+        <div className="pays-cell pays-cell--italic">—</div>
+      )}
+
       {filtered.map((item, idx) => {
         const isOpen = expandedId === item.id;
         return (
-          <div key={item.id} className="OrderBlock" style={{border:"0px"}}>
+          <div key={item.id}>
             <div
-              className="OrderRow-summary OrderRow-hover contractors-like-cols"
-              style={{border:"0px"}}
+              className={`pays-tbl-row${isOpen ? ' pays-tbl-row--open' : ''}`}
               onClick={() => setExpandedId(isOpen ? null : item.id)}
             >
-              <div className="summary-cell d-flex justify-content-center contragentId" style={{border:"0px"}}>{idx + 1}</div>
-
-              <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentName" >
-                {item.name || "···"}
+              <div className="pays-cell pays-cell--center">{idx + 1}</div>
+              <div className="pays-cell">{item.name || '—'}</div>
+              <div className="pays-cell">{item.taxSystem || '—'}</div>
+              <div className="pays-cell">{item.bankName || '—'}</div>
+              <div className="pays-cell">{item.iban || '—'}</div>
+              <div className="pays-cell pays-cell--center">
+                {(item.pdv === 'true' || item.pdv === true) ? '+' : '—'}
               </div>
-
-              <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentGrupa" >
-                {item.taxSystem || "···"}
-              </div>
-
-              <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentBank" >
-                {item.bankName || "···"}
-              </div>
-
-              <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentIBAN" >
-                {item.iban || "···"}
-              </div>
-
-              <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentPDV" >
-                {(item.pdv === "true" || item.pdv === true) ? "+" : "-"}
-              </div>
-
-              <div
-                className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentClient"
-                // style={{ width: "12vw", maxWidth: "12vw" }}
-
-              >
+              <div className="pays-cell">
                 {item.User
-                  ? `${item.User.firstName || ""} ${item.User.lastName || ""} ${item.User.familyName || ""} (${item.User.phoneNumber || "···"})`
-                  : "···"}
+                  ? [item.User.firstName, item.User.lastName].filter(Boolean).join(' ')
+                  : '—'}
               </div>
-
-              <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentEDRPOU"  >
-                {item.edrpou || "···"}
-              </div>
-
-              <div className="summary-cell UsersOrdersLikeTable-contract-text-multiline contragentTelephone"  >
-                {item.phone || "···"}
-              </div>
-
-              <div
-                className="summary-cell contragentDocu d-flex justify-content-center"
-
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button className="adminButtonAdd"  style={{minWidth:"7vw"}} onClick={(e) => generateInvoice(e, item)}>
-                  Завантажити
-                </button>
-              </div>
-
-              <div
-                className="summary-cell contragentDii d-flex justify-content-center"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button className="adminButtonAdd" style={{minWidth:"7vw"}}  onClick={(e) => openSeePay(e, item)}>
-                  Редагувати
-                </button>
-                <button
-                  className="adminButtonAdd"
-                  style={{ background: "#ee3c23", marginLeft: "01vw" ,minWidth:"7vw"}}
-                  onClick={(e) => openDeletePay(e, item)}
-                >
-                  Видалити
-                </button>
+              <div className="pays-cell">{item.edrpou || '—'}</div>
+              <div className="pays-cell pays-cell--actions" onClick={(e) => e.stopPropagation()}>
+                <button className="pays-tbl-btn pays-tbl-btn--green" onClick={(e) => generateInvoice(e, item)}>Сформувати рахунок</button>
+                <button className="pays-tbl-btn"                     onClick={(e) => openSeePay(e, item)}>Редагувати</button>
+                <button className="pays-tbl-btn pays-tbl-btn--red"   onClick={(e) => openDeletePay(e, item)}>Видалити</button>
               </div>
             </div>
-
             {isOpen && <RowExpanded item={item} />}
           </div>
         );
@@ -138,61 +98,48 @@ function Section({
   );
 }
 
+// ── Головний компонент ────────────────────────────────────────────
 export default function PaysInOrderRestored_OrdersLike({
-                                                         showPays,
-                                                         setShowPays,
-                                                         thisOrder,
-                                                         setThisOrder,
-                                                       }) {
+  showPays, setShowPays, thisOrder, setThisOrder,
+}) {
   const navigate = useNavigate();
 
-  // state
-  const [load, setLoad] = useState(false);
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
+  const [load,     setLoad]     = useState(false);
+  const [data,     setData]     = useState(null);
+  const [error,    setError]    = useState(null);
 
   const [showAllsOurContragents, setShowAllsOurContragents] = useState(false);
-
-  const [thisOrderForDelete, setThisOrderForDelete] = useState(null);
-  const [showDeleteOrderModal, setShowDeleteOrderModal] = useState(false);
-
-  const [showAddPay, setShowAddPay] = useState(false);
-  const [showAddPayView, setShowAddPayView] = useState(false);
-  const [showAddPayWriteId, setShowAddPayWriteId] = useState(false);
-  const [buyerId, setBuyerId] = useState(null);
+  const [thisOrderForDelete,     setThisOrderForDelete]     = useState(null);
+  const [showDeleteOrderModal,   setShowDeleteOrderModal]   = useState(false);
+  const [showAddPay,             setShowAddPay]             = useState(false);
+  const [showAddPayView,         setShowAddPayView]         = useState(false);
+  const [showAddPayWriteId,      setShowAddPayWriteId]      = useState(false);
+  const [buyerId,                setBuyerId]                = useState(null);
   const [formData, setFormData] = useState({
-    name: "", type: "", address: "", bankName: "", iban: "",
-    edrpou: "", email: "", phone: "", taxSystem: "", pdv: "", comment: "",
+    name: '', type: '', address: '', bankName: '', iban: '',
+    edrpou: '', email: '', phone: '', taxSystem: '', pdv: '', comment: '',
   });
 
-  const [inPageCount] = useState(500);
-  const [currentPage] = useState(1);
-  const [typeSelect, setTypeSelect] = useState("");
-  const [thisColumn] = useState({ column: "id", reverse: true });
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [inPageCount]  = useState(500);
+  const [currentPage]  = useState(1);
+  const [typeSelect,   setTypeSelect]   = useState('');
+  const [thisColumn]   = useState({ column: 'id', reverse: true });
+  const [startDate,    setStartDate]    = useState('');
+  const [endDate,      setEndDate]      = useState('');
 
-  const [isVisible, setIsVisible] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [isVisible,    setIsVisible]    = useState(false);
+  const [isAnimating,  setIsAnimating]  = useState(false);
+  const [expandedId,   setExpandedId]   = useState(null);
 
-  const [expandedId, setExpandedId] = useState(null);
-
-  // helpers
   const handleClose = () => {
     setIsAnimating(false);
-    setTimeout(() => {
-      setIsVisible(false);
-      setShowPays(false);
-    }, 300);
+    setTimeout(() => { setIsVisible(false); setShowPays(false); }, 250);
   };
 
   const openAddPay = () => {
     setShowAddPay(!showAddPay);
     setShowAddPayView(false);
-    setFormData({
-      name: "", type: "", address: "", bankName: "", iban: "",
-      edrpou: "", email: "", phone: "", taxSystem: "", pdv: "", comment: "",
-    });
+    setFormData({ name: '', type: '', address: '', bankName: '', iban: '', edrpou: '', email: '', phone: '', taxSystem: '', pdv: '', comment: '' });
   };
 
   const openSeePay = (e, item) => {
@@ -216,225 +163,138 @@ export default function PaysInOrderRestored_OrdersLike({
     setBuyerId(item.id);
     e.preventDefault();
     setShowAllsOurContragents(true);
-    // тут лишена логіка генерації, як у тебе
   };
 
   const handleAxiosError = (error) => {
-    if (error.response?.status === 403) navigate("/login");
+    if (error.response?.status === 403) navigate('/login');
     setError(error.message);
     setLoad(false);
   };
 
-  // data fetch
   useEffect(() => {
     const payload = {
-      inPageCount,
-      currentPage,
+      inPageCount, currentPage,
       search: typeSelect,
       columnName: thisColumn,
-      startDate,
-      endDate,
+      startDate, endDate,
       clientId: thisOrder.clientId,
     };
-
     setLoad(true);
-    axios
-      .post(`/api/contractorsN/getContractors`, payload)
-      .then((response) => {
-        setData(response.data.rows);
-        setError(null);
-        setLoad(false);
-      })
+    axios.post('/api/contractorsN/getContractors', payload)
+      .then((res) => { setData(res.data.rows); setError(null); setLoad(false); })
       .catch(handleAxiosError);
-  }, [typeSelect, thisColumn, startDate, endDate, showAddPay]);
+  }, [typeSelect, thisColumn, startDate, endDate, showAddPay]); // eslint-disable-line
 
-  // modal animation
   useEffect(() => {
     if (showPays) {
       setIsVisible(true);
-      setTimeout(() => setIsAnimating(true), 100);
+      setTimeout(() => setIsAnimating(true), 30);
     } else {
       setIsAnimating(false);
-      setTimeout(() => setIsVisible(false), 300);
+      setTimeout(() => setIsVisible(false), 250);
     }
   }, [showPays]);
 
   if (!isVisible) return null;
 
   return (
-    <div>
-      {/* overlay */}
+    <>
+      {/* ── Overlay ── */}
       <div
+        className={`pays-overlay${isAnimating ? ' pays-overlay--visible' : ''}`}
         onClick={handleClose}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          width: '100vw',
-          height: '100vh',
-          backgroundColor: 'rgba(15, 15, 15, 0.45)',
-          backdropFilter: 'blur(2px)',
-          WebkitBackdropFilter: 'blur(2px)',
-          zIndex: 99,
-          opacity: isAnimating ? 1 : 0,
-          transition: 'opacity 200ms ease'
-        }}
       />
 
-      {/* modal */}
-      <div
-        style={{
-          position: "fixed",
-          left: "50%",
-          top: "50%",
-          transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)",
-          opacity: isAnimating ? 1 : 0,
-          transition: "opacity .3s, transform .3s",
-          backgroundColor: "#FBFAF6",
-          width: "95vw",
-          height: "95vh",
-          borderRadius: "1vw",
-          zIndex: 101,
-          display: "flex",
-          flexDirection: "column",
-          border:"0px"
-        }}
-      >
-        {/* header */}
-        <div className="d-flex" style={{border:"0px"}}>
-          {thisOrder?.client && (
-            <div className="m-auto text-center fontProductName">
-              {/*Реквізити рахунків: {thisOrder.client.username} — {thisOrder.client.firstName} {thisOrder.client.lastName} {thisOrder.client.familyName}*/}
-            </div>
-          )}
-          {/*<button className="btn btn-close" style={{ margin: "0.8vw", width: "1vw" , height: "1vw"}} onClick={handleClose} />*/}
-        </div>
+      {/* ── Панель ── */}
+      <div className={`pays-panel${isAnimating ? ' pays-panel--visible' : ''}`}>
 
-        {/* body */}
-        <div style={{ padding: "1vw", border:"0px" }}>
-          <div className="">
-            {/*<h5 className="d-flex m-auto fw-bold">{title}</h5>*/}
+        {/* Content */}
+        <div className="pays-content custom-scroll">
 
-            <div className="OrderList" style={{height: "auto", border:"0px"}}>
-              {/* header */}
-              <div className="OrderRow-summary OrderRow-header contractors-like-cols" style={{border:"0px"}}>
-                <div className="summary-cell contragentId d-flex justify-content-center" >№</div>
-                <div className="summary-cell contragentName" >Контрагент</div>
-                <div className="summary-cell contragentGrupa" >Опод.</div>
-                <div className="summary-cell contragentBank" >Банк</div>
-                <div className="summary-cell contragentIBAN" >IBAN</div>
-                <div className="summary-cell contragentPDV" >ПДВ</div>
-                <div className="summary-cell contragentClient" >Клієнт</div>
-                <div className="summary-cell contragentEDRPOU" >ЄДРПОУ</div>
-                <div className="summary-cell contragentTelephone" >Тел.</div>
-                <div className="summary-cell contragentDocu d-flex justify-content-center" ></div>
-                <div className="summary-cell contragentDii d-flex justify-content-center" ></div>
-              </div>
-
-
-              {error && <div className=" mb-2">{error}</div>}
-
-              {load ? (
-                <div className="d-flex justify-content-center align-items-center" >
-                  <Spinner animation="border" variant="dark" />
-                </div>
-              ) : (
-                <div className="d-flex" style={{height: "80vh"}}>
-                  <div className="d-flex flex-column" style={{border: "0px", overflow: "auto", height: "80vh"}}>
-                    <Section
-                      title="Контрагенти клієнта"
-                      data={data}
-                      filterKey="isClientOwner"
-                      expandedId={expandedId}
-                      setExpandedId={setExpandedId}
-                      generateInvoice={generateInvoice}
-                      openSeePay={openSeePay}
-                      openDeletePay={openDeletePay}
-
-                    />
-
-                    <div style={{margin: "5vh 0"}}></div>
-
-                    <Section
-                      title="Загальні контрагенти компанії"
-                      data={data}
-                      filterKey="isCompanyOwner"
-                      expandedId={expandedId}
-                      setExpandedId={setExpandedId}
-                      generateInvoice={generateInvoice}
-                      openSeePay={openSeePay}
-                      openDeletePay={openDeletePay}
-                    />
-
-                    <div style={{margin: "5vh "}}></div>
-
-                    <Section
-                      title="Контрагенти співробітників компанії"
-                      data={data}
-                      filterKey="isColleagueOwner"
-                      expandedId={expandedId}
-                      setExpandedId={setExpandedId}
-                      generateInvoice={generateInvoice}
-                      openSeePay={openSeePay}
-                      openDeletePay={openDeletePay}
-                      className="rahunkiline"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
+          {/* Топбар */}
+          <div className="pays-topbar">
+            <button className="pays-add-btn" onClick={openAddPay}>
+              + Додати особистого контрагента
+            </button>
           </div>
 
-          <button className="adminButtonAdd" style={{ marginTop: "2vh" }} onClick={openAddPay}>
-            Додати особистого контрагента
-          </button>
+          {/* Заголовок таблиці */}
+          <div className="pays-tbl-head">
+            <div className="pays-cell-label">№</div>
+            <div className="pays-cell-label">Контрагент</div>
+            <div className="pays-cell-label">Опод.</div>
+            <div className="pays-cell-label">Банк</div>
+            <div className="pays-cell-label">IBAN</div>
+            <div className="pays-cell-label">ПДВ</div>
+            <div className="pays-cell-label">Клієнт</div>
+            <div className="pays-cell-label">ЄДРПОУ</div>
+            <div className="pays-cell-label">ДІЯ</div>
+          </div>
 
-          {/* nested modals */}
-          {showAddPay && (
-            <AddPaysInOrder
-              showAddPay={showAddPay}
-              setShowAddPay={setShowAddPay}
-              formData={formData}
-              setFormData={setFormData}
-              thisOrder={thisOrder}
-              setThisOrder={setThisOrder}
-              data={data}
-              setData={setData}
-              showAddPayView={showAddPayView}
-              setShowAddPayView={setShowAddPayView}
-              showAddPayWriteId={showAddPayWriteId}
-              setShowAddPayWriteId={setShowAddPayWriteId}
-            />
+          {error && <div className="pays-error">{error}</div>}
+
+          {load ? (
+            <div className="pays-loader"><Loader /></div>
+          ) : (
+            <>
+              <Section title="Контрагенти клієнта"                 data={data} filterKey="isClientOwner"       expandedId={expandedId} setExpandedId={setExpandedId} generateInvoice={generateInvoice} openSeePay={openSeePay} openDeletePay={openDeletePay} />
+              <Section title="Загальні контрагенти компанії"       data={data} filterKey="isCompanyOwner"      expandedId={expandedId} setExpandedId={setExpandedId} generateInvoice={generateInvoice} openSeePay={openSeePay} openDeletePay={openDeletePay} />
+              <Section title="Контрагенти співробітників компанії" data={data} filterKey="isColleagueOwner"    expandedId={expandedId} setExpandedId={setExpandedId} generateInvoice={generateInvoice} openSeePay={openSeePay} openDeletePay={openDeletePay} />
+            </>
           )}
-
-          {showAllsOurContragents && (
-            <PaysInOrderRestoredForOurC
-              showPays={showAllsOurContragents}
-              setShowPays={setShowAllsOurContragents}
-              formData={formData}
-              setFormData={setFormData}
-              thisOrder={thisOrder}
-              setThisOrder={setThisOrder}
-              data={data}
-              setData={setData}
-              showAddPayView={showAddPayView}
-              setShowAddPayView={setShowAddPayView}
-              showAddPayWriteId={showAddPayWriteId}
-              setShowAddPayWriteId={setShowAddPayWriteId}
-              buyerId={buyerId}
-            />
-          )}
-
-          <ModalDeleteOrder
-            showDeleteOrderModal={showDeleteOrderModal}
-            setShowDeleteOrderModal={setShowDeleteOrderModal}
-            thisOrderForDelete={thisOrderForDelete}
-            setThisOrderForDelete={setThisOrderForDelete}
-            data={data}
-            setData={setData}
-            url="/api/contractorsN/deleteContractor"
-          />
         </div>
       </div>
-    </div>
+
+      {/* Вкладені модали */}
+      {showAddPay && ReactDOM.createPortal(
+        <AddPaysInOrder
+          key={showAddPayWriteId || 'add'}
+          showAddPay={showAddPay}
+          setShowAddPay={setShowAddPay}
+          initialData={showAddPayView ? formData : null}
+          thisOrder={thisOrder}
+          setThisOrder={setThisOrder}
+          data={data}
+          setData={setData}
+          showAddPayView={showAddPayView}
+          setShowAddPayView={setShowAddPayView}
+          showAddPayWriteId={showAddPayWriteId}
+          setShowAddPayWriteId={setShowAddPayWriteId}
+        />,
+        document.body
+      )}
+
+      {showAllsOurContragents && ReactDOM.createPortal(
+        <PaysInOrderRestoredForOurC
+          showPays={showAllsOurContragents}
+          setShowPays={setShowAllsOurContragents}
+          formData={formData}
+          setFormData={setFormData}
+          thisOrder={thisOrder}
+          setThisOrder={setThisOrder}
+          data={data}
+          setData={setData}
+          showAddPayView={showAddPayView}
+          setShowAddPayView={setShowAddPayView}
+          showAddPayWriteId={showAddPayWriteId}
+          setShowAddPayWriteId={setShowAddPayWriteId}
+          buyerId={buyerId}
+        />,
+        document.body
+      )}
+
+      <ModalDeleteOrder
+        showDeleteOrderModal={showDeleteOrderModal}
+        setShowDeleteOrderModal={setShowDeleteOrderModal}
+        thisOrderForDelete={thisOrderForDelete}
+        setThisOrderForDelete={setThisOrderForDelete}
+        data={data}
+        setData={setData}
+        url="/api/contractorsN/deleteContractor"
+        title={`Видалити контрагента №${thisOrderForDelete?.id || '—'}?`}
+        subLabel={thisOrderForDelete?.name || '—'}
+        showTotal={false}
+      />
+    </>
   );
 }

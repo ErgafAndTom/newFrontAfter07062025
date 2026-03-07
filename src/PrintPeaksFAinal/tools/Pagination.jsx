@@ -20,21 +20,23 @@ const Pagination = ({ currentPage, totalPages, onPageChange, onLimitChange, hand
 
   return (
     <div className="pagination-wrapper">
-      <div className="pagination-limit">
-        <select value={limit} onChange={e => onLimitChange(Number(e.target.value))}>
-          <option value={20}>20</option>
-          <option value={50}>50</option>
-          <option value={100}>100</option>
-          <option value={250}>250</option>
-          <option value={500}>500</option>
-        </select>
-      </div>
+      {onLimitChange && (
+        <div className="pagination-limit">
+          <select value={limit} onChange={e => onLimitChange(Number(e.target.value))}>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+            <option value={250}>250</option>
+            <option value={500}>500</option>
+          </select>
+        </div>
+      )}
       <button
         className="page-btn"
         disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
       >
-        ← Prev
+        ← Попередня
       </button>
 
       <div className="pagination-list-wrapper" ref={listWrapperRef}>
@@ -57,7 +59,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, onLimitChange, hand
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
       >
-        Next →
+        Наступна →
       </button>
 
 

@@ -68,7 +68,7 @@ const OneUnitInTable = ({itemData, tablPosition, item, metaItem, handleItemClick
         fontSize: "0.5vw",
         boxSizing: "border-box",
         textAlign: "center",
-        background: "#FBFAF6",
+        background: "#f1eee7",
         boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
         borderBottom: "0.1vw solid #eaeaea",
         padding: "0.1vw 0.2vw"
@@ -110,7 +110,7 @@ const OneUnitInTable = ({itemData, tablPosition, item, metaItem, handleItemClick
                     ...editableCellStyle,
                     backgroundColor: itemData === 'admin' ? '#ffe9e9' :
                         itemData === 'manager' ? '#e9f8ff' :
-                            itemData === 'operator' ? '#f2ffe9' : '#FBFAF6'
+                            itemData === 'operator' ? '#f2ffe9' : '#f1eee7'
 
                 }}
                 onClick={(e) => handleItemClickRed(item, e, metaItem)}

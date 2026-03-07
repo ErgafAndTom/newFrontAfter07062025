@@ -13,133 +13,76 @@
    Service Tiles Grid
    ============================================================ */
 
-
-
-
 .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  gap: 0.4rem;
   padding-bottom: 0 !important;
   margin-left: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0.7rem;
 }
 
 .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-primary {
   margin-top: 1rem;
 }
 
+/* ── Базовий тайл ── */
 .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p {
-
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
-  overflow: hidden;
-  background: var(--adminfonelement, #f2f0e9);
-  border-bottom: 2px solid var(--adminorange, #f5a623);
-  color: var(--adminorange, #f5a623);
+  justify-content: center;
+  background: rgba(139, 69, 19, 0.05);
+  border: none;
+  border-bottom: 1.5px solid var(--adminorange, #f5a623);
+  color: var(--admingrey, #666666);
   cursor: pointer;
-  height: 12vh !important;
+  height: 10vh !important;
   width: 7.5vw !important;
   border-radius: 0 !important;
-  justify-content: center;
-  padding: 1rem 1rem 0 1rem;
-
+  padding: 0.4rem 0.5rem 0.25rem;
+  margin: 0;
+  overflow: hidden;
+  position: relative;
+  transition: background 0.15s;
 }
-
-/* border появляється знизу вгору і до центру через ::before (вертикалі) і ::after (горизонталі) */
 .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p::before,
 .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-
+  display: none;
 }
-
-/* вертикальні лінії — ростуть знизу вгору (поява), зникають вниз з затримкою (зникнення) */
-.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p::before {
-  border-left: 2px solid var(--adminorange, #f5a623);
-  border-right: 2px solid var(--adminorange, #f5a623);
-  clip-path: inset(100% 0 0 0);
-  transition: clip-path 0.35s ease 0.25s;
-}
-
-/* горизонтальні лінії — ростуть з боків до центру (поява з затримкою), зникають одразу (зникнення) */
-.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p::after {
-  border-top: 2px solid var(--adminorange, #f5a623);
-  clip-path: inset(0 0 0 0);
-  -webkit-mask: linear-gradient(to right, black 0%, black 50%, transparent 50%) left/200% 100%,
-                linear-gradient(to left,  black 0%, black 50%, transparent 50%) right/200% 100%;
-  mask: linear-gradient(to right, black 0%, black 50%, transparent 50%) left/200% 100%,
-        linear-gradient(to left,  black 0%, black 50%, transparent 50%) right/200% 100%;
-  -webkit-mask-size: 200% 100%, 200% 100%;
-  mask-size: 200% 100%, 200% 100%;
-  -webkit-mask-position: 100% 0, 0% 0;
-  mask-position: 100% 0, 0% 0;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  transition: -webkit-mask-position 0.3s ease 0s, mask-position 0.3s ease 0s;
-}
-
 .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p:hover {
+  background: rgba(139, 69, 19, 0.11);
   box-shadow: none;
 }
 
-.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p:hover::before {
-  clip-path: inset(0 0 0 0);
-  transition: clip-path 0.35s ease 0s;
-}
-
-.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p:hover::after {
-  -webkit-mask-position: 0% 0, 100% 0;
-  mask-position: 0% 0, 100% 0;
-  transition: -webkit-mask-position 0.3s ease 0.25s, mask-position 0.3s ease 0.25s;
-}
-
-/* PLOTTER CUT, MAGNETS, LAMINATION, BINDING — blue */
+/* ── PLOTTER CUT, MAGNETS, LAMINATION, BINDING — blue ── */
 .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-middle p {
+  background: rgba(60, 96, 166, 0.05) !important;
   border-bottom-color: var(--adminblue, #3c60a6) !important;
-  color: var(--adminblue, #3c60a6) !important;
+}
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-middle p:hover {
+  background: rgba(60, 96, 166, 0.12) !important;
 }
 
-.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-middle p::before {
-  border-left-color: var(--adminblue, #3c60a6) !important;
-  border-right-color: var(--adminblue, #3c60a6) !important;
-}
-
-.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-middle p::after {
-  border-top-color: var(--adminblue, #3c60a6) !important;
-}
-
-/* NOTE, BOOKLET, MUG — coral */
+/* ── NOTE, BOOKLET, MUG — rose ── */
 .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-tertiary p {
-  border-bottom-color: var(--admincoral, #ff7f50) !important;
-  color: var(--admincoral, #ff7f50) !important;
+  background: rgba(240, 117, 170, 0.05) !important;
+  border-bottom-color: var(--adminrose, #ef7aaa) !important;
 }
-.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-tertiary p::before {
-  border-left-color: var(--admincoral, #ff7f50) !important;
-  border-right-color: var(--admincoral, #ff7f50) !important;
-}
-.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-tertiary p::after {
-  border-top-color: var(--admincoral, #ff7f50) !important;
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-tertiary p:hover {
+  background: rgba(240, 117, 170, 0.12) !important;
 }
 
-/* SCANS, DELIVERY, WIDE FACTORY — purple */
+/* ── SCANS, DELIVERY, WIDE FACTORY — purple ── */
 .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-secondary p {
+  background: rgba(106, 90, 205, 0.05) !important;
   border-bottom-color: var(--adminpurple, #6a5acd) !important;
-  color: var(--adminpurple, #6a5acd) !important;
 }
-.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-secondary p::before {
-  border-left-color: var(--adminpurple, #6a5acd) !important;
-  border-right-color: var(--adminpurple, #6a5acd) !important;
-}
-.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-secondary p::after {
-  border-top-color: var(--adminpurple, #6a5acd) !important;
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-secondary p:hover {
+  background: rgba(106, 90, 205, 0.12) !important;
 }
 
-/* tileContent */
+/* ── tileContent ── */
 .nui-sheetcut-theme .CardPrintersPoslugi .tileContent {
   display: flex;
   flex-direction: column;
@@ -150,67 +93,50 @@
   text-align: center;
   color: inherit;
   position: relative;
-
 }
 
-/* Label */
+/* ── Підпис ── */
 .nui-sheetcut-theme .CardPrintersPoslugi .verticalText {
   writing-mode: horizontal-tb;
   transform: none;
   font-weight: 400;
-  font-size: var(--font-size-s);
-  color: inherit !important;
+  font-size: var(--fontcard, 0.72rem);
+  color: var(--admingrey, #666666) !important;
   text-transform: uppercase;
   text-align: center;
-  margin-top: 0.2rem;
-  margin-bottom: 0.0rem;
+  margin-top: 0.15rem;
+  margin-bottom: 0;
   line-height: 1.1;
+  letter-spacing: 0.03em;
 }
 
-/* tileContent passes color down from p */
-.nui-sheetcut-theme .CardPrintersPoslugi .tileContent {
-  color: inherit;
-}
-
-/* Icons */
+/* ── Іконки ── */
 .nui-sheetcut-theme .CardPrintersPoslugi .tileContent img {
-  width: 3.6rem;
-  height: 3.6rem;
+  width: 3rem;
+  height: 3rem;
   object-fit: contain;
-  opacity: 0.95;
+  opacity: 0.65;
   filter: grayscale(1);
-  transition: transform 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
+  transition: opacity 0.15s;
   margin-top: auto;
-  margin-bottom: 1vh;
+  margin-bottom: 0.4vh;
 }
-
-.nui-sheetcut-theme .CardPrintersPoslugi .tileContent img[src*="delivery"],
-.nui-sheetcut-theme .CardPrintersPoslugi .tileContent img[src*="note"],
-.nui-sheetcut-theme .CardPrintersPoslugi .tileContent img[src*="booklet"],
-.nui-sheetcut-theme .CardPrintersPoslugi .tileContent img[src*="magnets"],
-.nui-sheetcut-theme .CardPrintersPoslugi .tileContent img[src*="photo"] {
-  width: 3.84rem;
-  height: 3.84rem;
-}
-
 .nui-sheetcut-theme .CardPrintersPoslugi p:hover .tileContent img {
-  transform: scale(1.1);
-  opacity: 1;
-  filter: grayscale(0);
+  opacity: 0.9;
+  filter: grayscale(0.2);
 }
 
 .nui-sheetcut-theme .CardPrintersPoslugi .tileContent > svg {
-  opacity: 0.5;
-  width: 3.6rem;
-  height: 3.6rem;
-  transition: transform 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
+  opacity: 0.55;
+  width: 3rem;
+  height: 3rem;
+  transition: opacity 0.15s;
   filter: grayscale(1);
-  margin-top: 0;
+  margin-top: auto;
+  margin-bottom: 0.4vh;
 }
-
 .nui-sheetcut-theme .CardPrintersPoslugi p:hover .tileContent > svg {
-  transform: scale(1.1);
-  opacity: 1;
+  opacity: 0.9;
   filter: grayscale(0);
 }
 

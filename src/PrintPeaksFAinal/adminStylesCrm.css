@@ -41,7 +41,7 @@
     width: 3.1vw;
     margin: 0.4vw;
     justify-content: center;
-    background: #FBFAF6;
+    background: #f1eee7;
     font-size: var(--font-size-base);
     border-radius: 1.5vw;
     border: none;
@@ -55,7 +55,7 @@
     font-size: var(--font-size-base);
     display: flex;
     justify-content: center;
-    background: #FBFAF6;
+    background: #f1eee7;
     width: 1.7vw;
     height: 1.7vw;
     border-radius: 1.5vw;
@@ -311,7 +311,7 @@
 }
 
 .whiteBG {
-    background: #FBFAF6;
+    background: #f1eee7;
 }
 
 .redStorageItem:hover {
@@ -344,7 +344,7 @@
 
 /* Стилізація доріжки полоси прокрутки */
 ::-webkit-scrollbar-track {
-    background: #FBFAF6; /* Колір фону доріжки */
+    background: #f1eee7; /* Колір фону доріжки */
 }
 
 /* Стилізація ручки полоси прокрутки */
@@ -377,7 +377,7 @@
 }
 
 .colorCards {
-    background: #FBFAF6;
+    background: #f1eee7;
 }
 
 .adminFont2 {
@@ -564,7 +564,7 @@
     0 1px 0 rgba(255,255,255,.5) inset,
     0 -1px 0 rgba(0,0,0,.04) inset,
     0 3px 8px rgba(0,0,0,.14);
-  background: #fbfaf6;
+  background: #f1eee7;
 }
 
 

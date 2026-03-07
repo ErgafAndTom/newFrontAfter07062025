@@ -1,29 +1,24 @@
-// App.jsx
 import React, {useEffect, useState} from 'react';
 import { DateRangePicker, defaultStaticRanges } from 'react-date-range';
-import './calendarstyles.css'; // основні стилі
-import './calendartheme.css'; // тема
+import './calendarstyles.css';
+import './calendartheme.css';
 import {addDays} from 'date-fns';
 import axios from "../api/axiosInstance";
 import uk from 'date-fns/locale/uk';
 import { useNavigate } from 'react-router-dom';
 import TimeSeriesChart from "../PrintPeaksFAinal/timeSeriesChart/TimeSeriesChart";
-import DatabaseSchemaVisualizer from "../PrintPeaksFAinal/timeSeriesChart/DatabaseSchemaVisualizer";
 
 const customUkLocale = {
     ...uk,
-    // Override or add properties here.
-    // For instance, if the library supports a custom structure for button texts:
     dateRangePicker: {
         changeTitle: "Змінити дату",
         clear: "Очистити",
         endDate: "Дата закінчення",
-        today: "Сьогодні",     // Перевод "today"
+        today: "Сьогодні",
         yesterday: "Вчора",
-        // Note: Do not override the essential date-fns parts like localize.
     },
 };
-// console.log(defaultStaticRanges);
+
 const ukrainianStaticRanges = defaultStaticRanges.map(range => {
     let newLabel = range.label;
     switch (range.label) {
@@ -57,7 +52,7 @@ const ukrainianStaticRanges = defaultStaticRanges.map(range => {
     return { ...range, label: newLabel };
 });
 
-const App = () => {
+const Calendar = ({ compact, onDateChange }) => {
     const navigate = useNavigate();
     const [state, setState] = useState([
         {
@@ -76,72 +71,84 @@ const App = () => {
     const [chartData, setChartData] = useState([]);
 
     useEffect(() => {
-        let data = {
-            start_date: state[0].startDate,
-            end_date: state[0].endDate,
-        }
-        // console.log(data);
-        axios.post(`/statistics/get1`, data)
-            .then(response => {
-                // console.log(response.data);
-                setStatistics(response.data);
-                // console.log(response.data);
-            })
-            .catch(error => {
-                if (error.response.status === 403) {
-                    navigate('/login');
-                }
-                console.log(error.message);
-            })
-    }, [state]);
-    useEffect(() => {
-        let data = {
-            start_date: state[0].startDate,
-            end_date: state[0].endDate,
-        }
-        // console.log(data);
-        axios.post(`/statistics/getChartData`, data)
-            .then(response => {
-                // console.log(response.data);
-                setChartData(response.data);
-                // console.log(response.data);
-            })
-            .catch(error => {
-                if (error.response.status === 403) {
-                    navigate('/login');
-                }
-                console.log(error.message);
-            })
+        if (onDateChange) onDateChange(state[0]);
     }, [state]);
 
-    // const data = [
-    //     { time: "10:00", value: 10 },
-    //     { time: "10:30", value: 15 },
-    //     { time: "11:00", value: 8 },
-    //     { time: "11:30", value: 12 },
-    //     { time: "12:00", value: 18 },
-    //     { time: "12:30", value: 10 },
-    //     { time: "13:00", value: 22 },
-    // ];
+    useEffect(() => {
+        if (compact) return;
+        let data = {
+            start_date: state[0].startDate,
+            end_date: state[0].endDate,
+        }
+        axios.post(`/statistics/get1`, data)
+            .then(response => {
+                setStatistics(response.data);
+            })
+            .catch(error => {
+                if (error.response?.status === 403) {
+                    navigate('/login');
+                }
+                console.log(error.message);
+            })
+    }, [state, compact]);
+
+    useEffect(() => {
+        if (compact) return;
+        let data = {
+            start_date: state[0].startDate,
+            end_date: state[0].endDate,
+        }
+        axios.post(`/statistics/getChartData`, data)
+            .then(response => {
+                setChartData(response.data);
+            })
+            .catch(error => {
+                if (error.response?.status === 403) {
+                    navigate('/login');
+                }
+                console.log(error.message);
+            })
+    }, [state, compact]);
+
+    const handleChange = (item) => {
+        setState([item.selection]);
+    };
+
+    if (compact) {
+        return (
+            <DateRangePicker
+                ranges={state}
+                onChange={handleChange}
+                editableDateInputs={true}
+                moveRangeOnFirstSelection={false}
+                months={2}
+                staticRanges={ukrainianStaticRanges}
+                inputRanges={[]}
+                direction="horizontal"
+                locale={customUkLocale}
+                showPreview={true}
+            />
+        );
+    }
 
     return (
         <div className="d-flex">
-            <div className="bg-white p-3 m-2 flex-grow-1" style={{ borderRadius: '10px',  }}>
+            <div className="p-3 m-2 flex-grow-1" style={{ background: 'var(--adminfonelement, #f2f0e9)' }}>
                 <DateRangePicker
                     ranges={state}
-                    // style={{ borderRadius: '0px', background: 'white' }}
-                    onChange={(item) => setState([item.selection])}
+                    onChange={handleChange}
                     editableDateInputs={true}
                     moveRangeOnFirstSelection={false}
                     months={2}
                     staticRanges={ukrainianStaticRanges}
+                    inputRanges={[]}
                     direction="horizontal"
                     locale={customUkLocale}
                     showPreview={true}
                 />
             </div>
 
-            <div className="bg-white p-4 m-2 flex-grow-1" style={{ borderRadius: '10px',  }}>
+            <div className="p-4 m-2 flex-grow-1" style={{ background: 'var(--adminfonelement, #f2f0e9)' }}>
                 <div className="font-bold text-lg mb-2 adminFont">{"Замовлення "}</div>
                 <p className="adminFont">
                     <div>
@@ -155,18 +162,13 @@ const App = () => {
                 </p>
             </div>
 
-            <div className="bg-white m-2 flex-grow-1" style={{ borderRadius: '10px',  }}>
-                {/*<div className="font-bold text-lg mb-2 adminFont">{""}</div>*/}
+            <div className="m-2 flex-grow-1" style={{ background: 'var(--adminfonelement, #f2f0e9)' }}>
                 <div>
-                    {/*<ChartJs data={chartData}/>*/}
                     <TimeSeriesChart data={chartData}/>
-                    {/*<TimeSeriesChart1 data={chartData}/>*/}
-                    {/*<DatabaseSchemaVisualizer data={chartData}/>*/}
-                    {/*<TimeSeries3DChartWithControlsAndStats data={chartData}/>*/}
                 </div>
             </div>
         </div>
     );
 };
 
-export default App;
+export default Calendar;

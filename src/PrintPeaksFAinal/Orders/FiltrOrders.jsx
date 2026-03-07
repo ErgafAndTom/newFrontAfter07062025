@@ -1,248 +1,99 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "../../api/axiosInstance";
-import StatusBar from "./StatusBar";
-import  "./FiltrOrders.css";
+import React from "react";
+import "./FiltrOrders.css";
+import DatePicker from "../tools/DatePicker";
 
-const FiltrOrders = ({ typeSelect, setTypeSelect, startDate, endDate, setEndDate, setStartDate, setStatuses, statuses, payments, setPayments, setPaymentsType, paymentsType }) => {
-    const navigate = useNavigate();
-    const [load, setLoad] = useState(false);
-    const [show, setShow] = useState(false);
-    const [error, setError] = useState(false);
-    const [isEnabledDataSearch, setIsEnabledDataSearch] = useState(false);
-    const [isEnabledStatusSearch, setIsEnabledStatusSearch] = useState(false);
-    const [isEnabledPaymentsSearch, setIsEnabledPaymentsSearch] = useState(false);
-    const [isEnabledPaymentsTypeSearch, setIsEnabledPaymentsTypeSearch] = useState(false);
+const FiltrOrders = ({
+  startDate, setStartDate, endDate, setEndDate,
+  statuses, setStatuses,
+  payments, setPayments,
+  paymentsType, setPaymentsType,
+}) => {
 
-    // Стани для збереження вибраних дат
+  const STATUS_ITEMS = [
+    ["status0", "Оформлення", "s0"],
+    ["status1", "Друкується", "s1"],
+    ["status2", "Постпресс",  "s2"],
+    ["status3", "Готове",     "s3"],
+    ["status4", "Віддали",    "s4"],
+    ["status5", "Видалено",   "s5"],
+  ];
 
-    const handleToggleDataSearch = () => {
-        if (isEnabledDataSearch) {
-            setEndDate("")
-            setStartDate("")
-        }
-        setIsEnabledDataSearch(!isEnabledDataSearch);
-    };
-    const handleToggleStatusSearch = () => {
-        if (isEnabledStatusSearch) {
-            setStatuses({...statuses, status0: true, status1: true, status2: true, status3: true, status4: true, status5: true})
-        } else {
-            setStatuses({...statuses, status0: false, status1: false, status2: false, status3: false, status4: false, status5: false})
-        }
-        setIsEnabledStatusSearch(!isEnabledStatusSearch);
-    };
+  const PAYMENT_ITEMS = [
+    ["payment0", "Очікування",        "p-orange"],
+    ["payment1", "Оплачено",          "p-green"],
+    ["payment2", "Просрочено",        "p-red"],
+    ["payment3", "Відміна",           "p-grey"],
+  ];
 
-  const handleTogglePaymentsSearch = () => {
-    if (isEnabledPaymentsSearch) {
-      setPayments({...payments, payment0: true, payment1: true, payment2: true, payment3: true})
-    } else {
-      setPayments({...payments, payment0: false, payment1: false, payment2: false, payment3: false})
-    }
-    setIsEnabledPaymentsSearch(!isEnabledPaymentsSearch);
-  };
+  const PAY_TYPE_ITEMS = [
+    ["payment2", "Готівка",           "p-green"],
+    ["payment1", "Оплата карткою",    "p-blue"],
+    ["payment0", "Інтернет-посилання","p-orange"],
+    ["payment3", "Рахунок",           "p-grey"],
+  ];
 
-  const handleTogglePaymentsTypeSearch = () => {
-    if (isEnabledPaymentsTypeSearch) {
-      setPaymentsType({...payments, payment0: true, payment1: true, payment2: true, payment3: true})
-    } else {
-      setPaymentsType({...payments, payment0: false, payment1: false, payment2: false, payment3: false})
-    }
-    setIsEnabledPaymentsTypeSearch(!isEnabledPaymentsTypeSearch);
-  };
+  return (
+    <div className="flt-bar">
 
-    const [isVisible, setIsVisible] = useState(false);
-    const [isAnimating, setIsAnimating] = useState(false);
-    const handleClose = () => {
-        setIsAnimating(false); // Початок анімації закриття
-        setTimeout(() => {
-            setIsVisible(false);
-            setShow(false);
-        }, 300);
-    };
+      {/* ── Конверт 1: Дати ── */}
+      <div className="flt-group">
+        <DatePicker value={startDate} onChange={setStartDate} />
+        <span className="flt-arrow">→</span>
+        <DatePicker value={endDate} onChange={setEndDate} />
+      </div>
 
-    useEffect(() => {
-        if (show) {
-            setIsVisible(true); // Спочатку показуємо модальне вікно
-            setTimeout(() => setIsAnimating(true), 100); // Запускаємо анімацію появи
-        } else {
-            setIsAnimating(false); // Початок анімації закриття
-            setTimeout(() => setIsVisible(false), 300);
-        }
-    }, [show]);
+      <div className="flt-divider" />
 
-    const handleCloseSearch = useCallback(() => {
-        setShow(false);
-    }, []);
+      {/* ── Конверт 2: Статуси замовлення ── */}
+      <div className="flt-group">
+        {STATUS_ITEMS.map(([key, label, tone]) => (
+          <button
+            key={key}
+            className={`flt-btn flt-btn--status flt-status--${tone}${statuses[key] ? ' flt-btn--on' : ' flt-btn--off'}`}
+            onClick={() => setStatuses({ ...statuses, [key]: !statuses[key] })}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
-    const handleClickFilter = useCallback(() => {
-        setShow(show => !show);
-    }, []);
+      {payments && (
+        <>
+          <div className="flt-divider" />
+          {/* ── Конверт 3: Статус оплати ── */}
+          <div className="flt-group">
+            {PAYMENT_ITEMS.map(([key, label, tone]) => (
+              <button
+                key={key}
+                className={`flt-btn flt-btn--status flt-pay--${tone}${payments[key] ? ' flt-btn--on' : ' flt-btn--off'}`}
+                onClick={() => setPayments({ ...payments, [key]: !payments[key] })}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
 
-    return (
-        <div className="d-flex align-content-center justify-content-center">
-            <div className="d-flex flex-row">
-                <button
-                  className="adminButtonAdd"
-                  onClick={handleClickFilter}
-                  style={{
-                    minWidth:"2vw",
-                    margin:"0.2vh 0.5vw",
-
-                }}
-                >
-
-                  <t className="pp-filters-strelka">⇅</t>
-                </button>
-                {/*<>*/}
-                {/*    <input type="text" className="" placeholder="Search" />*/}
-                {/*</>*/}
-                {/*<button className="btn btn-primary">*/}
-                {/*    <i className="fas fa-search"></i>*/}
-                {/*</button>*/}
-            </div>
-            {show && (
-                <div className="d-flex justify-content-center align-items-center" style={{margin: "0"}}>
-                    {isVisible && (
-                      <div className="pp-filters-row">
-
-                        {/* ФІЛЬТР ДАТИ */}
-                        {/* СИМВОЛ ДАТИ — АКТИВАЦІЯ ПО КЛІКУ */}
-                        <div className="pp-inline-item" onClick={handleToggleDataSearch}>
-                          <div
-                            className={`pp-label-title pp-icon ${isEnabledDataSearch ? "active-icon" : ""}`}
-                          >
-                            🗓
-                          </div>
-                        </div>
-
-                        {/* БЛОК ДАТ */}
-                        {isEnabledDataSearch && (
-                          <div className="pp-date-row">
-                            <div className="pp-date-item-inline">
-                              <input
-                                type="date"
-                                className="pp-input"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                              />
-                              <label className="pp-label-small">↔</label>
-                              <input
-                                type="date"
-                                className="pp-input"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                              />
-                            </div>
-                          </div>
-                        )}
-
-
-                        {/* ФІЛЬТР СТАТУСІВ */}
-                        <div className="pp-inline-item" onClick={handleToggleStatusSearch}>
-                          <div
-                            className={`pp-label-title pp-icon ${isEnabledStatusSearch ? "active-icon" : ""}`}
-                          >
-                            🛒
-                          </div>
-                        </div>
-
-                        {isEnabledStatusSearch && (
-                          <div className="pp-status-row">
-                            {[
-                              ["status0", "ОФОРМЛЕННЯ"],
-                              ["status1", "ДРУКУЄТЬСЯ"],
-                              ["status2", "ПОСТПРЕСС"],
-                              ["status3", "ГОТОВЕ"],
-                              ["status4", "ВІДДАЛИ"],
-                              ["status5", "ВИДАЛЕНО"],
-                            ].map(([key, label]) => (
-                              <div
-                                key={key}
-                                className={`pp-status-tile ${statuses[key] ? "active" : ""}`}
-                                onClick={() =>
-                                  setStatuses({ ...statuses, [key]: !statuses[key] })
-                                }
-                              >
-                                {label}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {payments && (
-                          <>
-                            {/* ФІЛЬТР Payments */}
-                            <div className="pp-inline-item" onClick={handleTogglePaymentsSearch}>
-                              <div
-                                className={`pp-label-title pp-icon ${isEnabledPaymentsSearch ? "active-icon-green" : ""}`}
-                              >
-                                🧮
-                              </div>
-                            </div>
-
-                            {isEnabledPaymentsSearch && (
-                              <div className="pp-status-row">
-                                {[
-                                  ["payment0", "ОЧІКУВАННЯ"],
-                                  ["payment1", "ОПЛАЧЕНО"],
-                                  ["payment2", "ПРОСРОЧЕНО"],
-                                  ["payment3", "ВІДМІНА"],
-                                  ["payment4", "-"],
-                                ].map(([key, label]) => (
-                                  <div
-                                    key={key}
-                                    className={`pp-status-tile ${payments[key] ? "active-green" : ""}`}
-                                    onClick={() =>
-                                      setPayments({ ...payments, [key]: !payments[key] })
-                                    }
-                                  >
-                                    {label}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </>
-                        )}
-                        {paymentsType && (
-                          <>
-                            {/* ФІЛЬТР Payments */}
-                            <div className="pp-inline-item" onClick={handleTogglePaymentsTypeSearch}>
-                              <div
-                                className={`pp-label-title pp-icon ${isEnabledPaymentsTypeSearch ? "active-icon-green" : ""}`}
-                              >
-                                ₴
-                              </div>
-                            </div>
-
-                            {isEnabledPaymentsTypeSearch && (
-                              <div className="pp-status-row">
-                                {[
-                                  ["payment0", "link"],
-                                  ["payment1", "terminal"],
-                                  ["payment2", "cash"],
-                                  ["payment3", "РАХУНОК"],
-                                ].map(([key, label]) => (
-                                  <div
-                                    key={key}
-                                    className={`pp-status-tile ${paymentsType[key] ? "active-green" : ""}`}
-                                    onClick={() =>
-                                      setPaymentsType({ ...paymentsType, [key]: !paymentsType[key] })
-                                    }
-                                  >
-                                    {label}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
-
-                    )}
-                </div>
-            )}
-        </div>
-    );
+      {paymentsType && (
+        <>
+          <div className="flt-divider" />
+          {/* ── Конверт 4: Тип оплати ── */}
+          <div className="flt-group">
+            {PAY_TYPE_ITEMS.map(([key, label, tone]) => (
+              <button
+                key={key}
+                className={`flt-btn flt-btn--status flt-pay--${tone}${paymentsType[key] ? ' flt-btn--on' : ' flt-btn--off'}`}
+                onClick={() => setPaymentsType({ ...paymentsType, [key]: !paymentsType[key] })}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
 };
 
 export default FiltrOrders;

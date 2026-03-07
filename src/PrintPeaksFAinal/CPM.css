@@ -108,7 +108,7 @@
     right: 0px;
     bottom: 0px;
     left: 0px;
-    background-color: #FBFAF6;
+    background-color: #f1eee7;
 }
 
 .text37 {
@@ -405,7 +405,7 @@
 .input11 {
     border: 1px solid #707070;
     outline: none;
-    background-color: #FBFAF6;
+    background-color: #f1eee7;
     position: absolute;
     height: calc(100% - 8.5px);
     width: 100%;
@@ -436,7 +436,7 @@
     position: absolute;
     right: 11.98px;
     bottom: 8.5px;
-    background-color: #FBFAF6;
+    background-color: #f1eee7;
     width: 23.5px;
     height: 3px;
 }
@@ -468,7 +468,7 @@
     right: 0.07px;
     bottom: 0px;
     border-radius: 5px;
-    background-color: #FBFAF6;
+    background-color: #f1eee7;
     border: 1px solid #707070;
     box-sizing: border-box;
     width: 485.1px;
@@ -480,7 +480,7 @@
 .size-wide4 {
     border: 1px solid #707070;
     outline: none;
-    background-color: #FBFAF6;
+    background-color: #f1eee7;
     position: absolute;
     height: calc(100% - 0.1px);
     top: 0px;
@@ -510,7 +510,7 @@
 .size-hight4 {
     border: 1px solid #707070;
     outline: none;
-    background-color: #FBFAF6;
+    background-color: #f1eee7;
     position: absolute;
     height: calc(100% - 0.1px);
     top: 0px;
@@ -731,7 +731,7 @@
     right: -0.03px;
     bottom: 0px;
     border-radius: 5px;
-    background-color: #FBFAF6;
+    background-color: #f1eee7;
     border: 1px solid #707070;
     box-sizing: border-box;
     width: 207.2px;
@@ -770,7 +770,7 @@
     right: 0px;
     bottom: 0px;
     border-radius: 5px;
-    background-color: #FBFAF6;
+    background-color: #f1eee7;
     border: 1px solid #707070;
     box-sizing: border-box;
     width: 213.1px;
@@ -807,7 +807,7 @@
     top: calc(50% - 18.2px);
     left: calc(50% + 100.85px);
     border-radius: 5px;
-    background-color: #FBFAF6;
+    background-color: #f1eee7;
     border: 1px solid #707070;
     box-sizing: border-box;
     width: 120.4px;
@@ -1148,7 +1148,7 @@
     top: calc(50% - 18px);
     left: calc(50% - 113.91px);
     border-radius: 5px;
-    background-color: #FBFAF6;
+    background-color: #f1eee7;
     border: 1px solid #707070;
     box-sizing: border-box;
     width: 120.4px;
@@ -1451,7 +1451,7 @@
     bottom: 0px;
     left: 0px;
     border-radius: 5px;
-    background-color: #FBFAF6;
+    background-color: #f1eee7;
     border: 1px solid #707070;
     box-sizing: border-box;
 }

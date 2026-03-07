@@ -16,7 +16,7 @@ const tooltipTextStyle = {
     visibility: 'hidden',
     width: 'auto',
     // maxWidth: '10vw',
-    backgroundColor: '#FBFAF6',
+    backgroundColor: '#f1eee7',
     color: '#575756',
     textAlign: 'center',
     borderRadius: '6px',

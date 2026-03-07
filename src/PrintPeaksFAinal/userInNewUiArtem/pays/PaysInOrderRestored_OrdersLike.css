@@ -15,7 +15,7 @@
 .PIOR-modal {
   width: 95vw;
   height: 95vh;
-  background: #FBFAF6;
+  background: #f1eee7;
   border-radius: 1vw;
   overflow: hidden;
   display: flex;
@@ -221,5 +221,5 @@
 }
 
 .OrderUnit-card:hover {
-  background: #fbfaf6;
+  background: #f1eee7;
 }

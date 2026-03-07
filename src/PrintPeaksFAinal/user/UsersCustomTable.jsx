@@ -253,7 +253,7 @@ const UsersCustomTable = ({name}) => {
                           fontSize: "1vw",
                           boxSizing: "border-box",
                           textAlign: "center",
-                          // background: "#FBFAF6",
+                          // background: "#f1eee7",
                           boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
                         }}
                       >

@@ -19,7 +19,7 @@
   height: 4vh !important;
   min-height: 4vh !important;
   padding: 5px 18px;
-  border: 2px solid var(--adminorange, #f5a623) !important;
+  border: 2px solid var(--admingreen, #f5a623) !important;
   border-radius: 0;
   background-color: transparent !important;
   font-size: var(--font-size-s) !important;
@@ -183,7 +183,7 @@
 }
 .pay-button-cancel {
   background-color: red;
-  color: #fbfaf6;
+  color: #f1eee7;
   width: 3vw;
 }
 

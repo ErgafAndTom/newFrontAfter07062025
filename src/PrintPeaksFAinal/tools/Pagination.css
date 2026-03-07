@@ -1,37 +1,47 @@
+/* ═══════════════════════════════════════════
+   Pagination — дизайн проекту
+   ═══════════════════════════════════════════ */
+
 .pagination-wrapper {
   display: flex;
-  position: sticky;     /* прилипает внутри родителя */
-  bottom: 0vh;
+  position: sticky;
+  bottom: 0;
   align-items: center;
-  justify-content: start;
-
-  background: #fff;
-  border-top: 1px solid #e0e0e0;
+  justify-content: flex-start;
+  background: var(--adminfon, #f7f5ee);
+  border-top: 1px solid rgba(0,0,0,0.08);
   flex-wrap: nowrap;
+  padding: 0.3rem 0.6rem;
+  gap: 0.15rem;
 }
 
+/* ── Кнопки Prev / Next ── */
 .page-btn {
-  position: sticky ;
   background: transparent;
   border: none;
-  font-weight: bold;
-  font-size: 1rem;
+  font-size: var(--font-size-pay);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  transition: color 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
+.page-btn:hover:not(:disabled) { color: var(--adminorange, #f5a623); }
+.page-btn:disabled { opacity: 0.25; cursor: not-allowed; }
 
-.page-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
+/* ── Список сторінок ── */
 .pagination-list-wrapper {
   flex: 1 1 0;
   min-width: 0;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  margin: 0 0.5rem;
+  scrollbar-width: none;
+  margin: 0 0.3rem;
 }
+.pagination-list-wrapper::-webkit-scrollbar { display: none; }
 
 .pagination-list {
   display: flex;
@@ -39,42 +49,54 @@
   padding: 0;
   margin: 0;
   white-space: nowrap;
+  gap: 0;
 }
 
 .page-item {
   flex: 0 0 auto;
-  margin: 0 0.25rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.2rem 0.55rem;
   cursor: pointer;
-  font-weight: bold;
-  border-radius: 0.25rem;
+  font-size: var(--font-size-pay);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  transition: color 0.15s;
+  text-align: center;
+  min-width: 1.8rem;
+  user-select: none;
 }
+.page-item:hover { color: var(--adminorange, #f5a623); }
 
 .page-item.active {
-  background: #000;
-  color: #fff;
-  border-radius: 50%;
-  width: 2rem;
-  height: 2rem;
-  display: flex;
+  background: var(--adminfonelement, #f2f0e9);
+  color: var(--admingrey, #666666);
+  border-radius: 0;
+  width: auto;
+  height: auto;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  border-bottom: 1.5px solid var(--adminorange, #f5a623);
 }
 
+/* ── Select ліміту ── */
 .pagination-limit {
   display: flex;
   align-items: center;
-  margin-left: 0rem;
   white-space: nowrap;
-}
-
-.pagination-limit label {
-  margin-right: 0.5rem;
-  font-size: 0.95rem;
+  flex-shrink: 0;
 }
 
 .pagination-limit select {
-  padding: 0.25rem 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0,0,0,0.15);
+  padding: 0.1rem 0.2rem;
+  font-size: var(--font-size-pay);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
 }
+.pagination-limit select:hover { border-bottom-color: var(--adminorange, #f5a623); }

@@ -250,7 +250,7 @@ label.switch:has(input:checked) {
 /* Картки для секцій Сторонність, Матеріал */
 .sc-wrap .sc-left-sections > .sc-section-card {
   background: var(--adminfonelement);
-  padding: 1.2vh 1vw;
+  padding: 0.6vh 1vw;
   border-radius: 0;
   overflow: hidden;
   /*box-shadow: 0 1px 3px rgba(0,0,0,0.08);*/
@@ -761,7 +761,7 @@ label.switch:has(input:checked) {
   border: 2px solid var(--adminorange) !important;
   border-radius: 0;
   cursor: pointer;
-  font-size: var(--font-size-pay);
+  font-size: var(--font-size-s);
   font-weight: 450;
   text-transform: uppercase;
   transition: 0.3s;
@@ -945,7 +945,7 @@ label.switch:has(input:checked) {
   border: 2px solid var(--adminorange) !important;
   border-radius: 0;
   cursor: pointer;
-  font-size: var(--font-size-pay);
+  font-size: var(--font-size-s);
   font-weight: 450;
   text-transform: uppercase;
   transition: 0.3s;
@@ -1171,7 +1171,7 @@ label.switch:has(input:checked) {
   padding: 0 0.72vw !important;
   height: var(--sc-btn-h, 3.84vh) !important;
   min-height: var(--sc-btn-h, 3.84vh) !important;
-  font-size: var(--font-size-pay) !important;
+  font-size: var(--font-size-s) !important;
   font-weight: 450 !important;
   text-transform: uppercase !important;
   display: inline-flex !important;
@@ -1958,7 +1958,7 @@ label.switch:has(input:checked) {
   height: 60px;
   background-color: var(--adminlightorange);
   border: none;
-  font-size: 12px;
+  font-size: var(--font-size-s);
   font-weight: 450;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -2051,7 +2051,7 @@ label.switch:has(input:checked) {
   display: flex;
   align-items: center;
   margin: 0;
-  font-size: 12px;
+  font-size: var(--font-size-s);
   font-weight: 450;
   text-transform: uppercase;
   letter-spacing: 1px;

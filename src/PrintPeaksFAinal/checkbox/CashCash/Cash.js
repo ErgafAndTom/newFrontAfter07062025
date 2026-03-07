@@ -152,7 +152,7 @@ const Cash = () => {
 
     switch (parseInt(status)) {
       case 0:
-        return '#fbfaf6';       // сірий — оформлення
+        return '#f1eee7';       // сірий — оформлення
       case 4:
         return '#008249';       // зелений — друк
       case 1:
@@ -162,7 +162,7 @@ const Cash = () => {
       case 3:
         return '#f075aa';       // рожевий — віддали
       default:
-        return '#fbfaf6';      // дефолтний
+        return '#f1eee7';      // дефолтний
     }
   };
 
@@ -274,11 +274,11 @@ const Cash = () => {
                  onMouseEnter={(e) => {
                    e.currentTarget.style.backgroundColor =
                      order.status === '0'
-                       ? '#fbfaf6'
-                       : hexToRgba("#fbfaf6", 0.3);
+                       ? '#f1eee7'
+                       : hexToRgba("#f1eee7", 0.3);
                  }}
                  onMouseLeave={(e) => {
-                   e.currentTarget.style.backgroundColor = hexToRgba("#fbfaf6", 0.2);
+                   e.currentTarget.style.backgroundColor = hexToRgba("#f1eee7", 0.2);
                  }}
                  onClick={() => toggleOrder(order.id)}>
 
@@ -452,7 +452,7 @@ const Cash = () => {
                 {/*<div className="d-flex flex-wrap mt-3" style={{gap:"0.8rem"}}>*/}
                 {/*  {order.Users.map(u=>(*/}
                 {/*    <div key={u.id} className="p-2" style={{*/}
-                {/*      width:"22vw", border:"1px solid #ddd", borderRadius:8, background:"#fbfaf6"*/}
+                {/*      width:"22vw", border:"1px solid #ddd", borderRadius:8, background:"#f1eee7"*/}
                 {/*    }}>*/}
                 {/*      <div className="d-flex align-items-center" style={{gap:"0.6rem"}}>*/}
                 {/*        <TelegramAvatar link={u.telegram} size={48}/>*/}

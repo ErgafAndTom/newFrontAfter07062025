@@ -1,82 +1,55 @@
-import React, {useEffect, useMemo, useRef, useState} from "react";
-import { Spinner, Button, Form, Modal } from "react-bootstrap";
-import { Link, useParams } from "react-router-dom";
+import React, {useEffect, useRef, useState} from "react";
+import { Link } from "react-router-dom";
 import axios from "../../../api/axiosInstance";
 import TelegramAvatar from "../../Messages/TelegramAvatar";
+import './ProfileNew.css';
 
-const FieldEdit = ({ label, field, value, userId, type="text", as="input", load, setUser,  user }) => {
+const FieldEdit = ({ label, field, value, userId, type = "text", setUser }) => {
   const [val, setVal] = useState(value ?? "");
   const [saving, setSaving] = useState(false);
-  const [err, setErr] = useState(false);
-  useEffect(()=>{ setVal(value ?? ""); }, [value]);
-  const InputTag = as === "textarea" ? "textarea" : "input";
+  const [err, setErr] = useState(null);
+  const disabled = field === "username" || field === "password" || field === "Company";
+  const changed = String(val) !== String(value ?? "");
 
-  if(field === "username" || field === "password" || field === "Company"){
-    return (
-      <div className="d-flex align-items-center justify-content-center gap-3" >
-        <div style={{minWidth:200, fontWeight:200, color:"#6e6f68"}}>{label}</div>
-        <InputTag
-          className="form-control disabled"
-          value={val}
-          disabled
-          type={as==="textarea" ? undefined : type}
-          style={{width:"25vw", height:"4vh", fontWeight:700, color:"#6e6f68" }}
-          // rows={as==="textarea" ? 2 : undefined}
-        />
-        <Button variant="success" className="adminButtonAdd disabled" disabled={saving} style={{fontSize:"2vh", gap:"1vw",color:"#f2f0e7", minWidth:"2vw", height:"4vh", padding:"0", borderRadius:"6px"}}>
-          {saving ? "💾" : "✓"}
-        </Button>
-      </div>
-    );
-  }
+  useEffect(() => { setVal(value ?? ""); }, [value]);
 
   const save = async () => {
+    if (disabled || saving || !changed) return;
     setSaving(true);
+    setErr(null);
     try {
-      let res = await axios.patch(`/api/users/${userId}/field`, { field, value: val });
-      setErr(false);
-      console.log(res.data);
+      const res = await axios.patch(`/api/users/${userId}/field`, { field, value: val });
       setUser(res.data);
-      // load()
-    } catch (err) {
-      setErr(err.response.data);
+    } catch (e) {
+      setErr(e?.response?.data?.message || e?.response?.data || "Помилка");
+    } finally {
+      setSaving(false);
     }
-    finally { setSaving(false); }
   };
 
   return (
-    <div className="d-flex align-items-center justify-content-center gap-3" >
-      <div style={{minWidth:200, fontWeight:200, color:"#6e6f68"}}>{label}</div>
-      <InputTag
-        className="form-control"
-        value={val}
-        onChange={(e)=>setVal(e.target.value)}
-        type={as==="textarea" ? undefined : type}
-        style={{width:"25vw", height:"4vh", fontSize:"20px"}}
-        rows={as==="textarea" ? 3 : undefined}
-      />
-      <Button variant="success" className="adminButtonAdd" onClick={save} disabled={saving} style={{fontSize:"2vh", gap:"1vw",color:"#f2f0e7", minWidth:"2vw", height:"4vh", padding:"0", borderRadius:"6px"}}>
-        {saving ? "💾" : "✓"}
-      </Button>
-      {err ? <div style={{
-        transition: "all 0.3s ease",
-        color: "red",
-
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: "1vh",
-        marginBottom: "1vh",
-        border: "1px solid red",
-        borderRadius: "10px",
-        backgroundColor: "rgba(255, 0, 0, 0.2)",
-        fontSize: "1.3vw",
-        fontWeight: "bold",
-        textAlign: "center",
-        cursor: "pointer",
-
-      }}>{err}</div> : null}
-    </div>
+    <>
+      <div className="pp-field-row">
+        <span className="pp-field-label">{label}</span>
+        <input
+          className={`pp-field-input${changed && !disabled ? ' pp-field-input--changed' : ''}${disabled ? ' pp-field-input--disabled' : ''}`}
+          value={val}
+          type={type}
+          disabled={disabled || saving}
+          onChange={(e) => setVal(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") save(); }}
+        />
+        <button
+          className={`pp-field-save${changed && !disabled ? ' pp-field-save--visible' : ''}`}
+          onClick={save}
+          disabled={saving || !changed || disabled}
+          aria-label="Зберегти"
+        >
+          {saving ? "…" : "✓"}
+        </button>
+      </div>
+      {err && <div className="pp-field-err">{typeof err === 'object' ? JSON.stringify(err) : err}</div>}
+    </>
   );
 };
 
@@ -157,7 +130,7 @@ function AttachCompanyModal({ userId, onClose, onAttached }) {
       {/* Container */}
       <div
         className="modalContainer animate-slide-up"
-        style={{ bottom: "15%", height:"35vw", left: "35%", borderRadius: 12, overflow: "hidden", zIndex }}
+        style={{ position: "fixed", bottom: "15%", height:"35vw", left: "35%", borderRadius: 12, overflow: "hidden", zIndex: 200 }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -168,7 +141,7 @@ function AttachCompanyModal({ userId, onClose, onAttached }) {
             justifyContent: "center",
             width: "100%",
             padding: "0rem 0rem",
-            // background: "#fbfaf6",
+            // background: "#f1eee7",
             borderBottom: "1px solid rgba(0,0,0,0.06)",
           }}
         >
@@ -188,8 +161,8 @@ function AttachCompanyModal({ userId, onClose, onAttached }) {
         </div>
 
         {/* Body */}
-        <div className="noScrollbar" style={{ background: "#fbfaf6" }}>
-          <div style={{ padding: "0rem 1rem", opacity:"0.7",  background:"#fbfaf6"}}>
+        <div className="noScrollbar" style={{ background: "#f1eee7" }}>
+          <div style={{ padding: "0rem 1rem", opacity:"0.7",  background:"#f1eee7"}}>
             <input
               ref={inputRef}
               className="form-control"
@@ -288,153 +261,100 @@ export default function UserPageDetailsSelf({thisUser = null}) {
   };
 
   if (loading) return (
-    <div className="d-flex justify-content-center align-items-center" style={{height:"60vh"}}>
-      <Spinner animation="border" variant="dark"/>
-    </div>
+    <div className="pp-loading">Завантаження...</div>
   );
-  if (!user) return <div>Користувача не знайдено</div>;
+  if (!user) return <div className="pp-loading">Користувача не знайдено</div>;
 
-  const fullName = [user.firstName, user.familyName].filter(Boolean).join(" ");
-  const companyBlock = user.Company ? (
-    <div
-      className="d-flex"
-      style={{
-        position: "relative",        // контейнер стає reference
-        maxWidth: "100vw",
-        boxShadow: "0px 2px 7px 0px rgba(0,0,0,0.2)",
-        border: "white",
-        borderRadius: 8,
-        background: "#fbfaf6",
-        padding: "1Vw",
-        minWidth:"25vw"
-      }}
-    >
-      <Link
-        to={`/Companys/${user.Company.id}`}
-        style={{ textDecoration: "none" }}
-      >
-        <div className="d-flex gap-2 flex-column" >
-          <div style={{ fontWeight: 400, textTransform:"uppercase", color: "#6e6f68", fontSize: "1.5rem" }}>
-            {user.Company.companyName || `Компанія №${user.Company.id}: noCompanyName`}
-          </div>
-          <div style={{ fontWeight: 400, fontSize: "0.7vw", opacity: 0.5 }}>
-            ЄДРПОУ: {user.Company.edrpou || "···"}
-          </div>
-          <div style={{ fontWeight: 400,fontSize: "0.7vw", opacity: 0.5 }}>
-            Тел.: {user.Company.phoneNumber || "···"}
-          </div>
-          <div style={{ fontWeight: 400,fontSize: "0.7vw", opacity: 0.5 }}>
-            Адреса: {user.Company.address || "···"}
-          </div>
-        </div>
-      </Link>
-
-      <div
-        style={{
-          position: "absolute",
-          bottom: "1rem",   // відступ знизу
-          right: "1rem",
-
-        }}
-      >
-        <div className="adminButtonAdd" onClick={detach}>
-          Від’єднати від компанії
-        </div>
-      </div>
-    </div>
-  ) : (
-    <div className="adminButtonAdd" style={{fontSize:"3vh", fontWeight:"200", padding:"1.3vw"}} onClick={() => setShowAttach(true)}>
-      Прикріпити до компанії
-    </div>
-  );
-  // console.log(user.hasOwnProperty);
+  const fullName = [user.firstName, user.lastName, user.familyName].filter(Boolean).join(" ");
+  const discountNum = parseInt(String(user.discount ?? "0").replace(/\D/g, ""), 10) || 0;
 
   return (
-    <div className="container-fluid" style={{padding:"1rem"}}>
-      <div className="d-flex align-items-center justify-content-center" style={{gap:"2rem"}}>
-        <TelegramAvatar link={user.telegram} size={80}/>
-        {/*{user.phoneNumber && (*/}
-        {/*  <ViberAvatar link={user.phoneNumber} size={64}/>*/}
-        {/*)}*/}
-
-        <div className="d-flex flex-row align-items-center">
-          <div style={{ marginRight:"-0.1vw"}}>🤖</div> <h4 style={{
-          margin:0,
-          color:"#6e6f68",
-          fontWeight: '200',
-          textTransform:"uppercase",
-          fontSize:"2.6vh",
-          letterSpacing:"0.08em"}}>:
-          {user.id} - {fullName || `User #${user.id}`}</h4>
-          {/*<div style={{opacity:0.7}}>id: {user.id}*/}
-          {/*  /!*· роль: {user.role}*!/*/}
-          {/*</div>*/}
+    <div>
+      {/* Header */}
+      <div className="pp-profile-header">
+        <TelegramAvatar link={user.telegram || ""} size={48} square={true} />
+        <div className="pp-profile-name-wrap">
+          <span className="pp-profile-name">
+            {fullName || user.username || `User #${user.id}`}
+            <span className="pp-profile-id">#{user.id}</span>
+          </span>
         </div>
-        <div className="" style={{
-          borderLeft: "1px solid white",
-          marginLeft: "1vw",
-          paddingLeft: "1vw",
-
-
-        }}>
-
-
-        </div>
-        <div className="ms-auto d-flex" >
-          <div className="adminButtonAdd" onClick={(e) => triggerNewOrder(user.id)} style={{textDecoration:"none"}}>Створити замовлення на цього клієнта</div>
-
-        </div>
+        <button className="pp-create-order-btn" onClick={() => triggerNewOrder(user.id)}>
+          <span className="pp-create-order-btn-text">Створити замовлення</span>
+        </button>
       </div>
 
-      <hr className="my-4" style={{boxShadow: "0px 2px 0px 2px rgba(0,0,0,0.15)", border: "white"}}/>
+      <hr className="pp-divider" />
 
-      <div>
-        <div
-          className="mt-2"
-          style={{
-            display: "grid",
-            gridTemplateRows: `repeat(10, 1fr)`,
-            gridAutoFlow: "column",
-            justifyContent:"space-around",
-            alignItems: "center",
-            gap: "0.6rem",
-            width: "100vw",
+      {/* Fields grid — 2 columns */}
+      <div className="pp-fields-grid">
 
-          }}
-        >
-          <FieldEdit label="Логін" field="username" value={user.username} userId={user.id} load={load}  setUser={setUser} user={user} />
-          <FieldEdit label="Пароль" field="password" value={user.password} userId={user.id} load={load}  setUser={setUser} user={user} />
-
-          <FieldEdit label="Ім'я" field="firstName" value={user.firstName} userId={user.id} load={load} setUser={setUser} user={user} />
-          <FieldEdit label="По-батькові" field="lastName" value={user.lastName} userId={user.id} load={load}  setUser={setUser} user={user} />
-          <FieldEdit label="Прізвище" field="familyName" value={user.familyName} userId={user.id} load={load}  setUser={setUser} user={user} />
-          <FieldEdit label="Тел.:" field="phoneNumber" value={user.phoneNumber} userId={user.id} load={load}  setUser={setUser} user={user} />
-          <FieldEdit label="E-mail" field="email" value={user.email} userId={user.id} type="email" load={load}  setUser={setUser} user={user} />
-          <FieldEdit label="Адреса" field="address" value={user.address} userId={user.id} load={load}  setUser={setUser} user={user} />
-          {/*<FieldEdit label="Компанія" field="company" value={user.company} userId={user.id} load={load}  setUser={setUser} user={user} />*/}
-          {/*<FieldEdit label="Компанія" field="Company" value={`(${user.Company?.id}) ${user.Company?.companyName}`} userId={user.id} load={load}  setUser={setUser} user={user} />*/}
-          <FieldEdit label="Telegram" field="telegram" value={user.telegram} userId={user.id} load={load}  setUser={setUser} user={user} />
-          <FieldEdit label="Viber" field="viber" value={user.viber} userId={user.id} load={load}  setUser={setUser} user={user} />
-          <FieldEdit label="WhatsApp" field="whatsapp" value={user.whatsapp} userId={user.id} load={load}  setUser={setUser} user={user} />
-          <FieldEdit label="Signal" field="signal" value={user.signal} userId={user.id} load={load}  setUser={setUser} user={user} />
-          <FieldEdit label="Знижка (%)"  field="discount" value={parseInt(String(user.discount).replace(/\D/g, ''), 10) || 0} userId={user.id} type="number" load={load} style={{ background: "#008249" }}  setUser={setUser} user={user} />
-          <FieldEdit label="Фото" field="photoLink" value={user.photoLink} userId={user.id} load={load}  setUser={setUser} user={user} />
-          <FieldEdit label="Доступ(Права)" field="role" value={user.role} userId={user.id} load={load}  setUser={setUser} user={user} />
-          <FieldEdit label="Касир(пин)" field="role2" value={user.role2} userId={user.id} load={load}  setUser={setUser} user={user} />
-          <FieldEdit label="loginCashier" field="loginCashier" value={user.loginCashier} userId={user.id} load={load}  setUser={setUser} user={user} />
-          <FieldEdit label="passwordCashier" field="passwordCashier" value={user.passwordCashier} userId={user.id} load={load}  setUser={setUser} user={user} />
-          {/*<FieldEdit label="Права" field="role2" value={user.role2} userId={user.id} load={load}  setUser={setUser} user={user} />*/}
+        {/* Left column */}
+        <div className="pp-fields-col">
+          <div className="pp-col-title">Основна інформація</div>
+          <FieldEdit label="Логін"        field="username"   value={user.username}   userId={user.id} setUser={setUser} />
+          <FieldEdit label="Пароль"       field="password"   value={user.password}   userId={user.id} setUser={setUser} />
+          <FieldEdit label="Ім’я"         field="firstName"  value={user.firstName}  userId={user.id} setUser={setUser} />
+          <FieldEdit label="По-батькові"  field="lastName"   value={user.lastName}   userId={user.id} setUser={setUser} />
+          <FieldEdit label="Прізвище"     field="familyName" value={user.familyName} userId={user.id} setUser={setUser} />
+          <FieldEdit label="Тел."         field="phoneNumber" value={user.phoneNumber} userId={user.id} setUser={setUser} />
+          <FieldEdit label="E-mail"       field="email"      value={user.email}      userId={user.id} type="email" setUser={setUser} />
+          <FieldEdit label="Адреса"       field="address"    value={user.address}    userId={user.id} setUser={setUser} />
+          <FieldEdit label="Фото"         field="photoLink"  value={user.photoLink}  userId={user.id} setUser={setUser} />
         </div>
+
+        {/* Right column */}
+        <div className="pp-fields-col">
+          <div className="pp-col-title">Контакти та доступ</div>
+          <FieldEdit label="Telegram"       field="telegram"        value={user.telegram}       userId={user.id} setUser={setUser} />
+          <FieldEdit label="Viber"          field="viber"           value={user.viber}          userId={user.id} setUser={setUser} />
+          <FieldEdit label="WhatsApp"       field="whatsapp"        value={user.whatsapp}       userId={user.id} setUser={setUser} />
+          <FieldEdit label="Signal"         field="signal"          value={user.signal}         userId={user.id} setUser={setUser} />
+          <FieldEdit label="Знижка (%)"     field="discount"        value={discountNum}         userId={user.id} type="number" setUser={setUser} />
+          <FieldEdit label="Доступ(Права)"  field="role"            value={user.role}           userId={user.id} setUser={setUser} />
+          <FieldEdit label="Касир(пін)"     field="role2"           value={user.role2}          userId={user.id} setUser={setUser} />
+          <FieldEdit label="loginCashier"   field="loginCashier"    value={user.loginCashier}   userId={user.id} setUser={setUser} />
+          <FieldEdit label="passwordCashier" field="passwordCashier" value={user.passwordCashier} userId={user.id} setUser={setUser} />
+        </div>
+
       </div>
 
+      <hr className="pp-divider" />
 
-      <hr className="my-4" style={{boxShadow: "0px 2px 0px 2px rgba(0,0,0,0.15)", border: "white"}}/>
-      <h5 className="d-flex align-items-center justify-content-center" style={{color: "#6e6f68" }}>   {companyBlock}</h5>
+      {/* Company footer */}
+      <div className="pp-company-footer">
+        {user.Company ? (
+          <>
+            <Link to={`/Companys/${user.Company.id}`} className="pp-company-link">
+              <div className="pp-company-info">
+                <span className="pp-company-name">{user.Company.companyName}</span>
+                {user.Company.edrpou    && <span className="pp-company-detail">ЄДРПОУ: {user.Company.edrpou}</span>}
+                {user.Company.phoneNumber && <span className="pp-company-detail">Тел.: {user.Company.phoneNumber}</span>}
+              </div>
+            </Link>
+            <div className="pp-company-actions">
+              <button className="pp-company-btn" onClick={() => setShowAttach(true)}>
+                <span className="pp-company-btn-text">Змінити компанію</span>
+              </button>
+              <button className="pp-company-btn pp-company-btn--red" onClick={detach}>
+                <span className="pp-company-btn-text">Від’єднати</span>
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="pp-company-actions">
+            <button className="pp-company-btn" onClick={() => setShowAttach(true)}>
+              <span className="pp-company-btn-text">Прикріпити до компанії</span>
+            </button>
+          </div>
+        )}
+      </div>
+
       {showAttach && (
         <AttachCompanyModal
           userId={user.id}
-          onClose={()=>setShowAttach(false)}
-          onAttached={()=>{ setShowAttach(false); load(); }}
+          onClose={() => setShowAttach(false)}
+          onAttached={() => { setShowAttach(false); load(); }}
         />
       )}
     </div>

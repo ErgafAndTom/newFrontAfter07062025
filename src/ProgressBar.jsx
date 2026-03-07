@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import ReactDOM from 'react-dom';
 import DiscountCalculator from './DiscountCalculator';
 import axios from './api/axiosInstance';
 import { useSelector } from 'react-redux';
@@ -678,13 +679,14 @@ return (
 
 
 
-      {showPays && (
+      {showPays && ReactDOM.createPortal(
         <PaysInOrderRestored_OrdersLike
           showPays={showPays}
           setShowPays={setShowPays}
           thisOrder={thisOrder}
           setThisOrder={setThisOrder}
-        />
+        />,
+        document.body
       )}
     </div>
     )}

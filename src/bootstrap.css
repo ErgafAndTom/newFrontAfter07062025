@@ -45,7 +45,7 @@
     --bs-danger-rgb: 220, 53, 69;
     --bs-light-rgb: 248, 249, 250;
     --bs-dark-rgb: 33, 37, 41;
-    --bs-white-rgb: #FBFAF6;
+    --bs-white-rgb: #f1eee7;
     --bs-black-rgb: 0, 0, 0;
     --bs-body-color-rgb: 33, 37, 41;
     --bs-body-bg-rgb: 255, 255, 255;
@@ -2369,7 +2369,7 @@ progress {
 }
 
 .list-group-item:hover {
-  background-color: #fbfaf6; /* твій потрібний колір */
+  background-color: #f1eee7; /* твій потрібний колір */
   transform: translateX(2px); /* легкий рух для "живості" */
 }
 
@@ -9041,7 +9041,7 @@ textarea.form-control-lg {
 
 .bg-white {
     --bs-bg-opacity: 1;
-    background-color: #FBFAF6 !important;
+    background-color: #f1eee7 !important;
 }
 
 .bg-body {

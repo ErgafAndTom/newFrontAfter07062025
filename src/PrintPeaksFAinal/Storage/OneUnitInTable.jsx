@@ -28,7 +28,7 @@ const OneItemInTable = ({itemData, tablPosition, item, metaItem, handleItemClick
 
     // Базові стилі для клітинки
     const cellStyle = {
-        // border: "0.05vw solid #FBFAF6",
+        // border: "0.05vw solid #f1eee7",
         width: getColumnWidth(metaItem),
         minWidth: getColumnWidth(metaItem),
         maxWidth: getColumnWidth(metaItem),
@@ -43,7 +43,7 @@ const OneItemInTable = ({itemData, tablPosition, item, metaItem, handleItemClick
         fontSize: "0.7rem",
         boxSizing: "border-box",
         textAlign: "center",
-        background: "#FBFAF6",
+        background: "#f1eee7",
         boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
     };
 
@@ -113,7 +113,7 @@ const OneItemInTable = ({itemData, tablPosition, item, metaItem, handleItemClick
                 style={{
                     ...editableCellStyle,
                     backgroundColor: itemData === 'папір' ? '#f2ffe9' :
-                        itemData === 'фарба' ? '#e9f8ff' : '#FBFAF6'
+                        itemData === 'фарба' ? '#e9f8ff' : '#f1eee7'
                 }}
                 onClick={(e) => handleItemClickRed(item, e, metaItem)}
             >

@@ -2,6 +2,7 @@ import "./styles.css";
 import AddPaysInOrder from "./AddPayInOrder";
 import ModalDeleteOrder from "../../Orders/ModalDeleteOrder";
 import React, {useState, useEffect} from "react";
+import ReactDOM from "react-dom";
 import axios from "../../../api/axiosInstance";
 import {useNavigate} from "react-router-dom";
 import {Spinner} from "react-bootstrap";
@@ -231,7 +232,7 @@ function PaysInOrderRestored({showPays, setShowPays, thisOrder, setThisOrder}) {
                         : "translate(-50%, -50%) scale(0.8)",
                     opacity: isAnimating ? 1 : 0,
                     transition: "opacity .3s, transform .3s",
-                    backgroundColor: "#FBFAF6",
+                    backgroundColor: "#f1eee7",
                     width: "95vw",
                     height: "95vh",
                     borderRadius: "1vw",
@@ -474,22 +475,15 @@ function PaysInOrderRestored({showPays, setShowPays, thisOrder, setThisOrder}) {
                         />
                     )}
 
-                    {showAllsOurContragents && (
+                    {showAllsOurContragents && ReactDOM.createPortal(
                         <PaysInOrderRestoredForOurC
                             showPays={showAllsOurContragents}
                             setShowPays={setShowAllsOurContragents}
-                            formData={formData}
-                            setFormData={setFormData}
                             thisOrder={thisOrder}
                             setThisOrder={setThisOrder}
-                            data={data}
-                            setData={setData}
-                            showAddPayView={showAddPayView}
-                            setShowAddPayView={setShowAddPayView}
-                            showAddPayWriteId={showAddPayWriteId}
-                            setShowAddPayWriteId={setShowAddPayWriteId}
                             buyerId={buyerId}
-                        />
+                        />,
+                        document.body
                     )}
 
                     <ModalDeleteOrder

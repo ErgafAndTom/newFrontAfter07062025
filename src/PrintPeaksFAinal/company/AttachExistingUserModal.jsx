@@ -101,7 +101,7 @@ export default function AttachExistingUserWindow({ companyId, onClose, onAttache
             alignItems: "center",
             justifyContent: "space-between",
             padding: "0.6rem 0.8rem",
-            background: "#fbfaf6",
+            background: "#f1eee7",
             borderBottom: "1px solid rgba(0,0,0,0.06)",
           }}
         >
@@ -178,7 +178,7 @@ export default function AttachExistingUserWindow({ companyId, onClose, onAttache
         <div
           style={{
             padding: "0.6rem 0.8rem",
-            background: "#fbfaf6",
+            background: "#f1eee7",
             borderTop: "1px solid rgba(0,0,0,0.06)",
             display: "flex",
             justifyContent: "flex-end",
