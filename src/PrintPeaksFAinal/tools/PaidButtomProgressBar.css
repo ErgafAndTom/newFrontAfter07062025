@@ -1,4 +1,23 @@
 /* src/tools/PaidButtonProgressBar.css */
+
+/* Кнопки вибору методу — колонка для тексту + статусу */
+.payment-methods-panel .nui-client-rect-btn {
+  flex-direction: column !important;
+  gap: 2px;
+}
+
+/* Статус поточного методу оплати під текстом кнопки */
+.pay-sel-status {
+  position: relative;
+  z-index: 3;
+  display: block;
+  font-size: calc(var(--fontsmall) * 0.65);
+  color: var(--adminred, #ee3c23);
+  line-height: 1;
+  text-transform: none;
+  font-weight: 400;
+}
+
 .payment-methods-panel {
   height: 4vh;
   min-height: 4vh;
@@ -7,7 +26,6 @@
   justify-content: flex-start;
   gap: 0;
   width: 100%;
-  overflow: hidden;
   border-bottom: 2px solid var(--admingreen, #0e935b);
 }
 
@@ -48,7 +66,8 @@
 
 .PayButtons.cash, .PayButtons.link,
 .PayButtons.online, .PayButtons.terminal, .PayButtons.wait,
-.PayButtons.invoices, .PayButtons.end, .PayButtons.check {
+.PayButtons.invoices, .PayButtons.end, .PayButtons.check,
+.PayButtons.iban {
   clip-path: none !important;
 }
 

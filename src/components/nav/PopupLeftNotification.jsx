@@ -11,6 +11,7 @@ const METHOD_LABELS = {
   terminal: 'карткою',
   link: 'посиланням',
   invoice: 'за рахунком',
+  iban: 'на IBAN',
   expired: 'протерміновано',
 };
 

@@ -11,6 +11,7 @@ const PaymentMethodIcons = {
     "Готівка": <BsCashCoin className="me-2" />,
     "Картка": <BsCreditCard className="me-2" />,
     "Банківський переказ": <BsBank className="me-2" />,
+    "на IBAN": <BsBank className="me-2" />,
     "Термінал": <BsCreditCard className="me-2" />,
     "Передоплата": <BsCashStack className="me-2" />,
     "Інше": <BsCurrencyExchange className="me-2" />
@@ -252,6 +253,7 @@ function PaysInOrder({ show, onHide, orderId, thisOrder, setThisOrder }) {
                                         <option value="Готівка">Готівка</option>
                                         <option value="Картка">Картка</option>
                                         <option value="Банківський переказ">Банківський переказ</option>
+                                        <option value="на IBAN">на IBAN</option>
                                         <option value="Термінал">Термінал</option>
                                         <option value="Передоплата">Передоплата</option>
                                         <option value="Інше">Інше</option>

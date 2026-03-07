@@ -8,6 +8,7 @@ const METHOD_MAP = {
     cash:     { label: 'Готівка',   color: '#0e935b' },
     terminal: { label: 'Термінал', color: '#3c60a6' },
     link:     { label: 'Посилання', color: '#f5a623' },
+    iban:     { label: 'IBAN',     color: '#1a8fc4' },
     qr:       { label: 'QR',       color: '#6a5acd' },
     other:    { label: 'Інше',     color: '#999999' },
 };
