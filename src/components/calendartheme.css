@@ -56,37 +56,44 @@
   height: 2vw;
   padding: 0.3vw;
   justify-content: center;
+  align-items: center;
   background: var(--adminfonelement, #f2f0e9);
 }
 
 .rdrMonthAndYearPickers {
   font-size: 0.8vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5vw;
 }
 
 .rdrMonthAndYearPickers select {
   -moz-appearance: none;
        appearance: none;
   -webkit-appearance: none;
-  margin-top: -2vh;
   width: 10vw;
   border: none;
-  border-bottom: 1px solid var(--admingrey, #666666);
-  font-size: 1.6vh;
+  border-bottom: 1px solid var(--adminblue, #3c60a6);
+  font-size: 0.8vw;
   background: transparent;
-  padding: 0.6vh;
+  padding: 0.4vw 0.2vw;
   border-radius: 0;
   color: var(--admingrey, #666666);
   cursor: pointer;
   text-align: center;
+  outline: none;
+  transition: border-color 0.2s, color 0.2s;
 }
 
-.rdrMonthAndYearPickers select:hover {
+.rdrMonthAndYearPickers select:hover,
+.rdrMonthAndYearPickers select:focus {
   border-bottom-color: var(--adminorange, #f5a623);
   color: var(--adminorange, #f5a623);
 }
 
 .rdrMonthPicker, .rdrYearPicker {
-  margin: 0.7vh;
+  margin: 0;
   align-items: center;
 }
 
@@ -202,15 +209,7 @@
 }
 
 .rdrDayToday .rdrDayNumber span:after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  left: 50%;
-  transform: translate(-50%, 0);
-  width: 4px;
-  height: 4px;
-  border-radius: 0;
-  background: var(--adminorange, #f5a623);
+  display: none;
 }
 
 .rdrDayToday:not(.rdrDayPassive) .rdrInRange ~ .rdrDayNumber span:after,

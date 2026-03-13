@@ -1,8 +1,6 @@
-import {MDBContainer} from "mdb-react-ui-kit";
-import {Row} from "react-bootstrap";
 import React, {useCallback, useEffect, useState} from "react";
+import ReactDOM from "react-dom";
 import axios from '../../api/axiosInstance';
-import Loader from "../../components/calc/Loader";
 import {useNavigate} from "react-router-dom";
 
 const AwaitPaysCash = ({
@@ -99,98 +97,88 @@ const AwaitPaysCash = ({
 
   return (
     <>
-      {isVisible === true ? (
+      {isVisible && ReactDOM.createPortal(
         <div>
+          {/* Backdrop */}
           <div
             style={{
-              width: "100vw",
-              zIndex: "999",
-              height: "100vh",
-              background: "rgba(0, 0, 0, 0.5)",
-              opacity: isAnimating ? 1 : 0, // для анимации прозрачности
-              transition: "opacity 0.3s ease-in-out", // плавная анимация
               position: "fixed",
-              left: "0",
-              bottom: "0"
+              inset: 0,
+              zIndex: 99998,
+              background: "rgba(0, 0, 0, 0.35)",
+              opacity: isAnimating ? 1 : 0,
+              transition: "opacity 0.3s ease-in-out",
             }}
             onClick={handleClose}
-          ></div>
-          <div className="d-flex flex-column" style={{
-            zIndex: "1000",
-            position: "fixed",
-            background: "#dcd9ce",
-            top: "70%",
-            left: "50%",
-            transform: isAnimating ? "translate(-50%, -50%) scale(1)" : "translate(-50%, -50%) scale(0.8)", // анимация масштаба
-            opacity: isAnimating ? 1 : 0, // анимация прозрачности
-            transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out", // плавная анимация
-            borderRadius: "1vw",
-            width: "24vw",
-            height: "15vh",
-            // padding: "20px"
-          }}>
-            <div className="d-flex">
-              <div className="m-auto text-center fontProductName">
-                {/*Перепліт*/}
-              </div>
-              <div
-                className="btn btn-close btn-lg"
-                style={{
-                  margin: "0.5vw",
-                }}
+          />
+          {/* Modal */}
+          <div
+            style={{
+              position: "fixed",
+              zIndex: 99999,
+              top: "50%",
+              left: "50%",
+              transform: isAnimating
+                ? "translate(-50%, -50%) scale(1)"
+                : "translate(-50%, -50%) scale(0.95)",
+              opacity: isAnimating ? 1 : 0,
+              transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
+              background: "var(--adminfon, #f7f5ee)",
+              border: "none",
+              width: "24vw",
+              minWidth: 320,
+              padding: "1.5rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+            }}
+          >
+            {/* Header */}
+            <span style={{
+              fontSize: "var(--font-size-s, 17px)",
+              fontWeight: 400,
+              color: "var(--admingrey, #666)",
+              textTransform: "uppercase",
+              textAlign: "center",
+            }}>
+              Оплата готівкою
+            </span>
+
+            {/* Amount */}
+            <div style={{
+              fontSize: "var(--font-size-paybig, 26px)",
+              color: "var(--adminred, #ee3c23)",
+              fontWeight: 500,
+              textAlign: "center",
+              padding: "0.5rem 0",
+            }}>
+              {thisOrder?.allPrice ?? 0} <span style={{ fontSize: "var(--fontsmall, 15px)", color: "var(--admingrey, #666)" }}>грн</span>
+            </div>
+
+            {/* Buttons */}
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <button
+                className="buttonSkewedOrder await-cash-ok"
+                onClick={handleOk}
+                disabled={oplata}
+                style={oplata ? { cursor: "not-allowed", opacity: 0.5 } : undefined}
+              >
+                <span>{oplata ? "Обробка..." : "Оплатити"}</span>
+              </button>
+              <button
+                className="buttonSkewedOrder await-cash-cancel"
                 onClick={handleClose}
               >
-              </div>
-
-            </div>
-            <div className="d-flex flex-row inputsArtemkilk allArtemElem" style={{
-              marginLeft: "1.7vw",
-              border: "transparent",
-              justifyContent: "left",
-              marginTop: "1vw"
-            }}>
-              <div>Оплата готівкою:</div>
-
-            </div>
-            <div className="d-flex flex-column" style={{marginLeft: "1vw", marginTop: "1vw"}}>
-              <MDBContainer fluid style={{width: '100%'}}>
-                <Row xs={1} md={6} className="">
-
-                </Row>
-              </MDBContainer>
-            </div>
-
-            <div>
-              <button
-                className="adminButtonAdd adminTextBigPay cash"
-                onClick={() => handleOk()}
-              >
-                Оплатити
-              </button>
-
-              <button
-                className="adminButtonAdd adminTextBigPay cash"
-                style={{background:'#d60a1c', marginLeft:"2vw"}}
-                onClick={() => handleClose()}
-              >
-                Відміна
+                <span>Відміна</span>
               </button>
             </div>
           </div>
-        </div>
-      ) : (
-        <div
-          style={{display: "none"}}
-        ></div>
+        </div>,
+        document.body
       )}
     </>
   )
 
-  return (
-    <div>
-      <Loader/>
-    </div>
-  )
 };
 
 export default AwaitPaysCash;

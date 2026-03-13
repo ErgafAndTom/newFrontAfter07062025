@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import Loader from "../../components/calc/Loader";
 import AwaitPaysCash from "./AwaitPaysCash";
 import ReceipGet from "./ReceipGet";
+import { triggerNewOrder } from "../../PrintPeaksFAinal/Orders/AddNewOrder";
 
 const PAY_STATUS_UA = { CREATED: 'Очікування', PAID: 'Оплачено', CANCELLED: 'Скасовано', EXPIRED: 'Прострочено' };
 
@@ -29,6 +30,25 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   const [showAwaitPays, setShowAwaitPays] = useState(false);
   const [showAwaitCashPays, setShowAwaitCashPays] = useState(false);
   const [showInvoiceDocs, setShowInvoiceDocs] = useState(false);
+
+  // --- Автоматичне створення нового замовлення після оплати ---
+  const prevPaymentStatusRef = useRef(thisOrder?.Payment?.status);
+  const isInitialMountRef = useRef(true);
+
+  useEffect(() => {
+    if (isInitialMountRef.current) {
+      isInitialMountRef.current = false;
+      prevPaymentStatusRef.current = thisOrder?.Payment?.status;
+      return;
+    }
+    const prevStatus = prevPaymentStatusRef.current;
+    const currentStatus = thisOrder?.Payment?.status;
+    prevPaymentStatusRef.current = currentStatus;
+
+    if (prevStatus !== "PAID" && currentStatus === "PAID") {
+      triggerNewOrder();
+    }
+  }, [thisOrder?.Payment?.status]);
 
   const paymentMethodLabel = (method) => {
     const normalized = String(method || '').toLowerCase();
@@ -370,13 +390,32 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
 
 
 
-  // --- Автоматична перевірка статусу при CREATED ---
+  // --- WebSocket: real-time оновлення статусу оплати від Monobank webhook ---
+  useEffect(() => {
+    const handlePaymentUpdate = (e) => {
+      const { orderId, payment, status } = e.detail;
+      if (String(orderId) === String(thisOrder?.id)) {
+        console.log(`[WS] Payment update for order ${orderId}: ${status}`);
+        setThisOrder((prev) => ({
+          ...prev,
+          Payment: payment,
+        }));
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+      }
+    };
+    window.addEventListener('paymentStatusUpdate', handlePaymentUpdate);
+    return () => window.removeEventListener('paymentStatusUpdate', handlePaymentUpdate);
+  }, [thisOrder?.id]);
+
+  // --- Одноразова перевірка статусу при CREATED (guard на бекенді не стукає в Monobank якщо термінальний) ---
   useEffect(() => {
     if (thisOrder.Payment?.status === "CREATED") {
       checkStatus();
     }
   }, [thisOrder.id]);
-
 
   const checkStatusAll = async () => {
     const orderId = thisOrder.id;
@@ -395,36 +434,20 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   };
 
   useEffect(() => {
-    console.log(thisOrder);
-    checkStatusAll()
+    if (thisOrder.Payment?.status && thisOrder.Payment.status !== 'PAID') {
+      checkStatusAll();
+    }
   }, [thisOrder.id]);
 
-
+  // --- Fallback polling (DB-only, кожні 2 хв) — на випадок якщо WS відключений ---
   useEffect(() => {
-    if (thisOrder?.Invoice?.id && thisOrder?.Payment?.status === "CREATED") {
-      const interval = setInterval(async () => {
-        const { data } = await axios.get(`/api/v1/invoices/status/${thisOrder.Invoice.id}`);
-        if (data.status === "PAID") {
-          setThisOrder((prev) => ({
-            ...prev,
-            Payment: { ...prev.Payment, status: "PAID" },
-          }));
-          clearInterval(interval);
-        }
-      }, 10000);
-      return () => clearInterval(interval);
-    }
-  }, [thisOrder]);
-
-  // --- Polling для оплати за рахунком (method=invoice) ---
-  useEffect(() => {
-    if (thisOrder?.Payment?.method === 'invoice' && thisOrder?.Payment?.status === 'CREATED') {
+    if (thisOrder?.Payment?.status === 'CREATED') {
       const interval = setInterval(async () => {
         try {
           const { data } = await axios.get("/api/payment/invoice-status-without-invoiceId", {
             params: { orderId: thisOrder.id },
           });
-          if (data?.status === 'PAID') {
+          if (data?.status && data.status !== 'CREATED') {
             setThisOrder((prev) => ({
               ...prev,
               Payment: data,
@@ -432,12 +455,13 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
             clearInterval(interval);
           }
         } catch (err) {
-          console.error("Polling invoice payment status error:", err);
+          console.error("Fallback polling error:", err);
         }
-      }, 30000); // кожні 30 секунд
+      }, 120000); // кожні 2 хвилини
+      intervalRef.current = interval;
       return () => clearInterval(interval);
     }
-  }, [thisOrder?.Payment?.status, thisOrder?.Payment?.method]);
+  }, [thisOrder?.Payment?.status]);
 
   return (
     <div className="adminTextBig" style={{ width: "100%" }}>

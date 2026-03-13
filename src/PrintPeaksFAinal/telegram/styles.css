@@ -2,41 +2,50 @@
   display: flex;
   height: 93vh;
   font-family: "Segoe UI", sans-serif;
-  background: #F4F7FA;
+  background: var(--adminfon, #f7f5ee);
 }
 
 /* LEFT PANEL */
 
 .telegramIntegration_leftPanel {
-  width: 25vw;
+  width: 100%;
   min-width: 240px;
-  border-right: 0.15vh solid #D6DEE5;
+  border-right: none;
   display: flex;
   flex-direction: column;
-  background: #FFFFFF;
+  background: var(--adminfon, #f7f5ee);
 }
 
 .telegramIntegration_leftHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   padding: 1.2vh 1.4vw;
-  border-bottom: 0.15vh solid #D6DEE5;
+  border-bottom: 0.15vh solid rgba(0,0,0,0.05);
   gap: 1vw;
+  background: var(--adminfon, #f7f5ee);
 }
 
 .telegramIntegration_botAvatar {
-  width: 3vw;
-  height: 3vw;
-  min-width: 34px;
-  min-height: 34px;
-  border-radius: 50%;
-  background: #4C8BF5;
-  color: #FFFFFF;
+  width: 45px;
+  height: 45px;
+  flex-shrink: 0;
+  border-radius: 0;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: clamp(12px, 1vw, 20px);
+  overflow: hidden;
+}
+.telegramIntegration_botAvatar *,
+.telegramIntegration_chatAvatar * {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+}
+.telegramIntegration_botAvatar a,
+.telegramIntegration_chatAvatar a {
+  pointer-events: none;
 }
 
 .telegramIntegration_botMeta {
@@ -49,8 +58,9 @@
 }
 
 .telegramIntegration_botUsername {
-  font-size: clamp(10px, 0.8vw, 16px);
-  color: #7A8B9A;
+  font-size: var(--font-size-s, 14px);
+  color: var(--admingrey, #666);
+  font-weight: 400;
 }
 
 .telegramIntegration_statusDot {
@@ -85,9 +95,15 @@
 
 .telegramIntegration_chatItem {
   display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 1.2vh 1.4vw;
   cursor: pointer;
-  border-bottom: 0.15vh solid #F2F3F5;
+  border-bottom: 0.15vh solid rgba(0,0,0,0.05);
+  background: var(--adminfon, #f7f5ee);
+}
+.telegramIntegration_chatItem:hover {
+  background: var(--adminfonelement, #f2f0e9);
 }
 
 .telegramIntegration_chatAvatar {
@@ -95,7 +111,7 @@
   height: 3.2vw;
   min-width: 40px;
   min-height: 40px;
-  border-radius: 50%;
+  border-radius: 0;
   background: #D0DAE3;
   display: flex;
   align-items: center;
@@ -103,6 +119,17 @@
   font-size: clamp(14px, 1vw, 20px);
   font-weight: 600;
   margin-right: 1vw;
+  overflow: hidden;
+}
+.telegramIntegration_chatAvatar img,
+.telegramIntegration_botAvatar img {
+  border-radius: 0 !important;
+}
+.telegramIntegration_chatAvatar a,
+.telegramIntegration_botAvatar a {
+  border: none !important;
+  outline: none !important;
+  text-decoration: none !important;
 }
 
 .telegramIntegration_chatMeta {
@@ -200,18 +227,396 @@
   margin: auto;
   font-size: clamp(16px, 1.4vw, 24px);
   color: #9AA5B1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .telegramIntegration_connectLog {
+  width: min(600px, 80vw);
   margin-top: 2vh;
   font-size: clamp(10px, 0.9vw, 15px);
   color: #3d464e;
-  background: #F4F7FA;
+  background: var(--adminfon, #f7f5ee);
   padding: 1vh 1vw;
   border-radius: 1vh;
   border: 0.1vh solid #DCE3EA;
   height: 18vh;
   overflow-y: auto;
+  box-sizing: border-box;
   white-space: pre-line;
   line-height: 1.25;
+}
+
+/* ── Logout button ── */
+.tg-logout-btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 100%;
+  min-height: var(--nav-min-h, 36px);
+  padding: 0;
+  background: var(--adminfon, #f7f5ee);
+  border: 2px solid var(--adminred, #ee3c23);
+  border-radius: 0;
+  color: var(--adminred, #ee3c23);
+  cursor: pointer;
+  transition: 0.3s;
+  box-sizing: border-box;
+}
+.tg-logout-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+.tg-logout-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+.tg-logout-btn .flip-front {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tg-logout-btn:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+.tg-logout-btn:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+.tg-logout-btn:hover {
+  color: var(--adminred, #ee3c23);
+  border-color: var(--adminred, #ee3c23);
+  background: var(--adminfon, #f7f5ee);
+}
+
+/* ── Auth form styling ── */
+.tg-auth-input {
+  width: min(600px, 80vw);
+  padding: 10px 0;
+  border: none;
+  border-bottom: 2px solid var(--adminblue, #3c60a6);
+  border-radius: 0;
+  background: transparent;
+  text-align: center;
+  color: var(--admingrey, #666);
+  font-size: var(--font-size-s, 14px);
+  outline: none;
+  margin-bottom: 16px;
+}
+.tg-auth-input:focus {
+  border-bottom-color: var(--admingreen, #0e935b);
+}
+.tg-auth-buttons {
+  display: flex;
+  align-items: stretch;
+  width: min(600px, 80vw);
+  height: 43px;
+  background: var(--adminfonelement, #f2f0e9);
+  overflow: hidden;
+}
+.tg-auth-btn {
+  position: relative;
+  isolation: isolate;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-width: 0;
+  background: var(--adminfonelement, #f2f0e9);
+  border: 2px solid var(--adminorange, #f5a623);
+  border-radius: 0;
+  color: var(--admingrey, #666);
+  font-size: var(--font-size-s, 14px);
+  font-weight: 400;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: 0.3s;
+  box-sizing: border-box;
+}
+/* cover layer 1 — ховає бордер */
+.tg-auth-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfonelement, #f2f0e9);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+/* cover layer 2 — верхня половина */
+.tg-auth-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background-color: var(--adminfonelement, #f2f0e9);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+.tg-auth-btn:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+.tg-auth-btn:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+.tg-auth-btn:hover {
+  color: var(--adminorange, #f5a623);
+  border-color: var(--adminorange, #f5a623);
+  background: var(--adminfonelement, #f2f0e9);
+}
+.tg-auth-btn--primary {
+  border-color: var(--admingreen, #0e935b);
+  color: var(--admingreen, #0e935b);
+}
+.tg-auth-btn--primary:hover {
+  color: var(--adminorange, #f5a623);
+  border-color: var(--adminorange, #f5a623);
+}
+.tg-auth-btn-text {
+  position: relative;
+  z-index: 3;
+}
+
+/* ── Add-to-ERP envelope ── */
+.tg-add-erp-wrap {
+  flex-shrink: 0;
+  height: 28px;
+  overflow: hidden;
+  margin-left: 1vw;
+  min-width: 160px;
+}
+
+/* ── Add-to-ERP button (nav .btn style) ── */
+.tg-add-erp-btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  height: 100%;
+  width: 100%;
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666);
+  background: var(--adminfon, #f7f5ee);
+  border: 1.5px solid var(--adminorange, #f5a623);
+  border-radius: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transition: 0.3s;
+  box-sizing: border-box;
+  text-transform: uppercase;
+}
+/* loading state */
+.tg-add-erp-btn--loading {
+  border-color: var(--admingrey, #666);
+  color: var(--admingrey, #666);
+  cursor: wait;
+  pointer-events: none;
+}
+.tg-add-erp-btn--loading::before,
+.tg-add-erp-btn--loading::after {
+  display: none;
+}
+.tg-add-erp-btn .flip-front {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tg-add-erp-btn::before {
+  content: "";
+  position: absolute;
+  top: -1.5px;
+  left: -1.5px;
+  width: calc(100% + 5px);
+  height: calc(100% + 1.5px);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+.tg-add-erp-btn::after {
+  content: "";
+  position: absolute;
+  top: -1.5px;
+  left: -1.5px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+.tg-add-erp-btn:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+.tg-add-erp-btn:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+.tg-add-erp-btn:hover {
+  color: var(--adminorange, #f5a623);
+  border-color: var(--adminorange, #f5a623);
+  background: var(--adminfonelement, #f2f0e9);
+}
+
+/* done state */
+.tg-add-erp-btn--done {
+  border-color: var(--admingreen, #0e935b);
+  color: var(--admingrey, #666);
+}
+.tg-add-erp-btn--done:hover {
+  color: var(--admingreen, #0e935b);
+  border-color: var(--admingreen, #0e935b);
+  background: var(--adminfonelement, #f2f0e9);
+}
+
+/* При hover рядка — фон pseudo-шарів кнопки = фон рядка */
+.tg-contact-row:hover .tg-add-erp-btn::before,
+.tg-contact-row:hover .tg-add-erp-btn::after {
+  background-color: var(--adminfonelement, #f2f0e9);
+}
+
+/* ── Mode toggle (Чати / Контакти) ── */
+.tg-mode-toggle {
+  padding: 4px 10px;
+  font-size: 12px;
+  background: var(--adminfonelement, #f2f0e9);
+  border: 1px solid var(--adminorange, #f5a623);
+  color: var(--admingrey, #666);
+  cursor: pointer;
+  border-radius: 0;
+  white-space: nowrap;
+  user-select: none;
+  transition: background 0.15s;
+}
+.tg-mode-toggle:hover {
+  background: var(--adminorange, #f5a623);
+  color: #fff;
+}
+
+/* ── Contacts panel ── */
+.tg-contacts-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  background: var(--adminfon, #f7f5ee);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.tg-contacts-panel::-webkit-scrollbar {
+  display: none;
+}
+.tg-contacts-search {
+  display: block;
+  margin: 10px auto;
+  width: calc(100% - 2 * 1.4vw);
+  padding: 8px 0;
+  border: none;
+  border-bottom: 2px solid var(--adminorange, #f5a623);
+  border-radius: 0;
+  background: transparent;
+  color: var(--admingrey, #666);
+  font-size: var(--font-size-s, 14px);
+  outline: none;
+  box-sizing: border-box;
+}
+.tg-contacts-search::placeholder {
+  opacity: 0.5;
+  color: var(--admingrey, #666);
+}
+.tg-contacts-search:focus {
+  border-bottom-color: var(--adminblue, #3c60a6);
+}
+.tg-contacts-loading {
+  padding: 12px;
+  font-size: 12px;
+  color: var(--admingrey, #666);
+  text-align: center;
+}
+.tg-contact-row {
+  display: grid;
+  grid-template-columns: 64px 1fr 130px 150px auto;
+  align-items: center;
+  gap: 0.5vw;
+  padding: 5px 1.4vw;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  background: var(--adminfon, #f7f5ee);
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+}
+.tg-contact-row:hover {
+  background: var(--adminfonelement, #f2f0e9);
+}
+.tg-contact-row .telegramIntegration_chatAvatar {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  min-height: 64px;
+  margin-right: 0;
+}
+.tg-contact-name {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tg-contact-username {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666);
+  opacity: 0.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+.tg-contact-phone {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666);
+  opacity: 0.7;
+  white-space: nowrap;
+  text-align: right;
 }

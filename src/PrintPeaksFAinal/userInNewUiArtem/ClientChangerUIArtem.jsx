@@ -21,13 +21,30 @@ import PaidButtomProgressBar from "../../PrintPeaksFAinal/tools/PaidButtomProgre
 import ClientSelectionModal from "./ClientSelectionModal";
 import ClientCabinet from "./ClientCabinet";
 import "./ClientCabinet.css";
+import ClientFilesPanel from "./ClientFilesPanel";
 import PaysInOrderRestored_OrdersLike from "./pays/PaysInOrderRestored_OrdersLike";
+import BarcodeLabel from "../barcode/BarcodeLabel";
+import OrderFilesPanel from "../commentsInOrders/OrderFilesPanel";
 
-const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hidePaymentPanel = false, actionButtonSlot = null, statusTrackSlot = null }) => {
+const formatPhone = (phone) => {
+  if (!phone) return '—';
+  const d = phone.replace(/\D/g, '');
+  if (d.length === 12 && d.startsWith('38')) {
+    return `+38 (${d.slice(2, 5)}) ${d.slice(5, 8)}-${d.slice(8, 10)}-${d.slice(10, 12)}`;
+  }
+  if (d.length === 10 && d.startsWith('0')) {
+    return `+38 (${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 8)}-${d.slice(8, 10)}`;
+  }
+  return phone.startsWith('+') ? phone : '+' + phone;
+};
+
+const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hidePaymentPanel = false, actionButtonSlot = null, statusTrackSlot = null, onClientError = null }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
   const [showAddUser, setShowAddUser] = useState(false);
   const [clientCabinetOpen, setClientCabinetOpen] = useState(true);
+  const [showClientFiles, setShowClientFiles] = useState(false);
+  const [showOrderFiles, setShowOrderFiles] = useState(false);
   const [showDocGenerate, setShowDocGenerate] = useState(false);
   const currentUser = useSelector((state) => state.auth.user);
   const [showNP, setShowNP] = useState(false);
@@ -198,8 +215,13 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
       await applyBestDiscount(userId);
     } catch (error) {
       if (error.response && error.response.status === 403) navigate('/login');
-      setError(error);
-      console.error(error.message);
+      const msg = error?.response?.data?.error || error.message;
+      if (onClientError) {
+        onClientError(msg);
+      } else {
+        setError(error);
+      }
+      console.error(msg);
     } finally {
       setLoad(false);
     }
@@ -344,11 +366,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
 
   const openFilesFolder = (e) => {
     e?.stopPropagation?.();
-    if (thisOrder?.client?.id) {
-      window.open('https://drive.google.com/drive/folders/1zpPDvQF2g_QcE3i6SCemKhg81rqLHag3', '_blank');
-      return;
-    }
-    setError('Спочатку виберіть клієнта');
+    setShowOrderFiles(true);
   };
 
   return (
@@ -372,7 +390,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
                       : 'Клієнт не вибраний'}
                   </span>
                 </div>
-                <span className="nui-client-phone-line">{thisOrder?.client?.phoneNumber || '—'}</span>
+                <span className="nui-client-phone-line">{formatPhone(thisOrder?.client?.phoneNumber)}</span>
                 {thisOrder?.client?.Company?.companyName && (
                   <span className="nui-client-company-line">{thisOrder.client.Company.companyName}</span>
                 )}
@@ -387,7 +405,16 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
                     handleShow();
                   }}
                 >
-                  <span className="nui-client-rect-btn-text">Вибрати клієнта</span>
+                  <span className="nui-client-rect-btn-text">{thisOrder?.client ? "Змінити" : "Вибрати"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="nui-client-rect-btn"
+                  onClick={(e) => { e.stopPropagation(); setShowClientFiles(true); }}
+                  disabled={!thisOrder?.client}
+                >
+                  <span className="nui-client-rect-btn-text">Файли</span>
                 </button>
 
                 <button
@@ -400,6 +427,12 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
                 </button>
               </div>
             </div>
+
+            {thisOrder?.client?.id && (
+              <div className="nui-client-barcode-right">
+                <BarcodeLabel type="client" data={thisOrder.client} variant="compact" />
+              </div>
+            )}
           </div>
 
           {thisOrder?.client?.address && (
@@ -625,6 +658,19 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
           onOpenProfile={() => {}}
           onClose={() => setClientCabinetOpen(false)}
         />
+      )}
+
+      {showClientFiles && thisOrder?.client?.id && (
+        <ClientFilesPanel
+          userId={thisOrder.client.id}
+          clientName={thisOrder.client.firstName ? `${thisOrder.client.firstName} ${thisOrder.client.lastName || ''}` : ''}
+          onClose={() => setShowClientFiles(false)}
+          orderId={thisOrder?.id}
+        />
+      )}
+
+      {showOrderFiles && (
+        <OrderFilesPanel thisOrder={thisOrder} onClose={() => setShowOrderFiles(false)} />
       )}
     </div>
   );

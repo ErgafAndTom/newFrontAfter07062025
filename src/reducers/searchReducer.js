@@ -1,7 +1,7 @@
 import {SEARCH} from "../actions/searchAction";
 
 const initialState = {
-  search: "222w",
+  search: "",
 };
 
 const searchReducer = (state = initialState, action) => {

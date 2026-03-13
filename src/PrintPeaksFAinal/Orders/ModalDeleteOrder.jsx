@@ -133,7 +133,7 @@ function ModalDeleteOrder({
   }, [thisOrderForDelete]);
 
   const totalPrice = useMemo(() => {
-    const p = thisOrderForDelete?.price ?? thisOrderForDelete?.totalPrice ?? null;
+    const p = thisOrderForDelete?.allPrice ?? thisOrderForDelete?.price ?? thisOrderForDelete?.totalPrice ?? null;
     if (p == null) return '—';
     const num = Number(p);
     return Number.isFinite(num) ? `${num} грн` : `${p} грн`;

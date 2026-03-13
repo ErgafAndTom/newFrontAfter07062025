@@ -6,6 +6,10 @@
   gap: 2px;
 }
 
+.payment-methods-panel .nui-client-rect-btn-text {
+  font-size: var(--font-size-s) !important;
+}
+
 /* Статус поточного методу оплати під текстом кнопки */
 .pay-sel-status {
   position: relative;
@@ -571,4 +575,43 @@ align-content: flex-end;
 .pay-invoice-manual-confirm-btn:hover {
   color: var(--admingreen, #0e935b);
   text-decoration-color: var(--admingreen, #0e935b);
+}
+
+/* ── Cash payment modal buttons ── */
+.await-cash-ok.buttonSkewedOrder,
+.await-cash-cancel.buttonSkewedOrder {
+  background: var(--adminfon, #f7f5ee) !important;
+  font-size: var(--font-size-s) !important;
+  flex: 1 !important;
+  width: auto !important;
+}
+
+.await-cash-ok.buttonSkewedOrder {
+  border-color: var(--admingreen, #0e935b) !important;
+}
+
+.await-cash-ok.buttonSkewedOrder::before,
+.await-cash-ok.buttonSkewedOrder::after,
+.await-cash-cancel.buttonSkewedOrder::before,
+.await-cash-cancel.buttonSkewedOrder::after {
+  background-color: var(--adminfon, #f7f5ee) !important;
+}
+
+.await-cash-ok.buttonSkewedOrder {
+  color: var(--admingreen, #0e935b) !important;
+}
+
+.await-cash-cancel.buttonSkewedOrder {
+  color: var(--adminred, #ee3c23) !important;
+  border-color: var(--adminred, #ee3c23) !important;
+}
+
+.await-cash-ok.buttonSkewedOrder:hover {
+  color: var(--admingreen, #0e935b) !important;
+  border-color: var(--admingreen, #0e935b) !important;
+}
+
+.await-cash-cancel.buttonSkewedOrder:hover {
+  color: var(--adminred, #ee3c23) !important;
+  border-color: var(--adminred, #ee3c23) !important;
 }

@@ -15,58 +15,50 @@
 /* ── Panel ── */
 .csm-panel {
   position: fixed;
-  top: 50%;
+  top: 6vh;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   z-index: 9001;
-  width: min(96vw, 624px);
-  max-height: 85vh;
+  width: min(96vw, 880px);
+  max-height: 88vh;
   background: var(--adminfon, #f7f5ee);
   display: flex;
   flex-direction: column;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
 
-  animation: csm-slide-up 0.25s ease-out;
+  animation: csm-slide-down 0.25s ease-out;
 }
 
-@keyframes csm-slide-up {
-  from { opacity: 0; transform: translate(-50%, -46%); }
-  to   { opacity: 1; transform: translate(-50%, -50%); }
+@keyframes csm-slide-down {
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  to   { opacity: 1; transform: translateX(-50%); }
 }
 
-/* ── Search bar — знизу ── */
+/* ── Search bar — зверху ── */
 .csm-search {
   display: flex;
   align-items: center;
   gap: 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: none;
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+}
+
+/* Кнопка «Пошук по ID» — базовий adminButton, активний стан зелений */
+.csm-search-id-btn {
   flex-shrink: 0;
 }
 
-.csm-search-id-toggle {
-  cursor: pointer;
-  flex-shrink: 0;
+.csm-search-id-btn.is-active {
+  background: var(--adminlightgreen, #e2f2eb);
+  color: var(--admingreen, #0e935b);
+  border-color: transparent;
+  border-bottom-color: var(--admingreen, #0e935b);
 }
 
-.csm-search-id-label {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 4vh;
-  min-height: 36px;
-  padding: 0 0.8rem;
-  font-size: var(--fontsmall, 15px);
-  font-weight: 400;
-  text-transform: uppercase;
-  color: var(--admingrey, #666666);
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
-  transition: color 0.2s;
-  user-select: none;
-  white-space: nowrap;
-}
-
-.csm-search-id-label.is-active {
-  color: var(--adminorange, #f5a623);
+.csm-search-id-btn.is-active::before,
+.csm-search-id-btn.is-active::after {
+  display: none;
 }
 
 .csm-search-input {
@@ -75,11 +67,16 @@
   min-height: 36px;
   padding: 0 1rem;
   border: none;
+  border-bottom: 2px solid var(--adminorange, #f5a623);
   outline: none;
   background: transparent;
   font-size: var(--font-size-s, 17px);
   font-weight: 400;
   color: var(--admingrey, #666666);
+}
+
+.csm-search-input:focus {
+  border-bottom-color: var(--adminblue, #3c60a6);
 }
 
 .csm-search-input::placeholder {
@@ -97,10 +94,8 @@
   flex-direction: column;
 }
 
-.csm-list::-webkit-scrollbar { width: 6px; }
-.csm-list::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
-}
+.csm-list::-webkit-scrollbar { width: 0; display: none; }
+.csm-list { scrollbar-width: none; }
 
 .csm-empty {
   padding: 2rem;
@@ -132,43 +127,49 @@
 }
 
 .csm-user-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 52px 1fr auto auto 150px auto;
   align-items: center;
-  gap: 0.8rem;
-  padding: 0.55rem 1rem;
+  gap: 0 0.5vw;
+  padding: 5px 1.5rem;
   overflow: hidden;
 }
 
-/* ── Avatar + ID badge ── */
-.csm-user-id-col {
-  flex-shrink: 0;
-  width: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--font-size-s, 17px);
-  font-weight: 400;
-  color: var(--admingrey, #666666);
-  line-height: 1;
+/* ── Avatar ── */
+.csm-user-avatar-wrap {
+  width: 52px;
+  height: 52px;
 }
 
-.csm-user-avatar-wrap {
-  flex-shrink: 0;
-  width: 60px;
-  height: 60px;
+/* ── User ID ── */
+.csm-user-id {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  opacity: 0.5;
+  white-space: nowrap;
 }
 
 /* ── User info ── */
 .csm-user-info {
-  flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
 }
 
+/* ── Phone column ── */
+.csm-user-phone {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  opacity: 0.7;
+  white-space: nowrap;
+  text-align: right;
+}
+
 .csm-user-name {
-  font-size: var(--font-size-s, 17px);
+  font-size: var(--fontsmall, 15px);
   font-weight: 400;
   text-transform: uppercase;
   color: var(--admingrey, #666666);
@@ -190,96 +191,42 @@
   font-size: var(--fontsmall, 15px);
   font-weight: 400;
   color: var(--admingreen, #0e935b);
-}
-
-/* ── Action buttons (Вибрати / Кабінет) ── */
-.csm-user-actions {
-  flex-shrink: 0;
-  display: flex;
-  align-items: stretch;
-  gap: 0;
-}
-
-.csm-action-btn {
-  position: relative;
-  isolation: isolate;
-  height: 2vh;
-  min-height: 18px;
-  width: 110px;
-  padding: 5px 18px;
-  border: 2px solid var(--adminorange, #f5a623);
-  border-radius: 0;
-  background: var(--adminfonelement, #f2f0e9);
-  color: var(--admingrey, #666666);
-  font-size: var(--font-size-s, 17px);
-  font-weight: 400;
-  text-transform: uppercase;
-  line-height: 1;
   white-space: nowrap;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  transition: 0.3s;
+  text-align: right;
 }
 
-.csm-action-btn-text {
-  position: relative;
-  z-index: 3;
-  font-size: var(--font-size-s, 17px);
+/* ── Telegram column ── */
+.csm-user-telegram {
+  font-size: var(--fontsmall, 15px);
   font-weight: 400;
   color: var(--admingrey, #666666);
-  text-transform: uppercase;
+  opacity: 0.7;
+  white-space: nowrap;
+  text-align: right;
 }
 
-.csm-action-btn::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 6px);
-  height: calc(100% + 2px);
+/* ── Action button (Вибрати) — adminButton ── */
+.csm-action-btn {
+  flex-shrink: 0;
+  font-size: var(--fontsmall, 15px);
+}
+
+/* При hover рядка — кнопка і pseudo-шари = фон рядка */
+.csm-user:hover .csm-action-btn {
   background: var(--adminfonelement, #f2f0e9);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: -2;
 }
-
-.csm-action-btn::after {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% - 45%);
-  background: var(--adminfonelement, #f2f0e9);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: -1;
-}
-
-.csm-action-btn:hover::before {
-  transform: translateY(-25px);
-  height: 0;
-}
-
-.csm-action-btn:hover::after {
-  transform: scaleX(0);
-  transition-delay: 0.15s;
+.csm-user:hover .csm-action-btn::before,
+.csm-user:hover .csm-action-btn::after {
+  background-color: var(--adminfonelement, #f2f0e9);
 }
 
 .csm-action-btn:hover {
   background: var(--adminfonelement, #f2f0e9);
 }
 
-.csm-action-btn:hover .csm-action-btn-text {
-  color: var(--admingrey, #666666);
-}
-
 /* ── Expanded details ── */
 .csm-user-details {
-  padding: 0.6rem 1rem 0.6rem calc(60px + 1.8rem);
+  padding: 0.6rem 1rem 0.6rem calc(52px + 1rem + 0.5vw);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -313,73 +260,21 @@
 }
 
 
-*,
-*::before,
-*::after { box-sizing: border-box; }
-
-/* Create-client action in search bar */
+/* Create-client — adminButton з зеленими кольорами */
 .csm-create-btn {
-  position: relative;
-  isolation: isolate;
-  flex: 0 0 auto;
-  height: 4vh;
-  min-height: 36px;
-  padding: 0 0.85rem;
-  border: 2px solid var(--admingreen, #0e935b);
-  border-radius: 0;
-  background: var(--adminfonelement, #f2f0e9);
+  flex-shrink: 0;
   color: var(--admingreen, #0e935b);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: 0.3s;
-  box-sizing: border-box;
+  border-color: var(--admingreen, #0e935b);
 }
 
-.csm-create-btn::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 6px);
-  height: calc(100% + 2px);
-  background: var(--adminfonelement, #f2f0e9);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: 1;
-}
-
+.csm-create-btn::before,
 .csm-create-btn::after {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% - 45%);
-  background: var(--adminfonelement, #f2f0e9);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: 1;
+  background-color: var(--adminfon, #f7f5ee);
 }
 
-.csm-create-btn:hover::before {
-  transform: translateY(-25px);
-  height: 0;
-}
-
-.csm-create-btn:hover::after {
-  transform: scaleX(0);
-  transition-delay: 0.15s;
-}
-
-.csm-create-btn-text {
-  position: relative;
-  z-index: 3;
-  font-size: var(--fontsmall, 15px);
-  font-weight: 400;
-  text-transform: uppercase;
-  color: inherit;
+.csm-create-btn:hover {
+  color: var(--admingreen, #0e935b) !important;
+  border-color: var(--admingreen, #0e935b) !important;
 }
 
 /* Create-client modal above all local overlays */
@@ -389,7 +284,7 @@
   background: rgba(15, 15, 15, 0.55);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
-  z-index: 1000000;
+  z-index: 10800;
 }
 
 .csm-add-panel {
@@ -402,7 +297,7 @@
   background: var(--adminfon, #f7f5ee);
   border-bottom: 2px solid var(--admingreen, #0e935b);
   box-shadow: 0 18px 60px rgba(0, 0, 0, 0.32);
-  z-index: 1000001;
+  z-index: 10801;
   display: flex;
   flex-direction: column;
   overflow: hidden;

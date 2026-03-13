@@ -1211,7 +1211,7 @@
 
 .nui-progressbar .pb-status {
   color: var(--admingrey) !important;
-  font-size: clamp(0.74rem, 0.85vw, 0.96rem) !important;
+  font-size: var(--font-size-s) !important;
   font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;

@@ -2,20 +2,23 @@ import React, {useEffect, useState} from "react";
 import "./allStyles.css"
 import Nav from "./nav/Nav";
 import AfterNav from "./calc/AfterNav";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {Route, Routes} from "react-router-dom";
 import Footer from "./footer/Footer";
 import Invoices from "../pages/Invoices";
+import MockupClientPage from "../PrintPeaksFAinal/mockup/MockupClientPage";
 
 function AllWindow() {
     const dispatch = useDispatch();
+    const token = useSelector((state) => state.auth.token);
     const [err, setErr] = useState(null);
 
     useEffect(() => {
-        // Обробка помилок
-        window.addEventListener('error', (event) => {
+        const handleError = (event) => {
             setErr(event.error);
-        });
+        };
+        window.addEventListener('error', handleError);
+        return () => window.removeEventListener('error', handleError);
     }, []);
 
     return (
@@ -35,11 +38,14 @@ function AllWindow() {
                 {/*<Route path="/CashFull/:id" element={<Kassa setErr={setErr}/>} />*/}
 
 
+                {/* Публічна сторінка макету (без auth) */}
+                <Route path="/mockup/:token" element={<MockupClientPage />} />
+
                 <Route path="*" element={(
                     <>
-                      <Nav setErr={setErr}/>
+                      {token && <Nav setErr={setErr}/>}
                       <AfterNav setErr={setErr}/>
-                      <Footer setErr={setErr}/>
+                      {token && <Footer setErr={setErr}/>}
                     </>
                 )} />
             </Routes>

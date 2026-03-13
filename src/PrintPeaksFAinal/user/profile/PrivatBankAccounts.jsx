@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "../../../api/axiosInstance";
+import NotificationSettings from "./NotificationSettings";
 
 const styles = {
   container: {
@@ -250,8 +251,8 @@ export default function PrivatBankAccounts() {
     <div style={styles.container}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
         <div style={styles.title}>Акаунти PrivatBank (Автоклієнт)</div>
-        <button style={styles.btnPrimary} onClick={() => setShowForm(!showForm)}>
-          {showForm ? "Сховати" : "+ Додати акаунт"}
+        <button className="adminButton" onClick={() => setShowForm(!showForm)}>
+          <span>{showForm ? "Сховати" : "+ Додати акаунт"}</span>
         </button>
       </div>
 
@@ -286,11 +287,11 @@ export default function PrivatBankAccounts() {
               onChange={(e) => setFormIban(e.target.value)}
             />
           </div>
-          <button style={styles.btn} onClick={handleTest} disabled={testing || !formToken.trim()}>
-            {testing ? "..." : "Перевірити"}
+          <button className="adminButton" onClick={handleTest} disabled={testing || !formToken.trim()}>
+            <span>{testing ? "..." : "Перевірити"}</span>
           </button>
-          <button style={{ ...styles.btnPrimary, padding: "0.4rem 1.5rem" }} onClick={handleAdd} disabled={loading}>
-            Додати
+          <button className="adminButton" onClick={handleAdd} disabled={loading}>
+            <span>Додати</span>
           </button>
         </div>
       )}
@@ -337,11 +338,11 @@ export default function PrivatBankAccounts() {
                   )}
                 </td>
                 <td style={styles.td}>
-                  <button style={styles.btn} onClick={() => handleToggle(acc)}>
-                    {acc.isActive ? "Вимкнути" : "Увімкнути"}
+                  <button className="adminButton" onClick={() => handleToggle(acc)}>
+                    <span>{acc.isActive ? "Вимкнути" : "Увімкнути"}</span>
                   </button>
-                  <button style={styles.btnDanger} onClick={() => handleDelete(acc)}>
-                    Видалити
+                  <button className="adminButton" style={{ marginLeft: 4 }} onClick={() => handleDelete(acc)}>
+                    <span>Видалити</span>
                   </button>
                 </td>
               </tr>
@@ -349,6 +350,8 @@ export default function PrivatBankAccounts() {
           </tbody>
         </table>
       )}
+
+      <NotificationSettings />
     </div>
   );
 }

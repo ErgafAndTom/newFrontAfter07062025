@@ -5,6 +5,7 @@ import StatusBar from "./StatusBar";
 import { Link, useNavigate } from "react-router-dom";
 import ModalDeleteOrder from "./ModalDeleteOrder";
 import Barcode from 'react-barcode';
+import BarcodeLabel from '../barcode/BarcodeLabel';
 import { useDispatch, useSelector } from "react-redux";
 import { FiFile, FiFolder, FiPhone } from 'react-icons/fi';
 import { RiCalculatorLine } from 'react-icons/ri';
@@ -74,19 +75,22 @@ const CustomOrderTable2 = () => {
 
   useEffect(() => {
     if (!currentUser) return;
+    const abortCtrl = new AbortController();
     const url = (currentUser.role === 'admin' || currentUser.role === 'operator') ? '/orders/all' : '/orders/my';
     setLoading(true);
     axios.post(url, {
       inPageCount: limit, currentPage, search,
       columnName: { column: sortColumn, reverse: sortReverse },
       startDate, endDate, statuses, payments, paymentsType,
-    })
+    }, { signal: abortCtrl.signal })
       .then(res => { setData(res.data); setLoading(false); })
       .catch(err => {
+        if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') return;
         if (err.response?.status === 403) navigate('/login');
         setError(err.message);
         setLoading(false);
       });
+    return () => abortCtrl.abort();
   }, [
     search, currentPage, limit, currentUser?.role,
     sortColumn, sortReverse,
@@ -161,6 +165,9 @@ const CustomOrderTable2 = () => {
 
   if (error) return <div style={{ color: 'var(--adminred)', padding: '1rem' }}>{error}</div>;
 
+  // Loader поки Redux не завантажив юзера або дані ще не прийшли
+  if (!currentUser || (!data && !error)) return <div className="ort-wrap"><div className="ort-loader"><Loader /></div></div>;
+
   return (
     <div className="ort-wrap">
 
@@ -180,11 +187,15 @@ const CustomOrderTable2 = () => {
         <div className="ort-cell ort-cell--center ort-cell--sortable" onClick={() => handleSort('id')}>
           ID<SortArrow col="id" />
         </div>
+        <div className="ort-cell ort-cell--center ort-cell--sortable" onClick={() => handleSort('createdAt')}>
+          Дата<SortArrow col="createdAt" />
+        </div>
         <div className="ort-cell ort-cell--center ort-cell--sortable" onClick={() => handleSort('status')}>
           Статус<SortArrow col="status" />
         </div>
         <div className="ort-cell ort-cell--center">Оплата</div>
         <div className="ort-cell ort-cell--center"><FaTelegramPlane size={14} /></div>
+        <div className="ort-cell ort-cell--center">ID</div>
         <div className="ort-cell">Клієнт</div>
         <div className="ort-cell ort-cell--sortable" style={{ textAlign: 'center' }} onClick={() => handleSort('allPrice')}>
           Ціна<SortArrow col="allPrice" />
@@ -192,6 +203,7 @@ const CustomOrderTable2 = () => {
         <div className="ort-cell ort-cell--center"><FiPhone size={14} /></div>
         <div className="ort-cell">Компанія</div>
         <div className="ort-cell" style={{ paddingLeft: '0.8rem' }}>Дедлайн</div>
+        <div className="ort-cell ort-cell--center">ТТН</div>
         <div className="ort-cell ort-cell--center"><RiCalculatorLine size={14} /></div>
         <div className="ort-cell ort-cell--center"><FiFile size={14} /></div>
         <div className="ort-cell ort-cell--center"><FiFolder size={14} /></div>
@@ -218,6 +230,9 @@ const CustomOrderTable2 = () => {
               onClick={() => toggleOrder(order.id)}
             >
               <div className="ort-cell ort-cell--center">{order.id}</div>
+              <div className="ort-cell ort-cell--center" style={{ fontSize: 'var(--font-size-s)' }}>
+                {new Date(order.createdAt).toLocaleDateString('uk-UA')}
+              </div>
               <div className="ort-cell ort-cell--status"><StatusBar item={order} /></div>
               <PayCell order={order} />
               <div className="ort-cell ort-cell--center">
@@ -225,6 +240,7 @@ const CustomOrderTable2 = () => {
                   ? <TelegramAvatar link={order.client.telegram} size={38} defaultSrc="" square />
                   : '—'}
               </div>
+              <div className="ort-cell ort-cell--center" style={{ opacity: 0.5 }}>{order.client?.id || '—'}</div>
               <div className="ort-cell">{order.client?.firstName} {order.client?.lastName}</div>
               <div className="ort-cell" style={{ color: priceIsZero ? 'var(--admingrey)' : (parseFloat(order.client?.discount) > 0 ? 'var(--admingreen)' : 'var(--adminred)'), textAlign: 'center' }}>
                 {parseFloat(order.allPrice || 0).toFixed(2)}&nbsp;грн
@@ -233,6 +249,50 @@ const CustomOrderTable2 = () => {
               <div className="ort-cell">{order.client?.Company?.companyName || order.client?.company || '—'}</div>
               <div className="ort-cell" style={{ color: deadlineColor, fontSize: 'var(--font-size-pay)', paddingLeft: '0.8rem' }} title={deadlineVal ? new Date(deadlineVal).toLocaleString('uk-UA') : ''}>
                 {deadlineText}
+              </div>
+              <div className="ort-cell ort-ttn-cell" onClick={e => e.stopPropagation()}>
+                {order.Waybills?.length > 0
+                  ? order.Waybills.map(w => (
+                    <div key={w.id} className="ort-ttn-row">
+                      <span
+                        className="ort-ttn-link"
+                        title={`Доставка: ${w.estimatedDeliveryDate || '—'} • ${w.costOnSite || '—'} грн`}
+                        onClick={() => {
+                            axios.get(`/novaposhta/print/${w.ref}`, { responseType: 'blob' })
+                                .then(res => {
+                                    const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = `TTN_${w.intDocNumber}.pdf`;
+                                    a.click();
+                                    window.URL.revokeObjectURL(url);
+                                })
+                                .catch(err => alert('Помилка завантаження ТТН: ' + err.message));
+                        }}
+                      >
+                        {w.intDocNumber}
+                      </span>
+                      <span
+                        className="ort-ttn-sticker-btn"
+                        title="Завантажити наліпку 100×100мм"
+                        onClick={() => {
+                            axios.get(`/novaposhta/print-sticker/${w.ref}`, { responseType: 'blob' })
+                                .then(res => {
+                                    const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = `Sticker_${w.intDocNumber}.pdf`;
+                                    a.click();
+                                    window.URL.revokeObjectURL(url);
+                                })
+                                .catch(err => alert('Помилка завантаження наліпки: ' + err.message));
+                        }}
+                      >
+                        НАЛІПКА
+                      </span>
+                    </div>
+                  ))
+                  : '—'}
               </div>
               <div className="ort-cell ort-cell--center" onClick={e => e.stopPropagation()}>
                 <Link to={`/Orders/${order.id}`} style={{ textDecoration: 'none' }}>
@@ -249,13 +309,8 @@ const CustomOrderTable2 = () => {
                   <button className="ort-icon-btn"><FiFolder size={17} /></button>
                 </Link>
               </div>
-              <div
-                className={`ort-cell ort-barcode${activeBarcodeId === order.id ? ' ort-barcode--active' : ''}`}
-                onClick={e => { e.stopPropagation(); setActiveBarcodeId(prev => prev === order.id ? null : order.id); }}
-              >
-                {order.barcode
-                  ? <Barcode value={order.barcode.toString()} width={1.1} height={28} background="transparent" fontSize={12} displayValue={false} />
-                  : '—'}
+              <div className="ort-cell ort-barcode" onClick={e => e.stopPropagation()}>
+                <BarcodeLabel type="order" data={order} variant="compact" />
               </div>
             </div>
 
@@ -312,7 +367,7 @@ const CustomOrderTable2 = () => {
         setThisOrderForDelete={setThisOrderForDelete}
         data={data}
         setData={setData}
-        url="/orders/OneOrder"
+        url="/orders"
       />
 
       {data && (

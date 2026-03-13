@@ -6,11 +6,11 @@ const ActivatorCheckPaymentStatus = ({ order }) => {
   const [load, setLoad] = useState(false);
 
   const checkStatus = async () => {
-    if (!order.Payment?.invoiceId) return;
+    if (!order.id) return;
     setLoad(true);
     try {
-      const { data } = await axios.get("/api/payment/invoice-status", {
-        params: { invoiceId: order.Payment.invoiceId },
+      const { data } = await axios.get("/api/payment/invoice-status-without-invoiceId", {
+        params: { orderId: order.id },
       });
       setThisOrder(prev => ({ ...prev, Payment: data }));
     } catch (err) {
@@ -23,6 +23,17 @@ const ActivatorCheckPaymentStatus = ({ order }) => {
   useEffect(() => {
     if (thisOrder.Payment?.status === 'CREATED') checkStatus();
   }, []);
+
+  // WebSocket: real-time оновлення від Monobank webhook
+  useEffect(() => {
+    const handlePaymentUpdate = (e) => {
+      if (String(e.detail.orderId) === String(order.id)) {
+        setThisOrder(prev => ({ ...prev, Payment: e.detail.payment }));
+      }
+    };
+    window.addEventListener('paymentStatusUpdate', handlePaymentUpdate);
+    return () => window.removeEventListener('paymentStatusUpdate', handlePaymentUpdate);
+  }, [order.id]);
 
   const p = thisOrder.Payment;
   if (!p || p.status === null)

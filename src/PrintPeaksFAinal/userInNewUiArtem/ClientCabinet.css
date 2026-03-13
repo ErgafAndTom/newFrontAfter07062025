@@ -12,13 +12,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 9000;
 }
 
 /* ── Panel ── */
 .cc-panel {
   position: relative;
-  z-index: 10000;
+  z-index: 9001;
   width: min(96vw, 860px);
   max-height: 90vh;
   background: var(--adminfonelement, #f2f0e9);
@@ -249,7 +249,20 @@
   color: var(--admingrey, #666666);
 }
 
-
+/* Barcode label inside cc-btn — reset compact styles to match tabs */
+.cc-btn.bc-label--compact {
+  max-width: none;
+  padding: 5px 18px;
+  opacity: 1;
+  overflow: visible;
+}
+.cc-btn.bc-label--compact:hover {
+  opacity: 1;
+}
+.cc-btn.bc-label--compact svg {
+  position: relative;
+  z-index: 3;
+}
 
 /* ── Stats ── */
 .cc-stats {
@@ -473,36 +486,50 @@
   white-space: nowrap;
 }
 
-/* Фон оплати на комірці */
-.cc-order-col--pay.cc-pay--paid {
-  background: var(--admingreen, #0e935b) !important;
-  color: var(--adminfon, #f7f5ee);
+/* Фон оплати на комірці — стиль NAV кнопки */
+.cc-order-col--pay[class*="cc-pay--"] {
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  transition: border-bottom-color 0.3s ease;
 }
-.cc-order-col--pay.cc-pay--paid .cc-pay-badge { color: var(--adminfon, #f7f5ee); }
+
+.cc-order-col--pay.cc-pay--paid {
+  border-bottom-color: var(--admingreen, #0e935b) !important;
+  color: var(--admingreen, #0e935b);
+}
+.cc-order-col--pay.cc-pay--paid .cc-pay-badge { color: var(--admingreen, #0e935b); }
 
 .cc-order-col--pay.cc-pay--wait {
-  background: var(--adminorange, #f5a623) !important;
-  color: var(--adminfon, #f7f5ee);
+  border-bottom-color: var(--adminorange, #f5a623) !important;
+  color: var(--adminorange, #f5a623);
 }
-.cc-order-col--pay.cc-pay--wait .cc-pay-badge { color: var(--adminfon, #f7f5ee); }
+.cc-order-col--pay.cc-pay--wait .cc-pay-badge { color: var(--adminorange, #f5a623); }
 
 .cc-order-col--pay.cc-pay--nopay {
-  background: var(--adminred, #ee3c23) !important;
-  color: var(--adminfon, #f7f5ee);
+  border-bottom-color: var(--adminred, #ee3c23) !important;
+  color: var(--adminred, #ee3c23);
 }
-.cc-order-col--pay.cc-pay--nopay .cc-pay-badge { color: var(--adminfon, #f7f5ee); }
+.cc-order-col--pay.cc-pay--nopay .cc-pay-badge { color: var(--adminred, #ee3c23); }
 
 .cc-order-col--pay.cc-pay--cancel {
-  background: color-mix(in srgb, var(--adminred, #ee3c23) 70%, transparent) !important;
-  color: var(--adminfon, #f7f5ee);
+  border-bottom-color: var(--adminred, #ee3c23) !important;
+  color: var(--adminred, #ee3c23);
+  opacity: 0.7;
 }
-.cc-order-col--pay.cc-pay--cancel .cc-pay-badge { color: var(--adminfon, #f7f5ee); }
+.cc-order-col--pay.cc-pay--cancel .cc-pay-badge { color: var(--adminred, #ee3c23); }
 
 .cc-order-col--pay.cc-pay--expired {
-  background: color-mix(in srgb, var(--adminorange, #f5a623) 80%, var(--adminred, #ee3c23)) !important;
-  color: var(--adminfon, #f7f5ee);
+  border-bottom-color: color-mix(in srgb, var(--adminorange, #f5a623) 80%, var(--adminred, #ee3c23)) !important;
+  color: color-mix(in srgb, var(--adminorange, #f5a623) 80%, var(--adminred, #ee3c23));
 }
-.cc-order-col--pay.cc-pay--expired .cc-pay-badge { color: var(--adminfon, #f7f5ee); }
+.cc-order-col--pay.cc-pay--expired .cc-pay-badge { color: color-mix(in srgb, var(--adminorange, #f5a623) 80%, var(--adminred, #ee3c23)); }
+
+.cc-order-col--pay.cc-pay--estimate {
+  border-bottom-color: var(--admincyan, #00A8C6) !important;
+  color: var(--admincyan, #00A8C6);
+}
+.cc-order-col--pay.cc-pay--estimate .cc-pay-badge { color: var(--admincyan, #00A8C6); }
+.cc-order-col--sum.cc-pay--estimate { color: var(--admincyan, #00A8C6); }
 
 .cc-order-col--status {
   min-width: 6em;

@@ -307,7 +307,7 @@
     overflow: auto;
     direction: rtl;
     background: #F2F0E7;
-    z-index: 2000;
+    z-index: 200;
 
 
 }
@@ -406,7 +406,7 @@
 
 .containerForTextAndInputsOrder {
     height: 3.5vh;
-  z-index: 1000;
+  z-index: 100;
     /*margin-top: 0.45vw;*/
 }
 
@@ -1494,7 +1494,7 @@
     text-align: right;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 100;
 }
 
 .imaga-icon {
@@ -3128,7 +3128,7 @@
     background-color: var(--color-gainsboro);
     border: 1px solid var(--color-dimgray);
     box-sizing: border-box;
-  z-index: 1000;
+  z-index: 100;
 }
 
 .input-text8 {

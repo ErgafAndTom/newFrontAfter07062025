@@ -18,7 +18,7 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 0.4rem;
   padding-bottom: 0 !important;
-  margin-left: 1rem;
+  margin-left: auto;
   margin-bottom: 0.7rem;
 }
 
@@ -64,7 +64,10 @@
   background: rgba(60, 96, 166, 0.12) !important;
 }
 
-/* ── NOTE, BOOKLET, MUG — rose ── */
+/* ── NOTE, BOOKLET, MUG — rose (3 items → align right, cols 2-4) ── */
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-tertiary p:first-child {
+  grid-column: 2;
+}
 .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-tertiary p {
   background: rgba(240, 117, 170, 0.05) !important;
   border-bottom-color: var(--adminrose, #ef7aaa) !important;
@@ -73,7 +76,10 @@
   background: rgba(240, 117, 170, 0.12) !important;
 }
 
-/* ── SCANS, DELIVERY, WIDE FACTORY — purple ── */
+/* ── SCANS, DELIVERY, WIDE FACTORY — purple (3 items → align right, cols 2-4) ── */
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-secondary p:first-child {
+  grid-column: 2;
+}
 .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-secondary p {
   background: rgba(106, 90, 205, 0.05) !important;
   border-bottom-color: var(--adminpurple, #6a5acd) !important;
@@ -100,7 +106,7 @@
   writing-mode: horizontal-tb;
   transform: none;
   font-weight: 400;
-  font-size: var(--fontcard, 0.72rem);
+  font-size: var(--fontsmall, 15px);
   color: var(--admingrey, #666666) !important;
   text-transform: uppercase;
   text-align: center;
@@ -149,8 +155,16 @@
   padding-bottom: 15vh;
   background: transparent;
   /*border-left: 1px solid #eee;*/
+  order: 1;
+}
+
+.nui-services-column {
+  order: 2;
   margin-left: auto;
-  margin-right: 0;
+  margin-right: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .nui-order-delivered-title {
@@ -375,7 +389,6 @@
   display: flex !important;
   align-items: stretch;
   gap: 0;
-
   background: transparent;
   overflow: visible;
   box-shadow: none;
@@ -925,9 +938,26 @@
   width: 100%;
   min-height: calc(11vh - 1.2rem);
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto 1fr auto;
   align-items: stretch;
   gap: 0.4rem;
+}
+
+/* Barcode rotated 90° in right corner — full height */
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-barcode-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  min-width: 1.5rem;
+  overflow: visible;
+  margin-right: -0.5rem;
+}
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-barcode-right .bc-label--compact {
+  transform: rotate(90deg) scale(1.3);
+  max-width: none;
+  padding: 0;
+  overflow: visible;
 }
 
 .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-avatar-wrap {
@@ -960,7 +990,7 @@
   margin-left: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   justify-content: flex-start;
   gap: 0.18rem;
   flex: 1 1 auto;
@@ -977,7 +1007,7 @@
 .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-name-line,
 .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-phone-line {
   width: 100%;
-  text-align: right;
+  text-align: center;
 }
 
 .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-name-line {
@@ -985,11 +1015,18 @@
 }
 
 .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-phone-line {
-  width: auto;
-  max-width: 50%;
-  margin-left: auto;
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
   font-size: var(--font-size-s) !important;
   color: var(--client-accent) !important;
+  text-align: center;
+  font-weight: 400;
+}
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-company-line {
+  text-align: center;
+  color: var(--client-accent, var(--admingrey, #666666)) !important;
+  font-weight: 400;
 }
 
 .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-rect-actions {
@@ -999,6 +1036,7 @@
   justify-content: flex-start;
   gap: 0;
   flex: 0 0 auto;
+  width: 100%;
 }
 
 .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-address-line {
@@ -1133,11 +1171,47 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 1rem;
   padding: 0 0.75rem;
   box-sizing: border-box;
   overflow: hidden;
+}
+
+/* Barcode + TTN row */
+.nui-sheetcut-theme .nui-barcode-with-ttn {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 0.5rem;
+  width: 100%;
+}
+.nui-sheetcut-theme .nui-barcode-with-ttn .bc-label--order {
+  flex: 1;
+}
+.nui-sheetcut-theme .nui-ttn-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  flex-shrink: 0;
+  padding-bottom: 0;
+}
+.nui-sheetcut-theme .nui-ttn-number {
+  font-size: var(--font-size-xs, 12px);
+  font-weight: 600;
+  color: var(--adminred, #ee3c23);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.nui-sheetcut-theme .nui-ttn-label {
+  font-size: 10px;
+  color: var(--adminred, #ee3c23);
+  opacity: 0.5;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .nui-sheetcut-theme .nui-deadline-envelope__prefix {
@@ -1194,6 +1268,35 @@
   white-space: nowrap;
   letter-spacing: 0.04em;
   width: 100%;
+}
+
+/* Toggle button дедлайн/штрих-код */
+.nui-sheetcut-theme .nui-envelope-toggle-btn {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--adminorange, #f5a623);
+  color: #fff;
+  border: none;
+  width: 24px;
+  height: 24px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+  z-index: 1;
+}
+.nui-sheetcut-theme .nui-envelope-toggle-btn:hover {
+  opacity: 1;
+}
+.nui-sheetcut-theme .nui-deadline-envelope {
+  position: relative;
 }
 
 /* Discount calculator — admingreen color for stripe and value */
@@ -1269,6 +1372,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  z-index: 1000;
+  z-index: 500;
   box-sizing: border-box;
 }

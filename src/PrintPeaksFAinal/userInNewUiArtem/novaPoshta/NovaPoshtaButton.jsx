@@ -48,8 +48,8 @@ const NovaPoshtaButton = ({ onDepartmentSelect }) => {
             setSelectedDescriptionText(newDescriptionText);
             setSelectedDepartmentId(event.data.id);
             if (onDepartmentSelect) {
+                console.log('[NP Widget] Full data:', JSON.stringify(event.data, null, 2));
                 onDepartmentSelect(event.data.id, event.data, newDescriptionText, event.data.refCity.externalId, event.data.externalId, event.data.number);
-
             }
             closeFrame();
             return;
@@ -115,18 +115,15 @@ const NovaPoshtaButton = ({ onDepartmentSelect }) => {
                     </svg>
                 </div>
                 <div className="novaPoshtaButton-wrapper">
-                    <span className="novaPoshtaButton-text" style={{ marginBottom: selectedPlaceText ? '5px' : '0' }}>
+                    <span className="novaPoshtaButton-text">
                         {selectedPlaceText || 'Обрати відділення або поштомат'}
-                    </span>
-                    <span className="novaPoshtaButton-text-description">
-                        {selectedDescriptionText || 'Обрати відділення або поштомат'}
                     </span>
                 </div>
             </div>
 
             {modalOpen && (
-                <div className="novaPoshtaButton-modal-overlay" id="modal-overlay" style={{ display: 'flex' }}>
-                    <div className="novaPoshtaButton-modal">
+                <div className="novaPoshtaButton-modal-overlay" id="modal-overlay" style={{ display: 'flex' }} onClick={closeFrame}>
+                    <div className="novaPoshtaButton-modal" onClick={(e) => e.stopPropagation()}>
                         <header className="novaPoshtaButton-modal-header">
                             <h2>Вибрати відділення</h2>
                             <span className="novaPoshtaButton-modal-close" onClick={closeFrame}>&times;</span>

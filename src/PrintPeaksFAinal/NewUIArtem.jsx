@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from '../api/axiosInstance';
 
 
+import BarcodeLabel from './barcode/BarcodeLabel';
 import blackWhitePrintIcon from "../components/newUIArtem/printers/ComponentTMP_0-image5.png";
 import colorPrintIcon from "../components/newUIArtem/printers/46.png";
 import plotterCutIcon from "../components/newUIArtem/printers/ComponentTMP_0-image4.png";
@@ -41,6 +42,7 @@ import PerepletMet from "./poslugi/PerepletMet";
 import BigOvshik from "./poslugi/BigOvshik";
 import ProgressBar from "../ProgressBar";
 import NewCup from "./poslugi/NewCup";
+import MugMockupModal from "./mockup/MugMockupModal";
 
 import NewBooklet from "./poslugi/NewBooklet";
 import NewMagnets from "./poslugi/NewMagnets";
@@ -54,6 +56,7 @@ const NewUIArtem = () => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [uiLockError, setUiLockError] = useState(null);
+  const [showEnvelopeBarcode, setShowEnvelopeBarcode] = useState(false);
   const { id } = useParams();
   const [editingOrderUnit, setEditingOrderUnit] = useState(null);
   const editingOrderUnitSafe = editingOrderUnit;
@@ -62,9 +65,7 @@ const NewUIArtem = () => {
   const [newThisOrder, setNewThisOrder] = useState({
     id: id
   })
-  const [thisOrder, setThisOrder] = useState({
-    id: id
-  })
+  const [thisOrder, setThisOrder] = useState(null)
   const [selectedThings2, setSelectedThings2] = useState([]);
   const productName = '';
   const [showDeleteOrderUnitModal, setShowDeleteOrderUnitModal] = useState(false);
@@ -86,6 +87,7 @@ const NewUIArtem = () => {
   const [showBigOvshik, setShowBigOvshik] = useState(false);
   const [showPerepletMet, setShowPerepletMet] = useState(false);
   const [showNewCup, setShowNewCup] = useState(false);
+  const [showMugMockup, setShowMugMockup] = useState(false);
   const [showNewMagnets, setShowNewMagnets] = useState(false);
   const [showNewScans, setShowNewScans] = useState(false);
   const [showLaminator, setShowLaminator] = useState(false);
@@ -286,6 +288,21 @@ const NewUIArtem = () => {
     }
   }, [id]);
 
+  // Слухаємо подію прив'язки клієнта з Telegram-панелі (без перезавантаження)
+  useEffect(() => {
+    const handleUserAssigned = (e) => {
+      // Перевіряємо що це саме наше замовлення
+      if (e.detail && String(e.detail.id) === String(id)) {
+        setThisOrder(e.detail);
+        if (e.detail.OrderUnits) {
+          setSelectedThings2(e.detail.OrderUnits);
+        }
+      }
+    };
+    window.addEventListener('orderUserAssigned', handleUserAssigned);
+    return () => window.removeEventListener('orderUserAssigned', handleUserAssigned);
+  }, [id]);
+
   useEffect(() => {
     const deadlineAt = thisOrder?.deadline || (typeof thisOrder?.finalManufacturingTime === 'string' ? thisOrder.finalManufacturingTime : null);
     if (!deadlineAt) {
@@ -396,10 +413,10 @@ const NewUIArtem = () => {
   if (thisOrder) {
     return (
       <div className="nui-sheetcut-theme">
-        <QuantumErrorBoundary/>
+        <QuantumErrorBoundary>
 
         <div className={`d-flex  ${serviceToneClass}${hasOrders ? "" : " no-orders"}`} style={{ background: 'transparent' }}>
-          <div className="">
+          <div className="nui-services-column">
 
             {/* === GRID OF SERVICE TILES === */}
             <div
@@ -518,6 +535,12 @@ const NewUIArtem = () => {
                 <div className="tileContent">
                   <span className="verticalText">MUG</span>
                   <img className="icon64 CardPrintersPoslugiImg" src={MUG} alt="" />
+                </div>
+              </p>
+
+              <p onClick={(e) => { e.stopPropagation(); setShowMugMockup(true); }} style={{cursor:'pointer'}}>
+                <div className="tileContent">
+                  <span className="verticalText">МАКЕТ</span>
                 </div>
               </p>
             </div>
@@ -680,7 +703,26 @@ const NewUIArtem = () => {
                   />
                   </div>
                   <div className={`nui-deadline-envelope${isDeadlineOverdue ? ' nui-deadline--overdue' : ''}`}>
-                    {orderDeadlineCountdown ? (
+                    {orderDeadlineCountdown && (
+                      <button
+                        className="nui-envelope-toggle-btn"
+                        onClick={() => setShowEnvelopeBarcode(prev => !prev)}
+                        title={showEnvelopeBarcode ? 'Показати дедлайн' : 'Показати штрих-код'}
+                      >
+                        {showEnvelopeBarcode ? '⏱' : '|||'}
+                      </button>
+                    )}
+                    {!orderDeadlineCountdown || showEnvelopeBarcode ? (
+                      <div className="nui-barcode-with-ttn">
+                        <BarcodeLabel type="order" data={thisOrder} variant="full" />
+                        {thisOrder?.Waybills?.length > 0 && (
+                          <div className="nui-ttn-block">
+                            <span className="nui-ttn-number">{thisOrder.Waybills[0].intDocNumber}</span>
+                            <span className="nui-ttn-label">нова пошта</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
                       <>
                         <span className="nui-deadline-envelope__prefix">
                           {isDeadlineOverdue ? 'Замовлення необхідно було віддати:' : 'Замовлення необхідно віддати через:'}
@@ -697,8 +739,6 @@ const NewUIArtem = () => {
                           })}
                         </span>
                       </>
-                    ) : (
-                      <span className="nui-deadline-envelope__placeholder">have a nice print</span>
                     )}
                   </div>
                 </div>
@@ -708,6 +748,7 @@ const NewUIArtem = () => {
                     setThisOrder={setThisOrder}
                     setSelectedThings2={setSelectedThings2}
                     hidePaymentPanel={true}
+                    onClientError={setUiLockError}
                     actionButtonSlot={(
                       <ProgressBar
                         thisOrder={thisOrder}
@@ -828,6 +869,9 @@ const NewUIArtem = () => {
             editingOrderUnit={editingOrderUnitSafe}
             setEditingOrderUnit={setEditingOrderUnitSafe}
           />
+        }
+        {showMugMockup && thisOrder &&
+          <MugMockupModal orderId={thisOrder.id} onClose={() => setShowMugMockup(false)} />
         }
         {showNewScans &&
           <NewScans
@@ -1006,6 +1050,7 @@ const NewUIArtem = () => {
             <div>Як так сталося що у вас Order без User?!?</div>
           </div>
         )}
+        </QuantumErrorBoundary>
       </div>
 
     );

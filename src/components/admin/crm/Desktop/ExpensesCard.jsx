@@ -10,9 +10,9 @@ const CATEGORY_COLORS = {
     'Інше': '#999999',
 };
 
-const ExpensesCard = ({ data, dateRange, onExpenseAdded }) => {
+const ExpensesCard = ({data, dateRange, onExpenseAdded}) => {
     const [showForm, setShowForm] = useState(false);
-    const [form, setForm] = useState({ amount: '', description: '', category: 'Інше' });
+    const [form, setForm] = useState({amount: '', description: '', category: 'Інше'});
     const [saving, setSaving] = useState(false);
 
     const handleAdd = async () => {
@@ -25,7 +25,7 @@ const ExpensesCard = ({ data, dateRange, onExpenseAdded }) => {
                 category: form.category,
                 date: new Date().toISOString().slice(0, 10),
             });
-            setForm({ amount: '', description: '', category: 'Інше' });
+            setForm({amount: '', description: '', category: 'Інше'});
             setShowForm(false);
             if (onExpenseAdded) onExpenseAdded();
         } catch (e) {
@@ -39,8 +39,9 @@ const ExpensesCard = ({ data, dateRange, onExpenseAdded }) => {
     const categories = data?.byCategory ?? [];
 
     return (
-        <div className="dsh-card" style={{ overflow: 'hidden', padding: 0 }}>
-            <div style={{ padding: '0.8rem 1rem 0.3rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="dsh-card" style={{overflow: 'hidden', padding: 0}}>
+            {/* Header */}
+            <div className="dsh-exp-header" style={{padding: '0.6rem 0.8rem 0'}}>
                 <div className="dsh-card-title">Витрати</div>
                 <button
                     className="dsh-exp-add-btn"
@@ -51,34 +52,52 @@ const ExpensesCard = ({ data, dateRange, onExpenseAdded }) => {
                 </button>
             </div>
 
-            {/* Загальна сума */}
-            <div className="dsh-exp-total">
+            {/* Total */}
+            <div className="dsh-exp-total" style={{padding: '0.2rem 0.8rem 0.3rem'}}>
                 <span className="dsh-exp-total-value">
-                    {total.toLocaleString('uk-UA', { maximumFractionDigits: 2 })} ₴
+                    {total.toLocaleString('uk-UA', {maximumFractionDigits: 0})} ₴
                 </span>
                 <span className="dsh-exp-total-count">{count} записів</span>
             </div>
 
-            {/* Форма додавання */}
+            {/* Mini stacked bar */}
+            {categories.length > 0 && total > 0 && (
+                <div className="dsh-exp-minibar" style={{margin: '0 0.8rem 0.3rem'}}>
+                    {categories.map((cat, i) => {
+                        const pct = (cat.total / total) * 100;
+                        const color = CATEGORY_COLORS[cat.category] || CATEGORY_COLORS['Інше'];
+                        return (
+                            <div
+                                key={i}
+                                className="dsh-exp-minibar-seg"
+                                style={{width: `${pct}%`, background: color}}
+                                title={`${cat.category}: ${pct.toFixed(0)}%`}
+                            />
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* Add form */}
             {showForm && (
-                <div className="dsh-exp-form">
+                <div className="dsh-exp-form" style={{padding: '0.3rem 0.8rem'}}>
                     <input
                         type="number"
                         placeholder="Сума"
                         value={form.amount}
-                        onChange={e => setForm({ ...form, amount: e.target.value })}
+                        onChange={e => setForm({...form, amount: e.target.value})}
                         className="dsh-exp-input"
                     />
                     <input
                         type="text"
                         placeholder="Опис"
                         value={form.description}
-                        onChange={e => setForm({ ...form, description: e.target.value })}
+                        onChange={e => setForm({...form, description: e.target.value})}
                         className="dsh-exp-input"
                     />
                     <select
                         value={form.category}
-                        onChange={e => setForm({ ...form, category: e.target.value })}
+                        onChange={e => setForm({...form, category: e.target.value})}
                         className="dsh-exp-input"
                     >
                         {Object.keys(CATEGORY_COLORS).map(cat => (
@@ -95,10 +114,15 @@ const ExpensesCard = ({ data, dateRange, onExpenseAdded }) => {
                 </div>
             )}
 
-            {/* По категоріях */}
-            <div className="dsh-exp-categories">
+            {/* Categories list */}
+            <div className="dsh-exp-categories" style={{padding: '0 0.3rem'}}>
                 {categories.length === 0 && (
-                    <div style={{ color: 'var(--admingrey)', opacity: 0.5, padding: '0.5rem 1rem', fontSize: '0.65vw' }}>
+                    <div style={{
+                        color: 'var(--admingrey)',
+                        opacity: 0.4,
+                        padding: '0.4rem 0.5rem',
+                        fontSize: '0.6vw'
+                    }}>
                         Немає витрат за період
                     </div>
                 )}
@@ -107,11 +131,12 @@ const ExpensesCard = ({ data, dateRange, onExpenseAdded }) => {
                     const color = CATEGORY_COLORS[cat.category] || CATEGORY_COLORS['Інше'];
                     return (
                         <div key={i} className="dsh-exp-cat-row">
-                            <div className="dsh-exp-cat-bar" style={{ width: `${pct}%`, background: color + '15' }} />
-                            <span className="dsh-exp-cat-dot" style={{ background: color }} />
+                            <div className="dsh-exp-cat-bar"
+                                 style={{width: `${pct}%`, background: color + '12'}}/>
+                            <span className="dsh-exp-cat-dot" style={{background: color}}/>
                             <span className="dsh-exp-cat-name">{cat.category}</span>
                             <span className="dsh-exp-cat-sum">
-                                {cat.total.toLocaleString('uk-UA', { maximumFractionDigits: 0 })} ₴
+                                {cat.total.toLocaleString('uk-UA', {maximumFractionDigits: 0})} ₴
                             </span>
                             <span className="dsh-exp-cat-pct">{pct.toFixed(0)}%</span>
                         </div>

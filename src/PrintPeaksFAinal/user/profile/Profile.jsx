@@ -14,12 +14,16 @@ import CodesOffline from "../../checkbox/codesOffline/CodesOffline";
 import PrivatBankAccounts from "./PrivatBankAccounts";
 import Graph2DForBD from "../../Graph2DForBD";
 import Shifts from "../../checkbox/shifts/Shifts";
+import DesignSettings from "./DesignSettings";
+import NiimbotSettings from "./NiimbotSettings";
+import FileSettings from "./FileSettings";
+import "./NiimbotSettings.css";
 
 function ClientUserProfile() {
   const dispatch = useDispatch();
   const thisUser = useSelector(state => state.auth.user);
   const {id} = useParams();
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState('design');
   const [editMode, setEditMode] = useState(false);
   // const [thisUser, setThisUser] = useState(user);
   const [isLoad, setIsLoad] = useState(false);
@@ -105,6 +109,8 @@ function ClientUserProfile() {
     <div style={{ margin: 0, padding: 0 }}>
       {/* Tabs */}
       <div className="pp-tabs">
+        <button className={`pp-tab-btn${activeTab === 'design'              ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('design')}>Дизайн</button>
+        <button className={`pp-tab-btn${activeTab === 'niimbot'             ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('niimbot')}>Штрих-код</button>
         <button className={`pp-tab-btn${activeTab === 'profile'             ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('profile')}>Основна інформація</button>
         <button className={`pp-tab-btn${activeTab === 'counterparties'      ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('counterparties')}>Контрагенти</button>
         <button className={`pp-tab-btn${activeTab === 'counterpartiesAdmin' ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('counterpartiesAdmin')}>РЕКВІЗИТИ</button>
@@ -119,9 +125,14 @@ function ClientUserProfile() {
         {thisUser?.role === 'admin' && (
           <button className={`pp-tab-btn${activeTab === 'зміни' ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('зміни')}>Зміни</button>
         )}
+        {thisUser?.role === 'admin' && (
+          <button className={`pp-tab-btn${activeTab === 'files' ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('files')}>Файли</button>
+        )}
       </div>
 
       <div className="pp-content">
+        {activeTab === 'design'              && <DesignSettings/>}
+        {activeTab === 'niimbot'             && <NiimbotSettings/>}
         {activeTab === 'profile'             && <UserPageDetailsSelf thisUser={thisUser}/>}
         {activeTab === 'counterparties'      && <ContrAgentsInUserProfile user={thisUser}/>}
         {activeTab === 'counterpartiesAdmin' && <div style={{padding:'1rem'}}><PaysInOrderRestoredForAdmin user={thisUser}/></div>}
@@ -131,6 +142,7 @@ function ClientUserProfile() {
         {activeTab === 'payments'            && <div style={{padding:'1rem'}}><PrivatBankAccounts/></div>}
         {activeTab === 'база'                && <Graph2DForBD/>}
         {activeTab === 'зміни'               && <div style={{padding:'1rem'}}><Shifts/></div>}
+        {activeTab === 'files'               && <FileSettings/>}
       </div>
     </div>
   );

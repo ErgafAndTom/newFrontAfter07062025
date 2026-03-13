@@ -96,6 +96,18 @@
   opacity: 0;
 }
 
+/* НП, ТГ, bell обгортки — однакова фіксована ширина */
+.nav-ctrl-btn-wrap {
+  flex: 0 0 3.2vw;
+  min-width: 48px;
+  display: flex;
+  align-items: stretch;
+}
+.nav-ctrl-btn-wrap > button {
+  flex: 1;
+  width: 100%;
+}
+
 /* Link-обгортка навколо adminButtonAddNav */
 .nav-right-controls > a {
   flex: 1;
@@ -347,6 +359,35 @@
 }
 
 /* Кнопка виходу у правому конверті */
+.nav-settings-btn {
+  flex: 0 0 auto !important;
+  width: 3.5rem !important;
+  color: var(--admingrey, #666) !important;
+  border-color: var(--admingrey, #666) !important;
+}
+.nav-settings-btn::before {
+  background-color: var(--adminfonelement) !important;
+}
+.nav-settings-btn::after {
+  background-color: var(--adminfonelement) !important;
+}
+.nav-settings-btn .ico {
+  position: relative;
+  z-index: 2;
+  width: 1.2em;
+  height: 1.2em;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nav-settings-btn:hover {
+  color: var(--adminorange, #f5a623) !important;
+  border-color: var(--adminorange, #f5a623) !important;
+  background: var(--adminfonelement) !important;
+}
+
 .nav-logout-btn {
   flex: 0 0 auto !important;
   width: 3.5rem !important;
@@ -652,6 +693,263 @@
 .notification-check-btn > * {
   position: relative;
   z-index: 3;
+}
+
+/* ── Нова Пошта кнопка в nav ── */
+.nav-right-controls .nav-np-btn.adminButtonAddNav {
+  color: #DA291C !important;
+  border-color: #DA291C !important;
+  background: var(--adminfonelement, #f2f0e9) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.nav-right-controls .nav-np-btn.adminButtonAddNav svg {
+  display: block;
+}
+
+.nav-right-controls .nav-np-btn.adminButtonAddNav span {
+  display: none;
+}
+
+.nav-right-controls .nav-np-btn.adminButtonAddNav::before,
+.nav-right-controls .nav-np-btn.adminButtonAddNav::after {
+  background-color: var(--adminfonelement, #f2f0e9) !important;
+}
+
+.nav-right-controls .nav-np-btn.adminButtonAddNav:hover {
+  color: #DA291C !important;
+  border-color: #DA291C !important;
+}
+
+.nav-right-controls .nav-np-btn.adminButtonAddNav.active {
+  background: var(--adminlightred, #fde8e5) !important;
+  color: #DA291C !important;
+  border-color: #DA291C !important;
+}
+
+.nav-right-controls .nav-np-btn.adminButtonAddNav.active::before,
+.nav-right-controls .nav-np-btn.adminButtonAddNav.active::after {
+  background-color: var(--adminlightred, #fde8e5) !important;
+}
+
+/* ── Scanner кнопка в nav ── */
+.bc-scanner-btn.adminButtonAddNav {
+  color: var(--adminpurple, #6a5acd) !important;
+  border: 2px solid var(--adminpurple, #6a5acd) !important;
+  background: var(--adminfonelement, #f2f0e9) !important;
+  padding: 0 4px !important;
+  margin: 0 !important;
+  flex-direction: column;
+  gap: 2px;
+}
+.bc-scanner-btn.adminButtonAddNav .bc-scanner-logo {
+  height: 26px;
+  width: auto;
+  display: block;
+  color: var(--adminpurple, #6a5acd);
+  position: relative;
+  z-index: 2;
+}
+.bc-scanner-btn.adminButtonAddNav .bc-scanner-dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  position: relative;
+  z-index: 2;
+}
+.bc-scanner-btn.adminButtonAddNav::before,
+.bc-scanner-btn.adminButtonAddNav::after {
+  background-color: var(--adminfonelement, #f2f0e9) !important;
+}
+.bc-scanner-btn.adminButtonAddNav:hover {
+  color: var(--adminpurple, #6a5acd) !important;
+  border-color: var(--adminpurple, #6a5acd) !important;
+}
+.bc-scanner-btn.adminButtonAddNav:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+.bc-scanner-btn.adminButtonAddNav:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+/* Scanner Connecting — animated border glow */
+.bc-scanner-btn.bc-scanner-btn--connecting.adminButtonAddNav {
+  animation: scanner-nav-border-pulse 1.2s ease-in-out infinite !important;
+}
+.bc-scanner-btn.bc-scanner-btn--connecting.adminButtonAddNav .bc-scanner-dot {
+  background-color: var(--adminorange, #f5a623) !important;
+  animation: scanner-nav-dot-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes scanner-nav-border-pulse {
+  0%, 100% { border-color: var(--adminpurple, #6a5acd); box-shadow: none; }
+  50% { border-color: var(--adminpurple, #6a5acd); box-shadow: 0 0 8px 2px rgba(106, 90, 205, 0.5); }
+}
+@keyframes scanner-nav-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ── Niimbot кнопка в nav ── */
+.bc-niimbot-btn.adminButtonAddNav {
+  color: var(--adminblue, #3c60a6) !important;
+  border: 2px solid var(--adminblue, #3c60a6) !important;
+  background: var(--adminfonelement, #f2f0e9) !important;
+  padding: 0 6px !important;
+  margin: 0 !important;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bc-niimbot-btn.adminButtonAddNav .bc-niimbot-logo {
+  height: 12px;
+  width: auto;
+  display: block;
+  color: var(--adminblue, #3c60a6);
+  position: relative;
+  z-index: 2;
+}
+
+.bc-niimbot-btn.adminButtonAddNav .bc-niimbot-dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  position: relative;
+  z-index: 2;
+}
+
+.bc-niimbot-btn.adminButtonAddNav::before,
+.bc-niimbot-btn.adminButtonAddNav::after {
+  background-color: var(--adminfonelement, #f2f0e9) !important;
+}
+
+.bc-niimbot-btn.adminButtonAddNav:hover {
+  color: var(--adminblue, #3c60a6) !important;
+  border-color: var(--adminblue, #3c60a6) !important;
+}
+
+/* Connecting — animated border glow */
+.bc-niimbot-btn.bc-niimbot-btn--connecting.adminButtonAddNav {
+  animation: niimbot-nav-border-pulse 1.2s ease-in-out infinite !important;
+}
+.bc-niimbot-btn.bc-niimbot-btn--connecting.adminButtonAddNav .bc-niimbot-dot {
+  background-color: var(--adminorange, #f5a623) !important;
+  animation: niimbot-nav-dot-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes niimbot-nav-border-pulse {
+  0%, 100% { border-color: var(--adminblue, #3c60a6) !important; box-shadow: 0 0 0 0 transparent; }
+  50% { border-color: var(--adminblue, #3c60a6) !important; box-shadow: 0 0 8px 2px var(--adminblue, #3c60a6); }
+}
+@keyframes niimbot-nav-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Connected — green dot glow */
+.bc-niimbot-btn.bc-niimbot-btn--connected.adminButtonAddNav {
+  color: var(--adminblue, #3c60a6) !important;
+  border-color: var(--adminblue, #3c60a6) !important;
+}
+.bc-niimbot-btn.bc-niimbot-btn--connected.adminButtonAddNav .bc-niimbot-dot {
+  background-color: var(--admingreen, #0e935b) !important;
+  box-shadow: none;
+}
+
+/* Disconnected — red dot */
+.bc-niimbot-btn.bc-niimbot-btn--disconnected.adminButtonAddNav .bc-niimbot-dot {
+  background-color: var(--adminred, #ee3c23) !important;
+}
+
+/* ── Telegram кнопка в nav (buttonSkewedOrder override) ── */
+.nav-right-controls .nav-telegram-btn.buttonSkewedOrder {
+  color: var(--admincyan, #00A8C6) !important;
+  border-color: var(--admincyan, #00A8C6) !important;
+  background: var(--adminfonelement, #f2f0e9) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.nav-right-controls .nav-telegram-btn.buttonSkewedOrder svg {
+  display: block;
+}
+
+.nav-right-controls .nav-telegram-btn.buttonSkewedOrder::before,
+.nav-right-controls .nav-telegram-btn.buttonSkewedOrder::after {
+  background-color: var(--adminfonelement, #f2f0e9) !important;
+}
+
+.nav-right-controls .nav-telegram-btn.buttonSkewedOrder:hover {
+  color: var(--admincyan, #00A8C6) !important;
+  border-color: var(--admincyan, #00A8C6) !important;
+}
+
+.nav-right-controls .nav-telegram-btn.buttonSkewedOrder.active {
+  background: var(--adminlightcyan, #e0f7fa) !important;
+  color: var(--admincyan, #00A8C6) !important;
+  border-color: var(--admincyan, #00A8C6) !important;
+}
+
+.nav-right-controls .nav-telegram-btn.buttonSkewedOrder.active::before,
+.nav-right-controls .nav-telegram-btn.buttonSkewedOrder.active::after {
+  background-color: var(--adminlightcyan, #e0f7fa) !important;
+}
+
+/* ── Telegram модалка ── */
+.tg-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 15, 15, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tg-modal-content {
+  position: relative;
+  z-index: 10000;
+  width: min(96vw, 840px);
+  height: 85vh;
+  background: var(--adminfon, #f7f5ee);
+  color: var(--admingrey, #666);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: tg-slide-up 0.25s ease-out;
+}
+@keyframes tg-slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tg-modal-content .telegramIntegration_app {
+  height: 100%;
+}
+.tg-modal-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: var(--adminfonelement, #f2f0e9);
+  border: none;
+  color: var(--admingrey, #666);
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.tg-modal-close:hover {
+  background: var(--adminorange, #f5a623);
+  color: #fff;
 }
 
 

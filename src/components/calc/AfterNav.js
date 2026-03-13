@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Link, Route, Routes, useNavigate} from "react-router-dom";
+import {Link, Route, Routes, Navigate, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import Loader from "./Loader";
 import Desktop from "../admin/crm/Desktop/Desktop";
@@ -101,6 +101,18 @@ const AfterNav = () => {
             </div>
         );
     }
+    // Якщо немає токена — тільки логін
+    if (!token) {
+        return (
+            <div>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="*" element={<Navigate to="/login" replace />} />
+                </Routes>
+            </div>
+        );
+    }
+
     return (
         <div>
             <Routes>

@@ -52,9 +52,9 @@ function App() {
             }
         });
     }, []);
-  // useEffect(() => {
-  //   initWebSocket();
-  // }, []);
+  useEffect(() => {
+    initWebSocket();
+  }, []);
 
   return (
 

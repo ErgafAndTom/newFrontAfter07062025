@@ -13,6 +13,7 @@ import Loader from "../../components/calc/Loader";
 import { Settings } from "lucide-react";
 import { searchChange } from "../../actions/searchAction";
 import ClientCabinet from "../userInNewUiArtem/ClientCabinet";
+import BarcodeLabel from "../barcode/BarcodeLabel";
 
 const UsersOrdersLikeTable = () => {
   const [data, setData]           = useState(null);
@@ -31,6 +32,8 @@ const UsersOrdersLikeTable = () => {
   const currentUser = useSelector((state) => state.auth.user);
   const search      = useSelector((state) => state.search.search);
   const navigate    = useNavigate();
+
+
 
   const toggleRow = (id) => setExpandedOrderId(prev => (prev === id ? null : id));
 
@@ -93,6 +96,7 @@ const UsersOrdersLikeTable = () => {
         <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('totalCharged')}>Нараховано<SortArrow col="totalCharged" /></div>
         <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('totalPaid')}>Оплачено<SortArrow col="totalPaid" /></div>
         <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('balance')}>Баланс<SortArrow col="balance" /></div>
+        <div className="uol-cell uol-cell--center" title="Штрих-код">BC</div>
         <div className="uol-cell uol-cell--center"><Settings size={14} /></div>
       </div>
 
@@ -133,6 +137,9 @@ const UsersOrdersLikeTable = () => {
               <div className="uol-cell uol-cell--center"
                 style={balance !== 0 ? { color: balance < 0 ? 'var(--adminred)' : 'var(--admingreen)' } : undefined}>
                 {charged > 0 || paid > 0 ? balance : '—'}
+              </div>
+              <div className="uol-cell uol-cell--center" onClick={e => e.stopPropagation()}>
+                <BarcodeLabel type="client" data={order} variant="compact" />
               </div>
               <div className="uol-cell uol-cell--actions" onClick={e => e.stopPropagation()}>
                 <button className="uol-settings-btn" onClick={() => setCabinetUserId(order.id)}>

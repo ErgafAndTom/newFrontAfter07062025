@@ -1,22 +1,19 @@
-import { MDBContainer } from "mdb-react-ui-kit";
-import { Row } from "react-bootstrap";
 import React, { useCallback, useEffect, useState } from "react";
+import ReactDOM from "react-dom";
 import axios from "../../api/axiosInstance";
-import { useNavigate } from "react-router-dom";
 
 const ReceipGet = ({
-                             thisOrder,
-                             showReceiptViewer,
-                             setShowReceiptViewer,
+  thisOrder,
+  showReceiptViewer,
+  setShowReceiptViewer,
   receiptId,
   setReceiptId,
-                           }) => {
+}) => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   const handleClose = () => {
     setIsAnimating(false);
@@ -26,10 +23,6 @@ const ReceipGet = ({
       setPdfUrl(null);
     }, 300);
   };
-
-  const handleShow = useCallback(() => {
-    setShowReceiptViewer(true);
-  }, []);
 
   useEffect(() => {
     if (showReceiptViewer) {
@@ -41,27 +34,19 @@ const ReceipGet = ({
     }
   }, [showReceiptViewer]);
 
-  // 🧾 Завантажити чек
   const fetchReceipt = async () => {
     if (!receiptId && !receiptId.id) return;
     setLoading(true);
-    let response;
     try {
-      response = await axios.get(`/api/payment/receipt/${receiptId.id}/pdf`, {
+      const response = await axios.get(`/api/payment/receipt/${receiptId.id}/pdf`, {
         responseType: "blob",
       });
-
-      console.log(response);
-
       const blob = new Blob([response.data], { type: "application/pdf" });
-
-      console.log(blob);
-
       const url = window.URL.createObjectURL(blob);
       setPdfUrl(url);
       setError(null);
     } catch (err) {
-      console.error("❌ Помилка отримання чеку:", err);
+      console.error("Помилка отримання чеку:", err);
       setError("Не вдалося отримати чек");
     } finally {
       setLoading(false);
@@ -71,30 +56,22 @@ const ReceipGet = ({
   const fetchReceiptByMono = async () => {
     if (!receiptId && !receiptId.id) return;
     setLoading(true);
-    let response;
     try {
-      response = await axios.get(`/api/payment/receiptForInvoiceId/${receiptId.id}/pdf`, {
+      const response = await axios.get(`/api/payment/receiptForInvoiceId/${receiptId.id}/pdf`, {
         responseType: "blob",
       });
-
-      console.log(response);
-
       const blob = new Blob([response.data], { type: "application/pdf" });
-
-      console.log(blob);
-
       const url = window.URL.createObjectURL(blob);
       setPdfUrl(url);
       setError(null);
     } catch (err) {
-      console.error("❌ Помилка отримання чеку:", err);
+      console.error("Помилка отримання чеку:", err);
       setError("Не вдалося отримати чек");
     } finally {
       setLoading(false);
     }
   };
 
-  // 🖨️ Скачати чек
   const handleDownload = () => {
     if (!pdfUrl) return;
     const a = document.createElement("a");
@@ -105,128 +82,133 @@ const ReceipGet = ({
 
   useEffect(() => {
     if (receiptId && receiptId.by === "mono") {
-      fetchReceiptByMono()
+      fetchReceiptByMono();
     } else {
-      fetchReceipt()
+      fetchReceipt();
     }
   }, []);
 
   return (
     <>
-      {isVisible ? (
+      {isVisible && ReactDOM.createPortal(
         <div>
+          {/* Backdrop */}
           <div
             style={{
               width: "100vw",
               height: "100vh",
-              background: "rgba(0, 0, 0, 0.5)",
+              background: "rgba(0, 0, 0, 0.35)",
               position: "fixed",
               left: 0,
-              bottom: 0,
-              zIndex: 999,
+              top: 0,
+              zIndex: 99998,
               opacity: isAnimating ? 1 : 0,
               transition: "opacity 0.3s ease-in-out",
             }}
             onClick={handleClose}
-          ></div>
+          />
 
+          {/* Modal */}
           <div
-            className="d-flex flex-column"
             style={{
-              zIndex: 1000,
+              zIndex: 99999,
               position: "fixed",
-              background: "#f0eee7",
+              background: "var(--adminfon, #f7f5ee)",
               top: "50%",
               left: "50%",
               transform: isAnimating
                 ? "translate(-50%, -50%) scale(1)"
-                : "translate(-50%, -50%) scale(0.8)",
+                : "translate(-50%, -50%) scale(0.95)",
               opacity: isAnimating ? 1 : 0,
               transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
-              borderRadius: "1vw",
               width: "50vw",
               height: "90vh",
-              padding: "1vw",
-              boxShadow: "0 0 25px rgba(0,0,0,0.25)",
+              display: "flex",
+              flexDirection: "column",
+              padding: "1rem",
+              gap: "0.5rem",
             }}
           >
-            <div className="d-flex">
-              <div className="m-auto text-center adminFont">Фіскальний чек №: {receiptId.id}</div>
-              <div
-                className="btn btn-close btn-lg"
-                style={{ margin: "0.1vw" }}
+            {/* Header */}
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}>
+              <span style={{
+                fontSize: "var(--font-size-s, 17px)",
+                fontWeight: 400,
+                color: "var(--admingrey, #666)",
+                textTransform: "uppercase",
+              }}>
+                Фіскальний чек №: {receiptId.id}
+              </span>
+              <button
+                className="nui-client-rect-btn"
                 onClick={handleClose}
-              ></div>
+                style={{ width: "2rem", height: "2rem", padding: 0, minWidth: 0 }}
+              >
+                <span className="nui-client-rect-btn-text" style={{ fontSize: "var(--fontsmall, 15px)" }}>✕</span>
+              </button>
             </div>
 
-            {/*<div*/}
-            {/*  className="d-flex flex-row adminFont"*/}
-            {/*  style={{*/}
-            {/*    marginLeft: "1vw",*/}
-            {/*    justifyContent: "space-between",*/}
-            {/*    marginTop: "0.5vw",*/}
-            {/*    alignItems: "center",*/}
-            {/*  }}*/}
-            {/*>*/}
-            {/*  <div>Замовлення №{thisOrder?.id}</div>*/}
-            {/*  /!*<div>Сума: {(thisOrder?.allPrice || 0).toFixed(2)} грн</div>*!/*/}
-            {/*</div>*/}
+            {/* Content */}
+            <div style={{ flex: 1, overflow: "hidden" }}>
+              {!pdfUrl && !error && (
+                <button
+                  className="nui-client-rect-btn"
+                  onClick={fetchReceipt}
+                  disabled={loading}
+                  style={{ width: "100%", height: "3rem" }}
+                >
+                  <span className="nui-client-rect-btn-text">
+                    {loading ? "Завантаження..." : "Отримати чек"}
+                  </span>
+                </button>
+              )}
 
-            <div style={{ marginTop: "0" }}>
-              <MDBContainer fluid style={{ width: "100%" }}>
-                <Row>
-                  {!pdfUrl && !error && (
-                    <button
-                      className="adminButtonAdd adminTextBigPay"
-                      onClick={fetchReceipt}
-                      disabled={loading}
-                    >
-                      {loading ? "Завантаження..." : "Отримати чек"}
-                    </button>
-                  )}
+              {error && (
+                <div style={{ color: "var(--adminred, #ee3c23)", textAlign: "center", padding: "1rem" }}>
+                  {error}
+                </div>
+              )}
 
-                  {error && <div style={{ color: "red" }}>{error}</div>}
-
-                  {pdfUrl && (
-                    <>
-                      <iframe
-                        src={pdfUrl}
-                        title="Чек PDF"
-                        style={{
-                          width: "100%",
-                          height: "78vh",
-                          marginTop: "1vh",
-                          border: "1px solid #ccc",
-                          borderRadius: "8px",
-                        }}
-                      />
-
-                      <div className="d-flex justify-content-center mt-3">
-                        <button
-                          className="adminButtonAdd adminTextBigPay"
-                          style={{ background: "#0a8d39" }}
-                          onClick={handleDownload}
-                        >
-                          📥 Завантажити
-                        </button>
-
-                        <button
-                          className="adminButtonAdd adminTextBigPay"
-                          style={{ background: "#d60a1c", marginLeft: "1vw" }}
-                          onClick={handleClose}
-                        >
-                          Закрити
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </Row>
-              </MDBContainer>
+              {pdfUrl && (
+                <iframe
+                  src={pdfUrl}
+                  title="Чек PDF"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    border: "1px solid var(--admingrey, #666)",
+                  }}
+                />
+              )}
             </div>
+
+            {/* Footer buttons */}
+            {pdfUrl && (
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <button
+                  className="adminButtonAdd adminButtonGreen"
+                  onClick={handleDownload}
+                  style={{ flex: 1 }}
+                >
+                  Завантажити
+                </button>
+
+                <button
+                  className="adminButtonAdd adminButtonOrange"
+                  onClick={handleClose}
+                  style={{ flex: 1 }}
+                >
+                  Закрити
+                </button>
+              </div>
+            )}
           </div>
-        </div>
-      ) : (
-        <div style={{ display: "none" }}></div>
+        </div>,
+        document.body
       )}
     </>
   );

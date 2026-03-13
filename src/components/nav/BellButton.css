@@ -1,9 +1,10 @@
 .bell-button {
   position: relative;
   isolation: isolate;
+  width: 100%;
   height: var(--nav-h, 3.5vh);
   min-height: var(--nav-min-h, 36px);
-  padding: 0 0.8em;
+  padding: 0;
   background: var(--adminfon) !important;
   color: var(--adminorange) !important;
   border: 2px solid var(--adminorange) !important;

@@ -13,6 +13,7 @@ const METHOD_LABELS = {
   invoice: 'за рахунком',
   iban: 'на IBAN',
   expired: 'протерміновано',
+  mockup: 'макет чашки',
 };
 
 const PopupLeftNotification = () => {
@@ -153,7 +154,7 @@ const PopupLeftNotification = () => {
 
   return (
     <>
-      <div ref={bellWrapRef} style={{ flex: 1, display: 'flex', alignItems: 'stretch' }}>
+      <div ref={bellWrapRef} className="nav-ctrl-btn-wrap">
         <BellButton count={totalCount} onClick={toggle} />
       </div>
 
@@ -193,6 +194,11 @@ const PopupLeftNotification = () => {
               borderColor = 'var(--adminpurple, #6a5acd)';
               accentColor = 'var(--adminpurple, #6a5acd)';
               btnStyle = { '--notif-btn-1': '#8070d4', '--notif-btn-2': '#6a5acd', '--notif-btn-3': '#5a4abf' };
+            } else if (notif.method === 'mockup') {
+              bgColor = 'var(--adminlightorange, #fef4e5)';
+              borderColor = 'var(--adminorange, #f5a623)';
+              accentColor = 'var(--adminorange, #f5a623)';
+              btnStyle = { '--notif-btn-1': '#f7b84a', '--notif-btn-2': '#f5a623', '--notif-btn-3': '#e09510' };
             } else {
               bgColor = 'var(--adminlightgreen, #e2f2eb)';
               borderColor = 'var(--admingreen, #0e935b)';
@@ -200,9 +206,10 @@ const PopupLeftNotification = () => {
               btnStyle = undefined;
             }
 
+            const isMockup = notif.method === 'mockup';
             const label = isExpired
               ? 'Оплата протермінована'
-              : isRepeat ? 'Повторна оплата' : 'Оплата';
+              : isMockup ? 'Підтвердили' : isRepeat ? 'Повторна оплата' : 'Оплата';
             const methodSuffix = isExpired ? '' : ` ${METHOD_LABELS[notif.method] || notif.method}`;
 
             return (

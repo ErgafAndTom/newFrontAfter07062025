@@ -3,14 +3,15 @@
     flex-direction: column;
     padding: 11px 40px 11px 16px;
     border: 1px solid #E2E8F0;
-    border-radius: 12px;
+    border-radius: 0;
 
-    background-color: #fff;
+    background-color: var(--adminfonelement, #f1eee7);
     cursor: pointer;
-    max-width: 344px;
+    max-width: 413px;
+    width: 413px;
+    margin: 0 auto;
     position: relative;
     box-sizing: border-box;
-    margin-bottom: 20px;
 }
 
 .novaPoshtaButton-nova-poshta-button.novaPoshtaButton-button-horizontal {
@@ -124,6 +125,98 @@
 .novaPoshtaButton-text-row {
     display: flex;
     flex-direction: row;
+}
+
+/* Address search form */
+.np-address-form {
+    max-width: 413px;
+    margin: 0.3rem auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.np-address-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.np-address-label {
+    font-size: var(--fontsmall, 13px);
+    color: var(--admingrey, #666);
+    opacity: 0.5;
+    white-space: nowrap;
+    min-width: 55px;
+}
+
+.np-address-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px solid var(--adminred, #DA291C);
+    padding: 0.25rem 0.2rem;
+    font-size: var(--fontsmall, 13px);
+    font-weight: 400;
+    color: var(--admingrey, #666);
+    outline: none;
+    font-family: inherit;
+}
+
+.np-address-input:focus {
+    border-bottom-color: var(--adminorange, #f5a623);
+}
+
+.np-address-input:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.np-address-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 55px;
+    right: 0;
+    background: var(--adminfon, #f7f5ee);
+    border: 1px solid #E2E8F0;
+    z-index: 100;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.np-address-dropdown-item {
+    padding: 0.35rem 0.5rem;
+    font-size: var(--fontsmall, 13px);
+    color: var(--admingrey, #666);
+    cursor: pointer;
+}
+
+.np-address-dropdown-item:hover {
+    background: var(--adminfonelement, #f1eee7);
+}
+
+.np-address-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-end;
+}
+
+.np-address-confirm {
+    background: transparent;
+    border: 1.5px solid var(--adminred, #DA291C);
+    color: var(--adminred, #DA291C);
+    padding: 0.3rem 0.8rem;
+    font-size: var(--fontsmall, 13px);
+    font-weight: 400;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.np-address-confirm:hover {
+    background: var(--adminred, #DA291C);
+    color: #fff;
 }
 
 @media screen and (max-width: 767px) {

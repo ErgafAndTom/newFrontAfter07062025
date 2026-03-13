@@ -92,6 +92,7 @@ const CustomOrderTable = () => {
                     <div className="CustomOrderTable-header-cell">Telegram</div>
                     <div className="CustomOrderTable-header-cell">Вартість</div>
                     <div className="CustomOrderTable-header-cell">Статус оплати</div>
+                    <div className="CustomOrderTable-header-cell">ТТН</div>
                     <div className="CustomOrderTable-header-cell">Дата створення</div>
                     <div className="CustomOrderTable-header-cell">Дата завершення</div>
                     <div className="CustomOrderTable-header-cell">Відповідальний</div>
@@ -159,6 +160,53 @@ const CustomOrderTable = () => {
                                         >
                                             {order.payStatus || 'Не оплачено'}
                                         </div>
+                                    </div>
+                                    <div className="CustomOrderTable-cell CustomOrderTable-ttn-cell">
+                                        {order.Waybills?.length > 0
+                                            ? order.Waybills.map(w => (
+                                                <div key={w.id} className="CustomOrderTable-ttn-row">
+                                                    <span
+                                                        className="CustomOrderTable-ttn-link"
+                                                        title={`Доставка: ${w.estimatedDeliveryDate || '—'} • ${w.costOnSite || '—'} грн`}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            axios.get(`/novaposhta/print/${w.ref}`, { responseType: 'blob' })
+                                                                .then(res => {
+                                                                    const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+                                                                    const a = document.createElement('a');
+                                                                    a.href = url;
+                                                                    a.download = `TTN_${w.intDocNumber}.pdf`;
+                                                                    a.click();
+                                                                    window.URL.revokeObjectURL(url);
+                                                                })
+                                                                .catch(err => alert('Помилка завантаження ТТН: ' + err.message));
+                                                        }}
+                                                    >
+                                                        {w.intDocNumber}
+                                                    </span>
+                                                    <span
+                                                        className="CustomOrderTable-ttn-sticker-btn"
+                                                        title="Завантажити наліпку 100×100мм"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            axios.get(`/novaposhta/print-sticker/${w.ref}`, { responseType: 'blob' })
+                                                                .then(res => {
+                                                                    const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+                                                                    const a = document.createElement('a');
+                                                                    a.href = url;
+                                                                    a.download = `Sticker_${w.intDocNumber}.pdf`;
+                                                                    a.click();
+                                                                    window.URL.revokeObjectURL(url);
+                                                                })
+                                                                .catch(err => alert('Помилка завантаження наліпки: ' + err.message));
+                                                        }}
+                                                    >
+                                                        НАЛІПКА
+                                                    </span>
+                                                </div>
+                                            ))
+                                            : '—'
+                                        }
                                     </div>
                                     <div className="CustomOrderTable-cell">
                                         {`${new Date(order.createdAt).toLocaleDateString()} ${new Date(order.createdAt).toLocaleTimeString()}`}

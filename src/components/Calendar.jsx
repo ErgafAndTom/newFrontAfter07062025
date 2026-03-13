@@ -1,8 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import { DateRangePicker, defaultStaticRanges } from 'react-date-range';
+import { DateRangePicker, createStaticRanges } from 'react-date-range';
 import './calendarstyles.css';
 import './calendartheme.css';
-import {addDays} from 'date-fns';
+import {
+    addDays, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
+    startOfDay, endOfDay, isSameDay
+} from 'date-fns';
 import axios from "../api/axiosInstance";
 import uk from 'date-fns/locale/uk';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +13,7 @@ import TimeSeriesChart from "../PrintPeaksFAinal/timeSeriesChart/TimeSeriesChart
 
 const customUkLocale = {
     ...uk,
+    options: { ...uk.options, weekStartsOn: 1 },
     dateRangePicker: {
         changeTitle: "Змінити дату",
         clear: "Очистити",
@@ -19,45 +23,53 @@ const customUkLocale = {
     },
 };
 
-const ukrainianStaticRanges = defaultStaticRanges.map(range => {
-    let newLabel = range.label;
-    switch (range.label) {
-        case 'Today':
-            newLabel = 'Сьогодні';
-            break;
-        case 'Yesterday':
-            newLabel = 'Вчора';
-            break;
-        case 'This Week':
-            newLabel = 'Цей тиждень';
-            break;
-        case 'Last Week':
-            newLabel = 'Минулий тиждень';
-            break;
-        case 'This Month':
-            newLabel = 'Цей місяць';
-            break;
-        case 'Last Month':
-            newLabel = 'Минулий місяць';
-            break;
-        case 'Days up to today':
-            newLabel = 'Дні до сьогодні';
-            break;
-        case 'Days starting today':
-            newLabel = 'Дні, починаючи з сьогодні';
-            break;
-        default:
-            break;
-    }
-    return { ...range, label: newLabel };
-});
+const weekOpts = { weekStartsOn: 1 };
+
+const ukrainianStaticRanges = createStaticRanges([
+    {
+        label: 'Сьогодні',
+        range: () => ({ startDate: startOfDay(new Date()), endDate: endOfDay(new Date()) }),
+    },
+    {
+        label: 'Вчора',
+        range: () => {
+            const y = addDays(new Date(), -1);
+            return { startDate: startOfDay(y), endDate: endOfDay(y) };
+        },
+    },
+    {
+        label: 'Цей тиждень',
+        range: () => ({
+            startDate: startOfWeek(new Date(), weekOpts),
+            endDate: endOfWeek(new Date(), weekOpts),
+        }),
+    },
+    {
+        label: 'Минулий тиждень',
+        range: () => {
+            const d = addDays(new Date(), -7);
+            return { startDate: startOfWeek(d, weekOpts), endDate: endOfWeek(d, weekOpts) };
+        },
+    },
+    {
+        label: 'Цей місяць',
+        range: () => ({ startDate: startOfMonth(new Date()), endDate: endOfMonth(new Date()) }),
+    },
+    {
+        label: 'Минулий місяць',
+        range: () => {
+            const d = addDays(startOfMonth(new Date()), -1);
+            return { startDate: startOfMonth(d), endDate: endOfMonth(d) };
+        },
+    },
+]);
 
 const Calendar = ({ compact, onDateChange }) => {
     const navigate = useNavigate();
     const [state, setState] = useState([
         {
-            startDate: new Date(),
-            endDate: addDays(new Date(), 7),
+            startDate: startOfDay(new Date()),
+            endDate: endOfDay(new Date()),
             key: 'selection',
         },
     ]);
@@ -126,6 +138,7 @@ const Calendar = ({ compact, onDateChange }) => {
                 inputRanges={[]}
                 direction="horizontal"
                 locale={customUkLocale}
+                weekStartsOn={1}
                 showPreview={true}
             />
         );
@@ -144,6 +157,7 @@ const Calendar = ({ compact, onDateChange }) => {
                     inputRanges={[]}
                     direction="horizontal"
                     locale={customUkLocale}
+                    weekStartsOn={1}
                     showPreview={true}
                 />
             </div>

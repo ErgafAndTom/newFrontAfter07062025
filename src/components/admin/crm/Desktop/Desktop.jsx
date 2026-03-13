@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import axios from "../../../../api/axiosInstance";
 import {useNavigate} from "react-router-dom";
 import Calendar from "../../../Calendar";
@@ -9,6 +9,7 @@ import OrdersBarChart from "./OrdersBarChart";
 import TopClientsCard from "./TopClientsCard";
 import ExpensesCard from "./ExpensesCard";
 import CategoryBarChart from "./CategoryBarChart";
+import ClientPaymentStats from "./ClientPaymentStats";
 import './Desktop.css';
 
 const Desktop = () => {
@@ -21,6 +22,7 @@ const Desktop = () => {
     const [payMethods, setPayMethods] = useState({});
     const [expensesData, setExpensesData] = useState({});
     const [categoryData, setCategoryData] = useState({});
+    const [activeBottomTab, setActiveBottomTab] = useState('catValue');
 
     const handleDateChange = useCallback((range) => {
         setDateRange(range);
@@ -33,7 +35,7 @@ const Desktop = () => {
             end_date: dateRange.endDate,
         };
 
-        Promise.all([
+        Promise.allSettled([
             axios.post('/statistics/getComparison', data),
             axios.post('/statistics/getChartData', data),
             axios.post('/statistics/getOrdersByDay', data),
@@ -42,18 +44,26 @@ const Desktop = () => {
             axios.post('/expenses/stats', data),
             axios.post('/statistics/getOrdersByCategory', data),
         ])
-            .then(([compRes, chartRes, ordersRes, clientsRes, payRes, expRes, catRes]) => {
-                setComparison(compRes.data);
-                setChartData(chartRes.data);
-                setOrdersData(ordersRes.data);
-                setTopClients(clientsRes.data);
-                setPayMethods(payRes.data);
-                setExpensesData(expRes.data);
-                setCategoryData(catRes.data);
-            })
-            .catch(error => {
-                if (error.response?.status === 403) navigate('/login');
-                console.error(error);
+            .then((results) => {
+                const get = (i) => results[i].status === 'fulfilled' ? results[i].value.data : null;
+                // redirect on 403
+                for (const r of results) {
+                    if (r.status === 'rejected' && r.reason?.response?.status === 403) {
+                        navigate('/login');
+                        return;
+                    }
+                }
+                if (get(0)) setComparison(get(0));
+                if (get(1)) setChartData(get(1));
+                if (get(2)) setOrdersData(get(2));
+                if (get(3)) setTopClients(get(3));
+                if (get(4)) setPayMethods(get(4));
+                if (get(5)) setExpensesData(get(5));
+                if (get(6)) setCategoryData(get(6));
+                // log failed
+                results.forEach((r, i) => {
+                    if (r.status === 'rejected') console.warn(`Dashboard request ${i} failed:`, r.reason?.message);
+                });
             });
     }, [dateRange, navigate]);
 
@@ -69,9 +79,16 @@ const Desktop = () => {
     const payConversion = stats && stats.total_orders > 0
         ? (stats.paidCount / stats.total_orders) * 100 : 0;
 
+    // Sparkline data for KPI cards
+    const revenueSparkData = useMemo(() => chartData.map(d => d.value), [chartData]);
+    const ordersSparkData = useMemo(() =>
+        ordersData.map(d => Object.values(d.statuses).reduce((s, v) => s + v, 0)),
+        [ordersData]
+    );
+
     return (
         <div className="dsh-wrap">
-            {/* Ряд 1: Календар + KPI */}
+            {/* Row 1: Calendar + KPI */}
             <div className="dsh-row-top">
                 <div className="dsh-calendar-wrap">
                     <Calendar compact onDateChange={handleDateChange}/>
@@ -81,6 +98,8 @@ const Desktop = () => {
                         label="Загальна виручка"
                         value={stats?.total_sum ?? 0}
                         change={changes?.revenue_pct}
+                        sparkData={revenueSparkData}
+                        sparkColor="#0e935b"
                     />
                     <KpiCard
                         label="Оплачено"
@@ -101,6 +120,8 @@ const Desktop = () => {
                         value={stats?.total_orders ?? 0}
                         suffix="шт"
                         change={changes?.orders_pct}
+                        sparkData={ordersSparkData}
+                        sparkColor="#3c60a6"
                         subText={`Сер. чек: ${avgCheck.toLocaleString('uk-UA', {maximumFractionDigits: 0})} грн`}
                     />
                     <KpiCard
@@ -112,7 +133,7 @@ const Desktop = () => {
                 </div>
             </div>
 
-            {/* Ряд 2: Графіки */}
+            {/* Row 2: Revenue + Payment Distribution */}
             <div className="dsh-row-charts">
                 <div className="dsh-chart-main">
                     <div className="dsh-chart-title">Виручка за період</div>
@@ -128,32 +149,49 @@ const Desktop = () => {
                 </div>
             </div>
 
-            {/* Ряд 3: Діаграма замовлень + інші картки */}
+            {/* Row 3: Orders/Categories (tabs) + Expenses/Clients */}
             <div className="dsh-row-charts">
                 <div className="dsh-chart-main">
-                    <div className="dsh-chart-title">Діаграма замовлень</div>
+                    <div className="dsh-chart-header">
+                        <div className="dsh-chart-tabs">
+                            <button
+                                className={`dsh-chart-tab ${activeBottomTab === 'orders' ? 'active' : ''}`}
+                                onClick={() => setActiveBottomTab('orders')}
+                            >
+                                Статуси замовлень
+                            </button>
+                            <button
+                                className={`dsh-chart-tab ${activeBottomTab === 'categories' ? 'active' : ''}`}
+                                onClick={() => setActiveBottomTab('categories')}
+                            >
+                                Кількість у категоріях
+                            </button>
+                            <button
+                                className={`dsh-chart-tab ${activeBottomTab === 'catValue' ? 'active' : ''}`}
+                                onClick={() => setActiveBottomTab('catValue')}
+                            >
+                                Вартість у категоріях
+                            </button>
+                            <button
+                                className={`dsh-chart-tab ${activeBottomTab === 'clientPay' ? 'active' : ''}`}
+                                onClick={() => setActiveBottomTab('clientPay')}
+                            >
+                                Оплати клієнта
+                            </button>
+                        </div>
+                    </div>
                     <div className="dsh-chart-body">
-                        <OrdersBarChart data={ordersData}/>
+                        {activeBottomTab === 'orders'
+                            ? <OrdersBarChart data={ordersData}/>
+                            : activeBottomTab === 'clientPay'
+                                ? <ClientPaymentStats dateRange={dateRange}/>
+                                : <CategoryBarChart data={categoryData} mode={activeBottomTab === 'catValue' ? 'value' : 'count'}/>
+                        }
                     </div>
                 </div>
                 <div className="dsh-row-cards-side">
                     <ExpensesCard data={expensesData} dateRange={dateRange} onExpenseAdded={fetchAll}/>
                     <TopClientsCard data={topClients}/>
-                </div>
-            </div>
-
-            {/* Ряд 4: Діаграма категорій послуг */}
-            <div className="dsh-row-charts">
-                <div className="dsh-chart-main">
-                    <div className="dsh-chart-title">Замовлення по категоріях</div>
-                    <div className="dsh-chart-body">
-                        <CategoryBarChart data={categoryData}/>
-                    </div>
-                </div>
-                <div className="dsh-chart-side">
-                    <div className="dsh-card">
-                        <div className="dsh-card-title">Обладнання</div>
-                    </div>
                 </div>
             </div>
         </div>

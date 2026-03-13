@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "../../api/axiosInstance";
-import {Megaphone, Users, User} from "lucide-react";
+import { Megaphone, Users, User } from "lucide-react";
+import {FiLogOut} from "react-icons/fi";
 
 import "./styles.css";
 
@@ -15,11 +16,61 @@ import { preloadMediaForMessages, preloadMediaForMessage } from "./mediaLoader";
 
 // Аватарка
 import TelegramAvatar from "../Messages/TelegramAvatar";
+import noAvatarSvg from "../Messages/noAvatar.svg";
 
 import Loader from "../../components/calc/Loader";
 import {normalizeTelegramMessage} from "./dop/tgNormalizeMessage";
 
 const API = "/api/telegramAkk";
+
+// Черга аватарок — максимум 2 одночасно, щоб не блокувати інші запити
+const avatarQueue = { pending: [], active: 0, MAX: 2 };
+function enqueueAvatar(fn) {
+  return new Promise((resolve) => {
+    const run = () => { avatarQueue.active++; fn().finally(() => { avatarQueue.active--; const next = avatarQueue.pending.shift(); if (next) next(); }).then(resolve); };
+    if (avatarQueue.active < avatarQueue.MAX) run();
+    else avatarQueue.pending.push(run);
+  });
+}
+// Скасувати всі аватарки, що чекають у черзі
+export function cancelPendingAvatars() {
+  avatarQueue.pending.length = 0;
+}
+
+function ContactAvatar({ tgUserId, accessHash, alt, size = 64 }) {
+  const [src, setSrc] = useState(noAvatarSvg);
+  useEffect(() => {
+    const controller = new AbortController();
+    enqueueAvatar(() =>
+      axios.get(API + `/contacts/avatar/${tgUserId}${accessHash ? `?ah=${accessHash}` : ""}`, {
+        responseType: "blob",
+        signal: controller.signal
+      })
+      .then(res => { if (!controller.signal.aborted) setSrc(URL.createObjectURL(res.data)); })
+      .catch(() => {})
+    );
+    return () => controller.abort();
+  }, [tgUserId, accessHash]);
+  return (
+    <img
+      src={src}
+      alt={alt || ""}
+      style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover" }}
+    />
+  );
+}
+
+function formatPhone(phone) {
+  if (!phone) return "";
+  const d = phone.replace(/\D/g, "");
+  if (d.length === 12 && d.startsWith("38")) {
+    return `+38 (${d.slice(2, 5)}) ${d.slice(5, 8)}-${d.slice(8, 10)}-${d.slice(10, 12)}`;
+  }
+  if (d.length === 10 && d.startsWith("0")) {
+    return `+38 (${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 8)}-${d.slice(8, 10)}`;
+  }
+  return phone.startsWith("+") ? phone : "+" + phone;
+}
 
 export default function TelegramBotAkkAndMedias() {
   const [authState, setAuthState] = useState("loading"); // loading → phone → code → password → ready
@@ -35,6 +86,18 @@ export default function TelegramBotAkkAndMedias() {
   const [status, setStatus] = useState("green");
   const [errorCount, setErrorCount] = useState(0);
   const [lastErrorType, setLastErrorType] = useState(null);
+
+  // ── ERP contact integration ──
+  const [addingToErp, setAddingToErp] = useState(null);
+  const [addingContactToErp, setAddingContactToErp] = useState(null);
+  const [erpSuccess, setErpSuccess] = useState({});
+  const [viewMode, setViewMode] = useState("contacts");
+  const [contacts, setContacts] = useState([]);
+  const allContactsRef = useRef([]);
+  const [contactsSearch, setContactsSearch] = useState("");
+  const [contactsLoading, setContactsLoading] = useState(false);
+  const [authSending, setAuthSending] = useState(false);
+  const contactsSearchTimer = useRef(null);
 
   const [connectionLogs, setConnectionLogs] = useState([]);
   const [initProgress, setInitProgress] = useState({
@@ -71,6 +134,12 @@ export default function TelegramBotAkkAndMedias() {
               chatId: c.chatId ?? null,
               username: c.username ?? null,
               title: c.title ?? "",
+              tgUserId: c.tgUserId ?? null,
+              accessHash: c.accessHash ?? null,
+              firstName: c.firstName ?? null,
+              lastName: c.lastName ?? null,
+              phone: c.phone ?? null,
+              isUser: c.isUser ?? false,
               lastMessage: c.lastMessage ?? null,
               messages: []
             }));
@@ -147,34 +216,46 @@ export default function TelegramBotAkkAndMedias() {
   // SEND PHONE
   // =====================================================================
   const sendPhone = async () => {
-    const { data: j } = await axios.post(API + "/login/sendCode", { phone });
-    if (j.ok) setAuthState("code");
-    else alert(j.error);
+    setAuthSending(true);
+    try {
+      const { data: j } = await axios.post(API + "/login/sendCode", { phone });
+      if (j.ok) setAuthState("code");
+      else alert(j.error);
+    } catch (e) { alert(e.message); }
+    setAuthSending(false);
   };
 
   // =====================================================================
   // SEND CODE
   // =====================================================================
   const sendCodeVerify = async () => {
-    const { data: j } = await axios.post(API + "/login/enterCode", { code });
-    if (j.ok) {
-      setAuthState("ready");
-      loadInitial();
-    } else if (j.error === "PASSWORD_NEEDED") {
-      setAuthState("password");
-    } else alert(j.error);
+    setAuthSending(true);
+    try {
+      const { data: j } = await axios.post(API + "/login/enterCode", { code });
+      if (j.ok) {
+        setAuthState("ready");
+        loadInitial();
+      } else if (j.error === "PASSWORD_NEEDED") {
+        setAuthState("password");
+      } else alert(j.error);
+    } catch (e) { alert(e.message); }
+    setAuthSending(false);
   };
 
   // =====================================================================
   // SEND PASSWORD
   // =====================================================================
   const sendPassword = async () => {
-    const { data: j } = await axios.post(API + "/login/password", { password });
-    if (j.ok) {
-      setAuthState("ready");
-      setThisUser(j.user);
-      loadInitial();
-    } else alert(j.error);
+    setAuthSending(true);
+    try {
+      const { data: j } = await axios.post(API + "/login/password", { password });
+      if (j.ok) {
+        setAuthState("ready");
+        setThisUser(j.user);
+        loadInitial();
+      } else alert(j.error);
+    } catch (e) { alert(e.message); }
+    setAuthSending(false);
   };
 
   // =====================================================================
@@ -200,12 +281,19 @@ export default function TelegramBotAkkAndMedias() {
         chatId: c.chatId ?? null,
         username: c.username ?? null,
         title: c.title ?? "",
+        tgUserId: c.tgUserId ?? null,
+        accessHash: c.accessHash ?? null,
+        firstName: c.firstName ?? null,
+        lastName: c.lastName ?? null,
+        phone: c.phone ?? null,
+        isUser: c.isUser ?? false,
         lastMessage: c.lastMessage ?? null,
         messages: []
       }));
     }
 
     setChats(normalized);
+    loadContacts();
   };
 
   // =====================================================================
@@ -407,6 +495,135 @@ export default function TelegramBotAkkAndMedias() {
   };
 
   // =====================================================================
+  // ADD TO ERP (from chat list)
+  // =====================================================================
+  const addToErp = async (chat) => {
+    if (!chat.tgUserId || !chat.accessHash) return;
+    setAddingToErp(chat.chatId);
+    cancelPendingAvatars(); // Звільнити з'єднання для POST
+    try {
+      const orderId = getCurrentOrderId();
+      const { data: j } = await axios.post(API + "/contacts/add-to-erp", {
+        tgUserId: chat.tgUserId,
+        accessHash: chat.accessHash,
+        firstName: chat.firstName,
+        lastName: chat.lastName,
+        username: chat.username,
+        phone: chat.phone,
+        orderId: orderId || undefined
+      });
+      if (j.ok || j.error === "ALREADY_IN_ERP") {
+        const erpId = j.ok ? j.erpUser.id : j.erpUserId;
+        setErpSuccess(prev => ({ ...prev, [chat.chatId]: erpId }));
+        if (j.order) {
+          window.dispatchEvent(new CustomEvent('orderUserAssigned', { detail: j.order }));
+        } else if (orderId) {
+          assignUserToCurrentOrder(erpId);
+        }
+      } else {
+        alert("Помилка: " + j.error);
+      }
+    } catch (e) {
+      alert("Помилка мережі: " + e.message);
+    } finally {
+      setAddingToErp(null);
+    }
+  };
+
+  // =====================================================================
+  // LOAD CONTACTS
+  // =====================================================================
+  const loadContacts = async () => {
+    setContactsLoading(true);
+    try {
+      const { data: j } = await axios.get(API + "/contacts");
+      if (j.ok) {
+        const reversed = [...j.contacts].reverse();
+        allContactsRef.current = reversed;
+        setContacts(reversed);
+      }
+    } catch (e) {
+      console.log("loadContacts error:", e);
+    } finally {
+      setContactsLoading(false);
+    }
+  };
+
+  const handleContactsSearch = (val) => {
+    setContactsSearch(val);
+    if (!val.trim()) {
+      setContacts(allContactsRef.current);
+      return;
+    }
+    const q = val.toLowerCase();
+    setContacts(allContactsRef.current.filter(ct =>
+      (ct.firstName && ct.firstName.toLowerCase().includes(q)) ||
+      (ct.lastName && ct.lastName.toLowerCase().includes(q)) ||
+      (ct.username && ct.username.toLowerCase().includes(q)) ||
+      (ct.phone && ct.phone.includes(val))
+    ));
+  };
+
+  // =====================================================================
+  // ADD TO ERP (from contacts panel)
+  // =====================================================================
+  // Визначаємо поточне замовлення з URL
+  const getCurrentOrderId = () => {
+    const m = window.location.pathname.match(/^\/Orders\/(\d+)/);
+    return m ? Number(m[1]) : null;
+  };
+
+  // Прив'язати клієнта до поточного замовлення
+  const assignUserToCurrentOrder = async (userId) => {
+    const orderId = getCurrentOrderId();
+    if (!orderId) return;
+    try {
+      const { data } = await axios.put("/api/orders/OneOrder/user", { orderId, userId });
+      // Оновити замовлення без перезавантаження сторінки
+      window.dispatchEvent(new CustomEvent('orderUserAssigned', { detail: data }));
+    } catch (e) {
+      console.error("Помилка прив'язки клієнта до замовлення:", e);
+    }
+  };
+
+  const addToErpFromContacts = async (ct) => {
+    if (!ct.tgUserId || !ct.accessHash) return;
+    setAddingContactToErp(ct.tgUserId);
+    cancelPendingAvatars(); // Звільнити з'єднання для POST
+    try {
+      const orderId = getCurrentOrderId();
+      const { data: j } = await axios.post(API + "/contacts/add-to-erp", {
+        tgUserId: ct.tgUserId,
+        accessHash: ct.accessHash,
+        firstName: ct.firstName,
+        lastName: ct.lastName,
+        username: ct.username,
+        phone: ct.phone,
+        orderId: orderId || undefined
+      });
+      if (j.ok || j.error === "ALREADY_IN_ERP") {
+        const erpId = j.ok ? j.erpUser.id : j.erpUserId;
+        setContacts(prev => prev.map(c =>
+          c.tgUserId === ct.tgUserId ? { ...c, erpUserId: erpId } : c
+        ));
+        // Якщо бекенд повернув оновлене замовлення — оновити UI
+        if (j.order) {
+          window.dispatchEvent(new CustomEvent('orderUserAssigned', { detail: j.order }));
+        } else if (orderId) {
+          // Fallback: окремий запит (для старих версій бекенду)
+          assignUserToCurrentOrder(erpId);
+        }
+      } else {
+        alert("Помилка: " + j.error);
+      }
+    } catch (e) {
+      alert("Помилка мережі: " + e.message);
+    } finally {
+      setAddingContactToErp(null);
+    }
+  };
+
+  // =====================================================================
   // RENDER UI (BEFORE AUTH)
   // =====================================================================
 
@@ -435,70 +652,76 @@ export default function TelegramBotAkkAndMedias() {
 
           {authState === "phone" && (
             <>
-              <h3>Вход по номеру</h3>
               <input
-                className="form-control"
+                className="tg-auth-input"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+380…"
               />
 
-              <div className="d-flex align-content-between justify-content-between">
-                <div
-                  className="btn adminButtonAdd"
-                  onClick={() => setPhone("+380937370071")}
-                >
-                  +380937370071
+              {!authSending && (
+                <div className="tg-auth-buttons">
+                  <div className="tg-auth-btn" onClick={() => setPhone("+380677509676")}>
+                    <span className="tg-auth-btn-text">+38 (067) 750-96-76</span>
+                  </div>
+                  <div className="tg-auth-btn tg-auth-btn--primary" onClick={sendPhone}>
+                    <span className="tg-auth-btn-text">ВІДПРАВИТИ</span>
+                  </div>
                 </div>
-                <div
-                  className="btn adminButtonAdd"
-                  onClick={() => setPhone("+380975629025")}
-                >
-                  +380975629025
-                </div>
-                <div className="btn adminButtonAdd" onClick={sendPhone}>
-                  Отправить phone
-                </div>
-              </div>
+              )}
 
               <div className="telegramIntegration_connectLog">
-                {connectionLogs?.join("\n")}
+                {connectionLogs?.map((l, i) => (
+                  <div key={i} style={l.includes('Потрібен пароль') ? {color: 'var(--adminred, #ee3c23)'} : undefined}>{l}</div>
+                ))}
               </div>
             </>
           )}
 
           {authState === "code" && (
             <>
-              <h3>Введите код</h3>
+              <h3 style={{fontWeight: 400}}>Введіть код</h3>
               <input
-                className="form-control"
+                className="tg-auth-input"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
               />
-              <div className="btn adminButtonAdd" onClick={sendCodeVerify}>
-                Войти
-              </div>
+              {!authSending && (
+                <div className="tg-auth-buttons">
+                  <div className="tg-auth-btn tg-auth-btn--primary" onClick={sendCodeVerify}>
+                    <span className="tg-auth-btn-text">УВІЙТИ</span>
+                  </div>
+                </div>
+              )}
 
               <div className="telegramIntegration_connectLog">
-                {connectionLogs?.join("\n")}
+                {connectionLogs?.map((l, i) => (
+                  <div key={i} style={l.includes('Потрібен пароль') ? {color: 'var(--adminred, #ee3c23)'} : undefined}>{l}</div>
+                ))}
               </div>
             </>
           )}
 
           {authState === "password" && (
             <>
-              <h3>Введите пароль 2FA</h3>
+              <h3 style={{fontWeight: 400, color: 'var(--admingrey, #666)'}}>Введіть пароль Telegram</h3>
               <input
-                className="form-control"
+                className="tg-auth-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <div className="btn adminButtonAdd" onClick={sendPassword}>
-                Отправить пароль
-              </div>
+              {!authSending && (
+                <div className="tg-auth-buttons">
+                  <div className="tg-auth-btn tg-auth-btn--primary" onClick={sendPassword}>
+                    <span className="tg-auth-btn-text">ВІДПРАВИТИ</span>
+                  </div>
+                </div>
+              )}
 
               <div className="telegramIntegration_connectLog">
-                {connectionLogs?.join("\n")}
+                {connectionLogs?.map((l, i) => (
+                  <div key={i} style={l.includes('Потрібен пароль') ? {color: 'var(--adminred, #ee3c23)'} : undefined}>{l}</div>
+                ))}
               </div>
             </>
           )}
@@ -520,7 +743,16 @@ export default function TelegramBotAkkAndMedias() {
       <div className="telegramIntegration_leftPanel">
 
         <div className="telegramIntegration_leftHeader">
-          <div className="telegramIntegration_botAvatar">
+          <div
+            className="telegramIntegration_botAvatar"
+            style={{ cursor: "pointer" }}
+            title="Відкрити в Telegram Desktop"
+            onClick={() => {
+              if (thisUser?.username) {
+                window.open(`tg://resolve?domain=${thisUser.username}`, "_self");
+              }
+            }}
+          >
             {thisUser?.username && (
               <TelegramAvatar
                 link={thisUser.username}
@@ -531,158 +763,159 @@ export default function TelegramBotAkkAndMedias() {
           </div>
 
           <div className="telegramIntegration_botMeta">
-            <div className="telegramIntegration_botName">
-              Telegram Account
-            </div>
-
             <div className="telegramIntegration_botUsername">
               {thisUser?.username ? "@" + thisUser.username : ""}
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div
-              className="telegramIntegration_statusDot"
-              style={{
-                background:
-                  status === "green"
-                    ? "#4CAF50"
-                    : status === "yellow"
-                      ? "#FBC02D"
-                      : status === "red"
-                        ? "#F44336"
-                        : "#888"
+          <div style={{ display: "flex", alignItems: "stretch", gap: 0, marginLeft: "auto", height: 36, overflow: "hidden" }}>
+            <button
+              className="tg-logout-btn"
+              title="Вийти з Telegram"
+              onClick={async () => {
+                if (!window.confirm("Вийти з Telegram акаунту?")) return;
+                try {
+                  await axios.post(API + "/logout");
+                  setAuthState("phone");
+                  setChats([]);
+                  setCurrentChatId(null);
+                  setThisUser(null);
+                } catch (e) {
+                  alert("Помилка: " + e.message);
+                }
               }}
-            />
-            <div style={{ fontSize: 11, opacity: 0.7 }}>
-              {errorCount === 0 ? "OK" : lastErrorType}
-            </div>
+            >
+              <span className="flip-front"><FiLogOut /></span>
+            </button>
           </div>
         </div>
 
-        {/* GLOBAL INIT PROGRESS BAR */}
-        {initProgress.stage !== "finished" && (
-          <div  style={{ padding: 10, background: "#fafafa", borderBottom: "1px solid #ddd" }}>
-            {/* BAR */}
-            <div style={{ background: "#e0e0e0", height: 8, borderRadius: 4, overflow: "hidden" }}>
+
+        <input
+          className="tg-contacts-search"
+          placeholder="Пошук контактів"
+          value={contactsSearch}
+          onChange={(e) => handleContactsSearch(e.target.value)}
+        />
+
+        {/* CHAT LIST / CONTACTS */}
+        {viewMode === "chats" ? (
+          <div className="telegramIntegration_chatList">
+            {chats.map((c) => (
               <div
+                key={c.chatId}
+                onClick={() => handleOpenChat(c.chatId)}
+                className="telegramIntegration_chatItem"
                 style={{
-                  width: `${initProgress.percent}%`,
-                  height: "100%",
-                  background: "#4A90E2",
-                  transition: "width 0.25s"
+                  background:
+                    currentChatId === c.chatId ? "#E3EDF7" : "transparent"
                 }}
-              ></div>
-            </div>
+              >
+                <div className="telegramIntegration_chatAvatar">
+                  <TelegramAvatar
+                    link={c.username}
+                    size={45}
+                    defaultSrc={(c.username?.[0] ?? c.title?.[0] ?? "").toUpperCase()}
+                  />
+                </div>
 
-            {/* TEXT */}
-            <div style={{ marginTop: 6, fontSize: 12 }}>
-              {initProgress.stage} — {initProgress.details} ({initProgress.percent}%)
-            </div>
-          </div>
-        )}
-
-        {/* CHAT LIST */}
-        <div className="telegramIntegration_chatList">
-          {chats.map((c) => (
-            <div
-              key={c.chatId}
-              onClick={() => handleOpenChat(c.chatId)}
-              className="telegramIntegration_chatItem"
-              style={{
-                background:
-                  currentChatId === c.chatId ? "#E3EDF7" : "transparent"
-              }}
-            >
-              <div className="telegramIntegration_chatAvatar">
-                <TelegramAvatar
-                  link={c.username}
-                  size={45}
-                  defaultSrc={(c.username?.[0] ?? c.title?.[0] ?? "").toUpperCase()}
-                />
-              </div>
-
-              <div className="telegramIntegration_chatMeta">
-                <div className="telegramIntegration_chatName">
-                  {c.rawJson?.isChannel && (
-                    <>
+                <div className="telegramIntegration_chatMeta">
+                  <div className="telegramIntegration_chatName">
+                    {c.rawJson?.isChannel && (
                       <Megaphone size={16} className="me-1"/>
-                    </>
-                  )}
-                  {c.rawJson?.isGroup && (
-                    <>
+                    )}
+                    {c.rawJson?.isGroup && (
                       <Users size={16} className="me-1"/>
-                    </>
-                  )}
-                  {c.rawJson?.isUser && (
-                    <>
+                    )}
+                    {c.rawJson?.isUser && (
                       <User size={16} className="me-1"/>
-                    </>
-                  )}
-                  {c.rawJson?.name || c.rawJson?.title || "Chat " + c.chatId}
+                    )}
+                    {c.rawJson?.name || c.rawJson?.title || c.title || "Chat " + c.chatId}
+                  </div>
+
+                  <div
+                    className="telegramIntegration_chatLastMessage UsersOrdersLikeTable-contract-text"
+                    style={{ width: "13vw" }}
+                  >
+                    {c.lastMessage?.text ?? ""}
+                  </div>
+
+                  <div className="telegramIntegration_timeLabel">
+                    {c.lastMessage?.date
+                      ? new Date(c.lastMessage.date).toLocaleString()
+                      : ""}
+                  </div>
                 </div>
 
+                {c.isUser && (
+                  <div
+                    className={`tg-add-erp-btn ${erpSuccess[c.chatId] ? "tg-add-erp-btn--done" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!erpSuccess[c.chatId]) addToErp(c);
+                    }}
+                  >
+                    {addingToErp === c.chatId
+                      ? "..."
+                      : erpSuccess[c.chatId]
+                        ? `ID клієнта №${erpSuccess[c.chatId]}`
+                        : "Додати"}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="tg-contacts-panel">
+            {contactsLoading && <div className="tg-contacts-loading">Завантаження...</div>}
+            {contacts.map(ct => (
+              <div key={ct.tgUserId} className="tg-contact-row">
                 <div
-                  className="telegramIntegration_chatLastMessage UsersOrdersLikeTable-contract-text"
-                  style={{ width: "13vw" }}
+                  className="telegramIntegration_chatAvatar"
+                  style={{ cursor: "pointer" }}
+                  title="Відкрити в Telegram Desktop"
+                  onClick={() => {
+                    if (ct.username) {
+                      window.open(`tg://resolve?domain=${ct.username}`, "_self");
+                    } else if (ct.phone) {
+                      window.open(`tg://resolve?phone=${ct.phone.replace(/\D/g, "")}`, "_self");
+                    }
+                  }}
                 >
-                  {c.lastMessage?.text ?? ""}
+                  <ContactAvatar tgUserId={ct.tgUserId} accessHash={ct.accessHash} alt={ct.firstName || ct.username || ""} size={64} />
                 </div>
-
-                <div className="telegramIntegration_timeLabel">
-                  {c.lastMessage?.date
-                    ? new Date(c.lastMessage.date).toLocaleString()
-                    : ""}
+                <div className="tg-contact-name">
+                  {[ct.firstName, ct.lastName].filter(Boolean).join(" ") || ct.username || ct.tgUserId}
+                </div>
+                <div className="tg-contact-username">
+                  {ct.username ? `@${ct.username}` : ""}
+                </div>
+                <div className="tg-contact-phone">
+                  {ct.phone ? formatPhone(ct.phone) : ""}
+                </div>
+                <div className="tg-add-erp-wrap">
+                <div
+                  className={`tg-add-erp-btn ${ct.erpUserId ? "tg-add-erp-btn--done" : ""} ${addingContactToErp === ct.tgUserId ? "tg-add-erp-btn--loading" : ""}`}
+                  onClick={() => {
+                    if (!ct.erpUserId && addingContactToErp !== ct.tgUserId) addToErpFromContacts(ct);
+                  }}
+                >
+                  <span className="flip-front">
+                    {addingContactToErp === ct.tgUserId
+                      ? "Додаю клієнта..."
+                      : ct.erpUserId
+                        ? `ID клієнта №${ct.erpUserId}`
+                        : "Додати до ERP"}
+                  </span>
+                </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-
-      </div>
-
-      {/* RIGHT PANEL */}
-      <div className="telegramIntegration_rightPanel">
-        {currentChatId ? (
-          <>
-            <div className="telegramIntegration_chatHeader">
-              {chats.find((x) => x.chatId === currentChatId)?.username
-                ? "@" + chats.find((x) => x.chatId === currentChatId)?.username
-                : chats.find((x) => x.chatId === currentChatId)?.title}
-            </div>
-
-            <div className="telegramIntegration_messageContainer">
-              {chats
-                .find((c) => c.chatId === currentChatId)
-                ?.messages?.map((msg, i) => (
-                  <Message key={i} msg={msg} />
-                ))}
-
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* INPUT */}
-            <form
-              className="telegramIntegration_inputRow"
-              onSubmit={sendMessage}
-            >
-              <input
-                className="telegramIntegration_inputText"
-                value={messageInput}
-                placeholder="Сообщение…"
-                onChange={(e) => setMessageInput(e.target.value)}
-              />
-              <button className="telegramIntegration_sendButton">
-                ➤
-              </button>
-            </form>
-          </>
-        ) : (
-          <div className="telegramIntegration_emptyChat">
-            Выберите чат
+            ))}
           </div>
         )}
+
       </div>
+
 
     </div>
   );

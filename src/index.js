@@ -3,10 +3,12 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import './newGlobalCss.css';
 import App from './App';
+import { applyDesignSettings } from './PrintPeaksFAinal/user/profile/DesignSettings';
 // import reportWebVitals from './reportWebVitals';
 // import {DevSupport} from "@react-buddy/ide-toolbox";
 // import {ComponentPreviews, useInitial} from "./dev";
 
+applyDesignSettings();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

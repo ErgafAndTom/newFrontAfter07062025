@@ -21,7 +21,7 @@ const FiltrOrders = ({
   const PAYMENT_ITEMS = [
     ["payment0", "Очікування",        "p-orange"],
     ["payment1", "Оплачено",          "p-green"],
-    ["payment2", "Просрочено",        "p-red"],
+    ["payment2", "Протерміновано",     "p-red"],
     ["payment3", "Відміна",           "p-grey"],
   ];
 

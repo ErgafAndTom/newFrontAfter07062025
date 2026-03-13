@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import ReactDOM from "react-dom";
 import TelegramAvatar from "../Messages/TelegramAvatar";
 import axios from "../../api/axiosInstance";
 import {Link} from "react-router-dom";
@@ -7,6 +8,8 @@ import {useSelector} from "react-redux";
 import ClientProfileModal from "./ClientProfileModal";
 import CompanyProfileModal from "./CompanyProfileModal";
 import "./ClientCabinet.css";
+import BarcodeLabel from "../barcode/BarcodeLabel";
+import ClientFilesPanel from "./ClientFilesPanel";
 
 const PAGE_SIZE = 50;
 
@@ -28,6 +31,7 @@ export default function ClientCabinet({
   const [userInBase, setUserInBase] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(false);
+  const [showFiles, setShowFiles] = useState(false);
   const currentUser = useSelector((state) => state.auth.user);
   const currentOrderRef = useRef(null);
   const sentinelRef = useRef(null);
@@ -145,7 +149,8 @@ export default function ClientCabinet({
   }, [userInBase]);
 
   const stats = useMemo(() => {
-    const total = clientOrders.reduce((s, o) => s + (+o.allPrice || 0), 0);
+    const isEstimate = (o) => String(o.status || "") === "0" && !o.Payment;
+    const total = clientOrders.reduce((s, o) => s + (isEstimate(o) ? 0 : (+o.allPrice || 0)), 0);
     const paid = clientOrders.reduce((s, o) =>
         s + (o.Payment?.status === 'PAID' ? (+o.allPrice || 0) : 0),
       0);
@@ -177,7 +182,10 @@ export default function ClientCabinet({
   };
 
   const paymentLabel = (o) => {
-    if (!o.Payment) return { text: "Не оплачено", cls: "cc-pay--nopay" };
+    if (!o.Payment) {
+      if (String(o.status || "") === "0") return { text: "Прорахунок", cls: "cc-pay--estimate" };
+      return { text: "Не оплачено", cls: "cc-pay--nopay" };
+    }
     switch (o.Payment.status) {
       case 'PAID': {
         const m = o.Payment.method;
@@ -187,7 +195,10 @@ export default function ClientCabinet({
       case 'CREATED': return { text: "Очікування", cls: "cc-pay--wait" };
       case 'CANCELLED': return { text: "Відміна", cls: "cc-pay--cancel" };
       case 'EXPIRED': return { text: "Прострочено", cls: "cc-pay--expired" };
-      default: return { text: "Не оплачено", cls: "cc-pay--nopay" };
+      default: {
+        if (String(o.status || "") === "0") return { text: "Прорахунок", cls: "cc-pay--estimate" };
+        return { text: "Не оплачено", cls: "cc-pay--nopay" };
+      }
     }
   };
 
@@ -198,7 +209,7 @@ export default function ClientCabinet({
 
   /* ---------- render ---------- */
 
-  return (
+  return ReactDOM.createPortal(
     <>
     <div className="cc-overlay" onClick={onClose}>
       <div className="cc-panel" onClick={(e) => e.stopPropagation()}>
@@ -254,7 +265,19 @@ export default function ClientCabinet({
           >
             <span className="cc-btn-text">Компанія</span>
           </button>
+          <button className="cc-btn" onClick={() => setShowFiles(true)}>
+            <span className="cc-btn-text">Файли</span>
+          </button>
+          <BarcodeLabel type="client" data={userInBase} variant="compact" className="cc-btn" />
         </div>
+
+        {showFiles && userInBase?.id && (
+          <ClientFilesPanel
+            userId={userInBase.id}
+            clientName={userInBase.firstName ? `${userInBase.firstName} ${userInBase.lastName || ''}` : userInBase.username}
+            onClose={() => setShowFiles(false)}
+          />
+        )}
 
         {/* ── Stats ── */}
         <section className="cc-stats">
@@ -346,6 +369,7 @@ export default function ClientCabinet({
         onClose={() => setCompanyOpen(false)}
       />
     )}
-    </>
+    </>,
+    document.body
   );
 }

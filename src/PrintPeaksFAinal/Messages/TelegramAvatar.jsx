@@ -46,7 +46,7 @@ const TelegramAvatar = ({ link, size = 32, defaultSrc = '/default-avatar.png', s
     // телефон
     username = link.startsWith('+') ? link : `+${link}`;
     profileUrl = `tel:${username}`;
-    avatarUrl = defaultSrc;
+    avatarUrl = noAvatar;
   } else {
     // Telegram URL або @username
     username = link;
