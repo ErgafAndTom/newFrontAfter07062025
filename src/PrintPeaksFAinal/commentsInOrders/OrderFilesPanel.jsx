@@ -143,8 +143,30 @@ const OrderFilesPanel = ({ thisOrder, onClose }) => {
     }
   };
 
-  const openFile = (fileId) => {
-    window.open(`/api/client-files/files/${fileId}/download`, "_blank");
+  const openFile = async (fileId) => {
+    try {
+      const res = await axios.get(`/api/client-files/files/${fileId}/download`, {
+        responseType: "blob",
+      });
+      const blob = new Blob([res.data], { type: res.headers["content-type"] || "application/octet-stream" });
+      const url = URL.createObjectURL(blob);
+      const disposition = res.headers["content-disposition"] || "";
+      const isInline = disposition.startsWith("inline");
+      if (isInline) {
+        window.open(url, "_blank");
+      } else {
+        const a = document.createElement("a");
+        a.href = url;
+        const match = disposition.match(/filename="?([^"]+)"?/);
+        a.download = match ? decodeURIComponent(match[1]) : "file";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (e) {
+      setError("Не вдалось завантажити файл");
+    }
   };
 
   // Create folder in client's storage + link to order (atomic)

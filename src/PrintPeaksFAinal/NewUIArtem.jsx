@@ -7,6 +7,7 @@ import axios from '../api/axiosInstance';
 
 
 import BarcodeLabel from './barcode/BarcodeLabel';
+import NovaPoshtaThermalButton from './novaPoshta/NovaPoshtaThermalButton';
 import blackWhitePrintIcon from "../components/newUIArtem/printers/ComponentTMP_0-image5.png";
 import colorPrintIcon from "../components/newUIArtem/printers/46.png";
 import plotterCutIcon from "../components/newUIArtem/printers/ComponentTMP_0-image4.png";
@@ -538,11 +539,6 @@ const NewUIArtem = () => {
                 </div>
               </p>
 
-              <p onClick={(e) => { e.stopPropagation(); setShowMugMockup(true); }} style={{cursor:'pointer'}}>
-                <div className="tileContent">
-                  <span className="verticalText">МАКЕТ</span>
-                </div>
-              </p>
             </div>
 
             {/* Четверта група — SCANS, DELIVERY, WIDE FACTORY (rose) */}
@@ -714,13 +710,51 @@ const NewUIArtem = () => {
                     )}
                     {!orderDeadlineCountdown || showEnvelopeBarcode ? (
                       <div className="nui-barcode-with-ttn">
-                        <BarcodeLabel type="order" data={thisOrder} variant="full" />
                         {thisOrder?.Waybills?.length > 0 && (
                           <div className="nui-ttn-block">
                             <span className="nui-ttn-number">{thisOrder.Waybills[0].intDocNumber}</span>
-                            <span className="nui-ttn-label">нова пошта</span>
+                            <div className="nui-ttn-buttons">
+                              <button
+                                className="nui-client-rect-btn nui-ttn-rect-btn"
+                                title="Завантажити ТТН (PDF)"
+                                onClick={() => {
+                                  axios.get(`/novaposhta/print/${thisOrder.Waybills[0].ref}`, { responseType: 'blob' })
+                                    .then(res => {
+                                      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+                                      const a = document.createElement('a');
+                                      a.href = url;
+                                      a.download = `TTN_${thisOrder.Waybills[0].intDocNumber}.pdf`;
+                                      a.click();
+                                      window.URL.revokeObjectURL(url);
+                                    })
+                                    .catch(err => console.error('[NP] TTN download error:', err));
+                                }}
+                              ><span className="nui-client-rect-btn-text">ТТН</span></button>
+                              <button
+                                className="nui-client-rect-btn nui-ttn-rect-btn"
+                                title="Завантажити наліпку (PDF)"
+                                onClick={() => {
+                                  axios.get(`/novaposhta/print-sticker/${thisOrder.Waybills[0].ref}`, { responseType: 'blob' })
+                                    .then(res => {
+                                      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+                                      const a = document.createElement('a');
+                                      a.href = url;
+                                      a.download = `Sticker_${thisOrder.Waybills[0].intDocNumber}.pdf`;
+                                      a.click();
+                                      window.URL.revokeObjectURL(url);
+                                    })
+                                    .catch(err => console.error('[NP] Sticker download error:', err));
+                                }}
+                              ><span className="nui-client-rect-btn-text">НАЛІПКА</span></button>
+                              <NovaPoshtaThermalButton
+                                waybillRef={thisOrder.Waybills[0].ref}
+                                intDocNumber={thisOrder.Waybills[0].intDocNumber}
+                                className="nui-client-rect-btn nui-ttn-rect-btn"
+                              />
+                            </div>
                           </div>
                         )}
+                        <BarcodeLabel type="order" data={thisOrder} variant="full" />
                       </div>
                     ) : (
                       <>
@@ -868,6 +902,7 @@ const NewUIArtem = () => {
             showNewCup={showNewCup}
             editingOrderUnit={editingOrderUnitSafe}
             setEditingOrderUnit={setEditingOrderUnitSafe}
+            onOpenMockup={() => setShowMugMockup(true)}
           />
         }
         {showMugMockup && thisOrder &&

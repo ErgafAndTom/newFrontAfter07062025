@@ -275,6 +275,8 @@ export default function ClientCabinet({
           <ClientFilesPanel
             userId={userInBase.id}
             clientName={userInBase.firstName ? `${userInBase.firstName} ${userInBase.lastName || ''}` : userInBase.username}
+            companyId={userInBase.Company?.id}
+            companyName={userInBase.Company?.companyName || ''}
             onClose={() => setShowFiles(false)}
           />
         )}

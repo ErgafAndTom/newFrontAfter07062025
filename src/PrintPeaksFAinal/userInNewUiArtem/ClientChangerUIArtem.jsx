@@ -664,6 +664,8 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
         <ClientFilesPanel
           userId={thisOrder.client.id}
           clientName={thisOrder.client.firstName ? `${thisOrder.client.firstName} ${thisOrder.client.lastName || ''}` : ''}
+          companyId={thisOrder.client?.Company?.id}
+          companyName={thisOrder.client?.Company?.companyName || ''}
           onClose={() => setShowClientFiles(false)}
           orderId={thisOrder?.id}
         />

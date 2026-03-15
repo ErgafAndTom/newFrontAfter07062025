@@ -32,6 +32,7 @@
     "lucide-react": "^0.525.0",
     "mdb-react-ui-kit": "^9.0.0",
     "prop-types": "^15.8.1",
+    "qz-tray": "^2.2.5",
     "react": "18.2.0",
     "react-barcode": "^1.6.1",
     "react-beautiful-dnd": "^13.1.1",

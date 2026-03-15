@@ -6,12 +6,14 @@ import { useNavigate } from 'react-router-dom';
 import ModalDeleteOrder from '../Orders/ModalDeleteOrder';
 import { useDispatch, useSelector } from 'react-redux';
 import { FaTelegramPlane } from 'react-icons/fa';
-import { FiPhone } from 'react-icons/fi';
+import { FiPhone, FiFolder, FiShoppingBag } from 'react-icons/fi';
 import Pagination from '../tools/Pagination';
 import Loader from '../../components/calc/Loader';
 import { Settings } from 'lucide-react';
 import { searchChange } from '../../actions/searchAction';
 import CompanyProfileModal from '../userInNewUiArtem/CompanyProfileModal';
+import CompanyFilesPanel from '../userInNewUiArtem/CompanyFilesPanel';
+import CompanyOrdersPanel from './CompanyOrdersPanel';
 
 const CompanyTabl = () => {
   const [data, setData]           = useState(null);
@@ -23,6 +25,8 @@ const CompanyTabl = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit]         = useState(100);
   const [cabinetCompanyId, setCabinetCompanyId] = useState(null);
+  const [filesCompany, setFilesCompany] = useState(null);   // { id, name }
+  const [ordersCompany, setOrdersCompany] = useState(null); // { id, name }
   const [sortColumn, setSortColumn]   = useState('id');
   const [sortReverse, setSortReverse] = useState(true);
 
@@ -98,6 +102,12 @@ const CompanyTabl = () => {
         <div className="cot-cell cot-cell--center cot-cell--sortable" onClick={() => handleSort('usersCount')}>
           Співробітники<SortArrow col="usersCount" />
         </div>
+        <div className="cot-cell cot-cell--center cot-cell--sortable" onClick={() => handleSort('filesCount')}>
+          <FiFolder size={14} /><SortArrow col="filesCount" />
+        </div>
+        <div className="cot-cell cot-cell--center cot-cell--sortable" onClick={() => handleSort('ordersCount')}>
+          <FiShoppingBag size={14} /><SortArrow col="ordersCount" />
+        </div>
         <div className="cot-cell cot-cell--center"><Settings size={14} /></div>
       </div>
 
@@ -124,6 +134,12 @@ const CompanyTabl = () => {
                   : '—'}
               </div>
               <div className="cot-cell cot-cell--center">{usersCount}</div>
+              <div className="cot-cell cot-cell--center cot-cell--clickable" onClick={e => { e.stopPropagation(); setFilesCompany({ id: company.id, name: company.companyName }); }}>
+                {company.filesCount ?? '—'}
+              </div>
+              <div className="cot-cell cot-cell--center cot-cell--clickable" onClick={e => { e.stopPropagation(); setOrdersCompany({ id: company.id, name: company.companyName }); }}>
+                {company.ordersCount ?? '—'}
+              </div>
               <div className="cot-cell cot-cell--actions" onClick={e => e.stopPropagation()}>
                 <button className="cot-settings-btn" onClick={() => setCabinetCompanyId(company.id)}>
                   <Settings size={16} />
@@ -187,6 +203,23 @@ const CompanyTabl = () => {
         <CompanyProfileModal
           companyId={cabinetCompanyId}
           onClose={() => setCabinetCompanyId(null)}
+        />
+      )}
+
+      {filesCompany && (
+        <CompanyFilesPanel
+          companyId={filesCompany.id}
+          companyName={filesCompany.name}
+          onClose={() => setFilesCompany(null)}
+        />
+      )}
+
+      {ordersCompany && (
+        <CompanyOrdersPanel
+          companyId={ordersCompany.id}
+          companyName={ordersCompany.name}
+          onClose={() => setOrdersCompany(null)}
+          onOpenOrder={(orderId) => navigate(`/Orders/${orderId}`)}
         />
       )}
     </div>

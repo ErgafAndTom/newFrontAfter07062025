@@ -16,6 +16,7 @@ import Graph2DForBD from "../../Graph2DForBD";
 import Shifts from "../../checkbox/shifts/Shifts";
 import DesignSettings from "./DesignSettings";
 import NiimbotSettings from "./NiimbotSettings";
+import NovaPoshtaSettings from "./NovaPoshtaSettings";
 import FileSettings from "./FileSettings";
 import "./NiimbotSettings.css";
 
@@ -111,6 +112,7 @@ function ClientUserProfile() {
       <div className="pp-tabs">
         <button className={`pp-tab-btn${activeTab === 'design'              ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('design')}>Дизайн</button>
         <button className={`pp-tab-btn${activeTab === 'niimbot'             ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('niimbot')}>Штрих-код</button>
+        <button className={`pp-tab-btn${activeTab === 'novaposhta'          ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('novaposhta')}>Нова Пошта</button>
         <button className={`pp-tab-btn${activeTab === 'profile'             ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('profile')}>Основна інформація</button>
         <button className={`pp-tab-btn${activeTab === 'counterparties'      ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('counterparties')}>Контрагенти</button>
         <button className={`pp-tab-btn${activeTab === 'counterpartiesAdmin' ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('counterpartiesAdmin')}>РЕКВІЗИТИ</button>
@@ -133,6 +135,7 @@ function ClientUserProfile() {
       <div className="pp-content">
         {activeTab === 'design'              && <DesignSettings/>}
         {activeTab === 'niimbot'             && <NiimbotSettings/>}
+        {activeTab === 'novaposhta'          && <NovaPoshtaSettings/>}
         {activeTab === 'profile'             && <UserPageDetailsSelf thisUser={thisUser}/>}
         {activeTab === 'counterparties'      && <ContrAgentsInUserProfile user={thisUser}/>}
         {activeTab === 'counterpartiesAdmin' && <div style={{padding:'1rem'}}><PaysInOrderRestoredForAdmin user={thisUser}/></div>}

@@ -13,6 +13,7 @@ const METHOD_LABELS = {
   invoice: 'за рахунком',
   iban: 'на IBAN',
   expired: 'протерміновано',
+  invoice_overdue: 'рахунок прострочений',
   mockup: 'макет чашки',
 };
 
@@ -181,10 +182,16 @@ const PopupLeftNotification = () => {
           {/* Сповіщення оплат */}
           {paymentData.map((notif) => {
             const isExpired = notif.method === 'expired';
+            const isInvoiceOverdue = notif.method === 'invoice_overdue';
             const isRepeat = notif.isRepeat;
 
             let bgColor, borderColor, accentColor, btnStyle;
-            if (isExpired) {
+            if (isInvoiceOverdue) {
+              bgColor = '#fff5ee';
+              borderColor = 'var(--admincoral, #ff7f50)';
+              accentColor = 'var(--admincoral, #ff7f50)';
+              btnStyle = { '--notif-btn-1': '#ff9670', '--notif-btn-2': '#ff7f50', '--notif-btn-3': '#e06a3a' };
+            } else if (isExpired) {
               bgColor = 'var(--adminlightred, #fde8e5)';
               borderColor = 'var(--adminred, #ee3c23)';
               accentColor = 'var(--adminred, #ee3c23)';
@@ -207,10 +214,14 @@ const PopupLeftNotification = () => {
             }
 
             const isMockup = notif.method === 'mockup';
-            const label = isExpired
+            const label = isInvoiceOverdue
+              ? `Рахунок`
+              : isExpired
               ? 'Оплата протермінована'
               : isMockup ? 'Підтвердили' : isRepeat ? 'Повторна оплата' : 'Оплата';
-            const methodSuffix = isExpired ? '' : ` ${METHOD_LABELS[notif.method] || notif.method}`;
+            const methodSuffix = isInvoiceOverdue
+              ? ''
+              : isExpired ? '' : ` ${METHOD_LABELS[notif.method] || notif.method}`;
 
             return (
               <div
@@ -232,8 +243,16 @@ const PopupLeftNotification = () => {
                   style={{ flexGrow: 1, fontSize: 'var(--font-size-s, 17px)', color: 'var(--admingrey, #666)', fontWeight: 400 }}
                   onClick={() => handlePaymentClick(notif.orderId)}
                 >
-                  {label}{methodSuffix} замовлення №{notif.orderId} на суму{' '}
-                  <strong style={{ color: accentColor, fontWeight: 700 }}>{notif.amount} грн</strong>
+                  {isInvoiceOverdue ? (
+                    <>Рахунок№{notif.orderId} на суму{' '}
+                      <strong style={{ color: accentColor, fontWeight: 700 }}>{notif.amount} грн</strong>
+                      {' '}ще не оплатили
+                    </>
+                  ) : (
+                    <>{label}{methodSuffix} замовлення №{notif.orderId} на суму{' '}
+                      <strong style={{ color: accentColor, fontWeight: 700 }}>{notif.amount} грн</strong>
+                    </>
+                  )}
                 </div>
                 {!isExpired && (
                   <button

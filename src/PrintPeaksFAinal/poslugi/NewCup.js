@@ -34,6 +34,7 @@ const NewCup = ({
   setShowNewCup,
   editingOrderUnit,
   setEditingOrderUnit,
+  onOpenMockup,
 }) => {
   const navigate = useNavigate();
 
@@ -199,17 +200,29 @@ const NewCup = ({
         )
       }
     >
-      {/* 1. Кількість */}
+      {/* 1. Кількість + Макет */}
       <ScSection title="">
-        <div className="d-flex flex-row align-items-center">
-          <input
-            className="inputsArtem"
-            type="number"
-            min={1}
-            value={count}
-            onChange={(e) => setCount(Math.max(1, +e.target.value || 1))}
-          />
-          <div className="inputsArtemx">шт</div>
+        <div className="d-flex flex-row align-items-center" style={{ justifyContent: 'space-between' }}>
+          <div className="d-flex flex-row align-items-center">
+            <input
+              className="inputsArtem"
+              type="number"
+              min={1}
+              value={count}
+              onChange={(e) => setCount(Math.max(1, +e.target.value || 1))}
+            />
+            <div className="inputsArtemx">шт</div>
+          </div>
+          {onOpenMockup && (
+            <button
+              type="button"
+              className="nui-client-rect-btn"
+              style={{ padding: '0.3rem 1rem', fontSize: 'var(--font-size-s, 14px)', color: 'var(--adminorange, #f5a623)', border: '2px solid var(--adminorange, #f5a623)', background: 'transparent', fontWeight: 400, position: 'relative' }}
+              onClick={(e) => { e.stopPropagation(); onOpenMockup(); }}
+            >
+              <div style={{zIndex: 10}}>ВІЗУАЛІЗАЦІЯ</div>
+            </button>
+          )}
         </div>
       </ScSection>
 

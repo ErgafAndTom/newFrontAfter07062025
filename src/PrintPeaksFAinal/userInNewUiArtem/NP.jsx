@@ -24,6 +24,10 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
     Weight: prefillData?.Weight || '1',
     SeatsAmount: prefillData?.SeatsAmount || '1',
     Description: prefillData?.Description || '',
+    BackwardDelivery: false,
+    BackwardDeliverySum: '',
+    BackwardDeliveryPayer: 'Recipient',
+    IsFragile: false,
     Length: prefillData?.Length || '1',
     Width: prefillData?.Width || '1',
     Height: prefillData?.Height || '1',
@@ -179,6 +183,9 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
           name === 'Width' ? value : prev.Width,
           name === 'Height' ? value : prev.Height
         );
+      }
+      if (name === 'Cost' && prev.BackwardDelivery) {
+        next.BackwardDeliverySum = value;
       }
       return next;
     });
@@ -413,6 +420,47 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
               </div>
             </div>
 
+            {/* Додаткові опції */}
+            <div className="np-fields-row" style={{ marginTop: '0.5rem' }}>
+              <div className="np-field" style={{ flex: 'none' }}>
+                <label className="np-checkbox-label">
+                  <input type="checkbox" checked={formData.BackwardDelivery}
+                    onChange={e => setFormData(prev => ({
+                      ...prev,
+                      BackwardDelivery: e.target.checked,
+                      BackwardDeliverySum: e.target.checked ? prev.Cost : '',
+                    }))} />
+                  <span>Наложений платіж</span>
+                </label>
+              </div>
+              {formData.BackwardDelivery && (
+                <>
+                  <div className="np-field">
+                    <span className="np-field-label">Сума (грн)</span>
+                    <input className="np-field-input" type="number" step="0.01"
+                      value={formData.BackwardDeliverySum}
+                      onChange={e => setFormData(prev => ({ ...prev, BackwardDeliverySum: e.target.value }))}
+                      required />
+                  </div>
+                  <div className="np-field">
+                    <span className="np-field-label">Платник зворотної доставки</span>
+                    <select className="np-field-select" value={formData.BackwardDeliveryPayer}
+                      onChange={e => setFormData(prev => ({ ...prev, BackwardDeliveryPayer: e.target.value }))}>
+                      <option value="Recipient">Одержувач</option>
+                      <option value="Sender">Відправник</option>
+                    </select>
+                  </div>
+                </>
+              )}
+              <div className="np-field" style={{ flex: 'none' }}>
+                <label className="np-checkbox-label">
+                  <input type="checkbox" checked={formData.IsFragile}
+                    onChange={e => setFormData(prev => ({ ...prev, IsFragile: e.target.checked }))} />
+                  <span>Крихке</span>
+                </label>
+              </div>
+            </div>
+
             <button className="np-submit-btn" type="submit" disabled={loading}>
               <span>{loading ? 'Створення...' : 'Створити накладну'}</span>
             </button>
@@ -433,7 +481,7 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
                   className="np-submit-btn np-print-btn"
                   onClick={() => window.open(`/novaposhta/print/${result.data[0].Ref}`, '_blank')}
                 >
-                  <span>Друкувати ТТН</span>
+                  <span>Друк наліпки</span>
                 </button>
               )}
             </div>

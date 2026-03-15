@@ -1187,31 +1187,57 @@
   width: 100%;
 }
 .nui-sheetcut-theme .nui-barcode-with-ttn .bc-label--order {
-  flex: 1;
+  flex: 0 0 auto;
+  margin-left: auto;
 }
 .nui-sheetcut-theme .nui-ttn-block {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
   gap: 0;
   flex-shrink: 0;
-  padding-bottom: 0;
+  padding-bottom: 16px;
 }
 .nui-sheetcut-theme .nui-ttn-number {
-  font-size: var(--font-size-xs, 12px);
-  font-weight: 600;
+  font-size: var(--font-size-s, 14px);
+  font-weight: 400;
   color: var(--adminred, #ee3c23);
-  line-height: 1.1;
+  line-height: 1;
   white-space: nowrap;
+  margin-right: 4px;
 }
-.nui-sheetcut-theme .nui-ttn-label {
-  font-size: 10px;
-  color: var(--adminred, #ee3c23);
-  opacity: 0.5;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  line-height: 1.1;
-  white-space: nowrap;
+.nui-sheetcut-theme .nui-ttn-buttons {
+  display: flex;
+  gap: 0;
+}
+.nui-sheetcut-theme .nui-ttn-rect-btn {
+  flex: 0 0 auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 2px 6px !important;
+  font-size: var(--fontsmall, 13px) !important;
+  border: none !important;
+  border-bottom: 2px solid var(--admingrey, #666) !important;
+  background: transparent !important;
+  transition: border-color 0.3s, color 0.3s !important;
+}
+.nui-sheetcut-theme .nui-ttn-rect-btn::before,
+.nui-sheetcut-theme .nui-ttn-rect-btn::after {
+  display: none !important;
+}
+.nui-sheetcut-theme .nui-ttn-rect-btn:not(:disabled):hover {
+  border-bottom-color: var(--adminorange, #f5a623) !important;
+  color: var(--adminorange, #f5a623) !important;
+}
+.nui-sheetcut-theme .nui-ttn-rect-btn:not(:disabled):hover .nui-client-rect-btn-text,
+.nui-sheetcut-theme .nui-ttn-rect-btn:not(:disabled):hover > span {
+  color: var(--adminorange, #f5a623) !important;
+}
+.nui-sheetcut-theme .nui-ttn-rect-btn .nui-client-rect-btn-text,
+.nui-sheetcut-theme .nui-ttn-rect-btn > span {
+  font-size: var(--fontsmall, 13px) !important;
+  position: relative;
+  z-index: 3;
 }
 
 .nui-sheetcut-theme .nui-deadline-envelope__prefix {
