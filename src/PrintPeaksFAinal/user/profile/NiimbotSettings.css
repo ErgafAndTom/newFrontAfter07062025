@@ -1,0 +1,240 @@
+/* ============================================================
+   NiimbotSettings — nbs-* prefix
+   ============================================================ */
+
+.nbs-wrap {
+  padding: 1rem 1.5rem;
+  max-width: 960px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem 1.2rem;
+}
+
+.nbs-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.nbs-title {
+  font-size: var(--font-size-s, 19px);
+  font-weight: 600;
+  color: var(--admingrey, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.nbs-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nbs-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--adminred, #ee3c23);
+  flex-shrink: 0;
+}
+
+.nbs-dot--on {
+  background: var(--admingreen, #0e935b);
+}
+
+.nbs-status-text {
+  font-size: var(--font-size-status, 14px);
+  color: var(--admingrey, #666);
+}
+
+/* ── Sections — рівномірні картки ── */
+
+.nbs-section {
+  padding: 0.8rem 1rem;
+  background: var(--adminfonelement, #f1eee7);
+  min-height: 0;
+}
+
+.nbs-section-title {
+  font-size: var(--font-size-status, 14px);
+  font-weight: 600;
+  color: var(--admingrey, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.6rem;
+}
+
+.nbs-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  gap: 1rem;
+}
+
+.nbs-label {
+  font-size: var(--font-size-status, 14px);
+  color: var(--admingrey, #666);
+  flex-shrink: 0;
+}
+
+.nbs-select,
+.nbs-input {
+  height: 2rem;
+  padding: 0 0.5rem;
+  border: none;
+  border-bottom: 1px solid var(--adminblue, #3c60a6);
+  background: transparent;
+  font-size: var(--font-size-status, 14px);
+  color: var(--admingrey, #666);
+  outline: none;
+  border-radius: 0;
+}
+
+.nbs-select {
+  min-width: 160px;
+}
+
+.nbs-input {
+  width: 60px;
+  text-align: center;
+}
+
+.nbs-select:focus,
+.nbs-input:focus {
+  border-bottom-color: var(--adminorange, #f5a623);
+}
+
+/* ── Temperature slider ── */
+
+.nbs-temp-control {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  max-width: 220px;
+}
+
+.nbs-range {
+  flex: 1;
+  height: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--adminblue, #3c60a6);
+  outline: none;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.nbs-range:hover {
+  opacity: 1;
+}
+
+.nbs-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--adminblue, #3c60a6);
+  border: 2px solid #fff;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+.nbs-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--adminblue, #3c60a6);
+  border: 2px solid #fff;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.nbs-temp-value {
+  font-size: var(--font-size-status, 14px);
+  color: var(--admingrey, #666);
+  font-weight: 600;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+/* ── Margins grid ── */
+
+.nbs-margins-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1.5rem;
+}
+
+.nbs-margin-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* ── Buttons ── */
+
+.nbs-btn {
+  height: 2rem;
+  padding: 0 1rem;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-status, 14px);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 0;
+  transition: opacity 0.2s;
+}
+
+.nbs-btn:hover {
+  opacity: 0.8;
+}
+
+.nbs-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.nbs-btn--connect {
+  background: var(--admingreen, #0e935b);
+  color: #fff;
+}
+
+.nbs-btn--disconnect {
+  background: var(--adminred, #ee3c23);
+  color: #fff;
+}
+
+.nbs-btn--save {
+  background: var(--admingreen, #0e935b);
+  color: #fff;
+  font-weight: 600;
+  min-width: 2.5rem;
+}
+
+.nbs-btn--test {
+  background: var(--adminblue, #3c60a6);
+  color: #fff;
+}
+
+.nbs-btn--reset {
+  background: transparent;
+  color: var(--admingrey, #666);
+  border: 1px solid var(--admingrey, #666);
+}
+
+/* ── Actions row ── */
+
+.nbs-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 0.4rem;
+}

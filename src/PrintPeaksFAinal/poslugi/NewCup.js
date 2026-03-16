@@ -56,7 +56,7 @@ const NewCup = ({
     [material, count]
   );
 
-  const { pricesThis } = useModalPricing("Cup", calcData, showNewCup);
+  const { pricesThis } = useModalPricing("Cup", calcData, showNewCup, 300, editingOrderUnit);
 
   // Save hook
   const { saveOrderUnit } = useOrderUnitSave(

@@ -78,7 +78,7 @@ const Laminator = ({
     [size, lamination, count]
   );
 
-  const { pricesThis } = useModalPricing("Laminator", calcData, showLaminator);
+  const { pricesThis } = useModalPricing("Laminator", calcData, showLaminator, 300, editingOrderUnit);
 
   // Save hook
   const { saveOrderUnit } = useOrderUnitSave(

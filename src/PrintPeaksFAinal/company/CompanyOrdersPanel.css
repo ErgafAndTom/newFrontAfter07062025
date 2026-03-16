@@ -1,0 +1,40 @@
+/* CompanyOrdersPanel — cop-* prefix */
+
+.cop-grid {
+  grid-template-columns: 60px 1fr 80px 120px 1fr;
+}
+
+.cop-order-row {
+  cursor: pointer;
+}
+
+.cop-order-row:hover {
+  background: var(--adminfonelement, #f1eee7);
+}
+
+.cop-cell {
+  font-size: var(--font-size-xs, 15px);
+  color: var(--admingrey, #666);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cop-cell--id {
+  font-weight: 500;
+  color: var(--adminblue, #3c60a6);
+}
+
+.cop-cell--client {
+  color: var(--adminblue, #3c60a6);
+}
+
+.cop-cell--total {
+  text-align: right;
+}
+
+.cop-cell--status {
+  text-transform: uppercase;
+  font-size: 12px;
+  opacity: 0.8;
+}

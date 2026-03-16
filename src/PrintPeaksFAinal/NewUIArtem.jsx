@@ -337,7 +337,7 @@ const NewUIArtem = () => {
   }, [thisOrder?.id, thisOrder?.deadline, thisOrder?.finalManufacturingTime]);
 
   const statusValue = Number.parseInt(thisOrder?.status, 10);
-  const isCancelledOrder = thisOrder?.status === 'Відміна' || statusValue === -1;
+  const isCancelledOrder = statusValue === -1;
 
   const orderListStatusTitle = (() => {
     const orderId = thisOrder?.id ?? '—';
@@ -348,7 +348,9 @@ const NewUIArtem = () => {
       case 1:  return { text: 'Замовлення ', id: orderId, suffix: ' друкується' };
       case 2:  return { text: 'Замовлення ', id: orderId, suffix: ' у постпресі' };
       case 3:  return { text: 'Готове замовлення ', id: orderId };
-      default: return { text: 'Замовлення ', id: orderId, suffix: ' віддали' };
+      case 4:  return { text: 'Замовлення ', id: orderId, suffix: ' отримано' };
+      case 5:  return { text: 'Видалене замовлення ', id: orderId };
+      default: return { text: 'Замовлення ', id: orderId };
     }
   })();
 
@@ -362,8 +364,9 @@ const NewUIArtem = () => {
       case 3:
         return 'nui-order-tone-rose';
       case 4:
-      case 5:
         return 'nui-order-tone-green';
+      case 5:
+        return 'nui-order-tone-red';
       default:
         return 'nui-order-tone-grey';
     }
@@ -385,7 +388,7 @@ const NewUIArtem = () => {
       case 4:
         return 'статусі "отримано"';
       case 5:
-        return 'статусі "оплата"';
+        return 'статусі "видалено"';
       default:
         return 'поточному статусі';
     }

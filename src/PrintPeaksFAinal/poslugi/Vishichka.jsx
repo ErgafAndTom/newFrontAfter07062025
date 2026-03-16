@@ -1,5 +1,5 @@
 // Vishichka.jsx
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "../../api/axiosInstance";
 import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
 import Materials2 from "./newnomodals/Materials2";
@@ -147,6 +147,7 @@ const Vishichka = ({
   const navigate = useNavigate();
 
   const isEdit = Boolean(editingOrderUnit?.id || editingOrderUnit?.idKey);
+  const skipInitialPricing = useRef(false);
   const options = useMemo(() => parseOptionsJson(editingOrderUnit), [editingOrderUnit]);
 
   const [error, setError] = useState(null);
@@ -239,6 +240,7 @@ const Vishichka = ({
     }
 
     // EDIT
+    if (isEdit) skipInitialPricing.current = true;
     const opt = options || null;
 
     setCount(safeNum(opt?.count, safeNum(editingOrderUnit?.amount, DEFAULTS.count)) || DEFAULTS.count);
@@ -327,6 +329,21 @@ const Vishichka = ({
 
   // PRICING
   useEffect(() => {
+    // В edit-mode пропускаємо перший виклик pricing — показуємо збережені ціни
+    if (skipInitialPricing.current) {
+      skipInitialPricing.current = false;
+      if (editingOrderUnit) {
+        const storedPrice = parseFloat(editingOrderUnit.priceForAllThis) || 0;
+        const storedPerUnit = parseFloat(editingOrderUnit.priceForOneThis) || 0;
+        setPricesThis((prev) => ({
+          ...prev,
+          price: storedPrice,
+          priceForOneThis: storedPerUnit,
+        }));
+      }
+      return;
+    }
+
     if (!showVishichka) return;
 
     const dataToSend = {

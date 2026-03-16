@@ -55,7 +55,7 @@ const NewScans = ({
     [material, count]
   );
 
-  const { pricesThis } = useModalPricing("Scans", calcData, showNewScans);
+  const { pricesThis } = useModalPricing("Scans", calcData, showNewScans, 300, editingOrderUnit);
 
   // Save hook
   const { saveOrderUnit } = useOrderUnitSave(

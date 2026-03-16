@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
@@ -69,6 +69,7 @@ const BigOvshik = ({
 
   // Modal state detection
   const { isEdit, options } = useModalState(editingOrderUnit, showBigOvshik);
+  const skipInitialPricing = useRef(false);
 
   // ========== STATE ==========
   const [size, setSize] = useState(DEFAULTS.size);
@@ -163,8 +164,12 @@ const BigOvshik = ({
   // Initialize when modal opens
   useEffect(() => {
     if (!showBigOvshik) return;
-    if (isEdit) hydrateFromEditUnit();
-    else resetToDefaults();
+    if (isEdit) {
+      skipInitialPricing.current = true;
+      hydrateFromEditUnit();
+    } else {
+      resetToDefaults();
+    }
   }, [showBigOvshik, isEdit, hydrateFromEditUnit, resetToDefaults]);
 
   // Update design pricing locally
@@ -178,6 +183,21 @@ const BigOvshik = ({
 
   // Fetch pricing
   useEffect(() => {
+    // В edit-mode пропускаємо перший виклик pricing — показуємо збережені ціни
+    if (skipInitialPricing.current) {
+      skipInitialPricing.current = false;
+      if (editingOrderUnit) {
+        const storedPrice = parseFloat(editingOrderUnit.priceForAllThis) || 0;
+        const storedPerUnit = parseFloat(editingOrderUnit.priceForOneThis) || 0;
+        setPricesThis((prev) => ({
+          ...prev,
+          price: storedPrice,
+          priceForOneThis: storedPerUnit,
+        }));
+      }
+      return;
+    }
+
     if (!showBigOvshik) return;
 
     const dataToSend = {

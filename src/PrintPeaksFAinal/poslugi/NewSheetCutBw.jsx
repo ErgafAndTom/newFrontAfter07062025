@@ -77,6 +77,7 @@ export default function NewSheetCutBW({
   const [count, setCount] = useState(1);
   const [selectedService, setSelectedService] = useState("Документ");
   const isEdit = Boolean(editingOrderUnit?.id || editingOrderUnit?.idKey);
+  const skipInitialPricing = useRef(false);
   const [size, setSize] = useState({ x: 210, y: 297 });
   const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
   const sizeDropdownRef = useRef(null);
@@ -111,6 +112,7 @@ export default function NewSheetCutBW({
 
   useEffect(() => {
     if (!showNewSheetCutBW) return;
+    if (isEdit) skipInitialPricing.current = true;
 
     if (!isEdit) {
       setSize(DEFAULTS.size);
@@ -216,6 +218,21 @@ export default function NewSheetCutBW({
   /* ===================== PRICING ===================== */
 
   useEffect(() => {
+    // В edit-mode пропускаємо перший виклик pricing — показуємо збережені ціни
+    if (skipInitialPricing.current) {
+      skipInitialPricing.current = false;
+      if (editingOrderUnit) {
+        const storedPrice = parseFloat(editingOrderUnit.priceForAllThis) || 0;
+        const storedPerUnit = parseFloat(editingOrderUnit.priceForOneThis) || 0;
+        setPricesThis((prev) => ({
+          ...prev,
+          price: storedPrice,
+          priceForOneThis: storedPerUnit,
+        }));
+      }
+      return;
+    }
+
     if (!size) return;
 
     const dataToSend = {

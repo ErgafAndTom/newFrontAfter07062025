@@ -1,0 +1,157 @@
+/* ===== MockupClientPage — mobile-first ===== */
+
+.mcp-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 2rem;
+    background: var(--adminfon, #f7f5ee);
+    box-sizing: border-box;
+}
+
+/* Logo */
+.mcp-logo {
+    width: 120px;
+    max-width: 40vw;
+    margin-bottom: 1rem;
+}
+
+/* Order number */
+.mcp-order-number {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--admingrey, #666);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* 3D Canvas container */
+.mcp-canvas-wrap {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    max-height: 50vh;
+    background: linear-gradient(135deg, #e8e6df 0%, #f7f5ee 100%);
+    margin-bottom: 1.5rem;
+    position: relative;
+    transition: transform 1.2s ease-in, opacity 1.2s ease-in;
+}
+.mcp-canvas-wrap canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Fly animation */
+.mcp-canvas-wrap.mcp-fly-animation {
+    animation: fly-to-print 1.5s ease-in forwards;
+}
+
+@keyframes fly-to-print {
+    0%   { transform: scale(1) translateY(0); opacity: 1; }
+    40%  { transform: scale(0.6) translateY(-60px); opacity: 0.9; }
+    70%  { transform: scale(0.3) translateY(-160px); opacity: 0.6; }
+    100% { transform: scale(0.1) translateY(-280px); opacity: 0; }
+}
+
+/* Confirm button */
+.mcp-confirm-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 2px solid var(--admingreen, #0e935b);
+    background: var(--admingreen, #0e935b);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+}
+.mcp-confirm-btn:hover {
+    background: #0b7d4d;
+}
+.mcp-confirm-btn:active {
+    transform: scale(0.97);
+}
+.mcp-confirm-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+/* Confirmed message */
+.mcp-confirmed-msg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    animation: fade-slide-up 0.6s ease-out;
+}
+.mcp-confirmed-msg.mcp-animating {
+    margin-top: 2rem;
+}
+
+.mcp-check-icon {
+    width: 60px;
+    height: 60px;
+    border: 3px solid var(--admingreen, #0e935b);
+    color: var(--admingreen, #0e935b);
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: check-pulse 0.5s ease-out;
+}
+
+.mcp-confirmed-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--admingreen, #0e935b);
+    text-align: center;
+}
+.mcp-confirmed-sub {
+    font-size: 0.9rem;
+    color: var(--admingrey, #666);
+    text-align: center;
+}
+
+.mcp-printer-icon {
+    font-size: 3rem;
+    animation: printer-bounce 1s ease-in-out infinite;
+}
+
+/* Error / expired / loader */
+.mcp-error {
+    color: var(--adminred, #ee3c23);
+    font-size: 1rem;
+    text-align: center;
+    margin-top: 1rem;
+}
+.mcp-expired {
+    color: var(--admingrey, #666);
+    font-size: 1.1rem;
+    text-align: center;
+    margin-top: 2rem;
+}
+.mcp-loader {
+    color: var(--admingrey, #666);
+    font-size: 1.1rem;
+    margin-top: 4rem;
+}
+
+/* ===== Animations ===== */
+@keyframes fade-slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes check-pulse {
+    0%   { transform: scale(0.5); opacity: 0; }
+    60%  { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+}
+@keyframes printer-bounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+}

@@ -1,0 +1,642 @@
+/* FileSettings — fs-* prefix */
+
+.fs-container {
+  padding: 1.5rem 2rem;
+}
+
+.fs-section {
+  margin-bottom: 2rem;
+}
+
+.fs-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--admingrey, #666);
+  border-bottom: 1px solid #e0ddd4;
+  padding-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ─── Рядок поля ─────────────────────────── */
+.fs-field-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 36px;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+}
+
+.fs-field-label {
+  font-size: 0.85rem;
+  color: var(--admingrey, #666);
+  white-space: nowrap;
+}
+
+.fs-field-input {
+  width: 100%;
+  padding: 0.3rem 0.5rem;
+  border: none;
+  border-bottom: 1px solid var(--adminblue, #3c60a6);
+  background: transparent;
+  font-size: 0.85rem;
+  color: var(--admingrey, #666);
+  outline: none;
+  font-family: monospace;
+}
+
+.fs-field-input:focus {
+  border-bottom-color: var(--adminorange, #f5a623);
+}
+
+.fs-field-input[readonly] {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.fs-field-save {
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--admingrey, #666);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
+.fs-field-save--visible {
+  opacity: 1;
+  pointer-events: auto;
+  border-color: var(--admingreen, #0e935b);
+  color: var(--admingreen, #0e935b);
+}
+
+.fs-field-save:hover {
+  background: var(--adminlightgreen, #e2f2eb);
+}
+
+/* ─── Disk info bar ──────────────────────── */
+.fs-disk-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--admingrey, #666);
+  padding: 0.25rem 0 0.25rem 160px;
+  margin-top: -0.25rem;
+}
+
+.fs-disk-bar-wrap {
+  flex: 1;
+  max-width: 200px;
+  height: 6px;
+  background: #e0ddd4;
+  overflow: hidden;
+}
+
+.fs-disk-bar {
+  height: 100%;
+  transition: width 0.3s;
+}
+
+.fs-disk-bar--ok { background: var(--admingreen, #0e935b); }
+.fs-disk-bar--warn { background: var(--adminorange, #f5a623); }
+.fs-disk-bar--danger { background: var(--adminred, #ee3c23); }
+
+.fs-disk-text {
+  white-space: nowrap;
+}
+
+.fs-disk-text--ok { color: var(--admingreen, #0e935b); }
+.fs-disk-text--warn { color: var(--adminorange, #f5a623); }
+.fs-disk-text--danger { color: var(--adminred, #ee3c23); }
+
+/* ─── Extra disks ────────────────────────── */
+.fs-extra-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 36px 36px;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+}
+
+.fs-remove-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--adminred, #ee3c23);
+  background: transparent;
+  color: var(--adminred, #ee3c23);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.fs-remove-btn:hover {
+  background: var(--adminlightred, #fde8e5);
+}
+
+.fs-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--adminorange, #f5a623);
+  background: transparent;
+  color: var(--adminorange, #f5a623);
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  margin-left: 160px;
+}
+
+.fs-add-btn:hover {
+  background: var(--adminlightorange, #fef4e5);
+}
+
+/* ─── Toggle ─────────────────────────────── */
+.fs-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.fs-toggle {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  background: #ccc;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.fs-toggle--on {
+  background: var(--admingreen, #0e935b);
+}
+
+.fs-toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  transition: left 0.15s;
+}
+
+.fs-toggle--on .fs-toggle-knob {
+  left: 22px;
+}
+
+.fs-toggle-label {
+  font-size: 0.85rem;
+  color: var(--admingrey, #666);
+}
+
+/* ─── Backup ─────────────────────────────── */
+.fs-backup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.fs-backup-card {
+  border: 1px solid #e0ddd4;
+  padding: 1rem;
+  background: var(--adminfonelement, #f1eee7);
+}
+
+.fs-backup-card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--admingrey, #666);
+  margin-bottom: 0.75rem;
+}
+
+.fs-backup-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--admingrey, #666);
+  margin-bottom: 0.5rem;
+}
+
+.fs-backup-indicator {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+}
+
+.fs-backup-indicator--ok { background: var(--admingreen, #0e935b); }
+.fs-backup-indicator--warn { background: var(--adminorange, #f5a623); }
+.fs-backup-indicator--never { background: var(--adminred, #ee3c23); }
+
+.fs-backup-run-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--adminorange, #f5a623);
+  background: transparent;
+  color: var(--adminorange, #f5a623);
+  cursor: pointer;
+  font-size: 0.8rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.fs-backup-run-btn:hover {
+  background: var(--adminlightorange, #fef4e5);
+}
+
+.fs-backup-run-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.fs-backup-import-btn {
+  margin-top: 0.35rem;
+  border-color: var(--adminblue, #3c60a6);
+  color: var(--adminblue, #3c60a6);
+}
+
+.fs-backup-import-btn:hover {
+  background: var(--adminlightblue, #e8ecf4);
+}
+
+/* Restore result */
+.fs-restore-result {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: var(--adminfonelement, #f1eee7);
+}
+
+.fs-restore-result-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--admingrey, #666);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.fs-restore-result-line {
+  font-size: 0.75rem;
+  color: var(--admingrey, #666);
+  padding: 0.1rem 0;
+}
+
+/* ─── Schedule ───────────────────────────── */
+.fs-schedule-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0 0.5rem 160px;
+}
+
+.fs-schedule-option {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--admingrey, #666);
+}
+
+.fs-schedule-radio {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--adminblue, #3c60a6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.fs-schedule-radio--active {
+  border-color: var(--admingreen, #0e935b);
+}
+
+.fs-schedule-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--admingreen, #0e935b);
+}
+
+/* ─── Detected disks ────────────────────── */
+.fs-os-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 400;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--adminblue, #3c60a6);
+  color: var(--adminblue, #3c60a6);
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 0.75rem;
+  vertical-align: middle;
+}
+
+.fs-detect-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--adminorange, #f5a623);
+  background: transparent;
+  color: var(--adminorange, #f5a623);
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.fs-detect-btn:hover {
+  background: var(--adminlightorange, #fef4e5);
+}
+
+.fs-detect-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.fs-detected-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.fs-detected-row {
+  display: grid;
+  grid-template-columns: 24px 120px 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--admingrey, #666);
+  border: 1px solid transparent;
+}
+
+.fs-detected-row:hover {
+  background: var(--adminfonelement, #f1eee7);
+}
+
+.fs-detected-row--active {
+  border-color: var(--admingreen, #0e935b);
+  background: var(--adminlightgreen, #e2f2eb);
+}
+
+.fs-detected-check {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--admingreen, #0e935b);
+}
+
+.fs-detected-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fs-detected-path {
+  font-family: monospace;
+  font-size: 0.8rem;
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fs-detected-free {
+  white-space: nowrap;
+  font-size: 0.8rem;
+}
+
+/* ─── Storage Row (3-column layout) ──────── */
+.fs-storage-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.fs-storage-row .fs-storage-dest {
+  margin-bottom: 0;
+}
+
+.fs-storage-row .fs-field-row {
+  grid-template-columns: 80px 1fr 28px;
+}
+
+.fs-storage-row .fs-extra-row {
+  grid-template-columns: 80px 1fr 28px 28px;
+}
+
+.fs-storage-row .fs-field-label {
+  font-size: 0.75rem;
+}
+
+.fs-storage-row .fs-disk-info {
+  padding-left: 80px;
+}
+
+.fs-storage-row .fs-network-test-row {
+  padding-left: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.fs-storage-row .fs-network-result {
+  font-size: 0.75rem;
+}
+
+.fs-storage-row .fs-add-btn {
+  margin-left: 80px;
+}
+
+.fs-storage-row .fs-storage-name {
+  font-size: 0.9rem;
+}
+
+.fs-storage-row .fs-storage-header {
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem;
+  flex-wrap: wrap;
+}
+
+.fs-storage-row .fs-storage-priority {
+  font-size: 0.6rem;
+  padding: 1px 5px;
+}
+
+.fs-storage-row .fs-storage-body {
+  padding: 0.4rem 0.6rem 0.75rem;
+}
+
+/* ─── Storage Sub-title ──────────────────── */
+.fs-storage-sub-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--admingrey, #666);
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #e0ddd4;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* ─── Storage Destinations ───────────────── */
+.fs-storage-dest {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+  background: var(--adminfonelement, #f1eee7);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.fs-storage-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.fs-storage-name {
+  font-weight: 600;
+  color: var(--admingrey, #666);
+  flex: 1;
+}
+
+.fs-storage-priority {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: var(--adminlightblue, #e8ecf4);
+  color: var(--adminblue, #3c60a6);
+  white-space: nowrap;
+}
+
+.fs-storage-body {
+  padding: 0.5rem 1rem 1rem;
+  border-top: 1px solid #e0ddd6;
+}
+
+/* ─── Mini Toggle ────────────────────────── */
+.fs-toggle-mini {
+  position: relative;
+  width: 32px;
+  height: 16px;
+  background: #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.fs-toggle-mini--on {
+  background: var(--admingreen, #0e935b);
+}
+
+.fs-toggle-mini-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border-radius: 50%;
+  transition: left 0.2s;
+}
+
+.fs-toggle-mini--on .fs-toggle-mini-knob {
+  left: 18px;
+}
+
+/* ─── Network Test ───────────────────────── */
+.fs-network-test-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 0.5rem;
+  padding-left: 160px;
+}
+
+.fs-network-test-row button {
+  padding: 0.3rem 1rem;
+  border: 1px solid var(--adminblue, #3c60a6);
+  background: transparent;
+  color: var(--adminblue, #3c60a6);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.fs-network-test-row button:hover {
+  background: var(--adminlightblue, #e8ecf4);
+}
+
+.fs-network-test-row button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fs-network-result {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--admingrey, #666);
+}
+
+.fs-network-result--ok {
+  color: var(--admingreen, #0e935b);
+}
+
+.fs-network-result--fail {
+  color: var(--adminred, #ee3c23);
+}
+
+.fs-network-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.fs-network-result--ok .fs-network-dot {
+  background: var(--admingreen, #0e935b);
+}
+
+.fs-network-result--fail .fs-network-dot {
+  background: var(--adminred, #ee3c23);
+}
+
+/* ─── Error / Loading ────────────────────── */
+.fs-error {
+  color: var(--adminred, #ee3c23);
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+}
+
+.fs-loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--admingrey, #666);
+}

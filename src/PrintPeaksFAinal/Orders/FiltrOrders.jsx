@@ -10,12 +10,13 @@ const FiltrOrders = ({
 }) => {
 
   const STATUS_ITEMS = [
-    ["status0", "Оформлення", "s0"],
-    ["status1", "Друкується", "s1"],
-    ["status2", "Постпресс",  "s2"],
-    ["status3", "Готове",     "s3"],
-    ["status4", "Віддали",    "s4"],
-    ["status5", "Видалено",   "s5"],
+    ["status0",         "Обробка",    "s0"],
+    ["status1",         "Друк",       "s1"],
+    ["status2",         "Постпрес",   "s2"],
+    ["status3",         "Готово",     "s3"],
+    ["status4",         "Отримано",   "s4"],
+    ["status5",         "Видалено",   "s5"],
+    ["statusCancelled", "Скасоване",  "cancel"],
   ];
 
   const PAYMENT_ITEMS = [

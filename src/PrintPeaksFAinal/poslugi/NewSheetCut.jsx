@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "../../api/axiosInstance";
 import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
 import NewNoModalLamination from "./newnomodals/NewNoModalLamination";
@@ -172,10 +172,12 @@ const NewSheetCut = ({
 
   const isEdit = Boolean(editingOrderUnit?.id || editingOrderUnit?.idKey);
   const options = parseOptionsJson(editingOrderUnit);
+  const skipInitialPricing = useRef(false);
 
   useEffect(() => {
     if (!showNewSheetCut) return;
     if (error) setError(null);
+    if (isEdit) skipInitialPricing.current = true;
 
     if (!isEdit) {
       setCount(DEFAULTS.count);
@@ -264,6 +266,26 @@ const NewSheetCut = ({
   }, [design]);
 
   useEffect(() => {
+    // В edit-mode пропускаємо перший виклик pricing — показуємо збережені ціни
+    if (skipInitialPricing.current) {
+      skipInitialPricing.current = false;
+      if (editingOrderUnit) {
+        const storedPrice = parseFloat(editingOrderUnit.priceForAllThis) || 0;
+        const storedPerUnit = parseFloat(editingOrderUnit.priceForOneThis) || 0;
+        const sc = Number(editingOrderUnit.newField5) || 1;
+        setPricesThis((prev) => ({
+          ...prev,
+          price: storedPrice,
+          sheetCount: sc,
+          priceDrukPerSheet: storedPerUnit > 0 ? storedPerUnit : (storedPrice / sc),
+          pricePaperPerSheet: 0,
+          priceLaminationPerSheet: 0,
+          porizka: 0,
+        }));
+      }
+      return;
+    }
+
     let dataToSend = {
       type: "SheetCut",
       size, material, color, lamination,

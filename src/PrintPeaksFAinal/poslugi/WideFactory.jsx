@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from "../../api/axiosInstance";
 import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
 import Materials2 from "./newnomodals/Materials2";
@@ -81,6 +81,7 @@ const WideFactory = ({
 
   const editId = editingOrderUnit?.id ?? editingOrderUnit?.ID ?? editingOrderUnit?.idKey ?? null;
   const isEdit = Boolean(editId);
+  const skipInitialPricing = useRef(false);
 
   const safeSetShowWideFactory = useCallback((val) => {
     if (typeof setShowWideFactory === "function") setShowWideFactory(val);
@@ -217,6 +218,7 @@ const WideFactory = ({
     const svc = opts.selectedService || opts.newField1 || editingOrderUnit?.newField1 || newServices[0];
     setSelectedService(svc);
 
+    if (isEdit) skipInitialPricing.current = true;
     setError(null);
     setPricesThis(null);
   }, [showWideFactory, isEdit, editId]);
@@ -224,6 +226,21 @@ const WideFactory = ({
   // ========== PRICING ==========
 
   useEffect(() => {
+    // В edit-mode пропускаємо перший виклик pricing — показуємо збережені ціни
+    if (skipInitialPricing.current) {
+      skipInitialPricing.current = false;
+      if (editingOrderUnit) {
+        const storedPrice = parseFloat(editingOrderUnit.priceForAllThis) || 0;
+        const storedPerUnit = parseFloat(editingOrderUnit.priceForOneThis) || 0;
+        setPricesThis((prev) => ({
+          ...prev,
+          price: storedPrice,
+          priceForOneThis: storedPerUnit,
+        }));
+      }
+      return;
+    }
+
     if (!showWideFactory) return;
 
     const dataToSend = {

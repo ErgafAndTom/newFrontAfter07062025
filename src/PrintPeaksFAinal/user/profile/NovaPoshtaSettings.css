@@ -1,0 +1,234 @@
+/* ============================================================
+   NovaPoshtaSettings — nps-* prefix
+   Reuses nbs-* pattern from NiimbotSettings
+   ============================================================ */
+
+.nps-wrap {
+  padding: 1rem 1.5rem;
+  max-width: 960px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem 1.2rem;
+}
+
+.nps-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.nps-title {
+  font-size: var(--font-size-s, 19px);
+  font-weight: 600;
+  color: var(--admingrey, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.nps-section {
+  padding: 0.8rem 1rem;
+  background: var(--adminfonelement, #f1eee7);
+  min-height: 0;
+}
+
+.nps-section--full {
+  grid-column: 1 / -1;
+}
+
+.nps-section-title {
+  font-size: var(--font-size-status, 14px);
+  font-weight: 600;
+  color: var(--admingrey, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.6rem;
+}
+
+.nps-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  gap: 1rem;
+}
+
+.nps-label {
+  font-size: var(--font-size-status, 14px);
+  color: var(--admingrey, #666);
+  flex-shrink: 0;
+}
+
+.nps-value {
+  font-size: var(--font-size-status, 14px);
+  color: var(--admingrey, #666);
+}
+
+.nps-select,
+.nps-input {
+  height: 2rem;
+  padding: 0 0.5rem;
+  border: none;
+  border-bottom: 1px solid var(--adminblue, #3c60a6);
+  background: transparent;
+  font-size: var(--font-size-status, 14px);
+  color: var(--admingrey, #666);
+  outline: none;
+  border-radius: 0;
+}
+
+.nps-select {
+  min-width: 160px;
+}
+
+.nps-input {
+  width: 80px;
+  text-align: center;
+}
+
+.nps-input--wide {
+  width: 100%;
+  text-align: left;
+}
+
+.nps-select:focus,
+.nps-input:focus {
+  border-bottom-color: var(--adminorange, #f5a623);
+}
+
+/* ── Density slider ── */
+
+.nps-density-control {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  max-width: 220px;
+}
+
+.nps-range {
+  flex: 1;
+  height: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--adminblue, #3c60a6);
+  outline: none;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.nps-range:hover {
+  opacity: 1;
+}
+
+.nps-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--adminblue, #3c60a6);
+  border: 2px solid #fff;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+.nps-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--adminblue, #3c60a6);
+  border: 2px solid #fff;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.nps-density-value {
+  font-size: var(--font-size-status, 14px);
+  color: var(--admingrey, #666);
+  font-weight: 600;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+/* ── Buttons ── */
+
+.nps-btn {
+  height: 2rem;
+  padding: 0 1rem;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-status, 14px);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 0;
+  transition: opacity 0.2s;
+}
+
+.nps-btn:hover {
+  opacity: 0.8;
+}
+
+.nps-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.nps-btn--save {
+  background: var(--admingreen, #0e935b);
+  color: #fff;
+  font-weight: 600;
+  min-width: 2.5rem;
+}
+
+.nps-btn--test {
+  background: var(--adminblue, #3c60a6);
+  color: #fff;
+}
+
+.nps-btn--reset {
+  background: transparent;
+  color: var(--admingrey, #666);
+  border: 1px solid var(--admingrey, #666);
+}
+
+/* ── Actions row ── */
+
+.nps-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 0.4rem;
+}
+
+/* ── API key visibility toggle ── */
+
+.nps-api-key-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.nps-api-key-row .nps-input--wide {
+  flex: 1;
+}
+
+.nps-toggle-vis {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: transparent;
+  color: var(--admingrey, #666);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.nps-toggle-vis:hover {
+  color: var(--adminorange, #f5a623);
+}

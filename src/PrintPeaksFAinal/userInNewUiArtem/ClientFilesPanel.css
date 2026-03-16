@@ -1,0 +1,479 @@
+/* ClientFilesPanel — cfp-* prefix */
+
+.cfp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10600;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: cfp-fadeIn 0.2s ease;
+}
+
+.cfp-modal {
+  position: relative;
+  width: 96vw;
+  max-width: 780px;
+  max-height: 85vh;
+  background: var(--adminfon, #f7f5ee);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: cfp-slideUp 0.25s ease;
+}
+
+/* Drag-n-drop на весь конверт */
+.cfp-drag-active {
+  outline: 3px dashed var(--adminorange, #f5a623);
+  outline-offset: -3px;
+}
+
+.cfp-drag-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  background: rgba(245, 166, 35, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-l, 22px);
+  color: var(--adminorange, #f5a623);
+  font-weight: 500;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* Header */
+.cfp-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.cfp-header .cfp-header-right {
+  margin-left: auto;
+}
+
+/* Status bar (знизу модалки) */
+.cfp-statusbar {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: var(--font-size-xs, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* ──────────────────────────────────────
+   Admin button — двошарова hover-анімація
+   (точна копія Nav .btn)
+   ────────────────────────────────────── */
+.cfp-admin-btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 6px 12px;
+  border: 2px solid var(--adminorange, #f5a623);
+  border-radius: 0;
+  background: var(--adminfon, #f7f5ee);
+  color: var(--admingrey, #666);
+  cursor: pointer;
+  font-size: var(--font-size-xs, 15px);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: 0.3s;
+  box-sizing: border-box;
+  text-transform: uppercase;
+}
+
+/* Обгортка тексту/іконки поверх псевдоелементів */
+.cfp-btn-inner {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* cover layer 1 — ховає бордер */
+.cfp-admin-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+
+/* cover layer 2 — верхня половина */
+.cfp-admin-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+
+/* Hover — відкриває бордер */
+.cfp-admin-btn:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.cfp-admin-btn:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+.cfp-admin-btn:hover {
+  color: var(--adminorange, #f5a623);
+}
+
+/* Red variant (delete button) — adminbutton з --adminred */
+.cfp-admin-btn-red {
+  border-color: var(--adminred, #ee3c23);
+  width: 30px;
+  height: 30px;
+  padding: 0;
+}
+
+.cfp-admin-btn-red::before {
+  background-color: var(--adminfon, #f7f5ee);
+}
+
+.cfp-admin-btn-red::after {
+  background-color: var(--adminfon, #f7f5ee);
+}
+
+.cfp-admin-btn-red:hover {
+  color: var(--adminred, #ee3c23);
+}
+
+/* При ховері рядка — фон кнопки корзинки = фон рядка */
+.cfp-file-row:hover .cfp-admin-btn-red {
+  background: var(--adminfonelement, #f1eee7);
+}
+.cfp-file-row:hover .cfp-admin-btn-red::before,
+.cfp-file-row:hover .cfp-admin-btn-red::after {
+  background-color: var(--adminfonelement, #f1eee7);
+}
+
+.cfp-header-right {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* Breadcrumb (підпапки) */
+.cfp-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.cfp-back-btn {
+  padding: 4px 10px;
+}
+
+.cfp-breadcrumb-path {
+  font-size: var(--font-size-xs, 15px);
+  color: var(--admingrey, #666);
+  opacity: 0.7;
+}
+
+/* List header */
+.cfp-list-header {
+  display: grid;
+  grid-template-columns: 40px 1fr 60px 80px 80px minmax(60px, auto) 36px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  font-size: var(--font-size-xs, 15px);
+  color: var(--admingrey, #666);
+  text-transform: uppercase;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+/* Sortable column headers */
+.cfp-sort-col {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  transition: color 0.2s;
+}
+.cfp-sort-col:hover {
+  color: var(--adminorange, #f5a623);
+  opacity: 1;
+}
+
+.cfp-list-header > div:nth-child(4),
+.cfp-list-header > div:nth-child(5) {
+  justify-content: flex-end;
+}
+
+.cfp-list-header > div:nth-child(7) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Files list */
+.cfp-list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 8px 16px;
+  min-height: 0;
+}
+
+.cfp-empty {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--admingrey, #666);
+  font-size: var(--font-size-s, 17px);
+}
+
+.cfp-file-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 60px 80px 80px minmax(60px, auto) 36px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.cfp-file-row:hover {
+  background: var(--adminfonelement, #f1eee7);
+}
+
+.cfp-file-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cfp-file-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.2;
+}
+
+.cfp-file-name {
+  font-size: var(--font-size-xs, 15px);
+  color: var(--admingrey, #666);
+  word-break: break-word;
+  cursor: pointer;
+}
+
+.cfp-file-name:hover {
+  color: var(--adminblue, #3c60a6);
+  text-decoration: underline;
+}
+
+.cfp-file-type {
+  font-size: var(--font-size-xs, 15px);
+  color: var(--admingrey, #666);
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.cfp-file-size {
+  font-size: var(--font-size-xs, 15px);
+  color: var(--admingrey, #666);
+  text-align: right;
+}
+
+.cfp-file-date {
+  font-size: 12px;
+  color: var(--admingrey, #666);
+  text-align: right;
+  opacity: 0.7;
+}
+
+.cfp-file-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cfp-select-btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--admingreen, #0e935b);
+  background: transparent;
+  color: var(--admingreen, #0e935b);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+.cfp-select-btn:hover {
+  background: var(--admingreen, #0e935b);
+  color: #fff;
+}
+
+/* Orders column */
+.cfp-file-orders {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  min-height: 20px;
+}
+
+.cfp-order-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  padding: 1px 4px;
+  border: 1px solid var(--adminblue, #3c60a6);
+  color: var(--adminblue, #3c60a6);
+  white-space: nowrap;
+}
+
+.cfp-order-badge--current {
+  border-color: var(--admingreen, #0e935b);
+  color: var(--admingreen, #0e935b);
+}
+
+.cfp-order-unlink-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.5;
+}
+.cfp-order-unlink-btn:hover {
+  opacity: 1;
+  color: var(--adminred, #ee3c23);
+}
+
+.cfp-order-plus-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--admingreen, #0e935b);
+  background: transparent;
+  color: var(--admingreen, #0e935b);
+  cursor: pointer;
+}
+.cfp-order-plus-btn:hover:not(:disabled) {
+  background: var(--admingreen, #0e935b);
+  color: #fff;
+}
+.cfp-order-plus-btn--muted {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* Upload progress */
+.cfp-upload-progress {
+  padding: 6px 16px;
+  font-size: 13px;
+  color: var(--admingrey, #666);
+}
+
+.cfp-progress-track {
+  height: 6px;
+  background: rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.cfp-progress-bar {
+  height: 100%;
+  background: var(--admingreen, #0e935b);
+  transition: width 0.15s ease;
+}
+
+
+/* ──── CompanyFilesPanel grid override ──── */
+.cof-grid {
+  grid-template-columns: 40px 1fr 60px 80px 80px minmax(100px, 1fr) 36px;
+}
+
+.cfp-file-client {
+  font-size: var(--font-size-xs, 15px);
+  color: var(--adminblue, #3c60a6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cfp-file-client--link {
+  cursor: pointer;
+}
+
+.cfp-file-client--link:hover {
+  text-decoration: underline;
+  color: var(--adminorange, #f5a623);
+}
+
+/* Status bar with buttons layout */
+.cfp-statusbar-flex {
+  flex-shrink: 0;
+  padding: 6px 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cfp-statusbar-flex .cfp-statusbar-text {
+  font-size: var(--font-size-xs, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666);
+  text-transform: uppercase;
+  flex: 1;
+  text-align: center;
+}
+
+/* Animations */
+@keyframes cfp-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cfp-slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

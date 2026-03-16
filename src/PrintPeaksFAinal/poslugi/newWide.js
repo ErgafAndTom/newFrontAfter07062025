@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from '../../api/axiosInstance';
 import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
 import Materials2 from "./newnomodals/Materials2";
@@ -47,6 +47,7 @@ const NewWide = ({
     }).format(Number(v) || 0);
 
   const isEdit = Boolean(editingOrderUnit && (editingOrderUnit.id || editingOrderUnit.ID || editingOrderUnit.idKey));
+  const skipInitialPricing = useRef(false);
 
   const safeSetShowNewWide = useCallback((val) => {
     if (typeof setShowNewWide === "function") setShowNewWide(val);
@@ -141,6 +142,7 @@ const NewWide = ({
       editingOrderUnit?.amount ??
       editingOrderUnit?.newField5 ?? editingOrderUnit?.newField2 ?? DEFAULTS.count;
     setCount(Number(cnt) > 0 ? Number(cnt) : DEFAULTS.count);
+    if (isEdit) skipInitialPricing.current = true;
 
     const svc =
       opts.selectedService ||
@@ -155,6 +157,21 @@ const NewWide = ({
 
   // Pricing
   useEffect(() => {
+    // В edit-mode пропускаємо перший виклик pricing — показуємо збережені ціни
+    if (skipInitialPricing.current) {
+      skipInitialPricing.current = false;
+      if (editingOrderUnit) {
+        const storedPrice = parseFloat(editingOrderUnit.priceForAllThis) || 0;
+        const storedPerUnit = parseFloat(editingOrderUnit.priceForOneThis) || 0;
+        setPricesThis((prev) => ({
+          ...prev,
+          price: storedPrice,
+          priceForOneThis: storedPerUnit,
+        }));
+      }
+      return;
+    }
+
     if (!showNewWide) return;
 
     const dataToSend = {

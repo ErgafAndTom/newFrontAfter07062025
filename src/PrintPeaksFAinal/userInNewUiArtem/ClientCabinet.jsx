@@ -162,12 +162,13 @@ export default function ClientCabinet({
   const statusLabel = (s) => {
     const v = String(s || "");
     if (v === "-1") return "Скасоване";
-    if (v === "0") return "Оформлення";
-    if (v === "1") return "Друкується";
+    if (v === "0") return "Обробка";
+    if (v === "1") return "Друк";
     if (v === "2") return "Постпрес";
-    if (v === "3") return "Готове";
-    if (v === "4") return "Віддали";
-    return "Віддали";
+    if (v === "3") return "Готово";
+    if (v === "4") return "Отримано";
+    if (v === "5") return "Видалено";
+    return "Отримано";
   };
 
   const statusToneClass = (s) => {

@@ -1,0 +1,310 @@
+/* NP.jsx — Nova Poshta TTN creation modal */
+/* Prefix: np- */
+
+.np-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10500;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: np-fadeIn 0.2s ease;
+}
+
+.np-modal {
+  position: relative;
+  width: 96vw;
+  max-width: 864px;
+  max-height: 90vh;
+  background: var(--adminfon, #f7f5ee);
+  overflow-y: auto;
+  animation: np-slideUp 0.25s ease;
+}
+
+/* Header line */
+.np-header-line {
+  height: 1.5px;
+  background: var(--adminred, #DA291C);
+}
+
+/* Body */
+.np-body {
+  padding: 0.8rem 1rem;
+}
+
+/* Section legend */
+.np-legend {
+  font-size: var(--fontsmall, 13px);
+  font-weight: 400;
+  color: var(--admingrey, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-top: 0.8rem;
+  margin-bottom: 0.4rem;
+}
+
+.np-legend:first-child {
+  margin-top: 0;
+}
+
+/* Row of fields */
+.np-fields-row {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.3rem;
+}
+
+/* Single field */
+.np-field {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.np-field-label {
+  font-size: var(--fontsmall, 13px);
+  font-weight: 400;
+  color: var(--admingrey, #666);
+  opacity: 0.5;
+  white-space: nowrap;
+  min-width: fit-content;
+}
+
+.np-field-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--adminred, #DA291C);
+  padding: 0.25rem 0.2rem;
+  font-size: var(--fontsmall, 13px);
+  font-weight: 400;
+  color: var(--admingrey, #666);
+  width: 100%;
+  min-width: 0;
+  outline: none;
+  font-family: inherit;
+}
+
+.np-field-input:focus {
+  border-bottom-color: var(--adminorange, #f5a623);
+}
+
+.np-field-select {
+  background: transparent;
+  border: none;
+  padding: 0.25rem 0.2rem;
+  font-size: var(--fontsmall, 13px);
+  font-weight: 400;
+  color: var(--admingrey, #666);
+  opacity: 0.5;
+  outline: none;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 0;
+  flex: 1;
+}
+
+.np-field-select--active {
+  border-bottom: 1.5px solid var(--adminred, #DA291C);
+  opacity: 1;
+}
+
+.np-field-select:focus {
+  border-bottom-color: var(--adminorange, #f5a623);
+}
+
+/* Delivery mode tabs */
+.np-delivery-tabs {
+  display: flex;
+  gap: 0;
+  margin: 0.4rem 0 0.2rem;
+}
+
+.np-delivery-tab {
+  flex: 1;
+  padding: 0.35rem 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--adminred, #DA291C);
+  color: var(--admingrey, #666);
+  font-size: var(--fontsmall, 13px);
+  font-weight: 400;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border 0.15s;
+}
+
+.np-delivery-tab--active {
+  border: 1.5px solid var(--adminred, #DA291C);
+  border-bottom: none;
+  background: var(--adminred, #DA291C);
+  color: #fff;
+}
+
+.np-delivery-tab:not(.np-delivery-tab--active):hover {
+  background: rgba(218, 41, 28, 0.08);
+}
+
+/* Department picker wrapper */
+.np-department {
+  margin: 0.6rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+/* Dimensions row — 4 compact fields */
+.np-dims-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 0.6rem;
+  margin-bottom: 0.3rem;
+}
+
+.np-dims-row .np-field {
+  flex: unset;
+}
+
+/* Checkbox label */
+.np-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  font-size: var(--font-size-s, 14px);
+  color: var(--admingrey);
+  white-space: nowrap;
+}
+.np-checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--admingreen);
+  cursor: pointer;
+}
+
+/* Submit button */
+.np-submit-btn {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  width: 100%;
+  margin-top: 0.8rem;
+  padding: 0.5rem;
+  background: var(--adminfon, #f7f5ee);
+  border: 2px solid var(--adminred, #DA291C);
+  color: var(--adminred, #DA291C);
+  font-size: var(--font-size-s, 0.85rem);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  font-family: inherit;
+  transition: 0.3s;
+  box-sizing: border-box;
+}
+
+.np-submit-btn > * {
+  position: relative;
+  z-index: 3;
+}
+
+.np-submit-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+
+.np-submit-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+
+.np-submit-btn:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.np-submit-btn:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+.np-submit-btn:hover {
+  color: var(--adminred, #DA291C) !important;
+  border-color: var(--adminred, #DA291C) !important;
+}
+
+/* Result block */
+.np-result {
+  margin-top: 0.6rem;
+  padding: 0.6rem;
+  background: var(--adminlightgreen, #e2f2eb);
+  border: 1.5px solid var(--admingreen, #0e935b);
+}
+
+.np-result-title {
+  font-size: var(--fontsmall, 13px);
+  font-weight: 600;
+  color: var(--admingreen, #0e935b);
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+
+.np-print-btn {
+  margin-top: 0.5rem;
+  border-color: var(--admingreen, #0e935b);
+  color: var(--admingreen, #0e935b);
+}
+.np-print-btn::before,
+.np-print-btn::after {
+  background-color: var(--adminlightgreen, #e2f2eb);
+}
+.np-print-btn:hover {
+  color: var(--admingreen, #0e935b) !important;
+  border-color: var(--admingreen, #0e935b) !important;
+}
+
+.np-result-pre {
+  overflow: auto;
+  max-height: 12rem;
+  background: #fff;
+  padding: 0.4rem;
+  font-size: var(--fontsmall, 13px);
+  color: var(--admingrey, #666);
+  border: 1.5px solid var(--adminred, #DA291C);
+}
+
+.np-error {
+  color: var(--adminred, #ee3c23);
+  font-size: var(--fontsmall, 13px);
+  margin-top: 0.4rem;
+}
+
+/* Animations */
+@keyframes np-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes np-slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}

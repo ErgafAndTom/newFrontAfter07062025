@@ -86,7 +86,7 @@ const IcoOplata = () => (
   </svg>
 );
 
-const STAGE_ICONS = [IcoObrobka, IcoDruk, IcoPostpres, IcoGotovo, IcoOtrymano, IcoOplata];
+const STAGE_ICONS = [IcoObrobka, IcoDruk, IcoPostpres, IcoGotovo, IcoOtrymano];
 
 const STAGES = [
   { id: 0, title: 'Обробка', subtitle: 'Нове замовлення', color: UI.color.warn },
@@ -94,17 +94,15 @@ const STAGES = [
   { id: 2, title: 'Постпрес', subtitle: 'Постобробка', color: UI.color.blue },
   { id: 3, title: 'Готово', subtitle: 'Виріб готовий', color: UI.color.pink },
   { id: 4, title: 'Отримано', subtitle: 'Очікує видачі', color: UI.color.green },
-  { id: 5, title: 'Оплата', subtitle: 'Замовлення оплачено', color: UI.color.green },
 ];
 
-const STAGE_TONES = ['warn', 'brown', 'blue', 'pink', 'purple', 'green'];
+const STAGE_TONES = ['warn', 'brown', 'blue', 'pink', 'green'];
 const ACTION_LABELS_BY_STAGE = {
   0: 'Обробка',
   1: 'Друк',
   2: 'Постпрес',
   3: 'Готово',
   4: 'Отримано',
-  5: 'Оплата',
 };
 const ACTION_HOVER_LABELS_BY_STAGE = {
   0: 'На друк',
@@ -218,7 +216,7 @@ const
     const paid = thisOrder?.payStatus === 'pay' || paidByMainPayment || paidByPaymentsList;
     setIsPaid(Boolean(paid));
 
-    setIsCancelled(thisOrder.status === 'Відміна' || statusValue === -1);
+    setIsCancelled(statusValue === -1);
     if (thisOrder.manufacturingStartTime) {
       setManufacturingStartTime(thisOrder.manufacturingStartTime);
     }
@@ -289,14 +287,9 @@ const
     if (isCancelled) return 'danger';
     if (stageId < 0) return 'track';
 
-    if (isPaid) {
-      if (stageId === STAGES.length - 1) return 'green';
-      if (stageId <= normalizedCurrentStage) return STAGE_TONES[stageId] || 'warn';
-      return 'grey';
-    }
+    if (stageId <= normalizedCurrentStage) return STAGE_TONES[stageId] || 'warn';
 
     if (normalizedCurrentStage === STAGES.length - 1) {
-      if (stageId === STAGES.length - 1) return 'green';
       return STAGE_TONES[stageId] || 'track';
     }
 
@@ -338,10 +331,7 @@ const
 
   const completedStageCount = isCancelled
     ? 0
-    : Math.min(
-        STAGES.length,
-        normalizedCurrentStage + 1 + (isPaid && normalizedCurrentStage < STAGES.length - 1 ? 1 : 0)
-      );
+    : Math.min(STAGES.length, normalizedCurrentStage + 1);
 
   const isFullyCompleted = !isCancelled && completedStageCount >= STAGES.length;
   const actionPlaceholderLabel = isFullyCompleted ? 'Завершено' : '—';
@@ -584,15 +574,12 @@ return (
       {showTrack && (
       <div className="pb-track-row">
         {STAGES.map((stage) => {
-          const isPaymentStage = stage.id === STAGES.length - 1;
           const isCompleted = isCancelled
             ? false
-            : (isPaid
-                ? (stage.id <= normalizedCurrentStage || isPaymentStage)
-                : stage.id < normalizedCurrentStage);
+            : stage.id < normalizedCurrentStage;
           const isActive = isCancelled
             ? false
-            : (isPaid ? isPaymentStage : stage.id === normalizedCurrentStage);
+            : stage.id === normalizedCurrentStage;
           const indicatorTone = getSegmentTone(stage.id);
 
           const Icon = STAGE_ICONS[stage.id];
@@ -602,9 +589,7 @@ return (
               className={`pb-step-card tone-${indicatorTone}${isActive ? ' is-active' : ''}${isCompleted ? ' is-completed' : ''}`}
               style={{ position: 'relative', overflow: 'hidden' }}
             >
-              {stage.id !== STAGES.length - 1 && (
-                <span className="pb-step-num">Крок {stage.id + 1}</span>
-              )}
+              <span className="pb-step-num">Крок {stage.id + 1}</span>
               <span className="pb-step-meta" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.3rem' }}>
                 <span className="pb-step-ico" style={{ display: 'inline-flex', alignItems: 'center', fontSize: 'inherit', lineHeight: 1, color: 'var(--admingrey)' }}>
                   <Icon />

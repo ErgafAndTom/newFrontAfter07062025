@@ -119,7 +119,7 @@ const NewBooklet = ({
     return data;
   }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, porizka, materialAndDrukFront, materialAndDrukInBody, materialAndDrukBack, pereplet, coverIsOff]);
 
-  const { pricesThis } = useModalPricing("Note", calcData, showNewBooklet);
+  const { pricesThis } = useModalPricing("Note", calcData, showNewBooklet, 300, editingOrderUnit);
 
   // ========== SAVE HOOK ==========
   const { saveOrderUnit } = useOrderUnitSave(

@@ -9,13 +9,13 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const STATUS_MAP = {
-    '0': {label: 'Нове', color: '#b0b0b0'},
-    '1': {label: 'В обробці', color: '#3c60a6'},
-    '2': {label: 'У виробництві', color: '#f5a623'},
-    '3': {label: 'Готове', color: '#0e935b'},
-    '4': {label: 'Видано', color: '#6a5acd'},
-    'new': {label: 'Нове', color: '#b0b0b0'},
-    'Відміна': {label: 'Відміна', color: '#ee3c23'},
+    '-1': {label: 'Скасоване', color: '#ee3c23'},
+    '0':  {label: 'Обробка', color: '#b0b0b0'},
+    '1':  {label: 'Друк', color: '#f5a623'},
+    '2':  {label: 'Постпрес', color: '#3c60a6'},
+    '3':  {label: 'Готово', color: '#0e935b'},
+    '4':  {label: 'Отримано', color: '#6a5acd'},
+    '5':  {label: 'Видалено', color: '#999999'},
 };
 
 const EmptyState = () => (

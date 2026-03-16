@@ -85,7 +85,7 @@ const NewMagnets = ({
     [size, material, count]
   );
 
-  const { pricesThis } = useModalPricing("Magnets", calcData, showNewMagnets);
+  const { pricesThis } = useModalPricing("Magnets", calcData, showNewMagnets, 300, editingOrderUnit);
 
   // Save hook
   const { saveOrderUnit } = useOrderUnitSave(

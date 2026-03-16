@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Barcode Label Calibration Test</title>
+<style>
+  @page {
+    size: 50mm 30mm;
+    margin: 0;
+  }
+  @media print {
+    body { margin: 0; padding: 0; }
+    .no-print { display: none !important; }
+  }
+  @media screen {
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    .label-preview { border: 2px dashed #999; background: #fff; margin: 20px auto; }
+  }
+
+  .label-preview {
+    width: 50mm;
+    height: 30mm;
+    padding: 1mm 2mm;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  /* Калібрувальна рамка — повинна бути рівно по краях наліпки */
+  .calibration-border {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border: 0.5mm solid #000;
+    box-sizing: border-box;
+  }
+
+  /* Хрестики по кутах */
+  .corner { position: absolute; width: 3mm; height: 3mm; }
+  .corner::before, .corner::after {
+    content: ''; position: absolute; background: #000;
+  }
+  .corner::before { width: 3mm; height: 0.3mm; top: 50%; transform: translateY(-50%); }
+  .corner::after { width: 0.3mm; height: 3mm; left: 50%; transform: translateX(-50%); }
+  .corner--tl { top: 1mm; left: 1mm; }
+  .corner--tr { top: 1mm; right: 1mm; }
+  .corner--bl { bottom: 1mm; left: 1mm; }
+  .corner--br { bottom: 1mm; right: 1mm; }
+
+  .label-text {
+    font-size: 7pt;
+    text-align: center;
+    line-height: 1.3;
+    color: #000;
+  }
+  .label-text strong { font-size: 9pt; }
+
+  .no-print {
+    max-width: 600px;
+    margin: 0 auto 20px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .no-print h1 { margin-top: 0; font-size: 18px; }
+  .no-print p { font-size: 14px; line-height: 1.5; color: #333; }
+  .no-print ol { font-size: 14px; line-height: 1.8; }
+  .no-print button {
+    padding: 10px 24px;
+    font-size: 16px;
+    background: #0e935b;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  .no-print button:hover { background: #0b7a4b; }
+
+  .size-controls { margin: 15px 0; }
+  .size-controls label { display: block; margin: 5px 0; font-size: 14px; }
+  .size-controls input { width: 60px; padding: 4px; font-size: 14px; text-align: center; }
+  .size-controls span { color: #666; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="no-print">
+  <h1>Калібрування принтера наліпок</h1>
+  <p>Ця сторінка друкує тестову наліпку з калібрувальною рамкою та хрестиками по кутах.</p>
+
+  <div class="size-controls">
+    <label>Ширина: <input type="number" id="labelW" value="50" step="0.5" min="20" max="100"> mm</label>
+    <label>Висота: <input type="number" id="labelH" value="30" step="0.5" min="10" max="100"> mm</label>
+    <span>Змінюй розмір, якщо наліпка не збігається з рамкою</span>
+  </div>
+
+  <ol>
+    <li>Переконайся що принтер GZM8022 вибраний як принтер за замовчуванням (або вибери його в діалозі друку)</li>
+    <li>Натисни <strong>"Друк тесту"</strong></li>
+    <li>В діалозі друку: <strong>Paper Size = 50x30mm</strong> (або Custom), <strong>Margins = None</strong>, <strong>Scale = 100%</strong></li>
+    <li>Перевір результат:</li>
+  </ol>
+  <ul style="font-size:14px; line-height:1.8;">
+    <li><strong>Рамка рівно по краях наліпки</strong> — все ОК!</li>
+    <li><strong>Рамка зміщена</strong> — підкоригуй margins в налаштуваннях принтера</li>
+    <li><strong>Рамка обрізана</strong> — збільш розмір паперу або зменш наліпку вище</li>
+    <li><strong>Друк виходить за межі</strong> — зменш розмір наліпки вище</li>
+  </ul>
+
+  <button onclick="updateAndPrint()">Друк тесту</button>
+  <button onclick="updateAndPrint()" style="background:#3c60a6; margin-left:10px;">Друк тесту (з штрих-кодом)</button>
+</div>
+
+<div class="label-preview" id="label">
+  <div class="calibration-border"></div>
+  <div class="corner corner--tl"></div>
+  <div class="corner corner--tr"></div>
+  <div class="corner corner--bl"></div>
+  <div class="corner corner--br"></div>
+  <div class="label-text">
+    <strong>ТЕСТ 50x30mm</strong><br>
+    PrintPeaks ERP<br>
+    Калібрування
+  </div>
+</div>
+
+<script>
+function updateAndPrint() {
+  const w = document.getElementById('labelW').value;
+  const h = document.getElementById('labelH').value;
+
+  // Update CSS @page size
+  const style = document.createElement('style');
+  style.textContent = `
+    @page { size: ${w}mm ${h}mm; margin: 0; }
+    .label-preview { width: ${w}mm; height: ${h}mm; }
+  `;
+  document.head.appendChild(style);
+
+  setTimeout(() => window.print(), 100);
+}
+</script>
+
+</body>
+</html>

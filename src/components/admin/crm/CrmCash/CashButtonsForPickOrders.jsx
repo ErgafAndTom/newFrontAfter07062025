@@ -1,22 +1,17 @@
 import React from "react";
 
 const CashButtonsForPickOrders = ({item, thisOrder}) => {
-    const style = {
-        color:
-            item.status === 'створено' ? '#000000' :
-                item.status === 'В роботі' ? '#00ffe7' :
-                    item.status === 'Зроблено' ? '#ffffff' :
-                        item.status === 'Відвантажено' ? '#ffea00' :
-                            item.status === 'Відміна' ? '#72ff00' :
-                                '#ffffff',
-        backgroundColor:
-            item.status === 'створено' ? 'rgba(255,255,255,0)' :
-                item.status === 'В роботі' ? '#f8b316' :
-                    item.status === 'Зроблено' ? '#008148' :
-                        item.status === 'Відвантажено' ? '#3c5fa5' :
-                            item.status === 'Відміна' ? '#ee74a9' :
-                                '#ec3c23',
+    const s = String(item.status);
+    const STATUS_COLORS = {
+        '0':  { color: '#000000', bg: 'rgba(255,255,255,0)' },
+        '1':  { color: '#ffffff', bg: '#f5a623' },
+        '2':  { color: '#ffffff', bg: '#3c60a6' },
+        '3':  { color: '#ffffff', bg: '#0e935b' },
+        '4':  { color: '#ffffff', bg: '#6a5acd' },
+        '-1': { color: '#ffffff', bg: '#ee3c23' },
     };
+    const c = STATUS_COLORS[s] || { color: '#ffffff', bg: '#ec3c23' };
+    const style = { color: c.color, backgroundColor: c.bg };
 
     return (
         <div

@@ -108,7 +108,7 @@ const NewNote = ({
     return data;
   }, [size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, porizka, materialAndDrukFront, materialAndDrukInBody, materialAndDrukBack, pereplet]);
 
-  const { pricesThis } = useModalPricing("Note", calcData, showNewNote);
+  const { pricesThis } = useModalPricing("Note", calcData, showNewNote, 300, editingOrderUnit);
 
   // ========== SAVE HOOK ==========
   const { saveOrderUnit } = useOrderUnitSave(

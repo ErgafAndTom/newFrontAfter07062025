@@ -137,7 +137,7 @@ const NewPhoto = ({
     [selectedService, size, material, color, count, photo]
   );
 
-  const { pricesThis } = useModalPricing("Photo", calcData, showNewPhoto);
+  const { pricesThis } = useModalPricing("Photo", calcData, showNewPhoto, 300, editingOrderUnit);
 
   // Save hook
   const { saveOrderUnit } = useOrderUnitSave(

@@ -31,6 +31,7 @@ const PerepletMet = ({
 }) => {
   const navigate = useNavigate();
   const { isEdit, options } = useModalState(editingOrderUnit, showPerepletMet);
+  const skipInitialPricing = useRef(false);
 
   // ========== STATE ==========
   const [size, setSize] = useState({ x: 210, y: 297 });
@@ -83,6 +84,7 @@ const PerepletMet = ({
   useEffect(() => {
     if (!showPerepletMet) return;
     if (!isEdit) { resetDefaults(); return; }
+    if (isEdit) skipInitialPricing.current = true;
 
     const opt = options || {};
     if (opt.size) setSize(opt.size);
@@ -101,6 +103,21 @@ const PerepletMet = ({
 
   // ========== PRICING ==========
   useEffect(() => {
+    // В edit-mode пропускаємо перший виклик pricing — показуємо збережені ціни
+    if (skipInitialPricing.current) {
+      skipInitialPricing.current = false;
+      if (editingOrderUnit) {
+        const storedPrice = parseFloat(editingOrderUnit.priceForAllThis) || 0;
+        const storedPerUnit = parseFloat(editingOrderUnit.priceForOneThis) || 0;
+        setPricesThis((prev) => ({
+          ...prev,
+          price: storedPrice,
+          priceForOneThis: storedPerUnit,
+        }));
+      }
+      return;
+    }
+
     if (!showPerepletMet) return;
     axios
       .post("/calc/pricing", {

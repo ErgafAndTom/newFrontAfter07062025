@@ -38,7 +38,7 @@ const CustomOrderTable2 = () => {
   const [endDate, setEndDate]       = useState("");
   const [statuses, setStatuses] = useState({
     status0: true, status1: true, status2: true,
-    status3: true, status4: true, status5: true,
+    status3: true, status4: true, status5: false, statusCancelled: false,
   });
   const [payments, setPayments] = useState({
     payment0: true, payment1: true, payment2: true, payment3: true,
@@ -95,7 +95,7 @@ const CustomOrderTable2 = () => {
     search, currentPage, limit, currentUser?.role,
     sortColumn, sortReverse,
     startDate, endDate,
-    statuses.status0, statuses.status1, statuses.status2, statuses.status3, statuses.status4, statuses.status5,
+    statuses.status0, statuses.status1, statuses.status2, statuses.status3, statuses.status4, statuses.status5, statuses.statusCancelled,
     payments.payment0, payments.payment1, payments.payment2, payments.payment3,
     paymentsType.payment0, paymentsType.payment1, paymentsType.payment2, paymentsType.payment3,
   ]); // eslint-disable-line
@@ -214,7 +214,7 @@ const CustomOrderTable2 = () => {
 
       {data?.rows.map(order => {
         const isExpanded   = expandedOrderId === order.id;
-        const isCancelled  = parseInt(order.status) === 5;
+        const isCancelled  = parseInt(order.status) === -1;
         const rowBg        = getStatusBg(order.status, isCancelled);
         const priceIsZero  = !order.allPrice || order.allPrice === '0.00' || order.allPrice === 0;
         const deadlineVal  = resolveOrderDeadline(order);

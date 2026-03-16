@@ -3,23 +3,31 @@ import Image from "react-bootstrap/Image";
 import whiteSVG from "../../../whiteSVG.svg";
 import Form from "react-bootstrap/Form";
 
+const STATUS_LABELS = {
+    '0': 'Обробка', '1': 'Друк', '2': 'Постпрес',
+    '3': 'Готово', '4': 'Отримано', '-1': 'Скасоване',
+};
+
+const STATUS_COLORS = {
+    '0':  { color: '#000000', bg: 'rgba(255,255,255,0)' },
+    '1':  { color: '#ffffff', bg: '#f5a623' },
+    '2':  { color: '#ffffff', bg: '#3c60a6' },
+    '3':  { color: '#ffffff', bg: '#0e935b' },
+    '4':  { color: '#ffffff', bg: '#6a5acd' },
+    '-1': { color: '#ffffff', bg: '#ee3c23' },
+};
+
 const StatusChanger = ({thisOrder, handleThisOrderChange, setNewThisOrder}) => {
     const [isLoad, setIsLoad] = useState(false);
     const [typeSelect, setTypeSelect] = useState("");
     const [users, setUsers] = useState([]);
     const [show, setShow] = useState(false);
-    let statusesArray = [
-        "створено",
-        "В роботі",
-        "Зроблено",
-        "Відвантажено",
-        "Відміна",
-    ]
+    const statusesArray = ['0', '1', '2', '3', '4', '-1'];
 
     const statuses = [
-        {status: 'В роботі', name: "Взяти у роботу"},
-        {status: 'Зроблено', name: "Готово"},
-        {status: "Відвантажено", name: "Віддати замовлення"}
+        {status: '1', name: "На друк"},
+        {status: '3', name: "Готово"},
+        {status: '4', name: "Віддати замовлення"}
     ];
     const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -46,47 +54,27 @@ const StatusChanger = ({thisOrder, handleThisOrderChange, setNewThisOrder}) => {
         setShow(false);
     };
 
-    const style = {
-        color:
-            thisOrder.status === 'створено' ? '#000000' :
-                thisOrder.status === 'В роботі' ? '#00ffe7' :
-                    thisOrder.status === 'Зроблено' ? '#ffffff' :
-                        thisOrder.status === 'Відвантажено' ? '#ffea00' :
-                            thisOrder.status === 'Відміна' ? '#72ff00' :
-                                '#ffffff',
-        backgroundColor:
-            thisOrder.status === 'створено' ? 'rgba(255,255,255,0)' :
-                thisOrder.status === 'В роботі' ? '#f8b316' :
-                    thisOrder.status === 'Зроблено' ? '#008148' :
-                        thisOrder.status === 'Відвантажено' ? '#3c5fa5' :
-                            thisOrder.status === 'Відміна' ? '#ee74a9' :
-                                '#ec3c23',
+    const getStatusStyle = (status) => {
+        const s = String(status);
+        const c = STATUS_COLORS[s] || { color: '#ffffff', bg: '#ec3c23' };
+        return { color: c.color, backgroundColor: c.bg };
     };
 
+    const style = getStatusStyle(thisOrder.status);
+
     useEffect(() => {
-        const index = statuses.map(statusObj => statusObj.status).indexOf(thisOrder.status);
+        const index = statuses.map(statusObj => statusObj.status).indexOf(String(thisOrder.status));
         if (index !== -1) {
             setCurrentIndex(index);
         }
     }, [thisOrder]);
 
-    // remaining part of the component
-
     return (
         <div className="d-flex flex-row" style={{margin: "auto"}}>
-            <div style={{
-                // border: "solid 1px #cccabf",
-                // borderRadius: "0"
-            }}>
+            <div>
                 <div style={style} className="btn adminFontTable borderR0">
-                    {thisOrder.status}
+                    {STATUS_LABELS[String(thisOrder.status)] || thisOrder.status}
                 </div>
-                {/*<div style={{*/}
-                {/*    border: "solid 1px #cccabf",*/}
-                {/*    borderRadius: "0"*/}
-                {/*}} className="btn adminFontTable hoverBlack" onClick={(event) => preHandleThisOrderChange('status', event)}>*/}
-                {/*    {statuses[currentIndex].name}*/}
-                {/*</div>*/}
             </div>
 
             <div>
@@ -96,19 +84,14 @@ const StatusChanger = ({thisOrder, handleThisOrderChange, setNewThisOrder}) => {
                         borderRadius: "0"
                     }}>
                         <div style={{
-                            // maxHeight: '34vh',
                             zIndex: "999",
                             position: "fixed",
                             background: "#dcd9ce",
-                            // top: "17.8vh",
-                            // left: "60vw",
-                            // width: "40vw",
                             marginTop: "-20vh",
                             marginLeft: "-10vw",
                             width: "40.3vw"
                         }} className="shadow-lg">
                             <div style={{
-                                // height: '30vh',
                                 maxHeight: '34vh',
                                 overflow: 'auto',
                             }}>
@@ -118,25 +101,12 @@ const StatusChanger = ({thisOrder, handleThisOrderChange, setNewThisOrder}) => {
                                         style={{
                                             border: "solid 1px #cccabf",
                                             borderRadius: "0",
-                                            color:
-                                                thing === 'створено' ? '#000000' :
-                                                    thing === 'В роботі' ? '#00ffe7' :
-                                                        thing === 'Зроблено' ? '#ffffff' :
-                                                            thing === 'Відвантажено' ? '#ffea00' :
-                                                                thing === 'Відміна' ? '#72ff00' :
-                                                                    '#ffffff',
-                                            backgroundColor:
-                                                thing === 'створено' ? 'rgba(255,255,255,0)' :
-                                                    thing === 'В роботі' ? '#f8b316' :
-                                                        thing === 'Зроблено' ? '#008148' :
-                                                            thing === 'Відвантажено' ? '#3c5fa5' :
-                                                                thing === 'Відміна' ? '#ee74a9' :
-                                                                    '#ec3c23',
+                                            ...getStatusStyle(thing),
                                         }}
                                         key={thing + index}
                                         onClick={(event) => preHandleThisOrderChange2('status', event, thing)}
                                     >
-                                        {thing}
+                                        {STATUS_LABELS[thing] || thing}
                                     </div>
                                 ))}
                             </div>

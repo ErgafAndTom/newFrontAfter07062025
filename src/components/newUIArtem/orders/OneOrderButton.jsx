@@ -1,21 +1,14 @@
 import React from "react";
 
 const OneOrderButton = ({item, thisOrder}) => {
+    const s = String(item.status);
+    const BG_MAP = {
+        '0': 'rgb(224,224,224)', '1': '#f5a623', '2': '#3c60a6',
+        '3': '#0e935b', '4': '#6a5acd', '-1': '#ee3c23',
+    };
     const style = {
-        color:
-        //     item.status === 'створено' ? '#000000' :
-        //         item.status === 'В роботі' ? '#00ffe7' :
-        //             item.status === 'Зроблено' ? '#ffffff' :
-        //                 item.status === 'Відвантажено' ? '#ffea00' :
-        //                     item.status === 'Відміна' ? '#72ff00' :
-                                '#000000',
-        backgroundColor:
-            item.status === 'Cтворено' ? 'rgb(224,224,224)' :
-                item.status === 'В роботі' ? '#fab416' :
-                    item.status === 'Зроблено' ? '#008249' :
-                        item.status === 'Відвантажено' ? '#3c60a6' :
-                            item.status === 'Відміна' ? '#ee3c23' :
-                                '#ee3c23',
+        color: '#000000',
+        backgroundColor: BG_MAP[s] || '#ee3c23',
     };
 
     return (

@@ -1,0 +1,231 @@
+/* ===== MugMockupModal ===== */
+.mmm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mmm-modal {
+    background: var(--adminfon, #f7f5ee);
+    width: 90vw;
+    max-width: 860px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header */
+.mmm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--adminorange, #f5a623);
+}
+.mmm-title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--admingrey, #666);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.mmm-close {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: var(--admingrey, #666);
+    line-height: 1;
+    padding: 0 0.3rem;
+}
+.mmm-close:hover { color: var(--adminred, #ee3c23); }
+
+/* Body — два стовпці */
+.mmm-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+
+/* Canvas area (palette + 3D) */
+.mmm-canvas-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    position: relative;
+}
+
+/* Color palette — top-left row */
+.mmm-color-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 8px 10px;
+    background: var(--adminfonelement, #f1eee7);
+    border-bottom: 1px solid #e0ddd4;
+}
+.mmm-color-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: border-color 0.15s, transform 0.15s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.mmm-color-dot:hover {
+    transform: scale(1.15);
+    border-color: var(--adminorange, #f5a623);
+}
+.mmm-color-dot.mmm-color-active {
+    border-color: var(--adminorange, #f5a623);
+    box-shadow: 0 0 0 2px var(--adminorange, #f5a623);
+    transform: scale(1.1);
+}
+/* White dot needs visible border */
+.mmm-color-dot[style*="f5f5f0"] {
+    border-color: #ccc;
+}
+.mmm-color-dot[style*="f5f5f0"].mmm-color-active {
+    border-color: var(--adminorange, #f5a623);
+}
+
+/* 3D Canvas */
+.mmm-canvas-wrap {
+    flex: 1;
+    min-height: 350px;
+    background: linear-gradient(135deg, #e8e6df 0%, #f7f5ee 100%);
+    position: relative;
+}
+.mmm-canvas-wrap canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Controls panel */
+.mmm-controls {
+    width: 260px;
+    min-width: 260px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    border-left: 1px solid #e0ddd4;
+    overflow-y: auto;
+}
+
+/* Buttons */
+.mmm-btn {
+    display: block;
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 2px solid var(--admingrey, #666);
+    background: var(--adminfonelement, #f1eee7);
+    color: var(--admingrey, #666);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.mmm-btn:hover {
+    border-color: var(--adminorange, #f5a623);
+    color: var(--adminorange, #f5a623);
+}
+.mmm-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.mmm-btn-upload { border-color: var(--adminblue, #3c60a6); color: var(--adminblue, #3c60a6); }
+.mmm-btn-upload:hover { background: var(--adminlightblue, #e8ecf4); }
+
+.mmm-btn-save { border-color: var(--admingreen, #0e935b); color: var(--admingreen, #0e935b); }
+.mmm-btn-save:hover { background: var(--adminlightgreen, #e2f2eb); }
+
+.mmm-btn-copy { border-color: var(--adminorange, #f5a623); color: var(--adminorange, #f5a623); }
+.mmm-btn-copy:hover { background: var(--adminlightorange, #fef4e5); }
+
+/* Sliders */
+.mmm-slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.mmm-slider-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+.mmm-slider-label span {
+    font-size: 0.75rem;
+    color: var(--admingrey, #666);
+    font-weight: 600;
+}
+.mmm-slider-label input[type="range"] {
+    width: 100%;
+    accent-color: var(--adminorange, #f5a623);
+}
+
+/* Share block */
+.mmm-share-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.mmm-share-url {
+    font-size: 0.7rem;
+    word-break: break-all;
+    color: var(--adminblue, #3c60a6);
+    padding: 0.4rem;
+    background: var(--adminfonelement, #f1eee7);
+    border: 1px solid #e0ddd4;
+}
+
+/* Existing mockups */
+.mmm-existing {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+}
+.mmm-existing-item {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.5rem;
+    color: var(--admingrey, #666);
+}
+.mmm-existing-item.mmm-status-confirmed {
+    color: var(--admingreen, #0e935b);
+    background: var(--adminlightgreen, #e2f2eb);
+}
+.mmm-existing-item.mmm-status-pending {
+    color: var(--adminorange, #f5a623);
+    background: var(--adminlightorange, #fef4e5);
+}
+
+/* Error */
+.mmm-error {
+    font-size: 0.8rem;
+    color: var(--adminred, #ee3c23);
+    padding: 0.3rem;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 640px) {
+    .mmm-modal { width: 98vw; max-height: 95vh; }
+    .mmm-body { flex-direction: column; }
+    .mmm-controls { width: 100%; min-width: 0; border-left: none; border-top: 1px solid #e0ddd4; }
+    .mmm-canvas-wrap { min-height: 280px; }
+    .mmm-color-palette { justify-content: center; }
+    .mmm-color-dot { width: 20px; height: 20px; }
+}

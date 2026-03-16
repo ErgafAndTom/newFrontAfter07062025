@@ -1,0 +1,239 @@
+/* ===== BarcodeLabel — compact & full variants ===== */
+
+.bc-label {
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.15s;
+}
+.bc-label:hover { opacity: 0.7; }
+.bc-label:active { opacity: 0.5; }
+
+/* --- Compact (для таблиць) --- */
+.bc-label--compact {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  max-width: 70px;
+  overflow: hidden;
+}
+.bc-label--compact svg {
+  display: block;
+}
+
+/* --- Full (для сторінки замовлення) --- */
+.bc-label--full {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+}
+.bc-label--full:hover {
+  background: var(--adminlightgreen, #e2f2eb);
+}
+
+/* Баркод замовлення — по розміру штрих-коду */
+.bc-label--order.bc-label--full {
+  flex-shrink: 0;
+  width: auto;
+}
+.bc-label--order.bc-label--full .bc-label__barcode {
+  width: auto;
+}
+.bc-label--order.bc-label--full .bc-label__barcode svg {
+  width: auto;
+  max-width: 100%;
+}
+
+/* Підпис під баркодом */
+.bc-label__caption {
+  font-size: 10px;
+  color: var(--admingrey, #666);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.6;
+}
+
+.bc-label__barcode {
+  line-height: 0;
+}
+.bc-label__barcode svg {
+  display: block;
+}
+
+.bc-label__info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+.bc-label__text {
+  font-size: var(--font-size-xs, 12px);
+  color: var(--admingrey, #666);
+  font-weight: 600;
+}
+.bc-label__sub {
+  font-size: 10px;
+  color: var(--admingrey, #666);
+  opacity: 0.7;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Type accents (borders removed per user request) --- */
+
+/* --- Printing state --- */
+.bc-label--printing { opacity: 0.4; pointer-events: none; }
+
+/* --- Niimbot connect button --- */
+.bc-niimbot-btn {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 10px;
+  border: 1.5px solid var(--adminblue, #3c60a6);
+  background: transparent;
+  color: var(--adminblue, #3c60a6);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.bc-niimbot-btn:hover {
+  border-color: var(--adminblue, #3c60a6);
+  box-shadow: 0 0 0 1px var(--adminblue, #3c60a6);
+}
+
+/* Logo SVG */
+.bc-niimbot-logo {
+  height: 18px;
+  width: auto;
+  display: block;
+}
+
+/* Status dot */
+.bc-niimbot-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background-color 0.3s;
+}
+
+/* --- Disconnected --- */
+.bc-niimbot-btn--disconnected .bc-niimbot-dot {
+  background-color: var(--adminred, #ee3c23);
+}
+
+/* --- Connecting: animated border + pulsing dot --- */
+.bc-niimbot-btn--connecting {
+  cursor: wait;
+  animation: niimbot-border-pulse 1.2s ease-in-out infinite;
+}
+.bc-niimbot-btn--connecting .bc-niimbot-dot {
+  background-color: var(--adminorange, #f5a623);
+  animation: niimbot-dot-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes niimbot-border-pulse {
+  0%, 100% { border-color: var(--adminblue, #3c60a6); box-shadow: 0 0 0 0 transparent; }
+  50% { border-color: var(--adminblue, #3c60a6); box-shadow: 0 0 6px 1px var(--adminblue, #3c60a6); }
+}
+@keyframes niimbot-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* --- Connected: green dot --- */
+.bc-niimbot-btn--connected {
+  border-color: var(--adminblue, #3c60a6);
+}
+.bc-niimbot-btn--connected .bc-niimbot-dot {
+  background-color: var(--admingreen, #0e935b);
+}
+
+/* Status row: dot + battery */
+.bc-niimbot-status-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Battery percentage text */
+.bc-niimbot-battery {
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--admingreen, #0e935b);
+}
+
+/* ===== Barcode Scanner button ===== */
+.bc-scanner-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 8px;
+  border: 1.5px solid var(--adminpurple, #6a5acd);
+  background: transparent;
+  color: var(--adminpurple, #6a5acd);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.bc-scanner-btn:hover {
+  border-color: var(--adminpurple, #6a5acd);
+  box-shadow: 0 0 0 1px var(--adminpurple, #6a5acd);
+}
+
+.bc-scanner-logo {
+  height: 22px;
+  width: auto;
+  display: block;
+}
+
+/* Scanner status dot */
+.bc-scanner-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background-color 0.3s;
+}
+
+/* --- Scanner Disconnected --- */
+.bc-scanner-btn--disconnected .bc-scanner-dot {
+  background-color: var(--adminred, #ee3c23);
+}
+
+/* --- Scanner Connecting: animated border + pulsing dot --- */
+.bc-scanner-btn--connecting {
+  cursor: wait;
+  animation: scanner-border-pulse 1.2s ease-in-out infinite;
+}
+.bc-scanner-btn--connecting .bc-scanner-dot {
+  background-color: var(--adminorange, #f5a623);
+  animation: scanner-dot-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes scanner-border-pulse {
+  0%, 100% { border-color: var(--adminpurple, #6a5acd); box-shadow: 0 0 0 0 transparent; }
+  50% { border-color: var(--adminpurple, #6a5acd); box-shadow: 0 0 6px 1px var(--adminpurple, #6a5acd); }
+}
+@keyframes scanner-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* --- Scanner Connected: green dot --- */
+.bc-scanner-btn--connected {
+  border-color: var(--adminpurple, #6a5acd);
+}
+.bc-scanner-btn--connected .bc-scanner-dot {
+  background-color: var(--admingreen, #0e935b);
+}
