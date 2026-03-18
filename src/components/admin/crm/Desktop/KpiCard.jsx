@@ -69,7 +69,7 @@ const MiniSparkline = ({data, color = '#0e935b'}) => {
     );
 };
 
-const KpiCard = ({label, value, suffix = 'грн', change = null, color, subText, sparkData, sparkColor}) => {
+const KpiCard = ({label, value, suffix = 'грн', change = null, color, subText, onSubTextClick, sparkData, sparkColor}) => {
     const animatedValue = useAnimatedValue(typeof value === 'number' ? value : 0);
     const changeColor = change > 0 ? 'var(--admingreen, #0e935b)'
         : change < 0 ? 'var(--adminred, #ee3c23)'
@@ -95,7 +95,14 @@ const KpiCard = ({label, value, suffix = 'грн', change = null, color, subText
                     {arrow} {Math.abs(change).toFixed(1)}% vs попередній
                 </div>
             )}
-            {subText && <div className="dsh-kpi-sub">{subText}</div>}
+            {subText && (
+                <div
+                    className={`dsh-kpi-sub${onSubTextClick ? ' dsh-kpi-sub-link' : ''}`}
+                    onClick={onSubTextClick || undefined}
+                >
+                    {subText}
+                </div>
+            )}
             {sparkData && sparkData.length >= 2 && (
                 <div className="dsh-kpi-spark">
                     <MiniSparkline data={sparkData} color={sparkColor || '#0e935b'}/>

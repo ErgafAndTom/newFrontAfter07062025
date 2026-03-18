@@ -248,6 +248,71 @@
   line-height: 1.25;
 }
 
+/* ── Sort button ── */
+.tg-sort-btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 100%;
+  min-height: var(--nav-min-h, 36px);
+  padding: 0;
+  background: var(--adminfon, #f7f5ee);
+  border: 2px solid var(--adminorange, #f5a623);
+  border-radius: 0;
+  color: var(--adminorange, #f5a623);
+  cursor: pointer;
+  transition: 0.3s;
+  box-sizing: border-box;
+  margin-right: 4px;
+}
+.tg-sort-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+.tg-sort-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+.tg-sort-btn .flip-front {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tg-sort-btn:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+.tg-sort-btn:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+.tg-sort-btn:hover {
+  color: var(--adminorange, #f5a623);
+  border-color: var(--adminorange, #f5a623);
+  background: var(--adminfon, #f7f5ee);
+}
+
 /* ── Logout button ── */
 .tg-logout-btn {
   position: relative;

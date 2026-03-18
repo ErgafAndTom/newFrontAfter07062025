@@ -30,15 +30,17 @@
 /* Конверт 1: ЗЛІВА — кнопки дій (Нове замовлення, Створити клієнта) */
 .nav-actions-group {
   flex: 0 0 auto;
-  width: 24vw;
+  width: var(--nui-right-col-width, 28vw);
   height: 4vh;
   min-height: var(--nav-min-h, 36px);
-  margin: 1rem;
+  margin: 1rem 0 0.5rem 0;
+  padding: 0 1rem;
   display: flex;
   align-items: stretch;
   justify-content: flex-start;
-  background: var(--adminfonelement, #f2f0e9);
+  background: transparent;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* Кнопки всередині конверту 1 — розтягнути на увесь конверт, стиль як .btn */
@@ -55,7 +57,7 @@
   background: var(--adminfonelement, #f2f0e9) !important;
   border: 2px solid var(--adminorange, #f5a623) !important;
   border-radius: 0 !important;
-  color: var(--adminblue, #3c60a6) !important;
+  color: var(--admingrey, #666666) !important;
 }
 
 .nav-actions-group .buttonSkewedOrder::before,
@@ -68,7 +70,7 @@
 /* Конверт 2: ПО ЦЕНТРУ — пошук, юзер, сповіщення, вихід */
 .nav-center-group {
   flex: 0 0 auto;
-  width: 26vw;
+  width: var(--nui-center-col-width, 26vw);
   height: 4vh;
   min-height: var(--nav-min-h, 36px);
   margin: 1rem 1rem 1rem 0;
@@ -162,7 +164,7 @@
   height: 100% !important;
   background: var(--adminfonelement, #f2f0e9) !important;
   background-color: var(--adminfonelement, #f2f0e9) !important;
-  border-bottom: 2px solid var(--adminorange, #f5a623) !important;
+  border-bottom: 2px solid var(--admingrey, #666666) !important;
   padding-right: 1.8rem;
   padding-left: 0.4rem;
 }
@@ -171,7 +173,7 @@
   width: 100% !important;
   background-color: var(--adminfonelement, #f2f0e9) !important;
   background-image: none !important;
-  border-bottom: 2px solid var(--adminorange, #f5a623) !important;
+  border-bottom: 2px solid var(--admingrey, #666666) !important;
   padding-left: 0.4rem !important;
 }
 
@@ -233,8 +235,8 @@
 
 /* Конверт 3: СПРАВА — навігаційні посилання (Головна → Зміни) */
 .btnBlock {
-  flex: 0 0 auto;
-  width: 47.5vw;
+  flex: 1 1 auto;
+  width: auto;
   height: 4vh;
   min-height: var(--nav-min-h, 36px);
   margin-top: 1rem;
@@ -265,9 +267,9 @@
 }
 
 .btnBlock .btnRow .btn {
-  flex: 1 !important;
+  flex: 0 1 auto !important;
   display: flex !important;
-  padding: 0 !important;
+  padding: 0 0.6vw !important;
   min-width: 0 !important;
 }
 
@@ -896,6 +898,26 @@
 .nav-right-controls .nav-telegram-btn.buttonSkewedOrder.active::before,
 .nav-right-controls .nav-telegram-btn.buttonSkewedOrder.active::after {
   background-color: var(--adminlightcyan, #e0f7fa) !important;
+}
+
+/* ── Settings button in center nav ── */
+.nav-settings-center-btn {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  background: var(--adminfonelement, #f2f0e9) !important;
+  border: 2px solid var(--adminorange, #f5a623) !important;
+  border-radius: 0 !important;
+  color: var(--adminorange, #f5a623) !important;
+  cursor: pointer;
+  padding: 0 !important;
+  transition: 0.3s;
+}
+
+.nav-settings-center-btn:hover,
+.nav-settings-center-btn.active {
+  background: var(--adminlightorange, #fef4e5) !important;
+  color: var(--adminorange, #f5a623) !important;
 }
 
 /* ── Telegram модалка ── */

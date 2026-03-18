@@ -4,6 +4,7 @@ import { onScan } from './barcodeScannerService';
 import ClientCabinet from '../userInNewUiArtem/ClientCabinet';
 
 const SCAN_INTERVAL_MS = 150; // макс. інтервал між натисканнями для сканера (BT може бути повільніший за USB)
+const FAST_SCAN_MS     = 50;  // інтервал для "точно сканер" (навіть якщо інпут у фокусі)
 const MIN_BARCODE_LEN  = 4;   // мін. довжина штрих-коду (ORD1)
 
 // Маппінг українська розкладка → латиниця (сканер натискає фізичні клавіші,
@@ -59,12 +60,39 @@ export default function BarcodeScannerListener() {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (isInputFocused()) return;
-
       const now = Date.now();
+      const gap = now - lastKeyTimeRef.current;
+      const inputFocused = isInputFocused();
+
+      // Якщо інпут у фокусі — збираємо буфер тільки при швидкому введенні (сканер)
+      // Якщо інпут НЕ у фокусі — збираємо при будь-якому введенні < SCAN_INTERVAL_MS
+      const maxInterval = inputFocused ? FAST_SCAN_MS : SCAN_INTERVAL_MS;
 
       if (e.key === 'Enter') {
         if (bufferRef.current.length >= MIN_BARCODE_LEN) {
+          // Це сканер — перехоплюємо Enter, щоб не відправляв форму
+          e.preventDefault();
+          e.stopPropagation();
+          // Якщо сканер ввів символи в інпут — очищуємо їх
+          if (inputFocused) {
+            const el = document.activeElement;
+            if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) {
+              const val = el.value || '';
+              const barcode = bufferRef.current;
+              // Видаляємо символи штрих-коду з кінця інпуту
+              if (val.endsWith(barcode)) {
+                const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+                  window.HTMLInputElement.prototype, 'value'
+                )?.set || Object.getOwnPropertyDescriptor(
+                  window.HTMLTextAreaElement.prototype, 'value'
+                )?.set;
+                if (nativeInputValueSetter) {
+                  nativeInputValueSetter.call(el, val.slice(0, -barcode.length));
+                  el.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+              }
+            }
+          }
           processBarcode(bufferRef.current);
         }
         bufferRef.current = '';
@@ -75,7 +103,7 @@ export default function BarcodeScannerListener() {
       // Тільки друковані символи
       if (!e.key || e.key.length !== 1) return;
 
-      if (now - lastKeyTimeRef.current > SCAN_INTERVAL_MS && bufferRef.current.length > 0) {
+      if (gap > maxInterval && bufferRef.current.length > 0) {
         // Занадто великий інтервал — скидаємо (це ручний набір)
         bufferRef.current = '';
       }

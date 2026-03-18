@@ -209,12 +209,15 @@ const ClientFilesPanel = ({
     if (!userId) return;
     try {
       const fileSets = loadFileSettings();
-      await axios.post(`/api/client-files/users/${userId}/open-folder`, {
+      const { data } = await axios.post(`/api/client-files/users/${userId}/open-folder`, {
         folderMode: fileSets.folderMode,
         networkPath: fileSets.networkPath,
-        networkUser: fileSets.networkUser,
-        networkPass: fileSets.networkPass,
       });
+      // Відкриваємо папку на робочому ПК через кастомний протокол ppfolder://
+      if (data.folderPath) {
+        const uncPath = data.folderPath.replace(/\//g, '\\');
+        window.open(`ppfolder://${encodeURIComponent(uncPath)}`, '_self');
+      }
     } catch (e) {
       setError("Не вдалось відкрити папку");
     }

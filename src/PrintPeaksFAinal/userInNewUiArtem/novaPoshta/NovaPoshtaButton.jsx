@@ -49,7 +49,9 @@ const NovaPoshtaButton = ({ onDepartmentSelect }) => {
             setSelectedDepartmentId(event.data.id);
             if (onDepartmentSelect) {
                 console.log('[NP Widget] Full data:', JSON.stringify(event.data, null, 2));
-                onDepartmentSelect(event.data.id, event.data, newDescriptionText, event.data.refCity.externalId, event.data.externalId, event.data.number);
+                const cityRef = event.data.refCity?.externalId || event.data.refCity?.id || event.data.cityRef || '';
+                const warehouseRef = event.data.externalId || event.data.ref || '';
+                onDepartmentSelect(event.data.id, event.data, newDescriptionText, cityRef, warehouseRef, event.data.number);
             }
             closeFrame();
             return;

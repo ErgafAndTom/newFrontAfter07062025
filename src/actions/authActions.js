@@ -49,6 +49,10 @@ export const login = (credentials, navigate) => async (dispatch) => {
             localStorage.setItem('token', token);
             dispatch({ type: LOGIN_SUCCESS, payload: token });
             dispatch(fetchUser());
+            // Міграція localStorage налаштувань на сервер (один раз)
+            import('../hooks/useUserSettings').then(({ migrateLocalStorageToServer }) => {
+              migrateLocalStorageToServer();
+            }).catch(() => {});
             navigate('/Desktop');
         } else {
             throw new Error('Failed to retrieve a valid token.');

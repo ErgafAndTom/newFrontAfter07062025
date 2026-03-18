@@ -110,7 +110,7 @@ const NovaPoshtaAddressButton = ({ onAddressSelect, cityName }) => {
         const city = selectedCity?.MainDescription || cityQuery;
         const street = selectedStreet?.Description || streetQuery;
         const cityRef = selectedCity?.DeliveryCity || selectedCity?.Ref || '';
-        const streetRef = selectedStreet?.SettlementStreetRef || '';
+        const streetRef = selectedStreet?.SettlementStreetRef || selectedStreet?.Ref || '';
 
         const text = `${city}, ${street}${building ? ', ' + building : ''}${flat ? ', кв. ' + flat : ''}`;
         setSelectedAddressText(text);

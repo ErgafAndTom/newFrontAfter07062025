@@ -65,7 +65,7 @@ export default function TelegramBotAkk() {
           j.state === "NO_CLIENT" ||
           j.state === "SESSION_EXISTS_NOT_READY"
         ) {
-          setTimeout(checkLogin, 700);
+          setTimeout(checkLogin, 5000); // 5с замість 700мс — менше навантаження на Telegram
           return;
         }
 
@@ -92,7 +92,7 @@ export default function TelegramBotAkk() {
   // LOGS POLLING (до авторизации)
   // =====================================================================
   useEffect(() => {
-    // if (authState === "ready") return;
+    if (authState === "ready") return; // Не полити логи коли вже авторизований
     let mounted = true;
 
     async function pollLogs() {
@@ -101,7 +101,7 @@ export default function TelegramBotAkk() {
           const { data: j } = await axios.get(API + "/login/status");
           if (j.logs) setConnectionLogs(j.logs.slice(-200));
         } catch {}
-        await new Promise((r) => setTimeout(r, 3000));
+        await new Promise((r) => setTimeout(r, 10000)); // 10с замість 3с
       }
     }
 

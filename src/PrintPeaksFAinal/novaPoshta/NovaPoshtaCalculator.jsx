@@ -621,7 +621,9 @@ export default function NovaPoshtaCalculator({ onClose }) {
                       )}
 
                       {/* Envelope recommendation — hide when waybills exist */}
-                      {rec && !isEditing && waybills.length === 0 && (
+                      {rec && !isEditing && waybills.length === 0 && (() => {
+                        const activeEnvName = ov?.envelope || rec.recommended?.name;
+                        return (
                         <div className="npc-envelope-row">
                           <div className="npc-envelopes">
                             {rec.allEnvelopes.map((env) => (
@@ -629,7 +631,7 @@ export default function NovaPoshtaCalculator({ onClose }) {
                                 className={`npc-envelope${
                                   env.fits ? " npc-envelope-fits" : ""
                                 }${
-                                  rec.recommended?.name === env.name
+                                  activeEnvName === env.name
                                     ? " npc-envelope-recommended"
                                     : ""
                                 }`}
@@ -683,7 +685,8 @@ export default function NovaPoshtaCalculator({ onClose }) {
                             </div>
                           </div>
                         </div>
-                      )}
+                        );
+                      })()}
 
                       {/* Edit mode — hide when waybills exist */}
                       {isEditing && ov && waybills.length === 0 && (

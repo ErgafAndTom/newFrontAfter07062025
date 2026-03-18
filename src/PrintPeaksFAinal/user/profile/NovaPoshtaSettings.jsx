@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import axios from "../../../api/axiosInstance";
 import { getSettings, saveSettings } from "../../barcode/qzTrayService";
 import "./NovaPoshtaSettings.css";
@@ -25,10 +25,17 @@ const RESOLUTION_OPTIONS = [
 
 export default function NovaPoshtaSettings() {
   const [settings, setSettings] = useState(getSettings);
-  const [dirty, setDirty] = useState(false);
+  const [dirtyFields, setDirtyFields] = useState(new Set());
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState(null);
   const [showApiKey, setShowApiKey] = useState(false);
+
+  // Завантажити налаштування з сервера
+  useEffect(() => {
+    import('../../../hooks/useUserSettings').then(({ loadSetting }) => {
+      loadSetting('qztray_settings', getSettings()).then(val => setSettings(val));
+    }).catch(() => {});
+  }, []);
 
   // Printer connection test
   const [connTesting, setConnTesting] = useState(false);
@@ -40,12 +47,21 @@ export default function NovaPoshtaSettings() {
 
   const update = useCallback((key, value) => {
     setSettings(prev => ({ ...prev, [key]: value }));
-    setDirty(true);
+    setDirtyFields(prev => new Set(prev).add(key));
   }, []);
 
-  const save = useCallback(() => {
+  const saveField = useCallback((field) => {
     saveSettings(settings);
-    setDirty(false);
+    setDirtyFields(prev => {
+      const next = new Set(prev);
+      next.delete(field);
+      return next;
+    });
+  }, [settings]);
+
+  const saveAll = useCallback(() => {
+    saveSettings(settings);
+    setDirtyFields(new Set());
   }, [settings]);
 
   const reset = useCallback(() => {
@@ -65,7 +81,7 @@ export default function NovaPoshtaSettings() {
     };
     setSettings(defaults);
     saveSettings(defaults);
-    setDirty(false);
+    setDirtyFields(new Set());
   }, []);
 
   const handleTestConnection = async () => {
@@ -126,6 +142,11 @@ export default function NovaPoshtaSettings() {
     }
   };
 
+  const SaveBtn = ({ field }) =>
+    dirtyFields.has(field) ? (
+      <button className="nps-btn nps-btn--field-save" onClick={() => saveField(field)}>✓</button>
+    ) : null;
+
   return (
     <div className="nps-wrap">
       {/* ── Заголовок ── */}
@@ -182,6 +203,7 @@ export default function NovaPoshtaSettings() {
             onChange={e => update('printerHost', e.target.value)}
             placeholder="192.168.0.47"
           />
+          <SaveBtn field="printerHost" />
         </div>
         <div className="nps-row">
           <label className="nps-label">Порт</label>
@@ -193,6 +215,7 @@ export default function NovaPoshtaSettings() {
             value={settings.printerPort}
             onChange={e => update('printerPort', Math.max(1, Math.min(65535, Number(e.target.value))))}
           />
+          <SaveBtn field="printerPort" />
         </div>
         <div className="nps-row">
           <label className="nps-label">З'єднання</label>
@@ -224,15 +247,15 @@ export default function NovaPoshtaSettings() {
             value={`${settings.labelWidth}x${settings.labelHeight}`}
             onChange={e => {
               const [w, h] = e.target.value.split('x').map(Number);
-              update('labelWidth', w);
               setSettings(prev => ({ ...prev, labelWidth: w, labelHeight: h }));
-              setDirty(true);
+              setDirtyFields(prev => new Set(prev).add('labelWidth'));
             }}
           >
             {LABEL_SIZE_OPTIONS.map(o => (
               <option key={`${o.w}x${o.h}`} value={`${o.w}x${o.h}`}>{o.label}</option>
             ))}
           </select>
+          <SaveBtn field="labelWidth" />
         </div>
         <div className="nps-row">
           <label className="nps-label">Проміжок (gap)</label>
@@ -245,6 +268,7 @@ export default function NovaPoshtaSettings() {
             onChange={e => update('gap', Math.max(0, Math.min(10, Number(e.target.value))))}
           />
           <span className="nps-value">мм</span>
+          <SaveBtn field="gap" />
         </div>
       </div>
 
@@ -262,6 +286,7 @@ export default function NovaPoshtaSettings() {
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>
+          <SaveBtn field="speed" />
         </div>
         <div className="nps-row">
           <label className="nps-label">Щільність (density)</label>
@@ -277,6 +302,7 @@ export default function NovaPoshtaSettings() {
             />
             <span className="nps-density-value">{settings.density}</span>
           </div>
+          <SaveBtn field="density" />
         </div>
         <div className="nps-row">
           <label className="nps-label">Роздільна здатність</label>
@@ -289,6 +315,7 @@ export default function NovaPoshtaSettings() {
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>
+          <SaveBtn field="resolution" />
         </div>
       </div>
 
@@ -306,6 +333,7 @@ export default function NovaPoshtaSettings() {
             onChange={e => update('offsetX', Math.max(-20, Math.min(20, Number(e.target.value))))}
           />
           <span className="nps-value">мм</span>
+          <SaveBtn field="offsetX" />
         </div>
         <div className="nps-row">
           <label className="nps-label">Зсув Y</label>
@@ -318,6 +346,7 @@ export default function NovaPoshtaSettings() {
             onChange={e => update('offsetY', Math.max(-20, Math.min(20, Number(e.target.value))))}
           />
           <span className="nps-value">мм</span>
+          <SaveBtn field="offsetY" />
         </div>
         <div className="nps-row">
           <label className="nps-label">Поріг ч/б</label>
@@ -333,6 +362,7 @@ export default function NovaPoshtaSettings() {
             />
             <span className="nps-density-value">{settings.threshold || 128}</span>
           </div>
+          <SaveBtn field="threshold" />
         </div>
       </div>
 
@@ -348,6 +378,7 @@ export default function NovaPoshtaSettings() {
           >
             {settings.sound !== false ? 'Увімк.' : 'Вимк.'}
           </button>
+          <SaveBtn field="sound" />
         </div>
       </div>
 
@@ -378,9 +409,9 @@ export default function NovaPoshtaSettings() {
 
       {/* ── Кнопки ── */}
       <div className="nps-actions">
-        {dirty && (
-          <button className="nps-btn nps-btn--save" onClick={save}>
-            ✓
+        {dirtyFields.size > 0 && (
+          <button className="nps-btn nps-btn--save" onClick={saveAll}>
+            ✓ Зберегти все
           </button>
         )}
         <button

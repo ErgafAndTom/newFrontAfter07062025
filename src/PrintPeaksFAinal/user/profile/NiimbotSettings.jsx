@@ -74,6 +74,13 @@ export default function NiimbotSettings() {
   const [scanConnected, setScanConnected] = useState(scannerIsConnected());
   const [scanConnecting, setScanConnecting] = useState(false);
 
+  // Завантажити налаштування з сервера
+  useEffect(() => {
+    import('../../../hooks/useUserSettings').then(({ loadSetting }) => {
+      loadSetting('niimbot_settings', DEFAULTS).then(val => setSettings(val));
+    }).catch(() => {});
+  }, []);
+
   // Poll Niimbot connection status
   useEffect(() => {
     const iv = setInterval(() => setBtConnected(isConnected()), 1000);
@@ -92,8 +99,10 @@ export default function NiimbotSettings() {
 
   const save = useCallback(() => {
     localStorage.setItem(LS_KEY, JSON.stringify(settings));
+    import('../../../hooks/useUserSettings').then(({ saveSetting }) => {
+      saveSetting('niimbot_settings', settings);
+    }).catch(() => {});
     setDirty(false);
-    // Застосовуємо налаштування принтера якщо підключений
     if (isConnected()) {
       applyPrinterSettings().catch(() => {});
     }
@@ -102,6 +111,9 @@ export default function NiimbotSettings() {
   const reset = useCallback(() => {
     setSettings({ ...DEFAULTS });
     localStorage.removeItem(LS_KEY);
+    import('../../../hooks/useUserSettings').then(({ saveSetting }) => {
+      saveSetting('niimbot_settings', DEFAULTS);
+    }).catch(() => {});
     setDirty(false);
   }, []);
 

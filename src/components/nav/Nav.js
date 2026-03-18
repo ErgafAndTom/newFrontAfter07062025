@@ -22,6 +22,8 @@ import TelegramBotAkkAndMedias from "../../PrintPeaksFAinal/telegram/TelegramBot
 import NovaPoshtaCalculator from "../../PrintPeaksFAinal/novaPoshta/NovaPoshtaCalculator";
 import BarcodeScannerListener from "../../PrintPeaksFAinal/barcode/BarcodeScannerListener";
 import { NiimbotConnectButton, BarcodeScannerButton } from "../../PrintPeaksFAinal/barcode/BarcodeLabel";
+import AddExpenseButton from "../admin/crm/Desktop/AddExpenseButton";
+import SearchOrderDropdown from "./SearchOrderDropdown";
 
 
 const Nav = () => {
@@ -97,6 +99,7 @@ const Nav = () => {
         {currentUser && (
           <div className="nav-actions-group">
             <AddNewOrder/>
+            <AddExpenseButton/>
             {(currentUser.role === "admin" || currentUser.role === "operator") && (
               location.pathname.startsWith('/Companys')
                 ? <AddCompanyButton />
@@ -125,6 +128,7 @@ const Nav = () => {
                 <path d="M22 22L20 20" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </span>
+            <SearchOrderDropdown />
           </div>}
           {currentUser ? (
             <>
@@ -141,6 +145,16 @@ const Nav = () => {
                       <path d="M319.74,434.24c31.69,1.45,66.46-2.75,97.8-.28,10.73.85,19.14,4.77,20.47,16.53,3.7,32.89-2.92,72.53-.04,106.04.82,9.52,5.64,17.02,15.62,18.38,17.02,2.32,38.52-1.73,55.91.09,6.57.69,9.99,4.21,4.52,9.52l-133,133c-8.4,6.42-17.21,5.91-25.03-1.01-39.85-40.46-81-79.8-119.96-121.04-2.91-3.08-13.88-12.12-14.04-15.07-.2-3.65,3.43-5.08,6.49-5.43,18.45-2.13,41.69,2.42,59.94-.06,8.09-1.1,14.17-7.44,15.61-15.39,2.88-34.32-3.99-75.39.09-108.91,1.16-9.52,6.43-14.48,15.63-16.37Z" fill="#ee3c23"/>
                       <path d="M586.67,220.13c3.05-.99,5.13.7,7.34,2.35,14.39,10.71,33.61,34.05,47.45,47.55,26.41,25.75,54,50.76,80.05,76.95,6.4,6.43,12.32,13.44,7.98,23.03-40.14,41.27-81.6,81.92-123.03,121.97-3.87,3.74-12.93,16.54-17.94,16.05-3.74-.77-4.38-5.25-4.58-8.49l.78-277.3c.42-.9.92-1.78,1.94-2.11Z" fill="#ee3c23"/>
                     </svg>
+                  </button>
+                </div>
+
+                <div className="nav-ctrl-btn-wrap">
+                  <button
+                    className={`adminButtonAddNav nav-settings-center-btn${showSettings ? ' active' : ''}`}
+                    title="Налаштування"
+                    onClick={() => setShowSettings(v => !v)}
+                  >
+                    <FiSettings size={20} />
                   </button>
                 </div>
 
@@ -233,15 +247,6 @@ const Nav = () => {
                   </span>
                 </NavLink>
 
-                <button className="btn nav-settings-btn" onClick={() => setShowSettings(true)} title="Налаштування профілю">
-                  <span className="flip-front">
-                    <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
-                      <circle cx="12" cy="12" r="3"></circle>
-                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82a2 2 0 1 1-2.83 2.83a1.65 1.65 0 0 0-1.82.33a1.65 1.65 0 0 0-.5 1.47a2 2 0 1 1-3.9 0a1.65 1.65 0 0 0-1.47-.5a1.65 1.65 0 0 0-1.82-.33a2 2 0 1 1-2.83-2.83a1.65 1.65 0 0 0-.33-1.82a1.65 1.65 0 0 0-1.47-.5a2 2 0 1 1 0-3.9a1.65 1.65 0 0 0 1.47-.5a1.65 1.65 0 0 0 .33-1.82a2 2 0 1 1 2.83-2.83a1.65 1.65 0 0 0 1.82-.33a1.65 1.65 0 0 0 .5-1.47a2 2 0 1 1 3.9 0a1.65 1.65 0 0 0 1.47.5a1.65 1.65 0 0 0 1.82.33a2 2 0 1 1 2.83 2.83a1.65 1.65 0 0 0 .33 1.82a1.65 1.65 0 0 0 1.47.5a2 2 0 1 1 0 3.9a1.65 1.65 0 0 0-1.47.5z"></path>
-                    </svg>
-                  </span>
-                </button>
-
                 <button onClick={logoutt} className="btn nav-logout-btn">
                   <span className="flip-front"><FiLogOut/></span>
                 </button>
@@ -284,6 +289,18 @@ const Nav = () => {
                       <rect x="7" y="4" width="10" height="16" rx="2"/>
                       <path d="M9 4V2h6v2"/>
                       <path d="M9 9h6M9 13h6M9 17h6"/>
+                    </svg>
+                  </span>
+                </NavLink>
+
+                <NavLink to="/Logistics" className="btn">
+                  <span className="flip-front">Логістика</span>
+                  <span className="flip-back">
+                    <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M1 3h15v13H1z"/>
+                      <path d="M16 8h4l3 4v5h-7V8z"/>
+                      <circle cx="5.5" cy="18.5" r="2.5"/>
+                      <circle cx="18.5" cy="18.5" r="2.5"/>
                     </svg>
                   </span>
                 </NavLink>
@@ -366,6 +383,18 @@ const Nav = () => {
                   </span>
                 </NavLink>
 
+                <NavLink to="/Logistics" className="btn">
+                  <span className="flip-front">Логістика</span>
+                  <span className="flip-back">
+                    <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M1 3h15v13H1z"/>
+                      <path d="M16 8h4l3 4v5h-7V8z"/>
+                      <circle cx="5.5" cy="18.5" r="2.5"/>
+                      <circle cx="18.5" cy="18.5" r="2.5"/>
+                    </svg>
+                  </span>
+                </NavLink>
+
                 <NavLink to="/Storage" className="btn">
                   <span className="flip-front">Склад</span>
                   <span className="flip-back">
@@ -397,15 +426,6 @@ const Nav = () => {
                     </svg>
                   </span>
                 </NavLink>
-
-                <button className="btn nav-settings-btn" onClick={() => setShowSettings(true)} title="Налаштування профілю">
-                  <span className="flip-front">
-                    <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
-                      <circle cx="12" cy="12" r="3"></circle>
-                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82a2 2 0 1 1-2.83 2.83a1.65 1.65 0 0 0-1.82.33a1.65 1.65 0 0 0-.5 1.47a2 2 0 1 1-3.9 0a1.65 1.65 0 0 0-1.47-.5a1.65 1.65 0 0 0-1.82-.33a2 2 0 1 1-2.83-2.83a1.65 1.65 0 0 0-.33-1.82a1.65 1.65 0 0 0-1.47-.5a2 2 0 1 1 0-3.9a1.65 1.65 0 0 0 1.47-.5a1.65 1.65 0 0 0 .33-1.82a2 2 0 1 1 2.83-2.83a1.65 1.65 0 0 0 1.82-.33a1.65 1.65 0 0 0 .5-1.47a2 2 0 1 1 3.9 0a1.65 1.65 0 0 0 1.47.5a1.65 1.65 0 0 0 1.82.33a2 2 0 1 1 2.83 2.83a1.65 1.65 0 0 0 .33 1.82a1.65 1.65 0 0 0 1.47.5a2 2 0 1 1 0 3.9a1.65 1.65 0 0 0-1.47.5z"></path>
-                    </svg>
-                  </span>
-                </button>
 
                 <button onClick={logoutt} className="btn nav-logout-btn">
                   <span className="flip-front"><FiLogOut/></span>

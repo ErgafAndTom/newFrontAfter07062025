@@ -17,7 +17,7 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
     RecipientsPhone: prefillData?.RecipientsPhone || thisOrder?.User?.phoneNumber || '+38',
     RecipientName: '',
     ServiceType: 'WarehouseWarehouse',
-    PaymentMethod: 'NonCash',
+    PaymentMethod: 'Cash',
     PayerType: 'Recipient',
     Cost: prefillData?.Cost || '1',
     CargoType: prefillData?.CargoType || 'Cargo',
@@ -47,6 +47,8 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [senderAddresses, setSenderAddresses] = useState([]);
+  const [senderAddressesLoading, setSenderAddressesLoading] = useState(false);
 
   const handleClose = () => setShowNP(false);
 
@@ -131,38 +133,41 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
     }
   };
 
-  // Auto-set sender default: Відділення №250, Київ
+  // Load sender addresses from NP account
   useEffect(() => {
-    if (formData.SenderAddress) return; // already set
     (async () => {
+      setSenderAddressesLoading(true);
       try {
-        // 1. Get Kyiv city ref
-        const cityRes = await axios.post('/novaposhta/api-proxy', {
-          modelName: 'Address',
-          calledMethod: 'getCities',
-          methodProperties: { FindByString: 'Київ', Limit: '1' },
-        });
-        const kyivRef = cityRes.data?.data?.[0]?.Ref;
-        if (!kyivRef) return;
-        // 2. Get warehouse #250
-        const whRes = await axios.post('/novaposhta/api-proxy', {
-          modelName: 'Address',
-          calledMethod: 'getWarehouses',
-          methodProperties: { CityRef: kyivRef, FindByString: '250', Limit: '5' },
-        });
-        const wh = whRes.data?.data?.find(w => w.Number === '250');
-        if (!wh) return;
-        setFormData(prev => ({
-          ...prev,
-          CitySender: kyivRef,
-          SenderAddress: wh.Ref,
-          SenderWarehouseIndex: wh.Number,
-        }));
+        const res = await axios.get('/novaposhta/sender-addresses');
+        const addrs = res.data?.data || [];
+        setSenderAddresses(addrs);
+        // Auto-select first address if nothing set
+        if (addrs.length > 0 && !formData.SenderAddress) {
+          setFormData(prev => ({
+            ...prev,
+            CitySender: addrs[0].cityRef,
+            SenderAddress: addrs[0].ref,
+          }));
+        }
       } catch (e) {
-        console.warn('[NP] Default sender warehouse error:', e.message);
+        console.warn('[NP] Failed to load sender addresses:', e.message);
       }
+      setSenderAddressesLoading(false);
     })();
   }, []); // eslint-disable-line
+
+  const handleSenderAddressChange = (e) => {
+    const ref = e.target.value;
+    const addr = senderAddresses.find(a => a.ref === ref);
+    if (addr) {
+      setFormData(prev => ({
+        ...prev,
+        CitySender: addr.cityRef,
+        SenderAddress: addr.ref,
+      }));
+      setSenderMode('warehouse');
+    }
+  };
 
   // Auto-calculate volume: (L_mm/10 × W_mm/10 × H_mm/10) / 4000 (мм→см→м³, Nova Poshta formula)
   const calcVolume = (l, w, h) => {
@@ -186,6 +191,9 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
       }
       if (name === 'Cost' && prev.BackwardDelivery) {
         next.BackwardDeliverySum = value;
+      }
+      if (name === 'PayerType') {
+        next.PaymentMethod = value === 'Recipient' ? 'Cash' : 'NonCash';
       }
       return next;
     });
@@ -214,7 +222,9 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
         setError((response.data?.errors || []).join(', ') || 'Невідома помилка');
       }
     } catch (err) {
-      setError(err.response?.data?.error || err.message);
+      const errMsg = err.response?.data?.error || err.response?.data?.errors?.join(', ') || err.message;
+      console.error('[NP] TTN creation error:', errMsg, err.response?.data);
+      setError(errMsg);
     } finally {
       setLoading(false);
     }
@@ -242,30 +252,49 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
                   value={formData.SendersPhone} onChange={handlePhone} required />
               </div>
             </div>
-            <div className="np-delivery-tabs">
-              <button type="button"
-                className={`np-delivery-tab${senderMode === 'warehouse' ? ' np-delivery-tab--active' : ''}`}
-                onClick={() => handleSenderMode('warehouse')}>
-                Відділення / Поштомат
-              </button>
-              <button type="button"
-                className={`np-delivery-tab${senderMode === 'address' ? ' np-delivery-tab--active' : ''}`}
-                onClick={() => handleSenderMode('address')}>
-                Адресна доставка
-              </button>
-            </div>
-            {!isSenderDoor && (
-              <div className="np-department">
-                <NovaPoshtaButton onDepartmentSelect={handleDepartmentSelect1} />
+            {senderAddresses.length > 0 && (
+              <div className="np-field" style={{ marginBottom: '0.5rem' }}>
+                <span className="np-field-label">Збережені адреси</span>
+                <select className="np-field-select np-field-select--active"
+                  value={formData.SenderAddress || ''}
+                  onChange={handleSenderAddressChange}>
+                  {senderAddresses.map(a => (
+                    <option key={a.ref} value={a.ref}>
+                      {a.cityDescription} — {a.description}
+                    </option>
+                  ))}
+                  <option value="">Інша адреса...</option>
+                </select>
               </div>
             )}
-            {isSenderDoor && (
-              <div className="np-department">
-                <NovaPoshtaAddressButton
-                  onAddressSelect={handleSenderAddressSelect}
-                  cityName={formData.CitySender}
-                />
-              </div>
+            {(!formData.SenderAddress || !senderAddresses.find(a => a.ref === formData.SenderAddress)) && (
+              <>
+                <div className="np-delivery-tabs">
+                  <button type="button"
+                    className={`np-delivery-tab${senderMode === 'warehouse' ? ' np-delivery-tab--active' : ''}`}
+                    onClick={() => handleSenderMode('warehouse')}>
+                    Відділення / Поштомат
+                  </button>
+                  <button type="button"
+                    className={`np-delivery-tab${senderMode === 'address' ? ' np-delivery-tab--active' : ''}`}
+                    onClick={() => handleSenderMode('address')}>
+                    Адресна доставка
+                  </button>
+                </div>
+                {!isSenderDoor && (
+                  <div className="np-department">
+                    <NovaPoshtaButton onDepartmentSelect={handleDepartmentSelect1} />
+                  </div>
+                )}
+                {isSenderDoor && (
+                  <div className="np-department">
+                    <NovaPoshtaAddressButton
+                      onAddressSelect={handleSenderAddressSelect}
+                      cityName={formData.CitySender}
+                    />
+                  </div>
+                )}
+              </>
             )}
 
             {/* Одержувач */}
@@ -345,7 +374,7 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
                 <select className="np-field-select np-field-select--active" name="PaymentMethod"
                   value={formData.PaymentMethod} onChange={handleChange}>
                   <option value="NonCash">Безготівка</option>
-                  <option value="Shifts">Готівка</option>
+                  <option value="Cash">Готівка</option>
                 </select>
               </div>
               <div className="np-field">
@@ -461,9 +490,18 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
               </div>
             </div>
 
-            <button className="np-submit-btn" type="submit" disabled={loading}>
-              <span>{loading ? 'Створення...' : 'Створити накладну'}</span>
-            </button>
+            {formData.PaymentMethod === 'NonCash' && formData.PayerType === 'Recipient' && (
+              <div className="np-warning">
+                Безготівка недоступна для платника «Одержувач». Змініть спосіб оплати на «Готівка» або платника на «Відправник».
+              </div>
+            )}
+
+            {!result?.success && (
+              <button className="np-submit-btn" type="submit"
+                disabled={loading || (formData.PaymentMethod === 'NonCash' && formData.PayerType === 'Recipient')}>
+                <span>{loading ? 'Створення...' : 'Створити накладну'}</span>
+              </button>
+            )}
           </form>
 
           {result && result.success && (

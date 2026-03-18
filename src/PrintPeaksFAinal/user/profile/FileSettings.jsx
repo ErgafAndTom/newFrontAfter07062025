@@ -618,7 +618,30 @@ export default function FileSettings() {
         </div>
       </div>
 
-      {/* ═══ Секція 2: Локальний бекап ═══ */}
+      {/* ═══ Секція 2: Файли витрат ═══ */}
+      <div className="fs-section">
+        <div className="fs-section-title">Файли витрат</div>
+        <div style={{ fontSize: "0.75rem", color: "var(--admingrey)", opacity: 0.6, marginBottom: "0.5rem" }}>
+          Шлях для збереження чеків, видаткових та інших документів витрат
+        </div>
+        <div className="fs-field-row">
+          <div className="fs-field-label">Шлях</div>
+          <input
+            className="fs-field-input"
+            value={draft.EXPENSE_FILES_PATH || ""}
+            onChange={(e) => handleDraft("EXPENSE_FILES_PATH", e.target.value)}
+            placeholder="./data/expenseFiles (за замовчуванням)"
+          />
+          <button
+            className={`fs-field-save${isChanged("EXPENSE_FILES_PATH") ? " fs-field-save--visible" : ""}`}
+            onClick={() => handleConfirm("EXPENSE_FILES_PATH")}
+          >
+            <FiCheck size={16} />
+          </button>
+        </div>
+      </div>
+
+      {/* ═══ Секція 3: Локальний бекап ═══ */}
       <div className="fs-section">
         <div className="fs-section-title">Локальний бекап</div>
         <div className="fs-field-row">

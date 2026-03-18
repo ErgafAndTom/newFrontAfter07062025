@@ -116,17 +116,22 @@ const styles = {
 };
 
 const FILE_SETTINGS_KEY = 'printpeaks_file_settings';
+const FILE_DEFAULTS = { folderMode: 'local', networkPath: '//192.168.0.121/Client', networkUser: '', networkPass: '' };
 
 function loadFileSettings() {
   try {
     const raw = localStorage.getItem(FILE_SETTINGS_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) return { ...FILE_DEFAULTS, ...JSON.parse(raw) };
   } catch {}
-  return { folderMode: 'local', networkPath: '//192.168.0.121/Client', networkUser: '', networkPass: '' };
+  return FILE_DEFAULTS;
 }
 
 function saveFileSettings(s) {
   localStorage.setItem(FILE_SETTINGS_KEY, JSON.stringify(s));
+  // Синхронізуємо з сервером (не блокуємо UI)
+  import('../../../hooks/useUserSettings').then(({ saveSetting }) => {
+    saveSetting('file_settings', s);
+  }).catch(() => {});
 }
 
 export { loadFileSettings };
@@ -147,6 +152,13 @@ export default function DesignSettings() {
       })
       .catch((err) => console.error('Failed to load design settings:', err))
       .finally(() => setLoading(false));
+
+    // Завантажити file_settings з сервера (якщо є)
+    import('../../../hooks/useUserSettings').then(({ loadSetting }) => {
+      loadSetting('file_settings', FILE_DEFAULTS).then(val => {
+        setFileSettings(val);
+      });
+    }).catch(() => {});
   }, []);
 
   const getSaved = useCallback(

@@ -1,45 +1,12 @@
 import React, {useMemo} from 'react';
-import {Doughnut} from 'react-chartjs-2';
-import {Chart as ChartJS, ArcElement, Tooltip, Legend} from 'chart.js';
+import {Bar} from 'react-chartjs-2';
+import {
+    Chart as ChartJS,
+    CategoryScale, LinearScale,
+    BarElement, Tooltip, Legend
+} from 'chart.js';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
-
-/* ── Center text plugin ── */
-const centerTextPlugin = {
-    id: 'dshCenterText',
-    beforeDraw: (chart) => {
-        if (chart.config.type !== 'doughnut') return;
-        const meta = chart.options.plugins.dshCenterText;
-        if (!meta?.text) return;
-
-        const {ctx, chartArea} = chart;
-        if (!chartArea) return;
-        const cx = (chartArea.left + chartArea.right) / 2;
-        const cy = (chartArea.top + chartArea.bottom) / 2;
-        const size = Math.min(chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
-
-        ctx.save();
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        // Main value
-        ctx.font = `500 ${size * 0.11}px sans-serif`;
-        ctx.fillStyle = '#666666';
-        ctx.fillText(meta.text, cx, cy - size * 0.03);
-
-        // Sub text
-        if (meta.subText) {
-            ctx.font = `${size * 0.055}px sans-serif`;
-            ctx.fillStyle = '#666666';
-            ctx.globalAlpha = 0.5;
-            ctx.fillText(meta.subText, cx, cy + size * 0.08);
-        }
-
-        ctx.restore();
-    }
-};
-
-ChartJS.register(centerTextPlugin);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const METHOD_MAP = {
     cash: {label: 'Готівка', color: '#0e935b'},
@@ -69,42 +36,46 @@ const PaymentDoughnutChart = ({methodsData}) => {
         if (!methodsData || Object.keys(methodsData).length === 0) return null;
 
         const entries = Object.entries(methodsData);
-        const labels = [];
-        const values = [];
-        const colors = [];
-        const counts = [];
+        const items = [];
 
         for (const [method, info] of entries) {
             const mapped = METHOD_MAP[method] || METHOD_MAP.other;
-            labels.push(mapped.label);
-            values.push(info.total);
-            colors.push(mapped.color);
-            counts.push(info.count);
+            items.push({
+                label: mapped.label,
+                value: info.total,
+                color: mapped.color,
+                count: info.count,
+            });
         }
 
-        const total = values.reduce((s, v) => s + v, 0);
-        const totalCount = counts.reduce((s, v) => s + v, 0);
+        // Sort descending by value
+        items.sort((a, b) => b.value - a.value);
 
-        return {labels, values, colors, counts, total, totalCount};
+        const total = items.reduce((s, i) => s + i.value, 0);
+        const totalCount = items.reduce((s, i) => s + i.count, 0);
+
+        return {items, total, totalCount};
     }, [methodsData]);
 
     if (!parsed) return <EmptyState/>;
 
-    const {labels, values, colors, total, totalCount, counts} = parsed;
+    const {items, total, totalCount} = parsed;
 
     const chartConfig = {
-        labels,
+        labels: items.map(i => i.label),
         datasets: [{
-            data: values,
-            backgroundColor: colors,
-            hoverBackgroundColor: colors.map(c => c + 'dd'),
+            data: items.map(i => i.value),
+            backgroundColor: items.map(i => i.color),
+            hoverBackgroundColor: items.map(i => i.color + 'cc'),
             borderWidth: 0,
-            cutout: '62%',
-            hoverOffset: 4,
+            borderSkipped: false,
+            barPercentage: 0.7,
+            categoryPercentage: 0.8,
         }]
     };
 
     const options = {
+        indexAxis: 'y',
         responsive: true,
         maintainAspectRatio: false,
         animation: {
@@ -112,18 +83,7 @@ const PaymentDoughnutChart = ({methodsData}) => {
             easing: 'easeOutQuart',
         },
         plugins: {
-            legend: {
-                position: 'bottom',
-                labels: {
-                    color: '#666666',
-                    font: {size: 10},
-                    padding: 8,
-                    usePointStyle: true,
-                    pointStyle: 'rect',
-                    boxWidth: 8,
-                    boxHeight: 8,
-                }
-            },
+            legend: {display: false},
             tooltip: {
                 backgroundColor: '#f2f0e9',
                 titleColor: '#666666',
@@ -134,25 +94,65 @@ const PaymentDoughnutChart = ({methodsData}) => {
                 displayColors: true,
                 callbacks: {
                     label: (ctx) => {
-                        const val = ctx.parsed;
+                        const val = ctx.parsed.x;
                         const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0';
-                        const cnt = counts[ctx.dataIndex];
+                        const cnt = items[ctx.dataIndex].count;
                         return ` ${val.toLocaleString('uk-UA', {maximumFractionDigits: 0})} грн (${pct}%) — ${cnt} шт`;
                     }
                 }
             },
-            dshCenterText: {
-                text: total >= 1000
-                    ? `${(total / 1000).toFixed(0)}k ₴`
-                    : `${total.toLocaleString('uk-UA', {maximumFractionDigits: 0})} ₴`,
-                subText: `${totalCount} оплат`,
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                grid: {color: 'rgba(0,0,0,0.04)'},
+                border: {display: false},
+                ticks: {
+                    color: '#666666',
+                    font: {size: 10},
+                    maxTicksLimit: 6,
+                    callback: (v) => {
+                        if (v >= 1000) return (v / 1000).toFixed(0) + 'k';
+                        return v;
+                    },
+                },
+            },
+            y: {
+                grid: {display: false},
+                border: {display: false},
+                ticks: {
+                    color: '#666666',
+                    font: {size: 11},
+                },
             }
         }
     };
 
     return (
-        <div style={{height: '100%', width: '100%'}}>
-            <Doughnut data={chartConfig} options={options}/>
+        <div className="dsh-pay-split">
+            {/* Left: text breakdown */}
+            <div className="dsh-pay-breakdown">
+                <div className="dsh-pay-breakdown-total">
+                    <span className="dsh-pay-breakdown-total-value">
+                        {total.toLocaleString('uk-UA', {maximumFractionDigits: 0})} ₴
+                    </span>
+                    <span className="dsh-pay-breakdown-total-count">{totalCount} оплат</span>
+                </div>
+                {items.map((item, i) => (
+                    <div key={i} className="dsh-pay-breakdown-row">
+                        <span className="dsh-pay-breakdown-dot" style={{background: item.color}}/>
+                        <span className="dsh-pay-breakdown-label">{item.label}</span>
+                        <span className="dsh-pay-breakdown-value">
+                            {item.value.toLocaleString('uk-UA', {maximumFractionDigits: 0})} грн
+                        </span>
+                        <span className="dsh-pay-breakdown-count">{item.count} шт</span>
+                    </div>
+                ))}
+            </div>
+            {/* Right: horizontal bar chart */}
+            <div className="dsh-pay-chart">
+                <Bar data={chartConfig} options={options}/>
+            </div>
         </div>
     );
 };

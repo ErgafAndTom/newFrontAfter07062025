@@ -10,6 +10,7 @@ import TopClientsCard from "./TopClientsCard";
 import ExpensesCard from "./ExpensesCard";
 import CategoryBarChart from "./CategoryBarChart";
 import ClientPaymentStats from "./ClientPaymentStats";
+import OrdersListModal from "./OrdersListModal";
 import './Desktop.css';
 
 const Desktop = () => {
@@ -23,6 +24,7 @@ const Desktop = () => {
     const [expensesData, setExpensesData] = useState({});
     const [categoryData, setCategoryData] = useState({});
     const [activeBottomTab, setActiveBottomTab] = useState('catValue');
+    const [modalFilter, setModalFilter] = useState(null);
 
     const handleDateChange = useCallback((range) => {
         setDateRange(range);
@@ -71,13 +73,30 @@ const Desktop = () => {
         fetchAll();
     }, [fetchAll]);
 
+    // Оновити дані при додаванні витрати з навбару
+    useEffect(() => {
+        const handler = () => fetchAll();
+        window.addEventListener('expense-added', handler);
+        return () => window.removeEventListener('expense-added', handler);
+    }, [fetchAll]);
+
     const stats = comparison?.current;
     const changes = comparison?.changes;
 
     const avgCheck = stats && stats.total_orders > 0
         ? stats.total_sum / stats.total_orders : 0;
-    const payConversion = stats && stats.total_orders > 0
-        ? (stats.paidCount / stats.total_orders) * 100 : 0;
+
+    // Каса: дохід по методах мінус витрати
+    const kasaMethods = [
+        {key: 'terminal', label: 'Термінал'},
+        {key: 'link', label: 'Посилання'},
+        {key: 'invoice', label: 'Рахунок'},
+        {key: 'cash', label: 'Готівка'},
+        {key: 'iban', label: 'IBAN'},
+    ];
+    const cashExpenses = expensesData?.expenseByCash || 0;
+    const accountExpenses = expensesData?.expenseByAccount || 0;
+    const kasaTotal = kasaMethods.reduce((s, m) => s + (payMethods?.[m.key]?.total || 0), 0) - cashExpenses - accountExpenses;
 
     // Sparkline data for KPI cards
     const revenueSparkData = useMemo(() => chartData.map(d => d.value), [chartData]);
@@ -107,6 +126,7 @@ const Desktop = () => {
                         color="var(--admingreen, #0e935b)"
                         change={changes?.paid_pct}
                         subText={`${stats?.paidCount ?? 0} замовлень`}
+                        onSubTextClick={() => setModalFilter('paid')}
                     />
                     <KpiCard
                         label="Борг"
@@ -114,6 +134,7 @@ const Desktop = () => {
                         color="var(--adminred, #ee3c23)"
                         change={changes?.unpaid_pct}
                         subText={`${stats?.unpaid_count ?? 0} замовлень`}
+                        onSubTextClick={() => setModalFilter('debt')}
                     />
                     <KpiCard
                         label="Замовлення"
@@ -123,33 +144,47 @@ const Desktop = () => {
                         sparkData={ordersSparkData}
                         sparkColor="#3c60a6"
                         subText={`Сер. чек: ${avgCheck.toLocaleString('uk-UA', {maximumFractionDigits: 0})} грн`}
+                        onSubTextClick={() => setModalFilter('all')}
                     />
-                    <KpiCard
-                        label="Конверсія оплат"
-                        value={payConversion}
-                        suffix="%"
-                        color={payConversion > 50 ? 'var(--admingreen, #0e935b)' : 'var(--adminorange, #f5a623)'}
-                    />
+                    <div className="dsh-kpi-card dsh-kasa-card">
+                        <div className="dsh-kpi-label">Каса</div>
+                        <div className="dsh-kasa-methods">
+                            {kasaMethods.map(m => {
+                                const income = payMethods?.[m.key]?.total || 0;
+                                // cash витрати → мінус готівка, card/iban/invoice витрати → мінус рахунок
+                                const expense = m.key === 'cash' ? cashExpenses
+                                    : m.key === 'invoice' ? accountExpenses : 0;
+                                const val = income - expense;
+                                const fmt = v => v.toLocaleString('uk-UA', {maximumFractionDigits: 0});
+                                return (
+                                    <div key={m.key} className="dsh-kasa-row">
+                                        <span className="dsh-kasa-method">{m.label}</span>
+                                        <span className="dsh-kasa-val" style={{color: val > 0 ? 'var(--admingreen)' : val < 0 ? 'var(--adminred)' : undefined}}>
+                                            {expense > 0
+                                                ? <>{fmt(income)} <span className="dsh-kasa-expense">− {fmt(expense)}</span> = {fmt(val)} ₴</>
+                                                : <>{fmt(val)} ₴</>
+                                            }
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <div className="dsh-kasa-row dsh-kasa-total">
+                            <span className="dsh-kasa-method">Разом</span>
+                            <span className="dsh-kasa-val" style={{color: kasaTotal >= 0 ? 'var(--admingreen)' : 'var(--adminred)'}}>
+                                {kasaTotal.toLocaleString('uk-UA', {maximumFractionDigits: 0})} ₴
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Row 2: Revenue + Payment Distribution */}
-            <div className="dsh-row-charts">
-                <div className="dsh-chart-main">
-                    <div className="dsh-chart-title">Виручка за період</div>
-                    <div className="dsh-chart-body">
-                        <RevenueLineChart data={chartData}/>
-                    </div>
-                </div>
-                <div className="dsh-chart-side">
-                    <div className="dsh-chart-title">Розподіл оплат</div>
-                    <div className="dsh-chart-body">
-                        <PaymentDoughnutChart methodsData={payMethods}/>
-                    </div>
-                </div>
+            {/* Row 2: Expenses (full width) */}
+            <div className="dsh-row-expenses">
+                <ExpensesCard data={expensesData} dateRange={dateRange} onExpenseAdded={fetchAll} fullWidth/>
             </div>
 
-            {/* Row 3: Orders/Categories (tabs) + Expenses/Clients */}
+            {/* Row 3: Tabs (orders/categories/revenue/payments) + Top Clients */}
             <div className="dsh-row-charts">
                 <div className="dsh-chart-main">
                     <div className="dsh-chart-header">
@@ -178,6 +213,18 @@ const Desktop = () => {
                             >
                                 Оплати клієнта
                             </button>
+                            <button
+                                className={`dsh-chart-tab ${activeBottomTab === 'revenue' ? 'active' : ''}`}
+                                onClick={() => setActiveBottomTab('revenue')}
+                            >
+                                Виручка за період
+                            </button>
+                            <button
+                                className={`dsh-chart-tab ${activeBottomTab === 'payments' ? 'active' : ''}`}
+                                onClick={() => setActiveBottomTab('payments')}
+                            >
+                                Розподіл оплат
+                            </button>
                         </div>
                     </div>
                     <div className="dsh-chart-body">
@@ -185,15 +232,25 @@ const Desktop = () => {
                             ? <OrdersBarChart data={ordersData}/>
                             : activeBottomTab === 'clientPay'
                                 ? <ClientPaymentStats dateRange={dateRange}/>
-                                : <CategoryBarChart data={categoryData} mode={activeBottomTab === 'catValue' ? 'value' : 'count'}/>
+                                : activeBottomTab === 'revenue'
+                                    ? <RevenueLineChart data={chartData}/>
+                                    : activeBottomTab === 'payments'
+                                        ? <PaymentDoughnutChart methodsData={payMethods}/>
+                                        : <CategoryBarChart data={categoryData} mode={activeBottomTab === 'catValue' ? 'value' : 'count'}/>
                         }
                     </div>
                 </div>
                 <div className="dsh-row-cards-side">
-                    <ExpensesCard data={expensesData} dateRange={dateRange} onExpenseAdded={fetchAll}/>
                     <TopClientsCard data={topClients}/>
                 </div>
             </div>
+            {modalFilter && (
+                <OrdersListModal
+                    filter={modalFilter}
+                    dateRange={dateRange}
+                    onClose={() => setModalFilter(null)}
+                />
+            )}
         </div>
     );
 };

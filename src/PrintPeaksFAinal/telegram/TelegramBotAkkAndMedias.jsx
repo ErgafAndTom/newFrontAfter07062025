@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "../../api/axiosInstance";
 import { Megaphone, Users, User } from "lucide-react";
-import {FiLogOut} from "react-icons/fi";
+import {FiLogOut, FiArrowDown, FiArrowUp} from "react-icons/fi";
 
 import "./styles.css";
 
@@ -96,6 +96,7 @@ export default function TelegramBotAkkAndMedias() {
   const allContactsRef = useRef([]);
   const [contactsSearch, setContactsSearch] = useState("");
   const [contactsLoading, setContactsLoading] = useState(false);
+  const [contactsSort, setContactsSort] = useState("newest"); // "newest" | "oldest"
   const [authSending, setAuthSending] = useState(false);
   const contactsSearchTimer = useRef(null);
 
@@ -533,14 +534,19 @@ export default function TelegramBotAkkAndMedias() {
   // =====================================================================
   // LOAD CONTACTS
   // =====================================================================
+  const sortContactsList = (list, sort) => {
+    return sort === "newest" ? [...list].reverse() : [...list];
+  };
+
   const loadContacts = async () => {
     setContactsLoading(true);
     try {
       const { data: j } = await axios.get(API + "/contacts");
       if (j.ok) {
-        const reversed = [...j.contacts].reverse();
-        allContactsRef.current = reversed;
-        setContacts(reversed);
+        // API повертає в порядку додавання (oldest first)
+        // зберігаємо оригінал (oldest) в ref, відображаємо за поточним сортуванням
+        allContactsRef.current = j.contacts;
+        setContacts(sortContactsList(j.contacts, contactsSort));
       }
     } catch (e) {
       console.log("loadContacts error:", e);
@@ -549,19 +555,36 @@ export default function TelegramBotAkkAndMedias() {
     }
   };
 
+  const toggleContactsSort = () => {
+    const next = contactsSort === "newest" ? "oldest" : "newest";
+    setContactsSort(next);
+    const q = contactsSearch.trim().toLowerCase();
+    let list = allContactsRef.current;
+    if (q) {
+      list = list.filter(ct =>
+        (ct.firstName && ct.firstName.toLowerCase().includes(q)) ||
+        (ct.lastName && ct.lastName.toLowerCase().includes(q)) ||
+        (ct.username && ct.username.toLowerCase().includes(q)) ||
+        (ct.phone && ct.phone.includes(contactsSearch.trim()))
+      );
+    }
+    setContacts(sortContactsList(list, next));
+  };
+
   const handleContactsSearch = (val) => {
     setContactsSearch(val);
     if (!val.trim()) {
-      setContacts(allContactsRef.current);
+      setContacts(sortContactsList(allContactsRef.current, contactsSort));
       return;
     }
     const q = val.toLowerCase();
-    setContacts(allContactsRef.current.filter(ct =>
+    const filtered = allContactsRef.current.filter(ct =>
       (ct.firstName && ct.firstName.toLowerCase().includes(q)) ||
       (ct.lastName && ct.lastName.toLowerCase().includes(q)) ||
       (ct.username && ct.username.toLowerCase().includes(q)) ||
       (ct.phone && ct.phone.includes(val))
-    ));
+    );
+    setContacts(sortContactsList(filtered, contactsSort));
   };
 
   // =====================================================================
@@ -769,6 +792,15 @@ export default function TelegramBotAkkAndMedias() {
           </div>
 
           <div style={{ display: "flex", alignItems: "stretch", gap: 0, marginLeft: "auto", height: 36, overflow: "hidden" }}>
+            <button
+              className="tg-sort-btn"
+              title={contactsSort === "newest" ? "Спочатку нові" : "Спочатку старі"}
+              onClick={toggleContactsSort}
+            >
+              <span className="flip-front">
+                {contactsSort === "newest" ? <FiArrowDown /> : <FiArrowUp />}
+              </span>
+            </button>
             <button
               className="tg-logout-btn"
               title="Вийти з Telegram"

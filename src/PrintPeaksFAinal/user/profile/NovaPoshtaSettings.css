@@ -194,6 +194,31 @@
   border: 1px solid var(--admingrey, #666);
 }
 
+/* ── Per-field save button (✓) ── */
+
+.nps-btn--field-save {
+  width: 1.6rem;
+  height: 1.6rem;
+  min-width: 1.6rem;
+  padding: 0;
+  border: none;
+  background: var(--admingreen, #0e935b);
+  color: #fff;
+  font-size: var(--font-size-xs, 12px);
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+  border-radius: 0;
+}
+
+.nps-btn--field-save:hover {
+  opacity: 0.75;
+}
+
 /* ── Actions row ── */
 
 .nps-actions {

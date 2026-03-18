@@ -38,6 +38,9 @@ export function getSettings() {
 
 export function saveSettings(settings) {
   localStorage.setItem(LS_KEY, JSON.stringify(settings));
+  import('../../hooks/useUserSettings').then(({ saveSetting }) => {
+    saveSetting('qztray_settings', settings);
+  }).catch(() => {});
 }
 
 // ──── Стан з'єднання (сумісність з useQzTray) ────
