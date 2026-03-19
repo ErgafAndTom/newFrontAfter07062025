@@ -12,6 +12,7 @@ const METHOD_LABELS = {
   link: 'посиланням',
   invoice: 'за рахунком',
   iban: 'на IBAN',
+  cod: 'наложений платіж',
   expired: 'протерміновано',
   invoice_overdue: 'рахунок прострочений',
   mockup: 'макет чашки',

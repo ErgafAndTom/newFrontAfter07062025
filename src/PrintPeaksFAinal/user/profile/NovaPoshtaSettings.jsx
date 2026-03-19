@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import axios from "../../../api/axiosInstance";
 import { getSettings, saveSettings } from "../../barcode/qzTrayService";
+import { loadSetting, saveSetting } from "../../../hooks/useUserSettings";
 import "./NovaPoshtaSettings.css";
 
 const SPEED_OPTIONS = [
@@ -35,6 +36,13 @@ export default function NovaPoshtaSettings() {
     import('../../../hooks/useUserSettings').then(({ loadSetting }) => {
       loadSetting('qztray_settings', getSettings()).then(val => setSettings(val));
     }).catch(() => {});
+    // Завантажити збережені адреси відправника
+    loadSetting('np_sender_addresses', { addresses: [] }).then(val => {
+      setSavedAddresses(Array.isArray(val?.addresses) ? val.addresses : []);
+    }).catch(() => {});
+    loadSetting('np_recipient_addresses', { addresses: [] }).then(val => {
+      setSavedRecipientAddresses(Array.isArray(val?.addresses) ? val.addresses : []);
+    }).catch(() => {});
   }, []);
 
   // Printer connection test
@@ -44,6 +52,11 @@ export default function NovaPoshtaSettings() {
   // API settings from backend .env (read-only display)
   const [apiInfo, setApiInfo] = useState(null);
   const [apiLoading, setApiLoading] = useState(false);
+
+  // Saved sender addresses
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  // Saved recipient addresses
+  const [savedRecipientAddresses, setSavedRecipientAddresses] = useState([]);
 
   const update = useCallback((key, value) => {
     setSettings(prev => ({ ...prev, [key]: value }));
@@ -189,6 +202,90 @@ export default function NovaPoshtaSettings() {
             Налаштовується в .env (NOVAPOSHTA_API_URL)
           </span>
         </div>
+      </div>
+
+      {/* ── Збережені адреси відправника ── */}
+      <div className="nps-section nps-section--full">
+        <div className="nps-section-title">Збережені адреси відправника</div>
+        {savedAddresses.length === 0 ? (
+          <div className="nps-row">
+            <span className="nps-value">Немає збережених адрес. Збережіть адресу у формі створення ТТН (кнопка +).</span>
+          </div>
+        ) : (
+          savedAddresses.map(addr => (
+            <div className="nps-row" key={addr.id}>
+              <span className="nps-label" style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {addr.addressType === 'address' ? '🏠 ' : '📦 '}
+                {addr.addressType === 'address'
+                  ? `${addr.cityDescription || ''} — ${addr.street || ''}${addr.building ? ', ' + addr.building : ''}`
+                  : addr.shortName
+                    ? `${addr.cityDescription || 'Київ'} — ${addr.shortName}`
+                    : addr.label || `${addr.cityDescription} — ${addr.description}`
+                }
+              </span>
+              <span className="nps-value">{addr.senderName}</span>
+              <button className="nps-btn nps-btn--reset"
+                style={{ minWidth: 'auto', padding: '0 0.5rem', height: '1.6rem' }}
+                onClick={async () => {
+                  const updated = savedAddresses.filter(a => a.id !== addr.id);
+                  setSavedAddresses(updated);
+                  await saveSetting('np_sender_addresses', { addresses: updated });
+                }}>
+                ✕
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* ── Збережені адреси одержувачів ── */}
+      <div className="nps-section nps-section--full">
+        <div className="nps-section-title">Збережені адреси одержувачів</div>
+        {savedRecipientAddresses.length === 0 ? (
+          <div className="nps-row">
+            <span className="nps-value">Немає збережених адрес. Збережіть адресу у формі створення ТТН.</span>
+          </div>
+        ) : (
+          (() => {
+            // Групуємо по clientId
+            const grouped = {};
+            savedRecipientAddresses.forEach(addr => {
+              const key = addr.clientId || 'unknown';
+              if (!grouped[key]) grouped[key] = [];
+              grouped[key].push(addr);
+            });
+            return Object.entries(grouped).map(([cId, addrs]) => (
+              <div key={cId} style={{ marginBottom: '0.5rem' }}>
+                <div className="nps-row" style={{ opacity: 0.7, fontSize: 'var(--fontsmall, 12px)' }}>
+                  <span className="nps-label">Клієнт #{cId} — {addrs[0]?.recipientName || ''}</span>
+                </div>
+                {addrs.map(addr => (
+                  <div className="nps-row" key={addr.id}>
+                    <span className="nps-label" style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {addr.addressType === 'address' ? '🏠 ' : '📦 '}
+                      {addr.addressType === 'address'
+                        ? `${addr.cityDescription || ''} — ${addr.street || ''}${addr.building ? ', ' + addr.building : ''}`
+                        : addr.shortName
+                          ? `${addr.cityDescription || 'Київ'} — ${addr.shortName}`
+                          : addr.label || `${addr.cityDescription} — ${addr.description}`
+                      }
+                    </span>
+                    <span className="nps-value">{addr.recipientPhone}</span>
+                    <button className="nps-btn nps-btn--reset"
+                      style={{ minWidth: 'auto', padding: '0 0.5rem', height: '1.6rem' }}
+                      onClick={async () => {
+                        const updated = savedRecipientAddresses.filter(a => a.id !== addr.id);
+                        setSavedRecipientAddresses(updated);
+                        await saveSetting('np_recipient_addresses', { addresses: updated });
+                      }}>
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ));
+          })()
+        )}
       </div>
 
       {/* ── Підключення принтера ── */}

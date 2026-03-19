@@ -14,6 +14,7 @@ const PaymentMethodIcons = {
     "на IBAN": <BsBank className="me-2" />,
     "Термінал": <BsCreditCard className="me-2" />,
     "Передоплата": <BsCashStack className="me-2" />,
+    "Наложений платіж": <BsCashStack className="me-2" />,
     "Інше": <BsCurrencyExchange className="me-2" />
 };
 

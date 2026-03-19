@@ -6,6 +6,7 @@ const METHOD_LABELS = {
     terminal: 'Термінал',
     link: 'Посилання',
     iban: 'IBAN',
+    cod: 'Налож. платіж',
     qr: 'QR',
     invoice: 'Рахунок',
     other: 'Інше',

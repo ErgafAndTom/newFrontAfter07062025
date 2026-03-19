@@ -357,13 +357,16 @@ export default function NovaPoshtaCalculator({ onClose }) {
       CargoType: isDocuments ? "Documents" : "Cargo",
       Cost: String(order?.allPrice || order?.price || "1"),
       Description: description.substring(0, 200),
-      RecipientsPhone: order?.User?.phoneNumber || "",
+      RecipientsPhone: order?.client?.phoneNumber || order?.User?.phoneNumber || "",
     });
 
     // Build a minimal order object for NP.jsx
+    // API returns client (not User) as the customer alias
+    const clientUser = order?.client || order?.User || { phoneNumber: "" };
     setNpOrder({
       ...order,
-      User: order?.User || { phoneNumber: "" },
+      User: clientUser,
+      userId: clientUser?.id || order?.userId,
     });
     setShowNP(true);
   };

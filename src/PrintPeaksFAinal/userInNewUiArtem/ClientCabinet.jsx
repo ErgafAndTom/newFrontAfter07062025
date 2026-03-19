@@ -190,7 +190,7 @@ export default function ClientCabinet({
     switch (o.Payment.status) {
       case 'PAID': {
         const m = o.Payment.method;
-        const t = m === 'terminal' ? 'Карткою' : m === 'link' ? 'За посиланням' : m === 'cash' ? 'Готівкою' : 'Оплачено';
+        const t = m === 'terminal' ? 'Карткою' : m === 'link' ? 'За посиланням' : m === 'cash' ? 'Готівкою' : m === 'iban' ? 'На IBAN' : m === 'cod' ? 'Налож. платіж' : m === 'invoice' ? 'За рахунком' : 'Оплачено';
         return { text: t, cls: "cc-pay--paid" };
       }
       case 'CREATED': return { text: "Очікування", cls: "cc-pay--wait" };

@@ -50,6 +50,7 @@ import NewMagnets from "./poslugi/NewMagnets";
 import NewScans from "./poslugi/NewScans";
 import WideFactory from "./poslugi/WideFactory";
 import Delivery from "./poslugi/DeliveryPage";
+import UklonDelivery from "./userInNewUiArtem/UklonDelivery";
 import NewSheetCutBW from "./poslugi/NewSheetCutBw";
 import QuantumErrorBoundary from "../QuantumErrorBoundary";
 
@@ -94,6 +95,7 @@ const NewUIArtem = () => {
   const [showLaminator, setShowLaminator] = useState(false);
   const [showVishichka, setShowVishichka] = useState(false);
   const [showDelivery, setShowDelivery] = useState(false);
+  const [showUklon, setShowUklon] = useState(false);
   const [expandedThingIndex, setExpandedThingIndex] = useState(null);
   // ✅ Єдина мапа типів -> модалка (УЗГОДЖЕНО з беком: newField6 = toCalc.type)
   const EDITORS = [
@@ -567,6 +569,16 @@ const NewUIArtem = () => {
                 </div>
               </p>
 
+              <p onClick={() => setShowUklon(true)}>
+                <div className="tileContent">
+                  <span className="verticalText">UKLON</span>
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64">
+                    <rect width="64" height="64" rx="10" fill="#000"/>
+                    <path d="M18 22 L34 36 L46 24" stroke="#FFD200" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                  </svg>
+                </div>
+              </p>
+
               <p onClick={() => openEditorForOrderUnit(null, 'WideFactory')}>
                 <div className="tileContent">
                   <span className="verticalText">WIDE FACTORY</span>
@@ -939,6 +951,13 @@ const NewUIArtem = () => {
             showDelivery={showDelivery}
             editingOrderUnit={editingOrderUnitSafe}
             setEditingOrderUnit={setEditingOrderUnitSafe}
+          />
+        }
+        {showUklon &&
+          <UklonDelivery
+            showUklon={showUklon}
+            setShowUklon={setShowUklon}
+            thisOrder={thisOrder}
           />
         }
         {showNewMagnets &&

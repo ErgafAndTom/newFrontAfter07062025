@@ -57,6 +57,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
     if (normalized === 'cash') return 'готівкою';
     if (normalized === 'invoice') return 'за рахунком';
     if (normalized === 'iban') return 'на IBAN';
+    if (normalized === 'cod') return 'наложений платіж';
     return '—';
   };
 
@@ -530,6 +531,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 <button
                   className="nui-client-rect-btn"
                   onClick={() => handleSelect("cash")}
+                  disabled={!thisOrder.allPrice}
                 >
                   <span className="nui-client-rect-btn-text">Готівка</span>
                   {thisOrder.Payment && thisOrder.Payment.method === 'cash' && (
@@ -541,6 +543,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 <button
                   className="nui-client-rect-btn"
                   onClick={() => handleSelect("terminal")}
+                  disabled={!thisOrder.allPrice}
                 >
                   <span className="nui-client-rect-btn-text">Картка</span>
                   {thisOrder.Payment && thisOrder.Payment.method === 'terminal' && (
@@ -552,6 +555,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 <button
                   className="nui-client-rect-btn"
                   onClick={() => handleSelect("online")}
+                  disabled={!thisOrder.allPrice}
                 >
                   <span className="nui-client-rect-btn-text">Посилання</span>
                   {(thisOrder.Payment?.method === 'link' || thisOrder.Payment?.method === null) && (
@@ -564,12 +568,14 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                   className="nui-client-rect-btn"
                   onClick={() => setShowPays(true)}
                   title="Платежі"
+                  disabled={!thisOrder.allPrice}
                 >
                   <span className="nui-client-rect-btn-text">Рахунок</span>
                 </button>
                 <button
                   className="nui-client-rect-btn"
                   onClick={() => handleSelect("iban")}
+                  disabled={!thisOrder.allPrice}
                 >
                   <span className="nui-client-rect-btn-text">на IBAN</span>
                   {thisOrder.Payment && thisOrder.Payment.method === 'iban' && (
@@ -661,6 +667,26 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
               </div>
             </>
           )}
+          {thisOrder.Payment?.method === 'cod' && (
+            <>
+              <div className="payment-methods-panel payment-methods-panel--await d-flex align-items-center">
+                <button className="PayButtons pay-await-open" style={{ color: 'var(--adminorange)' }}>
+                  Наложений платіж
+                </button>
+                <div className="PayButtons wait pay-await-state">
+                  <span className="pay-shimmer-txt">Очікування доставки</span>
+                </div>
+              </div>
+              <div className="pay-invoice-manual-confirm">
+                <button
+                  className="pay-invoice-manual-confirm-btn"
+                  onClick={markInvoicePaid}
+                >
+                  Наложений платіж отримано
+                </button>
+              </div>
+            </>
+          )}
           {thisOrder.Payment?.method === 'invoice' && (
             <>
               <div className="payment-methods-panel payment-methods-panel--await payment-methods-panel--invoice d-flex align-items-center">
@@ -697,11 +723,13 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
 
       {thisOrder.Payment?.status === "PAID" && (
         <>
-          <div className={`payment-methods-panel payment-methods-panel--paid${(hasFiscalReceipt || thisOrder.Payment?.method === 'invoice' || thisOrder.Payment?.method === 'iban') ? ' has-receipt' : ''}`}>
+          <div className={`payment-methods-panel payment-methods-panel--paid${(hasFiscalReceipt || thisOrder.Payment?.method === 'invoice' || thisOrder.Payment?.method === 'iban' || thisOrder.Payment?.method === 'cod') ? ' has-receipt' : ''}`}>
             <button className="PayButtons pay-status-strip" disabled>
               <span className="pay-status-fulltext">
                 {thisOrder.Payment?.method === 'iban'
                   ? 'НА IBAN оплатили'
+                  : thisOrder.Payment?.method === 'cod'
+                  ? 'Наложений платіж отримано'
                   : `Оплатили ${paymentMethodLabel(thisOrder.Payment?.method)}`}
               </span>
             </button>

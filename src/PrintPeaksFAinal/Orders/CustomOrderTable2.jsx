@@ -154,7 +154,7 @@ const CustomOrderTable2 = () => {
       </div>
     );
     if (p.status === 'PAID') {
-      const labels = { terminal: 'Оплата карткою', link: 'Інтернет-оплата', cash: 'Оплата готівкою', invoice: 'Оплата рахунком' };
+      const labels = { terminal: 'Оплата карткою', link: 'Інтернет-оплата', cash: 'Оплата готівкою', invoice: 'Оплата рахунком', iban: 'Оплата на IBAN', cod: 'Наложений платіж' };
       return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--paid">{labels[p.method] || 'Інтернет-оплата'}</span></div>;
     }
     if (p.status === 'CANCELLED') return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--cancel">Відміна</span></div>;

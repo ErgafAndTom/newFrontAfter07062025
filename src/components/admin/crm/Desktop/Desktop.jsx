@@ -93,6 +93,7 @@ const Desktop = () => {
         {key: 'invoice', label: 'Рахунок'},
         {key: 'cash', label: 'Готівка'},
         {key: 'iban', label: 'IBAN'},
+        {key: 'cod', label: 'Налож. платіж'},
     ];
     const cashExpenses = expensesData?.expenseByCash || 0;
     const accountExpenses = expensesData?.expenseByAccount || 0;
@@ -179,12 +180,7 @@ const Desktop = () => {
                 </div>
             </div>
 
-            {/* Row 2: Expenses (full width) */}
-            <div className="dsh-row-expenses">
-                <ExpensesCard data={expensesData} dateRange={dateRange} onExpenseAdded={fetchAll} fullWidth/>
-            </div>
-
-            {/* Row 3: Tabs (orders/categories/revenue/payments) + Top Clients */}
+            {/* Row 2: Tabs (orders/categories/revenue/payments) + Top Clients */}
             <div className="dsh-row-charts">
                 <div className="dsh-chart-main">
                     <div className="dsh-chart-header">
@@ -243,6 +239,11 @@ const Desktop = () => {
                 <div className="dsh-row-cards-side">
                     <TopClientsCard data={topClients}/>
                 </div>
+            </div>
+
+            {/* Row 3: Expenses (full width) */}
+            <div className="dsh-row-expenses">
+                <ExpensesCard data={expensesData} dateRange={dateRange} onExpenseAdded={fetchAll} fullWidth/>
             </div>
             {modalFilter && (
                 <OrdersListModal

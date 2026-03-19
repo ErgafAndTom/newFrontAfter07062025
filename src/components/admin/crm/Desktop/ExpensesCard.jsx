@@ -173,16 +173,30 @@ const ExpensesCard = ({data, dateRange, onExpenseAdded, fullWidth}) => {
                                 {/* Files */}
                                 <span className="dsh-exp-item-files">
                                     {expFiles.map((f, fi) => (
-                                        <a
+                                        <span
                                             key={fi}
                                             className="dsh-exp-file-link"
-                                            href={`/expenses/file/${f.fileName}`}
-                                            target="_blank"
-                                            rel="noreferrer"
+                                            style={{cursor: 'pointer'}}
                                             title={`${f.originalName} (${formatFileSize(f.size)})`}
+                                            onClick={async (e) => {
+                                                e.stopPropagation();
+                                                try {
+                                                    const resp = await axios.get(`/expenses/file/${f.fileName}`, {responseType: 'blob'});
+                                                    const url = window.URL.createObjectURL(resp.data);
+                                                    const a = document.createElement('a');
+                                                    a.href = url;
+                                                    a.download = f.originalName || f.fileName;
+                                                    document.body.appendChild(a);
+                                                    a.click();
+                                                    a.remove();
+                                                    window.URL.revokeObjectURL(url);
+                                                } catch (err) {
+                                                    console.error('Download error:', err);
+                                                }
+                                            }}
                                         >
                                             {f.originalName}
-                                        </a>
+                                        </span>
                                     ))}
                                 </span>
 

@@ -14,6 +14,7 @@ const METHOD_MAP = {
     link: {label: 'Посилання', color: '#f5a623'},
     invoice: {label: 'Рахунок', color: '#ff7f50'},
     iban: {label: 'IBAN', color: '#1a8fc4'},
+    cod: {label: 'Налож. платіж', color: '#ef7aaa'},
     qr: {label: 'QR', color: '#6a5acd'},
     other: {label: 'Інше', color: '#999999'},
 };

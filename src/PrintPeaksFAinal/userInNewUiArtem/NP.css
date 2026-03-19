@@ -318,3 +318,64 @@
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Save address button ── */
+
+.np-save-addr-btn {
+  width: 2rem;
+  height: 2rem;
+  min-width: 2rem;
+  border: none;
+  background: var(--admingreen, #0e935b);
+  color: #fff;
+  font-size: var(--font-size-status, 14px);
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.np-save-addr-btn:hover,
+.np-delete-addr-btn:hover {
+  opacity: 0.75;
+}
+
+.np-delete-addr-btn {
+  width: 2rem;
+  height: 2rem;
+  min-width: 2rem;
+  border: none;
+  background: var(--adminred, #ee3c23);
+  color: #fff;
+  font-size: var(--font-size-s, 19px);
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.np-save-addr-standalone {
+  width: 100%;
+  height: 2rem;
+  border: 1px dashed var(--admingreen, #0e935b);
+  background: transparent;
+  color: var(--admingreen, #0e935b);
+  font-size: var(--font-size-status, 14px);
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.np-save-addr-standalone:hover {
+  background: var(--admingreen, #0e935b);
+  color: #fff;
+}

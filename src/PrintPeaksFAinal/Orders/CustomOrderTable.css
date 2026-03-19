@@ -845,7 +845,7 @@ background: #f1eee7;
 /* ── Шапка ── */
 .ort-tbl-head {
   display: grid; width: 100%;
-  grid-template-columns: 3% 5% 7% 9% 3% 3% 1fr 7% 8% 1fr 8% 14% 2.5rem 2.5rem 2.5rem 6%;
+  grid-template-columns: 3% 5% 7% 9% 3% 3% 1fr 7% 11% 1fr 8% 11% 2.5rem 2.5rem 2.5rem 6%;
   padding: 0.3rem 0.6rem;
   font-size: var(--font-size-pay);
   font-weight: 400;
@@ -859,7 +859,7 @@ background: #f1eee7;
 /* ── Рядок ── */
 .ort-tbl-row {
   display: grid; width: 100%; box-sizing: border-box;
-  grid-template-columns: 3% 5% 7% 9% 3% 3% 1fr 7% 8% 1fr 8% 14% 2.5rem 2.5rem 2.5rem 6%;
+  grid-template-columns: 3% 5% 7% 9% 3% 3% 1fr 7% 11% 1fr 8% 11% 2.5rem 2.5rem 2.5rem 6%;
   padding: 0.35rem 0.5rem;
   border-bottom: 1px solid rgba(0,0,0,0.07);
   align-items: center;

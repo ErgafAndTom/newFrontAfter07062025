@@ -39,11 +39,13 @@ const ActivatorCheckPaymentStatus = ({ order }) => {
   if (!p || p.status === null)
     return <span className="ort-pay-badge ort-pay-badge--none">—</span>;
 
-  if (p.status === 'CREATED')
-    return <span className="ort-pay-badge ort-pay-badge--wait">Очікування{load ? '…' : ''}</span>;
+  if (p.status === 'CREATED') {
+    const waitLabels = { link: 'оч-я monobank', terminal: 'оч-я monobank', invoice: 'оч-я рахунок', iban: 'оч-я iban', cod: 'оч-я НП', cash: 'оч-я готівка' };
+    return <span className="ort-pay-badge ort-pay-badge--wait">{waitLabels[p.method] || 'Очікування'}</span>;
+  }
 
   if (p.status === 'PAID') {
-    const labels = { terminal: 'Оплата карткою', link: 'Інтернет-оплата', cash: 'Оплата готівкою', invoice: 'Оплата рахунком' };
+    const labels = { terminal: 'Оплата карткою', link: 'Інтернет-оплата', cash: 'Оплата готівкою', invoice: 'Оплата рахунком', iban: 'Оплата на IBAN', cod: 'Наложений платіж' };
     return <span className="ort-pay-badge ort-pay-badge--paid">{labels[p.method] || 'Інтернет-оплата'}</span>;
   }
 
