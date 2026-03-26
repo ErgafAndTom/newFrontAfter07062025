@@ -46,7 +46,8 @@ function AddUserButton({ fetchUsers, addOrdOrOnlyClient, thisOrder, setThisOrder
             className="buttonSkewedUser"
             onClick={handleAddUser}
           >
-            <span>Створити клієнта</span>
+            <span className="nav-btn-full">Створити клієнта</span>
+            <span className="nav-btn-short">+ клієнт</span>
           </div>
           <div style={{  }}>
             {showAddUser && (

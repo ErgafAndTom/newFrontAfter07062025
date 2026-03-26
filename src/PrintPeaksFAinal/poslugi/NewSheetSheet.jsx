@@ -382,7 +382,7 @@ const NewSheetSheet = ({
                                             <button className="adminButtonAdd" variant="danger"
                                                     onClick={addNewOrderUnit}
                                             >
-                                                Додати до замовлення
+                                                Додати
                                             </button>
 
                                         </div>

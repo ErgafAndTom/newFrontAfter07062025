@@ -7,6 +7,7 @@ import {Route, Routes} from "react-router-dom";
 import Footer from "./footer/Footer";
 import Invoices from "../pages/Invoices";
 import MockupClientPage from "../PrintPeaksFAinal/mockup/MockupClientPage";
+import UklonTrackPage from "../PrintPeaksFAinal/userInNewUiArtem/UklonTrackPage";
 
 function AllWindow() {
     const dispatch = useDispatch();
@@ -40,6 +41,8 @@ function AllWindow() {
 
                 {/* Публічна сторінка макету (без auth) */}
                 <Route path="/mockup/:token" element={<MockupClientPage />} />
+                {/* Публічна сторінка трекінгу Uklon (без auth) */}
+                <Route path="/track/uklon/:trackId" element={<UklonTrackPage />} />
 
                 <Route path="*" element={(
                     <>

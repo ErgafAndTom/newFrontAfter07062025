@@ -181,7 +181,8 @@ const NewCup = ({
     <ScModal
       show={showNewCup}
       onClose={handleClose}
-      modalStyle={{ width: "40vw" }}
+      modalStyle={{ width: "55vw" }}
+      modalClassName="sc-modal-cup"
       rightContent={
         <>
           <ScPricing

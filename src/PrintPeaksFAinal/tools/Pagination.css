@@ -100,3 +100,25 @@
   -webkit-appearance: none;
 }
 .pagination-limit select:hover { border-bottom-color: var(--adminorange, #f5a623); }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .pagination-wrapper {
+    flex-wrap: nowrap;
+    padding: 0.2rem 0.3rem;
+    gap: 0;
+    overflow: hidden;
+  }
+  .page-btn {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.25rem;
+  }
+  .page-item {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.3rem;
+    min-width: 1.2rem;
+  }
+  .pagination-limit select {
+    font-size: 0.65rem;
+  }
+}

@@ -18,19 +18,34 @@ const METHOD_LABELS = {
   mockup: 'макет чашки',
 };
 
+const UKLON_STATUS_LABELS = {
+  processing: '🔍 Шукаємо водія',
+  driver_found: '🚗 Водій знайдений',
+  driver_on_way: '🚗 Водій їде',
+  driver_arrived: '📍 Водій прибув',
+  parcel_picked_up: '📦 Посилку забрано',
+  delivering: '🚚 Доставляється',
+  delivered: '✅ Доставлено',
+  completed: '✅ Завершено',
+  canceled: '❌ Скасовано',
+  cancelled: '❌ Скасовано',
+  failed: '❌ Помилка',
+};
+
 const PopupLeftNotification = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const currentUser = useSelector((state) => state.auth.user);
   const [taskData, setTaskData] = useState([]);
   const [paymentData, setPaymentData] = useState([]);
+  const [uklonNotifs, setUklonNotifs] = useState([]);
   const [show, setShow] = useState(false);
   const [popupPos, setPopupPos] = useState({ top: 0, left: 0 });
   const popupRef = useRef(null);
   const bellWrapRef = useRef(null);
   const prevCountRef = useRef(0);
 
-  const totalCount = taskData.length + paymentData.length;
+  const totalCount = taskData.length + paymentData.length + uklonNotifs.length;
 
   // Звук сповіщення (синтетичний спуск затвору камери)
   const playShutterSound = () => {
@@ -73,14 +88,22 @@ const PopupLeftNotification = () => {
     prevCountRef.current = totalCount;
   }, [totalCount]);
 
+  const isMobile = window.innerWidth <= 768;
+
   const toggle = () => {
     if (!show) {
-      const navCenterGroup = document.querySelector('.nav-center-group');
-      if (navCenterGroup) {
-        const rect = navCenterGroup.getBoundingClientRect();
-        const popupWidth = 0.18 * window.innerWidth;
-        const left = Math.max(0, rect.right - popupWidth);
-        setPopupPos({ top: rect.bottom, left });
+      if (isMobile) {
+        const navEl = document.querySelector('.flipNav');
+        const bottom = navEl ? navEl.getBoundingClientRect().bottom : 0;
+        setPopupPos({ top: bottom, left: 0 });
+      } else {
+        const navCenterGroup = document.querySelector('.nav-center-group');
+        if (navCenterGroup) {
+          const rect = navCenterGroup.getBoundingClientRect();
+          const popupWidth = 0.18 * window.innerWidth;
+          const left = Math.max(0, rect.right - popupWidth);
+          setPopupPos({ top: rect.bottom, left });
+        }
       }
     }
     setShow((prev) => !prev);
@@ -140,6 +163,35 @@ const PopupLeftNotification = () => {
     return () => clearInterval(interval);
   }, [currentUser?.id]);
 
+  // Uklon WebSocket notifications
+  useEffect(() => {
+    const handler = (e) => {
+      const { orderId, status, deliveryId, cancellation } = e.detail || {};
+      if (!orderId || !status) return;
+      const st = (status || '').toLowerCase();
+      // Додаємо нотифікацію (уникаємо дублів по orderId+status)
+      setUklonNotifs(prev => {
+        const exists = prev.some(n => n.orderId === orderId && n.status === st);
+        if (exists) return prev;
+        const notif = {
+          id: `uklon-${orderId}-${st}-${Date.now()}`,
+          orderId,
+          status: st,
+          deliveryId,
+          cancellation: cancellation || null,
+          createdAt: new Date().toISOString(),
+        };
+        return [notif, ...prev];
+      });
+    };
+    window.addEventListener('uklonStatusUpdate', handler);
+    return () => window.removeEventListener('uklonStatusUpdate', handler);
+  }, []);
+
+  const handleDismissUklon = (id) => {
+    setUklonNotifs(prev => prev.filter(n => n.id !== id));
+  };
+
   // Click outside
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -165,29 +217,36 @@ const PopupLeftNotification = () => {
           ref={popupRef}
           style={{
             position: 'fixed',
-            top: popupPos.top + 32,
-            left: popupPos.left,
-            width: '18vw',
+            top: isMobile ? popupPos.top : popupPos.top + 32,
+            left: isMobile ? 0 : popupPos.left,
+            width: isMobile ? '100vw' : '18vw',
             backgroundColor: 'var(--adminfonelement, #f2f0e9)',
             boxShadow: 'none',
             borderRadius: '0',
             padding: '0.7rem',
-            maxHeight: '90vh',
+            maxHeight: isMobile ? '70vh' : '90vh',
             overflowY: 'auto',
             display: 'flex',
             flexDirection: 'column',
             gap: '0.5rem',
             zIndex: 9999,
+            boxSizing: 'border-box',
           }}
         >
           {/* Сповіщення оплат */}
           {paymentData.map((notif) => {
             const isExpired = notif.method === 'expired';
             const isInvoiceOverdue = notif.method === 'invoice_overdue';
+            const isIbanPending = notif.method === 'iban' && !notif.isRepeat;
             const isRepeat = notif.isRepeat;
 
             let bgColor, borderColor, accentColor, btnStyle;
-            if (isInvoiceOverdue) {
+            if (isIbanPending) {
+              bgColor = '#fff5ee';
+              borderColor = 'var(--admincoral, #ff7f50)';
+              accentColor = 'var(--admincoral, #ff7f50)';
+              btnStyle = null;
+            } else if (isInvoiceOverdue) {
               bgColor = '#fff5ee';
               borderColor = 'var(--admincoral, #ff7f50)';
               accentColor = 'var(--admincoral, #ff7f50)';
@@ -215,12 +274,16 @@ const PopupLeftNotification = () => {
             }
 
             const isMockup = notif.method === 'mockup';
-            const label = isInvoiceOverdue
+            const label = isIbanPending
+              ? 'Очікування оплати'
+              : isInvoiceOverdue
               ? `Рахунок`
               : isExpired
               ? 'Оплата протермінована'
               : isMockup ? 'Підтвердили' : isRepeat ? 'Повторна оплата' : 'Оплата';
-            const methodSuffix = isInvoiceOverdue
+            const methodSuffix = isIbanPending
+              ? ' на IBAN'
+              : isInvoiceOverdue
               ? ''
               : isExpired ? '' : ` ${METHOD_LABELS[notif.method] || notif.method}`;
 
@@ -231,12 +294,12 @@ const PopupLeftNotification = () => {
                   background: bgColor,
                   borderBottom: `2px solid ${borderColor}`,
                   borderRadius: '0',
-                  padding: '0.8vh 0.6vw',
+                  padding: isMobile ? '0.8vh 0.5rem' : '0.8vh 0.6vw',
                   marginBottom: 0,
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  gap: '0.5vw',
+                  gap: '0.5rem',
                   cursor: 'pointer',
                 }}
               >
@@ -255,7 +318,7 @@ const PopupLeftNotification = () => {
                     </>
                   )}
                 </div>
-                {!isExpired && (
+                {!isExpired && !isIbanPending && (
                   <button
                     className="notification-check-btn"
                     style={btnStyle}
@@ -271,13 +334,79 @@ const PopupLeftNotification = () => {
             );
           })}
 
+          {/* Uklon delivery notifications */}
+          {uklonNotifs.map((notif) => {
+            const isCanceled = ['canceled', 'cancelled', 'failed'].includes(notif.status);
+            const isDelivered = ['delivered', 'completed'].includes(notif.status);
+            const isActive = !isCanceled && !isDelivered;
+
+            let bgColor, borderColor, accentColor;
+            if (isCanceled) {
+              bgColor = 'var(--adminlightred, #fde8e5)';
+              borderColor = 'var(--adminred, #ee3c23)';
+              accentColor = 'var(--adminred, #ee3c23)';
+            } else if (isDelivered) {
+              bgColor = 'var(--adminlightgreen, #e2f2eb)';
+              borderColor = 'var(--admingreen, #0e935b)';
+              accentColor = 'var(--admingreen, #0e935b)';
+            } else {
+              bgColor = '#fff9e6';
+              borderColor = '#FFD600';
+              accentColor = '#333';
+            }
+
+            const statusLabel = UKLON_STATUS_LABELS[notif.status] || notif.status;
+            const cancelReason = notif.cancellation?.reason === 'driver_search_timeout'
+              ? ' (не знайшли водія)'
+              : notif.cancellation?.reason
+                ? ` (${notif.cancellation.reason})`
+                : '';
+
+            return (
+              <div
+                key={notif.id}
+                style={{
+                  background: bgColor,
+                  borderBottom: `2px solid ${borderColor}`,
+                  padding: isMobile ? '0.8vh 0.5rem' : '0.8vh 0.6vw',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                }}
+              >
+                <div
+                  style={{ flexGrow: 1, fontSize: 'var(--font-size-s, 17px)', color: 'var(--admingrey, #666)', fontWeight: 400 }}
+                  onClick={() => { setShow(false); navigate(`/Orders/${notif.orderId}`); }}
+                >
+                  <span style={{ fontWeight: 600 }}>Uklon</span> замовлення №{notif.orderId}
+                  {' — '}
+                  <strong style={{ color: accentColor, fontWeight: 700 }}>{statusLabel}</strong>
+                  {cancelReason}
+                </div>
+                <button
+                  className="notification-check-btn"
+                  style={{
+                    '--notif-btn-1': isCanceled ? '#f25040' : isDelivered ? '#2eaa6e' : '#ffe066',
+                    '--notif-btn-2': isCanceled ? '#ee3c23' : isDelivered ? '#0e935b' : '#FFD600',
+                    '--notif-btn-3': isCanceled ? '#d42f1a' : isDelivered ? '#0a7a45' : '#e6c200',
+                  }}
+                  onClick={(e) => { e.stopPropagation(); handleDismissUklon(notif.id); }}
+                >
+                  <span>&#10003;</span>
+                </button>
+              </div>
+            );
+          })}
+
           {/* Завдання (trello cards) */}
           {taskData.map((card) => (
             <div key={`task-${card.id}`} style={{
               background: 'var(--adminfonelement, #f1eee7)',
               borderBottom: '2px solid var(--adminorange, #f5a623)',
               borderRadius: '0',
-              padding: '0.8vh 0.6vw',
+              padding: isMobile ? '0.8vh 0.5rem' : '0.8vh 0.6vw',
               marginBottom: 0,
               display: 'flex',
               justifyContent: 'space-between',
@@ -289,7 +418,7 @@ const PopupLeftNotification = () => {
                   {card.content}
                 </div>
                 {card.inTrelloPhoto && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3vw' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
                     {card.inTrelloPhoto.map((photo, idx) => (
                       <img
                         key={idx}

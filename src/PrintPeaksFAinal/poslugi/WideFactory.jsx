@@ -14,6 +14,7 @@ import ScSection from "./shared/ScSection";
 import ScPricing from "./shared/ScPricing";
 import ScAddButton from "./shared/ScAddButton";
 import ScTabs from "./shared/ScTabs";
+import useServiceTabs from "../../hooks/useServiceTabs";
 import "./shared/sc-base.css";
 
 // ========== CONSTANTS ==========
@@ -97,7 +98,9 @@ const WideFactory = ({
   const [error, setError] = useState(null);
 
   const [selectWideFactory, setSelectWideFactory] = useState(DEFAULTS.selectWideFactory);
-  const [services, setServices] = useState(CATEGORY_SERVICES[DEFAULTS.selectWideFactory]);
+  const wfCategory = `WideFactory_${selectWideFactory.replace(/\s+/g, '_')}`;
+  const wfDefaults = CATEGORY_SERVICES[selectWideFactory] || CATEGORY_SERVICES[DEFAULTS.selectWideFactory];
+  const { services, addService, removeService } = useServiceTabs(wfCategory, wfDefaults);
   const [selectedDruk, setSelectedDruk] = useState(DEFAULTS.selectedDruk);
   const [isEditServices, setIsEditServices] = useState(false);
 
@@ -141,8 +144,6 @@ const WideFactory = ({
       a: def.a || "",
     }));
     setSelectWideFactory(e);
-    const newServices = CATEGORY_SERVICES[e] || CATEGORY_SERVICES[DEFAULTS.selectWideFactory];
-    setServices(newServices);
   };
 
   // Sync selectedService when services change
@@ -164,7 +165,6 @@ const WideFactory = ({
 
     if (!isEdit) {
       setSelectWideFactory(DEFAULTS.selectWideFactory);
-      setServices(CATEGORY_SERVICES[DEFAULTS.selectWideFactory]);
       setSize(DEFAULTS.size);
       setMaterial(DEFAULTS.material);
       setColor(DEFAULTS.color);
@@ -190,7 +190,6 @@ const WideFactory = ({
     const newServices = CATEGORY_SERVICES[factoryType] || CATEGORY_SERVICES[DEFAULTS.selectWideFactory];
 
     setSelectWideFactory(factoryType);
-    setServices(newServices);
 
     if (opts.size?.x && opts.size?.y) setSize(opts.size);
     else if (editingOrderUnit?.newField2 && editingOrderUnit?.newField3) {
@@ -358,7 +357,7 @@ const WideFactory = ({
     <ScModal
       show={showWideFactory}
       onClose={handleClose}
-      modalStyle={{ width: "55vw" }}
+      modalStyle={{ width: "66vw" }}
       rightContent={
         <>
           {pricesThis && (
@@ -388,25 +387,20 @@ const WideFactory = ({
           onSelect={setSelectedService}
           isEditServices={isEditServices}
           setIsEditServices={setIsEditServices}
-          onAddService={() => {
+          onAddService={async () => {
             const name = prompt("Введіть назву товару");
             if (!name) return;
-            const trimmed = name.trim();
-            if (!trimmed || services.includes(trimmed)) {
-              alert(services.includes(trimmed) ? "Така назва вже існує" : "");
-              return;
-            }
-            setServices((prev) => [...prev, trimmed]);
-            setSelectedService(trimmed);
+            const added = await addService(name);
+            if (added) setSelectedService(added.name);
           }}
-          onRemoveService={(service) => {
-            if (services.length === 1) {
-              alert("Повинен бути хоча б один товар");
-              return;
+          onRemoveService={async (service) => {
+            const sName = typeof service === 'string' ? service : service?.name;
+            const sId = typeof service === 'string' ? null : service?.id;
+            if (sId) await removeService(sId);
+            if (selectedService === sName) {
+              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
+              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
             }
-            if (!window.confirm(`Видалити "${service}"?`)) return;
-            setServices((prev) => prev.filter((s) => s !== service));
-            if (selectedService === service) setSelectedService(services[0] || "");
           }}
         />
       }

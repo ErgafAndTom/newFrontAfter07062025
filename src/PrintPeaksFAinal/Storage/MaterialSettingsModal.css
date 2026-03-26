@@ -1,0 +1,217 @@
+/* ═══════════════════════════════════════════
+   MaterialSettingsModal — msm-* класи
+   ═══════════════════════════════════════════ */
+
+.msm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.msm-modal {
+  background: var(--adminfon, #f7f5ee);
+  width: 713px;
+  max-width: 95vw;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Шапка ── */
+.msm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  background: var(--adminfonelement, #f2f0e9);
+}
+.msm-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+}
+.msm-title {
+  font-size: var(--font-size-pay, 0.85rem);
+  font-weight: 500;
+  color: var(--admingrey, #666);
+}
+.msm-barcode {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.msm-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--admingrey, #666);
+  padding: 0.2rem;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+.msm-close-btn:hover {
+  color: var(--adminred, #ee3c23);
+}
+
+/* ── Тіло ── */
+.msm-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.8rem 1rem;
+}
+
+/* ── Секція ── */
+.msm-section {
+  margin-bottom: 1rem;
+}
+.msm-section-title {
+  font-size: var(--font-size-pay, 0.85rem);
+  font-weight: 500;
+  color: var(--admingrey, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+/* ── Рядки налаштувань ── */
+.msm-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+.msm-row--1 .msm-settings-field { flex: 1; }
+.msm-row--3 .msm-settings-field { flex: 1; }
+.msm-row--4 .msm-settings-field { flex: 1; }
+.msm-row--5 .msm-settings-field { flex: 1; }
+.msm-row--incoming .msm-settings-field { flex: 1; }
+.msm-row--incoming .msm-field--narrow { flex: 0.35; }
+
+/* ── Поле з кнопкою (примітка + Додати) ── */
+.msm-field--with-btn .msm-input-btn-row {
+  display: flex;
+  gap: 0.3rem;
+  align-items: flex-end;
+}
+.msm-field--with-btn .msm-input {
+  flex: 1;
+}
+
+/* ── Placeholder з 50% прозорістю ── */
+.msm-input--note::placeholder {
+  opacity: 0.5;
+}
+
+/* ── Залишок ── */
+.msm-stock-row {
+  font-size: var(--fontcard, 0.7rem);
+  color: var(--admingrey, #666);
+  margin-bottom: 0.4rem;
+}
+.msm-label {
+  font-size: var(--fontcard, 0.7rem);
+  color: var(--admingrey, #666);
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.msm-input {
+  border: none;
+  border-bottom: 1.5px solid var(--adminblue, #3c60a6);
+  background: transparent;
+  padding: 0.25rem 0.3rem;
+  font-size: var(--font-size-pay, 0.85rem);
+  color: var(--admingrey, #666);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.msm-input:focus {
+  border-bottom-color: var(--adminorange, #f5a623);
+}
+.msm-submit-btn {
+  background: var(--admingreen, #0e935b);
+  color: #fff;
+  border: none;
+  padding: 0.35rem 0.8rem;
+  font-size: var(--font-size-pay, 0.85rem);
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+  height: fit-content;
+}
+.msm-submit-btn:hover {
+  background: var(--adminorange, #f5a623);
+}
+.msm-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Історія приходу ── */
+.msm-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.msm-history-item {
+  display: grid;
+  grid-template-columns: 70px 1fr 80px;
+  gap: 0.5rem;
+  padding: 0.35rem 0.3rem;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  align-items: center;
+  font-size: var(--fontcard, 0.7rem);
+  color: var(--admingrey, #666);
+}
+.msm-history-item:hover {
+  background: rgba(0,0,0,0.02);
+}
+.msm-history-qty {
+  font-weight: 500;
+  color: var(--admingreen, #0e935b);
+}
+.msm-history-note {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.msm-history-date {
+  text-align: right;
+  opacity: 0.6;
+  font-size: 0.65rem;
+}
+.msm-history-user {
+  opacity: 0.6;
+}
+.msm-history-empty {
+  font-size: var(--fontcard, 0.7rem);
+  color: var(--admingrey, #666);
+  opacity: 0.5;
+  padding: 0.5rem 0;
+}
+
+/* ── Поле налаштування ── */
+.msm-settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+/* ── Лоадер ── */
+.msm-loader {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}

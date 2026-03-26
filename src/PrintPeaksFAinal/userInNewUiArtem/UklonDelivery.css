@@ -1,0 +1,492 @@
+/* ============================================================
+   UklonDelivery — ukl-* prefix
+   ============================================================ */
+
+/* Payer toggle */
+.ukl-payer-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 0.8rem;
+}
+.ukl-payer-label {
+  font-size: var(--font-size-status, 16px);
+  font-weight: 600;
+  color: var(--admingrey, #666);
+  margin-right: 0.6rem;
+  white-space: nowrap;
+}
+.ukl-payer-btn {
+  flex: 1;
+  height: 2.4rem;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-status, 16px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: all 0.15s;
+  background: var(--adminfonelement, #f1eee7);
+  color: var(--admingrey, #666);
+}
+.ukl-payer-btn--active {
+  background: #FFD200;
+  color: #000;
+}
+.ukl-payer-btn:hover:not(.ukl-payer-btn--active) {
+  background: #e0ddd6;
+}
+
+.ukl-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ukl-modal {
+  background: var(--adminfon, #f7f5ee);
+  width: 560px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  font-size: 15px;
+  --font-size-xs: 14px;
+  --font-size-status: 16px;
+}
+
+/* ── Header ── */
+
+.ukl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  background: #000;
+  color: #FFD200;
+}
+
+.ukl-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--font-size-s, 19px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ukl-order-id {
+  font-size: var(--font-size-status, 14px);
+  color: #FFD200;
+  opacity: 0.6;
+  font-weight: 400;
+}
+
+.ukl-balance {
+  margin-left: auto;
+  margin-right: 1rem;
+  font-size: var(--font-size-base, 14px);
+  font-weight: 600;
+  color: var(--admingreen, #2d8b61);
+}
+
+.ukl-close {
+  background: none;
+  border: none;
+  color: #FFD200;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  line-height: 1;
+}
+
+.ukl-close:hover {
+  opacity: 0.7;
+}
+
+/* ── Body ── */
+
+.ukl-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  overflow: visible;
+}
+
+/* ── Sections ── */
+
+.ukl-section {
+  background: var(--adminfonelement, #f1eee7);
+  padding: 0.8rem 1rem;
+}
+
+.ukl-section-title {
+  font-size: var(--font-size-status, 14px);
+  font-weight: 600;
+  color: var(--admingrey, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.6rem;
+}
+
+/* ── Fields ── */
+
+.ukl-field {
+  margin-bottom: 0.5rem;
+}
+
+.ukl-field label {
+  display: block;
+  font-size: var(--font-size-xs, 12px);
+  color: var(--admingrey, #666);
+  margin-bottom: 0.2rem;
+  opacity: 0.5;
+}
+
+/* DatePicker всередині Uklon — більший шрифт, без прозорості */
+.ukl-field .dp-wrap {
+  font-size: var(--font-size-base, 14px);
+}
+.ukl-field .dp-trigger {
+  font-size: var(--font-size-base, 14px);
+  height: 2rem;
+}
+.ukl-field .dp-text {
+  font-size: var(--font-size-base, 14px);
+}
+.ukl-field .dp-placeholder {
+  opacity: 0.5;
+}
+
+.ukl-field input,
+.ukl-field select {
+  width: 100%;
+  height: 2rem;
+  padding: 0 0.5rem;
+  border: none;
+  border-bottom: 1px solid var(--adminblue, #3c60a6);
+  background: transparent;
+  font-size: var(--font-size-status, 14px);
+  color: var(--admingrey, #666);
+  outline: none;
+  border-radius: 0;
+  box-sizing: border-box;
+}
+
+.ukl-field input::placeholder,
+.ukl-field select::placeholder {
+  opacity: 0.5;
+}
+
+.ukl-field input:focus {
+  border-bottom-color: #FFD200;
+}
+
+.ukl-field-row {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.ukl-field--half {
+  flex: 1;
+}
+
+.ukl-field--third {
+  flex: 1;
+}
+
+/* ── Estimate ── */
+
+.ukl-estimate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem;
+  background: var(--adminlightgreen, #e2f2eb);
+}
+
+.ukl-estimate-label {
+  font-size: var(--font-size-status, 14px);
+  color: var(--admingrey, #666);
+}
+
+.ukl-estimate-price {
+  font-size: var(--font-size-s, 19px);
+  font-weight: 700;
+  color: var(--admingreen, #0e935b);
+}
+
+/* ── Error ── */
+
+.ukl-error {
+  padding: 0.5rem 1rem;
+  background: var(--adminlightred, #fde8e5);
+  color: var(--adminred, #ee3c23);
+  font-size: var(--font-size-status, 14px);
+}
+
+/* ── Result ── */
+
+.ukl-result {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.ukl-result-title {
+  font-size: var(--font-size-s, 19px);
+  font-weight: 700;
+  color: var(--admingreen, #0e935b);
+  margin-bottom: 0.5rem;
+}
+
+.ukl-result-id {
+  font-size: var(--font-size-status, 14px);
+  color: var(--admingrey, #666);
+  margin-bottom: 0.3rem;
+}
+
+.ukl-result-status {
+  font-size: var(--font-size-status, 14px);
+  color: var(--admingrey, #666);
+  margin-bottom: 1rem;
+}
+
+/* ── Buttons ── */
+
+.ukl-btn {
+  height: 2.5rem;
+  padding: 0 1.5rem;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-status, 14px);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  border-radius: 0;
+  transition: opacity 0.2s;
+}
+
+.ukl-btn:hover {
+  opacity: 0.85;
+}
+
+.ukl-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ukl-btn--primary {
+  background: #FFD200;
+  color: #000;
+  flex: 1;
+}
+
+.ukl-btn--estimate {
+  background: #FFD200;
+  color: #000;
+  flex: 1;
+}
+
+.ukl-btn--active {
+  background: var(--admingreen, #0e935b);
+  color: #fff;
+}
+
+.ukl-btn--inactive {
+  background: transparent;
+  color: var(--admingrey, #666);
+  border: 1px solid var(--admingrey, #666);
+}
+
+/* ── Product toggle ── */
+
+.ukl-product-toggle {
+  display: flex;
+  gap: 0;
+}
+
+.ukl-product-btn {
+  flex: 1;
+  height: 2.4rem;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-status, 16px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: all 0.15s;
+  background: var(--adminfonelement, #f1eee7);
+  color: var(--admingrey, #666);
+}
+
+.ukl-product-btn--active {
+  background: #FFD200;
+  color: #000;
+}
+
+.ukl-product-btn:hover:not(.ukl-product-btn--active) {
+  background: #e0ddd6;
+}
+
+/* ── Add dropoff ── */
+
+.ukl-add-dropoff {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  color: var(--admingreen, #0e935b);
+  font-size: var(--font-size-status, 16px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: background 0.15s;
+}
+
+.ukl-add-dropoff:hover {
+  background: var(--adminlightgreen, #e2f2eb);
+}
+
+.ukl-add-dropoff-hint {
+  font-weight: 400;
+  font-size: var(--font-size-xs, 14px);
+  color: var(--admingrey, #666);
+  text-transform: none;
+}
+
+.ukl-dropoff-remove {
+  background: none;
+  border: none;
+  color: var(--adminred, #ee3c23);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.ukl-dropoff-remove:hover {
+  opacity: 1;
+}
+
+/* ── Tracking ── */
+
+.ukl-tracking {
+  padding: 1rem;
+}
+
+.ukl-tracking-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.ukl-tracking-title {
+  font-size: var(--font-size-s, 19px);
+  font-weight: 700;
+  color: var(--admingreen, #0e935b);
+}
+
+.ukl-tracking-id {
+  font-size: var(--font-size-xs, 14px);
+  color: var(--admingrey, #666);
+  margin-top: 0.2rem;
+}
+
+.ukl-tracking-status,
+.ukl-tracking-courier {
+  background: var(--adminfonelement, #f1eee7);
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.ukl-tracking-status-label {
+  font-size: var(--font-size-xs, 14px);
+  color: var(--admingrey, #666);
+  margin-bottom: 0.3rem;
+}
+
+.ukl-tracking-status-value {
+  font-size: var(--font-size-status, 16px);
+  font-weight: 600;
+}
+
+.ukl-status--delivered,
+.ukl-status--completed {
+  color: var(--admingreen, #0e935b);
+}
+
+.ukl-status--cancelled,
+.ukl-status--failed {
+  color: var(--adminred, #ee3c23);
+}
+
+.ukl-status--driver_found,
+.ukl-status--driver_on_way,
+.ukl-status--driver_arrived {
+  color: var(--adminblue, #3c60a6);
+}
+
+.ukl-status--delivering,
+.ukl-status--parcel_picked_up {
+  color: #FFD200;
+}
+
+.ukl-tracking-map {
+  margin: 0.5rem 0;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+/* ── Cancel button ── */
+
+/* Time input */
+.ukl-time-input {
+  width: 100%;
+  height: 2rem;
+  border: none;
+  border-bottom: 1.5px solid var(--adminline, #e0ddd5);
+  background: transparent;
+  font-size: var(--font-size-base, 14px);
+  color: var(--admingrey, #666);
+  padding: 0 0.3rem;
+  outline: none;
+  font-family: inherit;
+}
+.ukl-time-input:focus {
+  border-bottom-color: var(--admingreen, #2d8b61);
+}
+.ukl-time-input::-webkit-calendar-picker-indicator {
+  filter: opacity(0.4);
+  cursor: pointer;
+}
+
+.ukl-btn--cancel {
+  background: transparent;
+  color: var(--adminred, #ee3c23);
+  border: 2px solid var(--adminred, #ee3c23);
+  flex: 1;
+}
+
+.ukl-btn--cancel:hover {
+  background: var(--adminlightred, #fde8e5);
+}
+
+/* ── Actions row ── */
+
+.ukl-actions {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.4rem;
+}

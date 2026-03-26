@@ -11,6 +11,7 @@ import ScSection from "./shared/ScSection";
 import ScPricing from "./shared/ScPricing";
 import ScAddButton from "./shared/ScAddButton";
 import ScTabs from "./shared/ScTabs";
+import useServiceTabs from "../../hooks/useServiceTabs";
 import "./shared/sc-base.css";
 
 const DEFAULTS = {
@@ -71,7 +72,7 @@ const NewWide = ({
   const [holesR, setHolesR] = useState(DEFAULTS.holesR);
   const [count, setCount] = useState(DEFAULTS.count);
   const [selectedService, setSelectedService] = useState(DEFAULTS.selectedService);
-  const [services, setServices] = useState(SERVICES);
+  const { services, addService, removeService } = useServiceTabs("Wide", SERVICES);
   const [isEditServices, setIsEditServices] = useState(false);
 
   const [prices, setPrices] = useState(null);
@@ -263,7 +264,8 @@ const NewWide = ({
     <ScModal
       show={showNewWide}
       onClose={handleClose}
-      modalStyle={{ width: "45vw" }}
+      modalStyle={{ width: "54vw" }}
+      modalClassName="sc-modal-wide"
       rightContent={
         <>
           {pricesThis && (
@@ -293,25 +295,20 @@ const NewWide = ({
           onSelect={setSelectedService}
           isEditServices={isEditServices}
           setIsEditServices={setIsEditServices}
-          onAddService={() => {
+          onAddService={async () => {
             const name = prompt("Введіть назву товару");
             if (!name) return;
-            const trimmed = name.trim();
-            if (!trimmed || services.includes(trimmed)) {
-              alert(services.includes(trimmed) ? "Така назва вже існує" : "");
-              return;
-            }
-            setServices((prev) => [...prev, trimmed]);
-            setSelectedService(trimmed);
+            const added = await addService(name);
+            if (added) setSelectedService(added.name);
           }}
-          onRemoveService={(service) => {
-            if (services.length === 1) {
-              alert("Повинен бути хоча б один товар");
-              return;
+          onRemoveService={async (service) => {
+            const sName = typeof service === 'string' ? service : service?.name;
+            const sId = typeof service === 'string' ? null : service?.id;
+            if (sId) await removeService(sId);
+            if (selectedService === sName) {
+              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
+              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
             }
-            if (!window.confirm(`Видалити "${service}"?`)) return;
-            setServices((prev) => prev.filter((s) => s !== service));
-            if (selectedService === service) setSelectedService(services[0] || "");
           }}
         />
       }

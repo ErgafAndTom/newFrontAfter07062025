@@ -621,3 +621,29 @@ align-content: flex-end;
   color: var(--adminred, #ee3c23) !important;
   border-color: var(--adminred, #ee3c23) !important;
 }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .payment-methods-panel {
+    height: auto !important;
+    min-height: auto !important;
+    flex-wrap: wrap !important;
+  }
+  .PayButtons {
+    height: auto !important;
+    min-height: 28px !important;
+    padding: 3px 6px !important;
+    font-size: 0.6rem !important;
+  }
+  .PayButtons.adminTextBigPay {
+    font-size: 0.6rem !important;
+  }
+  .payment-methods-panel .nui-client-rect-btn {
+    height: auto !important;
+    min-height: 28px !important;
+    padding: 3px 6px !important;
+  }
+  .payment-methods-panel .nui-client-rect-btn-text {
+    font-size: 0.6rem !important;
+  }
+}

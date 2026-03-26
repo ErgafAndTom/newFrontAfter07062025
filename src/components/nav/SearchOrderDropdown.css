@@ -1,0 +1,74 @@
+/* ============================================================
+   SearchOrderDropdown — sod-* prefix
+   Dropdown з результатами пошуку замовлень під search input
+   ============================================================ */
+
+.sod-wrap {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: var(--adminfon, #f7f5ee);
+  border: 1px solid var(--adminorange, #f5a623);
+  border-top: none;
+  max-height: 360px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.sod-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--adminfonelement, #f1eee7);
+  transition: background 0.15s;
+  color: var(--admingrey, #666);
+  font-size: var(--font-size-status, 14px);
+}
+
+.sod-item:last-child {
+  border-bottom: none;
+}
+
+.sod-item:hover {
+  background: var(--adminfonelement, #f1eee7);
+}
+
+.sod-id {
+  font-weight: 600;
+  color: var(--adminblue, #3c60a6);
+  white-space: nowrap;
+}
+
+.sod-client {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--admingrey, #666);
+}
+
+.sod-price {
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--admingreen, #0e935b);
+}
+
+.sod-status {
+  white-space: nowrap;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid;
+  font-size: var(--font-size-xs, 12px);
+  text-transform: uppercase;
+}
+
+.sod-loading,
+.sod-empty {
+  padding: 0.8rem;
+  text-align: center;
+  color: var(--admingrey, #666);
+  font-size: var(--font-size-status, 14px);
+}

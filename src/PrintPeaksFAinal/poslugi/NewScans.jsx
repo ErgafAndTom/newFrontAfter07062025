@@ -188,7 +188,8 @@ const NewScans = ({
     <ScModal
       show={showNewScans}
       onClose={handleClose}
-      modalStyle={{ width: "40vw" }}
+      modalStyle={{ width: "55vw" }}
+      modalClassName="sc-modal-scans"
       rightContent={
         <>
           <ScPricing

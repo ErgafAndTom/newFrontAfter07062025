@@ -216,18 +216,19 @@
 .rdrDayToday:not(.rdrDayPassive) .rdrStartEdge ~ .rdrDayNumber span:after,
 .rdrDayToday:not(.rdrDayPassive) .rdrEndEdge ~ .rdrDayNumber span:after,
 .rdrDayToday:not(.rdrDayPassive) .rdrSelected ~ .rdrDayNumber span:after {
-  background: var(--adminfon, #f7f5ee);
+  background: var(--adminfonelement, #f1eee7);
 }
 
 .rdrDay:not(.rdrDayPassive) .rdrInRange ~ .rdrDayNumber span,
 .rdrDay:not(.rdrDayPassive) .rdrStartEdge ~ .rdrDayNumber span,
 .rdrDay:not(.rdrDayPassive) .rdrEndEdge ~ .rdrDayNumber span,
 .rdrDay:not(.rdrDayPassive) .rdrSelected ~ .rdrDayNumber span {
-  color: var(--adminfon, #f7f5ee);
+  color: var(--admingreen, #0e935b);
+  font-weight: 700;
 }
 
 .rdrSelected, .rdrInRange, .rdrStartEdge, .rdrEndEdge {
-  background: var(--admingreen, #0e935b);
+  background: transparent;
   position: absolute;
   top: 3px;
   left: 0;
@@ -267,14 +268,14 @@
 }
 
 .rdrDayStartPreview, .rdrDayInPreview, .rdrDayEndPreview {
-  background: rgba(14, 147, 91, 0.08);
+  background: transparent;
   position: absolute;
   top: 3px;
   left: 0px;
   right: 0px;
   bottom: 3px;
   pointer-events: none;
-  border: 1px solid var(--admingreen, #0e935b);
+  border: none;
   z-index: 1;
 }
 
@@ -314,11 +315,11 @@
   font-size: 0.7vh;
   width: 10vw;
   border-right: 1px solid rgba(0,0,0,0.1);
-  background: var(--adminfon, #f7f5ee);
+  background: var(--adminfonelement, #f1eee7);
 }
 
 .rdrStaticRanges {
-  background: var(--adminfon, #f7f5ee);
+  background: var(--adminfonelement, #f1eee7);
 }
 
 .rdrDefinedRangesWrapper .rdrStaticRangeSelected {
@@ -333,7 +334,7 @@
   outline: 0;
   border-bottom: 1px solid rgba(0,0,0,0.07);
   padding: 0;
-  background: var(--adminfon, #f7f5ee);
+  background: var(--adminfonelement, #f1eee7);
   color: var(--admingrey, #666666);
 }
 
@@ -425,4 +426,108 @@
   text-transform: uppercase;
   font-size: 0.65vw;
   letter-spacing: 0.05em;
+}
+
+/* ═══ MOBILE: ≤768px ═══ */
+@media (max-width: 768px) {
+  .rdrCalendarWrapper {
+    font-size: 12px;
+    width: 100%;
+    margin-left: 0;
+    background: var(--adminfonelement, #f1eee7) !important;
+  }
+  .rdrDateRangePickerWrapper {
+    flex-direction: column;
+    width: 100%;
+  }
+  .rdrDefinedRangesWrapper {
+    width: 100%;
+    font-size: 12px;
+    border-right: none;
+    border: none !important;
+    background: var(--adminfonelement, #f1eee7) !important;
+  }
+  .rdrStaticRanges {
+    display: flex;
+    flex-wrap: wrap;
+    background: var(--adminfonelement, #f1eee7) !important;
+  }
+  .rdrStaticRange {
+    flex: 1 1 auto;
+    border: none !important;
+    background: var(--adminfonelement, #f1eee7) !important;
+  }
+  .rdrStaticRangeLabel {
+    font-size: 13px;
+    padding: 4px 8px;
+    line-height: 1.2;
+    justify-content: center;
+    background: var(--adminfonelement, #f1eee7) !important;
+  }
+  .rdrMonth {
+    width: 100%;
+    padding: 0 0.5em 0.3em 0.5em;
+    background: var(--adminfonelement, #f1eee7) !important;
+  }
+  .rdrMonthAndYearWrapper {
+    height: auto;
+    padding: 2px 8px;
+  }
+  .rdrMonthAndYearPickers {
+    font-size: 12px;
+    gap: 4px;
+  }
+  .rdrMonthAndYearPickers select {
+    width: auto;
+    font-size: 12px;
+    padding: 1px 4px;
+    background: var(--adminfonelement, #f1eee7) !important;
+  }
+  .rdrWeekDay {
+    font-size: 9px;
+    line-height: 1.3em;
+  }
+  .rdrDayNumber {
+    font-size: 11px;
+  }
+  .rdrDayNumber span {
+    background: var(--adminfonelement, #f1eee7) !important;
+  }
+  .rdrDay {
+    line-height: 1.6em;
+    height: 1.6em;
+  }
+  .rdrDays {
+    background: var(--adminfonelement, #f1eee7) !important;
+  }
+  .rdrNextPrevButton {
+    width: 20px;
+    height: 20px;
+    margin-top: 0;
+    background: var(--adminfonelement, #f1eee7) !important;
+  }
+  .rdrDateDisplay {
+    margin: 1px 8px;
+  }
+  .rdrDateDisplayWrapper {
+    background: var(--adminfonelement, #f1eee7) !important;
+  }
+  .rdrDateDisplayItem {
+    width: auto;
+    flex: 1;
+    font-size: 11px;
+  }
+  .rdrDateDisplayItem input {
+    height: auto;
+    font-size: 12px;
+    padding: 2px;
+  }
+  .rdrMonthName {
+    font-size: 11px;
+  }
+  .rdrInputRangeInput {
+    width: 36px;
+    height: 24px;
+    font-size: 12px;
+  }
 }

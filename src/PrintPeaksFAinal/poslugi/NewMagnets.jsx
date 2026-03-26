@@ -241,6 +241,7 @@ const NewMagnets = ({
       show={showNewMagnets}
       onClose={handleClose}
       modalStyle={{ width: "45vw" }}
+      modalClassName="sc-modal-magnets"
       rightContent={
         <>
           <ScPricing

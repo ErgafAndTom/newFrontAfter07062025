@@ -175,7 +175,7 @@ const PerepletMet = ({
     <ScModal
       show={showPerepletMet}
       onClose={handleClose}
-      modalStyle={{ width: "40vw" }}
+      modalStyle={{ width: "63vw" }}
       rightContent={
         <>
           <ScPricing

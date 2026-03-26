@@ -117,3 +117,12 @@
 .usm-content .adminButtonAdd[style*="border-radius: 50%"] {
   border-radius: 50% !important;
 }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .usm-panel--full {
+    width: 100vw;
+    height: 100vh;
+    max-height: 100dvh;
+  }
+}

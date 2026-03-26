@@ -147,6 +147,7 @@ const Desktop = () => {
                         subText={`Сер. чек: ${avgCheck.toLocaleString('uk-UA', {maximumFractionDigits: 0})} грн`}
                         onSubTextClick={() => setModalFilter('all')}
                     />
+                    <div className="dsh-kasa-top-row">
                     <div className="dsh-kpi-card dsh-kasa-card">
                         <div className="dsh-kpi-label">Каса</div>
                         <div className="dsh-kasa-methods">
@@ -176,6 +177,10 @@ const Desktop = () => {
                                 {kasaTotal.toLocaleString('uk-UA', {maximumFractionDigits: 0})} ₴
                             </span>
                         </div>
+                    </div>
+                    <div className="dsh-top-clients-mobile">
+                        <TopClientsCard data={topClients}/>
+                    </div>
                     </div>
                 </div>
             </div>

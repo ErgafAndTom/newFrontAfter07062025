@@ -51,6 +51,7 @@ import NewScans from "./poslugi/NewScans";
 import WideFactory from "./poslugi/WideFactory";
 import Delivery from "./poslugi/DeliveryPage";
 import UklonDelivery from "./userInNewUiArtem/UklonDelivery";
+import UklonMap from "./userInNewUiArtem/UklonMap";
 import NewSheetCutBW from "./poslugi/NewSheetCutBw";
 import QuantumErrorBoundary from "../QuantumErrorBoundary";
 
@@ -96,6 +97,193 @@ const NewUIArtem = () => {
   const [showVishichka, setShowVishichka] = useState(false);
   const [showDelivery, setShowDelivery] = useState(false);
   const [showUklon, setShowUklon] = useState(false);
+  const [uklonMapData, setUklonMapData] = useState(null);
+  const [uklonSimulating, setUklonSimulating] = useState(false);
+  const uklonSimRef = useRef(false);
+  useEffect(() => { uklonSimRef.current = uklonSimulating; }, [uklonSimulating]);
+
+  // Слухаємо toggle-uklon від Nav кнопки
+  useEffect(() => {
+    const handler = () => setShowUklon(v => !v);
+    window.addEventListener('toggle-uklon', handler);
+    return () => window.removeEventListener('toggle-uklon', handler);
+  }, []);
+
+  // Відновлення карти Uklon з даних замовлення
+  const uklonRestoreRef = useRef(false); // Блокує повторне відновлення після симуляції
+  useEffect(() => {
+    // Не перезаписувати під час симуляції
+    if (uklonSimulating) {
+      uklonRestoreRef.current = true; // Запам'ятати що була симуляція
+      return;
+    }
+    // Після завершення симуляції — не скидати на стару uklonData з БД
+    if (uklonRestoreRef.current) {
+      uklonRestoreRef.current = false;
+      return;
+    }
+    if (!thisOrder?.uklonData || thisOrder.uklonData === 'null' || thisOrder.uklonData === '{}' || thisOrder.uklonData === '') {
+      console.log('[Uklon restore] No uklonData, setting null');
+      setUklonMapData(null);
+      return;
+    }
+    try {
+      const data = typeof thisOrder.uklonData === 'string'
+        ? JSON.parse(thisOrder.uklonData)
+        : thisOrder.uklonData;
+      if (data?.deliveryId && data?.pickup?.lat) {
+        const cancelledStatuses = ['cancelled', 'canceled', 'failed'];
+        const st = (data.status || '').toLowerCase();
+        // Не показувати карту для скасованих доставок
+        if (cancelledStatuses.includes(st)) {
+          setUklonMapData(null);
+          return;
+        }
+        const doneStatuses = ['delivered', 'completed'];
+        setUklonMapData({
+          pickup: data.pickup,
+          dropoffs: data.dropoffs || [],
+          tracking: {
+            id: data.deliveryId,
+            status: data.status || 'created',
+            courier: data.courier || null,
+          },
+          result: { uid: data.deliveryId },
+          estimate: data.estimate || null,
+          createdAt: data.createdAt,
+          isDone: doneStatuses.includes(st),
+        });
+      } else {
+        setUklonMapData(null);
+      }
+    } catch {
+      setUklonMapData(null);
+    }
+  }, [thisOrder?.id, thisOrder?.uklonData, uklonSimulating]);
+
+  // Трекер — чи WebSocket (webhook) працює
+  const uklonWsActiveRef = useRef(false);
+
+  // WebSocket listener для Uklon webhook оновлень
+  useEffect(() => {
+    const handler = (e) => {
+      if (uklonSimulating) return; // Ігноруємо WS під час симуляції
+      uklonWsActiveRef.current = true; // Webhook працює!
+      const { orderId, status, driver, deliveryId } = e.detail || {};
+      if (!orderId || orderId !== thisOrder?.id) return;
+      console.log('[Uklon WS] Status update:', status);
+
+      const cancelStatuses = ['cancelled', 'canceled', 'failed'];
+      const st = (status || '').toLowerCase();
+
+      // Скасовані — прибрати карту
+      if (cancelStatuses.includes(st)) {
+        setUklonMapData(null);
+        return;
+      }
+
+      setUklonMapData(prev => {
+        if (!prev) return prev;
+        const doneStatuses = ['delivered', 'completed'];
+        return {
+          ...prev,
+          tracking: {
+            ...prev.tracking,
+            id: deliveryId || prev.tracking?.id,
+            status: status || prev.tracking?.status,
+            courier: driver || prev.tracking?.courier,
+          },
+          isDone: doneStatuses.includes(st),
+        };
+      });
+    };
+    window.addEventListener('uklonStatusUpdate', handler);
+    return () => window.removeEventListener('uklonStatusUpdate', handler);
+  }, [thisOrder?.id, uklonSimulating]);
+
+  // Polling статусу замовлення Uklon кожні 10с (fallback коли webhook не працює)
+  useEffect(() => {
+    if (!uklonMapData?.tracking?.id) return;
+    if (uklonSimulating) return; // Не polling під час симуляції
+    const doneStatuses = ['delivered', 'cancelled', 'canceled', 'completed', 'failed'];
+    if (doneStatuses.includes((uklonMapData.tracking?.status || '').toLowerCase())) return;
+
+    const deliveryId = uklonMapData.tracking.id;
+    let active = true;
+
+    const poll = async () => {
+      if (!active) return;
+      // Якщо webhook працює — пропускаємо polling
+      if (uklonWsActiveRef.current) return;
+      try {
+        const { data } = await axios.get(`/api/uklon/order/${deliveryId}`);
+        if (!active || !data) return;
+
+        const newStatus = (data.status || '').toLowerCase();
+        const prevStatus = (uklonMapData.tracking?.status || '').toLowerCase();
+        if (newStatus === prevStatus) return;
+
+        const cancellationReason = data.cancellation?.reason;
+        const cancelReasonMap = {
+          driver_search_timeout: 'Водія не знайдено (таймаут)',
+          client_cancel: 'Скасовано клієнтом',
+          driver_cancel: 'Водій скасував',
+          package_not_fit: 'Посилка не підходить',
+        };
+
+        setUklonMapData(prev => {
+          if (!prev) return prev;
+          const updated = {
+            ...prev,
+            tracking: {
+              ...prev.tracking,
+              status: newStatus,
+              cancellationReason: cancelReasonMap[cancellationReason] || cancellationReason || null,
+              // Оновити дані водія якщо є
+              courier: data.driver ? {
+                name: data.driver.name || data.driver.first_name,
+                phone: data.driver.phone,
+                photo: data.driver.photo,
+                car: data.driver.car || data.driver.vehicle,
+                ...prev.tracking?.courier,
+              } : prev.tracking?.courier,
+              // Оновити часи
+              statusTimes: {
+                ...prev.tracking?.statusTimes,
+                [newStatus]: new Date().toISOString(),
+              },
+            },
+            isDone: doneStatuses.includes(newStatus),
+          };
+
+          // Зберігаємо в БД
+          if (thisOrder?.id) {
+            const uklonDb = {
+              deliveryId: prev.tracking?.id || prev.result?.uid,
+              status: newStatus,
+              pickup: prev.pickup,
+              dropoffs: prev.dropoffs,
+              estimate: prev.estimate,
+              courier: updated.tracking.courier,
+              statusTimes: updated.tracking.statusTimes,
+              cancellationReason: updated.tracking.cancellationReason,
+              createdAt: prev.createdAt,
+            };
+            axios.put(`/orders/one/${thisOrder.id}`, { uklonData: JSON.stringify(uklonDb) }).catch(() => {});
+          }
+
+          return updated;
+        });
+      } catch {
+        // 404 — замовлення не знайдено в Uklon, ігноруємо
+      }
+    };
+
+    poll(); // Одразу перевірити
+    const interval = setInterval(poll, 10000);
+    return () => { active = false; clearInterval(interval); };
+  }, [uklonMapData?.tracking?.id, uklonMapData?.tracking?.status, thisOrder?.id, uklonSimulating]);
+
   const [expandedThingIndex, setExpandedThingIndex] = useState(null);
   // ✅ Єдина мапа типів -> модалка (УЗГОДЖЕНО з беком: newField6 = toCalc.type)
   const EDITORS = [
@@ -517,6 +705,21 @@ const NewUIArtem = () => {
                   <img className="icon64 CardPrintersPoslugiImg" src={bindingIcon} alt="" />
                 </div>
               </p>
+
+              <p onClick={() => { setEditingOrderUnitSafe(null); setShowBigOvshik(true); }}>
+                <div className="tileContent">
+                  <span className="verticalText">POSTPRESS</span>
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
+                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="10" y="14" width="44" height="8" rx="2" />
+                    <rect x="10" y="26" width="44" height="8" rx="2" />
+                    <rect x="10" y="38" width="44" height="8" rx="2" />
+                    <line x1="18" y1="46" x2="18" y2="54" />
+                    <line x1="46" y1="46" x2="46" y2="54" />
+                    <line x1="14" y1="54" x2="50" y2="54" />
+                  </svg>
+                </div>
+              </p>
             </div>
 
             {/* Третя група — NOTE, BOOKLET, MUG (purple) */}
@@ -569,15 +772,6 @@ const NewUIArtem = () => {
                 </div>
               </p>
 
-              <p onClick={() => setShowUklon(true)}>
-                <div className="tileContent">
-                  <span className="verticalText">UKLON</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64">
-                    <rect width="64" height="64" rx="10" fill="#000"/>
-                    <path d="M18 22 L34 36 L46 24" stroke="#FFD200" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                  </svg>
-                </div>
-              </p>
 
               <p onClick={() => openEditorForOrderUnit(null, 'WideFactory')}>
                 <div className="tileContent">
@@ -592,7 +786,7 @@ const NewUIArtem = () => {
             <div className={`nui-order-header-shell ${orderToneClass}`}>
               {orderListStatusTitle && (
                 <div className="nui-order-delivered-title">
-                  {orderListStatusTitle.text}<span className="nui-order-delivered-id">№{orderListStatusTitle.id}</span>{orderListStatusTitle.suffix && <span className="nui-order-delivered-suffix">{orderListStatusTitle.suffix}</span>}
+                  {orderListStatusTitle.text}<span className="nui-order-delivered-id">№{orderListStatusTitle.id}</span>{thisOrder?.createdAt && <span style={{ color: 'var(--admingrey, #666666)' }}> від {new Date(thisOrder.createdAt).toLocaleDateString('uk-UA')}</span>}{orderListStatusTitle.suffix && <span className="nui-order-delivered-suffix">{orderListStatusTitle.suffix}</span>}
                 </div>
               )}
             </div>
@@ -696,6 +890,318 @@ const NewUIArtem = () => {
             </div>
 
           </div>
+
+          {/* ── Uklon Map + Tracking (правіше від списку замовлень) ── */}
+          {uklonMapData && (() => {
+            const t = uklonMapData.tracking;
+            const s = (t?.status || 'created').toLowerCase();
+            const statusMap = { created:'⏳ Створено', processing:'⏳ Обробка', driver_found:'🚗 Водій знайдений', driver_on_way:'🚗 Водій їде до вас', driver_arrived:'📍 Водій прибув', parcel_picked_up:'📦 Посилку забрано', delivering:'🚚 Доставляється', delivered:'✅ Доставлено', cancelled:'❌ Скасовано', completed:'✅ Завершено', returning:'🔄 Повернення', returned:'↩️ Повернено' };
+            const isCanceled = ['cancelled', 'canceled'].includes(s);
+            const isReturning = ['returning', 'returned'].includes(s);
+            const isDone = ['delivered','cancelled','canceled','completed','failed','returned'].includes(s);
+            const currentStatus = s;
+            const steps = ['processing','driver_on_way','parcel_picked_up','delivering','delivered'];
+            const stepMapping = s === 'created' ? 'processing' : s === 'driver_found' ? 'processing' : s === 'driver_arrived' ? 'driver_on_way' : isCanceled || isReturning ? 'processing' : s;
+            const currentStep = steps.indexOf(stepMapping);
+            const courier = t?.courier;
+            const est = uklonMapData.estimate;
+            const statusTimes = t?.statusTimes || {};
+
+            return (
+              <div className="nui-uklon-map-zone">
+                {/* ── Прогрес-бар статусів + ціна ── */}
+                <div className="nui-uklon-progress" style={{ display: 'flex', alignItems: 'center' }}>
+                  {steps.map((step, i) => {
+                    const labels = { processing:'Пошук водія', driver_on_way:'Водій їде', parcel_picked_up:'Забрано', delivering:'Доставка', delivered:'Готово' };
+                    const active = i <= currentStep && currentStep >= 0;
+                    const isCurrent = i === currentStep;
+                    const isSearching = step === 'processing' && isCurrent && ['created','processing','driver_found'].includes(s);
+                    const time = statusTimes[step] ? new Date(statusTimes[step]).toLocaleTimeString('uk-UA', { hour:'2-digit', minute:'2-digit' }) : null;
+                    return (
+                      <div key={step} className={`nui-uklon-step ${active ? 'active' : ''} ${isCurrent ? 'current' : ''} ${isSearching ? 'searching' : ''}`}>
+                        <div className={`nui-uklon-step-dot ${isSearching ? 'pulse' : ''}`} />
+                        <span className="nui-uklon-step-label">
+                          {labels[step]}{isSearching ? '...' : ''}{active && time && !isSearching ? ` (${time})` : ''}
+                        </span>
+                        {i < steps.length - 1 && <div className={`nui-uklon-step-line ${active ? 'active' : ''}`} />}
+                      </div>
+                    );
+                  })}
+
+                  {/* Ціна доставки — в рядку з прогрес-баром */}
+                  {!isCanceled && est?.cost && (
+                    <span style={{ marginLeft: 'auto', fontWeight: 700, fontSize: '0.85rem', color: 'var(--admingreen)', whiteSpace: 'nowrap', paddingLeft: 8 }}>
+                      {est.cost} грн
+                    </span>
+                  )}
+                </div>
+
+                {/* ── Інфо ── */}
+                <div className="nui-uklon-tracking-info">
+
+                  {/* Скасовано */}
+                  {isCanceled && (
+                    <div style={{ background: 'var(--adminlightred, #fde8e8)', padding: '6px 10px', borderRadius: 6, marginBottom: 4 }}>
+                      <span style={{ color: 'var(--adminred)', fontWeight: 600, fontSize: '0.85rem' }}>
+                        ❌ Скасовано{t?.cancellationReason ? `: ${t.cancellationReason}` : ''}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Відстань + час */}
+                  {!isCanceled && (est?.distance || est?.time) && (
+                    <div className="nui-uklon-estimate-row">
+                      {est.distance && <span className="nui-uklon-tag">{est.distance}</span>}
+                      {est.time && <span className="nui-uklon-tag">{est.time}</span>}
+                    </div>
+                  )}
+
+                  {/* Інфо водія — з'являється після driver_found */}
+                  {courier && !isCanceled && ['driver_found','driver_on_way','driver_arrived','on_place','parcel_picked_up','picked_up','delivering','delivered','completed'].includes(s) && (() => {
+                    const driverName = courier.name || courier.first_name || 'Водій';
+                    const carInfo = courier.car ? `${courier.car.brand || ''} ${courier.car.model || ''}`.trim() : '';
+                    const carNumber = courier.car?.number || courier.car?.license_plate || '';
+                    const carColor = courier.car?.color || '';
+                    const phone = courier.phone || '';
+                    const copyText = [driverName, carInfo, carColor, carNumber, phone].filter(Boolean).join(' • ');
+
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', marginBottom: '-2px' }}>
+                        {/* Фото водія */}
+                        {courier.photo ? (
+                          <img
+                            src={courier.photo}
+                            alt={driverName}
+                            style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--admingrey)' }}
+                          />
+                        ) : (
+                          <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#FFD600', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#333', flexShrink: 0 }}>
+                            {driverName.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+
+                        {/* Текст */}
+                        <div style={{ display: 'flex', flexDirection: 'column', fontSize: '0.78rem', color: 'var(--admingrey)', lineHeight: 1.3 }}>
+                          <span>
+                            <b style={{ color: '#333' }}>{driverName}</b>
+                            {carInfo && ` • ${carInfo}`}
+                            {carColor && ` (${carColor})`}
+                            {carNumber && ` • ${carNumber}`}
+                          </span>
+                          {phone && (
+                            <a href={`tel:${phone}`} style={{ color: 'var(--admingrey)', textDecoration: 'none', fontSize: '0.75rem' }}>
+                              {phone}
+                            </a>
+                          )}
+                        </div>
+
+                        {/* Tracking link */}
+                        <button
+                          onClick={() => {
+                            const trackId = t?.id || uklonMapData.result?.uid;
+                            const trackUrl = `${window.location.origin}/track/uklon/${trackId}`;
+                            navigator.clipboard.writeText(trackUrl);
+                            const btn = document.activeElement;
+                            if (btn) { btn.title = 'Скопійовано!'; setTimeout(() => { btn.title = 'Tracking link'; }, 1500); }
+                          }}
+                          title="Tracking link"
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: 'var(--admingrey)', display: 'flex', marginLeft: 'auto', flexShrink: 0 }}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                            <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                          </svg>
+                        </button>
+
+                        {/* Копіювати */}
+                        <button
+                          onClick={() => { navigator.clipboard.writeText(copyText); }}
+                          title="Копіювати"
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: 'var(--admingrey)', display: 'flex', flexShrink: 0 }}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                          </svg>
+                        </button>
+                      </div>
+                    );
+                  })()}
+
+                </div>
+
+                {/* ── Карта (Leaflet) ── */}
+                {uklonMapData.pickup?.lat && uklonMapData.dropoffs?.[0]?.lat && (
+                  <div style={{ height: 930, borderRadius: 6, overflow: 'hidden' }}>
+                    <UklonMap
+                      pickup={uklonMapData.pickup}
+                      dropoffs={uklonMapData.dropoffs}
+                      deliveryId={t?.id || uklonMapData.result?.uid}
+                      status={t?.status}
+                      onCourierUpdate={(courierData) => {
+                        setUklonMapData(prev => prev ? {
+                          ...prev,
+                          tracking: {
+                            ...prev.tracking,
+                            courier: {
+                              ...prev.tracking?.courier,
+                              location: { latitude: courierData.latitude, longitude: courierData.longitude },
+                            },
+                          },
+                        } : prev);
+                      }}
+                      onSimulationChange={setUklonSimulating}
+                      onStatusChange={(newStatus, extra) => {
+                        console.log('[Uklon SIM] onStatusChange:', newStatus);
+                        setUklonMapData(prev => {
+                          if (!prev) return prev;
+                          const doneStatuses = ['delivered', 'cancelled', 'completed', 'failed'];
+                          const updated = {
+                            ...prev,
+                            tracking: {
+                              ...prev.tracking,
+                              status: newStatus,
+                              statusTimes: {
+                                ...prev.tracking?.statusTimes,
+                                ...extra?.statusTimes,
+                              },
+                              courier: {
+                                ...prev.tracking?.courier,
+                                name: prev.tracking?.courier?.name || 'Олексій Мельник',
+                                phone: prev.tracking?.courier?.phone || '+380991234567',
+                                photo: prev.tracking?.courier?.photo || null,
+                                car: prev.tracking?.courier?.car || {
+                                  brand: 'Toyota',
+                                  model: 'Camry',
+                                  color: 'білий',
+                                  number: 'AA 1234 BB',
+                                },
+                              },
+                            },
+                            isDone: doneStatuses.includes(newStatus),
+                          };
+
+                          // Зберігаємо в БД
+                          if (thisOrder?.id) {
+                            const uklonDb = {
+                              deliveryId: prev.tracking?.id || prev.result?.uid,
+                              status: newStatus,
+                              pickup: prev.pickup,
+                              dropoffs: prev.dropoffs,
+                              estimate: prev.estimate,
+                              courier: updated.tracking.courier,
+                              statusTimes: updated.tracking.statusTimes,
+                              createdAt: prev.createdAt,
+                            };
+                            // Не зберігати в БД під час симуляції
+                            if (!uklonSimRef.current) {
+                              axios.put(`/orders/one/${thisOrder.id}`, { uklonData: JSON.stringify(uklonDb) }).catch(() => {});
+                            }
+                          }
+
+                          return updated;
+                        });
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* ── Кнопки скасувати / повернути (знизу карти) ── */}
+                {!isDone && (
+                  <div className="nui-uklon-cancel-wrap" style={{ display: 'flex', gap: '0.5rem' }}>
+                    {/* Кнопка ПОВЕРНУТИ — видна тільки коли посилку вже забрали */}
+                    {['picked_up', 'delivering', 'driver_on_way', 'on_place'].includes(currentStatus) && (
+                      <button
+                        className="nui-uklon-cancel-btn"
+                        style={{ borderColor: 'var(--adminorange)', color: 'var(--adminorange)' }}
+                        onClick={async () => {
+                          const id = t?.id || uklonMapData.result?.uid || uklonMapData.result?.id;
+                          if (!id) { alert('Немає ID'); return; }
+                          if (!window.confirm('Повернути посилку відправнику?')) return;
+                          try {
+                            // 1. Estimate повернення
+                            const estResp = await axios.post(`/api/uklon/order/${id}/return/estimate`, {});
+                            const fareId = estResp.data?.id || estResp.data?.fare_id;
+                            if (!fareId) { alert('Не вдалось отримати fare_id для повернення'); return; }
+                            // 2. Запит на повернення
+                            await axios.put(`/api/uklon/order/${id}/return`, { fare_id: fareId });
+                            alert('Повернення оформлено!');
+                            // Оновити статус
+                            try {
+                              const returnData = JSON.stringify({ ...JSON.parse(thisOrder?.uklonData || '{}'), status: 'returning', returnRequestedAt: new Date().toISOString() });
+                              await axios.put(`/orders/one/${thisOrder.id}`, { uklonData: returnData });
+                              setThisOrder(prev => prev ? { ...prev, uklonData: returnData } : prev);
+                            } catch (_) {}
+                          } catch (err) {
+                            const msg = err?.response?.data?.error || err.message;
+                            if (err?.response?.status === 400) {
+                              alert('Повернення неможливе: замовлення вже скасоване або ще не забране водієм');
+                            } else {
+                              alert('Помилка повернення: ' + msg);
+                            }
+                          }
+                        }}
+                      >
+                        <span>ПОВЕРНУТИ</span>
+                      </button>
+                    )}
+                    <button
+                      className="nui-uklon-cancel-btn"
+                      onClick={() => {
+                        const id = t?.id || uklonMapData.result?.uid || uklonMapData.result?.id;
+                        console.log('[Uklon] Cancel order id:', id);
+                        if (!id) { alert('Немає ID для скасування'); return; }
+                        axios.put(`/api/uklon/order/${id}/cancel`, { reason: 1 })
+                          .then(async () => {
+                            // Видалити позицію "Доставка Uklon" зі списку замовлень
+                            try {
+                              const units = thisOrder?.OrderUnits || thisOrder?.orderUnits || selectedThings2 || [];
+                              const deliveryUnit = units.find(u =>
+                                u.name === 'Доставка Uklon' || u.nameOrderUnit === 'Доставка Uklon'
+                                || u.typeUse === 'Uklon' || (u.name && u.name.includes('Доставка Uklon'))
+                              );
+                              if (deliveryUnit) {
+                                const unitId = deliveryUnit.id || deliveryUnit.idKey;
+                                console.log('[Uklon] Removing delivery unit:', unitId, deliveryUnit.name);
+                                await axios.delete(`/orderUnits/OneOrder/OneOrderUnitInOrder/${unitId}`);
+                                // Оновити замовлення — видалити з поточного стейту одразу
+                                const newUnits = units.filter(u => (u.id || u.idKey) !== unitId);
+                                setSelectedThings2(newUnits);
+                                // Також оновити з сервера
+                                try {
+                                  const { data: updatedOrder } = await axios.get(`/orders/one/${thisOrder.id}`);
+                                  setThisOrder(updatedOrder);
+                                  setSelectedThings2(updatedOrder.OrderUnits || []);
+                                } catch (_) {}
+                              } else {
+                                console.log('[Uklon] Delivery unit not found in', units.map(u => u.name));
+                              }
+                            } catch (delErr) {
+                              console.error('[Uklon] Failed to remove delivery unit:', delErr.message);
+                            }
+                            // Позначити uklonData як скасований
+                            try {
+                              const cancelData = JSON.stringify({ status: 'canceled' });
+                              await axios.put(`/orders/one/${thisOrder.id}`, { uklonData: cancelData });
+                              setThisOrder(prev => prev ? { ...prev, uklonData: cancelData } : prev);
+                            } catch (_) {}
+                            setUklonMapData(null);
+                          })
+                          .catch(err => {
+                            const msg = err?.response?.data?.error || err.message;
+                            console.error('[Uklon] Cancel error:', msg);
+                            alert('Помилка скасування: ' + msg);
+                          });
+                      }}
+                    >
+                      <span>СКАСУВАТИ</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
           <div className="d-flex flex-row nui-bottom-shell">
             <div className="nui-bottom-pane nui-bottom-pane--progress">
               <div className="nui-bottom-main-row">
@@ -769,7 +1275,19 @@ const NewUIArtem = () => {
                             </div>
                           </div>
                         )}
-                        <BarcodeLabel type="order" data={thisOrder} variant="full" />
+                        <BarcodeLabel type="order" data={thisOrder} variant="full" onAfterPrint={() => {
+                          if (thisOrder?.id) {
+                            axios.put('/orders/OneOrder/statusUpdate', { newStatus: 3, thisOrderId: thisOrder.id })
+                              .then(res => {
+                                const nextOrder = res?.data?.order ?? res?.data;
+                                if (nextOrder && typeof nextOrder === 'object') {
+                                  setThisOrder(nextOrder);
+                                  if (Array.isArray(nextOrder.OrderUnits)) setSelectedThings2(nextOrder.OrderUnits);
+                                }
+                              })
+                              .catch(err => console.error('Status update error:', err));
+                          }
+                        }} />
                       </div>
                     ) : (
                       <>
@@ -953,13 +1471,14 @@ const NewUIArtem = () => {
             setEditingOrderUnit={setEditingOrderUnitSafe}
           />
         }
-        {showUklon &&
-          <UklonDelivery
-            showUklon={showUklon}
-            setShowUklon={setShowUklon}
-            thisOrder={thisOrder}
-          />
-        }
+        <UklonDelivery
+          showUklon={showUklon}
+          setShowUklon={setShowUklon}
+          thisOrder={thisOrder}
+          setThisOrder={setThisOrder}
+          setSelectedThings2={setSelectedThings2}
+          onMapData={setUklonMapData}
+        />
         {showNewMagnets &&
           <NewMagnets
             productName={productName}

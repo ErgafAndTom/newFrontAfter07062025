@@ -12,8 +12,10 @@ const MIN_BARCODE_LEN  = 4;   // мін. довжина штрих-коду (ORD
 const UA_TO_EN = {
   'Щ':'O','К':'R','В':'D',  // ORD → ЩКВ
   'С':'C','Д':'L','Т':'N',  // CLN → СДТ
+  'М':'M','А':'A',           // MAT → МАТ
   'щ':'o','к':'r','в':'d',
   'с':'c','д':'l','т':'n',
+  'м':'m','а':'a',
 };
 
 function normalizeToLatin(str) {
@@ -53,6 +55,14 @@ export default function BarcodeScannerListener() {
     const clientMatch = trimmed.match(/^CLN(\d+)$/);
     if (clientMatch) {
       setCabinetClientId(Number(clientMatch[1]));
+      return;
+    }
+
+    const matMatch = trimmed.match(/^MAT(\d+)$/);
+    if (matMatch) {
+      window.dispatchEvent(new CustomEvent('open-material-settings', {
+        detail: { materialId: Number(matMatch[1]) },
+      }));
       return;
     }
 

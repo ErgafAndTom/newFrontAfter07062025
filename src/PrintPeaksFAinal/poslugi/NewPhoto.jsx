@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
@@ -8,6 +9,7 @@ import ScSection from "./shared/ScSection";
 import ScPricing from "./shared/ScPricing";
 import ScAddButton from "./shared/ScAddButton";
 import ScTabs from "./shared/ScTabs";
+import useServiceTabs from "../../hooks/useServiceTabs";
 import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
 import "./shared/sc-base.css";
 
@@ -96,7 +98,7 @@ const NewPhoto = ({
   const [color, setColor] = useState(DEFAULTS.color);
   const [count, setCount] = useState(DEFAULTS.count);
   const [selectedService, setSelectedService] = useState(DEFAULTS.selectedService);
-  const [services, setServices] = useState(SERVICES);
+  const { services, addService, removeService } = useServiceTabs("Photo", SERVICES);
   const [error, setError] = useState(null);
   const [isEditServices, setIsEditServices] = useState(false);
 
@@ -110,6 +112,21 @@ const NewPhoto = ({
 
   const sizeDropdownRef = useRef(null);
   const materialDropdownRef = useRef(null);
+
+  const getDropdownStyle = useCallback((ref) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return {};
+    return {
+      position: "fixed",
+      top: rect.bottom + "px",
+      left: rect.left + "px",
+      width: rect.width + "px",
+      zIndex: 99999,
+      maxHeight: "30vh",
+      overflowY: "auto",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+    };
+  }, []);
 
   // Pricing hook
   const calcData = useMemo(
@@ -356,7 +373,8 @@ const NewPhoto = ({
     <ScModal
       show={showNewPhoto}
       onClose={() => setShowNewPhoto(false)}
-      modalStyle={{ width: "35vw" }}
+      modalStyle={{ width: "50vw" }}
+      modalClassName="sc-modal-photo"
       rightContent={
         <>
           {pricesThis && (
@@ -383,25 +401,20 @@ const NewPhoto = ({
           onSelect={setSelectedService}
           isEditServices={isEditServices}
           setIsEditServices={setIsEditServices}
-          onAddService={() => {
+          onAddService={async () => {
             const name = prompt("Введіть назву товару");
             if (!name) return;
-            const trimmed = name.trim();
-            if (!trimmed || services.includes(trimmed)) {
-              alert(services.includes(trimmed) ? "Така назва вже існує" : "");
-              return;
-            }
-            setServices((prev) => [...prev, trimmed]);
-            setSelectedService(trimmed);
+            const added = await addService(name);
+            if (added) setSelectedService(added.name);
           }}
-          onRemoveService={(service) => {
-            if (services.length === 1) {
-              alert("Повинен бути хоча б один товар");
-              return;
+          onRemoveService={async (service) => {
+            const sName = typeof service === 'string' ? service : service?.name;
+            const sId = typeof service === 'string' ? null : service?.id;
+            if (sId) await removeService(sId);
+            if (selectedService === sName) {
+              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
+              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
             }
-            if (!window.confirm(`Видалити "${service}"?`)) return;
-            setServices((prev) => prev.filter((s) => s !== service));
-            if (selectedService === service) setSelectedService(services[0] || "");
           }}
         />
       }
@@ -451,8 +464,8 @@ const NewPhoto = ({
                 {sizeTitle}
               </div>
 
-              {sizeDropdownOpen && (
-                <div className="custom-select-dropdown">
+              {sizeDropdownOpen && createPortal(
+                <div className="custom-select-dropdown" style={getDropdownStyle(sizeDropdownRef)}>
                   <div
                     className="custom-option"
                     onClick={() => handleSizeSelect({ name: "Задати свій розмір" })}
@@ -468,7 +481,8 @@ const NewPhoto = ({
                       <span className="name">{item.name}</span>
                     </div>
                   ))}
-                </div>
+                </div>,
+                document.body
               )}
             </div>
           </div>
@@ -489,8 +503,8 @@ const NewPhoto = ({
             {materialTitle}
           </div>
 
-          {materialDropdownOpen && (
-            <div className="custom-select-dropdown">
+          {materialDropdownOpen && createPortal(
+            <div className="custom-select-dropdown" style={getDropdownStyle(materialDropdownRef)}>
               {materials.map((item) => (
                 <div
                   key={item.id}
@@ -505,7 +519,8 @@ const NewPhoto = ({
                   </span>
                 </div>
               ))}
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       </ScSection>

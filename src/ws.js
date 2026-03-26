@@ -35,6 +35,14 @@ export function initWebSocket() {
         new CustomEvent('paymentStatusUpdate', { detail: data })
       );
     }
+
+    if (data.type === "uklon_status" || data.type === "uklon_status_update") {
+      console.log('%c[Uklon:WS] 📡 Webhook event received!', 'color: #FFD600; font-weight: bold; font-size: 13px', data);
+      console.log('%c[Uklon:WS] 📡 orderId:', 'color: #FFD600', data.orderId, '| status:', data.status, '| deliveryId:', data.deliveryId);
+      window.dispatchEvent(
+        new CustomEvent('uklonStatusUpdate', { detail: data })
+      );
+    }
   };
 
   ws.onclose = () => {

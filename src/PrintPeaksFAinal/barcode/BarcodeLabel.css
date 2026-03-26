@@ -14,11 +14,13 @@
   align-items: center;
   justify-content: center;
   padding: 2px;
-  max-width: 70px;
+  max-width: 120px;
   overflow: hidden;
 }
 .bc-label--compact svg {
   display: block;
+  width: 100%;
+  height: auto;
 }
 
 /* --- Full (для сторінки замовлення) --- */
@@ -95,9 +97,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 4px 10px;
-  border: 1.5px solid var(--adminblue, #3c60a6);
+  gap: 1px;
+  padding: 2px 6px;
+  border: 1px solid var(--adminblue, #3c60a6);
   background: transparent;
   color: var(--adminblue, #3c60a6);
   cursor: pointer;
@@ -111,7 +113,7 @@
 
 /* Logo SVG */
 .bc-niimbot-logo {
-  height: 18px;
+  height: 12px;
   width: auto;
   display: block;
 }
@@ -126,16 +128,19 @@
 }
 
 /* --- Disconnected --- */
-.bc-niimbot-btn--disconnected .bc-niimbot-dot {
+.bc-niimbot-btn--disconnected .bc-niimbot-dot,
+.bc-niimbot-nav--disconnected .bc-niimbot-dot {
   background-color: var(--adminred, #ee3c23);
 }
 
 /* --- Connecting: animated border + pulsing dot --- */
-.bc-niimbot-btn--connecting {
+.bc-niimbot-btn--connecting,
+.bc-niimbot-nav--connecting {
   cursor: wait;
   animation: niimbot-border-pulse 1.2s ease-in-out infinite;
 }
-.bc-niimbot-btn--connecting .bc-niimbot-dot {
+.bc-niimbot-btn--connecting .bc-niimbot-dot,
+.bc-niimbot-nav--connecting .bc-niimbot-dot {
   background-color: var(--adminorange, #f5a623);
   animation: niimbot-dot-pulse 0.8s ease-in-out infinite;
 }
@@ -150,10 +155,12 @@
 }
 
 /* --- Connected: green dot --- */
-.bc-niimbot-btn--connected {
+.bc-niimbot-btn--connected,
+.bc-niimbot-nav--connected {
   border-color: var(--adminblue, #3c60a6);
 }
-.bc-niimbot-btn--connected .bc-niimbot-dot {
+.bc-niimbot-btn--connected .bc-niimbot-dot,
+.bc-niimbot-nav--connected .bc-niimbot-dot {
   background-color: var(--admingreen, #0e935b);
 }
 

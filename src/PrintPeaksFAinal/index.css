@@ -96,7 +96,7 @@
 
 .clientpip {
     position: relative;
-    width: 1920px;
+    width: min(1920px, 96vw);
     height: 1080px;
     max-width: 90%;
     max-height: 90%;
@@ -115,7 +115,7 @@
     background-color: rgba(233, 230, 218, 0.34);
     border: 1px solid #707070;
     box-sizing: border-box;
-    width: 1920px;
+    width: min(1920px, 96vw);
     height: 1080px;
 }
 
@@ -634,7 +634,7 @@
 
 .sublim {
     position: relative;
-    width: 1920px;
+    width: min(1920px, 96vw);
     height: 1080px;
     max-width: 90%;
     max-height: 90%;

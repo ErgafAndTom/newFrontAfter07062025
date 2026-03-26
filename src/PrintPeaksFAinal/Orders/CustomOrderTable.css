@@ -845,7 +845,7 @@ background: #f1eee7;
 /* ── Шапка ── */
 .ort-tbl-head {
   display: grid; width: 100%;
-  grid-template-columns: 3% 5% 7% 9% 3% 3% 1fr 7% 11% 1fr 8% 11% 2.5rem 2.5rem 2.5rem 6%;
+  grid-template-columns: 3% 5% 7% 9% 3% 2% 12% 5% 9% 12% 7% 2% 9% 2.5rem 2.5rem 2.5rem 6% 2.5rem;
   padding: 0.3rem 0.6rem;
   font-size: var(--font-size-pay);
   font-weight: 400;
@@ -859,12 +859,13 @@ background: #f1eee7;
 /* ── Рядок ── */
 .ort-tbl-row {
   display: grid; width: 100%; box-sizing: border-box;
-  grid-template-columns: 3% 5% 7% 9% 3% 3% 1fr 7% 11% 1fr 8% 11% 2.5rem 2.5rem 2.5rem 6%;
-  padding: 0.35rem 0.5rem;
+  grid-template-columns: 3% 5% 7% 9% 3% 2% 12% 5% 9% 12% 7% 2% 9% 2.5rem 2.5rem 2.5rem 6% 2.5rem;
+  padding: 0.15rem 0.5rem;
   border-bottom: 1px solid rgba(0,0,0,0.07);
   align-items: center;
   cursor: pointer;
   transition: filter 0.1s;
+  font-size: var(--fontcard, 0.7rem);
 }
 .ort-tbl-row:hover  { filter: brightness(0.97); }
 .ort-tbl-row--open  { outline: 1px solid rgba(0,0,0,0.1); }
@@ -933,6 +934,10 @@ background: #f1eee7;
   max-height: 40px;
   opacity: 0.4;
   transition: opacity 0.2s;
+}
+.ort-barcode svg, .ort-barcode canvas {
+  width: 100% !important;
+  height: auto !important;
 }
 .ort-barcode:hover, .ort-barcode--active { opacity: 1; }
 
@@ -1058,5 +1063,62 @@ background: #f1eee7;
   opacity: 1;
   text-decoration: underline;
   color: var(--adminorange, #f5a623);
+}
+
+/* ── Mobile: Orders table — show only ID, Status, Payment, Telegram, ClientID, Price, Calculator ── */
+@media (max-width: 768px) {
+  .ort-tbl-head,
+  .ort-tbl-row {
+    grid-template-columns: 8% 15.4% 22% 10% 8% 15% 2.5rem !important;
+  }
+  /* Hide columns: 2(Date),7(ClientName),9(Phone),10(Company),11(Deadline),12(TTN),14(File),15(Folder),16(Barcode),17(Copy) */
+  .ort-tbl-head > :nth-child(2),
+  .ort-tbl-head > :nth-child(7),
+  .ort-tbl-head > :nth-child(9),
+  .ort-tbl-head > :nth-child(10),
+  .ort-tbl-head > :nth-child(11),
+  .ort-tbl-head > :nth-child(12),
+  .ort-tbl-head > :nth-child(14),
+  .ort-tbl-head > :nth-child(15),
+  .ort-tbl-head > :nth-child(16),
+  .ort-tbl-head > :nth-child(17),
+  .ort-tbl-row > :nth-child(2),
+  .ort-tbl-row > :nth-child(7),
+  .ort-tbl-row > :nth-child(9),
+  .ort-tbl-row > :nth-child(10),
+  .ort-tbl-row > :nth-child(11),
+  .ort-tbl-row > :nth-child(12),
+  .ort-tbl-row > :nth-child(14),
+  .ort-tbl-row > :nth-child(15),
+  .ort-tbl-row > :nth-child(16),
+  .ort-tbl-row > :nth-child(17) {
+    display: none !important;
+  }
+  .ort-tbl-head {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.3rem;
+  }
+  .ort-tbl-row {
+    padding: 0.1rem 0.3rem;
+  }
+  .ort-cell {
+    font-size: 0.65rem;
+    padding: 0 0.15rem;
+  }
+  .ort-pay-badge {
+    font-size: 0.55rem;
+    padding: 0 0.1rem;
+  }
+
+  /* Expanded row — stack vertically */
+  .ort-expanded {
+    padding: 0.5rem;
+  }
+  .ort-expanded-details {
+    gap: 0.3rem 0.8rem;
+  }
+  .ort-expanded-field {
+    min-width: 80px;
+  }
 }
 

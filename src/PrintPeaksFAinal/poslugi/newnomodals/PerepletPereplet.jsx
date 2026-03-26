@@ -112,6 +112,7 @@ const PerepletPereplet = ({pereplet, setPereplet, prices, buttonsArr, selectArr,
                                     className={item.id === pereplet.materialId ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
                                     key={index}
                                     onClick={() => handleClickType(item)}
+                                    style={{height: "6vh", minHeight: "6vh"}}
                                 >
                                     <div className="d-flex flex-column align-content-center align-items-center" style={{
                                         height: "100%",
@@ -119,22 +120,22 @@ const PerepletPereplet = ({pereplet, setPereplet, prices, buttonsArr, selectArr,
                                         transition: "filter 0.2s ease",
                                     }}>
                                         {item.name === "на скобу" &&
-                                            <img src={skoba} alt="на скобу" style={{height: "2.5vw"}}/>
+                                            <img src={skoba} alt="на скобу" style={{height: "100%", maxHeight: "100%", objectFit: "contain"}}/>
                                         }
                                         {item.name === "на пластик" &&
-                                            <img src={plastick} alt="на пластик" style={{height: "2.5vw"}}/>
+                                            <img src={plastick} alt="на пластик" style={{height: "100%", maxHeight: "100%", objectFit: "contain"}}/>
                                         }
                                         {item.name === "на пружину" &&
-                                            <img src={metall} alt="на пружину" style={{height: "2.5vw"}}/>
+                                            <img src={metall} alt="на пружину" style={{height: "100%", maxHeight: "100%", objectFit: "contain"}}/>
                                         }
                                         {item.name === "твердим переплітом" &&
-                                            <img src={diplom} alt="твердим переплітом" style={{height: "2.5vw"}}/>
+                                            <img src={diplom} alt="твердим переплітом" style={{height: "100%", maxHeight: "100%", objectFit: "contain"}}/>
                                         }
                                         {item.name === "на євроскобу" &&
-                                            <img src={imgg101} alt="на євроскобу" style={{height: "2.5vw"}}/>
+                                            <img src={imgg101} alt="на євроскобу" style={{height: "100%", maxHeight: "100%", objectFit: "contain"}}/>
                                         }
                                         {item.name === "на календар" &&
-                                            <img src={kalendarbinder} alt="на календар" style={{height: "2.5vw"}}/>
+                                            <img src={kalendarbinder} alt="на календар" style={{height: "100%", maxHeight: "100%", objectFit: "contain"}}/>
                                         }
                                     </div>
                                 </button>))}

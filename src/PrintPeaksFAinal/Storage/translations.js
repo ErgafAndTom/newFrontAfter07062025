@@ -48,7 +48,7 @@ export const columnTranslations = {
     'x': 'Ширина',
     'y': 'Висота',
     'created': 'копіювати',
-    'article': 'Артикул',
+    'article': 'Штрих-код',
     // Додаткові колонки
     'category': 'Категорія',
     'manufacturer': 'Виробник',

@@ -83,6 +83,7 @@ const DeliveryPage = ({
       show={showDelivery}
       onClose={handleClose}
       modalStyle={{ width: "35vw" }}
+      modalClassName="sc-modal-delivery"
       rightContent={
         <>
           <ScPricing

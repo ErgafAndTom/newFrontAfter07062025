@@ -61,7 +61,7 @@ body {
   margin: 0;
   line-height: normal;
   font-family: 'HelveticaNeueCyr', sans-serif;
-  font-size: clamp(1rem, 1vh, 2.5vh);
+  font-size: clamp(14px, 1.2vh, 20px);
   color: var(--admingrey);
   font-weight: 400;
   background: var(--adminfon) !important;
@@ -84,10 +84,10 @@ body {
   --font-Comfortaa: 'Comfortaa';
   --font-ink-free: 'Ink Free';
   /* font sizes */
-  --font-size-3xs: 1vmin;
-  --font-size-sm: 1.5vmin;
+  --font-size-3xs: clamp(8px, 1vmin, 14px);
+  --font-size-sm: clamp(11px, 1.5vmin, 18px);
   --font-size-26xl: 45px;
-  --font-size-base: 1.9vmin;
+  --font-size-base: clamp(14px, 1.9vmin, 22px);
   --font-size-5xl: 24px;
   --font-size-xl: 20px;
   --font-size-6xs: 7px;
@@ -111,6 +111,7 @@ body {
 
   --admingreen: #0e935b;
   --admingrey: #666666;
+  --adninyellow: #fed823;
   --adminorange: #f5a623;
   --adminblue: #3c60a6;
   --adminrose: #ef7aaa;
@@ -239,4 +240,30 @@ body {
   color: var(--adminorange, #f5a623) !important;
   border-color: var(--adminorange, #f5a623) !important;
   background: var(--adminfon, #f7f5ee) !important;
+}
+
+/* Full HD 1600-2399px: all font sizes -4px */
+@media (min-width: 1600px) and (max-width: 2399px) {
+  :root {
+    --font-size-26xl: 41px;
+    --font-size-6xl: 21px;
+    --font-size-5xl: 20px;
+    --font-size-3xl: 18px;
+    --font-size-xl: 16px;
+    --font-size-base: clamp(10px, 1.9vmin, 18px);
+    --font-size-s: 15px;
+    --font-size-pay: 17px;
+    --font-size-paybig: 22px;
+    --font-size-mid: 13px;
+    --font-size-sm: clamp(7px, 1.5vmin, 14px);
+    --font-size-status: 10px;
+    --font-size-xs: 8px;
+    --font-size-smi-1: 8.1px;
+    --font-size-sm-2: 9.2px;
+    --fontcard: 8px;
+    --fontsmall: 12px;
+    --font-size-3xs: clamp(4px, 1vmin, 10px);
+    --font-size-5xs: 4px;
+    --font-size-6xs: 3px;
+  }
 }

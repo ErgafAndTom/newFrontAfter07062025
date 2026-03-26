@@ -305,7 +305,7 @@ const PerepletNeMet = ({
                                             }}
                                                 onClick={addNewOrderUnit}
                                             >
-                                                Додати до замовлення
+                                                Додати
                                             </div>
                                             {/*<div*/}
                                             {/*    className="btn btn-warning" style={{*/}

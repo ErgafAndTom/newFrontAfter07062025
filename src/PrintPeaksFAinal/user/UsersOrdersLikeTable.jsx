@@ -95,8 +95,9 @@ const UsersOrdersLikeTable = () => {
         <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('ordersCount')}>Замовлень<SortArrow col="ordersCount" /></div>
         <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('totalCharged')}>Нараховано<SortArrow col="totalCharged" /></div>
         <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('totalPaid')}>Оплачено<SortArrow col="totalPaid" /></div>
+        <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('debt')}>Борг<SortArrow col="debt" /></div>
         <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('balance')}>Баланс<SortArrow col="balance" /></div>
-        <div className="uol-cell uol-cell--center" title="Штрих-код">BC</div>
+        <div className="uol-cell uol-cell--center" title="Штрих-код">Штрих-код</div>
         <div className="uol-cell uol-cell--center"><Settings size={14} /></div>
       </div>
 
@@ -106,6 +107,7 @@ const UsersOrdersLikeTable = () => {
         const isOpen = expandedOrderId === order.id;
         const charged = Number(order.totalCharged) || 0;
         const paid    = Number(order.totalPaid)    || 0;
+        const debt    = Number(order.debt)         || 0;
         const balance = paid - charged;
         return (
           <div key={order.id}>
@@ -133,6 +135,10 @@ const UsersOrdersLikeTable = () => {
               <div className="uol-cell uol-cell--center"
                 style={paid > 0 ? { color: 'var(--admingreen)' } : undefined}>
                 {paid > 0 ? paid : '—'}
+              </div>
+              <div className="uol-cell uol-cell--center"
+                style={debt > 0 ? { color: 'var(--adminorange)' } : undefined}>
+                {debt > 0 ? debt : '—'}
               </div>
               <div className="uol-cell uol-cell--center"
                 style={balance !== 0 ? { color: balance < 0 ? 'var(--adminred)' : 'var(--admingreen)' } : undefined}>

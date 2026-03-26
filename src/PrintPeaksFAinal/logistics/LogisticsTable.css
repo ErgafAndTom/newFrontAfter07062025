@@ -1,0 +1,254 @@
+.log-wrap {
+    padding: 1rem;
+    background: var(--adminfon, #f7f5ee);
+    min-height: 80vh;
+}
+
+.log-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--adminline, #e0ddd5);
+}
+
+.log-tab {
+    padding: 0.6rem 1.5rem;
+    background: none;
+    border: none;
+    font-size: var(--font-size-base, 0.9rem);
+    font-weight: 600;
+    color: var(--admingrey, #666);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s, border-color 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.log-tab:hover {
+    color: var(--admindark, #333);
+}
+
+.log-tab--active {
+    color: var(--admingreen, #2d8b61);
+    border-bottom-color: var(--admingreen, #2d8b61);
+}
+
+.log-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.log-title {
+    font-size: var(--font-size-xl, 1.3rem);
+    color: var(--admingrey, #666);
+    font-weight: 400;
+    margin: 0;
+}
+
+.log-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.log-track-all-btn {
+    background: var(--adminfonelement, #f1eee7);
+    border: 2px solid var(--adminorange, #f5a623);
+    color: var(--admingrey, #666);
+    padding: 0.3rem 1rem;
+    cursor: pointer;
+    font-size: var(--font-size-s, 0.85rem);
+    font-weight: 400;
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+
+.log-track-all-btn:hover {
+    background: var(--adminlightorange, #fef4e5);
+}
+
+.log-total {
+    color: var(--admingrey, #666);
+    font-size: var(--font-size-s, 0.85rem);
+    font-weight: 400;
+}
+
+.log-table-head {
+    display: grid;
+    grid-template-columns: 10% 4% 7% 8% 5% 3.5% 4% 3.5% 3% 1fr 1fr 1fr 8% 4%;
+    gap: 0.5rem;
+    padding: 0.5rem 0.5rem;
+    background: var(--adminfonelement, #f1eee7);
+    border-bottom: 2px solid var(--adminorange, #f5a623);
+    font-size: var(--font-size-s, 0.85rem);
+    color: var(--admingrey, #666);
+    font-weight: 400;
+    text-transform: uppercase;
+}
+
+.log-row {
+    display: grid;
+    grid-template-columns: 10% 4% 7% 8% 5% 3.5% 4% 3.5% 3% 1fr 1fr 1fr 8% 4%;
+    gap: 0.5rem;
+    padding: 0.5rem 0.5rem;
+    border-bottom: 1px solid var(--adminfonelement, #f1eee7);
+    align-items: center;
+    font-size: var(--font-size-s, 0.85rem);
+    color: var(--admingrey, #666);
+    font-weight: 400;
+    transition: background 0.2s;
+}
+
+.log-row:hover {
+    background: var(--adminfonelement, #f1eee7);
+}
+
+.log-col {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Uklon таблиця — 10 стовпчиків */
+.log-uklon .log-table-head,
+.log-uklon .log-row {
+    grid-template-columns: 5% 7% 7% 8% 11% 13% 1fr 8% 4% 5%;
+}
+.log-uklon .log-row .log-col {
+    white-space: normal;
+}
+
+.log-col-ttn {
+    font-family: monospace;
+    letter-spacing: 0.5px;
+}
+
+.log-order-link {
+    color: var(--adminblue, #3c60a6);
+    text-decoration: none;
+    font-weight: 400;
+}
+
+.log-order-link:hover {
+    color: var(--adminorange, #f5a623);
+}
+
+.log-status-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid;
+    font-size: 0.75rem;
+    font-weight: 400;
+    white-space: normal;
+    line-height: 1.2;
+}
+
+.log-action-btn {
+    background: none;
+    border: 1px solid var(--admingrey, #666);
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 400;
+    transition: 0.2s;
+}
+
+.log-action-btn:hover {
+    border-color: var(--adminorange, #f5a623);
+    background: var(--adminlightorange, #fef4e5);
+}
+
+.log-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.log-loading,
+.log-empty {
+    text-align: center;
+    padding: 3rem;
+    color: var(--admingrey, #666);
+    font-size: var(--font-size-m, 1rem);
+    font-weight: 400;
+}
+
+.log-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    color: var(--admingrey, #666);
+    font-weight: 400;
+}
+
+.log-pagination button {
+    background: var(--adminfonelement, #f1eee7);
+    border: 1px solid var(--admingrey, #666);
+    padding: 0.3rem 0.8rem;
+    cursor: pointer;
+    color: var(--admingrey, #666);
+    font-weight: 400;
+}
+
+.log-pagination button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.log-pagination button:hover:not(:disabled) {
+    border-color: var(--adminorange, #f5a623);
+    background: var(--adminlightorange, #fef4e5);
+}
+
+.log-col-actions {
+    display: flex;
+    gap: 0.3rem;
+    overflow: visible;
+}
+
+.log-delete-btn:hover {
+    border-color: var(--adminred, #ee3c23);
+    background: var(--adminlightred, #fde8e5);
+}
+
+.log-delete-confirm {
+    border-color: var(--adminred, #ee3c23);
+    color: var(--adminred, #ee3c23);
+}
+
+.log-delete-confirm:hover {
+    background: var(--adminlightred, #fde8e5);
+}
+
+.log-ttn-link {
+    color: var(--adminblue, #3c60a6);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.log-ttn-link:hover {
+    color: var(--adminorange, #f5a623);
+}
+
+.log-col-docs {
+    display: flex;
+    gap: 0.3rem;
+    overflow: visible;
+    flex-wrap: wrap;
+}
+
+.log-col-docs .log-action-btn {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.3rem;
+    white-space: nowrap;
+}
+
+.log-print-btn {
+    font-size: 0.7rem !important;
+    padding: 0.15rem 0.3rem !important;
+}

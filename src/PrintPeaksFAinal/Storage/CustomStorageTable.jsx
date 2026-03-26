@@ -1,472 +1,568 @@
-import React, {useEffect, useState} from 'react';
-import '../Orders/CustomOrderTable.css';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import './StorageTable.css';
 import axios from "../../api/axiosInstance";
-import StatusBar from "../Orders/StatusBar";
-import {Link, redirect, useNavigate} from "react-router-dom";
-import PaginationMy from "../../components/admin/pagination/PaginationMy";
+import { useNavigate } from "react-router-dom";
 import Loader from "../../components/calc/Loader";
-import AddNewOrder from "../Orders/AddNewOrder";
-import ModalDeleteInStorage from "./ModalDeleteInStorage";
-import ModalStorageRed from "./ModalStorageRed";
-import NewWide from "../poslugi/newWide";
-import OneItemInTable from "./OneUnitInTable";
-import Button from "react-bootstrap/Button";
-import Offcanvas from "react-bootstrap/Offcanvas";
-import InputGroup from "react-bootstrap/InputGroup";
-import Form from "react-bootstrap/Form";
-import {da} from "date-fns/locale";
-import NewNote from "../poslugi/NewNote";
-import {columnTranslations, translateColumnName} from "./translations";
 import ModalDeleteOrder from "../Orders/ModalDeleteOrder";
 import Pagination from "../tools/Pagination";
-import {useDispatch, useSelector} from "react-redux";
-import {searchChange} from "../../actions/searchAction";
+import { useDispatch, useSelector } from "react-redux";
+import { searchChange } from "../../actions/searchAction";
+import { translateColumnName } from "./translations";
+import { Copy, Trash2, Settings } from "lucide-react";
+import Barcode from "react-barcode";
+import { printLabel } from "../barcode/niimbotPrintService";
+import MaterialSettingsModal from "./MaterialSettingsModal";
 
+/* Колонки в порядку відображення (settings — між y та created) */
+const COLUMNS = [
+  'article', 'name', 'type', 'typeUse', 'description',
+  'amount', 'quantity', 'unit', 'thickness', 'cost',
+  'price1', 'price2', 'price3', 'price4', 'price5',
+  'x', 'y', 'settings', 'created', 'createdAt', 'updatedAt'
+];
 
-// Основний компонент CustomOrderTable
-const CustomStorageTable = ({name}) => {
-  const [data, setData] = useState(null);
-  const dispatch = useDispatch();
-  const search = useSelector((state) => state.search.search);
-  const [error, setError] = useState(null);
-  const [thisItemForModal, setThisItemForModal] = useState(null);
-  const [thisMetaItemForModal, setThisMetaItemForModal] = useState(null);
-  const [showDeleteItemModal, setShowDeleteItemModal] = useState(false);
-  const [event, setEvent] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const [inPageCount, setInPageCount] = useState(500);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageCount, setPageCount] = useState(null);
-  const [typeSelect, setTypeSelect] = useState("");
-  const [show, setShow] = useState("");
-  const [limit, setLimit] = useState(50);
-  const [thisColumn, setThisColumn] = useState({
-    column: "id",
-    reverse: false
-  });
-  const [formValues, setFormValues] = useState({});
-  const [expandedOrders, setExpandedOrders] = useState([]);
-  const [showRed, setShowRed] = useState(false);
+const NON_EDITABLE = new Set(['article', 'createdAt', 'updatedAt', 'created', 'settings']);
+const PRICE_COLS   = new Set(['cost', 'price1', 'price2', 'price3', 'price4', 'price5']);
+const DATE_COLS    = new Set(['createdAt', 'updatedAt']);
+const AMOUNT_COLS  = new Set(['amount', 'quantity']);
 
-  const setCol = (e) => {
-    if (thisColumn.column === e) {
-      setThisColumn({
-        column: e,
-        reverse: !thisColumn.reverse
-      })
-    } else {
-      setThisColumn({
-        column: e,
-        reverse: false
-      })
+/* ── Компонент редагованої клітинки ── */
+const EditableCell = ({ value, field, itemId, onSave, className, cellIndex }) => {
+  const [editing, setEditing] = useState(false);
+  const [editValue, setEditValue] = useState(value ?? '');
+  const [saving, setSaving] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const inputRef = useRef(null);
+  const cellRef = useRef(null);
+  const tabTargetRef = useRef(null); // зберігаємо напрямок Tab до unmount input
+
+  useEffect(() => {
+    setEditValue(value ?? '');
+    setHasError(false);
+  }, [value]);
+
+  useEffect(() => {
+    if (editing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
     }
-  }
+  }, [editing]);
 
-  useEffect(() => {
-    // console.log(document.location.pathname);
-    dispatch(searchChange(""))
-  }, [])
+  const doSave = useCallback(async (newVal) => {
+    const trimmed = newVal === '' ? '0' : newVal;
+    if (String(trimmed) === String(value ?? '')) return;
+    setSaving(true);
+    setHasError(false);
+    try {
+      await onSave(itemId, field, trimmed);
+    } catch {
+      setHasError(true);
+      setEditValue(value ?? '');
+    } finally {
+      setSaving(false);
+    }
+  }, [value, itemId, field, onSave]);
 
-  const handleItemClickRed = (item, event, metaItem) => {
-    setShowRed(true)
-    setEvent(event)
-    setThisItemForModal(item)
-    setThisMetaItemForModal(metaItem)
-  };
-
-  const handleItemClickDelete2 = (item, event) => {
-    setShowDeleteItemModal(true)
-    setEvent(event)
-    setThisItemForModal(item)
-  };
-
-  const handleInputChange = (event, metaItem) => {
-    setFormValues(prev => ({...prev, [metaItem]: event.target.value}));
-  }
-
-  useEffect(() => {
-    if (!showDeleteItemModal) {
-      let requestData = {
-        inPageCount: inPageCount,
-        currentPage: currentPage,
-        search: search,
-        columnName: thisColumn
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const val = editValue;
+      setEditing(false);
+      doSave(val);
+    }
+    if (e.key === 'Escape') {
+      setEditValue(value ?? '');
+      setEditing(false);
+    }
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      e.stopPropagation();
+      const val = editValue;
+      const reverse = e.shiftKey;
+      // Знаходимо наступну клітинку ДО збереження (поки input ще в DOM)
+      const allCells = Array.from(document.querySelectorAll('[data-cell-index]'));
+      const myIdx = allCells.findIndex(el => el.dataset.cellIndex === String(cellIndex));
+      const nextIdx = reverse ? myIdx - 1 : myIdx + 1;
+      const nextCell = allCells[nextIdx];
+      setEditing(false);
+      doSave(val);
+      if (nextCell) {
+        setTimeout(() => nextCell.click(), 20);
       }
-      setLoading(true)
-      axios.post(`/materials/All`, requestData)
-        .then(response => {
-          // console.log(response.data);
-          setData(response.data)
-          setError(null)
-          setLoading(false)
-          setPageCount(Math.ceil(response.data.count / inPageCount))
-        })
-        .catch(error => {
-          if (error.response && error.response.status === 403) {
-            navigate('/login');
-          }
-          setError(error.message)
-          console.log(error.message);
-          setLoading(false)
-        })
-    }
-  }, [search, typeSelect, thisColumn, show, currentPage, inPageCount, navigate, showRed, showDeleteItemModal]);
-
-  useEffect(() => {
-    if (data) {
-      let newMetadata = data.metadata.filter((t) => t !== "id" && t !== "createdAt" && t !== "updatedAt" && t !== "photo")
-      let meta = newMetadata.reduce((acc, cur) => {
-        return {...acc, [cur]: ""};
-      }, {})
-      setFormValues(meta);
-    }
-  }, [data]);
-
-  const handleClose = () => {
-    setShow(false);
-  }
-
-  let saveAll = (event, id) => {
-    let forData = formValues
-    forData.id = 0
-    let data = {
-      // tableName: namem,
-      inPageCount: inPageCount,
-      currentPage: currentPage,
-      formValues: forData
-    }
-    // console.log(data);
-    axios.post(`/materials/`, data)
-      .then(response => {
-        // console.log(response.data);
-        setData(response.data)
-        setPageCount(Math.ceil(response.data.count / inPageCount))
-
-      })
-      .catch(error => {
-        console.log(error.message);
-      })
-  }
-
-  const toggleOrder = (orderId) => {
-    if (expandedOrders.includes(orderId)) {
-      setExpandedOrders(expandedOrders.filter(id => id !== orderId));
-    } else {
-      setExpandedOrders([...expandedOrders, orderId]);
     }
   };
 
-  const handleShow = () => setShow(true);
-
-
-  const handleItemClickCopy = (item, event, metaItem) => {
-    // setShow(true)
-    setEvent(event)
-    setThisItemForModal(item)
-    setThisMetaItemForModal(metaItem)
-    copyThis(item, event, metaItem)
-  };
-
-  let copyThis = (item, event, metaItem) => {
-    let data = {
-      id: item.id,
-      inPageCount: inPageCount,
-      currentPage: currentPage,
-      search: typeSelect,
-      columnName: thisColumn
-    }
-    // console.log(data);
-    setError(null)
-    // setLoad(true)
-    axios.put(`/materials/copy`, data)
-      .then(response => {
-        // console.log(response.data);
-        setData(response.data)
-        setPageCount(Math.ceil(response.data.count / inPageCount))
-        setShowRed(false)
-      })
-      .catch(error => {
-        if (error.response.status === 403) {
-          navigate('/login');
-        }
-        setError(error.message)
-        console.log(error.message);
-      })
-  }
-
-  if (data) {
+  if (editing) {
     return (
-      <div className="CustomOrderTable-order-list">
-
-        <div className="CustomOrderTable-header">
-          {data.metadata.map((item, iter) => {
-            // Визначення ширини для конкретних стовпців
-            const getColumnWidth = (columnName) => {
-              switch (columnName) {
-                case 'id':
-                  return '2vw';
-                case 'amount':
-                  return '3.35vw';
-                case 'name':
-                  return '13.9vw'; // Фіксована ширина для name в пікселях
-                case 'type':
-                  return '7vw';  // Фіксована ширина для type в пікселях
-                case 'typeUse':
-                  return '7vw'; // Фіксована ширина для typeUse в пікселях
-                case 'createdAt':
-                  return '6vw';
-                case 'updatedAt':
-                  return '6vw';
-                case 'price4':
-                  return '3.6vw';
-                default:
-                  return '3.54vw';     // Фіксована ширина для інших колонок в пікселях
-              }
-            };
-            return (
-              <div
-                style={{
-                  background: "#F2F0E7",
-                  cursor: "pointer",
-                  fontWeight: "600",
-                  fontSize: "0.6rem",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: "auto",
-                  minHeight: "1vh",
-                  boxSizing: "border-box",
-                  textAlign: "center",
-                  width: getColumnWidth(item),
-                  maxWidth: getColumnWidth(item),
-                  minWidth: getColumnWidth(item),
-                  overflow: "hidden",
-                  whiteSpace: "pre-line", // Додано для підтримки переносів
-                  lineHeight: "1.7", // Збільшено для кращої читабельності
-                  borderRadius: "0rem",
-
-                }}
-                className="CustomOrderTable-header-cell"
-                key={item + iter}
-                onClick={(event) => setCol(item)}
-              >
-                {item === thisColumn.column ? (
-                  <div style={{
-                    display: 'flex',
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexDirection: "row",
-                    cursor: "pointer",
-                    borderRadius: "none",
-                    height: "2vh"
-                  }}>
-                    <span style={{whiteSpace: "pre-line",}}>{translateColumnName(item)}</span>
-                    <span style={{
-                      color: "#FAB416",
-                      fontSize: "1.2rem",
-                      position: 'relative',
-                      right: "-0.2rem",
-                      cursor: "pointer",
-                      whiteSpace: "pre-line"
-                    }}>
-                                            {!thisColumn.reverse ? "↑" : "↓"}
-                                        </span>
-                  </div>
-                ) : (
-                  <span style={{whiteSpace: "pre-line",}}>{translateColumnName(item)}</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-        <div className="CustomOrderTable-body "
-             style={{
-               maxWidth: '99vw',
-               height: "85vh",
-               // background: "transparent",
-               display: "flex",
-               flexDirection: "column",
-               overflowY: "auto",
-             }}>
-
-          {data.rows.map((item, iter) => (
-            <div key={item.id} className="table-row-container">
-              <div className="CustomOrderTable-row">
-                {data.metadata.map((metaItem, iter2) => (
-                  <OneItemInTable
-                    key={`${item.id}${item[metaItem]}${iter}${iter2}`}
-                    item={item}
-                    handleItemClickDelete2={handleItemClickDelete2}
-                    metaItem={metaItem}
-                    itemData={item[metaItem]}
-                    tablPosition={metaItem}
-                    handleItemClickRed={handleItemClickRed}
-                    handleItemClickCopy={handleItemClickCopy}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="controls-row">
-          <div className="pagination-container">
-            <PaginationMy
-              name={"Order"}
-              data={data}
-              setData={setData}
-              inPageCount={inPageCount}
-              setInPageCount={setInPageCount}
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              pageCount={pageCount}
-              setPageCount={setPageCount}
-              typeSelect={typeSelect}
-              url={"/materials/All"}
-              thisColumn={thisColumn}
-            />
-
-
-            {/*{data?.count > 1 && (*/}
-            {/*  <Pagination*/}
-            {/*    currentPage={currentPage}*/}
-            {/*    totalPages={Math.ceil(data.count / limit)}*/}
-            {/*    onPageChange={setCurrentPage}*/}
-            {/*    onLimitChange={setLimit}*/}
-            {/*    limit={limit}*/}
-            {/*  />*/}
-            {/*)}*/}
-          </div>
-          <div className="right-group" style={{display: "flex", alignItems: "center"}}>
-            <Button
-              className="adminButtonAdd"
-              variant="primary"
-              onClick={handleShow}
-              style={{
-                border: "none",
-                borderRadius: "0.5rem",
-                fontWeight: "400",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                transition: "all 0.2s ease"
-              }}
-            >
-              Додати матеріал
-            </Button>
-          </div>
-        </div>
-        {showRed &&
-          <ModalStorageRed
-            dataTypeInTable={"string"}
-            setShowRed={setShowRed}
-            showRed={showRed}
-            event={event}
-            setEvent={setEvent}
-            setShowDeleteItemModal={setShowDeleteItemModal}
-            showDeleteItemModal={showDeleteItemModal}
-            thisItemForModal={thisItemForModal}
-            setThisItemForModal={setThisItemForModal}
-            tableName={name}
-            typeSelect={typeSelect}
-            thisColumn={thisColumn}
-            data={data}
-            thisMetaItemForModal={thisMetaItemForModal}
-            setData={setData}
-            inPageCount={inPageCount}
-            setInPageCount={setInPageCount}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-            pageCount={pageCount}
-            setPageCount={setPageCount}
-            url={`/materials/OnlyOneField`}
-          />
-        }
-        <ModalDeleteOrder
-          thisOrderForDelete={thisItemForModal}
-          showDeleteOrderModal={showDeleteItemModal}
-          setThisOrderForDelete={setThisItemForModal}
-          setShowDeleteOrderModal={setShowDeleteItemModal}
-          setData={setData}
-          inPageCount={inPageCount}
-          setInPageCount={setInPageCount}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          pageCount={pageCount}
-          setPageCount={setPageCount}
-          data={data}
-          // setData={(newRows) => {
-          //   setData(prev => ({...prev, rows: newRows}));
-          // }}
-          url={`/materials`}
+      <div className={`stg-cell stg-cell--editing ${className || ''}`} data-cell-index={cellIndex}>
+        <input
+          ref={inputRef}
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onBlur={() => {
+            const val = editValue;
+            setEditing(false);
+            doSave(val);
+          }}
+          onKeyDown={handleKeyDown}
         />
-
-        {/*{data?.count > 1 && (*/}
-        {/*  <Pagination*/}
-        {/*    currentPage={currentPage}*/}
-        {/*    totalPages={Math.ceil(data.count / limit)}*/}
-        {/*    onPageChange={setCurrentPage}*/}
-        {/*    onLimitChange={setLimit}*/}
-        {/*    limit={limit}*/}
-        {/*  />*/}
-        {/*)}*/}
-        <Offcanvas show={show} onHide={handleClose}>
-          <Offcanvas.Header closeButton>
-            <Offcanvas.Title>Додавання нового матеріалу</Offcanvas.Title>
-          </Offcanvas.Header>
-          <Offcanvas.Body>
-            <Form>
-              {/*{Object.keys(formValues).map((metaItem, index) => (*/}
-              {/*    <Form.Group key={index} className="">*/}
-              {/*        <Form.Label>{translateColumnName(metaItem)}</Form.Label>*/}
-              {/*        <Form.Control*/}
-              {/*            type="text"*/}
-              {/*            placeholder={`Введіть ${translateColumnName(metaItem).toLowerCase()}`}*/}
-              {/*            value={formValues[metaItem]}*/}
-              {/*            onChange={(e) => handleInputChange(e, metaItem)}*/}
-              {/*        />*/}
-              {/*    </Form.Group>*/}
-              {/*))}*/}
-              <Button
-                onClick={saveAll}
-                variant="primary"
-                type="button"
-                style={{
-                  marginTop: '1rem',
-                  width: '100%'
-                }}
-              >
-                Зберегти
-              </Button>
-              {/*<Button*/}
-              {/*    onClick={copyThis}*/}
-              {/*    variant="primary"*/}
-              {/*    type="button"*/}
-              {/*    style={{*/}
-              {/*        marginTop: '1rem',*/}
-              {/*        width: '100%'*/}
-              {/*    }}*/}
-              {/*>*/}
-              {/*    copyThis*/}
-              {/*</Button>*/}
-            </Form>
-          </Offcanvas.Body>
-        </Offcanvas>
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <h1 className="d-flex justify-content-center align-items-center">
-        {error}
-      </h1>
-    )
-  }
   return (
-    <h1 className="d-flex justify-content-center align-items-center">
-      <Loader/>
-    </h1>
-  )
+    <div
+      ref={cellRef}
+      data-cell-index={cellIndex}
+      className={`stg-cell stg-cell--editable ${className || ''} ${saving ? 'stg-cell--saving' : ''} ${hasError ? 'stg-cell--error' : ''}`}
+      onClick={() => setEditing(true)}
+      title={String(value ?? '')}
+    >
+      {value ?? '—'}
+    </div>
+  );
+};
+
+/* ── Основний компонент ── */
+const CustomStorageTable = ({ name }) => {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [thisItemForDelete, setThisItemForDelete] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(500);
+  const [sortColumn, setSortColumn] = useState('name');
+  const [sortReverse, setSortReverse] = useState(false);
+  const [settingsMaterial, setSettingsMaterial] = useState(null);
+  const [activeType, setActiveType] = useState(null); // null = всі
+
+  const dispatch = useDispatch();
+  const search = useSelector((state) => state.search.search);
+  const navigate = useNavigate();
+
+  useEffect(() => { dispatch(searchChange('')); }, []); // eslint-disable-line
+
+  /* ── Слухач сканера штрих-коду MAT{id} ── */
+  useEffect(() => {
+    const handler = (e) => {
+      const materialId = e.detail?.materialId;
+      if (!materialId || !data) return;
+      const found = data.rows.find(r => r.id === materialId);
+      if (found) {
+        setSettingsMaterial(found);
+      } else {
+        // Матеріал не на поточній сторінці — все одно відкриваємо з мінімальними даними
+        setSettingsMaterial({ id: materialId });
+      }
+    };
+    window.addEventListener('open-material-settings', handler);
+    return () => window.removeEventListener('open-material-settings', handler);
+  }, [data]);
+
+  /* ── Завантаження даних ── */
+  const fetchData = useCallback(() => {
+    setLoading(true);
+    axios.post('/materials/All', {
+      inPageCount: limit,
+      currentPage,
+      search,
+      columnName: { column: sortColumn, reverse: sortReverse },
+    })
+      .then(res => {
+        setData(res.data);
+        setError(null);
+        setLoading(false);
+      })
+      .catch(err => {
+        if (err.response?.status === 403) navigate('/login');
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [limit, currentPage, search, sortColumn, sortReverse, navigate]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  /* Рефреш після видалення */
+  useEffect(() => {
+    if (!showDeleteModal && data) fetchData();
+  }, [showDeleteModal]); // eslint-disable-line
+
+  /* ── Сортування ── */
+  const handleSort = (col) => {
+    if (sortColumn === col) {
+      setSortReverse(prev => !prev);
+    } else {
+      setSortColumn(col);
+      setSortReverse(false);
+    }
+    setCurrentPage(1);
+  };
+
+  const SortArrow = ({ col }) => (
+    <span className={`stg-sort-icon${sortColumn === col ? ' stg-sort-icon--active' : ''}`}>
+      {sortColumn === col ? (sortReverse ? ' ↓' : ' ↑') : ' ↕'}
+    </span>
+  );
+
+  /* ── Збереження однієї клітинки (Excel-like) ── */
+  const handleCellSave = useCallback(async (itemId, field, newValue) => {
+    // Оптимістичне оновлення
+    setData(prev => {
+      if (!prev) return prev;
+      const newRows = prev.rows.map(row =>
+        row.id === itemId ? { ...row, [field]: newValue } : row
+      );
+      return { ...prev, rows: newRows };
+    });
+
+    await axios.put('/materials/OnlyOneField', {
+      tableName: name,
+      id: itemId,
+      tablePosition: field,
+      input: newValue,
+      search: search || '',
+      inPageCount: limit,
+      currentPage,
+      columnName: { column: sortColumn, reverse: sortReverse },
+    });
+  }, [name, search, limit, currentPage, sortColumn, sortReverse]);
+
+  /* ── Копіювання ── */
+  const handleCopy = (item) => {
+    axios.put('/materials/copy', {
+      id: item.id,
+      inPageCount: limit,
+      currentPage,
+      search: search || '',
+      columnName: { column: sortColumn, reverse: sortReverse },
+    })
+      .then(res => {
+        setData(res.data);
+      })
+      .catch(err => {
+        if (err.response?.status === 403) navigate('/login');
+        setError(err.message);
+      });
+  };
+
+  /* ── Додавання нового матеріалу ── */
+  const handleAdd = () => {
+    axios.post('/materials/', {
+      inPageCount: limit,
+      currentPage,
+    })
+      .then(res => {
+        setData(res.data);
+      })
+      .catch(err => {
+        console.log(err.message);
+      });
+  };
+
+  /* ── Видалення ── */
+  const handleDelete = (item) => {
+    setThisItemForDelete(item);
+    setShowDeleteModal(true);
+  };
+
+  /* ── Форматування дати ── */
+  const formatDate = (val) => {
+    if (!val) return '—';
+    const d = new Date(val);
+    return `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+  };
+
+  /* Кількість редагованих колонок на рядок (для cellIndex) */
+  const EDITABLE_COLS = COLUMNS.filter(c => !NON_EDITABLE.has(c));
+  const COLS_PER_ROW = EDITABLE_COLS.length;
+
+  /* Унікальні типи для вкладок */
+  const types = React.useMemo(() => {
+    if (!data?.rows) return [];
+    const set = new Set();
+    data.rows.forEach(r => {
+      const t = r.type;
+      if (t && t !== '0' && t !== '—') set.add(t);
+    });
+    return [...set].sort();
+  }, [data]);
+
+  /* Фільтровані та відсортовані рядки */
+  const filteredRows = React.useMemo(() => {
+    if (!data?.rows) return [];
+    let rows = activeType ? data.rows.filter(r => r.type === activeType) : [...data.rows];
+
+    // Багаторівневе сортування за замовчуванням: назва → використання → цупкість
+    if (sortColumn === 'name') {
+      const dir = sortReverse ? -1 : 1;
+      rows.sort((a, b) => {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+        if (nameA !== nameB) return nameA < nameB ? -dir : dir;
+
+        const useA = (a.typeUse || '').toLowerCase();
+        const useB = (b.typeUse || '').toLowerCase();
+        if (useA !== useB) return useA < useB ? -dir : dir;
+
+        const thA = parseFloat(a.thickness) || 0;
+        const thB = parseFloat(b.thickness) || 0;
+        return (thA - thB) * dir;
+      });
+    }
+
+    return rows;
+  }, [data, activeType, sortColumn, sortReverse]);
+
+  /* ── Рендер клітинки ── */
+  const renderCell = (item, col, rowIndex) => {
+    // Дати — лише відображення
+    if (DATE_COLS.has(col)) {
+      return (
+        <div className="stg-cell stg-cell--center stg-cell--date" title={formatDate(item[col])}>
+          {formatDate(item[col])}
+        </div>
+      );
+    }
+
+    // Штрих-код (article) — відображення barcode, клік друкує наліпку
+    if (col === 'article') {
+      const barcodeVal = `MAT${item.id}`;
+      return (
+        <div
+          className="stg-cell stg-cell--center stg-cell--barcode"
+          onClick={(e) => {
+            e.stopPropagation();
+            printLabel('material', item).catch(err => console.error('Print error:', err));
+          }}
+          title={`Друк ${barcodeVal}`}
+          style={{ cursor: 'pointer', overflow: 'hidden' }}
+        >
+          <Barcode
+            value={barcodeVal}
+            width={1}
+            height={20}
+            background="transparent"
+            fontSize={0}
+            displayValue={false}
+            margin={0}
+          />
+        </div>
+      );
+    }
+
+    // created — кнопки copy/del
+    if (col === 'created') {
+      return null; // рендеримо окремо
+    }
+
+    // settings — кнопка налаштувань
+    if (col === 'settings') {
+      return null; // рендеримо окремо
+    }
+
+    // Цінові та кількісні класи
+    let extraClass = '';
+    if (PRICE_COLS.has(col)) extraClass = 'stg-cell--price stg-cell--center';
+    else if (AMOUNT_COLS.has(col)) {
+      extraClass = 'stg-cell--amount stg-cell--center';
+      if (parseFloat(item[col]) < 0) extraClass += ' stg-cell--negative';
+    }
+    else if (['x', 'y'].includes(col)) extraClass = 'stg-cell--center';
+
+    // cellIndex — унікальний індекс для Tab-навігації
+    const colIdx = EDITABLE_COLS.indexOf(col);
+    const cellIndex = rowIndex * COLS_PER_ROW + colIdx;
+
+    return (
+      <EditableCell
+        value={item[col]}
+        field={col}
+        itemId={item.id}
+        onSave={handleCellSave}
+        className={extraClass}
+        cellIndex={cellIndex}
+      />
+    );
+  };
+
+  if (error && !data) {
+    return <div style={{ color: 'var(--adminred)', padding: '1rem' }}>{error}</div>;
+  }
+
+  if (!data) {
+    return <div className="stg-loader"><Loader /></div>;
+  }
+
+  const totalPages = Math.ceil((data.count || 0) / limit);
+
+  return (
+    <div className="stg-wrap">
+      {/* Вкладки типів */}
+      {types.length > 0 && (
+        <div className="stg-tabs">
+          <div
+            className={`stg-tab ${!activeType ? 'stg-tab--active' : ''}`}
+            onClick={() => { setActiveType(null); setCurrentPage(1); }}
+          >
+            Всі ({data.rows.length})
+          </div>
+          {types.map(t => {
+            const count = data.rows.filter(r => r.type === t).length;
+            return (
+              <div
+                key={t}
+                className={`stg-tab ${activeType === t ? 'stg-tab--active' : ''}`}
+                onClick={() => { setActiveType(t); setCurrentPage(1); }}
+              >
+                {t} ({count})
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="stg-table-container">
+        <div className="stg-table-inner">
+          {/* Шапка */}
+          <div className="stg-tbl-head">
+            {COLUMNS.map(col => {
+              if (col === 'created') {
+                return (
+                  <React.Fragment key="actions-head">
+                    <div className="stg-cell stg-cell--head" key="copy-head">copy</div>
+                    <div className="stg-cell stg-cell--head" key="del-head">del</div>
+                  </React.Fragment>
+                );
+              }
+              if (col === 'settings') {
+                return <div key="settings-head" className="stg-cell stg-cell--head"><Settings size={13} /></div>;
+              }
+              return (
+                <div
+                  key={col}
+                  className="stg-cell stg-cell--head"
+                  onClick={() => !DATE_COLS.has(col) && handleSort(col)}
+                >
+                  {translateColumnName(col)}
+                  {!DATE_COLS.has(col) && <SortArrow col={col} />}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Рядки */}
+          {loading && <div className="stg-loader"><Loader /></div>}
+
+          {!loading && filteredRows.map((item, rowIndex) => (
+            <div key={item.id} className="stg-tbl-row">
+              {COLUMNS.map(col => {
+                if (col === 'settings') {
+                  return (
+                    <div className="stg-cell stg-cell--center" key={`${item.id}-settings`}>
+                      <button
+                        className="stg-action-btn"
+                        onClick={() => setSettingsMaterial(item)}
+                        title="Налаштування"
+                        tabIndex={-1}
+                      >
+                        <Settings size={13} />
+                      </button>
+                    </div>
+                  );
+                }
+                if (col === 'created') {
+                  return (
+                    <React.Fragment key={`${item.id}-actions`}>
+                      <div className="stg-cell stg-cell--center" key={`${item.id}-copy`}>
+                        <button
+                          className="stg-action-btn"
+                          onClick={() => handleCopy(item)}
+                          title="Копіювати"
+                          tabIndex={-1}
+                        >
+                          <Copy size={13} />
+                        </button>
+                      </div>
+                      <div className="stg-cell stg-cell--center" key={`${item.id}-del`}>
+                        <button
+                          className="stg-action-btn stg-action-btn--del"
+                          onClick={() => handleDelete(item)}
+                          title="Видалити"
+                          tabIndex={-1}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </React.Fragment>
+                  );
+                }
+                return (
+                  <React.Fragment key={`${item.id}-${col}`}>
+                    {renderCell(item, col, rowIndex)}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Футер */}
+      <div className="stg-footer">
+        <div>
+          {data.count > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              onLimitChange={setLimit}
+              limit={limit}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Модалка видалення */}
+      <ModalDeleteOrder
+        thisOrderForDelete={thisItemForDelete}
+        showDeleteOrderModal={showDeleteModal}
+        setThisOrderForDelete={setThisItemForDelete}
+        setShowDeleteOrderModal={setShowDeleteModal}
+        setData={setData}
+        inPageCount={limit}
+        setInPageCount={setLimit}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        pageCount={totalPages}
+        setPageCount={() => {}}
+        data={data}
+        url="/materials"
+        title={`Видалити матеріал ${thisItemForDelete?.name || ''}?`}
+        subLabel=""
+        showTotal={false}
+      />
+
+      {/* Модалка налаштувань матеріалу */}
+      {settingsMaterial && (
+        <MaterialSettingsModal
+          material={settingsMaterial}
+          onClose={() => setSettingsMaterial(null)}
+          onMaterialUpdate={(updated) => {
+            // Оновити рядок в таблиці
+            setData(prev => {
+              if (!prev) return prev;
+              const newRows = prev.rows.map(row =>
+                row.id === updated.id ? { ...row, ...updated } : row
+              );
+              return { ...prev, rows: newRows };
+            });
+            setSettingsMaterial(updated);
+          }}
+        />
+      )}
+    </div>
+  );
 };
 
 export default CustomStorageTable;

@@ -102,17 +102,28 @@ const Materials2 = ({
             }));
           }
         } else {
-          // Авто-вибір першого матеріалу якщо нічого не вибрано або поточний відсутній у результатах
+          // Авто-вибір матеріалу якщо нічого не вибрано або поточний відсутній у результатах
           const currentExists = rows.some((r) => String(r.id) === String(material?.materialId));
-          if (autoSelectFirst && rows.length > 0 && (!material?.materialId || material.materialId === 0 || material.materialId === "0" || !currentExists)) {
-            setMaterial((prev) => ({
-              ...prev,
-              material: rows[0].name,
-              materialId: rows[0].id,
-              a: rows[0].thickness || "",
-              x: rows[0].x || "",
-              y: rows[0].y || "",
-            }));
+          const isOffice = material?.typeUse === 'Офісний' || material?.thickness === 'Офісний';
+          const needsAutoSelect = !material?.materialId || material.materialId === 0 || material.materialId === "0" || !currentExists;
+
+          // Для "Офісний" — завжди авто-вибирати матеріал за розміром
+          if (rows.length > 0 && (isOffice || (autoSelectFirst && needsAutoSelect))) {
+            const sizeMatch = size?.x && size?.y
+              ? rows.find((r) => Number(r.x) === Number(size.x) && Number(r.y) === Number(size.y))
+              : null;
+            const target = sizeMatch || rows[0];
+            // Оновлюємо тільки якщо реально потрібно (інший матеріал або немає вибору)
+            if (needsAutoSelect || (isOffice && String(target.id) !== String(material?.materialId))) {
+              setMaterial((prev) => ({
+                ...prev,
+                material: target.name,
+                materialId: target.id,
+                a: target.thickness || "",
+                x: target.x || "",
+                y: target.y || "",
+              }));
+            }
           }
         }
       })
@@ -126,7 +137,7 @@ const Materials2 = ({
     return () => {
       cancelled = true;
     };
-  }, [material?.thickness, material?.type, size, navigate, setMaterial, preferredMaterialName, autoSelectFirst]);
+  }, [material?.thickness, material?.type, size, size?.x, size?.y, navigate, setMaterial, preferredMaterialName, autoSelectFirst]);
 
   // 📏 автоширина
   useEffect(() => {

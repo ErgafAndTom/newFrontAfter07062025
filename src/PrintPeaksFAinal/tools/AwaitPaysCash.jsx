@@ -11,6 +11,7 @@ const AwaitPaysCash = ({
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [error, setError] = useState(null);
+  const [clientAmount, setClientAmount] = useState('');
   const handleClose = () => {
     setIsAnimating(false); // Начинаем анимацию закрытия
     setTimeout(() => {
@@ -87,6 +88,7 @@ const AwaitPaysCash = ({
 
   useEffect(() => {
     if (showAwaitCashPays) {
+      setClientAmount('');
       setIsVisible(true); // Сначала показываем модальное окно
       setTimeout(() => setIsAnimating(true), 100); // После короткой задержки запускаем анимацию появления
     } else {
@@ -153,6 +155,38 @@ const AwaitPaysCash = ({
               padding: "0.5rem 0",
             }}>
               {thisOrder?.allPrice ?? 0} <span style={{ fontSize: "var(--fontsmall, 15px)", color: "var(--admingrey, #666)" }}>грн</span>
+            </div>
+
+            {/* Client amount input */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", alignItems: "center" }}>
+              <input
+                type="number"
+                placeholder="Клієнт дає, грн"
+                value={clientAmount}
+                onChange={(e) => setClientAmount(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "0.5rem 0.8rem",
+                  fontSize: "var(--font-size-s, 17px)",
+                  border: "1px solid var(--admingrey, #ccc)",
+                  borderRadius: 0,
+                  textAlign: "center",
+                  outline: "none",
+                  background: "white",
+                }}
+              />
+              {clientAmount && Number(clientAmount) > 0 && (
+                <div style={{
+                  fontSize: "var(--font-size-paybig, 26px)",
+                  fontWeight: 500,
+                  textAlign: "center",
+                  color: Number(clientAmount) >= (thisOrder?.allPrice ?? 0)
+                    ? "var(--admingreen, #0e935b)"
+                    : "var(--adminred, #ee3c23)",
+                }}>
+                  Решта: {(Number(clientAmount) - (thisOrder?.allPrice ?? 0)).toFixed(2)} <span style={{ fontSize: "var(--fontsmall, 15px)", color: "var(--admingrey, #666)" }}>грн</span>
+                </div>
+              )}
             </div>
 
             {/* Buttons */}

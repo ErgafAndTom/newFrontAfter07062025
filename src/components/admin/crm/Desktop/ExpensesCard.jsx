@@ -202,12 +202,12 @@ const ExpensesCard = ({data, dateRange, onExpenseAdded, fullWidth}) => {
 
                                 {/* Add receipt button */}
                                 <button
-                                    className="dsh-exp-receipt-btn"
+                                    className={`dsh-exp-receipt-btn${expFiles.length > 0 ? ' has-files' : ''}`}
                                     onClick={() => handleAddFile(exp.id)}
                                     disabled={uploadingId === exp.id}
-                                    title="Додати квітанцію"
+                                    title={expFiles.length > 0 ? 'Квітанція додана' : 'Додати квітанцію'}
                                 >
-                                    {uploadingId === exp.id ? '...' : '+ квітанція'}
+                                    {uploadingId === exp.id ? '...' : expFiles.length > 0 ? '✓ квітанція' : '+ квітанція'}
                                 </button>
                             </div>
                         );

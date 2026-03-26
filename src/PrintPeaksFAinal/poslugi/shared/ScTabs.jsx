@@ -1,5 +1,9 @@
 import React from "react";
 
+// service може бути рядком або об'єктом {id, name}
+const getServiceName = (s) => (typeof s === 'string' ? s : s?.name || '');
+const getServiceKey = (s) => (typeof s === 'string' ? s : s?.id ?? s?.name);
+
 const ScTabs = ({
   services,
   selectedService,
@@ -11,49 +15,53 @@ const ScTabs = ({
   settingsButton,
 }) => (
   <div className="sc-tabs">
-    {services.map((service) => (
-      <div
-        key={service}
-        style={{ position: "relative", display: "inline-flex", alignItems: "center" }}
-      >
-        <button
-          className={`btn ${selectedService === service ? "adminButtonAdd" : "adminButtonAdd-active"}`}
-          style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
-          onClick={() => onSelect(service)}
+    {services.map((service) => {
+      const name = getServiceName(service);
+      const key = getServiceKey(service);
+      return (
+        <div
+          key={key}
+          style={{ position: "relative", display: "inline-flex", alignItems: "center" }}
         >
-          <span className="sc-tab-text">{service}</span>
-        </button>
-
-        {isEditServices && (
           <button
-            type="button"
-            onClick={() => {
-              if (services.length === 1) {
-                alert("Повинен бути хоча б один товар");
-                return;
-              }
-              if (!window.confirm(`Видалити "${service}"?`)) return;
-              onRemoveService(service);
-            }}
-            style={{
-              position: "absolute",
-              top: "-4px",
-              right: "-4px",
-              width: "18px",
-              height: "18px",
-              borderRadius: "50%",
-              border: "none",
-              background: "transparent",
-              color: "red",
-              lineHeight: "0px",
-              cursor: "pointer",
-            }}
+            className={`btn ${selectedService === name ? "adminButtonAdd" : "adminButtonAdd-active"}`}
+            style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
+            onClick={() => onSelect(name)}
           >
-            x
+            <span className="sc-tab-text">{name}</span>
           </button>
-        )}
-      </div>
-    ))}
+
+          {isEditServices && (
+            <button
+              type="button"
+              onClick={() => {
+                if (services.length === 1) {
+                  alert("Повинен бути хоча б один товар");
+                  return;
+                }
+                if (!window.confirm(`Видалити "${name}"?`)) return;
+                onRemoveService(service);
+              }}
+              style={{
+                position: "absolute",
+                top: "-4px",
+                right: "-4px",
+                width: "18px",
+                height: "18px",
+                borderRadius: "50%",
+                border: "none",
+                background: "transparent",
+                color: "red",
+                lineHeight: "0px",
+                cursor: "pointer",
+              }}
+            >
+              x
+            </button>
+          )}
+        </div>
+      );
+    })}
 
     {isEditServices && (
       <button

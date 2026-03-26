@@ -236,7 +236,8 @@ const Laminator = ({
     <ScModal
       show={showLaminator}
       onClose={handleClose}
-      modalStyle={{ width: "40vw" }}
+      modalStyle={{ width: "55vw" }}
+      modalClassName="sc-modal-laminator"
       rightContent={
         <>
           <ScPricing

@@ -195,7 +195,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
           };
         });
       } catch (err) {
-        console.error('Помилка при оновленні найкращої знижки:', err);
+        // console.error('Помилка при оновленні найкращої знижки:', err);
       }
     },
     [setThisOrder]

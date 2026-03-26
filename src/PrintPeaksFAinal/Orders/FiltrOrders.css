@@ -94,3 +94,18 @@
   opacity: 0.5;
   padding: 0 0.15rem;
 }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .flt-btn--status.flt-status--s5,
+  .flt-btn--status.flt-status--cancel {
+    display: none !important;
+  }
+  .flt-group {
+    flex-wrap: wrap;
+  }
+  .flt-btn {
+    font-size: 0.6rem;
+    padding: 0.1rem 0.25rem;
+  }
+}

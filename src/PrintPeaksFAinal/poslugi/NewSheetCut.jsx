@@ -13,6 +13,7 @@ import Porizka from "./newnomodals/Porizka";
 import NewNoModalProkleyka from "./newnomodals/NewNoModalProkleyka";
 
 import ScModal from "./shared/ScModal";
+import useServiceTabs from "../../hooks/useServiceTabs";
 import ScCountSize from "./shared/ScCountSize";
 import ScSides from "./shared/ScSides";
 import ScSection from "./shared/ScSection";
@@ -161,7 +162,7 @@ const NewSheetCut = ({
 
   const [selectedService, setSelectedService] = useState("Зображення");
   const [isEditServices, setIsEditServices] = useState(false);
-  const [services, setServices] = useState([
+  const { services, addService, removeService } = useServiceTabs("SheetCut", [
     "Зображення", "Листівка", "Візитка", "Флаєр", "Буклет",
     "Брошура", "Картка", "Диплом", "Сертифікат", "Подяка",
     "Зін", "Презентація", "Бланк", "Афіша", "Календар",
@@ -381,22 +382,19 @@ const NewSheetCut = ({
           onSelect={setSelectedService}
           isEditServices={isEditServices}
           setIsEditServices={setIsEditServices}
-          onAddService={() => {
+          onAddService={async () => {
             const name = prompt("Введіть назву товару");
             if (!name) return;
-            const trimmed = name.trim();
-            if (!trimmed) return;
-            if (services.includes(trimmed)) {
-              alert("Така назва вже існує");
-              return;
-            }
-            setServices((prev) => [...prev, trimmed]);
-            setSelectedService(trimmed);
+            const added = await addService(name);
+            if (added) setSelectedService(added.name);
           }}
-          onRemoveService={(service) => {
-            setServices((prev) => prev.filter((s) => s !== service));
-            if (selectedService === service) {
-              setSelectedService(services[0] || "");
+          onRemoveService={async (service) => {
+            const name = typeof service === 'string' ? service : service?.name;
+            const id = typeof service === 'string' ? null : service?.id;
+            if (id) await removeService(id);
+            if (selectedService === name) {
+              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== name);
+              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
             }
           }}
         />

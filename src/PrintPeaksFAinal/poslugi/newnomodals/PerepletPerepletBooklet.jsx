@@ -126,10 +126,10 @@ const PerepletPerepletBooklet = ({
                                 className={item.id === pereplet.materialId ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
                                 key={index}
                                 onClick={() => handleClickType(item)}
-                                style={{ padding: "0.8vh 1vw" }}
+                                style={{ padding: "0.8vh 1vw", height: "auto", minHeight: "6vh" }}
                             >
                                 <div className="d-flex flex-column align-items-center" style={{ whiteSpace: "nowrap" }}>
-                                    <img src={img.src} alt={img.alt} style={{ height: "7vh", marginBottom: "0.4vh" }} />
+                                    <img src={img.src} alt={img.alt} style={{ height: "5vh", maxHeight: "5vh", objectFit: "contain", marginBottom: "0.4vh" }} />
                                     {item.name}
                                 </div>
                             </button>

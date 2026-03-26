@@ -27,10 +27,14 @@
   width: 100%;
 }
 
+/* Короткі/повні назви кнопок */
+.nav-btn-short { display: none; }
+.nav-btn-full { display: inline; }
+
 /* Конверт 1: ЗЛІВА — кнопки дій (Нове замовлення, Створити клієнта) */
 .nav-actions-group {
   flex: 0 0 auto;
-  width: var(--nui-right-col-width, 28vw);
+  width: var(--nui-right-col-width, 30vw);
   height: 4vh;
   min-height: var(--nav-min-h, 36px);
   margin: 1rem 0 0.5rem 0;
@@ -70,7 +74,7 @@
 /* Конверт 2: ПО ЦЕНТРУ — пошук, юзер, сповіщення, вихід */
 .nav-center-group {
   flex: 0 0 auto;
-  width: var(--nui-center-col-width, 26vw);
+  width: var(--nui-center-col-width, 25vw);
   height: 4vh;
   min-height: var(--nav-min-h, 36px);
   margin: 1rem 1rem 1rem 0;
@@ -267,10 +271,11 @@
 }
 
 .btnBlock .btnRow .btn {
-  flex: 0 1 auto !important;
+  flex: 1 1 auto !important;
   display: flex !important;
   padding: 0 0.6vw !important;
   min-width: 0 !important;
+  justify-content: center !important;
 }
 
 /* Single nav link — стиль nui-client-rect-btn */
@@ -735,6 +740,52 @@
   background-color: var(--adminlightred, #fde8e5) !important;
 }
 
+/* ── Uklon кнопка в nav ── */
+.nav-right-controls .nav-uklon-btn.adminButtonAddNav {
+  color: #fed800 !important;
+  border-color: #fed800 !important;
+  background: var(--adminfonelement, #f2f0e9) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.nav-right-controls .nav-uklon-btn.adminButtonAddNav svg {
+  display: block;
+}
+
+.nav-right-controls .nav-uklon-btn.adminButtonAddNav span {
+  display: none;
+}
+
+.nav-right-controls .nav-uklon-btn.adminButtonAddNav::before,
+.nav-right-controls .nav-uklon-btn.adminButtonAddNav::after {
+  background-color: var(--adminfonelement, #f2f0e9) !important;
+}
+
+.nav-right-controls .nav-uklon-btn.adminButtonAddNav:hover {
+  color: #fed800 !important;
+  border-color: #fed800 !important;
+}
+
+.nav-right-controls .nav-uklon-btn.adminButtonAddNav.active {
+  background: var(--adminfonelement, #f2f0e9) !important;
+  color: #fed800 !important;
+  border-color: #fed800 !important;
+}
+
+.nav-right-controls .nav-uklon-btn.adminButtonAddNav.active::before,
+.nav-right-controls .nav-uklon-btn.adminButtonAddNav.active::after {
+  background-color: var(--adminfonelement, #f2f0e9) !important;
+}
+
+.nav-right-controls .nav-uklon-btn.adminButtonAddNav:hover {
+  background: var(--adminfonelement, #f2f0e9) !important;
+}
+.nav-right-controls .nav-uklon-btn.adminButtonAddNav:hover::before,
+.nav-right-controls .nav-uklon-btn.adminButtonAddNav:hover::after {
+  background-color: var(--adminfonelement, #f2f0e9) !important;
+}
+
 /* ── Scanner кнопка в nav ── */
 .bc-scanner-btn.adminButtonAddNav {
   color: var(--adminpurple, #6a5acd) !important;
@@ -804,6 +855,7 @@
   margin: 0 !important;
   flex-direction: column;
   gap: 2px;
+  overflow: hidden;
 }
 
 .bc-niimbot-btn.adminButtonAddNav .bc-niimbot-logo {
@@ -900,6 +952,39 @@
   background-color: var(--adminlightcyan, #e0f7fa) !important;
 }
 
+/* ── Niimbot nav button (same style as Telegram) ── */
+.nav-right-controls .bc-niimbot-nav.buttonSkewedOrder {
+  color: var(--adminblue, #3c60a6) !important;
+  border-color: var(--adminblue, #3c60a6) !important;
+  background: var(--adminfonelement, #f2f0e9) !important;
+  padding: 0 4px !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 1px !important;
+}
+.nav-right-controls .bc-niimbot-nav.buttonSkewedOrder::before,
+.nav-right-controls .bc-niimbot-nav.buttonSkewedOrder::after {
+  background-color: var(--adminfonelement, #f2f0e9) !important;
+}
+.nav-right-controls .bc-niimbot-nav.buttonSkewedOrder:hover {
+  border-color: var(--adminblue, #3c60a6) !important;
+}
+.nav-right-controls .bc-niimbot-nav.buttonSkewedOrder .bc-niimbot-logo {
+  height: 8px;
+  width: auto;
+  display: block;
+}
+.nav-right-controls .bc-niimbot-nav--connected.buttonSkewedOrder {
+  background: var(--adminlightblue, #e8ecf4) !important;
+}
+.nav-right-controls .bc-niimbot-nav--connected.buttonSkewedOrder::before,
+.nav-right-controls .bc-niimbot-nav--connected.buttonSkewedOrder::after {
+  background-color: var(--adminlightblue, #e8ecf4) !important;
+}
+
 /* ── Settings button in center nav ── */
 .nav-settings-center-btn {
   display: flex !important;
@@ -974,8 +1059,269 @@
   color: #fff;
 }
 
+/* ============================================================
+   Responsive Breakpoints — Navigation
+   ============================================================ */
 
+/* xl: Full HD 1600-2399px */
+/* Full HD: Niimbot лого зменшене */
+@media (min-width: 1600px) and (max-width: 2399px) {
+  .bc-niimbot-btn.adminButtonAddNav .bc-niimbot-logo {
+    height: 11px;
+  }
+  .bc-niimbot-btn.adminButtonAddNav {
+    padding: 2px 6px;
+  }
+}
 
+/* ═══ MOBILE: ≤768px (iPhone, Galaxy Fold closed & open) ═══ */
+@media (max-width: 768px) {
+  .flipNav {
+    height: auto;
+    min-height: auto;
+  }
+  .nav-bar-row {
+    flex-wrap: wrap;
+  }
 
+  /* Кнопки дій — в один рядок */
+  .nav-actions-group {
+    width: 100%;
+    order: 2;
+    margin: 0.25rem 0;
+    padding: 0 0.5rem;
+    height: auto;
+    min-height: auto;
+    flex-direction: row !important;
+    gap: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+  .nav-actions-group .buttonSkewedOrder,
+  .nav-actions-group .buttonSkewedUser {
+    height: 36px !important;
+    flex: 1 1 auto !important;
+    width: auto !important;
+    border-bottom: none !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+  /* Короткі назви на мобільних */
+  .nav-btn-short { display: inline !important; }
+  .nav-btn-full { display: none !important; }
+
+  /* Центральна група — повна ширина, розтягнути кнопки */
+  .nav-center-group {
+    width: 100% !important;
+    order: 1;
+    margin: 0.25rem 0;
+    height: auto;
+    min-height: 36px;
+    padding: 0 0.5rem !important;
+    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .nav-center-group .nav-right-controls {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    flex: 1;
+  }
+  .nav-center-group .nav-right-controls > *,
+  .nav-center-group .nav-right-controls > a,
+  .nav-center-group .nav-ctrl-btn-wrap {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+  .nav-center-group .nav-ctrl-btn-wrap > * {
+    margin: 0 !important;
+    padding: 0 2px !important;
+  }
+
+  /* Навігаційні посилання — 3 в рядок */
+  .btnBlock {
+    width: 100% !important;
+    order: 3;
+    overflow: hidden !important;
+    height: auto !important;
+    min-height: auto !important;
+    margin: 0.25rem 0 !important;
+    padding: 0 0.5rem !important;
+    display: block !important;
+  }
+  .btnBlock .btnRow {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+  }
+  .btnBlock .btnRow .btn,
+  .btnBlock .btnRow .nav-logout-btn {
+    flex: 0 0 calc(100% / 3) !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 0.75rem !important;
+    padding: 0.5rem 0 !important;
+    min-height: 36px !important;
+    height: auto !important;
+    border: none !important;
+  }
+  .btnBlock .btnRow .btn::before,
+  .btnBlock .btnRow .btn::after,
+  .btnBlock .btnRow .nav-logout-btn::before,
+  .btnBlock .btnRow .nav-logout-btn::after {
+    display: none !important;
+  }
+
+  .nav-ctrl-btn-wrap {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+  }
+  .nav-right-controls {
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  /* Bell button — прибрати псевдоелементи що перекривають */
+  .nav-center-group .bell-button::before,
+  .nav-center-group .bell-button::after {
+    display: none !important;
+  }
+  .nav-center-group .bell-button {
+    z-index: auto;
+    isolation: isolate;
+  }
+  .nav-center-group .bell-button .bell-symbol,
+  .nav-center-group .bell-button .bell-count {
+    z-index: 2;
+    position: relative;
+  }
+
+  /* Пошук — сховати на мобільних */
+  .nav-search-wrap {
+    display: none !important;
+  }
+
+  /* Фон --adminfon для ВСІХ кнопок навбару */
+  .nav-center-group,
+  .nav-center-group .nav-right-controls,
+  .nav-center-group .nav-ctrl-btn-wrap,
+  .nav-center-group .nav-ctrl-btn-wrap > *,
+  .nav-center-group .nav-right-controls > *,
+  .nav-center-group .bell-button,
+  .nav-center-group .bc-niimbot-btn {
+    background: var(--adminfon, #f7f5ee) !important;
+  }
+  .nav-actions-group,
+  .nav-actions-group .buttonSkewedOrder,
+  .nav-actions-group .buttonSkewedUser {
+    background: var(--adminfon, #f7f5ee) !important;
+  }
+  .nav-actions-group .buttonSkewedOrder::before,
+  .nav-actions-group .buttonSkewedOrder::after,
+  .nav-actions-group .buttonSkewedUser::before,
+  .nav-actions-group .buttonSkewedUser::after {
+    background: var(--adminfon, #f7f5ee) !important;
+  }
+  .nav-actions-group .buttonSkewedOrder:hover,
+  .nav-actions-group .buttonSkewedUser:hover {
+    background: var(--adminfon, #f7f5ee) !important;
+  }
+  .btnBlock,
+  .btnBlock .btnRow,
+  .btnBlock .btnRow .btn,
+  .btnBlock .btnRow .nav-logout-btn {
+    background: var(--adminfon, #f7f5ee) !important;
+  }
+  /* Hover */
+  .nav-center-group .nav-ctrl-btn-wrap > *:hover,
+  .nav-center-group .bell-button:hover,
+  .nav-center-group .bc-niimbot-btn:hover,
+  .nav-actions-group .buttonSkewedOrder:hover,
+  .nav-actions-group .buttonSkewedUser:hover,
+  .btnBlock .btnRow .btn:hover,
+  .btnBlock .btnRow .nav-logout-btn:hover {
+    background: var(--adminfon, #f7f5ee) !important;
+  }
+  /* Псевдоелементи */
+  .nav-center-group .nav-ctrl-btn-wrap > *::before,
+  .nav-center-group .nav-ctrl-btn-wrap > *::after {
+    background: var(--adminfon, #f7f5ee) !important;
+  }
+  /* Прибрати бордери на мобільному — як у налаштуваннях */
+  .nav-center-group .nav-ctrl-btn-wrap > *,
+  .nav-center-group .bell-button {
+    border: none !important;
+    border-bottom: 1.5px solid var(--adminorange) !important;
+    box-shadow: none !important;
+  }
+  /* Niimbot — border-bottom синій */
+  .nav-center-group .bc-niimbot-btn,
+  .nav-center-group .nav-ctrl-btn-wrap .bc-niimbot-btn,
+  .nav-center-group .bc-niimbot-btn.adminButtonAddNav {
+    border: none !important;
+    border-bottom: 1.5px solid var(--adminblue, #3c60a6) !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  /* Фон --adminfon для НП, Уклон, Телеграм (висока специфічність) */
+  .nav-right-controls .nav-np-btn.adminButtonAddNav,
+  .nav-right-controls .nav-uklon-btn.adminButtonAddNav,
+  .nav-right-controls .nav-telegram-btn.buttonSkewedOrder {
+    background: var(--adminfon, #f7f5ee) !important;
+  }
+  .nav-right-controls .nav-np-btn.adminButtonAddNav:hover,
+  .nav-right-controls .nav-uklon-btn.adminButtonAddNav:hover,
+  .nav-right-controls .nav-telegram-btn.buttonSkewedOrder:hover {
+    background: var(--adminfon, #f7f5ee) !important;
+  }
+  .nav-right-controls .nav-np-btn.adminButtonAddNav::before,
+  .nav-right-controls .nav-np-btn.adminButtonAddNav::after,
+  .nav-right-controls .nav-uklon-btn.adminButtonAddNav::before,
+  .nav-right-controls .nav-uklon-btn.adminButtonAddNav::after,
+  .nav-right-controls .nav-telegram-btn.buttonSkewedOrder::before,
+  .nav-right-controls .nav-telegram-btn.buttonSkewedOrder::after {
+    background: var(--adminfon, #f7f5ee) !important;
+  }
+
+  /* Niimbot лого менше на мобільних */
+  .bc-niimbot-btn {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    overflow: hidden;
+  }
+  .bc-niimbot-logo {
+    height: 9.6px;
+    max-width: 45px;
+  }
+  .bc-niimbot-btn .bc-niimbot-status-row {
+    gap: 2px;
+  }
+  .bc-niimbot-dot {
+    width: 4px;
+    height: 4px;
+  }
+  .bc-niimbot-battery {
+    font-size: 7px;
+  }
+}
 
 

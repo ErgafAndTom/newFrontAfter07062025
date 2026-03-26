@@ -20,6 +20,7 @@ import {openDrawer} from "../../telegram/telegramSlice";
 import UserSettingsModal from "./UserSettingsModal";
 import TelegramBotAkkAndMedias from "../../PrintPeaksFAinal/telegram/TelegramBotAkkAndMedias";
 import NovaPoshtaCalculator from "../../PrintPeaksFAinal/novaPoshta/NovaPoshtaCalculator";
+import UklonDelivery from "../../PrintPeaksFAinal/userInNewUiArtem/UklonDelivery";
 import BarcodeScannerListener from "../../PrintPeaksFAinal/barcode/BarcodeScannerListener";
 import { NiimbotConnectButton, BarcodeScannerButton } from "../../PrintPeaksFAinal/barcode/BarcodeLabel";
 import AddExpenseButton from "../admin/crm/Desktop/AddExpenseButton";
@@ -36,6 +37,7 @@ const Nav = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showTelegram, setShowTelegram] = useState(false);
   const [showNPCalc, setShowNPCalc] = useState(false);
+  const [showUklon, setShowUklon] = useState(false);
   const newOrderButtonRef = useRef(null);
   const navigate = useNavigate();
   const openTelegramDrawer = (e) => {
@@ -155,6 +157,22 @@ const Nav = () => {
                     onClick={() => setShowSettings(v => !v)}
                   >
                     <FiSettings size={20} />
+                  </button>
+                </div>
+
+                <div className="nav-ctrl-btn-wrap">
+                  <button
+                    className={`adminButtonAddNav nav-uklon-btn${showUklon ? ' active' : ''}`}
+                    title="Uklon"
+                    onClick={() => {
+                      setShowUklon(v => !v);
+                      window.dispatchEvent(new CustomEvent('toggle-uklon'));
+                    }}
+                  >
+                    <svg width="22" height="22" viewBox="0 0 625 625" style={{ flexShrink: 0 }}>
+                      <path d="M502.04,0c62.02,2.53,118.48,56.03,123,118v390c-5.11,59.56-59.1,113.54-119,117H116.04c-63.84-6.14-113.5-63.6-118.04-126.72V127.36C2.55,60.97,57.41,3.19,123.04,0h379Z"/>
+                      <path fill="#fed800" d="M369.84,148.29c31.63-1.73,82.07-4.23,94.24,32.17,14.05,42.04.38,116.19-9.52,159.55-7.07,30.96-32.85,125.83-57.6,143.4-23.81,16.91-69.2-15.69-88.37-30.46-27.51-21.19-56.28-48.44-81.07-72.93-28.39-28.05-95.68-99.04-98.51-138.49-1.39-19.48,16.91-29.83,32.01-38.06,53.35-29.09,148.17-51.87,208.82-55.18Z"/>
+                    </svg>
                   </button>
                 </div>
 
@@ -450,6 +468,7 @@ const Nav = () => {
     )}
 
     {showNPCalc && <NovaPoshtaCalculator onClose={() => setShowNPCalc(false)} />}
+    {/* UklonDelivery тепер рендериться в NewUIArtem.jsx з підтримкою карти */}
     </>
   )
 

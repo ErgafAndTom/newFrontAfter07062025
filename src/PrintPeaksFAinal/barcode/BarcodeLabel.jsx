@@ -19,7 +19,7 @@ import './BarcodeLabel.css';
  * @param {'compact'|'full'} variant — compact = маленька іконка для таблиць, full = повний штрих-код
  * @param {string} [className] — додатковий CSS-клас
  */
-export default function BarcodeLabel({ type = 'order', data, variant = 'compact', className = '' }) {
+export default function BarcodeLabel({ type = 'order', data, variant = 'compact', className = '', onAfterPrint }) {
   const [printing, setPrinting] = useState(false);
 
   const barcodeValue = type === 'order' ? `ORD${data?.id || 0}` : `CLN${data?.id || 0}`;
@@ -43,13 +43,14 @@ export default function BarcodeLabel({ type = 'order', data, variant = 'compact'
     try {
       // printLabel сам підключить принтер якщо потрібно
       await printLabel(type, data);
+      if (onAfterPrint) onAfterPrint();
     } catch (err) {
       console.error('Niimbot print error:', err);
       alert('Помилка друку: ' + err.message);
     } finally {
       setPrinting(false);
     }
-  }, [printing, type, data]);
+  }, [printing, type, data, onAfterPrint]);
 
   if (!data?.id) return null;
 
@@ -68,7 +69,6 @@ export default function BarcodeLabel({ type = 'order', data, variant = 'compact'
       <div className="bc-label__barcode">
         <Barcode value={barcodeValue} width={type === 'order' ? 2 : 1.2} height={type === 'order' ? 36 : 28} background="transparent" fontSize={0} displayValue={false} margin={0} />
       </div>
-      {type === 'order' && <span className="bc-label__caption">замовлення</span>}
     </div>
   );
 }
@@ -197,7 +197,7 @@ export function NiimbotConnectButton({ className = '' }) {
 
   return (
     <button
-      className={`bc-niimbot-btn bc-niimbot-btn--${status} ${className}`}
+      className={`buttonSkewedOrder bc-niimbot-nav bc-niimbot-nav--${status} ${className}`}
       onClick={handleConnect}
       title={status === 'connected' ? `Niimbot B21S — ${battery != null ? battery + '%' : 'підключений'}` : 'Підключити Niimbot B21S'}
     >

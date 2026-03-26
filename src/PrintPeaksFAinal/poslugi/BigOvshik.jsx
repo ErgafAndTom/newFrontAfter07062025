@@ -319,7 +319,7 @@ const BigOvshik = ({
     <ScModal
       show={showBigOvshik}
       onClose={handleClose}
-      modalStyle={{ width: "40vw" }}
+      modalStyle={{ width: "55vw" }}
       rightContent={
         <>
           <ScPricing

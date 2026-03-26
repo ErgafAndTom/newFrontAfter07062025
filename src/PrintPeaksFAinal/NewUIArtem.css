@@ -1,9 +1,14 @@
 /* Root Variables & Theme */
+:root {
+  --nui-right-col-width: 30vw;
+  --nui-center-col-width: 25vw;
+}
+
 .nui-sheetcut-theme {
-  --nui-right-col-width: 28vw;
-  --nui-center-col-width: 26vw;
+  --nui-right-col-width: 30vw;
+  --nui-center-col-width: 25vw;
   --nui-left-col-width: 50vw;
-  --nui-bottom-total-width: 66vw;
+  --nui-bottom-total-width: 75vw;
   --nui-bottom-finance-width: var(--nui-right-col-width);
   --nui-bottom-envelope-padding: 0.35rem;
   --nui-bottom-envelope-bg: var(--adminfonelement, #f2f0e9);
@@ -39,7 +44,7 @@
   color: var(--admingrey, #666666);
   cursor: pointer;
   height: 10vh !important;
-  width: 7.5vw !important;
+  width: clamp(80px, 7.5vw, 160px) !important;
   border-radius: 0 !important;
   padding: 0.4rem 0.5rem 0.25rem;
   margin: 0;
@@ -56,7 +61,10 @@
   box-shadow: none;
 }
 
-/* ── PLOTTER CUT, MAGNETS, LAMINATION, BINDING — blue ── */
+/* ── PLOTTER CUT, MAGNETS, LAMINATION, BINDING, POSTPRESS — blue (5 cols) ── */
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-middle {
+  grid-template-columns: repeat(5, 1fr);
+}
 .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-middle p {
   background: rgba(60, 96, 166, 0.05) !important;
   border-bottom-color: var(--adminblue, #3c60a6) !important;
@@ -150,14 +158,21 @@
 /* Order List Styles (RESTORING) */
 .nui-orders-column {
   width: var(--nui-right-col-width);
-  height: 90vh;
+  height: 74vh;
   overflow-y: auto;
+  order: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   padding: 1rem;
-  padding-bottom: 15vh;
+  padding-bottom: 1rem;
   background: transparent;
   /*border-left: 1px solid #eee;*/
   order: 1;
   box-sizing: border-box;
+}
+
+.nui-orders-column::-webkit-scrollbar {
+  display: none;
 }
 
 .nui-services-column {
@@ -167,6 +182,255 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+}
+
+.nui-uklon-map-zone {
+  flex: 1;
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  gap: 0.5rem;
+  height: 74vh;
+  order: 1;
+}
+
+.nui-uklon-map-zone iframe {
+  border-radius: 6px;
+  width: 100%;
+  min-height: 781px;
+}
+
+/* ── Progress bar (steps) ── */
+
+.nui-uklon-progress {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.5rem 0.5rem 0;
+  gap: 0;
+}
+
+.nui-uklon-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+}
+
+.nui-uklon-step-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--admingrey, #ccc);
+  border: 2px solid var(--admingrey, #ccc);
+  transition: all 0.3s;
+  z-index: 1;
+}
+
+.nui-uklon-step.active .nui-uklon-step-dot {
+  background: var(--admingreen, #0e935b);
+  border-color: var(--admingreen, #0e935b);
+}
+
+.nui-uklon-step.current .nui-uklon-step-dot {
+  background: #FFD200;
+  border-color: #FFD200;
+  box-shadow: 0 0 0 3px rgba(255, 210, 0, 0.3);
+}
+
+/* Пульсація при пошуку водія */
+.nui-uklon-step-dot.pulse {
+  animation: uklon-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes uklon-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 210, 0, 0.6); }
+  50% { box-shadow: 0 0 0 8px rgba(255, 210, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 210, 0, 0); }
+}
+
+.nui-uklon-step.searching .nui-uklon-step-label {
+  color: #FFD200;
+  font-weight: 600;
+}
+
+.nui-uklon-step-label {
+  font-size: 0.65rem;
+  color: var(--admingrey, #999);
+  margin-top: 3px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.nui-uklon-step.active .nui-uklon-step-label {
+  color: var(--admingrey, #666);
+  font-weight: 500;
+}
+
+.nui-uklon-step.current .nui-uklon-step-label {
+  color: var(--admingrey, #666);
+  font-weight: 600;
+}
+
+.nui-uklon-step-line {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--admingrey, #ddd);
+  z-index: 0;
+}
+
+.nui-uklon-step-line.active {
+  background: var(--admingreen, #0e935b);
+}
+
+/* ── Tracking info ── */
+
+.nui-uklon-tracking-info {
+  background: var(--adminfon, #f7f5ee);
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+
+.nui-uklon-tracking-status {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* ── Estimate tags ── */
+
+.nui-uklon-estimate-row {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.nui-uklon-tag {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  background: var(--adminfonelement, #f1eee7);
+  border-radius: 4px;
+  color: var(--admingrey, #666);
+  font-weight: 500;
+}
+
+/* ── Driver info ── */
+
+.nui-uklon-driver {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+  padding: 0.4rem 0;
+  border-top: 1px solid var(--adminborder, #e0ddd6);
+}
+
+.nui-uklon-driver-photo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.nui-uklon-driver-details {
+  flex: 1;
+}
+
+.nui-uklon-driver-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.nui-uklon-driver-car {
+  font-size: 0.75rem;
+  color: var(--admingrey, #666);
+}
+
+.nui-uklon-driver-call {
+  font-size: 1.3rem;
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.nui-uklon-driver-call:hover {
+  background: var(--adminfonelement, #f1eee7);
+}
+
+.nui-uklon-cancel-wrap {
+  background: var(--adminfon, #f7f5ee);
+  padding: 0.5rem;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.nui-uklon-cancel-btn {
+  width: 100%;
+  position: relative;
+  isolation: isolate;
+  height: var(--nav-h, 3.5vh);
+  min-height: var(--nav-min-h, 36px);
+  padding: 0 1vw;
+  font-size: var(--font-size-s);
+  font-weight: 400;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-radius: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: 0.3s;
+  color: var(--adminred, #ee3c23) !important;
+  background: var(--adminfon, #f7f5ee) !important;
+  border: 2px solid var(--adminred, #ee3c23) !important;
+}
+
+.nui-uklon-cancel-btn > * {
+  position: relative;
+  z-index: 2;
+}
+
+.nui-uklon-cancel-btn::before {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 6px);
+  height: calc(100% + 2px);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+
+.nui-uklon-cancel-btn::after {
+  content: "";
+  position: absolute;
+  top: -2px; left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 45%);
+  background-color: var(--adminfon, #f7f5ee);
+  transform: scaleY(1);
+  transition: 0.3s ease-out;
+  z-index: 1;
+}
+
+.nui-uklon-cancel-btn:hover::before {
+  transform: translateY(-25px);
+  height: 0;
+}
+
+.nui-uklon-cancel-btn:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
 }
 
 .nui-order-delivered-title {
@@ -196,8 +460,8 @@
   --order-item-tone: var(--admingrey, #666666);
   background: var(--adminfonelement, #f2f0e9);
   border-radius: 0px;
-  margin-bottom: 1rem;
-  padding: 1rem;
+  margin-bottom: 0.4rem;
+  padding: 0.5rem 1rem;
   box-shadow: none;
   position: relative;
 }
@@ -219,8 +483,8 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.8rem;
-  padding-bottom: 0.8rem;
+  margin-bottom: 0.3rem;
+  padding-bottom: 0.3rem;
   border-bottom: 2px solid var(--editor-tone, var(--admingrey, #666666));
 }
 
@@ -424,25 +688,26 @@
 }
 
 .nui-sheetcut-theme .nui-bottom-finance-inline {
-  flex: 0 0 var(--nui-bottom-finance-width);
-  width: var(--nui-bottom-finance-width);
-  min-width: var(--nui-bottom-finance-width);
-  max-width: var(--nui-bottom-finance-width);
+  flex: 0 0 calc(var(--nui-bottom-finance-width) - 2rem);
+  width: calc(var(--nui-bottom-finance-width) - 2rem);
+  min-width: calc(var(--nui-bottom-finance-width) - 2rem);
+  max-width: calc(var(--nui-bottom-finance-width) - 2rem);
   min-height: 0;
   display: flex;
   align-items: flex-start;
   align-self: flex-start;
   background: transparent;
-  padding: 0 1rem;
+  padding: 0;
+  margin-left: 1rem;
   overflow: visible;
   box-sizing: border-box;
 }
 
 .nui-sheetcut-theme .nui-bottom-client-inline {
-  flex: 0 0 26vw;
-  width: 26vw;
-  min-width: 26vw;
-  max-width: 26vw;
+  flex: 0 0 var(--nui-center-col-width);
+  width: var(--nui-center-col-width);
+  min-width: var(--nui-center-col-width);
+  max-width: var(--nui-center-col-width);
   display: flex;
   align-items: start;
   box-sizing: border-box;
@@ -467,7 +732,7 @@
   align-items: flex-start;
   justify-content: space-between;
   margin-top: 0.45rem;
-  gap: 0;
+  gap: 1rem;
 }
 
 .nui-sheetcut-theme .nui-bottom-shell .nui-progressbar.pb-shell {
@@ -479,9 +744,9 @@
 
 .nui-sheetcut-theme .nui-bottom-client-inline {
 
-  flex: 0 0 26vw;
-  min-width: 26vw;
-  max-width: 26vw;
+  flex: 0 0 var(--nui-center-col-width);
+  min-width: var(--nui-center-col-width);
+  max-width: var(--nui-center-col-width);
 
   display: flex;
   align-items: flex-start;
@@ -718,19 +983,19 @@
 }
 
 .nui-sheetcut-theme .nui-bottom-finance-inline {
-  flex: 0 0 var(--nui-bottom-finance-width);
-  width: var(--nui-bottom-finance-width);
-  min-width: var(--nui-bottom-finance-width);
-  max-width: var(--nui-bottom-finance-width);
+  flex: 0 0 calc(var(--nui-bottom-finance-width) - 2rem);
+  width: calc(var(--nui-bottom-finance-width) - 2rem);
+  min-width: calc(var(--nui-bottom-finance-width) - 2rem);
+  max-width: calc(var(--nui-bottom-finance-width) - 2rem);
   min-height: 0;
   display: flex;
   align-items: flex-start;
   align-self: flex-start;
   background: transparent;
-  padding: 0 1rem;
-  overflow: hidden;
+  padding: 0;
+  margin-left: 1rem;
+  overflow: visible;
   box-sizing: border-box;
-
 }
 
 .nui-sheetcut-theme .nui-bottom-status-inline {
@@ -860,7 +1125,7 @@
   flex-direction: row !important;
   align-items: flex-end !important;
   justify-content: flex-start !important;
-  gap: 0 !important;
+  gap: 1rem !important;
   padding-bottom: 0.5rem !important;
 }
 
@@ -950,13 +1215,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
-  min-width: 1.5rem;
+  width: 3rem;
+  min-width: 3rem;
   overflow: visible;
   margin-right: -0.5rem;
 }
 .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-barcode-right .bc-label--compact {
-  transform: rotate(90deg) scale(1.3);
+  transform: rotate(90deg) scale(2.2);
   max-width: none;
   padding: 0;
   overflow: visible;
@@ -1163,7 +1428,7 @@
 }
 
 .nui-sheetcut-theme .nui-deadline-envelope {
-  width: var(--nui-bottom-finance-width);
+  width: 100%;
   height: 4vh;
   min-height: 4vh;
   max-height: 4vh;
@@ -1173,11 +1438,12 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
+  justify-content: flex-start;
+  gap: 0.5rem;
   padding: 0 0.75rem;
   box-sizing: border-box;
   overflow: hidden;
+  position: relative;
 }
 
 /* Barcode + TTN row */
@@ -1187,10 +1453,15 @@
   align-items: flex-end;
   gap: 0.5rem;
   width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding-right: 1rem;
 }
 .nui-sheetcut-theme .nui-barcode-with-ttn .bc-label--order {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
   margin-left: auto;
+  max-width: 100%;
+  overflow: hidden;
 }
 .nui-sheetcut-theme .nui-ttn-block {
   display: flex;
@@ -1300,10 +1571,10 @@
 
 /* Toggle button дедлайн/штрих-код */
 .nui-sheetcut-theme .nui-envelope-toggle-btn {
-  position: absolute;
-  right: 4px;
-  top: 50%;
-  transform: translateY(-50%);
+  position: static;
+  flex-shrink: 0;
+  margin-left: 0;
+  margin-right: 0;
   background: var(--adminorange, #f5a623);
   color: #fff;
   border: none;
@@ -1402,4 +1673,288 @@
   text-overflow: ellipsis;
   z-index: 500;
   box-sizing: border-box;
+}
+
+/* ============================================================
+   Responsive Breakpoints
+   ============================================================ */
+
+/* lg: MacBook 1200-1599px */
+@media (min-width: 1200px) and (max-width: 1599px) {
+  :root {
+    --nui-right-col-width: 44vw;
+    --nui-center-col-width: 25vw;
+  }
+  .nui-sheetcut-theme {
+    --nui-right-col-width: 44vw;
+    --nui-center-col-width: 25vw;
+    --nui-bottom-total-width: 84vw;
+  }
+}
+
+/* xl: Full HD 1600-2399px */
+@media (min-width: 1600px) and (max-width: 2399px) {
+  :root {
+    --nui-right-col-width: 28vw;
+    --nui-center-col-width: 25vw;
+  }
+  .nui-sheetcut-theme {
+    --nui-right-col-width: 28vw;
+    --nui-center-col-width: 25vw;
+    --nui-bottom-total-width: 63vw;
+  }
+  .nui-sheetcut-theme .bc-label--order.bc-label--full {
+    max-width: 80%;
+  }
+  .nui-sheetcut-theme .bc-label--order.bc-label--full .bc-label__barcode svg {
+    max-height: 40px;
+  }
+}
+
+/* xxl: Ultrawide 2400px+ (Samsung Odyssey G5, 4K) */
+@media (min-width: 2400px) {
+  :root {
+    --nui-right-col-width: 30vw;
+    --nui-center-col-width: 25vw;
+  }
+  .nui-sheetcut-theme {
+    --nui-right-col-width: 30vw;
+    --nui-center-col-width: 25vw;
+    --nui-bottom-total-width: 60vw;
+  }
+}
+
+/* sm: Galaxy Fold open, small tablets 481-768px */
+@media (min-width: 481px) and (max-width: 768px) {
+  .nui-sheetcut-theme {
+    --nui-right-col-width: 100vw;
+    --nui-center-col-width: 100vw;
+  }
+
+  .nui-sheetcut-theme .nui-orders-column {
+    width: 100%;
+    height: auto;
+    max-height: 45vh;
+  }
+
+  .nui-sheetcut-theme .nui-services-column {
+    width: 100%;
+    margin: 0;
+  }
+
+  .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .nui-sheetcut-theme .nui-bottom-shell {
+    position: relative;
+  }
+
+  .nui-sheetcut-theme .nui-bottom-main-row {
+    flex-direction: column;
+  }
+
+  .nui-sheetcut-theme .nui-bottom-finance-inline,
+  .nui-sheetcut-theme .nui-bottom-client-inline {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .nui-sheetcut-theme .nui-order-status-inline {
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+}
+
+/* xs+sm: Mobile ≤768px — single column layout */
+@media (max-width: 768px) {
+  .nui-sheetcut-theme {
+    --nui-right-col-width: 100vw;
+    --nui-center-col-width: 100vw;
+    --nui-bottom-finance-width: 100vw;
+  }
+
+  /* Main container — single column, no flex row */
+  .nui-sheetcut-theme .nui-orders-column {
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    padding: 0.5rem !important;
+    order: 1 !important;
+  }
+
+  .nui-sheetcut-theme .nui-services-column {
+    width: 100% !important;
+    margin: 0 !important;
+    order: 2 !important;
+    align-items: stretch !important;
+  }
+
+  /* Service tiles — 3 columns on mobile */
+  .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-middle {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid p {
+    width: auto !important;
+    height: 8vh !important;
+  }
+  .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-tertiary p:first-child,
+  .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-secondary p:first-child {
+    grid-column: auto !important;
+  }
+  .nui-sheetcut-theme .CardPrintersPoslugi .verticalText {
+    font-size: 0.55rem !important;
+  }
+  .nui-sheetcut-theme .CardPrintersPoslugi .tileContent img,
+  .nui-sheetcut-theme .CardPrintersPoslugi .tileContent > svg {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+
+  /* Bottom shell — relative, not fixed */
+  .nui-sheetcut-theme .nui-bottom-shell {
+    position: relative !important;
+    bottom: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Bottom main row — vertical stack */
+  .nui-sheetcut-theme .nui-bottom-main-row {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  /* Finance + client panels — full width */
+  .nui-sheetcut-theme .nui-bottom-finance-inline,
+  .nui-sheetcut-theme .nui-bottom-client-inline {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  /* Finance wrapper height auto */
+  .nui-sheetcut-theme .nui-bottom-finance-inline .nui-finance-pb-wrap {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Client envelope — auto height */
+  .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-envelope-card {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+  .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-avatar-wrap {
+    height: 52px !important;
+    width: 52px !important;
+  }
+
+  /* Status rail — relative, full width */
+  .nui-sheetcut-theme .nui-order-status-inline {
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Error bar — relative */
+  .nui-sheetcut-theme .nui-error-bar {
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+    width: 100% !important;
+  }
+
+  /* Buttons — smaller padding */
+  .nui-sheetcut-theme .nui-client-rect-btn {
+    padding: 3px 6px !important;
+    font-size: 0.6rem !important;
+    height: auto !important;
+    min-height: 28px !important;
+  }
+  .nui-sheetcut-theme .nui-client-rect-btn-text {
+    font-size: 0.6rem !important;
+  }
+
+  /* Controls row — wrap */
+  .nui-sheetcut-theme .nui-client-controls-row {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+  .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-controls-row {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+  .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-controls-row .nui-client-rect-btn {
+    height: auto !important;
+    min-height: 28px !important;
+    max-height: none !important;
+  }
+
+  /* Deadline envelope — auto height */
+  .nui-sheetcut-theme .nui-deadline-envelope {
+    height: auto !important;
+    min-height: 28px !important;
+    max-height: none !important;
+    flex: 0 0 auto !important;
+  }
+
+  /* Barcode row */
+  .nui-sheetcut-theme .nui-barcode-with-ttn {
+    padding-right: 0 !important;
+  }
+
+  /* Order header */
+  .nui-order-header-shell {
+    gap: 0.3rem !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* Type buttons — allow wrap, no nowrap */
+  .nui-sheetcut-theme .nui-item-type-btn {
+    white-space: normal !important;
+    font-size: 0.55rem !important;
+    padding: 0 0.2rem !important;
+    max-width: 100% !important;
+    word-break: break-word !important;
+  }
+
+  /* Deadline prefix — allow wrap */
+  .nui-sheetcut-theme .nui-deadline-envelope__prefix {
+    white-space: normal !important;
+    font-size: 0.6rem !important;
+    word-break: break-word !important;
+  }
+  .nui-sheetcut-theme .nui-deadline-envelope__counter {
+    white-space: normal !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* Main flex container — vertical stack */
+  .nui-sheetcut-theme .d-flex {
+    flex-direction: column !important;
+  }
 }

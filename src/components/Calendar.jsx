@@ -64,8 +64,19 @@ const ukrainianStaticRanges = createStaticRanges([
     },
 ]);
 
+const useIsMobile = (breakpoint = 768) => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= breakpoint);
+    useEffect(() => {
+        const handler = () => setIsMobile(window.innerWidth <= breakpoint);
+        window.addEventListener('resize', handler);
+        return () => window.removeEventListener('resize', handler);
+    }, [breakpoint]);
+    return isMobile;
+};
+
 const Calendar = ({ compact, onDateChange }) => {
     const navigate = useNavigate();
+    const isMobile = useIsMobile();
     const [state, setState] = useState([
         {
             startDate: startOfDay(new Date()),
@@ -133,10 +144,10 @@ const Calendar = ({ compact, onDateChange }) => {
                 onChange={handleChange}
                 editableDateInputs={true}
                 moveRangeOnFirstSelection={false}
-                months={2}
+                months={isMobile ? 1 : 2}
                 staticRanges={ukrainianStaticRanges}
                 inputRanges={[]}
-                direction="horizontal"
+                direction={isMobile ? "vertical" : "horizontal"}
                 locale={customUkLocale}
                 weekStartsOn={1}
                 showPreview={true}
@@ -145,17 +156,17 @@ const Calendar = ({ compact, onDateChange }) => {
     }
 
     return (
-        <div className="d-flex">
-            <div className="p-3 m-2 flex-grow-1" style={{ background: 'var(--adminfonelement, #f2f0e9)' }}>
+        <div className={isMobile ? "d-flex flex-column" : "d-flex"}>
+            <div className={isMobile ? "p-2 m-1 flex-grow-1" : "p-3 m-2 flex-grow-1"} style={{ background: 'var(--adminfonelement, #f2f0e9)' }}>
                 <DateRangePicker
                     ranges={state}
                     onChange={handleChange}
                     editableDateInputs={true}
                     moveRangeOnFirstSelection={false}
-                    months={2}
-                    staticRanges={ukrainianStaticRanges}
+                    months={isMobile ? 1 : 2}
+                    staticRanges={isMobile ? [] : ukrainianStaticRanges}
                     inputRanges={[]}
-                    direction="horizontal"
+                    direction={isMobile ? "vertical" : "horizontal"}
                     locale={customUkLocale}
                     weekStartsOn={1}
                     showPreview={true}

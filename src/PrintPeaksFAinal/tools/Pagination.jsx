@@ -7,14 +7,14 @@ const Pagination = ({ currentPage, totalPages, onPageChange, onLimitChange, hand
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
 
-  // При смене currentPage — прокручиваем активный элемент в центр
+  // При смене currentPage — прокручиваем активный элемент в центр (только горизонтально, без скролла страницы)
   useEffect(() => {
     if (activeItemRef.current && listWrapperRef.current) {
-      activeItemRef.current.scrollIntoView({
-        behavior: 'smooth',
-        inline: 'center',
-        block: 'nearest'
-      });
+      const wrapper = listWrapperRef.current;
+      const item = activeItemRef.current;
+      const itemLeft = item.offsetLeft - wrapper.offsetLeft;
+      const scrollTarget = itemLeft - wrapper.clientWidth / 2 + item.clientWidth / 2;
+      wrapper.scrollTo({ left: scrollTarget, behavior: 'smooth' });
     }
   }, [currentPage]);
 

@@ -53,7 +53,8 @@ function AddNewOrder({namem, data, setData, inPageCount, setInPageCount, current
               data-testid="new-order-button"
               id="new-order-button"
             >
-              <span>Нове замовлення</span>
+              <span className="nav-btn-full">Нове замовлення</span>
+              <span className="nav-btn-short">+ замовлення</span>
             </div>
 
 

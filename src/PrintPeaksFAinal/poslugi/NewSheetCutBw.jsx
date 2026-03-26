@@ -11,6 +11,7 @@ import ScToggleSection from "./shared/ScToggleSection";
 import ScPricing from "./shared/ScPricing";
 import ScAddButton from "./shared/ScAddButton";
 import ScTabs from "./shared/ScTabs";
+import useServiceTabs from "../../hooks/useServiceTabs";
 
 import "./Poslugy.css";
 import "./shared/sc-base.css";
@@ -97,7 +98,7 @@ export default function NewSheetCutBW({
 
   const [lamination, setLamination] = useState(DEFAULTS.lamination);
 
-  const [services, setServices] = useState([
+  const { services, addService, removeService } = useServiceTabs("SheetCutBw", [
     "Документ",
     "Договір",
     "Дипломна робота",
@@ -331,22 +332,19 @@ export default function NewSheetCutBW({
           onSelect={setSelectedService}
           isEditServices={isEditServices}
           setIsEditServices={setIsEditServices}
-          onAddService={() => {
+          onAddService={async () => {
             const name = prompt("Введіть назву товару");
             if (!name) return;
-            const trimmed = name.trim();
-            if (!trimmed) return;
-            if (services.includes(trimmed)) {
-              alert("Така назва вже існує");
-              return;
-            }
-            setServices((prev) => [...prev, trimmed]);
-            setSelectedService(trimmed);
+            const added = await addService(name);
+            if (added) setSelectedService(added.name);
           }}
-          onRemoveService={(service) => {
-            setServices((prev) => prev.filter((s) => s !== service));
-            if (selectedService === service) {
-              setSelectedService(services[0] || "");
+          onRemoveService={async (service) => {
+            const sName = typeof service === 'string' ? service : service?.name;
+            const sId = typeof service === 'string' ? null : service?.id;
+            if (sId) await removeService(sId);
+            if (selectedService === sName) {
+              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
+              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
             }
           }}
         />

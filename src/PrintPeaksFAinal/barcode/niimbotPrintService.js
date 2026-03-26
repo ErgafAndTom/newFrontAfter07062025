@@ -52,7 +52,7 @@ async function connectToDevice(device) {
   client = new NiimbotBluetoothClient();
 
   const disconnectListener = () => {
-    console.log('[Niimbot] Disconnected — scheduling auto-reconnect...');
+    // console.log('[Niimbot] Disconnected — scheduling auto-reconnect...');
     connected = false;
     client = null;
     notifyStatus();
@@ -83,7 +83,7 @@ async function connectToDevice(device) {
 
   connected = true;
   reconnectAttempts = 0;
-  console.log('[Niimbot] Connected to', device.name, '| battery:', BATTERY_MAP[client.info?.charge] ?? '?', '%');
+  // console.log('[Niimbot] Connected to', device.name, '| battery:', BATTERY_MAP[client.info?.charge] ?? '?', '%');
   notifyStatus();
 
   // Застосовуємо налаштування
@@ -105,7 +105,7 @@ function scheduleReconnect(device) {
   const delay = delays[Math.min(reconnectAttempts, delays.length - 1)];
   reconnectAttempts++;
 
-  console.log(`[Niimbot] Reconnect attempt ${reconnectAttempts} in ${delay / 1000}s...`);
+  // console.log(`[Niimbot] Reconnect attempt ${reconnectAttempts} in ${delay / 1000}s...`);
   reconnectTimer = setTimeout(async () => {
     try {
       await connectToDevice(device);
@@ -121,28 +121,28 @@ function scheduleReconnect(device) {
  * (без picker-а, через getDevices + watchAdvertisements API).
  */
 async function tryAutoReconnect() {
-  console.log('[Niimbot] tryAutoReconnect — start');
+  // console.log('[Niimbot] tryAutoReconnect — start');
   if (!navigator.bluetooth?.getDevices) {
-    console.log('[Niimbot] getDevices API not available');
+    // console.log('[Niimbot] getDevices API not available');
     return false;
   }
 
   const savedId = localStorage.getItem(DEVICE_ID_KEY);
   if (!savedId) {
-    console.log('[Niimbot] No saved device ID in localStorage');
+    // console.log('[Niimbot] No saved device ID in localStorage');
     return false;
   }
-  console.log('[Niimbot] Saved device ID:', savedId);
+  // console.log('[Niimbot] Saved device ID:', savedId);
 
   try {
     const devices = await navigator.bluetooth.getDevices();
-    console.log('[Niimbot] getDevices returned', devices.length, 'devices');
+    // console.log('[Niimbot] getDevices returned', devices.length, 'devices');
     const device = devices.find(d => d.id === savedId);
     if (!device) {
-      console.log('[Niimbot] Saved device not found in getDevices list');
+      // console.log('[Niimbot] Saved device not found in getDevices list');
       return false;
     }
-    console.log('[Niimbot] Found device:', device.name, 'gatt:', !!device.gatt);
+    // console.log('[Niimbot] Found device:', device.name, 'gatt:', !!device.gatt);
 
     // Спершу пробуємо пряме підключення (якщо пристрій вже в зоні)
     if (device.gatt) {
@@ -150,7 +150,7 @@ async function tryAutoReconnect() {
         await connectToDevice(device);
         return true;
       } catch (e) {
-        console.log('[Niimbot] Direct reconnect failed, trying watchAdvertisements...', e.message);
+        // console.log('[Niimbot] Direct reconnect failed, trying watchAdvertisements...', e.message);
       }
     }
 
@@ -159,15 +159,15 @@ async function tryAutoReconnect() {
       watchingDevice = device;
       device.addEventListener('advertisementreceived', async () => {
         if (connected) return; // Вже підключені
-        console.log('[Niimbot] Advertisement received — connecting...');
+        // console.log('[Niimbot] Advertisement received — connecting...');
         try {
           await connectToDevice(device);
         } catch (e) {
-          console.warn('[Niimbot] Connect after advertisement failed:', e.message);
+          // console.warn('[Niimbot] Connect after advertisement failed:', e.message);
         }
       });
       await device.watchAdvertisements();
-      console.log('[Niimbot] Watching for printer advertisements...');
+      // console.log('[Niimbot] Watching for printer advertisements...');
     }
 
     return false;
@@ -205,7 +205,7 @@ export async function connect() {
         // Підписуємось на disconnect для авто-реконнекту
         const device = gatt.device;
         const disconnectListener = () => {
-          console.log('[Niimbot] Disconnected (picker) — scheduling auto-reconnect...');
+          // console.log('[Niimbot] Disconnected (picker) — scheduling auto-reconnect...');
           connected = false;
           client = null;
           notifyStatus();
@@ -219,7 +219,7 @@ export async function connect() {
           watchingDevice = device;
           device.addEventListener('advertisementreceived', async () => {
             if (connected) return;
-            console.log('[Niimbot] Advertisement received — reconnecting...');
+            // console.log('[Niimbot] Advertisement received — reconnecting...');
             try { await connectToDevice(device); } catch { /* retry via schedule */ }
           });
           device.watchAdvertisements().catch(() => {});
@@ -283,10 +283,10 @@ async function applyPrinterSettings() {
     }
     if (cmds.length > 0) {
       await client.abstraction.sendAll(cmds);
-      console.log('[Niimbot] Applied settings: shutdown=' + s.autoShutdown + 'min, sound=' + s.sound);
+      // console.log('[Niimbot] Applied settings: shutdown=' + s.autoShutdown + 'min, sound=' + s.sound);
     }
   } catch (e) {
-    console.warn('[Niimbot] Failed to apply printer settings:', e.message);
+    // console.warn('[Niimbot] Failed to apply printer settings:', e.message);
   }
 }
 
@@ -349,7 +349,7 @@ function runPeriodicInterval() {
     }
     autoReconnectCount++;
     if (autoReconnectCount > AUTO_RECONNECT_MAX) {
-      console.log('[Niimbot] Periodic auto-reconnect stopped after', AUTO_RECONNECT_MAX, 'attempts');
+      // console.log('[Niimbot] Periodic auto-reconnect stopped after', AUTO_RECONNECT_MAX, 'attempts');
       clearInterval(autoReconnectInterval);
       autoReconnectInterval = null;
       return;
@@ -357,7 +357,7 @@ function runPeriodicInterval() {
     try {
       const ok = await tryAutoReconnect();
       if (ok) {
-        console.log('[Niimbot] Periodic auto-reconnect succeeded on attempt', autoReconnectCount);
+        // console.log('[Niimbot] Periodic auto-reconnect succeeded on attempt', autoReconnectCount);
         notifyStatus();
         clearInterval(autoReconnectInterval);
         autoReconnectInterval = null;
@@ -484,6 +484,28 @@ export function createLabelCanvas(type, data) {
       ctx.textAlign = 'left';
       ctx.fillText('ОПЛАЧЕНО', leftX, infoY + 42 + 34);
     }
+
+  } else if (type === 'material') {
+    // Material label
+    const matId = data?.id || '?';
+    const barcodeValue = `MAT${matId}`;
+    const matName = data?.name || `Матеріал #${matId}`;
+
+    // Barcode
+    const barY = mt;
+    const barH = Math.round((LABEL_H_PX - mt - s.marginBottom) * 0.45);
+    const barCenterX = leftX + contentW / 2;
+    drawCode128Bars(ctx, barcodeValue, barCenterX, barY, contentW, barH);
+
+    // Material info
+    const infoY = barY + barH + 6;
+    ctx.textBaseline = 'top';
+    ctx.font = 'bold 36px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(`ID:${matId}`, leftX, infoY);
+
+    ctx.font = 'bold 28px monospace';
+    ctx.fillText(matName, leftX, infoY + 42);
 
   } else {
     // Client label
@@ -620,7 +642,7 @@ export async function printCanvas(canvas, copies = 1) {
     PacketGenerator.setLabelType(s.labelType),
     PacketGenerator.printStart2b(1), // явно: друкуємо рівно 1 сторінку
   ]);
-  console.log('[Niimbot] printInit done (printStart2b totalPages=1)');
+  // console.log('[Niimbot] printInit done (printStart2b totalPages=1)');
 
   // 2. Page data — printClear, pageStart, pageSize, quantity=1, imageData, pageEnd
   await abstraction.sendAll([
@@ -631,14 +653,14 @@ export async function printCanvas(canvas, copies = 1) {
     ...PacketGenerator.writeImageData(encoded, { printheadPixels: 384 }),
     PacketGenerator.pageEnd(),
   ]);
-  console.log('[Niimbot] printPage done, waiting for printer...');
+  // console.log('[Niimbot] printPage done, waiting for printer...');
 
   // 3. Чекаємо щоб принтер фізично закінчив, потім одноразовий printEnd
   await new Promise(r => setTimeout(r, 1500));
   const printEndResult = await abstraction.printEnd().catch(() => false);
-  console.log('[Niimbot] printEnd result:', printEndResult);
+  // console.log('[Niimbot] printEnd result:', printEndResult);
 
-  console.log('[Niimbot] print done — 1 label');
+  // console.log('[Niimbot] print done — 1 label');
 }
 
 // Mutex — запобігає подвійному друку при швидких кліках
@@ -649,14 +671,14 @@ const MIN_PRINT_INTERVAL = 5000; // 5с мінімум між друками
 export async function printLabel(type, data, copies = 1) {
   const now = Date.now();
   if (printLock || (now - lastPrintTime < MIN_PRINT_INTERVAL)) {
-    console.warn('[Niimbot] printLabel skipped — lock:', printLock, 'cooldown:', now - lastPrintTime, 'ms');
+    // console.warn('[Niimbot] printLabel skipped — lock:', printLock, 'cooldown:', now - lastPrintTime, 'ms');
     return;
   }
   printLock = true;
   lastPrintTime = now;
 
   try {
-    console.log('[Niimbot] printLabel v8, type:', type);
+    // console.log('[Niimbot] printLabel v8, type:', type);
 
     const wasDisconnected = !connected;
     if (wasDisconnected) await connect();
@@ -677,9 +699,9 @@ export async function printLabel(type, data, copies = 1) {
     for (let i = 0; i < imgData.length; i += 4) {
       if (imgData[i] < 128) blackPx++;
     }
-    console.log('[Niimbot] canvas blackPx:', blackPx, '/', canvas.width * canvas.height);
+    // console.log('[Niimbot] canvas blackPx:', blackPx, '/', canvas.width * canvas.height);
     // DEBUG: вивести canvas як картинку в консоль
-    console.log('[Niimbot] canvas preview:', canvas.toDataURL('image/png'));
+    // console.log('[Niimbot] canvas preview:', canvas.toDataURL('image/png'));
 
     if (blackPx === 0) {
       throw new Error('Canvas порожній — нічого друкувати');

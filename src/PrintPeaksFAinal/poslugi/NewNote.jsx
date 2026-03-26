@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { ScModal, ScSection, ScCountSize, ScPricing, ScAddButton, ScTabs } from "./shared";
 import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
+import useServiceTabs from "../../hooks/useServiceTabs";
 
 import NewNoModalSizeNote from "./newnomodals/note/NewNoModalSizeNote";
 import Materials2NoteFront from "./newnomodals/note/Materials2NoteFront";
@@ -94,7 +95,7 @@ const NewNote = ({
   const [count, setCount] = useState(DEFAULTS.count);
   const [pereplet, setPereplet] = useState(DEFAULTS.pereplet);
   const [selectedService, setSelectedService] = useState(DEFAULTS.selectedService);
-  const [services, setServices] = useState(SERVICES_NOTE);
+  const { services, addService, removeService } = useServiceTabs("Note", SERVICES_NOTE);
   const [isEditServices, setIsEditServices] = useState(false);
   const [error, setError] = useState(null);
 
@@ -231,7 +232,7 @@ const NewNote = ({
     <ScModal
       show={showNewNote}
       onClose={handleClose}
-      modalStyle={{ width: "95vw" }}
+      modalStyle={{ width: "65vw" }}
       rightContent={
         <>
           {pricesThis && (
@@ -260,22 +261,20 @@ const NewNote = ({
           onSelect={setSelectedService}
           isEditServices={isEditServices}
           setIsEditServices={setIsEditServices}
-          onAddService={() => {
+          onAddService={async () => {
             const name = prompt("Введіть назву товару");
             if (!name) return;
-            const trimmed = name.trim();
-            if (!trimmed || services.includes(trimmed)) {
-              alert(services.includes(trimmed) ? "Така назва вже існує" : "");
-              return;
-            }
-            setServices((prev) => [...prev, trimmed]);
-            setSelectedService(trimmed);
+            const added = await addService(name);
+            if (added) setSelectedService(added.name);
           }}
-          onRemoveService={(service) => {
-            if (services.length === 1) { alert("Повинен бути хоча б один товар"); return; }
-            if (!window.confirm(`Видалити "${service}"?`)) return;
-            setServices((prev) => prev.filter((s) => s !== service));
-            if (selectedService === service) setSelectedService(services[0] || "");
+          onRemoveService={async (service) => {
+            const sName = typeof service === 'string' ? service : service?.name;
+            const sId = typeof service === 'string' ? null : service?.id;
+            if (sId) await removeService(sId);
+            if (selectedService === sName) {
+              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
+              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
+            }
           }}
         />
       }

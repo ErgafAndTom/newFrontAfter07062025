@@ -137,3 +137,18 @@
   display: flex; justify-content: center; align-items: center;
   height: 40vh;
 }
+
+/* ── Responsive ── */
+
+/* lg: MacBook 1200-1599px — трохи менші відступи */
+@media (min-width: 1200px) and (max-width: 1599px) {
+  .cot-cell { font-size: var(--font-size-s); }
+  .cot-tbl-head { font-size: var(--font-size-s); }
+}
+
+/* sm + xs: мобільні — горизонтальний скрол таблиці */
+@media (max-width: 768px) {
+  .cot-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .cot-tbl-head,
+  .cot-tbl-row { min-width: 800px; }
+}

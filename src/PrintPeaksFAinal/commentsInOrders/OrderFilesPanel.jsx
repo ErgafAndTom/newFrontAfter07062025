@@ -11,6 +11,7 @@ import {
 import { fileTypeMeta, shortName, formatBytes } from "../../utils/fileUtils";
 import "../userInNewUiArtem/ClientFilesPanel.css";
 import ClientFilesPanel from "../userInNewUiArtem/ClientFilesPanel";
+import CompanyFilesPanel from "../userInNewUiArtem/CompanyFilesPanel";
 
 const OrderFilesPanel = ({ thisOrder, onClose }) => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const OrderFilesPanel = ({ thisOrder, onClose }) => {
   const [uploadProgress, setUploadProgress] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [showClientFiles, setShowClientFiles] = useState(false);
+  const [showCompanyFiles, setShowCompanyFiles] = useState(false);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDesc, setSortDesc] = useState(true);
   const [currentFolder, setCurrentFolder] = useState("");
@@ -400,6 +402,14 @@ const OrderFilesPanel = ({ thisOrder, onClose }) => {
         <div className="cfp-statusbar">
           Файли замовлення №{orderId}
           {files.length > 0 && ` (${files.length})`}
+          {thisOrder?.client?.Company?.id && (
+            <button className="cfp-admin-btn" onClick={() => setShowCompanyFiles(true)} title="Файли компанії">
+              <span className="cfp-btn-inner">
+                <FiFolder size={14}/>
+                <span>Файли компанії</span>
+              </span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -412,6 +422,17 @@ const OrderFilesPanel = ({ thisOrder, onClose }) => {
           selectMode={true}
           onSelectFile={linkFile}
           orderId={orderId}
+          companyId={thisOrder?.client?.Company?.id}
+          companyName={thisOrder?.client?.Company?.companyName || ''}
+        />
+      )}
+
+      {/* Company files panel */}
+      {showCompanyFiles && thisOrder?.client?.Company?.id && (
+        <CompanyFilesPanel
+          companyId={thisOrder.client.Company.id}
+          companyName={thisOrder.client.Company.companyName || ''}
+          onClose={() => setShowCompanyFiles(false)}
         />
       )}
     </div>,

@@ -23,3 +23,9 @@
 .sb-badge--s4  { color: var(--adminpurple, #6a5acd); }
 .sb-badge--s5,
 .sb-badge--cancel { color: var(--adminred, #ee3c23); }
+
+@media (max-width: 768px) {
+  .sb-badge {
+    font-size: 0.65rem;
+  }
+}

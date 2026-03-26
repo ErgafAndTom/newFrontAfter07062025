@@ -2346,4 +2346,81 @@
   color: var(--admingrey) !important;
 }
 
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  /* Finance row — full width instead of 24vw */
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Payment buttons — grid 3+2 or flex-wrap */
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  /* Await panel — full width */
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap.pb-payment-wrap--await {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap.pb-payment-wrap--await .payment-methods-panel.payment-methods-panel--await {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Deadline text — full width */
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-deadline-text {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Deadline strip — full width */
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-deadline-strip {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Discount envelope — wider on mobile */
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-envelope {
+    width: 3rem !important;
+    min-width: 3rem !important;
+  }
+
+  /* Status steps — smaller font, 3-col on narrow screens */
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-track-row .pb-step-label {
+    font-size: 0.55rem !important;
+  }
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-track-row .pb-step-num {
+    font-size: 0.5rem !important;
+  }
+
+  /* Metric values — smaller */
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-label {
+    font-size: 0.6rem !important;
+  }
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-cost-value-main,
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due .pb-metric-value-main {
+    font-size: 0.85rem !important;
+  }
+
+  /* Action button — auto height */
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-action-row .pb-action-btn,
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-action-row .pb-action-placeholder {
+    min-height: 28px !important;
+    height: auto !important;
+  }
+
+  /* Error bar relative */
+  .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar.pb-shell .pb-error {
+    position: relative !important;
+    bottom: auto !important;
+  }
+}
+
 

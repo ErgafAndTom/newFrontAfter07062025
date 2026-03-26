@@ -1,6 +1,6 @@
 .rdrCalendarWrapper {
   box-sizing: border-box;
-  background: #ffffff;
+  background: var(--adminfonelement, #f1eee7);
     justify-content: center;
     border-radius: 0.5vw;
     /*height: 20vh;*/
@@ -197,27 +197,24 @@
 .rdrStaticRanges{
   display: flex;
   flex-direction: column;
-    background: #ffffff;
-
-
+  background: var(--adminfonelement, #f1eee7);
 }
 
 .rdrStaticRange{
   font-size: 1vh;
-    height: 3.5vh;
-    background: #ffffff;
-    align-items: center;
-
+  height: 3.5vh;
+  background: var(--adminfonelement, #f1eee7);
+  align-items: center;
 }
 
 .rdrStaticRangeLabel{
-    background-color: #f1eee7;
-    width: 10vw;
-    height: 5vh;
-    align-items: center;
-    display: flex;
-    color: black;
-    justify-content: left;
+  background-color: var(--adminfonelement, #f1eee7);
+  width: 10vw;
+  height: 5vh;
+  align-items: center;
+  display: flex;
+  color: var(--admingrey, #666666);
+  justify-content: left;
 }
 
 .rdrInputRanges{
@@ -227,7 +224,7 @@
 .rdrInputRange{
   display: flex;
     height: 8vh;
-    background: #f1eee7;
+    background: var(--adminfonelement, #f1eee7);
     margin-top: 0.5vh;
     font-size: 1vh;
 }
@@ -235,5 +232,52 @@
 .rdrInputRangeInput{
     color: #490000;
     font-size: 1vh;
+}
+
+/* ── Mobile: кнопки пресетів в один рядок ── */
+@media (max-width: 768px) {
+    .rdrDateRangePickerWrapper {
+        flex-direction: column;
+        width: 100%;
+    }
+    .rdrDefinedRangesWrapper {
+        width: 100%;
+        height: auto;
+        background: var(--adminfonelement, #f1eee7) !important;
+    }
+    .rdrStaticRanges {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0;
+        padding: 0;
+        background: var(--adminfonelement, #f1eee7) !important;
+    }
+    .rdrStaticRange {
+        height: auto;
+        font-size: 0.7rem;
+        background: var(--adminfonelement, #f1eee7) !important;
+        border: none !important;
+    }
+    .rdrStaticRangeLabel {
+        width: auto;
+        height: auto;
+        padding: 0.3rem 0.5rem;
+        font-size: 13px;
+        white-space: nowrap;
+        background: var(--adminfonelement, #f1eee7) !important;
+    }
+    .rdrCalendarWrapper {
+        width: 100% !important;
+    }
+    .rdrDateRangeWrapper {
+        width: 100%;
+    }
+    .rdrMonths {
+        width: 100%;
+    }
+    .rdrMonth {
+        width: 100% !important;
+        padding: 0 !important;
+    }
 }
 

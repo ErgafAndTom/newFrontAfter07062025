@@ -1,0 +1,295 @@
+/* ═══════════════════════════════════════════
+   StorageTable — stg-* класи
+   Excel-like inline editing warehouse table
+   ═══════════════════════════════════════════ */
+
+.stg-wrap {
+  background: var(--adminfon, #f7f5ee);
+  color: var(--admingrey, #666666);
+  font-size: var(--font-size-pay);
+  font-weight: 400;
+  height: calc(100vh - 5.5rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Вкладки типів ── */
+.stg-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  padding: 0.3rem 0.4rem;
+  background: var(--adminfonelement, #f2f0e9);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+.stg-tab {
+  padding: 0.3rem 0.6rem;
+  font-size: var(--fontcard, 0.7rem);
+  color: var(--admingrey, #666);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, background 0.15s;
+  border-bottom: 2px solid transparent;
+}
+.stg-tab:hover {
+  color: var(--adminorange, #f5a623);
+}
+.stg-tab--active {
+  color: var(--admingreen, #0e935b);
+  border-bottom-color: var(--admingreen, #0e935b);
+  font-weight: 500;
+}
+
+/* ── Контейнер таблиці з горизонтальним скролом ── */
+.stg-table-container {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
+
+/* ── Внутрішня таблиця ── */
+.stg-table-inner {
+  width: 100%;
+}
+
+/* ── Шапка ── */
+.stg-tbl-head {
+  display: grid;
+  width: 100%;
+  grid-template-columns:
+    135px          /* article (штрих-код) */
+    minmax(60px, 2.875fr)   /* name */
+    minmax(50px, 1.2fr) /* type */
+    minmax(50px, 1.2fr) /* typeUse */
+    minmax(50px, 1.2fr) /* description */
+    minmax(40px, 0.8fr) /* amount */
+    minmax(40px, 0.8fr) /* quantity */
+    minmax(30px, 0.6fr) /* unit */
+    minmax(40px, 0.8fr) /* thickness */
+    minmax(45px, 0.9fr) /* cost */
+    minmax(45px, 0.9fr) /* price1 */
+    minmax(45px, 0.9fr) /* price2 */
+    minmax(45px, 0.9fr) /* price3 */
+    minmax(45px, 0.9fr) /* price4 */
+    minmax(45px, 0.9fr) /* price5 */
+    minmax(35px, 0.7fr) /* x */
+    minmax(35px, 0.7fr) /* y */
+    2.5rem         /* settings */
+    minmax(35px, 0.6fr) /* copy */
+    minmax(30px, 0.5fr) /* del */
+    minmax(70px, 1.4fr) /* createdAt */
+    minmax(70px, 1.4fr); /* updatedAt */
+  gap: 0;
+  padding: 0.3rem 0.4rem;
+  font-size: var(--fontcard, 0.7rem);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  background: var(--adminfonelement, #f2f0e9);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* ── Рядок ── */
+.stg-tbl-row {
+  display: grid;
+  width: 100%;
+  box-sizing: border-box;
+  grid-template-columns:
+    135px minmax(60px, 2.875fr) minmax(50px, 1.2fr) minmax(50px, 1.2fr) minmax(50px, 1.2fr)
+    minmax(40px, 0.8fr) minmax(40px, 0.8fr) minmax(30px, 0.6fr) minmax(40px, 0.8fr) minmax(45px, 0.9fr)
+    minmax(45px, 0.9fr) minmax(45px, 0.9fr) minmax(45px, 0.9fr) minmax(45px, 0.9fr) minmax(45px, 0.9fr)
+    minmax(35px, 0.7fr) minmax(35px, 0.7fr) 2.5rem minmax(35px, 0.6fr) minmax(30px, 0.5fr) minmax(70px, 1.4fr) minmax(70px, 1.4fr);
+  gap: 0;
+  padding: 0 0.4rem;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  align-items: stretch;
+  min-height: 28px;
+  transition: background 0.1s;
+}
+.stg-tbl-row:hover {
+  background: rgba(0,0,0,0.02);
+}
+.stg-tbl-row:nth-child(even) {
+  background: rgba(0,0,0,0.012);
+}
+.stg-tbl-row:nth-child(even):hover {
+  background: rgba(0,0,0,0.03);
+}
+
+/* ── Клітинка ── */
+.stg-cell {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
+  font-size: var(--fontsmall, 16px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  padding: 0.15rem 0.25rem;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid rgba(0,0,0,0.04);
+}
+.stg-cell:last-child {
+  border-right: none;
+}
+.stg-cell--center {
+  justify-content: center;
+  text-align: center;
+}
+.stg-cell--head {
+  cursor: pointer;
+  user-select: none;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.3;
+  white-space: pre-line;
+  transition: color 0.15s;
+  font-size: var(--fontcard, 0.7rem);
+}
+.stg-cell--head:hover {
+  color: var(--adminorange, #f5a623);
+}
+
+/* ── Редагована клітинка ── */
+.stg-cell--editable {
+  cursor: cell;
+  transition: background 0.1s;
+  position: relative;
+}
+.stg-cell--editable:hover {
+  background: var(--adminlightorange, #fef4e5);
+}
+
+/* ── Клітинка в режимі редагування ── */
+.stg-cell--editing {
+  padding: 0;
+  overflow: visible;
+}
+.stg-cell--editing input {
+  width: 100%;
+  height: 100%;
+  min-height: 26px;
+  border: 2px solid var(--adminorange, #f5a623);
+  outline: none;
+  background: #fff;
+  font-size: var(--fontsmall, 16px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  padding: 0 0.25rem;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+/* ── Клітинка, що зберігається ── */
+.stg-cell--saving {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ── Клітинка з помилкою ── */
+.stg-cell--error {
+  background: var(--adminlightred, #fde8e5) !important;
+}
+
+/* ── Цінові колонки ── */
+.stg-cell--price {
+  color: var(--admingreen, #0e935b);
+  font-weight: 500;
+}
+
+/* ── Колонка кількості (amount) ── */
+.stg-cell--amount {
+  font-weight: 500;
+}
+.stg-cell--negative {
+  color: var(--adminred, #ee3c23) !important;
+}
+
+/* ── Кнопки copy / del ── */
+.stg-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--fontsmall, 16px);
+  padding: 0.1rem 0.2rem;
+  color: var(--admingrey, #666666);
+  transition: color 0.15s, background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.stg-action-btn:hover {
+  color: var(--adminorange, #f5a623);
+}
+.stg-action-btn--del:hover {
+  color: var(--adminred, #ee3c23);
+}
+
+/* ── Сортування ── */
+.stg-sort-icon {
+  opacity: 0.3;
+  font-size: 0.8em;
+  font-style: normal;
+  margin-left: 2px;
+}
+.stg-sort-icon--active {
+  opacity: 1;
+  color: var(--adminorange, #f5a623);
+}
+
+/* ── Футер ── */
+.stg-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.6rem;
+  border-top: 1px solid rgba(0,0,0,0.1);
+  background: var(--adminfonelement, #f2f0e9);
+  flex-shrink: 0;
+}
+
+.stg-add-btn {
+  background: var(--admingreen, #0e935b);
+  color: #fff;
+  border: none;
+  padding: 0.35rem 1rem;
+  font-size: var(--font-size-pay, 0.8rem);
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+.stg-add-btn:hover {
+  background: var(--adminorange, #f5a623);
+}
+
+/* ── Лоадер ── */
+.stg-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40vh;
+}
+
+/* ── Штрих-код ── */
+.stg-cell--barcode {
+  padding: 0.1rem 0.5vw;
+}
+.stg-cell--barcode:hover {
+  background: var(--adminlightorange, #fef4e5);
+}
+
+/* ── Дати ── */
+.stg-cell--date {
+  font-size: 0.6rem;
+  opacity: 0.7;
+}

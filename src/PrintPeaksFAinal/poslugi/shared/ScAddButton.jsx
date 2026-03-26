@@ -1,7 +1,7 @@
 import React from "react";
 
 const ScAddButton = ({ onClick, isEdit = false, disabled = false, className = "" }) => {
-  const text = isEdit ? "Зберегти зміни" : "Додати до замовлення";
+  const text = isEdit ? "Зберегти зміни" : "Додати";
   return (
     <div style={{ display: "flex", justifyContent: "center", marginTop: "2vh" }}>
       <button className={`sc-add-btn${className ? " " + className : ""}`} onClick={onClick} type="button" disabled={disabled}>
