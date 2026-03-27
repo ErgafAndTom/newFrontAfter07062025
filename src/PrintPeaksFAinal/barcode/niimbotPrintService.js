@@ -1,389 +1,76 @@
 /**
- * niimbotPrintService.js — Web Bluetooth друк на Niimbot B21S
- * v8 — auto-reconnect, blank-first-print fix, mutex
+ * niimbotPrintService.js — друк етикеток через TCP термопринтер
+ * Принтер: Wi-Fi термопринтер, IP: 192.168.0.150, порт: 9100
+ *
+ * Етикетка рендериться на HTML5 Canvas,
+ * конвертується в 1-bit bitmap і відправляється на бекенд
+ * POST /novaposhta/print-label, який обертає в TSPL BITMAP.
  */
 
-import {
-  NiimbotBluetoothClient,
-  ImageEncoder,
-  PacketGenerator,
-  findPrintTask,
-} from '@mmote/niimbluelib';
+import axios from '../../api/axiosInstance';
 
-// Singleton client
-let client = null;
-let connected = false;
+// ──── Налаштування ────
 
-const LS_KEY = 'printpeaks_niimbot_settings';
-const DEVICE_ID_KEY = 'printpeaks_niimbot_deviceId';
+const LS_KEY = 'printpeaks_barcode_printer_settings';
 
-function getSettings() {
-  const defaults = {
-    density: 5,
-    temperature: 5,
-    labelType: 1,
-    copies: 1,
-    speed: 2,
-    autoShutdown: 15,
-    sound: true,
-    marginLeft: 20,
-    marginRight: 20,
-    marginTop: 8,
-    marginBottom: 8,
-  };
+const DEFAULTS = {
+  printerHost: '192.168.0.150',
+  printerPort: 9100,
+  labelWidth: 50,   // мм
+  labelHeight: 30,  // мм
+  gap: 3,
+  speed: 4,
+  density: 8,
+  offsetX: 0,
+  offsetY: 0,
+  threshold: 128,
+  marginLeft: 20,
+  marginRight: 20,
+  marginTop: 8,
+  marginBottom: 8,
+};
+
+export function getSettings() {
   try {
     const raw = localStorage.getItem(LS_KEY);
-    if (raw) return { ...defaults, ...JSON.parse(raw) };
+    if (raw) return { ...DEFAULTS, ...JSON.parse(raw) };
   } catch { /* ignore */ }
-  return defaults;
+  return { ...DEFAULTS };
 }
 
-// --- Connection ---
-
-let reconnectAttempts = 0;
-let watchingDevice = null; // BluetoothDevice що моніториться через watchAdvertisements
-let reconnectTimer = null;
-
-/**
- * Підключається до BLE пристрою напряму (без picker).
- * Використовується для auto-reconnect і reconnect після розриву.
- */
-async function connectToDevice(device) {
-  client = new NiimbotBluetoothClient();
-
-  const disconnectListener = () => {
-    // console.log('[Niimbot] Disconnected — scheduling auto-reconnect...');
-    connected = false;
-    client = null;
-    notifyStatus();
-    device.removeEventListener('gattserverdisconnected', disconnectListener);
-    // Запускаємо авто-перепідключення
-    scheduleReconnect(device);
-  };
-  device.addEventListener('gattserverdisconnected', disconnectListener);
-
-  const gattServer = await device.gatt.connect();
-  const channel = await client.findSuitableBluetoothCharacteristic(gattServer);
-  if (!channel) {
-    gattServer.disconnect();
-    throw new Error('No suitable BLE characteristic found');
-  }
-
-  channel.addEventListener('characteristicvaluechanged', (event) => {
-    client.processRawPacket(event.target.value);
-  });
-  await channel.startNotifications();
-
-  client.gattServer = gattServer;
-  client.channel = channel;
-
-  // Рукостискання + інфо про принтер
-  await client.initialNegotiate();
-  await client.fetchPrinterInfo();
-
-  connected = true;
-  reconnectAttempts = 0;
-  // console.log('[Niimbot] Connected to', device.name, '| battery:', BATTERY_MAP[client.info?.charge] ?? '?', '%');
-  notifyStatus();
-
-  // Застосовуємо налаштування
-  await applyPrinterSettings();
+export function saveSettings(settings) {
+  localStorage.setItem(LS_KEY, JSON.stringify(settings));
+  import('../../hooks/useUserSettings').then(({ saveSetting }) => {
+    saveSetting('barcode_printer_settings', settings);
+  }).catch(() => {});
 }
 
-/**
- * Планує повторну спробу підключення з backoff.
- */
-function scheduleReconnect(device) {
-  if (reconnectTimer) clearTimeout(reconnectTimer);
-  if (reconnectAttempts >= 10) {
-    console.warn('[Niimbot] Max reconnect attempts reached. Use manual connect.');
-    return;
-  }
+// ──── Сумісність з існуючими import-ами ────
 
-  // Backoff: 2s, 3s, 5s, 8s, 10s, 10s...
-  const delays = [2000, 3000, 5000, 8000, 10000];
-  const delay = delays[Math.min(reconnectAttempts, delays.length - 1)];
-  reconnectAttempts++;
+export function isConnected() { return true; }
+export async function connect() {}
+export function disconnect() {}
+export function hasSavedDevice() { return false; }
+export function getBatteryLevel() { return null; }
 
-  // console.log(`[Niimbot] Reconnect attempt ${reconnectAttempts} in ${delay / 1000}s...`);
-  reconnectTimer = setTimeout(async () => {
-    try {
-      await connectToDevice(device);
-    } catch (e) {
-      console.warn('[Niimbot] Reconnect failed:', e.message);
-      scheduleReconnect(device);
-    }
-  }, delay);
-}
-
-/**
- * Спроба тихого перепідключення до раніше спареного пристрою
- * (без picker-а, через getDevices + watchAdvertisements API).
- */
-async function tryAutoReconnect() {
-  // console.log('[Niimbot] tryAutoReconnect — start');
-  if (!navigator.bluetooth?.getDevices) {
-    // console.log('[Niimbot] getDevices API not available');
-    return false;
-  }
-
-  const savedId = localStorage.getItem(DEVICE_ID_KEY);
-  if (!savedId) {
-    // console.log('[Niimbot] No saved device ID in localStorage');
-    return false;
-  }
-  // console.log('[Niimbot] Saved device ID:', savedId);
-
-  try {
-    const devices = await navigator.bluetooth.getDevices();
-    // console.log('[Niimbot] getDevices returned', devices.length, 'devices');
-    const device = devices.find(d => d.id === savedId);
-    if (!device) {
-      // console.log('[Niimbot] Saved device not found in getDevices list');
-      return false;
-    }
-    // console.log('[Niimbot] Found device:', device.name, 'gatt:', !!device.gatt);
-
-    // Спершу пробуємо пряме підключення (якщо пристрій вже в зоні)
-    if (device.gatt) {
-      try {
-        await connectToDevice(device);
-        return true;
-      } catch (e) {
-        // console.log('[Niimbot] Direct reconnect failed, trying watchAdvertisements...', e.message);
-      }
-    }
-
-    // Якщо пряме не спрацювало — підписуємось на рекламні пакети
-    if (typeof device.watchAdvertisements === 'function' && !watchingDevice) {
-      watchingDevice = device;
-      device.addEventListener('advertisementreceived', async () => {
-        if (connected) return; // Вже підключені
-        // console.log('[Niimbot] Advertisement received — connecting...');
-        try {
-          await connectToDevice(device);
-        } catch (e) {
-          // console.warn('[Niimbot] Connect after advertisement failed:', e.message);
-        }
-      });
-      await device.watchAdvertisements();
-      // console.log('[Niimbot] Watching for printer advertisements...');
-    }
-
-    return false;
-  } catch (e) {
-    console.warn('[Niimbot] Auto-reconnect setup failed:', e.message);
-    client = null;
-    connected = false;
-    return false;
-  }
-}
-
-export async function connect() {
-  if (connected && client) return true;
-
-  // Зупиняємо авто-реконнект якщо працює
-  if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
-
-  // Спершу пробуємо тихе перепідключення
-  if (await tryAutoReconnect()) return true;
-
-  // Fallback — показуємо picker
-  client = new NiimbotBluetoothClient();
-
-  try {
-    await client.connect();
-    connected = true;
-    notifyStatus();
-
-    // Зберігаємо device ID для майбутнього auto-reconnect
-    try {
-      const gatt = client.gattServer;
-      if (gatt?.device?.id) {
-        localStorage.setItem(DEVICE_ID_KEY, gatt.device.id);
-
-        // Підписуємось на disconnect для авто-реконнекту
-        const device = gatt.device;
-        const disconnectListener = () => {
-          // console.log('[Niimbot] Disconnected (picker) — scheduling auto-reconnect...');
-          connected = false;
-          client = null;
-          notifyStatus();
-          device.removeEventListener('gattserverdisconnected', disconnectListener);
-          scheduleReconnect(device);
-        };
-        device.addEventListener('gattserverdisconnected', disconnectListener);
-
-        // Запускаємо watchAdvertisements для майбутніх сесій
-        if (typeof device.watchAdvertisements === 'function') {
-          watchingDevice = device;
-          device.addEventListener('advertisementreceived', async () => {
-            if (connected) return;
-            // console.log('[Niimbot] Advertisement received — reconnecting...');
-            try { await connectToDevice(device); } catch { /* retry via schedule */ }
-          });
-          device.watchAdvertisements().catch(() => {});
-        }
-      }
-    } catch { /* ignore */ }
-
-    // Застосовуємо налаштування принтера
-    await applyPrinterSettings();
-
-    return true;
-  } catch (e) {
-    console.error('Niimbot connect error:', e);
-    connected = false;
-    throw e;
-  }
-}
-
-export function disconnect() {
-  // Зупиняємо авто-реконнект
-  if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
-  reconnectAttempts = 10; // Блокуємо подальші спроби
-
-  if (watchingDevice) {
-    try { watchingDevice.forget(); } catch { /* ignore */ }
-    watchingDevice = null;
-  }
-
-  if (client) {
-    try { client.disconnect(); } catch { /* ignore */ }
-    connected = false;
-    client = null;
-  }
-
-  localStorage.removeItem(DEVICE_ID_KEY);
-  notifyStatus();
-}
-
-export function isConnected() {
-  return connected;
-}
-
-/** Чи є збережений пристрій І чи доступний auto-reconnect API */
-export function hasSavedDevice() {
-  return !!localStorage.getItem(DEVICE_ID_KEY) && !!navigator.bluetooth?.getDevices;
-}
-
-/**
- * Надсилає налаштування принтера (autoShutdown, sound) після підключення.
- */
-async function applyPrinterSettings() {
-  if (!client || !connected) return;
-  try {
-    const s = getSettings();
-    const cmds = [];
-    if (typeof PacketGenerator.setAutoShutDownTime === 'function') {
-      cmds.push(PacketGenerator.setAutoShutDownTime(s.autoShutdown));
-    }
-    if (typeof PacketGenerator.setSoundSettings === 'function') {
-      cmds.push(PacketGenerator.setSoundSettings(1, s.sound ? 1 : 0));
-    }
-    if (cmds.length > 0) {
-      await client.abstraction.sendAll(cmds);
-      // console.log('[Niimbot] Applied settings: shutdown=' + s.autoShutdown + 'min, sound=' + s.sound);
-    }
-  } catch (e) {
-    // console.warn('[Niimbot] Failed to apply printer settings:', e.message);
-  }
-}
-
-// --- Battery ---
-
-// BatteryChargeLevel enum: 0=0%, 1=25%, 2=50%, 3=75%, 4=100%
-const BATTERY_MAP = { 0: 0, 1: 25, 2: 50, 3: 75, 4: 100 };
-
-/**
- * Повертає рівень заряду батареї принтера у відсотках (0, 25, 50, 75, 100).
- * Повертає null якщо принтер не підключений або дані недоступні.
- */
-export function getBatteryLevel() {
-  if (!connected || client?.info?.charge == null) return null;
-  return BATTERY_MAP[client.info.charge] ?? null;
-}
-
-// --- Status listeners (для UI-компонентів) ---
 const statusListeners = new Set();
-
 export function onStatusChange(cb) {
   statusListeners.add(cb);
   return () => statusListeners.delete(cb);
 }
 
-function notifyStatus() {
-  const s = connected;
-  statusListeners.forEach(cb => { try { cb(s); } catch {} });
-}
-
-// --- Periodic auto-reconnect після завантаження сторінки ---
-let autoReconnectInterval = null;
-let autoReconnectCount = 0;
-const AUTO_RECONNECT_MAX = 20;     // максимум спроб
-const AUTO_RECONNECT_DELAY = 3000; // кожні 3с
-
-function startPeriodicReconnect() {
-  if (autoReconnectInterval) return;
-  autoReconnectCount = 0;
-
-  // Перша спроба через 1с, далі кожні 3с
-  setTimeout(() => {
-    if (connected || autoReconnectInterval) return;
-    tryAutoReconnect().then(ok => {
-      if (ok) { notifyStatus(); return; }
-      // Не вдалося — стартуємо інтервал
-      runPeriodicInterval();
-    }).catch(() => runPeriodicInterval());
-  }, 1000);
-}
-
-function runPeriodicInterval() {
-  if (autoReconnectInterval || connected) return;
-  autoReconnectInterval = setInterval(async () => {
-    if (connected) {
-      // Вже підключені — зупиняємо
-      clearInterval(autoReconnectInterval);
-      autoReconnectInterval = null;
-      return;
-    }
-    autoReconnectCount++;
-    if (autoReconnectCount > AUTO_RECONNECT_MAX) {
-      // console.log('[Niimbot] Periodic auto-reconnect stopped after', AUTO_RECONNECT_MAX, 'attempts');
-      clearInterval(autoReconnectInterval);
-      autoReconnectInterval = null;
-      return;
-    }
-    try {
-      const ok = await tryAutoReconnect();
-      if (ok) {
-        // console.log('[Niimbot] Periodic auto-reconnect succeeded on attempt', autoReconnectCount);
-        notifyStatus();
-        clearInterval(autoReconnectInterval);
-        autoReconnectInterval = null;
-      }
-    } catch {}
-  }, AUTO_RECONNECT_DELAY);
-}
-
-// Спроба auto-reconnect при завантаженні модуля
-tryAutoReconnect().then(ok => {
-  if (ok) {
-    notifyStatus();
-  } else {
-    // Не вдалося одразу — запускаємо періодичні спроби
-    startPeriodicReconnect();
-  }
-}).catch(() => {
-  startPeriodicReconnect();
-});
-
-// --- Label canvas generation ---
+// ──── Label canvas generation ────
 
 const DPI = 203;
 const PX_PER_MM = DPI / 25.4;
-const LABEL_W_PX = 384; // printhead pixels (~48mm)
-const LABEL_H_PX = Math.round(30 * PX_PER_MM); // ~240px (~30mm)
+
+function getLabelDimensions() {
+  const s = getSettings();
+  return {
+    w: Math.round(s.labelWidth * PX_PER_MM),  // 50mm → ~400px
+    h: Math.round(s.labelHeight * PX_PER_MM), // 30mm → ~240px
+  };
+}
 
 // PrintPeaks logo SVG paths
 const LOGO_PATHS = [
@@ -406,14 +93,15 @@ function drawLogo(ctx, x, y, targetH) {
 }
 
 /**
- * Малює наліпку замовлення або клієнта.
+ * Малює наліпку замовлення, клієнта або матеріалу.
  * Layout: barcode top, info left-aligned below, logo right-bottom.
  */
 export function createLabelCanvas(type, data) {
   const s = getSettings();
+  const dim = getLabelDimensions();
   const canvas = document.createElement('canvas');
-  canvas.width = LABEL_W_PX;
-  canvas.height = LABEL_H_PX;
+  canvas.width = dim.w;
+  canvas.height = dim.h;
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
   // Білий фон
@@ -427,12 +115,12 @@ export function createLabelCanvas(type, data) {
 
   // Логотип — правий нижній кут (~60px висота)
   const logoH = 60;
-  const logoW = logoH * (LOGO_VIEWBOX.w / LOGO_VIEWBOX.h); // ~106px
+  const logoW = logoH * (LOGO_VIEWBOX.w / LOGO_VIEWBOX.h);
   const logoX = canvas.width - mr - logoW;
-  const logoY = LABEL_H_PX - mb - logoH;
+  const logoY = dim.h - mb - logoH;
   drawLogo(ctx, logoX, logoY, logoH);
 
-  // Зона контенту — вся ширина (штрих-код), текст зліва
+  // Зона контенту
   const contentW = canvas.width - ml - mr;
   const leftX = ml;
 
@@ -445,67 +133,58 @@ export function createLabelCanvas(type, data) {
     const clientId = data?.client?.id || data?.clientId || '';
     const clientName = getClientName(data);
 
-    // Barcode — верхня частина (без тексту під ним)
+    // Barcode
     const barY = mt;
-    const barH = Math.round((LABEL_H_PX - mt - s.marginBottom) * 0.42);
+    const barH = Math.round((dim.h - mt - mb) * 0.42);
     const barCenterX = leftX + contentW / 2;
     drawCode128Bars(ctx, barcodeValue, barCenterX, barY, contentW, barH);
 
-    // Info під штрих-кодом — великий шрифт, вирівняно зліва
+    // Ім'я клієнта — перший рядок під штрих-кодом
     const infoY = barY + barH + 6;
     ctx.textBaseline = 'top';
+    ctx.font = 'bold 28px monospace';
+    ctx.textAlign = 'left';
+    const clientLine = clientName || (clientId ? `ID:${clientId}` : '');
+    ctx.fillText(clientLine, leftX, infoY);
 
-    // Номер замовлення
+    // Номер замовлення + ціна — другий рядок
     ctx.font = 'bold 36px monospace';
     ctx.textAlign = 'left';
     const orderLabel = `\u2116${orderId}`;
-    ctx.fillText(orderLabel, leftX, infoY);
+    ctx.fillText(orderLabel, leftX, infoY + 34);
 
-    // Ціна
     if (totalPrice) {
-      ctx.font = 'bold 36px monospace';
-      ctx.textAlign = 'left';
       const numW = ctx.measureText(orderLabel + '  ').width;
-      ctx.fillText(`${totalPrice} грн`, leftX + numW, infoY);
+      ctx.fillText(`${totalPrice} грн`, leftX + numW, infoY + 34);
     }
 
-    // Клієнт
-    ctx.font = 'bold 28px monospace';
-    ctx.textAlign = 'left';
-    const clientLine = clientId ? `ID:${clientId} ${clientName}` : clientName;
-    ctx.fillText(clientLine, leftX, infoY + 42);
-
-    // ОПЛАЧЕНО — під клієнтом (3-й рядок тексту)
+    // ОПЛАЧЕНО — третій рядок
     const isPaid = data?.Payment?.status === 'PAID'
       || data?.paid === true
       || data?.paymentStatus === 'paid';
     if (isPaid) {
       ctx.font = 'bold 28px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText('ОПЛАЧЕНО', leftX, infoY + 42 + 34);
+      ctx.fillText('ОПЛАЧЕНО', leftX, infoY + 34 + 42);
     }
 
   } else if (type === 'material') {
-    // Material label
     const matId = data?.id || '?';
     const barcodeValue = `MAT${matId}`;
     const matName = data?.name || `Матеріал #${matId}`;
 
-    // Barcode
     const barY = mt;
-    const barH = Math.round((LABEL_H_PX - mt - s.marginBottom) * 0.45);
+    const barH = Math.round((dim.h - mt - mb) * 0.45);
     const barCenterX = leftX + contentW / 2;
     drawCode128Bars(ctx, barcodeValue, barCenterX, barY, contentW, barH);
 
-    // Material info
     const infoY = barY + barH + 6;
     ctx.textBaseline = 'top';
-    ctx.font = 'bold 36px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText(`ID:${matId}`, leftX, infoY);
-
     ctx.font = 'bold 28px monospace';
-    ctx.fillText(matName, leftX, infoY + 42);
+    ctx.textAlign = 'left';
+    ctx.fillText(matName, leftX, infoY);
+    ctx.font = 'bold 36px monospace';
+    ctx.fillText(`ID:${matId}`, leftX, infoY + 34);
 
   } else {
     // Client label
@@ -513,21 +192,18 @@ export function createLabelCanvas(type, data) {
     const barcodeValue = `CLN${clientId}`;
     const clientName = [data?.firstName, data?.lastName].filter(Boolean).join(' ') || `Client #${clientId}`;
 
-    // Barcode
     const barY = mt;
-    const barH = Math.round((LABEL_H_PX - mt - s.marginBottom) * 0.45);
+    const barH = Math.round((dim.h - mt - mb) * 0.45);
     const barCenterX = leftX + contentW / 2;
     drawCode128Bars(ctx, barcodeValue, barCenterX, barY, contentW, barH);
 
-    // Client info — великий шрифт
     const infoY = barY + barH + 6;
     ctx.textBaseline = 'top';
-    ctx.font = 'bold 36px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText(`ID:${clientId}`, leftX, infoY);
-
     ctx.font = 'bold 28px monospace';
-    ctx.fillText(clientName, leftX, infoY + 42);
+    ctx.textAlign = 'left';
+    ctx.fillText(clientName, leftX, infoY);
+    ctx.font = 'bold 36px monospace';
+    ctx.fillText(`ID:${clientId}`, leftX, infoY + 34);
   }
 
   return canvas;
@@ -539,15 +215,12 @@ function getClientName(data) {
   return '';
 }
 
-/**
- * Code128B barcode encoding.
- * Returns array of bar widths (alternating black/white starting with black).
- */
+// ──── Code128B barcode encoding ────
+
 function encodeCode128B(value) {
   const CODE128B_START = 104;
   const CODE128_STOP = 106;
 
-  // Code128 patterns: each symbol = 6 bars (3 black + 3 white), total width 11 modules
   const PATTERNS = [
     [2,1,2,2,2,2],[2,2,2,1,2,2],[2,2,2,2,2,1],[1,2,1,2,2,3],[1,2,1,3,2,2],
     [1,3,1,2,2,2],[1,2,2,2,1,3],[1,2,2,3,1,2],[1,3,2,2,1,2],[2,2,1,2,1,3],
@@ -575,8 +248,6 @@ function encodeCode128B(value) {
 
   const codes = [];
   let checksum = CODE128B_START;
-
-  // Start code B
   codes.push(CODE128B_START);
 
   for (let i = 0; i < value.length; i++) {
@@ -585,12 +256,9 @@ function encodeCode128B(value) {
     checksum += code * (i + 1);
   }
 
-  // Checksum
   codes.push(checksum % 103);
-  // Stop
   codes.push(CODE128_STOP);
 
-  // Convert codes to bar widths
   const bars = [];
   for (const code of codes) {
     const pattern = PATTERNS[code];
@@ -602,9 +270,6 @@ function encodeCode128B(value) {
   return bars;
 }
 
-/**
- * Малює Code128 штрих-код на canvas.
- */
 function drawCode128Bars(ctx, value, centerX, y, maxWidth, barHeight) {
   const bars = encodeCode128B(value);
   const totalModules = bars.reduce((s, w) => s + w, 0);
@@ -622,73 +287,66 @@ function drawCode128Bars(ctx, value, centerX, y, maxWidth, barHeight) {
   }
 }
 
-// --- Printing ---
+// ──── Конвертація canvas → 1-bit bitmap ────
 
-export async function printCanvas(canvas, copies = 1) {
-  if (!client || !connected) {
-    throw new Error('Принтер не підключений.');
+function canvasToBitmap(canvas) {
+  const W = canvas.width;
+  const H = canvas.height;
+  const ctx = canvas.getContext('2d');
+  const imageData = ctx.getImageData(0, 0, W, H);
+  const pixels = imageData.data;
+  const s = getSettings();
+  const threshold = s.threshold || 128;
+
+  // widthBytes має бути кратним 8 бітам
+  const widthBytes = Math.ceil(W / 8);
+  const bitmap = new Uint8Array(widthBytes * H);
+
+  for (let row = 0; row < H; row++) {
+    for (let byteIdx = 0; byteIdx < widthBytes; byteIdx++) {
+      let byte = 0;
+      for (let bit = 0; bit < 8; bit++) {
+        const px = byteIdx * 8 + bit;
+        if (px >= W) break;
+        const idx = (row * W + px) * 4;
+        const r = pixels[idx];
+        const g = pixels[idx + 1];
+        const b = pixels[idx + 2];
+        const brightness = (r + g + b) / 3;
+        if (brightness >= threshold) {
+          byte |= (0x80 >> bit); // MSB first, 1 = білий
+        }
+      }
+      bitmap[row * widthBytes + byteIdx] = byte;
+    }
   }
 
-  const s = getSettings();
-  const encoded = ImageEncoder.encodeCanvas(canvas, 'top');
-
-  console.log('[Niimbot] encoded rows:', encoded.rows, 'cols:', encoded.cols);
-
-  const abstraction = client.abstraction;
-
-  // 1. Init — setDensity, setLabelType, printStart2b(1) з явним totalPages=1
-  await abstraction.sendAll([
-    PacketGenerator.setDensity(s.temperature || s.density),
-    PacketGenerator.setLabelType(s.labelType),
-    PacketGenerator.printStart2b(1), // явно: друкуємо рівно 1 сторінку
-  ]);
-  // console.log('[Niimbot] printInit done (printStart2b totalPages=1)');
-
-  // 2. Page data — printClear, pageStart, pageSize, quantity=1, imageData, pageEnd
-  await abstraction.sendAll([
-    PacketGenerator.printClear(),
-    PacketGenerator.pageStart(),
-    PacketGenerator.setPageSize4b(encoded.rows, encoded.cols),
-    PacketGenerator.setPrintQuantity(1),
-    ...PacketGenerator.writeImageData(encoded, { printheadPixels: 384 }),
-    PacketGenerator.pageEnd(),
-  ]);
-  // console.log('[Niimbot] printPage done, waiting for printer...');
-
-  // 3. Чекаємо щоб принтер фізично закінчив, потім одноразовий printEnd
-  await new Promise(r => setTimeout(r, 1500));
-  const printEndResult = await abstraction.printEnd().catch(() => false);
-  // console.log('[Niimbot] printEnd result:', printEndResult);
-
-  // console.log('[Niimbot] print done — 1 label');
+  return { bitmap, width: W, height: H, widthBytes };
 }
 
-// Mutex — запобігає подвійному друку при швидких кліках
+function uint8ToBase64(uint8) {
+  let binary = '';
+  for (let i = 0; i < uint8.length; i++) {
+    binary += String.fromCharCode(uint8[i]);
+  }
+  return btoa(binary);
+}
+
+// ──── Друк через бекенд TCP ────
+
 let printLock = false;
 let lastPrintTime = 0;
-const MIN_PRINT_INTERVAL = 5000; // 5с мінімум між друками
+const MIN_PRINT_INTERVAL = 3000; // 3с мінімум між друками
 
-export async function printLabel(type, data, copies = 1) {
+export async function printLabel(type, data) {
   const now = Date.now();
   if (printLock || (now - lastPrintTime < MIN_PRINT_INTERVAL)) {
-    // console.warn('[Niimbot] printLabel skipped — lock:', printLock, 'cooldown:', now - lastPrintTime, 'ms');
     return;
   }
   printLock = true;
   lastPrintTime = now;
 
   try {
-    // console.log('[Niimbot] printLabel v8, type:', type);
-
-    const wasDisconnected = !connected;
-    if (wasDisconnected) await connect();
-
-    // Після нового підключення даємо принтеру час стабілізуватись
-    if (wasDisconnected) {
-      await new Promise(r => setTimeout(r, 2000));
-    }
-
-    // Чекаємо завантаження шрифтів
     await document.fonts.ready;
 
     const canvas = createLabelCanvas(type, data);
@@ -699,21 +357,62 @@ export async function printLabel(type, data, copies = 1) {
     for (let i = 0; i < imgData.length; i += 4) {
       if (imgData[i] < 128) blackPx++;
     }
-    // console.log('[Niimbot] canvas blackPx:', blackPx, '/', canvas.width * canvas.height);
-    // DEBUG: вивести canvas як картинку в консоль
-    // console.log('[Niimbot] canvas preview:', canvas.toDataURL('image/png'));
-
     if (blackPx === 0) {
       throw new Error('Canvas порожній — нічого друкувати');
     }
 
-    await printCanvas(canvas, 1);
+    // Конвертуємо в bitmap і відправляємо на бекенд
+    const { bitmap, width, height, widthBytes } = canvasToBitmap(canvas);
+    const bitmapBase64 = uint8ToBase64(bitmap);
+    const s = getSettings();
+
+    console.log(`[BarcodePrint] Label ${width}×${height}, ${bitmap.length} bytes → ${s.printerHost}:${s.printerPort}`);
+
+    const response = await axios.post('/novaposhta/print-label', {
+      bitmapBase64,
+      width,
+      height,
+      widthBytes,
+      host: s.printerHost,
+      port: s.printerPort,
+      gap: s.gap,
+      speed: s.speed,
+      density: s.density,
+      labelWidth: s.labelWidth,
+      labelHeight: s.labelHeight,
+    });
+
+    console.log('[BarcodePrint] OK:', response.data);
+    return response.data;
   } finally {
     printLock = false;
   }
 }
 
-export { applyPrinterSettings };
+/**
+ * Тест з'єднання з принтером (TCP ping)
+ */
+export async function testConnection() {
+  const s = getSettings();
+  return axios.post('/novaposhta/test-connection', {
+    host: s.printerHost,
+    port: s.printerPort,
+  });
+}
+
+/**
+ * Тест друку — друкує маленьку тестову наліпку
+ */
+export async function testPrint() {
+  const s = getSettings();
+  return axios.post('/novaposhta/print-raw', {
+    tsplData: `SIZE ${s.labelWidth} mm, ${s.labelHeight} mm\r\nGAP ${s.gap} mm, 0 mm\r\nSPEED ${s.speed}\r\nDENSITY ${s.density}\r\nCLS\r\nTEXT 30,30,"3",0,1,1,"BARCODE TEST OK"\r\nTEXT 30,70,"2",0,1,1,"${s.labelWidth}x${s.labelHeight}mm"\r\nPRINT 1,1\r\n`,
+    host: s.printerHost,
+    port: s.printerPort,
+  });
+}
+
+export function applyPrinterSettings() {}
 
 export default {
   connect,
@@ -722,7 +421,10 @@ export default {
   hasSavedDevice,
   onStatusChange,
   printLabel,
-  printCanvas,
   createLabelCanvas,
   applyPrinterSettings,
+  getSettings,
+  saveSettings,
+  testConnection,
+  testPrint,
 };

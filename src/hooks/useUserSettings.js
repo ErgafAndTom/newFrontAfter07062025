@@ -8,6 +8,7 @@ const API_BASE = '/api/user-settings';
 const KEY_MAP = {
     'printpeaks_file_settings': 'file_settings',
     'printpeaks_niimbot_settings': 'niimbot_settings',
+    'printpeaks_barcode_printer_settings': 'barcode_printer_settings',
     'printpeaks_qztray_settings': 'qztray_settings',
     'printpeaks_uklon_settings': 'uklon_settings',
     'printpeaks_np_sender_addresses': 'np_sender_addresses',

@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import Barcode from 'react-barcode';
-import { printLabel, isConnected, connect, onStatusChange, hasSavedDevice, getBatteryLevel } from './niimbotPrintService';
+import { printLabel } from './niimbotPrintService';
 import {
   connect as scannerConnect,
   isConnected as scannerIsConnected,
@@ -32,7 +32,7 @@ export default function BarcodeLabel({ type = 'order', data, variant = 'compact'
     return c ? [c.firstName, c.lastName].filter(Boolean).join(' ') || `Client #${c.id}` : '—';
   };
 
-  // --- Niimbot Bluetooth print (єдиний метод друку) ---
+  // --- TCP thermal print ---
   const handlePrint = useCallback(async (e) => {
     e.stopPropagation();
     e.preventDefault();
@@ -41,12 +41,11 @@ export default function BarcodeLabel({ type = 'order', data, variant = 'compact'
 
     setPrinting(true);
     try {
-      // printLabel сам підключить принтер якщо потрібно
       await printLabel(type, data);
       if (onAfterPrint) onAfterPrint();
     } catch (err) {
-      console.error('Niimbot print error:', err);
-      alert('Помилка друку: ' + err.message);
+      console.error('Print error:', err);
+      alert('Помилка друку: ' + (err?.response?.data?.error || err.message));
     } finally {
       setPrinting(false);
     }
@@ -152,61 +151,38 @@ export function BarcodeScannerButton({ className = '' }) {
   );
 }
 
+/**
+ * PrinterButton — кнопка принтера етикеток в навігації (TCP Wi-Fi принтер).
+ * Зелена точка = принтер доступний по мережі.
+ */
 export function NiimbotConnectButton({ className = '' }) {
-  const [status, setStatus] = useState(
-    isConnected() ? 'connected' : hasSavedDevice() ? 'connecting' : 'disconnected'
-  );
-  const [battery, setBattery] = useState(getBatteryLevel());
+  const [testing, setTesting] = useState(false);
+  const [status, setStatus] = useState('connected'); // TCP — завжди "готовий"
 
-  // Підписуємось на зміни статусу (авто-реконнект, disconnect тощо)
-  useEffect(() => {
-    const unsub = onStatusChange((isConn) => {
-      setStatus(isConn ? 'connected' : 'disconnected');
-      setBattery(isConn ? getBatteryLevel() : null);
-    });
-    return unsub;
-  }, []);
-
-  // Оновлюємо батарею кожні 30с коли підключений
-  useEffect(() => {
-    if (status !== 'connected') return;
-    const iv = setInterval(() => setBattery(getBatteryLevel()), 30000);
-    return () => clearInterval(iv);
-  }, [status]);
-
-  const handleConnect = async (e) => {
+  const handleTestPrint = async (e) => {
     e.stopPropagation();
-    if (status === 'connected') return;
-    setStatus('connecting');
+    if (testing) return;
+    setTesting(true);
     try {
-      await connect();
+      const { testPrint } = await import('./niimbotPrintService');
+      await testPrint();
       setStatus('connected');
-      setBattery(getBatteryLevel());
     } catch {
       setStatus('disconnected');
+    } finally {
+      setTesting(false);
     }
   };
-
-  // Колір за рівнем заряду: 0-25% red, 50% coral, 75% orange, 100% green
-  const batteryColor = battery != null
-    ? battery <= 25 ? 'var(--adminred, #ee3c23)'
-      : battery <= 50 ? 'var(--admincoral, #ff7f50)'
-      : battery <= 75 ? 'var(--adminorange, #f5a623)'
-      : 'var(--admingreen, #0e935b)'
-    : undefined;
 
   return (
     <button
       className={`buttonSkewedOrder bc-niimbot-nav bc-niimbot-nav--${status} ${className}`}
-      onClick={handleConnect}
-      title={status === 'connected' ? `Niimbot B21S — ${battery != null ? battery + '%' : 'підключений'}` : 'Підключити Niimbot B21S'}
+      onClick={handleTestPrint}
+      title={testing ? 'Друкую тест...' : 'Принтер етикеток (клік = тест друку)'}
     >
       <NiimbotLogo />
       <span className="bc-niimbot-status-row">
-        <span className="bc-niimbot-dot" style={status === 'connected' && batteryColor ? { backgroundColor: batteryColor } : undefined} />
-        {status === 'connected' && battery != null && (
-          <span className="bc-niimbot-battery" style={{ color: batteryColor }}>{battery}%</span>
-        )}
+        <span className="bc-niimbot-dot" style={{ backgroundColor: status === 'connected' ? 'var(--admingreen, #0e935b)' : 'var(--adminred, #ee3c23)' }} />
       </span>
     </button>
   );
