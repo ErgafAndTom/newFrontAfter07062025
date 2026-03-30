@@ -201,9 +201,9 @@ const Nav = () => {
                   </button>
                 </div>
 
-                <div className="nav-ctrl-btn-wrap">
+                {/* <div className="nav-ctrl-btn-wrap">
                   <NiimbotConnectButton className="adminButtonAddNav" />
-                </div>
+                </div> */}
 
                 {/* <div className="nav-ctrl-btn-wrap">
                   <BarcodeScannerButton className="adminButtonAddNav" />

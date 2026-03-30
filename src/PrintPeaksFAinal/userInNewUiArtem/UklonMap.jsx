@@ -53,7 +53,8 @@ const UklonMap = ({ pickup, dropoffs = [], deliveryId, status, onCourierUpdate, 
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const courierMarker = useRef(null);
-  const routeLine = useRef(null);
+  const routeLine = useRef(null);          // pickup → dropoff (блакитний)
+  const courierRouteLine = useRef(null);   // водій → pickup (помаранчевий пунктир)
   const trafficLayer = useRef(null);
   const baseLayer = useRef(null);
   const [courierPos, setCourierPos] = useState(null);
@@ -143,6 +144,7 @@ const UklonMap = ({ pickup, dropoffs = [], deliveryId, status, onCourierUpdate, 
       mapInstance.current = null;
       courierMarker.current = null;
       routeLine.current = null;
+      courierRouteLine.current = null;
     };
   }, [pickup?.lat, pickup?.lng, dropoffs]);
 
@@ -161,66 +163,73 @@ const UklonMap = ({ pickup, dropoffs = [], deliveryId, status, onCourierUpdate, 
     }
   }, [showTraffic]);
 
-  // Polling позиції кур'єра
-  const pollCourier = useCallback(async () => {
-    if (!deliveryId) return;
-    try {
-      const { data } = await axios.get(`/api/uklon/order/${deliveryId}/courier`);
-      if (data?.latitude && data?.longitude) {
-        setCourierPos({ lat: data.latitude, lng: data.longitude });
-        onCourierUpdate?.(data);
+  // WebSocket — real-time позиція водія від webhook (без polling)
+  useEffect(() => {
+    const handler = (e) => {
+      const { deliveryId: wsDeliveryId, location } = e.detail || {};
+      if (!wsDeliveryId || wsDeliveryId !== deliveryId || !location) return;
+      const lat = location.latitude;
+      const lng = location.longitude;
+      if (lat && lng) {
+        console.log('%c[Uklon:FE:Map] 📡 WS driver position:', 'color: #FFD600', lat, lng);
+        setCourierPos({ lat, lng });
+        onCourierUpdate?.({ latitude: lat, longitude: lng });
       }
-    } catch {
-      // Courier position not available yet
-    }
+    };
+    window.addEventListener('uklonDriverPosition', handler);
+    return () => window.removeEventListener('uklonDriverPosition', handler);
   }, [deliveryId, onCourierUpdate]);
 
-  useEffect(() => {
-    if (simulating) return; // Не polling під час симуляції
-    // Polling позиції кур'єра тільки коли водій вже призначений
-    // processing/created — водія ще шукають, нема кого відстежувати
-    const courierActiveStatuses = ["driver_found", "driver_on_way", "driver_arrived", "on_place", "parcel_picked_up", "picked_up", "delivering"];
-    if (!courierActiveStatuses.includes((status || "").toLowerCase())) return;
-
-    console.log('%c[Uklon:FE:Map] 🚗 Courier polling started, status:', 'color: #0e935b', status);
-    pollCourier();
-    const interval = setInterval(pollCourier, 10000); // кожні 10с
-    return () => clearInterval(interval);
-  }, [status, pollCourier, simulating]);
-
-  // Оновити маркер кур'єра на карті
+  // Оновити маркер кур'єра + маршрути на карті
   useEffect(() => {
     if (!mapInstance.current || !courierPos?.lat || !courierPos?.lng) return;
 
+    const map = mapInstance.current;
     const pos = [courierPos.lat, courierPos.lng];
+    const pLat = parseFloat(pickup?.lat);
+    const pLng = parseFloat(pickup?.lng);
+    const st = (status || '').toLowerCase();
+    const beforePickup = ['accepted', 'processing', 'placed', 'waiting_for_processing'].includes(st);
 
+    // Маркер водія
     if (courierMarker.current) {
       courierMarker.current.setLatLng(pos);
     } else {
       courierMarker.current = L.marker(pos, { icon: courierIcon, zIndexOffset: 1000 })
-        .addTo(mapInstance.current)
-        .bindPopup("<b>Кур'єр</b>");
+        .addTo(map)
+        .bindPopup("<b>Водій</b>");
     }
 
-    // Оновити маршрут: показати залишок маршруту від кур'єра
-    if (routeLine.current && simRouteCoords.current.length > 2) {
-      // Знайти найближчу точку на маршруті
-      let minDist = Infinity, minIdx = 0;
-      simRouteCoords.current.forEach((p, i) => {
-        const d = (p[0] - pos[0]) ** 2 + (p[1] - pos[1]) ** 2;
-        if (d < minDist) { minDist = d; minIdx = i; }
-      });
-      // Залишок маршруту від кур'єра до кінця
-      const remaining = [pos, ...simRouteCoords.current.slice(minIdx + 1)];
-      routeLine.current.setLatLngs(remaining);
-    } else if (routeLine.current && dropoffs?.[0]) {
-      const dLat = parseFloat(dropoffs[0]?.lat);
-      const dLng = parseFloat(dropoffs[0]?.lng);
-      if (dLat && dLng) {
-        routeLine.current.setLatLngs([pos, [dLat, dLng]]);
+    if (beforePickup && pLat && pLng) {
+      // ── Водій ще їде до точки забору ──
+      // Помаранчева пунктирна лінія: водій → pickup (пряма — без OSRM запитів)
+      if (courierRouteLine.current) {
+        courierRouteLine.current.setLatLngs([pos, [pLat, pLng]]);
+      } else {
+        courierRouteLine.current = L.polyline([pos, [pLat, pLng]], {
+          color: '#f5a623',
+          weight: 4,
+          opacity: 0.8,
+          dashArray: '10, 8',
+        }).addTo(map);
+      }
+      // Основний маршрут pickup → dropoff залишається як є
+    } else {
+      // ── Водій забрав посилку, їде до клієнта ──
+      if (courierRouteLine.current) {
+        map.removeLayer(courierRouteLine.current);
+        courierRouteLine.current = null;
+      }
+      // Пряма лінія від водія до dropoff (без OSRM запитів)
+      if (routeLine.current && dropoffs?.[0]) {
+        const dLat = parseFloat(dropoffs[0]?.lat);
+        const dLng = parseFloat(dropoffs[0]?.lng);
+        if (dLat && dLng) {
+          routeLine.current.setLatLngs([pos, [dLat, dLng]]);
+        }
       }
     }
-  }, [courierPos, dropoffs]);
+  }, [courierPos, dropoffs, status, pickup]);
 
   // Симуляція кур'єра — повний цикл зі статусами
   const startSimulation = useCallback(async () => {
@@ -274,35 +283,27 @@ const UklonMap = ({ pickup, dropoffs = [], deliveryId, status, onCourierUpdate, 
       onStatusChange?.('processing', { statusTimes: { processing: now() } });
       await pause(3000);
 
-      // 1. Водій знайдений
-      onStatusChange?.('driver_found', { statusTimes: { processing: now(), driver_found: now() } });
+      // 1. Водій прийняв замовлення і їде до забору
+      onStatusChange?.('accepted', { statusTimes: { processing: now(), accepted: now() } });
       setCourierPos({ lat: startLat, lng: startLng });
-      await pause(1500);
-
-      // 2. Водій їде до забору
-      onStatusChange?.('driver_on_way', { statusTimes: { created: now(), driver_found: now(), driver_on_way: now() } });
       const routeToPickup = await buildRoute([startLat, startLng], [pLat, pLng]);
       simRouteCoords.current = routeToPickup;
       await animate(routeToPickup, 400);
 
-      // 3. Водій прибув до забору
+      // 2. Водій прибув на точку забору
       setCourierPos({ lat: pLat, lng: pLng });
-      onStatusChange?.('driver_arrived', { statusTimes: { created: now(), driver_found: now(), driver_on_way: now(), driver_arrived: now() } });
+      onStatusChange?.('arrived', { statusTimes: { processing: now(), accepted: now(), arrived: now() } });
       await pause(2000);
 
-      // 4. Посилку забрано
-      onStatusChange?.('parcel_picked_up', { statusTimes: { created: now(), driver_found: now(), driver_on_way: now(), driver_arrived: now(), parcel_picked_up: now() } });
-      await pause(1500);
-
-      // 5. Доставляється — їде до клієнта
-      onStatusChange?.('delivering', { statusTimes: { created: now(), driver_found: now(), driver_on_way: now(), driver_arrived: now(), parcel_picked_up: now(), delivering: now() } });
+      // 3. Доставка — їде до клієнта
+      onStatusChange?.('running', { statusTimes: { processing: now(), accepted: now(), arrived: now(), running: now() } });
       const routeToDropoff = await buildRoute([pLat, pLng], [dLat, dLng]);
       simRouteCoords.current = routeToDropoff;
       await animate(routeToDropoff, 400);
 
-      // 6. Доставлено
+      // 4. Доставлено
       setCourierPos({ lat: dLat, lng: dLng });
-      onStatusChange?.('delivered', { statusTimes: { created: now(), driver_found: now(), driver_on_way: now(), driver_arrived: now(), parcel_picked_up: now(), delivering: now(), delivered: now() } });
+      onStatusChange?.('completed', { statusTimes: { processing: now(), accepted: now(), arrived: now(), running: now(), completed: now() } });
 
     } catch (e) {
       console.error('[Simulation] error:', e);

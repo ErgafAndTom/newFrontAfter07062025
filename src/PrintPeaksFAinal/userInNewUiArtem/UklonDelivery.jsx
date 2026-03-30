@@ -35,6 +35,8 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
   const [showPaidDialog, setShowPaidDialog] = useState(null); // null = не перевірено
   const [deliveryPrice, setDeliveryPrice] = useState(null); // фінальна ціна доставки для клієнта
   const [balance, setBalance] = useState(null);
+  const [checkStatus, setCheckStatus] = useState(null); // null | 'loading' | 'ok' | 'error'
+  const [checkMsg, setCheckMsg] = useState('');
 
   // Місто
   const [city, setCity] = useState(1);
@@ -123,6 +125,12 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
         console.log('%c[Uklon:FE:Effect] Статус завершальний, скидаю result', 'color: #f5a623');
         setResult(null);
         setTracking(null);
+      } else if (data?.deliveryId) {
+        // Відновлюємо result та tracking з uklonData після рефрешу сторінки
+        console.log('%c[Uklon:FE:Effect] Відновлюю result/tracking з uklonData, deliveryId:', 'color: #0e935b; font-weight: bold', data.deliveryId);
+        const courier = mapDriverToCourier(data);
+        setResult(prev => prev || { uid: data.deliveryId, id: data.deliveryId, status: data.status });
+        setTracking(prev => prev || { id: data.deliveryId, status: data.status || 'processing', courier });
       }
     } catch (e) { console.error('[Uklon:FE:Effect] Parse error:', e.message); }
   }, [thisOrder?.uklonData, thisOrder?.id]);
@@ -133,6 +141,37 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
       setShowPaidDialog(isOrderPaid());
     }
   }, [showUklon]);
+
+  // WebSocket listener — оновлюємо tracking коли приходить status update або driver info
+  useEffect(() => {
+    const handler = (e) => {
+      const { orderId, status, driver, deliveryId, pointStatus, vehicle } = e.detail || {};
+      if (!orderId || orderId !== thisOrder?.id) return;
+      console.log('%c[Uklon:FE:WS] 📡 Status update в UklonDelivery:', 'color: #FFD600; font-weight: bold', status, '| pointStatus:', pointStatus, '| driver:', !!driver);
+
+      const st = (status || '').toLowerCase();
+      const cancelStatuses = ['cancelled', 'canceled', 'failed'];
+      if (cancelStatuses.includes(st)) {
+        setResult(null);
+        setTracking(null);
+        return;
+      }
+
+      const courier = driver ? mapDriverToCourier({ driver, vehicle: vehicle || driver.vehicle }) : null;
+      setTracking(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          status: status || prev.status,
+          pointStatus: pointStatus || prev.pointStatus,
+          courier: courier || prev.courier,
+        };
+      });
+      setResult(prev => prev ? { ...prev, status: status || prev.status } : prev);
+    };
+    window.addEventListener('uklonStatusUpdate', handler);
+    return () => window.removeEventListener('uklonStatusUpdate', handler);
+  }, [thisOrder?.id]);
 
   const handleClose = () => {
     setShowUklon(false);
@@ -214,6 +253,24 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
     }
   };
 
+  // ── Helper: маппінг driver/vehicle з Uklon API → courier для UI ──
+  const mapDriverToCourier = (data) => {
+    if (!data?.driver) return null;
+    return {
+      name: data.driver.name,
+      phone: data.driver.phone,
+      photo: data.driver.image_url,
+      rating: data.driver.rating,
+      completed_orders: data.driver.completed_orders,
+      car: data.vehicle ? {
+        brand: data.vehicle.brand,
+        model: data.vehicle.model,
+        number: data.vehicle.license_plate,
+        color: data.vehicle.color,
+      } : null,
+    };
+  };
+
   // ── Tracking state ──
   const [tracking, setTracking] = useState(null); // { id, status, courier }
   const [trackingLoading, setTrackingLoading] = useState(false);
@@ -226,7 +283,8 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
       const { data } = await axios.get(`/api/uklon/order/${deliveryId}`);
       console.log('%c[Uklon:FE:Poll] 📥 Status:', 'color: #6a5acd', data?.status, '| data:', data);
       setTracking(prev => {
-        const next = { ...prev, ...data };
+        const courier = mapDriverToCourier(data) || prev?.courier || null;
+        const next = { ...prev, ...data, courier };
         if (onMapData) onMapData(prevMap => ({
           ...(typeof prevMap === 'object' ? prevMap : { pickup, dropoffs }),
           tracking: next,
@@ -293,12 +351,28 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
       setTracking(null);
       setResult(null);
       if (trackingInterval.current) clearInterval(trackingInterval.current);
-      // Позначити uklonData як скасований в замовленні
+      // Позначити uklonData як скасований + видалити orderUnit "Доставка Uklon"
       if (thisOrder?.id) {
         try {
           const cancelData = JSON.stringify({ status: 'canceled' });
           await axios.put(`/orders/one/${thisOrder.id}`, { uklonData: cancelData });
-          if (setThisOrder) setThisOrder(prev => prev ? { ...prev, uklonData: cancelData } : prev);
+
+          // Видалити всі orderUnit-и "Доставка Uklon" з цього замовлення
+          const uklonUnits = (thisOrder.OrderUnits || []).filter(u =>
+            (u.newField6 === 'Delivery' || u.type === 'Delivery') &&
+            (u.nameOrderUnit || '').toLowerCase().includes('uklon')
+          );
+          for (const unit of uklonUnits) {
+            try {
+              await axios.delete(`/orderUnits/OneOrder/OneOrderUnitInOrder/${unit.id}`);
+              console.log('%c[Uklon:FE:Cancel] 🗑️ Видалено orderUnit:', 'color: #ee3c23', unit.id, unit.nameOrderUnit);
+            } catch (_) {}
+          }
+
+          // Оновити thisOrder
+          const { data: freshOrder } = await axios.get(`/orders/one/${thisOrder.id}`);
+          if (setThisOrder) setThisOrder(freshOrder);
+          if (setSelectedThings2) setSelectedThings2(freshOrder?.OrderUnits || []);
         } catch (_) {}
       }
     } catch (err) {
@@ -360,6 +434,38 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
       }
     } catch (err) {
       setError('Помилка створення нового замовлення: ' + (err?.response?.data?.error || err.message));
+    }
+  };
+
+  // ── Перевірка даних доставки через GET /api/uklon/order/:id ──
+  const handleCheck = async () => {
+    const deliveryId = tracking?.id || result?.uid || result?.id;
+    if (!deliveryId) { setCheckStatus('error'); setCheckMsg('Немає ID доставки'); return; }
+
+    setCheckStatus('loading');
+    setCheckMsg('');
+    try {
+      console.log('%c[Uklon:FE:Check] ═══════════════════════════════════════', 'color: #FFD600; font-weight: bold');
+      console.log('%c[Uklon:FE:Check] 📤 GET /api/uklon/order/' + deliveryId, 'color: #FFD600; font-weight: bold');
+      const { data } = await axios.get(`/api/uklon/order/${deliveryId}`);
+      console.log('%c[Uklon:FE:Check] 📥 Повні дані замовлення:', 'color: #0e935b; font-weight: bold', data);
+      console.log('%c[Uklon:FE:Check] 📥 status:', 'color: #0e935b', data?.status);
+      console.log('%c[Uklon:FE:Check] 📥 pickup:', 'color: #0e935b', JSON.stringify(data?.pickup_point || data?.pickup));
+      console.log('%c[Uklon:FE:Check] 📥 dropoffs:', 'color: #0e935b', JSON.stringify(data?.dropoff_points || data?.dropoffs));
+      console.log('%c[Uklon:FE:Check] 📥 sender:', 'color: #0e935b', JSON.stringify(data?.sender));
+      console.log('%c[Uklon:FE:Check] 📥 receivers:', 'color: #0e935b', JSON.stringify(data?.receivers));
+      console.log('%c[Uklon:FE:Check] 📥 parcels:', 'color: #0e935b', JSON.stringify(data?.parcels));
+      console.log('%c[Uklon:FE:Check] 📥 cost:', 'color: #0e935b', JSON.stringify(data?.cost));
+      console.log('%c[Uklon:FE:Check] 📥 product:', 'color: #0e935b', data?.product);
+      console.log('%c[Uklon:FE:Check] 📥 comment:', 'color: #0e935b', data?.comment);
+      console.log('%c[Uklon:FE:Check] ═══════════════════════════════════════', 'color: #FFD600; font-weight: bold');
+      setCheckStatus('ok');
+      setCheckMsg(`OK — статус: ${data?.status || 'unknown'}, вартість: ${data?.cost?.total || data?.cost?.recommended || '?'} грн`);
+    } catch (err) {
+      const errMsg = err?.response?.data?.error || err?.response?.data?.message || err.message;
+      console.error('%c[Uklon:FE:Check] ❌ Error:', 'color: #ee3c23; font-weight: bold', err?.response?.status, errMsg, err?.response?.data);
+      setCheckStatus('error');
+      setCheckMsg(`Помилка: ${err?.response?.status || ''} ${errMsg}`);
     }
   };
 
@@ -425,7 +531,7 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
 
       // Додаємо вартість доставки до замовлення як позицію (через стандартний endpoint)
       const responsePrice = data?.cost?.total || data?.cost?.recommended || data?.cost?.minimum;
-      const dp = calcDeliveryPrice(estimate) || responsePrice || 300;
+      const dp = responsePrice || calcDeliveryPrice(estimate) || 300;
       console.log('%c[Uklon:FE:Create] 💰 Ціна доставки: dp=' + dp + ', responsePrice=' + responsePrice + ', payerType=' + payerType, 'color: #f5a623');
       setDeliveryPrice(dp);
       if (dp && thisOrder?.id && payerType !== 'receiver') {
@@ -579,32 +685,51 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
                     const s = (tracking?.status || result?.status || 'created').toLowerCase();
                     const statusMap = {
                       created: '⏳ Створено',
-                      driver_found: '🚗 Водій знайдений',
-                      driver_on_way: '🚗 Водій їде до вас',
-                      driver_arrived: '📍 Водій прибув',
-                      parcel_picked_up: '📦 Посилку забрано',
-                      delivering: '🚚 Доставляється',
+                      placed: '⏳ Розміщено',
+                      waiting_for_processing: '⏳ Очікує обробки',
+                      processing: '🔍 Пошук водія',
+                      accepted: '🚗 Водій їде',
+                      arrived: '📍 Водій прибув',
+                      running: '🚚 Доставляється',
+                      returning: '↩️ Повертається',
+                      completed: '✅ Доставлено',
                       delivered: '✅ Доставлено',
+                      suspended: '⏸️ Призупинено',
                       cancelled: '❌ Скасовано',
-                      completed: '✅ Завершено',
+                      canceled: '❌ Скасовано',
                     };
+                    // Якщо running + водій прибув на точку видачі
+                    if (s === 'running' && tracking?.pointStatus === 'ROUTE_POINT_STATUS_ARRIVED') {
+                      return '📍 Водій прибув на точку видачі';
+                    }
                     return statusMap[s] || s;
                   })()}
                 </div>
               </div>
 
-              {/* Інфо кур'єра */}
+              {/* Інфо водія */}
               {tracking?.courier && (
                 <div className="ukl-tracking-courier">
                   <div className="ukl-tracking-status-label">Водій</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                     {tracking.courier.photo && (
-                      <img src={tracking.courier.photo} alt="" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
+                      <img src={tracking.courier.photo} alt="" style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover' }} />
                     )}
                     <div>
                       <div style={{ fontWeight: 600 }}>{tracking.courier.name || tracking.courier.first_name}</div>
                       {tracking.courier.phone && <div style={{ fontSize: '0.85rem', color: 'var(--admingrey)' }}>{tracking.courier.phone}</div>}
-                      {tracking.courier.car && <div style={{ fontSize: '0.85rem', color: 'var(--admingrey)' }}>{tracking.courier.car.brand} {tracking.courier.car.model} • {tracking.courier.car.number}</div>}
+                      {tracking.courier.car && (
+                        <div style={{ fontSize: '0.85rem', color: 'var(--admingrey)' }}>
+                          {tracking.courier.car.brand} {tracking.courier.car.model}
+                          {tracking.courier.car.color ? ` • ${tracking.courier.car.color}` : ''}
+                          {tracking.courier.car.number ? ` • ${tracking.courier.car.number}` : ''}
+                        </div>
+                      )}
+                      {tracking.courier.completed_orders != null && (
+                        <div style={{ fontSize: '0.8rem', color: 'var(--admingrey)', opacity: 0.7 }}>
+                          Виконано замовлень: {tracking.courier.completed_orders}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -616,18 +741,36 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
               {(() => {
                 const s = (tracking?.status || result?.status || 'created').toLowerCase();
                 const isDone = ['delivered', 'cancelled', 'completed', 'failed'].includes(s);
-                return !isDone ? (
-                  <div className="ukl-actions" style={{ marginTop: '0.8rem' }}>
-                    <button
-                      className="ukl-btn ukl-btn--cancel"
-                      onClick={handleCancel}
-                      disabled={trackingLoading}
-                      style={{ flex: 1 }}
-                    >
-                      {trackingLoading ? 'Скасування...' : 'СКАСУВАТИ'}
-                    </button>
-                  </div>
-                ) : null;
+                return (
+                  <>
+                    <div className="ukl-actions" style={{ marginTop: '0.8rem' }}>
+                      <button
+                        type="button"
+                        className={`ukl-btn ukl-btn--check${checkStatus === 'ok' ? ' ukl-btn--check-ok' : ''}${checkStatus === 'error' ? ' ukl-btn--check-err' : ''}`}
+                        onClick={handleCheck}
+                        disabled={checkStatus === 'loading'}
+                        style={{ flex: 1 }}
+                      >
+                        {checkStatus === 'loading' ? 'Перевірка...' : checkStatus === 'ok' ? 'OK ✓' : checkStatus === 'error' ? 'ПОМИЛКА ✗' : 'ПЕРЕВІРИТИ'}
+                      </button>
+                      {!isDone && (
+                        <button
+                          className="ukl-btn ukl-btn--cancel"
+                          onClick={handleCancel}
+                          disabled={trackingLoading}
+                          style={{ flex: 1 }}
+                        >
+                          {trackingLoading ? 'Скасування...' : 'СКАСУВАТИ'}
+                        </button>
+                      )}
+                    </div>
+                    {checkMsg && (
+                      <div style={{ fontSize: 'var(--font-size-s, 13px)', color: checkStatus === 'ok' ? 'var(--admingreen)' : 'var(--adminred)', marginTop: '0.3rem' }}>
+                        {checkMsg}
+                      </div>
+                    )}
+                  </>
+                );
               })()}
             </div>
           )}
@@ -966,6 +1109,7 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
                   {loading ? 'Створення...' : 'ДОСТАВИТИ'}
                 </button>
               </div>
+
             </form>
           )}
         </div>

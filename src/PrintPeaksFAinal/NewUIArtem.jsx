@@ -140,13 +140,26 @@ const NewUIArtem = () => {
           return;
         }
         const doneStatuses = ['delivered', 'completed'];
+        // Маппінг driver/vehicle з Uklon API → courier для UI
+        const courier = data.courier || (data.driver ? {
+          name: data.driver.name || data.driver.first_name,
+          phone: data.driver.phone,
+          photo: data.driver.image_url || data.driver.photo,
+          completed_orders: data.driver.completed_orders,
+          car: data.vehicle ? {
+            brand: data.vehicle.brand,
+            model: data.vehicle.model,
+            number: data.vehicle.license_plate,
+            color: data.vehicle.color,
+          } : (data.driver.car || null),
+        } : null);
         setUklonMapData({
           pickup: data.pickup,
           dropoffs: data.dropoffs || [],
           tracking: {
             id: data.deliveryId,
             status: data.status || 'created',
-            courier: data.courier || null,
+            courier,
           },
           result: { uid: data.deliveryId },
           estimate: data.estimate || null,
@@ -169,9 +182,9 @@ const NewUIArtem = () => {
     const handler = (e) => {
       if (uklonSimulating) return; // Ігноруємо WS під час симуляції
       uklonWsActiveRef.current = true; // Webhook працює!
-      const { orderId, status, driver, deliveryId } = e.detail || {};
+      const { orderId, status, driver, vehicle, deliveryId, pointStatus, eventType, dropoffStatuses } = e.detail || {};
       if (!orderId || orderId !== thisOrder?.id) return;
-      console.log('[Uklon WS] Status update:', status);
+      console.log('[Uklon WS] Status update:', status, '| eventType:', eventType, '| pointStatus:', pointStatus, '| driver:', !!driver);
 
       const cancelStatuses = ['cancelled', 'canceled', 'failed'];
       const st = (status || '').toLowerCase();
@@ -185,13 +198,27 @@ const NewUIArtem = () => {
       setUklonMapData(prev => {
         if (!prev) return prev;
         const doneStatuses = ['delivered', 'completed'];
+        const v = vehicle || driver?.vehicle;
         return {
           ...prev,
           tracking: {
             ...prev.tracking,
             id: deliveryId || prev.tracking?.id,
             status: status || prev.tracking?.status,
-            courier: driver || prev.tracking?.courier,
+            pointStatus: pointStatus || prev.tracking?.pointStatus,
+            dropoffStatuses: dropoffStatuses?.length ? dropoffStatuses : prev.tracking?.dropoffStatuses,
+            courier: driver ? {
+              name: driver.name || driver.first_name,
+              phone: driver.phone,
+              photo: driver.image_url || driver.photo,
+              completed_orders: driver.completed_orders,
+              car: v ? {
+                brand: v.brand,
+                model: v.model,
+                number: v.license_plate,
+                color: v.color,
+              } : (driver.car || prev.tracking?.courier?.car),
+            } : prev.tracking?.courier,
           },
           isDone: doneStatuses.includes(st),
         };
@@ -201,88 +228,7 @@ const NewUIArtem = () => {
     return () => window.removeEventListener('uklonStatusUpdate', handler);
   }, [thisOrder?.id, uklonSimulating]);
 
-  // Polling статусу замовлення Uklon кожні 10с (fallback коли webhook не працює)
-  useEffect(() => {
-    if (!uklonMapData?.tracking?.id) return;
-    if (uklonSimulating) return; // Не polling під час симуляції
-    const doneStatuses = ['delivered', 'cancelled', 'canceled', 'completed', 'failed'];
-    if (doneStatuses.includes((uklonMapData.tracking?.status || '').toLowerCase())) return;
-
-    const deliveryId = uklonMapData.tracking.id;
-    let active = true;
-
-    const poll = async () => {
-      if (!active) return;
-      // Якщо webhook працює — пропускаємо polling
-      if (uklonWsActiveRef.current) return;
-      try {
-        const { data } = await axios.get(`/api/uklon/order/${deliveryId}`);
-        if (!active || !data) return;
-
-        const newStatus = (data.status || '').toLowerCase();
-        const prevStatus = (uklonMapData.tracking?.status || '').toLowerCase();
-        if (newStatus === prevStatus) return;
-
-        const cancellationReason = data.cancellation?.reason;
-        const cancelReasonMap = {
-          driver_search_timeout: 'Водія не знайдено (таймаут)',
-          client_cancel: 'Скасовано клієнтом',
-          driver_cancel: 'Водій скасував',
-          package_not_fit: 'Посилка не підходить',
-        };
-
-        setUklonMapData(prev => {
-          if (!prev) return prev;
-          const updated = {
-            ...prev,
-            tracking: {
-              ...prev.tracking,
-              status: newStatus,
-              cancellationReason: cancelReasonMap[cancellationReason] || cancellationReason || null,
-              // Оновити дані водія якщо є
-              courier: data.driver ? {
-                name: data.driver.name || data.driver.first_name,
-                phone: data.driver.phone,
-                photo: data.driver.photo,
-                car: data.driver.car || data.driver.vehicle,
-                ...prev.tracking?.courier,
-              } : prev.tracking?.courier,
-              // Оновити часи
-              statusTimes: {
-                ...prev.tracking?.statusTimes,
-                [newStatus]: new Date().toISOString(),
-              },
-            },
-            isDone: doneStatuses.includes(newStatus),
-          };
-
-          // Зберігаємо в БД
-          if (thisOrder?.id) {
-            const uklonDb = {
-              deliveryId: prev.tracking?.id || prev.result?.uid,
-              status: newStatus,
-              pickup: prev.pickup,
-              dropoffs: prev.dropoffs,
-              estimate: prev.estimate,
-              courier: updated.tracking.courier,
-              statusTimes: updated.tracking.statusTimes,
-              cancellationReason: updated.tracking.cancellationReason,
-              createdAt: prev.createdAt,
-            };
-            axios.put(`/orders/one/${thisOrder.id}`, { uklonData: JSON.stringify(uklonDb) }).catch(() => {});
-          }
-
-          return updated;
-        });
-      } catch {
-        // 404 — замовлення не знайдено в Uklon, ігноруємо
-      }
-    };
-
-    poll(); // Одразу перевірити
-    const interval = setInterval(poll, 10000);
-    return () => { active = false; clearInterval(interval); };
-  }, [uklonMapData?.tracking?.id, uklonMapData?.tracking?.status, thisOrder?.id, uklonSimulating]);
+  // Polling вимкнено — оновлення тільки через webhook (uklonStatusUpdate event)
 
   const [expandedThingIndex, setExpandedThingIndex] = useState(null);
   // ✅ Єдина мапа типів -> модалка (УЗГОДЖЕНО з беком: newField6 = toCalc.type)
@@ -895,13 +841,13 @@ const NewUIArtem = () => {
           {uklonMapData && (() => {
             const t = uklonMapData.tracking;
             const s = (t?.status || 'created').toLowerCase();
-            const statusMap = { created:'⏳ Створено', processing:'⏳ Обробка', driver_found:'🚗 Водій знайдений', driver_on_way:'🚗 Водій їде до вас', driver_arrived:'📍 Водій прибув', parcel_picked_up:'📦 Посилку забрано', delivering:'🚚 Доставляється', delivered:'✅ Доставлено', cancelled:'❌ Скасовано', completed:'✅ Завершено', returning:'🔄 Повернення', returned:'↩️ Повернено' };
+            const statusMap = { created:'⏳ Створено', placed:'⏳ Розміщено', waiting_for_processing:'⏳ Очікує', processing:'🔍 Пошук водія', accepted:'🚗 Водій їде', arrived:'📍 Водій прибув', running:'🚚 Доставляється', completed:'✅ Доставлено', delivered:'✅ Доставлено', suspended:'⏸️ Призупинено', cancelled:'❌ Скасовано', canceled:'❌ Скасовано', returning:'↩️ Повернення', returned:'↩️ Повернено' };
             const isCanceled = ['cancelled', 'canceled'].includes(s);
             const isReturning = ['returning', 'returned'].includes(s);
             const isDone = ['delivered','cancelled','canceled','completed','failed','returned'].includes(s);
             const currentStatus = s;
-            const steps = ['processing','driver_on_way','parcel_picked_up','delivering','delivered'];
-            const stepMapping = s === 'created' ? 'processing' : s === 'driver_found' ? 'processing' : s === 'driver_arrived' ? 'driver_on_way' : isCanceled || isReturning ? 'processing' : s;
+            const steps = ['processing','accepted','arrived','running','completed'];
+            const stepMapping = s === 'created' || s === 'placed' || s === 'waiting_for_processing' ? 'processing' : s === 'delivered' ? 'completed' : isCanceled || isReturning ? 'processing' : s;
             const currentStep = steps.indexOf(stepMapping);
             const courier = t?.courier;
             const est = uklonMapData.estimate;
@@ -912,10 +858,10 @@ const NewUIArtem = () => {
                 {/* ── Прогрес-бар статусів + ціна ── */}
                 <div className="nui-uklon-progress" style={{ display: 'flex', alignItems: 'center' }}>
                   {steps.map((step, i) => {
-                    const labels = { processing:'Пошук водія', driver_on_way:'Водій їде', parcel_picked_up:'Забрано', delivering:'Доставка', delivered:'Готово' };
+                    const labels = { processing:'Пошук водія', accepted:'Водій їде', arrived:'Прибув', running:'Доставка', completed:'Готово' };
                     const active = i <= currentStep && currentStep >= 0;
                     const isCurrent = i === currentStep;
-                    const isSearching = step === 'processing' && isCurrent && ['created','processing','driver_found'].includes(s);
+                    const isSearching = step === 'processing' && isCurrent && ['created','placed','waiting_for_processing','processing'].includes(s);
                     const time = statusTimes[step] ? new Date(statusTimes[step]).toLocaleTimeString('uk-UA', { hour:'2-digit', minute:'2-digit' }) : null;
                     return (
                       <div key={step} className={`nui-uklon-step ${active ? 'active' : ''} ${isCurrent ? 'current' : ''} ${isSearching ? 'searching' : ''}`}>
@@ -956,8 +902,17 @@ const NewUIArtem = () => {
                     </div>
                   )}
 
+                  {/* Водій прибув на точку видачі (pointStatus від webhook) */}
+                  {!isCanceled && s === 'running' && t?.pointStatus === 'ROUTE_POINT_STATUS_ARRIVED' && (
+                    <div style={{ background: 'var(--adminlightgreen, #e2f2eb)', padding: '6px 10px', borderRadius: 6, marginBottom: 4 }}>
+                      <span style={{ color: 'var(--admingreen)', fontWeight: 600, fontSize: '0.85rem' }}>
+                        📍 Водій прибув на точку видачі
+                      </span>
+                    </div>
+                  )}
+
                   {/* Інфо водія — з'являється після driver_found */}
-                  {courier && !isCanceled && ['driver_found','driver_on_way','driver_arrived','on_place','parcel_picked_up','picked_up','delivering','delivered','completed'].includes(s) && (() => {
+                  {courier && !isCanceled && ['accepted','arrived','running','completed','delivered'].includes(s) && (() => {
                     const driverName = courier.name || courier.first_name || 'Водій';
                     const carInfo = courier.car ? `${courier.car.brand || ''} ${courier.car.model || ''}`.trim() : '';
                     const carNumber = courier.car?.number || courier.car?.license_plate || '';
@@ -1156,26 +1111,21 @@ const NewUIArtem = () => {
                             // Видалити позицію "Доставка Uklon" зі списку замовлень
                             try {
                               const units = thisOrder?.OrderUnits || thisOrder?.orderUnits || selectedThings2 || [];
-                              const deliveryUnit = units.find(u =>
+                              const uklonUnits = units.filter(u =>
                                 u.name === 'Доставка Uklon' || u.nameOrderUnit === 'Доставка Uklon'
-                                || u.typeUse === 'Uklon' || (u.name && u.name.includes('Доставка Uklon'))
+                                || u.typeUse === 'Uklon' || ((u.name || u.nameOrderUnit || '').toLowerCase().includes('uklon') && (u.newField6 === 'Delivery' || u.type === 'Delivery'))
                               );
-                              if (deliveryUnit) {
-                                const unitId = deliveryUnit.id || deliveryUnit.idKey;
-                                console.log('[Uklon] Removing delivery unit:', unitId, deliveryUnit.name);
+                              for (const unit of uklonUnits) {
+                                const unitId = unit.id || unit.idKey;
+                                console.log('[Uklon] Removing delivery unit:', unitId, unit.name || unit.nameOrderUnit);
                                 await axios.delete(`/orderUnits/OneOrder/OneOrderUnitInOrder/${unitId}`);
-                                // Оновити замовлення — видалити з поточного стейту одразу
-                                const newUnits = units.filter(u => (u.id || u.idKey) !== unitId);
-                                setSelectedThings2(newUnits);
-                                // Також оновити з сервера
-                                try {
-                                  const { data: updatedOrder } = await axios.get(`/orders/one/${thisOrder.id}`);
-                                  setThisOrder(updatedOrder);
-                                  setSelectedThings2(updatedOrder.OrderUnits || []);
-                                } catch (_) {}
-                              } else {
-                                console.log('[Uklon] Delivery unit not found in', units.map(u => u.name));
                               }
+                              // Оновити з сервера
+                              try {
+                                const { data: updatedOrder } = await axios.get(`/orders/one/${thisOrder.id}`);
+                                setThisOrder(updatedOrder);
+                                setSelectedThings2(updatedOrder.OrderUnits || []);
+                              } catch (_) {}
                             } catch (delErr) {
                               console.error('[Uklon] Failed to remove delivery unit:', delErr.message);
                             }

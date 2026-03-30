@@ -5,18 +5,21 @@ import UklonMap from "./UklonMap";
 import "./UklonTrackPage.css";
 
 const STATUS_MAP = {
+  placed: { label: 'Розміщено', color: '#e8a500', icon: '⏳' },
+  waiting_for_processing: { label: 'Очікує обробки', color: '#e8a500', icon: '⏳' },
   processing: { label: 'Пошук водія...', color: '#e8a500', icon: '🔍' },
-  driver_found: { label: 'Водій знайдений', color: '#3c60a6', icon: '🚗' },
-  driver_on_way: { label: 'Водій їде', color: '#3c60a6', icon: '🚗' },
-  on_place: { label: 'Водій прибув', color: '#3c60a6', icon: '📍' },
-  picked_up: { label: 'Забрано', color: '#7b5ea7', icon: '📦' },
-  delivering: { label: 'Доставка', color: '#7b5ea7', icon: '🚚' },
+  accepted: { label: 'Водій їде', color: '#3c60a6', icon: '🚗' },
+  arrived: { label: 'Водій прибув', color: '#3c60a6', icon: '📍' },
+  running: { label: 'Доставка', color: '#7b5ea7', icon: '🚚' },
+  returning: { label: 'Повертається', color: '#e8a500', icon: '↩️' },
+  completed: { label: 'Доставлено', color: '#2d8b61', icon: '✅' },
   delivered: { label: 'Доставлено', color: '#2d8b61', icon: '✅' },
+  suspended: { label: 'Призупинено', color: '#e8a500', icon: '⏸️' },
   canceled: { label: 'Скасовано', color: '#c0392b', icon: '❌' },
   cancelled: { label: 'Скасовано', color: '#c0392b', icon: '❌' },
 };
 
-const STEPS = ['processing', 'driver_on_way', 'picked_up', 'delivering', 'delivered'];
+const STEPS = ['processing', 'accepted', 'arrived', 'running', 'completed'];
 
 export default function UklonTrackPage() {
   const { trackId } = useParams();
@@ -66,7 +69,7 @@ export default function UklonTrackPage() {
 
   const status = (order.status || 'processing').toLowerCase();
   const st = STATUS_MAP[status] || { label: status, color: '#666', icon: '📦' };
-  const currentStep = STEPS.indexOf(status === 'driver_found' || status === 'on_place' ? 'driver_on_way' : status);
+  const currentStep = STEPS.indexOf(status === 'placed' || status === 'waiting_for_processing' ? 'processing' : status);
 
   // Побудувати pickup/dropoffs з route
   const pickup = order.route?.points?.pickup || {};
@@ -100,7 +103,7 @@ export default function UklonTrackPage() {
         })}
       </div>
       <div className="utp-progress-labels">
-        <span>Пошук</span><span>Водій їде</span><span>Забрано</span><span>Доставка</span><span>Готово</span>
+        <span>Пошук водія</span><span>Водій їде</span><span>Прибув</span><span>Доставка</span><span>Готово</span>
       </div>
 
       {/* Статус */}

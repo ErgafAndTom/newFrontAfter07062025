@@ -17,6 +17,26 @@ import { searchChange } from "../../actions/searchAction";
 import Loader from "../../components/calc/Loader";
 import ActivatorCheckPaymentStatus from "./ActivatorCheckPaymentStatus";
 
+/* ── Бейдж оплати (винесено за межі компонента, щоб React не remount-ив щосекунди) ── */
+const PayCell = ({ order }) => {
+  const p = order.Payment;
+  if (!p || p.status === null) return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--none">—</span></div>;
+  if (p.status === 'CREATED' || p.status === 'PROCESSING') return (
+    <div className="ort-cell ort-pay-cell">
+      <ActivatorCheckPaymentStatus order={order} />
+    </div>
+  );
+  if (p.status === 'PAID') {
+    const labels = { terminal: 'Оплата карткою', link: 'Інтернет-оплата', cash: 'Оплата готівкою', invoice: 'Оплата рахунком', iban: 'Оплата на IBAN', cod: 'Наложений платіж' };
+    return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--paid">{labels[p.method] || 'Інтернет-оплата'}</span></div>;
+  }
+  if (p.status === 'CANCELLED') return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--cancel">Відміна</span></div>;
+  if (p.status === 'EXPIRED')   return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--expired">Протерміновано</span></div>;
+  if (p.status === 'FAILED')    return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--expired">Помилка</span></div>;
+  if (p.status === 'REFUNDED')  return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--cancel">Повернення</span></div>;
+  return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--none">—</span></div>;
+};
+
 const CustomOrderTable2 = () => {
   const [data, setData]           = useState(null);
   const dispatch                  = useDispatch();
@@ -155,25 +175,6 @@ const CustomOrderTable2 = () => {
       case 4: return 'var(--adminlightpurple, #edebf9)';
       default: return 'transparent';
     }
-  };
-
-  /* ── Бейдж оплати ── */
-  const PayCell = ({ order }) => {
-    const p = order.Payment;
-    if (!p || p.status === null) return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--none">—</span></div>;
-    if (p.status === 'CREATED') return (
-      <div className="ort-cell ort-pay-cell">
-        <ActivatorCheckPaymentStatus order={order} />
-      </div>
-    );
-    if (p.status === 'PAID') {
-      const labels = { terminal: 'Оплата карткою', link: 'Інтернет-оплата', cash: 'Оплата готівкою', invoice: 'Оплата рахунком', iban: 'Оплата на IBAN', cod: 'Наложений платіж' };
-      return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--paid">{labels[p.method] || 'Інтернет-оплата'}</span></div>;
-    }
-    if (p.status === 'CANCELLED') return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--cancel">Відміна</span></div>;
-    if (p.status === 'EXPIRED')   return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--expired">Протерміновано</span></div>;
-    if (p.status === 'FAILED')    return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--expired">Помилка</span></div>;
-    return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--none">—</span></div>;
   };
 
   if (error) return <div style={{ color: 'var(--adminred)', padding: '1rem' }}>{error}</div>;

@@ -418,27 +418,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
     }
   }, [thisOrder.id]);
 
-  const checkStatusAll = async () => {
-    const orderId = thisOrder.id;
-    try {
-      const { data } = await axios.get("/api/payment/invoice-status-without-invoiceId", {
-        params: { orderId },
-      });
-      console.log(data);
-      setThisOrder((prev) => ({
-        ...prev,
-        Payment: data,
-      }));
-    } catch (err) {
-      console.error("Помилка перевірки статусу:", err);
-    }
-  };
-
-  useEffect(() => {
-    if (thisOrder.Payment?.status && thisOrder.Payment.status !== 'PAID') {
-      checkStatusAll();
-    }
-  }, [thisOrder.id]);
+  // checkStatusAll видалено — дублював checkStatus() вище і спамив API
 
   // --- Fallback polling (DB-only, кожні 2 хв) — на випадок якщо WS відключений ---
   useEffect(() => {

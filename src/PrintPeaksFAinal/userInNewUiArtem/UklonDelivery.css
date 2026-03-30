@@ -296,6 +296,23 @@
   flex: 1;
 }
 
+.ukl-btn--check {
+  background: #FFD200;
+  color: #000;
+  flex: 1;
+  transition: background 0.3s, color 0.3s;
+}
+
+.ukl-btn--check-ok {
+  background: var(--admingreen, #0e935b);
+  color: #fff;
+}
+
+.ukl-btn--check-err {
+  background: var(--adminred, #ee3c23);
+  color: #fff;
+}
+
 .ukl-btn--active {
   background: var(--admingreen, #0e935b);
   color: #fff;

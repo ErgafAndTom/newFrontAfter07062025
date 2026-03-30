@@ -27,14 +27,18 @@ const STATUS_COLORS = {
 };
 
 const UKLON_STATUS_MAP = {
+    placed: { label: 'Розміщено', color: 'var(--adminorange)' },
+    waiting_for_processing: { label: 'Очікує обробки', color: 'var(--adminorange)' },
     processing: { label: 'Пошук водія', color: 'var(--adminorange)' },
-    driver_found: { label: 'Водій знайдений', color: 'var(--adminblue)' },
-    driver_on_way: { label: 'Водій їде', color: 'var(--adminblue)' },
-    on_place: { label: 'Водій прибув', color: 'var(--adminblue)' },
-    picked_up: { label: 'Забрано', color: 'var(--adminpurple)' },
-    delivering: { label: 'Доставка', color: 'var(--adminpurple)' },
+    accepted: { label: 'Водій їде', color: 'var(--adminblue)' },
+    arrived: { label: 'Водій прибув', color: 'var(--adminblue)' },
+    running: { label: 'Доставка', color: 'var(--adminpurple)' },
+    returning: { label: 'Повертається', color: 'var(--adminorange)' },
+    completed: { label: 'Доставлено', color: 'var(--admingreen)' },
     delivered: { label: 'Доставлено', color: 'var(--admingreen)' },
+    suspended: { label: 'Призупинено', color: 'var(--adminorange)' },
     canceled: { label: 'Скасовано', color: 'var(--adminred)' },
+    cancelled: { label: 'Скасовано', color: 'var(--adminred)' },
     failed: { label: 'Помилка', color: 'var(--adminred)' },
 };
 

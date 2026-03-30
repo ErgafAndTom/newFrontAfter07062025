@@ -43,6 +43,13 @@ export function initWebSocket() {
         new CustomEvent('uklonStatusUpdate', { detail: data })
       );
     }
+
+    if (data.type === "uklon_driver_position") {
+      console.log('%c[Uklon:WS] 📡 Driver position update!', 'color: #FFD600', data.deliveryId);
+      window.dispatchEvent(
+        new CustomEvent('uklonDriverPosition', { detail: data })
+      );
+    }
   };
 
   ws.onclose = () => {

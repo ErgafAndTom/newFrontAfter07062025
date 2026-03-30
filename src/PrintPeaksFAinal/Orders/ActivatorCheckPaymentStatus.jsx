@@ -39,7 +39,7 @@ const ActivatorCheckPaymentStatus = ({ order }) => {
   if (!p || p.status === null)
     return <span className="ort-pay-badge ort-pay-badge--none">—</span>;
 
-  if (p.status === 'CREATED') {
+  if (p.status === 'CREATED' || p.status === 'PROCESSING') {
     const waitLabels = { link: 'оч-я monobank', terminal: 'оч-я monobank', invoice: 'оч-я рахунок', iban: 'оч-я iban', cod: 'оч-я НП', cash: 'оч-я готівка' };
     return <span className="ort-pay-badge ort-pay-badge--wait">{waitLabels[p.method] || 'Очікування'}</span>;
   }
