@@ -4,6 +4,7 @@ import { loadSetting } from "../../hooks/useUserSettings";
 import UklonAddressInput from "./UklonAddressInput";
 import DatePicker from "../tools/DatePicker";
 import "./UklonDelivery.css";
+import UklonMiniLog from "../uklon/UklonMiniLog";
 
 const dateToISO = (d) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -627,7 +628,8 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
         {/* ── Header ── */}
         <div className="ukl-header">
           <div className="ukl-header-title">
-            <div className="ukl-logo">
+            <div className="ukl-logo" style={{ cursor: 'pointer' }} title="Відкрити лог подій Uklon"
+              onClick={() => window.open(`/uklon-log${thisOrder?.id ? `?orderId=${thisOrder.id}` : ''}`, '_blank')}>
               <svg viewBox="0 0 40 40" width="28" height="28">
                 <rect width="40" height="40" rx="8" fill="#000"/>
                 <path d="M12 14 L22 22 L28 16" stroke="#FFD200" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
@@ -773,6 +775,11 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
                 );
               })()}
             </div>
+          )}
+
+          {/* ── Міні-лог подій ── */}
+          {thisOrder?.id && (
+            <UklonMiniLog orderId={thisOrder.id} />
           )}
 
           {!result && !showPaidDialog && (

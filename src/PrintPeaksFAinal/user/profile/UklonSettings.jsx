@@ -1,4 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import axios from "../../../api/axiosInstance";
 import { loadSetting, saveSetting } from "../../../hooks/useUserSettings";
 import UklonAddressInput from "../../userInNewUiArtem/UklonAddressInput";
@@ -22,6 +24,9 @@ const DEFAULTS = {
 };
 
 export default function UklonSettings() {
+  const currentUser = useSelector((state) => state.auth.user);
+  const isAdmin = currentUser?.role === 'admin';
+  const navigate = useNavigate();
   const [settings, setSettings] = useState(DEFAULTS);
   const [dirtyFields, setDirtyFields] = useState(new Set());
   const [apiStatus, setApiStatus] = useState(null);
@@ -434,6 +439,23 @@ export default function UklonSettings() {
           Скинути все
         </button>
       </div>
+
+      {/* ── Лог подій (тільки admin) ── */}
+      {isAdmin && (
+        <div className="nps-section nps-section--full" style={{ marginTop: '1rem' }}>
+          <div className="nps-section-title">Лог подій Uklon</div>
+          <div className="nps-row">
+            <label className="nps-label">Статистика</label>
+            <button
+              className="nps-btn nps-btn--test"
+              onClick={() => navigate('/uklon-log')}
+              style={{ minWidth: 160 }}
+            >
+              Відкрити лог подій
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -63,6 +63,7 @@ import TelegramBot from "../../PrintPeaksFAinal/telegram/TelegramBot";
 import TelegramBotAkk from "../../PrintPeaksFAinal/telegram/TelegramBotAkk";
 import TelegramBotAkkAndMedias from "../../PrintPeaksFAinal/telegram/TelegramBotAkkAndMedias";
 import LogisticsTable from "../../PrintPeaksFAinal/logistics/LogisticsTable";
+import UklonEventLog from "../../PrintPeaksFAinal/uklon/UklonEventLog";
 
 
 
@@ -155,6 +156,7 @@ const AfterNav = () => {
                 {/*<Route path="/OrdersOld" element={<CustomOrderTable />} />*/}
                 <Route path="/Orders/:id" element={<NewUIArtem />} />
                 <Route path="/Logistics" element={<LogisticsTable />} />
+                {user?.role === 'admin' && <Route path="/uklon-log" element={<UklonEventLog />} />}
                 <Route path="/Storage" element={<CustomStorageTable name={"Склад"} />} />
                 <Route path="/Devices" element={<TableStorage name={"Devices"} />} />
                 <Route path="/Desktop" element={<Desktop />} />

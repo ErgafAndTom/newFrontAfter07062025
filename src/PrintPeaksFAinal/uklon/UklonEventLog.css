@@ -1,0 +1,269 @@
+/* UklonEventLog — full page styles */
+.uel-wrap {
+  padding: 1rem;
+  font-family: inherit;
+  color: var(--admingrey);
+}
+
+.uel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.uel-header h2 {
+  font-size: var(--font-size-xl, 22px);
+  color: var(--admingrey);
+  margin: 0;
+}
+
+/* Filter bar */
+.uel-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  align-items: flex-end;
+}
+.uel-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.uel-filter-group label {
+  font-size: var(--font-size-xs, 11px);
+  color: var(--admingrey);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.uel-filter-group input,
+.uel-filter-group select {
+  padding: 4px 8px;
+  border: none;
+  border-bottom: 2px solid var(--adminblue);
+  background: var(--adminfonelement);
+  color: var(--admingrey);
+  font-size: var(--font-size-s, 14px);
+  outline: none;
+  min-width: 120px;
+}
+.uel-filter-group input:focus,
+.uel-filter-group select:focus {
+  border-bottom-color: var(--adminorange);
+}
+.uel-filter-btn {
+  padding: 6px 16px;
+  background: var(--admingreen);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-s, 14px);
+  font-weight: 600;
+}
+.uel-filter-btn:hover {
+  background: var(--adminorange);
+}
+
+/* Tabs */
+.uel-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--adminfonelement);
+}
+.uel-tab {
+  padding: 8px 20px;
+  background: none;
+  border: none;
+  color: var(--admingrey);
+  font-size: var(--font-size-s, 14px);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  font-weight: 500;
+}
+.uel-tab:hover {
+  color: var(--adminorange);
+}
+.uel-tab.active {
+  color: var(--admingreen);
+  border-bottom-color: var(--admingreen);
+  font-weight: 700;
+}
+
+/* Table */
+.uel-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.uel-table th {
+  text-align: left;
+  font-size: var(--font-size-xs, 11px);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--admingrey);
+  padding: 6px 8px;
+  border-bottom: 2px solid var(--adminfonelement);
+  white-space: nowrap;
+}
+.uel-table td {
+  padding: 6px 8px;
+  font-size: var(--font-size-s, 14px);
+  color: var(--admingrey);
+  border-bottom: 1px solid var(--adminfonelement);
+  vertical-align: top;
+}
+.uel-table tr:hover {
+  background: var(--adminfonelement);
+}
+.uel-table tr.uel-row-clickable {
+  cursor: pointer;
+}
+
+/* Status badges */
+.uel-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  font-size: var(--font-size-xs, 11px);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.uel-badge-green { background: var(--adminlightgreen); color: var(--admingreen); }
+.uel-badge-red { background: var(--adminlightred); color: var(--adminred); }
+.uel-badge-orange { background: var(--adminlightorange); color: var(--adminorange); }
+.uel-badge-cyan { background: var(--adminlightcyan); color: var(--admincyan); }
+.uel-badge-blue { background: var(--adminlightblue); color: var(--adminblue); }
+.uel-badge-grey { background: var(--adminfonelement); color: var(--admingrey); }
+
+/* Status arrow */
+.uel-status-arrow {
+  color: var(--adminorange);
+  font-weight: 700;
+  margin: 0 4px;
+}
+
+/* HTTP status colors */
+.uel-http-ok { color: var(--admingreen); font-weight: 600; }
+.uel-http-err { color: var(--adminred); font-weight: 600; }
+.uel-http-warn { color: var(--adminorange); font-weight: 600; }
+
+/* Expanded JSON row */
+.uel-expanded {
+  background: var(--adminfonelement);
+}
+.uel-json-wrap {
+  display: flex;
+  gap: 1rem;
+  padding: 8px;
+}
+.uel-json-block {
+  flex: 1;
+  min-width: 0;
+}
+.uel-json-block h4 {
+  font-size: var(--font-size-xs, 11px);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--admingrey);
+  margin: 0 0 4px 0;
+}
+.uel-json-pre {
+  background: #fff;
+  border: 1px solid var(--adminfonelement);
+  padding: 8px;
+  font-size: 12px;
+  max-height: 300px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: #333;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+/* Pagination */
+.uel-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 1rem;
+}
+.uel-pagination button {
+  padding: 4px 12px;
+  background: var(--adminfonelement);
+  border: none;
+  color: var(--admingrey);
+  cursor: pointer;
+  font-size: var(--font-size-s, 14px);
+}
+.uel-pagination button:hover:not(:disabled) {
+  background: var(--adminorange);
+  color: #fff;
+}
+.uel-pagination button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.uel-pagination .uel-page-info {
+  font-size: var(--font-size-s, 14px);
+  color: var(--admingrey);
+}
+
+/* Stats cards */
+.uel-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.uel-stat-card {
+  background: var(--adminfonelement);
+  padding: 12px 16px;
+  cursor: pointer;
+}
+.uel-stat-card:hover {
+  outline: 2px solid var(--adminorange);
+}
+.uel-stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.uel-stat-card-title {
+  font-size: var(--font-size-m, 16px);
+  font-weight: 600;
+  color: var(--admingrey);
+}
+.uel-stat-card-count {
+  font-size: var(--font-size-xl, 22px);
+  font-weight: 700;
+  color: var(--admingreen);
+}
+.uel-stat-card-sub {
+  font-size: var(--font-size-xs, 11px);
+  color: var(--admingrey);
+  opacity: 0.7;
+}
+
+/* Loading */
+.uel-loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--admingrey);
+  font-size: var(--font-size-m, 16px);
+}
+.uel-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--admingrey);
+  opacity: 0.5;
+}
+
+/* Duration */
+.uel-duration {
+  font-size: var(--font-size-xs, 11px);
+  color: var(--admingrey);
+}
+.uel-duration-fast { color: var(--admingreen); }
+.uel-duration-mid { color: var(--adminorange); }
+.uel-duration-slow { color: var(--adminred); }

@@ -217,7 +217,8 @@ const CustomOrderTable2 = () => {
         <div className="ort-cell ort-cell--center"><FiPhone size={14} /></div>
         <div className="ort-cell">Компанія</div>
         <div className="ort-cell" style={{ paddingLeft: '0.8rem' }}>Дедлайн</div>
-        <div className="ort-cell ort-cell--center" title="Uklon Delivery">
+        <div className="ort-cell ort-cell--center" title="Uklon Delivery — відкрити лог" style={{ cursor: 'pointer' }}
+          onClick={() => navigate('/uklon-log')}>
           <svg width="18" height="18" viewBox="0 0 625 625" fill="none">
             <path d="M502,0c62,2.5,118.5,56,123,118v390c-5.1,59.6-59.1,113.5-119,117H116c-63.8-6.1-113.5-63.6-118-126.7V127.4C2.6,61,57.4,3.2,123,0h379Z" fill="#000"/>
             <path d="M369.8,148.3c31.6-1.7,82.1-4.2,94.2,32.2c14.1,42,.4,116.2-9.5,159.6c-7.1,31-32.9,125.8-57.6,143.4c-23.8,16.9-69.2-15.7-88.4-30.5c-27.5-21.2-56.3-48.4-81.1-72.9c-28.4-28.1-95.7-99-98.5-138.5c-1.4-19.5,16.9-29.8,32-38.1c53.4-29.1,148.2-51.9,208.8-55.2Z" fill="#fed800"/>
@@ -279,7 +280,8 @@ const CustomOrderTable2 = () => {
                     if (['canceled', 'cancelled', 'failed'].includes(st)) return null;
                     const color = st === 'delivered' ? 'var(--admingreen)' : st === 'processing' ? 'var(--adminorange)' : '#FFD200';
                     return (
-                      <svg width="18" height="18" viewBox="0 0 625 625" fill="none" style={{ cursor: 'pointer' }} title={`Uklon: ${st}`}>
+                      <svg width="18" height="18" viewBox="0 0 625 625" fill="none" style={{ cursor: 'pointer' }} title={`Uklon: ${st} — відкрити лог`}
+                        onClick={() => navigate(`/uklon-log?orderId=${order.id}`)}>
                         <path d="M502,0c62,2.5,118.5,56,123,118v390c-5.1,59.6-59.1,113.5-119,117H116c-63.8-6.1-113.5-63.6-118-126.7V127.4C2.6,61,57.4,3.2,123,0h379Z" fill="#000"/>
                         <path d="M369.8,148.3c31.6-1.7,82.1-4.2,94.2,32.2c14.1,42,.4,116.2-9.5,159.6c-7.1,31-32.9,125.8-57.6,143.4c-23.8,16.9-69.2-15.7-88.4-30.5c-27.5-21.2-56.3-48.4-81.1-72.9c-28.4-28.1-95.7-99-98.5-138.5c-1.4-19.5,16.9-29.8,32-38.1c53.4-29.1,148.2-51.9,208.8-55.2Z" fill={color}/>
                       </svg>
