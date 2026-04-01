@@ -91,7 +91,7 @@ const UklonMap = ({ pickup, dropoffs = [], deliveryId, status, onCourierUpdate, 
     // Pickup marker
     L.marker([pLat, pLng], { icon: pickupIcon })
       .addTo(map)
-      .bindPopup(`<b>Забір</b>`);
+      .bindPopup(`<b>Забір</b><br/><span style="font-size:11px;color:#666">${pLat.toFixed(6)}, ${pLng.toFixed(6)}</span>`);
 
     // Dropoff markers
     const points = [[pLat, pLng]];
@@ -101,7 +101,7 @@ const UklonMap = ({ pickup, dropoffs = [], deliveryId, status, onCourierUpdate, 
       if (!dLat || !dLng) return;
       L.marker([dLat, dLng], { icon: dropoffIcon })
         .addTo(map)
-        .bindPopup(`<b>Доставка ${dropoffs.length > 1 ? i + 1 : ""}</b>`);
+        .bindPopup(`<b>Доставка ${dropoffs.length > 1 ? i + 1 : ""}</b><br/><span style="font-size:11px;color:#666">${dLat.toFixed(6)}, ${dLng.toFixed(6)}</span>`);
       points.push([dLat, dLng]);
     });
 
@@ -194,10 +194,11 @@ const UklonMap = ({ pickup, dropoffs = [], deliveryId, status, onCourierUpdate, 
     // Маркер водія
     if (courierMarker.current) {
       courierMarker.current.setLatLng(pos);
+      courierMarker.current.setPopupContent(`<b>Водій</b><br/><span style="font-size:11px;color:#666">${pos[0].toFixed(6)}, ${pos[1].toFixed(6)}</span>`);
     } else {
       courierMarker.current = L.marker(pos, { icon: courierIcon, zIndexOffset: 1000 })
         .addTo(map)
-        .bindPopup("<b>Водій</b>");
+        .bindPopup(`<b>Водій</b><br/><span style="font-size:11px;color:#666">${pos[0].toFixed(6)}, ${pos[1].toFixed(6)}</span>`);
     }
 
     if (beforePickup && pLat && pLng) {
@@ -214,6 +215,16 @@ const UklonMap = ({ pickup, dropoffs = [], deliveryId, status, onCourierUpdate, 
         }).addTo(map);
       }
       // Основний маршрут pickup → dropoff залишається як є
+    } else if (st === 'returning' || st === 'returned') {
+      // ── Повернення — водій їде назад до pickup ──
+      if (courierRouteLine.current) {
+        map.removeLayer(courierRouteLine.current);
+        courierRouteLine.current = null;
+      }
+      if (routeLine.current && pLat && pLng) {
+        routeLine.current.setLatLngs([pos, [pLat, pLng]]);
+        routeLine.current.setStyle({ color: '#f5a623', dashArray: '10, 8' });
+      }
     } else {
       // ── Водій забрав посилку, їде до клієнта ──
       if (courierRouteLine.current) {
@@ -371,19 +382,21 @@ const UklonMap = ({ pickup, dropoffs = [], deliveryId, status, onCourierUpdate, 
       </button>
 
       {/* Кнопка симуляції кур'єра */}
-      <button
-        onClick={simulating ? stopSimulation : startSimulation}
-        title={simulating ? "Зупинити симуляцію" : "Симулювати кур'єра"}
-        style={{
-          ...btnStyle,
-          top: 52,
-          right: 10,
-          background: simulating ? "#ef4444" : "#fff",
-          color: simulating ? "#fff" : "#333",
-        }}
-      >
-        {simulating ? "⏹" : "🚗"}
-      </button>
+
+
+      {/*<button*/}
+      {/*  onClick={simulating ? stopSimulation : startSimulation}*/}
+      {/*  title={simulating ? "Зупинити симуляцію" : "Симулювати кур'єра"}*/}
+      {/*  style={{*/}
+      {/*    ...btnStyle,*/}
+      {/*    top: 52,*/}
+      {/*    right: 10,*/}
+      {/*    background: simulating ? "#ef4444" : "#fff",*/}
+      {/*    color: simulating ? "#fff" : "#333",*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  {simulating ? "⏹" : "🚗"}*/}
+      {/*</button>*/}
     </div>
   );
 };

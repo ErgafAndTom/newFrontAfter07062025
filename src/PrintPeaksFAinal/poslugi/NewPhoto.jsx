@@ -111,7 +111,9 @@ const NewPhoto = ({
   const [localY, setLocalY] = useState(DEFAULT_SIZE.y);
 
   const sizeDropdownRef = useRef(null);
+  const sizeDropdownListRef = useRef(null);
   const materialDropdownRef = useRef(null);
+  const materialDropdownListRef = useRef(null);
 
   const getDropdownStyle = useCallback((ref) => {
     const rect = ref.current?.getBoundingClientRect();
@@ -281,10 +283,16 @@ const NewPhoto = ({
   // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (sizeDropdownRef.current && !sizeDropdownRef.current.contains(event.target)) {
+      if (
+        sizeDropdownRef.current && !sizeDropdownRef.current.contains(event.target) &&
+        (!sizeDropdownListRef.current || !sizeDropdownListRef.current.contains(event.target))
+      ) {
         setSizeDropdownOpen(false);
       }
-      if (materialDropdownRef.current && !materialDropdownRef.current.contains(event.target)) {
+      if (
+        materialDropdownRef.current && !materialDropdownRef.current.contains(event.target) &&
+        (!materialDropdownListRef.current || !materialDropdownListRef.current.contains(event.target))
+      ) {
         setMaterialDropdownOpen(false);
       }
     };
@@ -465,7 +473,7 @@ const NewPhoto = ({
               </div>
 
               {sizeDropdownOpen && createPortal(
-                <div className="custom-select-dropdown" style={getDropdownStyle(sizeDropdownRef)}>
+                <div className="custom-select-dropdown" ref={sizeDropdownListRef} style={getDropdownStyle(sizeDropdownRef)}>
                   <div
                     className="custom-option"
                     onClick={() => handleSizeSelect({ name: "Задати свій розмір" })}
@@ -504,7 +512,7 @@ const NewPhoto = ({
           </div>
 
           {materialDropdownOpen && createPortal(
-            <div className="custom-select-dropdown" style={getDropdownStyle(materialDropdownRef)}>
+            <div className="custom-select-dropdown" ref={materialDropdownListRef} style={getDropdownStyle(materialDropdownRef)}>
               {materials.map((item) => (
                 <div
                   key={item.id}

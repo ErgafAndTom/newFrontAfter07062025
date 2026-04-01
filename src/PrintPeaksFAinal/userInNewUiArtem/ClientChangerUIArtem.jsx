@@ -181,7 +181,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
     async (userId) => {
       if (!userId) return;
       try {
-        const { data } = await axios.post('/users/set-best-discount', { userId });
+        // const { data } = await axios.post('/users/set-best-discount', { userId });
         // очікується { bestDiscount: number } або подібна відповідь
         setBestDiscount(data.bestDiscount);
 

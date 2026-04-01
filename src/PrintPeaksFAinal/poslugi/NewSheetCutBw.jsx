@@ -171,6 +171,15 @@ export default function NewSheetCutBW({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  /* ── оновлюємо typeUse ламінації при зміні розміру аркуша ── */
+  useEffect(() => {
+    if (lamination.type === "Не потрібно") return;
+    const laminTypeUse = Math.max(size.x, size.y) <= 297 ? "А4" : "А3";
+    if (lamination.typeUse !== laminTypeUse) {
+      setLamination(prev => ({ ...prev, typeUse: laminTypeUse }));
+    }
+  }, [size.x, size.y]); // eslint-disable-line
+
   /* ===================== SAVE ===================== */
 
   const addNewOrderUnit = () => {
@@ -415,10 +424,11 @@ export default function NewSheetCutBW({
         title="Ламінування"
         isOn={lamination.type !== "Не потрібно"}
         onToggle={() => {
+          const laminTypeUse = (material.typeUse === "Офісний" && Math.max(size.x, size.y) <= 297) ? "А4" : "А3";
           if (lamination.type === "Не потрібно") {
-            setLamination({ ...lamination, type: "з глянцевим ламінуванням", material: "з глянцевим ламінуванням", materialId: "", size: "", typeUse: "А3" });
+            setLamination({ ...lamination, type: "з глянцевим ламінуванням", material: "з глянцевим ламінуванням", materialId: "", size: "", typeUse: laminTypeUse });
           } else {
-            setLamination({ type: "Не потрібно", material: "", materialId: "", size: "", typeUse: "А3" });
+            setLamination({ type: "Не потрібно", material: "", materialId: "", size: "", typeUse: laminTypeUse });
           }
         }}
         style={{ position: "relative", zIndex: 40 }}
@@ -429,6 +439,7 @@ export default function NewSheetCutBW({
           prices={[]}
           size={size}
           type={"SheetCut"}
+          paperTypeUse={material.typeUse}
           buttonsArr={[
             "з глянцевим ламінуванням",
             "з матовим ламінуванням",

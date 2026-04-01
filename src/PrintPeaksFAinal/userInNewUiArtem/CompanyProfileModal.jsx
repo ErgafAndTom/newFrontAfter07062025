@@ -6,7 +6,7 @@ import "./CompanyProfileModal.css";
 const PAGE_SIZE = 20;
 
 /* ── Одне поле з inline-редагуванням ── */
-function FieldRow({ label, field, value, companyId, type = "text", disabled = false, onSaved }) {
+function FieldRow({ label, field, value, companyId, type = "text", disabled = false, onSaved, placeholder = "" }) {
   const [val, setVal] = useState(value ?? "");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState(null);
@@ -34,6 +34,7 @@ function FieldRow({ label, field, value, companyId, type = "text", disabled = fa
         className={`cоm-field-input${changed ? " is-changed" : ""}${disabled ? " is-disabled" : ""}`}
         value={val}
         type={type}
+        placeholder={placeholder}
         disabled={disabled || saving}
         onChange={(e) => setVal(e.target.value)}
         onKeyDown={(e) => { if (e.key === "Enter") save(); }}
@@ -278,6 +279,8 @@ export default function CompanyProfileModal({ companyId, onClose }) {
               <FieldRow label="E-mail"     field="email"       value={company.email}       companyId={company.id} type="email" onSaved={load} />
               <FieldRow label="Знижка (%)" field="discount"    value={discountNum}         companyId={company.id} type="number" onSaved={load} />
               <FieldRow label="Фото"       field="photoLink"   value={company.photoLink}   companyId={company.id} onSaved={load} />
+              <FieldRow label="Логін"      field="username"    value={company.username}    companyId={company.id} onSaved={load} />
+              <FieldRow label="Пароль"     field="password"    value={company.passwordRaw ?? ""}  companyId={company.id} type="text" onSaved={load} />
             </div>
           </div>
         )}

@@ -16,7 +16,7 @@ const DEFAULTS = {
     material: "з глянцевим ламінуванням",
     materialId: "",
     size: "",
-    typeUse: "А3",
+    typeUse: "А4",
   },
   count: 1,
 };
@@ -119,7 +119,7 @@ const Laminator = ({
       material: opt?.lamination?.material ?? DEFAULTS.lamination.material,
       materialId: opt?.lamination?.materialId ?? "",
       size: opt?.lamination?.size ?? "",
-      typeUse: opt?.lamination?.typeUse ?? "А3",
+      typeUse: opt?.lamination?.typeUse ?? (Math.max(opt?.size?.x || DEFAULTS.size.x, opt?.size?.y || DEFAULTS.size.y) <= 297 ? "А4" : "А3"),
     });
     setError(null);
   }, [showLaminator, isEdit, options, editingOrderUnit]);
@@ -128,6 +128,7 @@ const Laminator = ({
   useEffect(() => {
     if (!lamination.material || !showLaminator) return;
 
+    const laminTypeUse = Math.max(size?.x || 0, size?.y || 0) <= 297 ? "А4" : "А3";
     const data = {
       name: "MaterialsPrices",
       inPageCount: 999999,
@@ -140,7 +141,7 @@ const Laminator = ({
         material: lamination.material,
         materialId: lamination.materialId,
         thickness: lamination.size,
-        typeUse: "А3",
+        typeUse: laminTypeUse,
       },
       size,
     };

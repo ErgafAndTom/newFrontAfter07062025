@@ -4,17 +4,7 @@
    ============================================================ */
 
 .sod-wrap {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 9999;
   background: var(--adminfon, #f7f5ee);
-  border: 1px solid var(--adminorange, #f5a623);
-  border-top: none;
-  max-height: 360px;
-  overflow-y: auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .sod-item {

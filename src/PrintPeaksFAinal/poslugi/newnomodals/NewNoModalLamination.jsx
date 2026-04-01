@@ -6,7 +6,7 @@ import {Navigate, useNavigate} from "react-router-dom";
 import "../Poslugy.css";
 
 
-const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, selectArr, size, type, isVishichka, labelMap}) => {
+const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, selectArr, size, type, isVishichka, labelMap, paperTypeUse}) => {
     const [thisLaminationSizes, setThisLaminationSizes] = useState([]);
     const [error, setError] = useState(null);
     const [load, setLoad] = useState(true);
@@ -25,6 +25,8 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
     }
 
     let handleToggle = (e) => {
+        const isA4Office = paperTypeUse === "Офісний" && Math.max(size?.x || 0, size?.y || 0) <= 297;
+        const laminTypeUse = isA4Office ? "А4" : "А3";
         if (lamination.type === "Не потрібно") {
             setLamination({
                 ...lamination,
@@ -32,7 +34,7 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
                 material: "з глянцевим ламінуванням",
                 materialId: "",
                 size: "",
-                typeUse: "А3",
+                typeUse: laminTypeUse,
             })
         } else {
             setLamination({
@@ -40,7 +42,7 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
                 material: "",
                 materialId: "",
                 size: "",
-                typeUse: "А3",
+                typeUse: laminTypeUse,
             })
         }
     }
@@ -74,7 +76,7 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
                 material: lamination.material,
                 materialId: lamination.materialId,
                 thickness: lamination.size,
-                typeUse: "А3"
+                typeUse: (paperTypeUse === "Офісний" && Math.max(size?.x || 0, size?.y || 0) <= 297) ? "А4" : "А3"
             },
             size: size,
         }
@@ -130,7 +132,7 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
                 setThisLaminationSizes([])
                 console.log(error.message);
             })
-    }, [lamination.material, lamination.type, size]);
+    }, [lamination.material, lamination.type, size, paperTypeUse]);
 
     const handleSelectItem = (item) => {
         setLamination({

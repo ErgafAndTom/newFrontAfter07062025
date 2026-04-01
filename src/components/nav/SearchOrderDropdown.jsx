@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import axios from "../../api/axiosInstance";
@@ -21,16 +22,37 @@ export default function SearchOrderDropdown() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [dropStyle, setDropStyle] = useState({});
   const wrapRef = useRef(null);
+  const dropRef = useRef(null);
   const timerRef = useRef(null);
 
   // Only active on Home and Orders pages
   const isActivePage = location.pathname === '/' || location.pathname === '/Desktop' || location.pathname.startsWith('/Orders');
 
+  // Position dropdown relative to search input
+  const updatePosition = useCallback(() => {
+    const parent = wrapRef.current?.closest('.nav-search-wrap');
+    if (!parent) return;
+    const rect = parent.getBoundingClientRect();
+    setDropStyle({
+      position: 'fixed',
+      top: rect.bottom + 'px',
+      left: rect.left + 'px',
+      width: rect.width + 'px',
+      zIndex: 99999,
+      maxHeight: '360px',
+      overflowY: 'auto',
+    });
+  }, []);
+
   // Close on click outside
   useEffect(() => {
     const handleClick = (e) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) {
+      if (
+        wrapRef.current && !wrapRef.current.contains(e.target) &&
+        (!dropRef.current || !dropRef.current.contains(e.target))
+      ) {
         setVisible(false);
       }
     };
@@ -59,6 +81,7 @@ export default function SearchOrderDropdown() {
 
     timerRef.current = setTimeout(async () => {
       setLoading(true);
+      updatePosition();
       try {
         const url = (currentUser.role === 'admin' || currentUser.role === 'operator' || currentUser.role === 'manager')
           ? '/orders/all'
@@ -93,35 +116,41 @@ export default function SearchOrderDropdown() {
   }, []);
 
   if (!isActivePage || !visible || (!loading && results.length === 0)) {
-    return null;
+    return <span ref={wrapRef} style={{ display: 'none' }} />;
   }
 
   return (
-    <div className="sod-wrap" ref={wrapRef}>
-      {loading ? (
-        <div className="sod-loading">Пошук...</div>
-      ) : results.length === 0 ? (
-        <div className="sod-empty">Нічого не знайдено</div>
-      ) : (
-        results.map((order) => {
-          const st = STATUS_MAP[String(order.status)] || STATUS_MAP['0'];
-          const clientName = order.client
-            ? `${order.client.lastName || ''} ${order.client.firstName || ''}`.trim()
-            : '—';
-          const price = order.allPrice != null ? `${parseFloat(order.allPrice).toFixed(0)} грн` : '—';
+    <>
+      <span ref={wrapRef} style={{ display: 'none' }} />
+      {createPortal(
+        <div className="sod-wrap" ref={dropRef} style={dropStyle}>
+          {loading ? (
+            <div className="sod-loading">Пошук...</div>
+          ) : results.length === 0 ? (
+            <div className="sod-empty">Нічого не знайдено</div>
+          ) : (
+            results.map((order) => {
+              const st = STATUS_MAP[String(order.status)] || STATUS_MAP['0'];
+              const clientName = order.client
+                ? `${order.client.lastName || ''} ${order.client.firstName || ''}`.trim()
+                : '—';
+              const price = order.allPrice != null ? `${parseFloat(order.allPrice).toFixed(0)} грн` : '—';
 
-          return (
-            <div key={order.id} className="sod-item" onClick={() => handleClick(order.id)}>
-              <span className="sod-id">#{order.id}</span>
-              <span className="sod-client">{clientName}</span>
-              <span className="sod-price">{price}</span>
-              <span className="sod-status" style={{ color: st.color, borderColor: st.color }}>
-                {st.label}
-              </span>
-            </div>
-          );
-        })
+              return (
+                <div key={order.id} className="sod-item" onClick={() => handleClick(order.id)}>
+                  <span className="sod-id">№{order.id}</span>
+                  <span className="sod-client">{clientName}</span>
+                  <span className="sod-price">{price}</span>
+                  <span className="sod-status" style={{ color: st.color, borderColor: st.color }}>
+                    {st.label}
+                  </span>
+                </div>
+              );
+            })
+          )}
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   );
 }

@@ -77,7 +77,7 @@ const NewNoModalLaminationNew = ({
       material: {
         type: "Ламінування",
         material: lamination.material,
-        typeUse: "А3",
+        typeUse: Math.max(size?.x || 0, size?.y || 0) <= 297 ? "А4" : "А3",
       },
       size,
     })

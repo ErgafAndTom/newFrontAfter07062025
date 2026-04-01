@@ -98,7 +98,7 @@ function AttachCompanyModal({ userId, onClose, onAttached }) {
 }
 
 /* ── Одне поле з inline-редагуванням ── */
-function FieldRow({ label, field, value, userId, type = "text", onSaved, disabled = false }) {
+function FieldRow({ label, field, value, userId, type = "text", onSaved, disabled = false, placeholder = "" }) {
   const [val, setVal] = useState(value ?? "");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState(null);
@@ -129,6 +129,7 @@ function FieldRow({ label, field, value, userId, type = "text", onSaved, disable
         value={val}
         type={type}
         data-field={field}
+        placeholder={placeholder}
         disabled={disabled || saving}
         onChange={(e) => setVal(e.target.value)}
         onKeyDown={onKey}
@@ -281,6 +282,7 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
               <FieldRow label="Signal"    field="signal"    value={user.signal}    userId={user.id} onSaved={onSaved} />
               <FieldRow label="Знижка (%)" field="discount" value={discountNum}    userId={user.id} type="number" onSaved={onSaved} />
               <FieldRow label="Логін"     field="username"  value={user.username}  userId={user.id} onSaved={onSaved} disabled />
+              <FieldRow label="Пароль"    field="password"  value={user.passwordRaw ?? ""}  userId={user.id} type="text"   onSaved={onSaved} />
             </div>
 
           </div>
