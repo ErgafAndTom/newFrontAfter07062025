@@ -3,12 +3,15 @@ import { createPortal } from "react-dom";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
+import NewNoModalLamination from "./newnomodals/NewNoModalLamination";
 import ScModal from "./shared/ScModal";
 import ScCountSize from "./shared/ScCountSize";
 import ScSection from "./shared/ScSection";
+import ScToggleSection from "./shared/ScToggleSection";
 import ScPricing from "./shared/ScPricing";
 import ScAddButton from "./shared/ScAddButton";
 import ScTabs from "./shared/ScTabs";
+import ServiceSettingsModal from "./shared/ServiceSettingsModal";
 import useServiceTabs from "../../hooks/useServiceTabs";
 import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
 import "./shared/sc-base.css";
@@ -98,9 +101,31 @@ const NewPhoto = ({
   const [color, setColor] = useState(DEFAULTS.color);
   const [count, setCount] = useState(DEFAULTS.count);
   const [selectedService, setSelectedService] = useState(DEFAULTS.selectedService);
-  const { services, addService, removeService } = useServiceTabs("Photo", SERVICES);
+  const [lamination, setLamination] = useState(DEFAULTS.lamination);
+  const { services, addService, removeService, updateService, reorderServices, loading: servicesLoading } = useServiceTabs("Photo", SERVICES);
   const [error, setError] = useState(null);
-  const [isEditServices, setIsEditServices] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+
+  const [hideLamination, setHideLamination] = useState(false);
+  useEffect(() => {
+    if (servicesLoading) return;
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+    const p = svc?.presets;
+    setHideLamination(p?.lamination === false);
+  }, [services, selectedService, servicesLoading]);
+
+  const DEFAULT_SIZES = [
+    { label: "10×15", x: 100, y: 150 }, { label: "13×18", x: 130, y: 180 },
+    { label: "15×20", x: 150, y: 200 }, { label: "20×30", x: 200, y: 300 },
+    { label: "A4", x: 210, y: 297 }, { label: "A3", x: 297, y: 420 },
+  ];
+
+  const sizeButtons = useMemo(() => {
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+    const sizes = svc?.presets?.sizes;
+    if (Array.isArray(sizes) && sizes.length > 0) return sizes;
+    return DEFAULT_SIZES;
+  }, [services, selectedService]);
 
   // Dropdowns
   const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
@@ -110,6 +135,32 @@ const NewPhoto = ({
   const [localX, setLocalX] = useState(DEFAULT_SIZE.x);
   const [localY, setLocalY] = useState(DEFAULT_SIZE.y);
 
+  const handleServiceSelect = useCallback((name) => {
+    setSelectedService(name);
+    if (isEdit) return;
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === name);
+    const p = svc?.presets;
+    if (!p) return;
+
+    if (p.sizeX || p.sizeY) {
+      setSize({ x: p.sizeX ? Number(p.sizeX) : size.x, y: p.sizeY ? Number(p.sizeY) : size.y });
+      setLocalX(p.sizeX ? Number(p.sizeX) : localX);
+      setLocalY(p.sizeY ? Number(p.sizeY) : localY);
+    }
+    if (p.sides) {
+      setColor((prev) => ({ ...prev, sides: p.sides }));
+    }
+    if (p.lamination !== undefined && p.lamination) {
+      const lamType = p.laminationType || "з глянцевим ламінуванням";
+      const isOn = p.laminationDefault !== false;
+      if (isOn) {
+        setLamination({ type: lamType, material: lamType, materialId: "", size: p.laminationThickness ? String(p.laminationThickness) : "" });
+      } else {
+        setLamination(DEFAULTS.lamination);
+      }
+    }
+  }, [services, isEdit, size, localX, localY]);
+
   const sizeDropdownRef = useRef(null);
   const sizeDropdownListRef = useRef(null);
   const materialDropdownRef = useRef(null);
@@ -118,16 +169,28 @@ const NewPhoto = ({
   const getDropdownStyle = useCallback((ref) => {
     const rect = ref.current?.getBoundingClientRect();
     if (!rect) return {};
-    return {
+    const margin = 12;
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    const spaceBelow = vh - rect.bottom - margin;
+    const spaceAbove = rect.top - margin;
+    const flipUp = spaceBelow < 200 && spaceAbove > spaceBelow;
+    const maxHeight = Math.max(120, flipUp ? spaceAbove : spaceBelow);
+
+    const base = {
       position: "fixed",
-      top: rect.bottom + "px",
       left: rect.left + "px",
       width: rect.width + "px",
       zIndex: 99999,
-      maxHeight: "30vh",
+      maxHeight,
       overflowY: "auto",
       boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
     };
+    if (flipUp) {
+      base.bottom = (vh - rect.top + 2) + "px";
+    } else {
+      base.top = (rect.bottom + 2) + "px";
+    }
+    return base;
   }, []);
 
   // Pricing hook
@@ -137,7 +200,7 @@ const NewPhoto = ({
       size,
       material,
       color: { ...color, sides: "Не потрібно" },
-      lamination: DEFAULTS.lamination,
+      lamination,
       big: "Не потрібно",
       cute: "Не потрібно",
       cuteLocal: {
@@ -153,7 +216,7 @@ const NewPhoto = ({
         service: normalizeService(selectedService),
       },
     }),
-    [selectedService, size, material, color, count, photo]
+    [selectedService, size, material, color, lamination, count, photo]
   );
 
   const { pricesThis } = useModalPricing("Photo", calcData, showNewPhoto, 300, editingOrderUnit);
@@ -373,6 +436,7 @@ const NewPhoto = ({
   const pricingLines = [
     { label: "Матеріали", perUnit: pricesThis?.priceForThisUnitOfPapper, count: sk, total: (pricesThis?.priceForThisUnitOfPapper || 0) * sk },
     { label: "Друк", perUnit: pricesThis?.priceForDrukThisUnit, count: sk, total: (pricesThis?.priceForDrukThisUnit || 0) * sk },
+    { label: "Ламінація", perUnit: pricesThis?.priceLaminationPerSheet, count: sk, total: (pricesThis?.priceLaminationPerSheet || 0) * sk },
   ];
 
   // ========== RENDER ==========
@@ -403,32 +467,73 @@ const NewPhoto = ({
         )
       }
       tabsContent={
-        <ScTabs
-          services={services}
-          selectedService={selectedService}
-          onSelect={setSelectedService}
-          isEditServices={isEditServices}
-          setIsEditServices={setIsEditServices}
-          onAddService={async () => {
-            const name = prompt("Введіть назву товару");
-            if (!name) return;
-            const added = await addService(name);
-            if (added) setSelectedService(added.name);
-          }}
-          onRemoveService={async (service) => {
-            const sName = typeof service === 'string' ? service : service?.name;
-            const sId = typeof service === 'string' ? null : service?.id;
-            if (sId) await removeService(sId);
-            if (selectedService === sName) {
-              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
-              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
-            }
-          }}
-        />
+        <>
+          <div className="sc-tabs-count-row">
+            <div className="sc-count-inline">
+              <input
+                className="inputsArtem"
+                type="number"
+                value={count}
+                min={1}
+                onChange={(e) => setCount(Number(e.target.value) || 1)}
+                style={{ width: "4.4rem", textAlign: "center" }}
+              />
+              <span className="inputsArtemx" style={{ border: "transparent" }}>шт</span>
+            </div>
+            <ScTabs
+              services={services}
+              selectedService={selectedService}
+              onSelect={handleServiceSelect}
+              isEditServices={false}
+              setIsEditServices={() => {}}
+              onSettingsClick={() => setShowSettings(true)}
+            />
+          </div>
+          <ServiceSettingsModal
+            show={showSettings}
+            onClose={() => setShowSettings(false)}
+            services={services}
+            onAddService={async (name) => {
+              const added = await addService(name);
+              if (added) setSelectedService(added.name);
+            }}
+            onRemoveService={async (service) => {
+              const sId = typeof service === 'string' ? null : service?.id;
+              const sName = typeof service === 'string' ? service : service?.name;
+              if (sId) await removeService(sId);
+              if (selectedService === sName) {
+                const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
+                setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
+              }
+            }}
+            onUpdateService={updateService}
+            onReorderServices={reorderServices}
+            defaultSizes={DEFAULT_SIZES}
+            extraToggles={[]}
+            hideSidesOption
+            thicknessOptions={[]}
+          />
+          {/* Розміри — під табами */}
+          <div className="sc-section sc-section-card" style={{ margin: "0 2rem" }}>
+            <div className="sc-sides sc-size-row">
+              {sizeButtons.map((f) => (
+                <button
+                  key={f.label}
+                  className={`sc-side-btn${size.x === f.x && size.y === f.y ? " sc-side-active" : ""}`}
+                  onClick={() => { setSize({ x: f.x, y: f.y }); setLocalX(f.x); setLocalY(f.y); setCustomSize(false); }}
+                >
+                  <span className="sc-side-text">{f.label}</span>
+                </button>
+              ))}
+
+
+            </div>
+          </div>
+        </>
       }
     >
-      {/* 1. Кількість + Розмір */}
-      <ScCountSize
+      {/*OLD ScCountSize removed — count+sizes now in tabsContent*/}
+      {false && <ScCountSize
         count={count}
         onCountChange={(v) => setCount(v)}
         sizeComponent={
@@ -495,7 +600,7 @@ const NewPhoto = ({
             </div>
           </div>
         }
-      />
+      />}
 
       {/* 2. Матеріал */}
       <ScSection style={{ position: "relative", zIndex: 60 }}>
@@ -532,6 +637,47 @@ const NewPhoto = ({
           )}
         </div>
       </ScSection>
+
+      {/* 3. Ламінування */}
+      {!hideLamination && <ScToggleSection
+        label="Ламінування"
+        title="Ламінування"
+        isOn={lamination.type !== "Не потрібно"}
+        onToggle={() => {
+          const maxDim = Math.max(size.x, size.y);
+          const laminTypeUse = maxDim <= 210 ? "А5" : maxDim <= 297 ? "А4" : "А3";
+          if (lamination.type === "Не потрібно") {
+            const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+            const presetLamType = svc?.presets?.laminationType || "з глянцевим ламінуванням";
+            const presetLamThick = svc?.presets?.laminationThickness ? String(svc.presets.laminationThickness) : "";
+            setLamination({ ...lamination, type: presetLamType, material: presetLamType, materialId: "", size: presetLamThick, typeUse: laminTypeUse });
+          } else {
+            setLamination({ type: "Не потрібно", material: "", materialId: "", size: "", typeUse: laminTypeUse });
+          }
+        }}
+      >
+        <NewNoModalLamination
+          lamination={lamination}
+          setLamination={setLamination}
+          prices={[]}
+          size={size}
+          type="SheetCut"
+          paperTypeUse={(() => { const m = Math.max(size.x, size.y); return m <= 210 ? "А5_force" : m <= 297 ? "А4_force" : "А3_force"; })()}
+          presetLamType={services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService)?.presets?.laminationType}
+          presetLamThickness={services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService)?.presets?.laminationThickness}
+          buttonsArr={[
+            "з глянцевим ламінуванням",
+            "з матовим ламінуванням",
+            "з ламінуванням SoftTouch",
+          ]}
+          selectArr={["30", "70", "80", "100", "125", "250"]}
+          labelMap={{
+            "з глянцевим ламінуванням": "глянцеве",
+            "з матовим ламінуванням": "матове",
+            "з ламінуванням SoftTouch": "SoftTouch",
+          }}
+        />
+      </ScToggleSection>}
     </ScModal>
   );
 };

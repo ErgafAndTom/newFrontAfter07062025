@@ -13,9 +13,13 @@
 }
 
 .npc-modal {
+  --font-size-xs: 14px;
+  --fontsmall: 18px;
+  --font-size-s: 21px;
+  --font-size-m: 18px;
   width: 96vw;
-  max-width: 828px;
-  max-height: 85vh;
+  max-width: 1242px;
+  max-height: 92vh;
   background: var(--adminfon, #f7f5ee);
   display: flex;
   flex-direction: column;
@@ -28,9 +32,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   padding: 0.8rem 1rem;
   border-bottom: 1.5px solid var(--adminred, #ee3c23);
   flex-shrink: 0;
+}
+
+.npc-close-btn {
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--admingrey, #666666);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.2rem 0.4rem;
+  opacity: 0.6;
+  transition: opacity 0.15s, color 0.15s;
+  border-radius: 0;
+}
+
+.npc-close-btn:hover {
+  opacity: 1;
+  color: var(--adminred, #ee3c23);
 }
 
 .npc-header-logo {
@@ -270,6 +297,16 @@
 .npc-envelope.npc-envelope-fits {
   border-color: var(--admingreen, #0e935b);
   opacity: 1;
+}
+
+.npc-envelope[style*="cursor"] {
+  transition: all 0.2s;
+}
+.npc-envelope[style*="cursor"]:hover {
+  border-style: solid;
+  border-color: var(--adminorange, #f5a623);
+  background: var(--adminlightorange, #fef4e5);
+  transform: translateY(-1px);
 }
 
 .npc-envelope.npc-envelope-recommended {

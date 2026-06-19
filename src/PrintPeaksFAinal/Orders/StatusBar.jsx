@@ -3,7 +3,7 @@ import './StatusBar.css';
 
 const STATUS_MAP = {
   '-1': { label: 'Скасоване',  cls: 'sb-badge--cancel' },
-  '0':  { label: 'Обробка',    cls: 'sb-badge--s0' },
+  '0':  { label: 'Скіко',      cls: 'sb-badge--s0' },
   '1':  { label: 'Друк',       cls: 'sb-badge--s1' },
   '2':  { label: 'Постпрес',   cls: 'sb-badge--s2' },
   '3':  { label: 'Готово',     cls: 'sb-badge--s3' },

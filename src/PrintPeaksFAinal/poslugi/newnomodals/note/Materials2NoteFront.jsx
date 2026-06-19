@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom";
 import { usePortalDropdown } from "../usePortalDropdown";
 import axios from "../../../../api/axiosInstance";
@@ -19,6 +19,7 @@ const Materials2NoteFront = ({
   selectArr,
   typeUse,
   size,
+  preferredMaterialName,
 }) => {
   const [paper, setPaper] = useState([]);
   const [error, setError] = useState(null);
@@ -26,13 +27,15 @@ const Materials2NoteFront = ({
 
   const [lamination, setLamination] = useState([]);
   const [loadLamination, setLoadLamination] = useState(false);
+  const paperReqIdRef = useRef(0);
+  const lamReqIdRef = useRef(0);
   const { open: openPaper, setOpen: setOpenPaper, style: dropStylePaper, toggle: togglePaper, triggerRef: dropdownPaperRef, portalRef: portalPaperRef } = usePortalDropdown();
   const { open: openLam, setOpen: setOpenLam, style: dropStyleLam, toggle: toggleLam, triggerRef: dropdownLamRef, portalRef: portalLamRef } = usePortalDropdown();
 
   const buttonsArrLamination = [
     { value: "з глянцевим ламінуванням", label: "Глянцеве" },
     { value: "з матовим ламінуванням", label: "Матове" },
-    { value: "з ламінуванням Soft Touch", label: "Soft Touch" },
+    { value: "з ламінуванням SoftTouch", label: "Soft Touch" },
   ];
 
   // ========== HANDLERS ==========
@@ -67,7 +70,7 @@ const Materials2NoteFront = ({
   const handleToggleLamination = () => {
     setMaterialAndDrukFront((prev) => ({
       ...prev,
-      laminationType: prev.laminationType === "Не потрібно" ? "" : "Не потрібно",
+      laminationType: prev.laminationType === "Не потрібно" ? "з глянцевим ламінуванням" : "Не потрібно",
     }));
   };
 
@@ -92,20 +95,27 @@ const Materials2NoteFront = ({
     };
     setLoad(true);
     setError(null);
+    const myReqId = ++paperReqIdRef.current;
     axios
       .post(`/materials/NotAll`, data)
       .then((response) => {
+        if (paperReqIdRef.current !== myReqId) return; // ігноруємо застарілу відповідь
         const rows = (response.data.rows || []).filter(
           (r) => r.name !== "Офісний папір А4"
         );
         setPaper(rows);
         setLoad(false);
-        if (rows[0]) {
-          setMaterialAndDrukFront((prev) => ({
-            ...prev,
-            material: rows[0].name,
-            materialId: rows[0].id,
-          }));
+        if (rows.length > 0) {
+          setMaterialAndDrukFront((prev) => {
+            // Зберігаємо вже вибраний матеріал, якщо він є у списку (EDIT-режим)
+            const existing = prev?.materialId
+              ? rows.find((r) => String(r.id) === String(prev.materialId))
+              : null;
+            if (existing) return prev;
+            const preferred = preferredMaterialName ? rows.find((r) => r.name === preferredMaterialName) : null;
+            const target = preferred || rows[0];
+            return { ...prev, material: target.name, materialId: target.id };
+          });
         } else {
           setMaterialAndDrukFront((prev) => ({ ...prev, material: "Немає", materialId: 0 }));
         }
@@ -127,21 +137,30 @@ const Materials2NoteFront = ({
       search: "",
       columnName: { column: "id", reverse: false },
       size: size,
-      material: { type: "Ламінування", material: materialAndDrukFront.laminationTypeUse },
+      material: {
+        type: "Ламінування",
+        material: materialAndDrukFront.laminationTypeUse,
+        typeUse: (materialAndDrukFront.materialTypeUse === "Офісний" && Math.max(size?.x || 0, size?.y || 0) <= 297) ? "А4" : "А3",
+      },
     };
     setLoadLamination(true);
     setError(null);
+    const myReqId = ++lamReqIdRef.current;
     axios
       .post(`/materials/NotAll`, data)
       .then((response) => {
-        setLamination(response.data.rows);
+        if (lamReqIdRef.current !== myReqId) return; // ігноруємо застарілу відповідь
+        const lamRows = response.data?.rows || [];
+        setLamination(lamRows);
         setLoadLamination(false);
-        if (response.data?.rows?.[0]) {
-          setMaterialAndDrukFront((prev) => ({
-            ...prev,
-            laminationmaterial: response.data.rows[0].name,
-            laminationmaterialId: response.data.rows[0].id,
-          }));
+        if (lamRows.length > 0) {
+          setMaterialAndDrukFront((prev) => {
+            const existing = prev?.laminationmaterialId
+              ? lamRows.find((r) => String(r.id) === String(prev.laminationmaterialId))
+              : null;
+            if (existing) return prev;
+            return { ...prev, laminationmaterial: lamRows[0].name, laminationmaterialId: lamRows[0].id };
+          });
         } else {
           setMaterialAndDrukFront((prev) => ({ ...prev, laminationmaterial: "Немає", laminationmaterialId: 0 }));
         }
@@ -157,7 +176,7 @@ const Materials2NoteFront = ({
     ? materialAndDrukFront.material
     : "Виберіть матеріал";
 
-  const lamThickness = lamination.find((p) => p.name === materialAndDrukFront.laminationmaterial)?.thickness;
+  const lamThickness = lamination.find((p) => String(p.id) === String(materialAndDrukFront.laminationmaterialId))?.thickness;
   const lamTitle = lamThickness ? `${lamThickness} мкм` : "Виберіть ламінацію";
 
   // ========== RENDER ==========

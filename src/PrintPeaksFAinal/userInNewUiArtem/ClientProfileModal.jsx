@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import axios from "../../api/axiosInstance";
 import TelegramAvatar from "../Messages/TelegramAvatar";
 import AddCompanyModal from "../company/AddCompanyModal";
@@ -147,12 +148,77 @@ function FieldRow({ label, field, value, userId, type = "text", onSaved, disable
   );
 }
 
+/* ── Поле вибору ролі (тільки для адміна) ── */
+const ROLES = [
+  { value: 'user',     label: 'user — клієнт' },
+  { value: 'operator', label: 'operator — оператор' },
+  { value: 'manager',  label: 'manager — менеджер' },
+  { value: 'admin',    label: 'admin — адміністратор' },
+];
+
+function RoleRow({ userId, value, onSaved, isSelf }) {
+  const [val, setVal] = useState(value ?? 'user');
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState(null);
+  const changed = val !== (value ?? 'user');
+
+  useEffect(() => { setVal(value ?? 'user'); }, [value]);
+
+  const save = async () => {
+    setSaving(true);
+    setErr(null);
+    try {
+      const res = await axios.patch(`/api/users/${userId}/role`, { role: val });
+      onSaved?.(res.data);
+    } catch (e) {
+      setErr(e?.response?.data?.message || e?.message || 'Помилка');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const roleColor = {
+    admin: 'var(--adminred, #ee3c23)',
+    manager: 'var(--adminblue, #3c60a6)',
+    operator: 'var(--admingreen, #0e935b)',
+    user: 'var(--admingrey, #666)',
+  }[val] || 'var(--admingrey)';
+
+  return (
+    <div className="cpm-field-row">
+      <span className="cpm-field-label">Права</span>
+      <select
+        className={`cpm-field-input cpm-role-select${changed ? ' is-changed' : ''}${isSelf ? ' is-disabled' : ''}`}
+        value={val}
+        disabled={saving || isSelf}
+        onChange={(e) => setVal(e.target.value)}
+        style={{ color: roleColor, fontWeight: changed ? 600 : 400 }}
+      >
+        {ROLES.map(r => (
+          <option key={r.value} value={r.value}>{r.label}</option>
+        ))}
+      </select>
+      <button
+        className={`cpm-field-save${changed && !isSelf ? ' is-visible' : ''}`}
+        onClick={save}
+        disabled={saving || !changed || isSelf}
+        aria-label="Зберегти"
+      >
+        {saving ? '…' : '✓'}
+      </button>
+      {isSelf && <span className="cpm-field-err" style={{ color: 'var(--admingrey)' }}>власна роль</span>}
+      {err && <span className="cpm-field-err">{err}</span>}
+    </div>
+  );
+}
+
 /* ── Головний компонент ── */
 export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showAttach, setShowAttach] = useState(false);
   const [showAddNew, setShowAddNew] = useState(false);
+  const currentUser = useSelector((state) => state.auth.user);
 
   /* Escape */
   useEffect(() => {
@@ -271,6 +337,9 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
               <FieldRow label="Телефон"     field="phoneNumber" value={user.phoneNumber} userId={user.id} onSaved={onSaved} />
               <FieldRow label="E-mail"      field="email"       value={user.email}       userId={user.id} type="email" onSaved={onSaved} />
               <FieldRow label="Адреса"      field="address"     value={user.address}     userId={user.id} onSaved={onSaved} />
+              {currentUser?.role === 'admin' && (
+                <RoleRow userId={user.id} value={user.role} onSaved={onSaved} isSelf={user.id === currentUser?.id} />
+              )}
             </div>
 
             {/* Права колонка — контакти та знижка */}
@@ -281,7 +350,7 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
               <FieldRow label="WhatsApp"  field="whatsapp"  value={user.whatsapp}  userId={user.id} onSaved={onSaved} />
               <FieldRow label="Signal"    field="signal"    value={user.signal}    userId={user.id} onSaved={onSaved} />
               <FieldRow label="Знижка (%)" field="discount" value={discountNum}    userId={user.id} type="number" onSaved={onSaved} />
-              <FieldRow label="Логін"     field="username"  value={user.username}  userId={user.id} onSaved={onSaved} disabled />
+              <FieldRow label="Логін"     field="username"  value={user.username}  userId={user.id} onSaved={onSaved} />
               <FieldRow label="Пароль"    field="password"  value={user.passwordRaw ?? ""}  userId={user.id} type="text"   onSaved={onSaved} />
             </div>
 

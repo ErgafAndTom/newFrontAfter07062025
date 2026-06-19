@@ -30,7 +30,14 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
     PayerType: 'Recipient',
     Cost: prefillData?.Cost || '1',
     CargoType: prefillData?.CargoType || 'Cargo',
-    Weight: prefillData?.Weight || '1',
+    Weight: (() => {
+      const lCm = (parseFloat(prefillData?.Length) || 1) / 10;
+      const wCm = (parseFloat(prefillData?.Width) || 1) / 10;
+      const hCm = (parseFloat(prefillData?.Height) || 1) / 10;
+      const vw = lCm * wCm * hCm / 4000;
+      const prefillW = parseFloat(prefillData?.Weight) || 0;
+      return Math.max(0.1, vw, prefillW).toFixed(2);
+    })(),
     SeatsAmount: prefillData?.SeatsAmount || '1',
     Description: prefillData?.Description || '',
     BackwardDelivery: false,
@@ -45,7 +52,7 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
       const wCm = (parseFloat(prefillData?.Width) || 1) / 10;
       const hCm = (parseFloat(prefillData?.Height) || 1) / 10;
       const v = lCm * wCm * hCm / 4000;
-      return v > 0 ? v.toFixed(4) : '';
+      return parseFloat(v.toFixed(4)) > 0 ? v.toFixed(4) : '';
     })(),
     departmentId: null,
     // Address delivery fields
@@ -652,13 +659,22 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
     await saveSetting('np_recipient_contacts', { contacts: updatedAll });
   };
 
-  // Auto-calculate volume: (L_mm/10 × W_mm/10 × H_mm/10) / 4000 (мм→см→м³, Nova Poshta formula)
+  // Auto-calculate volume (м³-equivalent) and volumetric weight (kg) — Nova Poshta formula: L×W×H(cm) / 4000
   const calcVolume = (l, w, h) => {
     const lCm = (parseFloat(l) || 0) / 10;
     const wCm = (parseFloat(w) || 0) / 10;
     const hCm = (parseFloat(h) || 0) / 10;
     const vol = lCm * wCm * hCm / 4000;
-    return vol > 0 ? vol.toFixed(4) : '';
+    return parseFloat(vol.toFixed(4)) > 0 ? vol.toFixed(4) : '';
+  };
+
+  // Volumetric weight in kg: same formula, min 0.1 (NP minimum)
+  const calcVolWeight = (l, w, h) => {
+    const lCm = (parseFloat(l) || 0) / 10;
+    const wCm = (parseFloat(w) || 0) / 10;
+    const hCm = (parseFloat(h) || 0) / 10;
+    const vw = lCm * wCm * hCm / 4000;
+    return Math.max(0.1, vw).toFixed(2);
   };
 
   const handleChange = (e) => {
@@ -666,11 +682,11 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
     setFormData((prev) => {
       const next = { ...prev, [name]: value };
       if (['Length', 'Width', 'Height'].includes(name)) {
-        next.Volume = calcVolume(
-          name === 'Length' ? value : prev.Length,
-          name === 'Width' ? value : prev.Width,
-          name === 'Height' ? value : prev.Height
-        );
+        const l = name === 'Length' ? value : prev.Length;
+        const w = name === 'Width' ? value : prev.Width;
+        const h = name === 'Height' ? value : prev.Height;
+        next.Volume = calcVolume(l, w, h);
+        next.Weight = calcVolWeight(l, w, h);
       }
       if (name === 'Cost' && prev.BackwardDelivery) {
         next.BackwardDeliverySum = value;
@@ -729,8 +745,12 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
   if (!showNP) return null;
 
   return (
-    <div className="np-overlay" onClick={handleClose}>
+    <div className="np-overlay">
       <div className="np-modal" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="np-modal-header">
+          <button className="np-modal-close" onClick={handleClose} aria-label="Закрити">&#x2715;</button>
+        </div>
         {/* Body */}
         <div className="np-body">
           <form onSubmit={handleSubmit}>

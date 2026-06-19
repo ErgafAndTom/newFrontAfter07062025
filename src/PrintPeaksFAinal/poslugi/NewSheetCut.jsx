@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "../../api/axiosInstance";
 import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
 import NewNoModalLamination from "./newnomodals/NewNoModalLamination";
@@ -21,6 +21,7 @@ import ScToggleSection from "./shared/ScToggleSection";
 import ScPricing from "./shared/ScPricing";
 import ScAddButton from "./shared/ScAddButton";
 import ScTabs from "./shared/ScTabs";
+import ServiceSettingsModal from "./shared/ServiceSettingsModal";
 
 import "./Poslugy.css";
 import "./shared/sc-base.css";
@@ -162,16 +163,132 @@ const NewSheetCut = ({
 
   const [selectedService, setSelectedService] = useState("Зображення");
   const [isEditServices, setIsEditServices] = useState(false);
-  const { services, addService, removeService } = useServiceTabs("SheetCut", [
+  const [showSettings, setShowSettings] = useState(false);
+  const { services, addService, removeService, updateService, reorderServices, loading: servicesLoading } = useServiceTabs("SheetCut", [
     "Зображення", "Листівка", "Візитка", "Флаєр", "Буклет",
     "Брошура", "Картка", "Диплом", "Сертифікат", "Подяка",
     "Зін", "Презентація", "Бланк", "Афіша", "Календар",
     "Плакат", "Візуалізація", "Меню", "Документ", "Бейджі", "Холдер",
   ]);
 
-  /* ===================== INIT MODAL (NEW/EDIT) ===================== */
+  const DEFAULT_SIZES = [
+    { label: "А6", x: 105, y: 148 }, { label: "A5", x: 148, y: 210 },
+    { label: "A4", x: 210, y: 297 }, { label: "А3", x: 297, y: 420 },
+    { label: "SR A3", x: 310, y: 440 }, { label: "90×50", x: 90, y: 50 },
+    { label: "85×55", x: 85, y: 55 }, { label: "100×150", x: 100, y: 150 },
+    { label: "200×100", x: 200, y: 100 }, { label: "50×50", x: 50, y: 50 },
+    { label: "100×100", x: 100, y: 100 },
+  ];
+
+  // Розміри з пресету поточної категорії (або дефолтні)
+  const sizeButtons = useMemo(() => {
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+    const sizes = svc?.presets?.sizes;
+    if (Array.isArray(sizes) && sizes.length > 0) return sizes;
+    return DEFAULT_SIZES;
+  }, [services, selectedService]);
+
+  // Hide/show секцій з пресету
+  const [hideLamination, setHideLamination] = useState(false);
+  const [hideZgyn, setHideZgyn] = useState(false);
+  const [hideSkrugl, setHideSkrugl] = useState(false);
+  const [hideSverdl, setHideSverdl] = useState(false);
+  const [hideProkl, setHideProkl] = useState(false);
+  const [hideLyuv, setHideLyuv] = useState(false);
+  const [hidePorizka, setHidePorizka] = useState(false);
+
+  useEffect(() => {
+    if (servicesLoading) return;
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+    const p = svc?.presets;
+    setHideLamination(p?.lamination === false);
+    setHideZgyn(p?.hideZgyn === false);
+    setHideSkrugl(p?.hideSkrugl === false);
+    setHideSverdl(p?.hideSverdl === false);
+    setHideProkl(p?.hideProkl === false);
+    setHideLyuv(p?.hideLyuv === false);
+    setHidePorizka(p?.hidePorizka === false);
+  }, [services, selectedService, servicesLoading]);
 
   const isEdit = Boolean(editingOrderUnit?.id || editingOrderUnit?.idKey);
+
+  // Застосувати пресети при виборі категорії
+  const handleServiceSelect = useCallback((name) => {
+    setSelectedService(name);
+    if (isEdit) return;
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === name);
+    const p = svc?.presets;
+    if (!p) return;
+
+    if (p.sizeX || p.sizeY) {
+      setSize((prev) => ({
+        x: p.sizeX ? Number(p.sizeX) : prev.x,
+        y: p.sizeY ? Number(p.sizeY) : prev.y,
+      }));
+    }
+    if (p.sides) {
+      setColor((prev) => ({ ...prev, sides: p.sides }));
+    }
+    if (p.thickness) {
+      const isSelf = p.thickness === "Самоклеючі";
+      setMaterial((prev) => ({
+        ...prev,
+        type: isSelf ? "Плівка" : "Папір",
+        thickness: p.thickness,
+        typeUse: p.thickness,
+        material: "",
+        materialId: 0,
+        a: "",
+        x: null,
+        y: null,
+      }));
+    }
+    if (p.lamination !== undefined) {
+      if (p.lamination) {
+        const lamType = p.laminationType || "з глянцевим ламінуванням";
+        const isOn = p.laminationDefault !== false;
+        if (isOn) {
+          setLamination({ type: lamType, material: lamType, materialId: "", size: p.laminationThickness ? String(p.laminationThickness) : "", typeUse: "А3" });
+        } else {
+          setLamination(DEFAULTS.lamination);
+        }
+      } else {
+        setLamination(DEFAULTS.lamination);
+      }
+    }
+    // Постпринти: застосовуємо за замовчуванням якщо <key>Default = true
+    if (p.ZgynDefault) {
+      setBig(p.ZgynCount || "1");
+    }
+    if (p.SkruglDefault) {
+      const corners = p.SkruglCorners || { leftTop: true, rightTop: true, rightBottom: true, leftBottom: true };
+      const cornerCount = ['leftTop','rightTop','rightBottom','leftBottom'].filter((k) => corners[k]).length;
+      setCute(cornerCount || 4);
+      setCuteLocal({
+        leftTop: corners.leftTop ?? true,
+        rightTop: corners.rightTop ?? true,
+        rightBottom: corners.rightBottom ?? true,
+        leftBottom: corners.leftBottom ?? true,
+        radius: p.SkruglRadius || "6",
+      });
+    }
+    if (p.SverdlDefault) {
+      setHoles(Number(p.SverdlCount) || 1);
+      setHolesR(p.SverdlSize || "5 мм");
+    }
+    if (p.ProklDefault) {
+      setProkleyka(p.ProklCount || "1");
+    }
+    if (p.LyuvDefault) {
+      setLyuversy(p.LyuvCount || "1");
+    }
+    if (p.PorizkaDefault) {
+      setPorizka((prev) => ({ ...prev, type: "Потрібно" }));
+    }
+  }, [services, isEdit]);
+
+  /* ===================== INIT MODAL (NEW/EDIT) ===================== */
+
   const options = parseOptionsJson(editingOrderUnit);
   const skipInitialPricing = useRef(false);
 
@@ -385,49 +502,115 @@ const NewSheetCut = ({
         )
       }
       tabsContent={
-        <ScTabs
-          services={services}
-          selectedService={selectedService}
-          onSelect={setSelectedService}
-          isEditServices={isEditServices}
-          setIsEditServices={setIsEditServices}
-          onAddService={async () => {
-            const name = prompt("Введіть назву товару");
-            if (!name) return;
-            const added = await addService(name);
-            if (added) setSelectedService(added.name);
-          }}
-          onRemoveService={async (service) => {
-            const name = typeof service === 'string' ? service : service?.name;
-            const id = typeof service === 'string' ? null : service?.id;
-            if (id) await removeService(id);
-            if (selectedService === name) {
-              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== name);
-              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
-            }
-          }}
-        />
+        <>
+          <div className="sc-tabs-count-row">
+            <div className="sc-count-inline">
+              <input
+                className="inputsArtem"
+                type="number"
+                value={count}
+                min={1}
+                onChange={(e) => setCount(Number(e.target.value) || 1)}
+                style={{ width: "4.4rem", textAlign: "center" }}
+              />
+              <span className="inputsArtemx" style={{ border: "transparent" }}>шт</span>
+            </div>
+            <ScTabs
+              services={services}
+              selectedService={selectedService}
+              onSelect={handleServiceSelect}
+              isEditServices={false}
+              setIsEditServices={() => {}}
+              onSettingsClick={() => setShowSettings(true)}
+            />
+          </div>
+          <ServiceSettingsModal
+            show={showSettings}
+            onClose={() => setShowSettings(false)}
+            services={services}
+            onAddService={async (name) => {
+              const added = await addService(name);
+              if (added) setSelectedService(added.name);
+            }}
+            onRemoveService={async (service) => {
+              const sId = typeof service === 'string' ? null : service?.id;
+              const sName = typeof service === 'string' ? service : service?.name;
+              if (sId) await removeService(sId);
+              if (selectedService === sName) {
+                const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
+                setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
+              }
+            }}
+            onUpdateService={updateService}
+            onReorderServices={reorderServices}
+            defaultSizes={DEFAULT_SIZES}
+            thicknessOptions={["Офісний", "Тонкий", "Середній", "Цупкий", "Самоклеючі"]}
+            extraToggles={[
+              { key: "hideZgyn", label: "Згинання", defaultKey: "ZgynDefault", params: [
+                { key: "ZgynCount", label: "Кількість", options: ["1","2","3","4","5","6","7","8","9"] }
+              ]},
+              { key: "hideSkrugl", label: "Скруглення", defaultKey: "SkruglDefault", params: [
+                { key: "SkruglRadius", label: "Радіус", options: ["3","6","8","10","13"] },
+                { key: "SkruglCorners", label: "Кути", type: "corners" }
+              ]},
+              { key: "hideSverdl", label: "Свердління", defaultKey: "SverdlDefault", params: [
+                { key: "SverdlCount", label: "Кількість", options: ["1","2","3","4","5","6","7","8","9"] },
+                { key: "SverdlSize", label: "Розмір", options: ["3,5 мм","4 мм","5 мм","6 мм","8 мм"] }
+              ]},
+              { key: "hideProkl", label: "Проклейка", defaultKey: "ProklDefault", params: [
+                { key: "ProklCount", label: "Кількість", options: ["1","2","3","4","5","6","7","8","9"] }
+              ]},
+              { key: "hideLyuv", label: "Люверси", defaultKey: "LyuvDefault", params: [
+                { key: "LyuvCount", label: "Кількість", options: ["1","2","3","4","5","6","7","8","9"] }
+              ]},
+              { key: "hidePorizka", label: "Порізка", defaultKey: "PorizkaDefault" },
+            ]}
+          />
+          {/* Розміри — під табами */}
+          <div className="sc-section sc-section-card" style={{ margin: "0 2rem" }}>
+            <div className="sc-sides sc-size-row">
+              {sizeButtons.map((f) => (
+                <button
+                  key={f.label}
+                  className={`sc-side-btn${size.x === f.x && size.y === f.y ? " sc-side-active" : ""}`}
+                  onClick={() => setSize({ x: f.x, y: f.y })}
+                >
+                  <span className="sc-side-text">{f.label}</span>
+                </button>
+              ))}
+              <button
+                className={`sc-side-btn${
+                  !sizeButtons.some((f) => size.x === f.x && size.y === f.y) ? " sc-side-active" : ""
+                }`}
+                onClick={() => {}}
+              >
+                <span className="sc-side-text">Свій розмір</span>
+              </button>
+              <div className="sc-size-inline-inputs">
+                <input
+                  className="inputsArtem"
+                  type="number"
+                  value={size.x}
+                  min={10}
+                  max={445}
+                  onChange={(e) => setSize({ x: Number(e.target.value) || 0, y: size.y })}
+                />
+                <span className="sc-size-x">x</span>
+                <input
+                  className="inputsArtem"
+                  type="number"
+                  value={size.y}
+                  min={10}
+                  max={445}
+                  onChange={(e) => setSize({ x: size.x, y: Number(e.target.value) || 0 })}
+                />
+                <span className="sc-size-mm">мм</span>
+              </div>
+            </div>
+          </div>
+        </>
       }
     >
-      {/* 1. Кількість + Розмір */}
-      <ScCountSize
-        count={count}
-        onCountChange={(v) => setCount(v)}
-        sizeComponent={
-          <NewNoModalSize
-            size={size}
-            setSize={setSize}
-            prices={prices}
-            type={"SheetCut"}
-            buttonsArr={[]}
-            color={color}
-            setColor={setColor}
-            count={count}
-            setCount={setCount}
-            defaultt={"А3 (297 х 420 мм)"}
-          />
-        }
-      />
 
       {/* 2. Сторонність */}
       <ScSides
@@ -441,7 +624,7 @@ const NewSheetCut = ({
       />
 
       {/* 3. Матеріал */}
-      <ScSection style={{ position: "relative", zIndex: 60 }}>
+      <ScSection style={{ position: "relative", zIndex: 20 }}>
         <Materials2
           material={material}
           setMaterial={setMaterial}
@@ -456,18 +639,25 @@ const NewSheetCut = ({
           typeUse={null}
           typeOfPosluga={"NewSheetCut"}
           autoSelectFirst={false}
+          preferredMaterialName={(() => {
+            const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+            return svc?.presets?.materialName || undefined;
+          })()}
         />
       </ScSection>
 
       {/* 4. Ламінація */}
-      <ScToggleSection
+      {!hideLamination && <ScToggleSection
         label="Ламінування"
         title="Ламінування"
         isOn={lamination.type !== "Не потрібно"}
         onToggle={() => {
           const laminTypeUse = (material.typeUse === "Офісний" && Math.max(size.x, size.y) <= 297) ? "А4" : "А3";
           if (lamination.type === "Не потрібно") {
-            setLamination({ ...lamination, type: "з глянцевим ламінуванням", material: "з глянцевим ламінуванням", materialId: "", size: "", typeUse: laminTypeUse });
+            const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+            const presetLamType = svc?.presets?.laminationType || "з глянцевим ламінуванням";
+            const presetLamThick = svc?.presets?.laminationThickness ? String(svc.presets.laminationThickness) : "";
+            setLamination({ ...lamination, type: presetLamType, material: presetLamType, materialId: "", size: presetLamThick, typeUse: laminTypeUse });
           } else {
             setLamination({ type: "Не потрібно", material: "", materialId: "", size: "", typeUse: laminTypeUse });
           }
@@ -480,6 +670,8 @@ const NewSheetCut = ({
           size={size}
           type={"SheetCut"}
           paperTypeUse={material.typeUse}
+          presetLamType={services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService)?.presets?.laminationType}
+          presetLamThickness={services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService)?.presets?.laminationThickness}
           buttonsArr={[
             "з глянцевим ламінуванням",
             "з матовим ламінуванням",
@@ -494,10 +686,10 @@ const NewSheetCut = ({
             "з холодним матовим ламінуванням": "холодне",
           }}
         />
-      </ScToggleSection>
+      </ScToggleSection>}
 
       {/* 5. Згинання */}
-      <ScToggleSection
+      {!hideZgyn && <ScToggleSection
         label="Згинання"
         title="Згинання"
         isOn={big !== "Не потрібно"}
@@ -510,10 +702,10 @@ const NewSheetCut = ({
           buttonsArr={[]}
           selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
         />
-      </ScToggleSection>
+      </ScToggleSection>}
 
       {/* 6. Скруглення кутів */}
-      <ScToggleSection
+      {!hideSkrugl && <ScToggleSection
         label="Скруглення"
         title="Скруглення кутів"
         isOn={cute !== "Не потрібно"}
@@ -535,10 +727,10 @@ const NewSheetCut = ({
           buttonsArr={[]}
           selectArr={["3", "6", "8", "10", "13"]}
         />
-      </ScToggleSection>
+      </ScToggleSection>}
 
       {/* 7. Свердління отворів */}
-      <ScToggleSection
+      {!hideSverdl && <ScToggleSection
         label="Свердління"
         title="Свердління отворів"
         isOn={holes !== "Не потрібно"}
@@ -555,10 +747,10 @@ const NewSheetCut = ({
           buttonsArr={[]}
           selectArr={["", "3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
         />
-      </ScToggleSection>
+      </ScToggleSection>}
 
       {/* 8. Проклейка */}
-      <ScToggleSection
+      {!hideProkl && <ScToggleSection
         label="Проклейка"
         title="Проклейка"
         isOn={prokleyka !== "Не потрібно"}
@@ -571,10 +763,10 @@ const NewSheetCut = ({
           buttonsArr={[]}
           selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
         />
-      </ScToggleSection>
+      </ScToggleSection>}
 
       {/* 9. Люверси */}
-      <ScToggleSection
+      {!hideLyuv && <ScToggleSection
         label="Люверси"
         title="Люверси"
         isOn={lyuversy !== "Не потрібно"}
@@ -586,10 +778,10 @@ const NewSheetCut = ({
           type={"SheetCut"} buttonsArr={[]}
           selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
         />
-      </ScToggleSection>
+      </ScToggleSection>}
 
       {/* 10. Порізка */}
-      <ScToggleSection
+      {!hidePorizka && <ScToggleSection
         label="Порізка"
         title="Порізка"
         isOn={porizka.type !== "Не потрібно"}
@@ -602,7 +794,7 @@ const NewSheetCut = ({
           porizka={porizka} setPorizka={setPorizka}
           prices={prices} type={"SheetCut"}
         />
-      </ScToggleSection>
+      </ScToggleSection>}
 
     </ScModal>
   );

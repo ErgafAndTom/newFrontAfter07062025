@@ -61,6 +61,7 @@
   width: 100%;
   grid-template-columns:
     135px          /* article (штрих-код) */
+    minmax(40px, 1fr) /* articleCode (артикул) */
     minmax(60px, 2.875fr)   /* name */
     minmax(50px, 1.2fr) /* type */
     minmax(50px, 1.2fr) /* typeUse */
@@ -102,7 +103,7 @@
   width: 100%;
   box-sizing: border-box;
   grid-template-columns:
-    135px minmax(60px, 2.875fr) minmax(50px, 1.2fr) minmax(50px, 1.2fr) minmax(50px, 1.2fr)
+    135px minmax(40px, 1fr) minmax(60px, 2.875fr) minmax(50px, 1.2fr) minmax(50px, 1.2fr) minmax(50px, 1.2fr)
     minmax(40px, 0.8fr) minmax(40px, 0.8fr) minmax(30px, 0.6fr) minmax(40px, 0.8fr) minmax(45px, 0.9fr)
     minmax(45px, 0.9fr) minmax(45px, 0.9fr) minmax(45px, 0.9fr) minmax(45px, 0.9fr) minmax(45px, 0.9fr)
     minmax(35px, 0.7fr) minmax(35px, 0.7fr) 2.5rem minmax(35px, 0.6fr) minmax(30px, 0.5fr) minmax(70px, 1.4fr) minmax(70px, 1.4fr);

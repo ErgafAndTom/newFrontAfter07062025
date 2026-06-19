@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+﻿import React, { useState, useEffect, useCallback, useMemo } from "react";
 import axios from "../../api/axiosInstance";
 import {
   parseOrderUnitForShipping,
@@ -161,14 +161,18 @@ export default function NovaPoshtaCalculator({ onClose }) {
         const pkg = packages.find((p) => p.id === pkgId);
         if (pkg) {
           const rec = getPackageRecommendation(pkg);
-          const weight = getPackageWeight(pkg);
+          const physWeight = getPackageWeight(pkg);
+          const w = rec ? rec.dimensions.width : 0;
+          const h = rec ? rec.dimensions.height : 0;
+          const t = rec ? rec.dimensions.thickness : 10;
+          const vw = (w / 10) * (h / 10) * (t / 10) / 4000;
           setPkgOverrides((prev) => ({
             ...prev,
             [pkgId]: {
-              weight: String(weight),
-              width: rec ? String(rec.dimensions.width) : "",
-              height: rec ? String(rec.dimensions.height) : "",
-              thickness: rec ? String(rec.dimensions.thickness) : "",
+              weight: String(Math.max(physWeight, vw, 0.1).toFixed(2)),
+              width: rec ? String(w) : "",
+              height: rec ? String(h) : "",
+              thickness: rec ? String(t) : "",
               envelope: rec?.recommended?.name || null,
             },
           }));
@@ -177,12 +181,31 @@ export default function NovaPoshtaCalculator({ onClose }) {
     }
   };
 
-  // Update override field
+  // Update override field; auto-recalculate volumetric weight for box or on dimension change
   const setOverride = (pkgId, field, value) => {
-    setPkgOverrides((prev) => ({
-      ...prev,
-      [pkgId]: { ...prev[pkgId], [field]: value },
-    }));
+    setPkgOverrides((prev) => {
+      const current = prev[pkgId] || {};
+      const updated = { ...current, [field]: value };
+
+      // When switching to a specific envelope — substitute its physical dimensions
+      if (field === 'envelope' && value && value !== 'box') {
+        const envObj = ENVELOPES.find((e) => e.name === value);
+        if (envObj) {
+          updated.width = String(envObj.width);
+          updated.height = String(envObj.height);
+        }
+      }
+
+      const isBox = updated.envelope === 'box';
+      if (isBox || ['width', 'height', 'thickness'].includes(field)) {
+        const wCm = (parseFloat(updated.width) || 0) / 10;
+        const hCm = (parseFloat(updated.height) || 0) / 10;
+        const tCm = (parseFloat(updated.thickness) || 0) / 10;
+        const vw = wCm * hCm * tCm / 4000;
+        updated.weight = Math.max(0.1, vw).toFixed(2);
+      }
+      return { ...prev, [pkgId]: updated };
+    });
   };
 
   // Start split mode for a package
@@ -319,6 +342,48 @@ export default function NovaPoshtaCalculator({ onClose }) {
     [parsedItems, marginValue]
   );
 
+  // Quick envelope/box selection from card click (no edit mode needed)
+  const setEnvelopeQuick = useCallback((pkgId, envName) => {
+    setPkgOverrides((prev) => {
+      const existing = prev[pkgId];
+      const pkg = packages.find((p) => p.id === pkgId);
+      if (!pkg) return prev;
+
+      // Toggle off if same envelope clicked again
+      if (existing && existing.envelope === envName) {
+        return { ...prev, [pkgId]: { ...existing, envelope: null } };
+      }
+
+      const r = getPackageRecommendation(pkg);
+      const pw = getPackageWeight(pkg);
+      const envObj = envName !== "box" ? ENVELOPES.find((e) => e.name === envName) : null;
+
+      let w, h, t, weightStr;
+      if (envObj) {
+        // Envelope — use physical envelope dimensions
+        w = envObj.width;
+        h = envObj.height;
+        t = r ? r.dimensions.thickness : 5;
+        weightStr = String(Math.max(pw, 0.1).toFixed(2));
+      } else {
+        // Box — use computed content dimensions with safety margin
+        w = r ? r.dimensions.width : 0;
+        h = r ? r.dimensions.height : 0;
+        t = r ? r.dimensions.thickness : 10;
+        const vw = (w / 10) * (h / 10) * (t / 10) / 4000;
+        weightStr = String(Math.max(pw, vw, 0.1).toFixed(2));
+      }
+
+      return { ...prev, [pkgId]: {
+        weight: weightStr,
+        width: String(w),
+        height: String(h),
+        thickness: String(t),
+        envelope: envName,
+      } };
+    });
+  }, [packages, getPackageRecommendation, getPackageWeight]);
+
   // Open NP.jsx with prefill for a specific package
   const openTTN = (pkg) => {
     const rec = getPackageRecommendation(pkg);
@@ -342,9 +407,9 @@ export default function NovaPoshtaCalculator({ onClose }) {
 
     // Determine cargo type: if envelope override selected → Documents, else auto
     let isDocuments = rec && !rec.needsParcel;
-    if (ov?.envelope) {
-      isDocuments = true; // user manually picked an envelope
-    } else if (ov?.envelope === null && rec?.needsParcel) {
+    if (ov?.envelope && ov.envelope !== "box") {
+      isDocuments = true;
+    } else if (ov?.envelope === "box") {
       isDocuments = false;
     }
 
@@ -397,7 +462,7 @@ export default function NovaPoshtaCalculator({ onClose }) {
   }
 
   return (
-    <div className="npc-overlay" onClick={onClose}>
+    <div className="npc-overlay">
       <div className="npc-modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="npc-header">
@@ -412,6 +477,7 @@ export default function NovaPoshtaCalculator({ onClose }) {
             <path d="M171.939 16.87V12.2492H154.893V16.87H160.906V29.7508H165.919V16.87H171.939Z" fill="#DA291C"/>
             <path d="M185.055 29.7508H190.5L183.579 12.2492H177.361L170.44 29.7508H175.779L176.892 26.5268H183.942L185.055 29.7508ZM178.247 22.6007L180.224 16.8775H180.602L182.579 22.6007H178.247Z" fill="#DA291C"/>
           </svg>
+          <button className="npc-close-btn" onClick={onClose} aria-label="Закрити">&#x2715;</button>
         </div>
 
         {/* Body */}
@@ -521,12 +587,14 @@ export default function NovaPoshtaCalculator({ onClose }) {
                         <span className="npc-package-info">
                           {ov ? ov.weight : weight} кг
                           {` \u00A0·\u00A0 ${pkgItems.reduce((sum, it) => sum + (it.count || 1), 0)} шт`}
-                          {ov?.envelope
-                            ? ` \u00A0·\u00A0 конверт ${ov.envelope}`
+                          {ov?.envelope && ov.envelope !== "box"
+                            ? `   ·  конверт ${ov.envelope}`
+                            : ov?.envelope === "box"
+                            ? "   ·  коробка"
                             : rec?.recommended
-                            ? ` \u00A0·\u00A0 конверт ${rec.recommended.name}`
+                            ? `   ·  конверт ${rec.recommended.name}`
                             : rec
-                            ? " \u00A0·\u00A0 коробка"
+                            ? "   ·  коробка"
                             : ""}
                         </span>
                         {packages.length > 1 && (
@@ -639,16 +707,23 @@ export default function NovaPoshtaCalculator({ onClose }) {
                                     : ""
                                 }`}
                                 key={env.name}
+                                onClick={() => setEnvelopeQuick(pkg.id, env.name)}
+                                style={{ cursor: "pointer" }}
                               >
                                 <span className="npc-envelope-name">{env.name}</span>
-                                <span className="npc-envelope-size">
-                                  {env.width}×{env.height}
-                                </span>
-                                <span className="npc-envelope-sheet">
-                                  {env.fitsSheet}
-                                </span>
+                                <span className="npc-envelope-size">{env.width}x{env.height}</span>
+                                <span className="npc-envelope-sheet">{env.fitsSheet}</span>
                               </div>
                             ))}
+                            <div
+                              className={`npc-envelope npc-envelope-fits${ov?.envelope === "box" ? " npc-envelope-recommended" : ""}`}
+                              onClick={() => setEnvelopeQuick(pkg.id, "box")}
+                              style={{ cursor: "pointer" }}
+                            >
+                              <span className="npc-envelope-name">КОР</span>
+                              <span className="npc-envelope-size">Коробка</span>
+                              <span className="npc-envelope-sheet">Вантаж</span>
+                            </div>
                           </div>
                           <div className="npc-envelope-info">
                             {rec.needsParcel && (
@@ -678,9 +753,9 @@ export default function NovaPoshtaCalculator({ onClose }) {
                               <div className="npc-summary-item">
                                 <span className="npc-summary-label">Тип</span>
                                 <span className="npc-summary-value">
-                                  {ov?.envelope
+                                  {ov?.envelope && ov.envelope !== "box"
                                     ? "Документи"
-                                    : rec.needsParcel
+                                    : ov?.envelope === "box" || rec.needsParcel
                                     ? "Вантаж"
                                     : "Документи"}
                                 </span>
@@ -702,11 +777,15 @@ export default function NovaPoshtaCalculator({ onClose }) {
                               step="0.01"
                               min="0"
                               value={ov.weight}
+                              readOnly={ov.envelope === "box"}
+                              style={ov.envelope === "box" ? { opacity: 0.6, cursor: "default" } : {}}
                               onChange={(e) =>
-                                setOverride(pkg.id, "weight", e.target.value)
+                                ov.envelope !== "box" && setOverride(pkg.id, "weight", e.target.value)
                               }
                             />
-                            <span className="npc-edit-unit">кг</span>
+                            <span className="npc-edit-unit">
+                              кг{ov.envelope === "box" && <span style={{ fontSize: "0.75em", opacity: 0.6, marginLeft: "0.3rem" }}>об'єм</span>}
+                            </span>
                           </div>
                           <div className="npc-edit-row">
                             <span className="npc-edit-label">Ширина</span>
@@ -774,12 +853,12 @@ export default function NovaPoshtaCalculator({ onClose }) {
                               ))}
                               <button
                                 className={`npc-envelope-option${
-                                  ov.envelope === null
+                                  ov.envelope === "box"
                                     ? " npc-envelope-option-active"
                                     : ""
                                 }`}
                                 onClick={() =>
-                                  setOverride(pkg.id, "envelope", null)
+                                  setOverride(pkg.id, "envelope", ov.envelope === "box" ? null : "box")
                                 }
                               >
                                 Коробка

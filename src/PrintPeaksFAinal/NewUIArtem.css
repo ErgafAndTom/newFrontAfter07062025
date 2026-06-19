@@ -30,6 +30,7 @@
 
 .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-primary {
   margin-top: 1rem;
+  grid-template-columns: repeat(5, 1fr);
 }
 
 /* ── Базовий тайл ── */
@@ -73,9 +74,12 @@
   background: rgba(60, 96, 166, 0.12) !important;
 }
 
-/* ── NOTE, BOOKLET, MUG — rose (3 items → align right, cols 2-4) ── */
+/* ── CALENDAR, DIPLOM, NOTE, BOOKLET, MUG — rose (5 items) ── */
+.nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-tertiary {
+  grid-template-columns: repeat(5, 1fr);
+}
 .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-tertiary p:first-child {
-  grid-column: 2;
+  grid-column: auto;
 }
 .nui-sheetcut-theme .CardPrintersPoslugi.nui-services-grid-tertiary p {
   background: rgba(240, 117, 170, 0.05) !important;

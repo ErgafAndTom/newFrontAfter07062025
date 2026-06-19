@@ -89,7 +89,7 @@ const IcoOplata = () => (
 const STAGE_ICONS = [IcoObrobka, IcoDruk, IcoPostpres, IcoGotovo, IcoOtrymano];
 
 const STAGES = [
-  { id: 0, title: 'Обробка', subtitle: 'Нове замовлення', color: UI.color.warn },
+  { id: 0, title: 'Скіко', subtitle: 'Нове замовлення', color: UI.color.warn },
   { id: 1, title: 'Друк', subtitle: 'Виріб друкується', color: UI.color.brown },
   { id: 2, title: 'Постпрес', subtitle: 'Постобробка', color: UI.color.blue },
   { id: 3, title: 'Готово', subtitle: 'Виріб готовий', color: UI.color.pink },
@@ -98,7 +98,7 @@ const STAGES = [
 
 const STAGE_TONES = ['warn', 'brown', 'blue', 'pink', 'green'];
 const ACTION_LABELS_BY_STAGE = {
-  0: 'Обробка',
+  0: 'Скіко',
   1: 'Друк',
   2: 'Постпрес',
   3: 'Готово',

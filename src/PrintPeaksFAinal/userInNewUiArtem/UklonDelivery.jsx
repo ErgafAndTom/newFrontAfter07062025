@@ -35,7 +35,6 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
   const [estimate, setEstimate] = useState(null);
   const [showPaidDialog, setShowPaidDialog] = useState(null); // null = не перевірено
   const [deliveryPrice, setDeliveryPrice] = useState(null); // фінальна ціна доставки для клієнта
-  const [balance, setBalance] = useState(null);
   const [checkStatus, setCheckStatus] = useState(null); // null | 'loading' | 'ok' | 'error'
   const [checkMsg, setCheckMsg] = useState('');
 
@@ -61,6 +60,7 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
   const [codAmount, setCodAmount] = useState('');
   const [verification, setVerification] = useState(false);
   const [scheduledAt, setScheduledAt] = useState('');
+  const [doorDelivery, setDoorDelivery] = useState(true);
 
   // Завантажити налаштування + міста
   useEffect(() => {
@@ -86,11 +86,6 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
       if (list.length) setCities(list);
     }).catch(() => {});
 
-    // Завантажити баланс
-    axios.get('/api/uklon/balance').then(r => {
-      const b = r.data?.balance ?? r.data?.amount ?? r.data?.value;
-      if (b !== null && b !== undefined) setBalance(b);
-    }).catch(() => {});
   }, []);
 
   // Заповнити отримувача з замовлення
@@ -519,6 +514,7 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
         verification,
         scheduled_at: scheduledAt || undefined,
         payer_type: payerType,
+        door_delivery: doorDelivery || undefined,
       };
       console.log('%c[Uklon:FE:Create] ═══════════════════════════════════════', 'color: #FFD600; font-weight: bold');
       console.log('%c[Uklon:FE:Create] 📤 POST /api/uklon/create', 'color: #FFD600; font-weight: bold');
@@ -623,7 +619,7 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
   if (!showUklon) return null;
 
   return (
-    <div className="ukl-overlay" onClick={handleClose}>
+    <div className="ukl-overlay">
       <div className="ukl-modal" onClick={e => e.stopPropagation()}>
         {/* ── Header ── */}
         <div className="ukl-header">
@@ -636,9 +632,6 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
               </svg>
             </div>
             <span>UKLON DELIVERY</span>
-            {balance !== null && (
-              <span className="ukl-balance">{balance} грн</span>
-            )}
           </div>
           <button className="ukl-close" onClick={handleClose}>✕</button>
         </div>
@@ -1003,7 +996,20 @@ export default function UklonDelivery({ showUklon, setShowUklon, thisOrder, setT
                       </div>
                     </div>
                   </div>
-                  {/* Верифікація віку прибрана — не потрібна для друкарні */}
+                  <div className="ukl-field ukl-field--half" style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '0.15rem' }}>
+                    <label
+                      className="ukl-door-toggle"
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', userSelect: 'none', marginBottom: 0 }}
+                    >
+                      <div
+                        className={`ukl-door-switch${doorDelivery ? ' ukl-door-switch--on' : ''}`}
+                        onClick={() => setDoorDelivery(v => !v)}
+                      />
+                      <span style={{ fontSize: 'var(--font-size-s, 13px)', color: doorDelivery ? 'var(--admingreen)' : 'var(--admingrey)', fontWeight: doorDelivery ? 600 : 400, whiteSpace: 'nowrap' }}>
+                        Від дверей до дверей
+                      </span>
+                    </label>
+                  </div>
                 </div>
               </div>
 

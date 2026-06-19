@@ -134,7 +134,12 @@ const Calendar = ({ compact, onDateChange }) => {
     }, [state, compact]);
 
     const handleChange = (item) => {
-        setState([item.selection]);
+        const sel = item.selection;
+        setState([{
+            ...sel,
+            startDate: startOfDay(sel.startDate),
+            endDate: endOfDay(sel.endDate),
+        }]);
     };
 
     if (compact) {

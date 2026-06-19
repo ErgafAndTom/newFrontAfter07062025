@@ -13,10 +13,12 @@ import colorPrintIcon from "../components/newUIArtem/printers/46.png";
 import plotterCutIcon from "../components/newUIArtem/printers/ComponentTMP_0-image4.png";
 import photoIcon from "../components/newUIArtem/printers/ComponentTMP_0-image3.png";
 import wideIcon from "../components/newUIArtem/printers/ComponentTMP_0-image2.png";
+import digitalPrintWideIcon from "../components/newUIArtem/printers/xerox-versant.png";
 import wideFactoryIcon from "../components/newUIArtem/printers/Без назви-4.png";
 import laminationIcon from "../components/newUIArtem/printers/üÑº ¡áºó¿-1.png";
 import bindingIcon from "../components/newUIArtem/printers/1996 (1).png";
 import noteIcon from "../components/newUIArtem/printers/group-1468.svg";
+import diplomIcon from "./poslugi/newnomodals/diplom.svg";
 import bookletIcon from "./evroscoba.png";
 import deliveryIcon from "../components/newUIArtem/printers/delivery.png";
 
@@ -30,11 +32,16 @@ import OneProductInOrders from "../components/newcalc/Orders/OneProductInOrders"
 
 import NewWide from "./poslugi/newWide";
 import NewSheetCut from "./poslugi/NewSheetCut";
+import NewSheetCutV2 from "./poslugi/NewSheetCutV2";
+import DigitalPrintWide from "./poslugi/DigitalPrintWide";
 // import NewSheetCutBW from "./poslugi/NewSheetCutBW"
 // import NewSheetCutBW from "./poslugi/NewSheetCutBW"
 // import NewSheetCutBW from "./poslugi/NewSheetCutBW";
 import NewPhoto from "./poslugi/NewPhoto";
 import NewNote from "./poslugi/NewNote";
+import NewDiplom from "./poslugi/NewDiplom";
+import NewFolder from "./poslugi/NewFolder";
+import NewCalendar from "./poslugi/NewCalendar";
 import ModalDeleteOrderUnit from "./ModalDeleteOrderUnit";
 import Loader from "../components/calc/Loader";
 import Laminator from "./poslugi/Laminator";
@@ -79,10 +86,15 @@ const NewUIArtem = () => {
 
 
   const [showNewSheetCut, setShowNewSheetCut] = useState(false);
+  const [showNewSheetCutV2, setShowNewSheetCutV2] = useState(false);
   const [showNewSheetCutBW, setShowNewSheetCutBW] = useState(false);
+  const [showDigitalPrintWide, setShowDigitalPrintWide] = useState(false);
   const [showNewWide, setShowNewWide] = useState(false);
   const [showWideFactory, setShowWideFactory] = useState(false);
   const [showNewNote, setShowNewNote] = useState(false);
+  const [showNewDiplom, setShowNewDiplom] = useState(false);
+  const [showNewFolder, setShowNewFolder] = useState(false);
+  const [showNewCalendar, setShowNewCalendar] = useState(false);
   const [showNewBooklet, setShowNewBooklet] = useState(false);
   const [showNewPhoto, setShowNewPhoto] = useState(false);
 
@@ -293,6 +305,7 @@ const NewUIArtem = () => {
   // ✅ Єдина мапа типів -> модалка (УЗГОДЖЕНО з беком: newField6 = toCalc.type)
   const EDITORS = [
     { value: "SheetCutBW", label: "BLACK & WHITE", open: () => setShowNewSheetCutBW(true) },
+    { value: "DigitalPrintWide", label: "DIGITAL PRINT WIDE", open: () => setShowDigitalPrintWide(true) },
     { value: "SheetCut", label: "DIGITAL PRINT CUTING", open: () => setShowNewSheetCut(true) },
 
     { value: "Vishichka", label: "PLOTTER CUT", open: () => setShowVishichka(true) },
@@ -305,8 +318,11 @@ const NewUIArtem = () => {
     { value: "PerepletMet", label: "BINDING", open: () => setShowPerepletMet(true) },
 
     { value: "Laminator", label: "LAMINATION", open: () => setShowLaminator(true) },
+    { value: "Calendar", label: "CALENDAR", open: () => setShowNewCalendar(true) },
+    { value: "Diplom", label: "DIPLOM", open: () => setShowNewDiplom(true) },
+    { value: "Folder", label: "FOLDER", open: () => setShowNewFolder(true) },
     { value: "Note", label: "NOTE", open: () => setShowNewNote(true) },
-    { value: "BOOKLET", label: "BOOKLET", open: () => setShowNewBooklet(true) },
+    { value: "Booklet", label: "BOOKLET", open: () => setShowNewBooklet(true) },
 
     { value: "Cup", label: "MUG", open: () => setShowNewCup(true) },
     { value: "Magnets", label: "MAGNETS", open: () => setShowNewMagnets(true) },
@@ -376,9 +392,9 @@ const NewUIArtem = () => {
     const raw = getOrderUnitType(thing);
     const type = TYPE_ALIASES[raw] || raw;
 
-    const orange = new Set(['SheetCutBW', 'SheetCut', 'Photo', 'Wide']);
+    const orange = new Set(['SheetCutBW', 'SheetCut', 'DigitalPrintWide', 'Photo', 'Wide']);
     const blue   = new Set(['Vishichka', 'Magnets', 'Laminator', 'PerepletMet', 'BigOvshik', 'Postpress', 'Binding', 'Lamination']);
-    const coral  = new Set(['Note', 'BOOKLET', 'Cup']);
+    const coral  = new Set(['Calendar', 'Diplom', 'Folder', 'Note', 'Booklet', 'Cup']);
     const purple = new Set(['Scans', 'Delivery', 'WideFactory']);
 
     if (orange.has(type)) return 'nui-editor-accent-orange';
@@ -537,9 +553,9 @@ const NewUIArtem = () => {
   const orderListStatusTitle = (() => {
     const orderId = thisOrder?.id ?? '—';
     if (isCancelledOrder) return { text: 'Скасоване замовлення ', id: orderId };
-    if (!Number.isFinite(statusValue)) return { text: 'Обробка замовлення ', id: orderId };
+    if (!Number.isFinite(statusValue)) return { text: 'Скіко замовлення ', id: orderId };
     switch (statusValue) {
-      case 0:  return { text: 'Обробка замовлення ', id: orderId };
+      case 0:  return { text: 'Скіко замовлення ', id: orderId };
       case 1:  return { text: 'Замовлення ', id: orderId, suffix: ' друкується' };
       case 2:  return { text: 'Замовлення ', id: orderId, suffix: ' у постпресі' };
       case 3:  return { text: 'Готове замовлення ', id: orderId };
@@ -654,6 +670,21 @@ const NewUIArtem = () => {
                 </div>
               </p>
 
+              {/* 3) DIGITAL PRINT CUTTING V2 — redesign */}
+              <p
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingOrderUnitSafe(null);
+                  setShowNewSheetCutV2(true);
+                }}
+                style={{ border: "2px solid var(--admingreen, #0e935b)" }}
+              >
+                <div className="tileContent">
+                  <span className="verticalText">PRINT V2 ✦</span>
+                  <img className="icon64 CardPrintersPoslugiImg" src={colorPrintIcon} alt="" />
+                </div>
+              </p>
+
               {/* 4) PHOTO */}
               <p onClick={() => openEditorForOrderUnit(null, 'Photo')}>
                 <div className="tileContent">
@@ -667,6 +698,20 @@ const NewUIArtem = () => {
                 <div className="tileContent">
                   <span className="verticalText">WIDE PHOTO</span>
                   <img className="icon64 CardPrintersPoslugiImg" src={wideIcon} alt="" />
+                </div>
+              </p>
+
+              {/* 6) DIGITAL PRINT WIDE — широкоформатний цифровий друк 330x660 */}
+              <p
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingOrderUnitSafe(null);
+                  setShowDigitalPrintWide(true);
+                }}
+              >
+                <div className="tileContent">
+                  <span className="verticalText">DIGITAL PRINT WIDE</span>
+                  <img className="icon64 CardPrintersPoslugiImg" src={digitalPrintWideIcon} alt="" />
                 </div>
               </p>
 
@@ -727,10 +772,49 @@ const NewUIArtem = () => {
               </p>
             </div>
 
-            {/* Третя група — NOTE, BOOKLET, MUG (purple) */}
+            {/* Третя група — DIPLOM, NOTE, BOOKLET, MUG (purple) */}
             <div className={`CardPrintersPoslugi nui-services-grid nui-services-grid-tertiary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
                  onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
             >
+              <p onClick={() => setShowNewCalendar(true)}>
+                <div className="tileContent">
+                  <span className="verticalText">CALENDAR</span>
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
+                       stroke="#2f2f2f" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="10" y="14" width="44" height="40" rx="3" />
+                    <line x1="10" y1="24" x2="54" y2="24" />
+                    <line x1="20" y1="10" x2="20" y2="18" />
+                    <line x1="44" y1="10" x2="44" y2="18" />
+                    <circle cx="20" cy="34" r="1.5" fill="#2f2f2f" />
+                    <circle cx="32" cy="34" r="1.5" fill="#2f2f2f" />
+                    <circle cx="44" cy="34" r="1.5" fill="#2f2f2f" />
+                    <circle cx="20" cy="44" r="1.5" fill="#2f2f2f" />
+                    <circle cx="32" cy="44" r="1.5" fill="#2f2f2f" />
+                    <circle cx="44" cy="44" r="1.5" fill="#2f2f2f" />
+                  </svg>
+                </div>
+              </p>
+
+              <p onClick={() => setShowNewDiplom(true)}>
+                <div className="tileContent">
+                  <span className="verticalText">DIPLOM</span>
+                  <img className="icon64 CardPrintersPoslugiImg" src={diplomIcon} alt="" />
+                </div>
+              </p>
+
+              <p onClick={() => setShowNewFolder(true)}>
+                <div className="tileContent">
+                  <span className="verticalText">FOLDER</span>
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
+                       stroke="#2f2f2f" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M8 18 L26 18 L30 22 L56 22 L56 50 L8 50 Z" />
+                    <line x1="8" y1="28" x2="56" y2="28" />
+                    <path d="M22 34 L42 34" />
+                    <path d="M22 40 L36 40" />
+                  </svg>
+                </div>
+              </p>
+
               <p onClick={() => setShowNewNote(true)}>
                 <div className="tileContent">
                   <span className="verticalText">NOTE</span>
@@ -1232,63 +1316,6 @@ const NewUIArtem = () => {
                   </div>
                 )}
 
-                {/* ── TEST: кнопки переключення статусів ── */}
-                {(() => {
-                  const allStatuses = ['created','processing','accepted','arrived','running','completed','cancelled','returning'];
-                  const curIdx = allStatuses.indexOf(s);
-                  const now = () => new Date().toISOString();
-                  const cancelLike = ['cancelled', 'canceled', 'failed'];
-                  const goTo = (newStatus) => {
-                    const times = {};
-                    const statusOrder = ['processing','accepted','arrived','running','completed'];
-                    statusOrder.forEach(st => {
-                      if (statusOrder.indexOf(st) <= statusOrder.indexOf(newStatus)) times[st] = now();
-                    });
-                    // Якщо переходимо в скасований/failed — видаляємо юніти доставки
-                    if (cancelLike.includes(newStatus)) removeUklonUnits();
-                    setUklonMapData(prev => {
-                      if (!prev) return prev;
-                      return {
-                        ...prev,
-                        tracking: {
-                          ...prev.tracking,
-                          status: newStatus,
-                          statusTimes: { ...prev.tracking?.statusTimes, ...times },
-                          courier: prev.tracking?.courier || {
-                            name: 'Тест Водій', phone: '+380991234567',
-                            car: { brand: 'Toyota', model: 'Camry', color: 'білий', number: 'AA 1234 BB' },
-                          },
-                        },
-                        isDone: ['delivered','completed','cancelled','canceled','failed','returned'].includes(newStatus),
-                      };
-                    });
-                  };
-                  return (
-                    <div style={{ display: 'flex', gap: 4, padding: '6px 0', flexWrap: 'wrap', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--admingrey)', marginRight: 4 }}>TEST:</span>
-                      <button
-                        disabled={curIdx <= 0}
-                        onClick={() => curIdx > 0 && goTo(allStatuses[curIdx - 1])}
-                        style={{ padding: '3px 10px', fontSize: '0.75rem', border: '1px solid var(--adminorange)', background: 'var(--adminlightorange)', color: '#333', cursor: curIdx > 0 ? 'pointer' : 'not-allowed', opacity: curIdx > 0 ? 1 : 0.4 }}
-                      >◀ Назад</button>
-                      {allStatuses.map((st, i) => (
-                        <button
-                          key={st}
-                          onClick={() => goTo(st)}
-                          style={{
-                            padding: '3px 8px', fontSize: '0.7rem', border: i === curIdx ? '2px solid var(--admingreen)' : '1px solid #ccc',
-                            background: i === curIdx ? 'var(--adminlightgreen)' : '#fff', color: '#333', cursor: 'pointer', fontWeight: i === curIdx ? 700 : 400,
-                          }}
-                        >{st}</button>
-                      ))}
-                      <button
-                        disabled={curIdx >= allStatuses.length - 1}
-                        onClick={() => curIdx < allStatuses.length - 1 && goTo(allStatuses[curIdx + 1])}
-                        style={{ padding: '3px 10px', fontSize: '0.75rem', border: '1px solid var(--adminorange)', background: 'var(--adminlightorange)', color: '#333', cursor: curIdx < allStatuses.length - 1 ? 'pointer' : 'not-allowed', opacity: curIdx < allStatuses.length - 1 ? 1 : 0.4 }}
-                      >Далі ▶</button>
-                    </div>
-                  );
-                })()}
 
               </div>
             );
@@ -1471,6 +1498,29 @@ const NewUIArtem = () => {
 
           />
         }
+        {showNewSheetCutV2 &&
+          <NewSheetCutV2
+            thisOrder={thisOrder}
+            newThisOrder={newThisOrder}
+            selectedThings2={selectedThings2}
+            setNewThisOrder={setNewThisOrder}
+            setShowNewSheetCutV2={setShowNewSheetCutV2}
+            setThisOrder={setThisOrder}
+            setSelectedThings2={setSelectedThings2}
+            showNewSheetCutV2={showNewSheetCutV2}
+            editingOrderUnit={editingOrderUnitSafe}
+          />
+        }
+        {showDigitalPrintWide &&
+          <DigitalPrintWide
+            thisOrder={thisOrder}
+            setThisOrder={setThisOrder}
+            setSelectedThings2={setSelectedThings2}
+            showDigitalPrintWide={showDigitalPrintWide}
+            setShowDigitalPrintWide={setShowDigitalPrintWide}
+            editingOrderUnit={editingOrderUnitSafe}
+          />
+        }
         {/*{showNewSheetSheet &&*/}
         {/*  <NewSheetSheet*/}
         {/*    productName={productName}*/}
@@ -1623,6 +1673,39 @@ const NewUIArtem = () => {
             showNewNote={showNewNote}
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
+          />
+        }
+        {showNewDiplom &&
+          <NewDiplom
+            thisOrder={thisOrder}
+            setThisOrder={setThisOrder}
+            setSelectedThings2={setSelectedThings2}
+            showNewDiplom={showNewDiplom}
+            setShowNewDiplom={setShowNewDiplom}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
+          />
+        }
+        {showNewFolder &&
+          <NewFolder
+            thisOrder={thisOrder}
+            setThisOrder={setThisOrder}
+            setSelectedThings2={setSelectedThings2}
+            showNewFolder={showNewFolder}
+            setShowNewFolder={setShowNewFolder}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
+          />
+        }
+        {showNewCalendar &&
+          <NewCalendar
+            thisOrder={thisOrder}
+            setThisOrder={setThisOrder}
+            setSelectedThings2={setSelectedThings2}
+            showNewCalendar={showNewCalendar}
+            setShowNewCalendar={setShowNewCalendar}
             editingOrderUnit={editingOrderUnitSafe}
             setEditingOrderUnit={setEditingOrderUnitSafe}
           />

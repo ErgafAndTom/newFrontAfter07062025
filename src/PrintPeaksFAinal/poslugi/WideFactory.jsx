@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "../../api/axiosInstance";
 import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
 import Materials2 from "./newnomodals/Materials2";
@@ -14,6 +14,7 @@ import ScSection from "./shared/ScSection";
 import ScPricing from "./shared/ScPricing";
 import ScAddButton from "./shared/ScAddButton";
 import ScTabs from "./shared/ScTabs";
+import ServiceSettingsModal from "./shared/ServiceSettingsModal";
 import useServiceTabs from "../../hooks/useServiceTabs";
 import "./shared/sc-base.css";
 
@@ -98,11 +99,18 @@ const WideFactory = ({
   const [error, setError] = useState(null);
 
   const [selectWideFactory, setSelectWideFactory] = useState(DEFAULTS.selectWideFactory);
-  const wfCategory = `WideFactory_${selectWideFactory.replace(/\s+/g, '_')}`;
-  const wfDefaults = CATEGORY_SERVICES[selectWideFactory] || CATEGORY_SERVICES[DEFAULTS.selectWideFactory];
-  const { services, addService, removeService } = useServiceTabs(wfCategory, wfDefaults);
+  const { services, addService, removeService, updateService, reorderServices } = useServiceTabs("WideFactory", [
+    "Баннер", "Наліпки", "Стікера", "Графік роботи",
+    "Афіша", "Плакат", "Реклама", "Таблички",
+  ]);
   const [selectedDruk, setSelectedDruk] = useState(DEFAULTS.selectedDruk);
-  const [isEditServices, setIsEditServices] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+
+  const DEFAULT_SIZES = [
+    { label: "A2", x: 420, y: 594 }, { label: "A1", x: 594, y: 841 },
+    { label: "A0", x: 841, y: 1189 }, { label: "60×90", x: 600, y: 900 },
+    { label: "100×150", x: 1000, y: 1500 }, { label: "200×300", x: 2000, y: 3000 },
+  ];
 
   const [size, setSize] = useState(DEFAULTS.size);
   const [material, setMaterial] = useState(DEFAULTS.material);
@@ -118,6 +126,31 @@ const WideFactory = ({
   const [holesR, setHolesR] = useState(DEFAULTS.holesR);
   const [count, setCount] = useState(DEFAULTS.count);
   const [selectedService, setSelectedService] = useState(DEFAULTS.selectedService);
+
+  const sizeButtons = useMemo(() => {
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+    const sizes = svc?.presets?.sizes;
+    if (Array.isArray(sizes) && sizes.length > 0) return sizes;
+    return DEFAULT_SIZES;
+  }, [services, selectedService]);
+
+  const handleServiceSelect = useCallback((name) => {
+    setSelectedService(name);
+    if (isEdit) return;
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === name);
+    const p = svc?.presets;
+    if (!p) return;
+    if (p.sizeX || p.sizeY) {
+      setSize({ x: p.sizeX ? Number(p.sizeX) : size.x, y: p.sizeY ? Number(p.sizeY) : size.y });
+    }
+    if (p.materialCategory) {
+      setSelectWideFactory(p.materialCategory);
+      const defMat = CATEGORY_DEFAULT_MATERIAL[p.materialCategory];
+      if (defMat) {
+        setMaterial((prev) => ({ ...prev, type: p.materialCategory, material: defMat.material, materialId: defMat.materialId, a: defMat.a }));
+      }
+    }
+  }, [services, isEdit, size]);
 
   const [prices, setPrices] = useState(null);
   const [pricesThis, setPricesThis] = useState(null);
@@ -149,7 +182,8 @@ const WideFactory = ({
   // Sync selectedService when services change
   useEffect(() => {
     if (!services || services.length === 0) return;
-    setSelectedService((prev) => (prev && services.includes(prev)) ? prev : services[0]);
+    const names = services.map((s) => (typeof s === 'string' ? s : s?.name)).filter(Boolean);
+    setSelectedService((prev) => (prev && names.includes(prev)) ? prev : names[0]);
   }, [services]);
 
   // ========== HYDRATION (NEW vs EDIT) ==========
@@ -214,7 +248,8 @@ const WideFactory = ({
     if (opts.plotterCutting) setPlotterCutting(opts.plotterCutting);
     if (opts.montajnaPlivka) setMontajnaPlivka(opts.montajnaPlivka);
 
-    const svc = opts.selectedService || opts.newField1 || editingOrderUnit?.newField1 || newServices[0];
+    const svcRaw = opts.selectedService || opts.newField1 || editingOrderUnit?.newField1 || newServices[0];
+    const svc = typeof svcRaw === 'string' ? svcRaw : (svcRaw?.name || newServices[0]);
     setSelectedService(svc);
 
     if (isEdit) skipInitialPricing.current = true;
@@ -381,28 +416,81 @@ const WideFactory = ({
         )
       }
       tabsContent={
-        <ScTabs
-          services={services}
-          selectedService={selectedService}
-          onSelect={setSelectedService}
-          isEditServices={isEditServices}
-          setIsEditServices={setIsEditServices}
-          onAddService={async () => {
-            const name = prompt("Введіть назву товару");
-            if (!name) return;
-            const added = await addService(name);
-            if (added) setSelectedService(added.name);
-          }}
-          onRemoveService={async (service) => {
-            const sName = typeof service === 'string' ? service : service?.name;
-            const sId = typeof service === 'string' ? null : service?.id;
-            if (sId) await removeService(sId);
-            if (selectedService === sName) {
-              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
-              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
-            }
-          }}
-        />
+        <>
+          <div className="sc-tabs-count-row">
+            <div className="sc-count-inline">
+              <input className="inputsArtem" type="number" value={count} min={1}
+                onChange={(e) => handleChangeCount(e.target.value)}
+                style={{ width: "4.4rem", textAlign: "center" }}
+              />
+              <span className="inputsArtemx" style={{ border: "transparent" }}>шт</span>
+            </div>
+            <ScTabs
+              services={services}
+              selectedService={selectedService}
+              onSelect={handleServiceSelect}
+              isEditServices={false}
+              setIsEditServices={() => {}}
+              onSettingsClick={() => setShowSettings(true)}
+            />
+          </div>
+          <ServiceSettingsModal
+            show={showSettings}
+            onClose={() => setShowSettings(false)}
+            services={services}
+            onAddService={async (name) => {
+              const added = await addService(name);
+              if (added) setSelectedService(added.name);
+            }}
+            onRemoveService={async (service) => {
+              const sId = typeof service === 'string' ? null : service?.id;
+              const sName = typeof service === 'string' ? service : service?.name;
+              if (sId) await removeService(sId);
+              if (selectedService === sName) {
+                const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
+                setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
+              }
+            }}
+            onUpdateService={updateService}
+            onReorderServices={reorderServices}
+            defaultSizes={DEFAULT_SIZES}
+            extraToggles={[]}
+            thicknessOptions={[]}
+            hideSidesOption
+            materialType={selectWideFactory}
+            materialCategories={[
+              { label: "Плівка", value: "Плівка FactoryWide" },
+              { label: "Баннер", value: "Баннер FactoryWide" },
+              { label: "Папір", value: "Папір FactoryWide" },
+              { label: "ПВХ", value: "ПВХ FactoryWide" },
+            ]}
+          />
+          <div className="sc-section sc-section-card" style={{ margin: "0 2rem" }}>
+            <div className="sc-sides sc-size-row">
+              {sizeButtons.map((f) => (
+                <button key={f.label}
+                  className={`sc-side-btn${size.x === f.x && size.y === f.y ? " sc-side-active" : ""}`}
+                  onClick={() => setSize({ x: f.x, y: f.y })}
+                >
+                  <span className="sc-side-text">{f.label}</span>
+                </button>
+              ))}
+              <button className={`sc-side-btn${!sizeButtons.some((f) => size.x === f.x && size.y === f.y) ? " sc-side-active" : ""}`}
+                onClick={() => {}}
+              >
+                <span className="sc-side-text">Свій розмір</span>
+              </button>
+              <div className="sc-size-inline-inputs">
+                <input className="inputsArtem" type="number" value={size.x} min={10}
+                  onChange={(e) => setSize({ x: Number(e.target.value) || 0, y: size.y })} />
+                <span className="sc-size-x">x</span>
+                <input className="inputsArtem" type="number" value={size.y} min={10}
+                  onChange={(e) => setSize({ x: size.x, y: Number(e.target.value) || 0 })} />
+                <span className="sc-size-mm">мм</span>
+              </div>
+            </div>
+          </div>
+        </>
       }
     >
       {/* 1. Тип друку */}
@@ -423,26 +511,7 @@ const WideFactory = ({
         </div>
       </ScSection>
 
-      {/* 2. Кількість + Розмір */}
-      <ScCountSize
-        count={count}
-        onCountChange={handleChangeCount}
-        sizeComponent={
-          <NewNoModalSize
-            size={size}
-            setSize={setSize}
-            prices={prices}
-            type={"WideFactory"}
-            buttonsArr={[]}
-            color={color}
-            setColor={setColor}
-            count={count}
-            setCount={setCount}
-          />
-        }
-      />
-
-      {/* 3. Слайдер розміру */}
+      {/* 2. Слайдер розміру */}
       <ScSection>
         <SliderComponent
           size={size}
@@ -477,6 +546,10 @@ const WideFactory = ({
           selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
           name={"Широкоформатний фотодрук:"}
           buttonsArr={[]}
+          preferredMaterialName={(() => {
+            const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+            return svc?.presets?.materialName || undefined;
+          })()}
         />
       </ScSection>
 

@@ -1,14 +1,21 @@
-import React, {useState, useEffect, useRef, useCallback} from 'react';
+import React, {useState, useEffect, useRef, useCallback, useMemo} from 'react';
 import axios from "../../../../api/axiosInstance";
 
-const CATEGORY_COLORS = {
-    'Матеріали': '#3c60a6',
-    'Зарплата': '#0e935b',
-    'Оренда': '#f5a623',
-    'Логістика': '#6a5acd',
-    'Обладнання': '#ee3c23',
-    'Інше': '#999999',
-};
+const PALETTE = [
+    '#3c60a6', // blue
+    '#0e935b', // green
+    '#f5a623', // orange
+    '#ee3c23', // red
+    '#6a5acd', // purple
+    '#ff7f50', // coral
+    '#00A8C6', // cyan
+    '#ef7aaa', // rose
+    '#1a8fc4', // light-blue
+    '#a67c52', // brown
+    '#7fb800', // lime
+    '#d4af37', // gold
+];
+const FALLBACK_COLOR = '#999999';
 
 const PAY_LABELS = {
     cash: 'Готівка',
@@ -89,6 +96,17 @@ const ExpensesCard = ({data, dateRange, onExpenseAdded, fullWidth}) => {
     // Категорійний мініатюрний бар
     const categories = data?.byCategory ?? [];
 
+    // Map: category name → unique palette color (assigned by sort order)
+    const categoryColorMap = useMemo(() => {
+        const sorted = [...categories].sort((a, b) => (b.total || 0) - (a.total || 0));
+        const map = {};
+        sorted.forEach((c, i) => {
+            map[c.category || 'Інше'] = PALETTE[i % PALETTE.length];
+        });
+        return map;
+    }, [categories]);
+    const colorOf = (cat) => categoryColorMap[cat] || FALLBACK_COLOR;
+
     if (fullWidth) {
         return (
             <div className="dsh-exp-full">
@@ -118,7 +136,7 @@ const ExpensesCard = ({data, dateRange, onExpenseAdded, fullWidth}) => {
                     <div className="dsh-exp-catbar">
                         {categories.map((cat, i) => {
                             const pct = total > 0 ? (cat.total / total) * 100 : 0;
-                            const color = CATEGORY_COLORS[cat.category] || CATEGORY_COLORS['Інше'];
+                            const color = colorOf(cat.category);
                             return (
                                 <div
                                     key={i}
@@ -135,7 +153,7 @@ const ExpensesCard = ({data, dateRange, onExpenseAdded, fullWidth}) => {
                 {categories.length > 0 && (
                     <div className="dsh-exp-legend">
                         {categories.map((cat, i) => {
-                            const color = CATEGORY_COLORS[cat.category] || CATEGORY_COLORS['Інше'];
+                            const color = colorOf(cat.category);
                             return (
                                 <span key={i} className="dsh-exp-legend-item">
                                     <span className="dsh-exp-legend-dot" style={{background: color}}/>
@@ -155,7 +173,7 @@ const ExpensesCard = ({data, dateRange, onExpenseAdded, fullWidth}) => {
                         <div className="dsh-exp-empty">Немає витрат за період</div>
                     )}
                     {expenses.map(exp => {
-                        const color = CATEGORY_COLORS[exp.category] || CATEGORY_COLORS['Інше'];
+                        const color = colorOf(exp.category);
                         const expFiles = exp.files || [];
                         return (
                             <div key={exp.id} className="dsh-exp-item">
@@ -237,7 +255,7 @@ const ExpensesCard = ({data, dateRange, onExpenseAdded, fullWidth}) => {
                 )}
                 {categories.map((cat, i) => {
                     const pct = total > 0 ? (cat.total / total) * 100 : 0;
-                    const color = CATEGORY_COLORS[cat.category] || CATEGORY_COLORS['Інше'];
+                    const color = colorOf(cat.category);
                     return (
                         <div key={i} className="dsh-exp-cat-row">
                             <div className="dsh-exp-cat-bar" style={{width: `${pct}%`, background: color + '12'}}/>

@@ -11,12 +11,12 @@ const ScModal = ({ show, onClose, children, rightContent, tabsContent, errorCont
         style={{ minHeight: "auto", height: "auto", ...modalStyle }}
         onClick={(e) => e.stopPropagation()}
       >
+        {tabsContent}
         <div className={`sc-body${bodyClassName ? ` ${bodyClassName}` : ""}`}>
           <div className="sc-left-sections" style={leftStyle}>{children}</div>
           <div className="sc-right" style={rightStyle}>{rightContent}</div>
         </div>
         {errorContent}
-        {tabsContent}
       </div>
     </div>
   );

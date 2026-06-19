@@ -6,7 +6,7 @@ import {Navigate, useNavigate} from "react-router-dom";
 import "../Poslugy.css";
 
 
-const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, selectArr, size, type, isVishichka, labelMap, paperTypeUse}) => {
+const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, selectArr, size, type, isVishichka, labelMap, paperTypeUse, presetLamType, presetLamThickness, typeOfPosluga}) => {
     const [thisLaminationSizes, setThisLaminationSizes] = useState([]);
     const [error, setError] = useState(null);
     const [load, setLoad] = useState(true);
@@ -28,12 +28,15 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
         const isA4Office = paperTypeUse === "Офісний" && Math.max(size?.x || 0, size?.y || 0) <= 297;
         const laminTypeUse = isA4Office ? "А4" : "А3";
         if (lamination.type === "Не потрібно") {
+            // Якщо є пресет — використати його тип/цупкість, інакше дефолт
+            const initType = presetLamType || "з глянцевим ламінуванням";
+            const initSize = presetLamThickness ? String(presetLamThickness) : "";
             setLamination({
                 ...lamination,
-                type: "з глянцевим ламінуванням",
-                material: "з глянцевим ламінуванням",
+                type: initType,
+                material: initType,
                 materialId: "",
-                size: "",
+                size: initSize,
                 typeUse: laminTypeUse,
             })
         } else {
@@ -71,12 +74,16 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
                 reverse: false
             },
             type: type,
+            typeOfPosluga: typeOfPosluga,
             material: {
                 type: "Ламінування",
                 material: lamination.material,
                 materialId: lamination.materialId,
                 thickness: lamination.size,
-                typeUse: (paperTypeUse === "Офісний" && Math.max(size?.x || 0, size?.y || 0) <= 297) ? "А4" : "А3"
+                typeUse: paperTypeUse === "А5_force" ? "А5"
+                    : paperTypeUse === "А4_force" ? "А4"
+                    : paperTypeUse === "А3_force" ? "А3"
+                    : (paperTypeUse === "Офісний" && Math.max(size?.x || 0, size?.y || 0) <= 297) ? "А4" : "А3"
             },
             size: size,
         }
@@ -91,12 +98,14 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
               if(isVishichka){
                 const filteredData = response.data.rows?.filter(u => u.thickness < 249);
                 setThisLaminationSizes(filteredData)
-                if(response.data && response.data.rows && response.data.rows[0]){
+                if(filteredData && filteredData[0]){
+                  // Зберегти попередньо вибрану цупкість, якщо вона є серед варіантів
+                  const preselected = filteredData.find(u => String(u.thickness) === String(lamination.size));
+                  const chosen = preselected || filteredData[0];
                   setLamination({
                     ...lamination,
-                    // material: response.data.rows[0].name,
-                    materialId: filteredData[0].id,
-                    size: `${filteredData[0].thickness}`
+                    materialId: chosen.id,
+                    size: `${chosen.thickness}`
                   })
                 } else {
                   setThisLaminationSizes([])
@@ -108,11 +117,13 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
               } else {
                 setThisLaminationSizes(response.data.rows)
                 if(response.data && response.data.rows && response.data.rows[0]){
+                  // Зберегти попередньо вибрану цупкість, якщо вона є серед варіантів
+                  const preselected = response.data.rows.find(u => String(u.thickness) === String(lamination.size));
+                  const chosen = preselected || response.data.rows[0];
                   setLamination({
                     ...lamination,
-                    // material: response.data.rows[0].name,
-                    materialId: response.data.rows[0].id,
-                    size: `${response.data.rows[0].thickness}`
+                    materialId: chosen.id,
+                    size: `${chosen.thickness}`
                   })
                 } else {
                   setThisLaminationSizes([])

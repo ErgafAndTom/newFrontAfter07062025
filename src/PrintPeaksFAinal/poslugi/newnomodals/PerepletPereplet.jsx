@@ -14,7 +14,7 @@ import './PerepletSize';
 
 const PEREPLET_ORDER = ["на скобу", "на євроскобу", "на пластик", "на пружину", "твердим переплітом", "на календар"];
 
-const PerepletPereplet = ({pereplet, setPereplet, prices, buttonsArr, selectArr, size, setCount, type, defaultt}) => {
+const PerepletPereplet = ({pereplet, setPereplet, prices, buttonsArr, selectArr, size, setCount, type, defaultt, hideSizeButtons, allowedTypes}) => {
     const [thisPerepletVariants, setThisPerepletVariants] = useState([]);
     const navigate = useNavigate();
 
@@ -60,14 +60,24 @@ const PerepletPereplet = ({pereplet, setPereplet, prices, buttonsArr, selectArr,
         }
         axios.post(`/materials/NotAll`, data)
             .then(response => {
-                // console.log(response.data);
-                setThisPerepletVariants(response.data.rows)
-                if (response.data.rows[2]) {
-                    setPereplet({
-                        ...pereplet,
-                        material: response.data.rows[2].name,
-                        materialId: response.data.rows[2].id,
-                    })
+                const rows = response.data.rows || [];
+                setThisPerepletVariants(rows);
+                // Якщо передано allowedTypes — підбираємо дефолтний матеріал з дозволених
+                const filtered = allowedTypes ? rows.filter((r) => allowedTypes.includes(r.name)) : rows;
+                const currentExists = filtered.some((r) => r.id === pereplet.materialId);
+                if (!currentExists) {
+                    // Спершу пробуємо знайти за назвою (з пресету)
+                    const byName = pereplet.material
+                        ? filtered.find((r) => r.name?.toLowerCase() === String(pereplet.material).toLowerCase())
+                        : null;
+                    const fallback = byName || (allowedTypes ? filtered[0] : rows[2]);
+                    if (fallback) {
+                        setPereplet({
+                            ...pereplet,
+                            material: fallback.name,
+                            materialId: fallback.id,
+                        });
+                    }
                 }
             })
             .catch(error => {
@@ -87,6 +97,7 @@ const PerepletPereplet = ({pereplet, setPereplet, prices, buttonsArr, selectArr,
 
                     {pereplet.type !== "Не потрібно" ? (
                         <div style={{ display: 'flex', flexDirection: "column", gap: "0.5vw" }}>
+                            {!hideSizeButtons && (
                             <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                                 <button
                                     className={"Брошурування до 120 аркушів" === pereplet.typeUse ? 'buttonsArtem buttonsArtemActive' : 'buttonsArtem'}
@@ -103,8 +114,11 @@ const PerepletPereplet = ({pereplet, setPereplet, prices, buttonsArr, selectArr,
                                     <div>від 120 до 280 аркушів</div>
                                 </button>
                             </div>
+                            )}
                             <div className="d-flex" style={{ flexWrap: "wrap" }}>
-                                {[...thisPerepletVariants].sort((a, b) => {
+                                {[...thisPerepletVariants]
+                                  .filter((item) => !allowedTypes || allowedTypes.includes(item.name))
+                                  .sort((a, b) => {
                                     const ia = PEREPLET_ORDER.indexOf(a.name);
                                     const ib = PEREPLET_ORDER.indexOf(b.name);
                                     return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);

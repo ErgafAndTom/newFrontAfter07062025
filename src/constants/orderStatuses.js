@@ -15,7 +15,7 @@ export const ORDER_STATUSES = {
 
 export const ORDER_STATUS_LABELS = {
   '-1': 'Скасоване',
-  '0':  'Обробка',
+  '0':  'Скіко',
   '1':  'Друк',
   '2':  'Постпрес',
   '3':  'Готово',

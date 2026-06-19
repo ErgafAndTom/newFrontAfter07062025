@@ -16,6 +16,7 @@ import ScToggleSection from "./shared/ScToggleSection";
 import ScPricing from "./shared/ScPricing";
 import ScAddButton from "./shared/ScAddButton";
 import ScTabs from "./shared/ScTabs";
+import ServiceSettingsModal from "./shared/ServiceSettingsModal";
 import useServiceTabs from "../../hooks/useServiceTabs";
 
 import "./Poslugy.css";
@@ -187,10 +188,27 @@ const Vishichka = ({
   });
   const [selectedService, setSelectedService] = useState("Наліпки");
   const [isEditServices, setIsEditServices] = useState(false);
-  const { services, addService, removeService } = useServiceTabs("Vishichka", [
+  const [showSettings, setShowSettings] = useState(false);
+  const { services, addService, removeService, updateService, reorderServices, loading: servicesLoading } = useServiceTabs("Vishichka", [
     "Наліпки", "Стікери", "Стікерпак", "Стікерсет", "Бірки",
     "Листівки", "Коробочки", "Фішки", "Цінник", "Меню",
   ]);
+
+  const DEFAULT_SIZES = [
+    { label: "А6", x: 105, y: 148 }, { label: "A5", x: 148, y: 210 },
+    { label: "A4", x: 210, y: 297 }, { label: "А3", x: 297, y: 420 },
+    { label: "SR A3", x: 310, y: 440 }, { label: "90×50", x: 90, y: 50 },
+    { label: "85×55", x: 85, y: 55 }, { label: "100×150", x: 100, y: 150 },
+    { label: "50×50", x: 50, y: 50 }, { label: "100×100", x: 100, y: 100 },
+  ];
+
+  // Розміри з пресету поточної категорії (або дефолтні)
+  const sizeButtons = useMemo(() => {
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+    const sizes = svc?.presets?.sizes;
+    if (Array.isArray(sizes) && sizes.length > 0) return sizes;
+    return DEFAULT_SIZES;
+  }, [services, selectedService]);
 
   const setVishichkaSafe = useCallback((nextOrUpdater) => {
     setVishichka((prev) => {
@@ -205,6 +223,84 @@ const Vishichka = ({
   };
 
   const handleChangeCount = (v) => setCount(safeNum(v, 1));
+
+  // Застосувати пресети при виборі категорії
+  const handleServiceSelect = useCallback((name) => {
+    setSelectedService(name);
+    if (isEdit) return; // Не застосовуємо пресети при редагуванні
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === name);
+    const p = svc?.presets;
+    if (!p) return;
+
+    if (p.sizeX || p.sizeY) {
+      setSize((prev) => ({
+        x: p.sizeX ? Number(p.sizeX) : prev.x,
+        y: p.sizeY ? Number(p.sizeY) : prev.y,
+      }));
+    }
+    if (p.thickness) {
+      const isSelf = p.thickness === "Самоклеючі";
+      setMaterial((prev) => ({
+        ...prev,
+        type: isSelf ? "Плівка" : "Папір",
+        thickness: p.thickness,
+        typeUse: p.thickness,
+        // Скидаємо вибір щоб Materials2 перезавантажив список
+        material: "",
+        materialId: 0,
+        a: "",
+        x: null,
+        y: null,
+      }));
+    }
+    // materialName застосовується через preferredMaterialName в Materials2
+    if (p.sides) {
+      setColor((prev) => ({ ...prev, sides: p.sides }));
+    }
+    if (p.vishichkaType) {
+      const found = Object.values(VISHICHKA_MAP).find((v) => v.typeUse === p.vishichkaType);
+      if (found) {
+        setVishichkaSafe({
+          type: "vishichka",
+          thickness: vishichka.thickness,
+          material: found.label,
+          materialId: "",
+          typeUse: found.typeUse,
+        });
+      }
+    }
+    if (p.plivka !== undefined) {
+      if (p.plivka) {
+        setPlivkaMontajna((prev) => ({
+          ...prev,
+          material: p.plivkaName || "З монтажною плівкою",
+          typeUse: "з монтажною плівкою",
+          materialId: p.plivkaName ? 0 : prev.materialId, // скидаємо ID щоб перезавантажити
+        }));
+      } else {
+        setPlivkaMontajna(DEFAULTS.plivkaMontajna);
+      }
+    }
+    if (p.lamination !== undefined) {
+      if (p.lamination) {
+        const lamType = p.laminationType || "з глянцевим ламінуванням";
+        const isOn = p.laminationDefault !== false; // default true
+        if (isOn) {
+          setLamination({
+            type: lamType,
+            material: lamType,
+            materialId: "",
+            size: p.laminationThickness ? String(p.laminationThickness) : "",
+            typeUse: "А3",
+          });
+        } else {
+          setLamination(DEFAULTS.lamination); // OFF за замовчуванням, але секція видима
+        }
+      } else {
+        setLamination(DEFAULTS.lamination);
+      }
+    }
+  }, [services, isEdit, vishichka, setVishichkaSafe]);
 
   /**
    * ✅ ГОЛОВНЕ: кожен раз при відкритті модалки
@@ -475,6 +571,21 @@ const Vishichka = ({
 
   /* ===================== PRICING DATA ===================== */
 
+  // Визначити чи поточна категорія ховає плівку/ламінацію
+  const [hidePlivka, setHidePlivka] = useState(false);
+  const [hideLamination, setHideLamination] = useState(false);
+
+  useEffect(() => {
+    if (servicesLoading) return; // чекаємо завантаження з API
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+    const p = svc?.presets;
+    const hp = p?.plivka === false;
+    const hl = p?.lamination === false;
+    console.log('[Vishichka] hide effect:', selectedService, 'presets:', JSON.stringify(p), 'hidePlivka:', hp, 'hideLam:', hl);
+    setHidePlivka(hp);
+    setHideLamination(hl);
+  }, [services, selectedService, servicesLoading]);
+
   const sc = pricesThis?.sheetCount || 0;
 
   const pricingLines = [
@@ -512,28 +623,92 @@ const Vishichka = ({
         </>
       }
       tabsContent={
-        <ScTabs
-          services={services}
-          selectedService={selectedService}
-          onSelect={setSelectedService}
-          isEditServices={isEditServices}
-          setIsEditServices={setIsEditServices}
-          onAddService={async () => {
-            const name = prompt("Введіть назву товару");
-            if (!name) return;
-            const added = await addService(name);
-            if (added) setSelectedService(added.name);
-          }}
-          onRemoveService={async (service) => {
-            const sName = typeof service === 'string' ? service : service?.name;
-            const sId = typeof service === 'string' ? null : service?.id;
-            if (sId) await removeService(sId);
-            if (selectedService === sName) {
-              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
-              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
-            }
-          }}
-        />
+        <>
+          <div className="sc-tabs-count-row">
+            <div className="sc-count-inline">
+              <input
+                className="inputsArtem"
+                type="number"
+                value={count}
+                min={1}
+                onChange={(e) => handleChangeCount(e.target.value)}
+                style={{ width: "4.4rem", textAlign: "center" }}
+              />
+              <span className="inputsArtemx" style={{ border: "transparent" }}>шт</span>
+            </div>
+            <ScTabs
+              services={services}
+              selectedService={selectedService}
+              onSelect={handleServiceSelect}
+              isEditServices={false}
+              setIsEditServices={() => {}}
+              onSettingsClick={() => setShowSettings(true)}
+            />
+          </div>
+          <ServiceSettingsModal
+            show={showSettings}
+            onClose={() => setShowSettings(false)}
+            services={services}
+            onAddService={async (name) => {
+              const added = await addService(name);
+              if (added) setSelectedService(added.name);
+            }}
+            onRemoveService={async (service) => {
+              const sId = typeof service === 'string' ? null : service?.id;
+              const sName = typeof service === 'string' ? service : service?.name;
+              if (sId) await removeService(sId);
+              if (selectedService === sName) {
+                const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
+                setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
+              }
+            }}
+            onUpdateService={updateService}
+            onReorderServices={reorderServices}
+            defaultSizes={DEFAULT_SIZES}
+          />
+          {/* Розміри — під табами */}
+          <div className="sc-section sc-section-card" style={{ margin: "0 2rem" }}>
+            <div className="sc-sides sc-size-row">
+              {sizeButtons.map((f) => (
+                <button
+                  key={f.label}
+                  className={`sc-side-btn${size.x === f.x && size.y === f.y ? " sc-side-active" : ""}`}
+                  onClick={() => setSize({ x: f.x, y: f.y })}
+                >
+                  <span className="sc-side-text">{f.label}</span>
+                </button>
+              ))}
+              <button
+                className={`sc-side-btn${
+                  !sizeButtons.some((f) => size.x === f.x && size.y === f.y) ? " sc-side-active" : ""
+                }`}
+                onClick={() => {}}
+              >
+                <span className="sc-side-text">Свій розмір</span>
+              </button>
+              <div className="sc-size-inline-inputs">
+                <input
+                  className="inputsArtem"
+                  type="number"
+                  value={size.x}
+                  min={10}
+                  max={445}
+                  onChange={(e) => setSize({ x: Number(e.target.value) || 0, y: size.y })}
+                />
+                <span className="sc-size-x">x</span>
+                <input
+                  className="inputsArtem"
+                  type="number"
+                  value={size.y}
+                  min={10}
+                  max={445}
+                  onChange={(e) => setSize({ x: size.x, y: Number(e.target.value) || 0 })}
+                />
+                <span className="sc-size-mm">мм</span>
+              </div>
+            </div>
+          </div>
+        </>
       }
       errorContent={
         typeof error === "string"
@@ -543,26 +718,6 @@ const Vishichka = ({
             : null
       }
     >
-      {/* 1. Кількість + Розмір */}
-      <ScCountSize
-        count={count}
-        onCountChange={handleChangeCount}
-        sizeComponent={
-          <NewNoModalSize
-            size={size}
-            setSize={setSize}
-            prices={prices}
-            type="Vishichka"
-            buttonsArr={[]}
-            color={color}
-            setColor={setColor}
-            count={count}
-            setCount={setCount}
-            defaultt="А3 (297 х 420 мм)"
-          />
-        }
-      />
-
       {/* 2. Сторонність */}
       <ScSides
         value={color.sides}
@@ -575,7 +730,7 @@ const Vishichka = ({
       />
 
       {/* 3. Матеріал */}
-      <ScSection style={{ position: "relative", zIndex: 60 }}>
+      <ScSection style={{ position: "relative", zIndex: 20 }}>
         <Materials2
           material={material}
           setMaterial={setMaterial}
@@ -589,11 +744,15 @@ const Vishichka = ({
           typeUse={null}
           editingOrderUnit={editingOrderUnit}
           autoSelectFirst={false}
+          preferredMaterialName={(() => {
+            const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+            return svc?.presets?.materialName || undefined;
+          })()}
         />
       </ScSection>
 
       {/* 4. Плотерна порізка */}
-      <ScSection style={{ position: "relative", zIndex: 50, marginTop: 0 }}>
+      <ScSection style={{ position: "relative", zIndex: 10, marginTop: 0 }}>
         <div className="sc-row d-flex flex-row">
           {[
             { key: "SHEET_CUT", label: "Висічка" },
@@ -620,35 +779,40 @@ const Vishichka = ({
       </ScSection>
 
       {/* 5. Монтажна плівка */}
-      <ScSection style={{ position: "relative", zIndex: 40, marginTop: 0 }}>
-        <PlivkaMontajna
-          size={size}
-          plivkaMontajna={plivkaMontajna}
-          setPlivkaMontajna={setPlivkaMontajna}
-          vishichka={vishichka}
-          setVishichka={setVishichkaSafe}
-          prices={prices}
-          buttonsArr={[
-            VISHICHKA_MAP.SHEET_CUT.label,
-            VISHICHKA_MAP.STICKERPACK.label,
-            VISHICHKA_MAP.SINGLE_ITEMS.label,
-          ]}
-        />
-      </ScSection>
+      {!hidePlivka && (
+        <ScSection style={{ position: "relative", zIndex: 40, marginTop: 0 }}>
+          <PlivkaMontajna
+            size={size}
+            plivkaMontajna={plivkaMontajna}
+            setPlivkaMontajna={setPlivkaMontajna}
+            vishichka={vishichka}
+            setVishichka={setVishichkaSafe}
+            prices={prices}
+            buttonsArr={[
+              VISHICHKA_MAP.SHEET_CUT.label,
+              VISHICHKA_MAP.STICKERPACK.label,
+              VISHICHKA_MAP.SINGLE_ITEMS.label,
+            ]}
+          />
+        </ScSection>
+      )}
 
       {/* 6. Ламінування */}
-      <ScToggleSection
+      {!hideLamination && <ScToggleSection
         label="Ламінування"
         title="Ламінування"
         isOn={lamination.type !== "Не потрібно"}
         onToggle={() => {
           if (lamination.type === "Не потрібно") {
+            const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+            const presetLamType = svc?.presets?.laminationType || "з глянцевим ламінуванням";
+            const presetLamThick = svc?.presets?.laminationThickness ? String(svc.presets.laminationThickness) : "";
             setLamination({
               ...lamination,
-              type: "з глянцевим ламінуванням",
-              material: "з глянцевим ламінуванням",
+              type: presetLamType,
+              material: presetLamType,
               materialId: "",
-              size: "",
+              size: presetLamThick,
               typeUse: "А3",
             });
           } else {
@@ -670,6 +834,8 @@ const Vishichka = ({
           size={size}
           type="SheetCut"
           isVishichka={true}
+          presetLamType={services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService)?.presets?.laminationType}
+          presetLamThickness={services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService)?.presets?.laminationThickness}
           buttonsArr={[
             "з глянцевим ламінуванням",
             "з матовим ламінуванням",
@@ -684,7 +850,7 @@ const Vishichka = ({
             "з холодним матовим ламінуванням": "холодне",
           }}
         />
-      </ScToggleSection>
+      </ScToggleSection>}
     </ScModal>
   );
 };

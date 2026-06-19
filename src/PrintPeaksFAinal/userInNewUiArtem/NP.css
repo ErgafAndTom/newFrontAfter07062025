@@ -29,6 +29,32 @@
   background: var(--adminred, #DA291C);
 }
 
+.np-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.4rem 0.6rem 0;
+  flex-shrink: 0;
+}
+
+.np-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--admingrey, #666666);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.2rem 0.4rem;
+  opacity: 0.6;
+  transition: opacity 0.15s, color 0.15s;
+  border-radius: 0;
+}
+
+.np-modal-close:hover {
+  opacity: 1;
+  color: var(--adminred, #ee3c23);
+}
+
 /* Body */
 .np-body {
   padding: 0.8rem 1rem;

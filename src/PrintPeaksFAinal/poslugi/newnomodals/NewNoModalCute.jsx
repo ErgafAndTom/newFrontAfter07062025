@@ -45,7 +45,7 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
                 rightTop: false,
                 rightBottom: false,
                 leftBottom: false,
-                radius: cute.radius,
+                radius: cuteLocal.radius,
             })
         }
     }
@@ -56,7 +56,7 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
             rightTop: cuteLocal.rightTop,
             rightBottom: cuteLocal.rightBottom,
             leftBottom: cuteLocal.leftBottom,
-            radius: cute.radius,
+            radius: cuteLocal.radius,
         })
         if (cuteLocal.leftTop) {
             setCute(cute - 1)
@@ -70,7 +70,7 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
             rightTop: !cuteLocal.rightTop,
             rightBottom: cuteLocal.rightBottom,
             leftBottom: cuteLocal.leftBottom,
-            radius: cute.radius,
+            radius: cuteLocal.radius,
         })
         if (cuteLocal.rightTop) {
             setCute(cute - 1)
@@ -84,7 +84,7 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
             rightTop: cuteLocal.rightTop,
             rightBottom: !cuteLocal.rightBottom,
             leftBottom: cuteLocal.leftBottom,
-            radius: cute.radius,
+            radius: cuteLocal.radius,
         })
         if (cuteLocal.rightBottom) {
             setCute(cute - 1)
@@ -98,7 +98,7 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
             rightTop: cuteLocal.rightTop,
             rightBottom: cuteLocal.rightBottom,
             leftBottom: !cuteLocal.leftBottom,
-            radius: cute.radius,
+            radius: cuteLocal.radius,
         })
         if (cuteLocal.leftBottom) {
             setCute(cute - 1)

@@ -4,7 +4,7 @@ import whiteSVG from "../../../whiteSVG.svg";
 import Form from "react-bootstrap/Form";
 
 const STATUS_LABELS = {
-    '0': 'Обробка', '1': 'Друк', '2': 'Постпрес',
+    '0': 'Скіко', '1': 'Друк', '2': 'Постпрес',
     '3': 'Готово', '4': 'Отримано', '-1': 'Скасоване',
 };
 

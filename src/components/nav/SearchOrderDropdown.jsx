@@ -7,7 +7,7 @@ import "./SearchOrderDropdown.css";
 
 const STATUS_MAP = {
   '-1': { label: 'Скасоване',  color: 'var(--adminred)' },
-  '0':  { label: 'Обробка',    color: 'var(--adminorange)' },
+  '0':  { label: 'Скіко',      color: 'var(--adminorange)' },
   '1':  { label: 'Друк',       color: 'var(--adminblue)' },
   '2':  { label: 'Постпрес',   color: 'var(--adminpurple)' },
   '3':  { label: 'Готово',     color: 'var(--admingreen)' },

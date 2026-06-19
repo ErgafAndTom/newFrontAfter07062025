@@ -10,7 +10,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const STATUS_MAP = {
     '-1': {label: 'Скасоване', color: '#ee3c23'},
-    '0':  {label: 'Обробка', color: '#b0b0b0'},
+    '0':  {label: 'Скіко', color: '#b0b0b0'},
     '1':  {label: 'Друк', color: '#f5a623'},
     '2':  {label: 'Постпрес', color: '#3c60a6'},
     '3':  {label: 'Готово', color: '#0e935b'},

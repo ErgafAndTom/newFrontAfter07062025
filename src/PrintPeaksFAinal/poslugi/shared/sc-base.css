@@ -712,7 +712,6 @@ label.switch:has(input:checked) {
   left: 0;
   right: 0;
   z-index: 99999;
-  max-height: 30vh;
   overflow-y: auto;
   background: var(--adminfon) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -1150,6 +1149,57 @@ label.switch:has(input:checked) {
   margin-top: 4px;
 }
 
+/* --- tabs + count row --- */
+.sc-tabs-count-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.sc-tabs-count-row .sc-tabs {
+  flex: 1;
+  margin-top: 0 !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+.sc-count-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 8px 0.5rem 0 2rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sc-count-inline .inputsArtem {
+  font-size: var(--font-size-m, 0.95rem);
+}
+
+/* --- size buttons row (reuses sc-sides / sc-side-btn styling) --- */
+.sc-size-row {
+  flex-wrap: nowrap;
+  width: 100%;
+}
+.sc-size-row .sc-side-btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.sc-size-inline-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
+}
+.sc-size-inline-inputs .inputsArtem {
+  width: 3.5rem;
+  text-align: center;
+  font-size: var(--font-size-s, 0.85rem);
+}
+.sc-size-x, .sc-size-mm {
+  font-size: var(--font-size-s, 0.85rem);
+  color: var(--admingrey, #666);
+}
+
 /* --- product tabs (bottom) --- */
 .sc-wrap .sc-tabs {
   display: flex;
@@ -1269,6 +1319,26 @@ label.switch:has(input:checked) {
 .sc-wrap .sc-tabs .adminButtonAdd::before,
 .sc-wrap .sc-tabs .adminButtonAdd::after {
   display: none !important;
+}
+
+/* --- custom color via CSS variable --sc-tab-color --- */
+.sc-wrap .sc-tabs .adminButtonAdd[style*="--sc-tab-color"] {
+  border-bottom-color: var(--sc-tab-color) !important;
+  color: var(--sc-tab-color) !important;
+  background: var(--sc-tab-bg) !important;
+  background-color: var(--sc-tab-bg) !important;
+}
+.sc-wrap .sc-tabs .adminButtonAdd[style*="--sc-tab-color"] .sc-tab-text {
+  color: var(--sc-tab-color) !important;
+}
+.sc-wrap .sc-tabs .adminButtonAdd-active[style*="--sc-tab-color"] {
+  border-bottom-color: var(--sc-tab-color) !important;
+}
+.sc-wrap .sc-tabs .adminButtonAdd-active[style*="--sc-tab-color"]:hover {
+  border-color: var(--sc-tab-color) !important;
+}
+.sc-wrap .sc-tabs .adminButtonAdd-active[style*="--sc-tab-color"]:hover .sc-tab-text {
+  color: var(--sc-tab-color) !important;
 }
 
 /* --- settings button (⚙️) --- */

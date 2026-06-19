@@ -1,6 +1,8 @@
 // Переклади назв стовпців для таблиці матеріалів
 export const columnTranslations = {
     id: "ID",
+    article: "Штрих-код",
+    articleCode: "Артикул",
     name: "Назва",
     type: "Тип",
     typeUse: "Використання",

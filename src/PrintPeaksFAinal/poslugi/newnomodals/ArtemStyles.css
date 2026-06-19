@@ -403,17 +403,21 @@ font-size: 1.3vh;
   background: #ebebe6;
   border-radius: 0;
   z-index: 100;
-  max-height: 65vh;
   overflow-y: auto;
   box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.4);
 }
 .custom-select-dropdown::-webkit-scrollbar {
-  width: 0px;
-  background: #e0e0e0;
+  width: 4px;
+  background: transparent;
+}
+.custom-select-dropdown::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
 }
 .custom-select-dropdown {
-  scrollbar-width: none;
-  background: #e0e0e0;/* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  background: #e0e0e0;
 }
 .custom-option {
   white-space: nowrap;

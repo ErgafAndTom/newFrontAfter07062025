@@ -15,6 +15,7 @@ import PrivatBankAccounts from "./PrivatBankAccounts";
 import Graph2DForBD from "../../Graph2DForBD";
 import Shifts from "../../checkbox/shifts/Shifts";
 import DesignSettings from "./DesignSettings";
+import InterfaceSettings from "./InterfaceSettings";
 import NiimbotSettings from "./NiimbotSettings";
 import NovaPoshtaSettings from "./NovaPoshtaSettings";
 import UklonSettings from "./UklonSettings";
@@ -112,6 +113,7 @@ function ClientUserProfile() {
       {/* Tabs */}
       <div className="pp-tabs">
         <button className={`pp-tab-btn${activeTab === 'design'              ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('design')}>Дизайн</button>
+        <button className={`pp-tab-btn${activeTab === 'interface'           ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('interface')}>Калькулятори</button>
         <button className={`pp-tab-btn${activeTab === 'niimbot'             ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('niimbot')}>Штрих-код</button>
         <button className={`pp-tab-btn${activeTab === 'novaposhta'          ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('novaposhta')}>Нова Пошта</button>
         <button className={`pp-tab-btn${activeTab === 'uklon'              ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('uklon')}>Уклон</button>
@@ -136,6 +138,7 @@ function ClientUserProfile() {
 
       <div className="pp-content">
         {activeTab === 'design'              && <DesignSettings/>}
+        {activeTab === 'interface'           && <InterfaceSettings/>}
         {activeTab === 'niimbot'             && <NiimbotSettings/>}
         {activeTab === 'novaposhta'          && <NovaPoshtaSettings/>}
         {activeTab === 'uklon'               && <UklonSettings/>}

@@ -10,7 +10,7 @@ const FiltrOrders = ({
 }) => {
 
   const STATUS_ITEMS = [
-    ["status0",         "Обробка",    "s0"],
+    ["status0",         "Скіко",      "s0"],
     ["status1",         "Друк",       "s1"],
     ["status2",         "Постпрес",   "s2"],
     ["status3",         "Готово",     "s3"],

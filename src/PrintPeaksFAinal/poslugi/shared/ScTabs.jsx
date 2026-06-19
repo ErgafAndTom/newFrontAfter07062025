@@ -1,8 +1,9 @@
 import React from "react";
 
-// service може бути рядком або об'єктом {id, name}
+// service може бути рядком або об'єктом {id, name, color, presets}
 const getServiceName = (s) => (typeof s === 'string' ? s : s?.name || '');
 const getServiceKey = (s) => (typeof s === 'string' ? s : s?.id ?? s?.name);
+const getServiceColor = (s) => (typeof s === 'string' ? null : s?.color || null);
 
 const ScTabs = ({
   services,
@@ -12,20 +13,35 @@ const ScTabs = ({
   setIsEditServices,
   onAddService,
   onRemoveService,
+  onSettingsClick,
   settingsButton,
 }) => (
   <div className="sc-tabs">
     {services.map((service) => {
       const name = getServiceName(service);
       const key = getServiceKey(service);
+      const color = getServiceColor(service);
+      const isActive = selectedService === name;
+
+      // Стиль кнопки з кастомним кольором (через CSS variables щоб перекрити !important)
+      const btnStyle = {
+        fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)",
+        minWidth: "2vw",
+        height: "2vh",
+      };
+      if (color) {
+        btnStyle["--sc-tab-color"] = color;
+        btnStyle["--sc-tab-bg"] = `${color}18`;
+      }
+
       return (
         <div
           key={key}
           style={{ position: "relative", display: "inline-flex", alignItems: "center" }}
         >
           <button
-            className={`btn ${selectedService === name ? "adminButtonAdd" : "adminButtonAdd-active"}`}
-            style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
+            className={`btn ${isActive ? "adminButtonAdd" : "adminButtonAdd-active"}`}
+            style={btnStyle}
             onClick={() => onSelect(name)}
           >
             <span className="sc-tab-text">{name}</span>
@@ -81,7 +97,13 @@ const ScTabs = ({
       <button
         className={`btn ${isEditServices ? "adminButtonAdd" : "adminButtonAdd-active"}`}
         style={{ fontSize: "clamp(0.7rem, 0.7vh, 2.5vh)", minWidth: "2vw", height: "2vh" }}
-        onClick={() => setIsEditServices((v) => !v)}
+        onClick={() => {
+          if (onSettingsClick) {
+            onSettingsClick();
+          } else {
+            setIsEditServices((v) => !v);
+          }
+        }}
         title={isEditServices ? "Завершити редагування" : "Налаштування назв товарів"}
       >
         <span className="sc-tab-text">{isEditServices ? "\u2714\uFE0F" : "\u2699\uFE0F"}</span>

@@ -96,8 +96,16 @@ export default function TelegramBotAkkAndMedias() {
   const allContactsRef = useRef([]);
   const [contactsSearch, setContactsSearch] = useState("");
   const [contactsLoading, setContactsLoading] = useState(false);
+  const [contactsError, setContactsError] = useState(null);
   const [contactsSort, setContactsSort] = useState("newest"); // "newest" | "oldest"
   const [authSending, setAuthSending] = useState(false);
+  const [codeDelivery, setCodeDelivery] = useState(null); // {typeHuman, isCodeViaApp, canResend}
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [shareInfo, setShareInfo] = useState(null); // {hasOwnAccount, isOwnShared, sharedAccount}
+  const [isSharedSession, setIsSharedSession] = useState(false);
+  const [qrUrl, setQrUrl] = useState(null);
+  const [qrExpiresIn, setQrExpiresIn] = useState(0);
+  const qrPollingRef = useRef(false);
   const contactsSearchTimer = useRef(null);
 
   const [connectionLogs, setConnectionLogs] = useState([]);
@@ -110,6 +118,12 @@ export default function TelegramBotAkkAndMedias() {
   });
 
   const messagesEndRef = useRef(null);
+
+  // Ref щоб long-poll loop читав актуальний currentChatId без рестарту
+  const currentChatIdRef = useRef(null);
+  useEffect(() => {
+    currentChatIdRef.current = currentChatId;
+  }, [currentChatId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -127,6 +141,8 @@ export default function TelegramBotAkkAndMedias() {
         if (j.ready === true && j.state === "AUTHENTICATED") {
           setAuthState("ready");
           setThisUser(j.me);
+          setIsSharedSession(!!j.isShared);
+          loadShareInfo();
 
           // normalize chats
           let normalized = [];
@@ -172,9 +188,13 @@ export default function TelegramBotAkkAndMedias() {
   }, []);
 
   // =====================================================================
-  // LOGS POLLING (до авторизации)
+  // LOGS POLLING (тільки під час авторизації)
+  // Після того як authState === "ready" — припиняємо, щоб не довбити бекенд
+  // QR має свій власний polling — теж не запускаємо logs
   // =====================================================================
   useEffect(() => {
+    if (authState === "ready" || authState === "loading" || authState === "qr") return;
+
     let mounted = true;
 
     async function pollLogs() {
@@ -188,43 +208,268 @@ export default function TelegramBotAkkAndMedias() {
     }
 
     pollLogs();
+    return () => (mounted = false);
+  }, [authState]);
 
-    async function pollLogs2() {
+  // =====================================================================
+  // REAL-TIME: long-poll /updates після авторизації
+  // Бекенд тримає запит до 25с, повертає одразу як з'являється update.
+  // Затримка доставки <1с, без агресивного polling.
+  // =====================================================================
+  useEffect(() => {
+    if (authState !== "ready") return;
+    let mounted = true;
+
+    async function pollUpdates() {
       while (mounted) {
         try {
-          const { data: j2 } = await axios.get(API + "/login/statusInitProgress");
-          if (j2.initProgress) {
-            setInitProgress({
-              ...initProgress,
-              stage: j2.initProgress.stage || initProgress.stage,         // название текущего этапа
-              current: j2.initProgress.current || initProgress.current,            // сколько итераций выполнено
-              total: j2.initProgress.total || initProgress.total,              // всего итераций
-              percent: j2.initProgress.percent || initProgress.percent,            // %
-              details: j2.initProgress.details || initProgress.details
-            });
-          }
+          const { data: j } = await axios.get(API + "/updates", { timeout: 35000 });
+          if (!mounted) return;
 
-        } catch {}
-        await new Promise((r) => setTimeout(r, 30));
+          if (j.ok && Array.isArray(j.updates) && j.updates.length > 0) {
+            // Групуємо updates по chatId щоб робити мінімум setChats викликів
+            const byChat = new Map();
+            for (const upd of j.updates) {
+              const id = String(upd.chatId);
+              if (!byChat.has(id)) byChat.set(id, []);
+              byChat.get(id).push(upd);
+            }
+
+            setChats((prev) => {
+              let next = prev;
+              for (const [chatIdStr, updates] of byChat) {
+                const idx = next.findIndex(c => String(c.chatId) === chatIdStr);
+                if (idx === -1) continue; // невідомий чат — підтягнеться на наступному loadInitial
+
+                const chat = next[idx];
+                const lastUpd = updates[updates.length - 1];
+                const newLastMessage = {
+                  text: lastUpd.text || lastUpd.mediaType || "",
+                  date: lastUpd.timestamp ? new Date(lastUpd.timestamp).getTime() : Date.now()
+                };
+
+                // Якщо чат відкритий — дописати повідомлення в кінець
+                const isOpen = String(currentChatIdRef.current) === chatIdStr;
+                const newMsgs = isOpen
+                  ? updates.map(u => ({
+                      sender: u.sender,
+                      direction: u.sender === "me" ? "out" : "in",
+                      text: u.text,
+                      mediaType: u.mediaType,
+                      mediaUrl: u.mediaUrl,
+                      timestamp: u.timestamp ? new Date(u.timestamp).getTime() : Date.now(),
+                      date: u.timestamp ? new Date(u.timestamp).getTime() : Date.now()
+                    }))
+                  : [];
+
+                const updatedChat = {
+                  ...chat,
+                  lastMessage: newLastMessage,
+                  messages: isOpen ? [...(chat.messages || []), ...newMsgs] : chat.messages
+                };
+
+                // Підняти чат нагору списку
+                next = [updatedChat, ...next.slice(0, idx), ...next.slice(idx + 1)];
+              }
+              return next;
+            });
+
+            // Якщо відкритий чат отримав повідомлення — проскролити
+            if (byChat.has(String(currentChatIdRef.current))) {
+              setTimeout(scrollToBottom, 50);
+            }
+          }
+        } catch (e) {
+          if (!mounted) return;
+          console.log("pollUpdates error:", e?.message || e);
+          // Невелика пауза, щоб не довбити при NETWORK_ERROR
+          await new Promise(r => setTimeout(r, 3000));
+        }
       }
     }
 
-    pollLogs2();
-    return () => (mounted = false);
+    pollUpdates();
+    return () => { mounted = false; };
   }, [authState]);
 
   // =====================================================================
   // SEND PHONE
   // =====================================================================
-  const sendPhone = async () => {
+  const sendPhone = async (opts = {}) => {
     setAuthSending(true);
     try {
-      const { data: j } = await axios.post(API + "/login/sendCode", { phone });
-      if (j.ok) setAuthState("code");
-      else alert(j.error);
+      const { data: j } = await axios.post(API + "/login/sendCode", { phone, forceSMS: !!opts.forceSMS });
+      if (j.ok) {
+        setAuthState("code");
+        setCodeDelivery({
+          typeHuman: j.typeHuman,
+          isCodeViaApp: j.isCodeViaApp,
+          canResend: j.canResend !== false
+        });
+        // ResendCode дозволений раз на 60с щоб не злити Telegram
+        setResendCooldown(60);
+      } else if (j.error === "RATE_LIMIT") {
+        alert(j.message || "Зачекай перед повторним запитом");
+        setResendCooldown(j.waitSec || 60);
+      } else if (j.error === "FLOOD_WAIT") {
+        alert(j.message);
+      } else {
+        alert(j.error);
+      }
     } catch (e) { alert(e.message); }
     setAuthSending(false);
   };
+
+  // ── SHARE: завантажити інфо про спільний доступ
+  const loadShareInfo = async () => {
+    try {
+      const { data: j } = await axios.get(API + "/share");
+      if (j.ok) setShareInfo(j);
+    } catch (e) { console.log("loadShareInfo error:", e); }
+  };
+
+  const toggleShare = async () => {
+    if (!shareInfo) return;
+    const next = !shareInfo.isOwnShared;
+    const msg = next
+      ? "Включити спільний доступ? Усі ERP-юзери без власного Telegram зможуть бачити твої чати, контакти і відправляти повідомлення від твого імені."
+      : "Виключити спільний доступ? Інші юзери більше не зможуть користуватись твоїм Telegram.";
+    if (!window.confirm(msg)) return;
+
+    try {
+      const { data: j } = await axios.post(API + "/share", { shared: next });
+      if (j.ok) {
+        setShareInfo(prev => ({ ...prev, isOwnShared: j.isShared }));
+      } else {
+        alert(j.message || j.error);
+      }
+    } catch (e) { alert(e.message); }
+  };
+
+  // ── RESEND через інший канал (Api.auth.ResendCode)
+  const resendCode = async () => {
+    setAuthSending(true);
+    try {
+      const { data: j } = await axios.post(API + "/login/resendCode");
+      if (j.ok) {
+        setCodeDelivery(prev => ({
+          ...(prev || {}),
+          typeHuman: j.typeHuman || prev?.typeHuman,
+          canResend: true
+        }));
+        if (j.timeout) setResendCooldown(j.timeout);
+        else setResendCooldown(60);
+      } else if (j.error === "FLOOD_WAIT") {
+        alert(j.message);
+      } else if (j.error === "SEND_CODE_UNAVAILABLE") {
+        // Telegram заборонив зміну каналу — більше не показуємо кнопку Resend
+        setCodeDelivery(prev => ({ ...(prev || {}), canResend: false }));
+        alert(j.message);
+      } else if (j.error === "PHONE_CODE_EXPIRED") {
+        setAuthState("phone");
+        setCodeDelivery(null);
+        alert(j.message);
+      } else {
+        alert(j.message || j.error || "Не вдалось перевідправити");
+      }
+    } catch (e) { alert(e.message); }
+    setAuthSending(false);
+  };
+
+  // ── QR-LOGIN: оминає sendCode цілком, юзер сканує QR з телефону
+  const startQrLogin = async () => {
+    setAuthSending(true);
+    try {
+      const { data: j } = await axios.post(API + "/login/qrStart");
+      if (j.ok) {
+        setQrUrl(j.qrUrl);
+        setQrExpiresIn(j.expiresIn || 30);
+        setAuthState("qr");
+        if (!qrPollingRef.current) {
+          qrPollingRef.current = true;
+          pollQrStatus();
+        }
+      } else {
+        alert(j.message || j.error || "Не вдалось почати QR-логін");
+      }
+    } catch (e) { alert(e.message); }
+    setAuthSending(false);
+  };
+
+  const pollQrStatus = async () => {
+    while (qrPollingRef.current) {
+      try {
+        const { data: j } = await axios.get(API + "/login/qrPoll");
+        if (!qrPollingRef.current) return;
+
+        if (j.ok && j.status === "waiting") {
+          if (j.qrUrl) setQrUrl(j.qrUrl);
+          if (j.expiresIn) setQrExpiresIn(j.expiresIn);
+        } else if (j.ok && j.status === "password_needed") {
+          qrPollingRef.current = false;
+          setAuthState("password");
+          alert("Потрібен пароль 2FA");
+          return;
+        } else if (j.ok && j.status === "success") {
+          qrPollingRef.current = false;
+          setAuthState("ready");
+          setThisUser(j.me);
+          setQrUrl(null);
+          loadShareInfo();
+          await loadInitial();
+          return;
+        } else if (!j.ok) {
+          qrPollingRef.current = false;
+          alert("QR-помилка: " + (j.message || j.error));
+          setAuthState("phone");
+          setQrUrl(null);
+          return;
+        }
+      } catch (e) {
+        console.log("qrPoll error:", e?.message);
+      }
+      await new Promise(r => setTimeout(r, 2500));
+    }
+  };
+
+  const cancelQrLogin = () => {
+    qrPollingRef.current = false;
+    setQrUrl(null);
+    setAuthState("phone");
+  };
+
+  // Декремент qr expires щосекунди
+  useEffect(() => {
+    if (qrExpiresIn <= 0 || !qrUrl) return;
+    const t = setTimeout(() => setQrExpiresIn(s => Math.max(0, s - 1)), 1000);
+    return () => clearTimeout(t);
+  }, [qrExpiresIn, qrUrl]);
+
+  // ── ІМПОРТ SESSION з .env (оминає sendCode/SignIn flow)
+  const importEnvSession = async () => {
+    if (!window.confirm("Імпортувати готову SESSION з .env? Це обійде логін через код.")) return;
+    setAuthSending(true);
+    try {
+      const { data: j } = await axios.post(API + "/login/importEnvSession");
+      if (j.ok) {
+        alert(`Сесію імпортовано! Використано: ${j.usedCredentials}. Користувач: ${j.me.firstName || ""} ${j.me.lastName || ""} (@${j.me.username || ""}).`);
+        setAuthState("ready");
+        setThisUser(j.me);
+        loadShareInfo();
+        await loadInitial();
+      } else {
+        alert(j.message || j.error || "Не вдалось імпортувати");
+      }
+    } catch (e) { alert(e.message); }
+    setAuthSending(false);
+  };
+
+  // Декремент cooldown щосекунди
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setTimeout(() => setResendCooldown(s => Math.max(0, s - 1)), 1000);
+    return () => clearTimeout(t);
+  }, [resendCooldown]);
 
   // =====================================================================
   // SEND CODE
@@ -265,36 +510,42 @@ export default function TelegramBotAkkAndMedias() {
   const loadInitial = async () => {
     console.log("loadInitial start");
 
-    const response = await axios.get(API + "/init");
-    console.log("init response:", response.data);
-
-    let json = response.data;
-    if (!json?.ok) {
-      console.log("init failed:", json.error);
-      return;
-    }
-
-    let normalized = [];
-
-    if (Array.isArray(json.chats)) {
-      normalized = json.chats.map((c) => ({
-        ...c,
-        chatId: c.chatId ?? null,
-        username: c.username ?? null,
-        title: c.title ?? "",
-        tgUserId: c.tgUserId ?? null,
-        accessHash: c.accessHash ?? null,
-        firstName: c.firstName ?? null,
-        lastName: c.lastName ?? null,
-        phone: c.phone ?? null,
-        isUser: c.isUser ?? false,
-        lastMessage: c.lastMessage ?? null,
-        messages: []
-      }));
-    }
-
-    setChats(normalized);
+    // Контакти вантажимо ПАРАЛЕЛЬНО — щоб падіння /init не залишало порожній екран
     loadContacts();
+
+    try {
+      const response = await axios.get(API + "/init");
+      console.log("init response:", response.data);
+
+      let json = response.data;
+      if (!json?.ok) {
+        console.log("init failed:", json.error);
+        return;
+      }
+
+      let normalized = [];
+
+      if (Array.isArray(json.chats)) {
+        normalized = json.chats.map((c) => ({
+          ...c,
+          chatId: c.chatId ?? null,
+          username: c.username ?? null,
+          title: c.title ?? "",
+          tgUserId: c.tgUserId ?? null,
+          accessHash: c.accessHash ?? null,
+          firstName: c.firstName ?? null,
+          lastName: c.lastName ?? null,
+          phone: c.phone ?? null,
+          isUser: c.isUser ?? false,
+          lastMessage: c.lastMessage ?? null,
+          messages: []
+        }));
+      }
+
+      setChats(normalized);
+    } catch (e) {
+      console.log("loadInitial error:", e);
+    }
   };
 
   // =====================================================================
@@ -540,6 +791,7 @@ export default function TelegramBotAkkAndMedias() {
 
   const loadContacts = async () => {
     setContactsLoading(true);
+    setContactsError(null);
     try {
       const { data: j } = await axios.get(API + "/contacts");
       if (j.ok) {
@@ -547,9 +799,12 @@ export default function TelegramBotAkkAndMedias() {
         // зберігаємо оригінал (oldest) в ref, відображаємо за поточним сортуванням
         allContactsRef.current = j.contacts;
         setContacts(sortContactsList(j.contacts, contactsSort));
+      } else {
+        setContactsError(j.error || "UNKNOWN_ERROR");
       }
     } catch (e) {
       console.log("loadContacts error:", e);
+      setContactsError(e.message || "NETWORK_ERROR");
     } finally {
       setContactsLoading(false);
     }
@@ -675,20 +930,24 @@ export default function TelegramBotAkkAndMedias() {
 
           {authState === "phone" && (
             <>
-              <input
-                className="tg-auth-input"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+380…"
-              />
+              <h3 style={{ fontWeight: 400, textAlign: "center", color: "var(--admingrey, #666)" }}>
+                Вхід в Telegram
+              </h3>
+              <div style={{ textAlign: "center", color: "var(--admingrey, #666)", margin: "8px 0 24px", fontSize: "0.9em" }}>
+                Натисни кнопку нижче — на наступному екрані з'явиться QR-код,<br />
+                який треба відсканувати з вже залогіненого Telegram на телефоні.
+              </div>
 
               {!authSending && (
                 <div className="tg-auth-buttons">
-                  <div className="tg-auth-btn" onClick={() => setPhone("+380677509676")}>
-                    <span className="tg-auth-btn-text">+38 (067) 750-96-76</span>
-                  </div>
-                  <div className="tg-auth-btn tg-auth-btn--primary" onClick={sendPhone}>
-                    <span className="tg-auth-btn-text">ВІДПРАВИТИ</span>
+                  <div
+                    className="tg-auth-btn tg-auth-btn--primary"
+                    onClick={startQrLogin}
+                    style={{ background: "var(--adminlightgreen, #e2f2eb)" }}
+                  >
+                    <span className="tg-auth-btn-text" style={{ color: "var(--admingreen, #0e935b)", fontWeight: 600 }}>
+                      УВІЙТИ ЧЕРЕЗ QR
+                    </span>
                   </div>
                 </div>
               )}
@@ -704,6 +963,16 @@ export default function TelegramBotAkkAndMedias() {
           {authState === "code" && (
             <>
               <h3 style={{fontWeight: 400}}>Введіть код</h3>
+              {codeDelivery && (
+                <div style={{ textAlign: "center", color: "var(--admingrey, #666)", margin: "4px 0 8px", fontSize: "0.9em" }}>
+                  Код надіслано: <b>{codeDelivery.typeHuman}</b>
+                  {codeDelivery.isCodeViaApp && (
+                    <div style={{ marginTop: 4, color: "var(--adminorange, #f5a623)" }}>
+                      Якщо код не приходить — натисни "ІНШИЙ СПОСІБ" нижче
+                    </div>
+                  )}
+                </div>
+              )}
               <input
                 className="tg-auth-input"
                 value={code}
@@ -714,12 +983,63 @@ export default function TelegramBotAkkAndMedias() {
                   <div className="tg-auth-btn tg-auth-btn--primary" onClick={sendCodeVerify}>
                     <span className="tg-auth-btn-text">УВІЙТИ</span>
                   </div>
+                  {codeDelivery?.canResend && (
+                    <div
+                      className="tg-auth-btn"
+                      onClick={resendCooldown > 0 ? undefined : resendCode}
+                      style={resendCooldown > 0 ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
+                      title={resendCooldown > 0 ? `Доступно через ${resendCooldown}с` : "Спробувати інший канал"}
+                    >
+                      <span className="tg-auth-btn-text">
+                        {resendCooldown > 0
+                          ? `ІНШИЙ СПОСІБ (${resendCooldown}с)`
+                          : "ІНШИЙ СПОСІБ"}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 
               <div className="telegramIntegration_connectLog">
                 {connectionLogs?.map((l, i) => (
                   <div key={i} style={l.includes('Потрібен пароль') ? {color: 'var(--adminred, #ee3c23)'} : undefined}>{l}</div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {authState === "qr" && (
+            <>
+              <h3 style={{ fontWeight: 400, textAlign: "center" }}>Відскануй QR-код</h3>
+              <div style={{ textAlign: "center", color: "var(--admingrey, #666)", margin: "8px 0 16px", fontSize: "0.9em" }}>
+                <div>1. Відкрий Telegram на телефоні</div>
+                <div>2. Налаштування → Пристрої → Підключити пристрій</div>
+                <div>3. Наведи камеру на QR нижче</div>
+              </div>
+              {qrUrl ? (
+                <div style={{ display: "flex", justifyContent: "center", margin: "16px 0" }}>
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=20&data=${encodeURIComponent(qrUrl)}`}
+                    alt="QR Login"
+                    style={{ width: 260, height: 260, background: "#fff", borderRadius: 8 }}
+                  />
+                </div>
+              ) : (
+                <div style={{ textAlign: "center", padding: 30 }}><Loader /></div>
+              )}
+              {qrExpiresIn > 0 && (
+                <div style={{ textAlign: "center", color: "var(--admingrey, #666)", fontSize: "0.85em" }}>
+                  QR оновиться через {qrExpiresIn}с
+                </div>
+              )}
+              <div className="tg-auth-buttons" style={{ marginTop: 16 }}>
+                <div className="tg-auth-btn" onClick={cancelQrLogin}>
+                  <span className="tg-auth-btn-text">СКАСУВАТИ</span>
+                </div>
+              </div>
+              <div className="telegramIntegration_connectLog">
+                {connectionLogs?.map((l, i) => (
+                  <div key={i}>{l}</div>
                 ))}
               </div>
             </>
@@ -789,6 +1109,16 @@ export default function TelegramBotAkkAndMedias() {
             <div className="telegramIntegration_botUsername">
               {thisUser?.username ? "@" + thisUser.username : ""}
             </div>
+            {isSharedSession && shareInfo?.sharedAccount && (
+              <div style={{ fontSize: "0.75em", color: "var(--adminorange, #f5a623)" }}>
+                Спільний доступ від {shareInfo.sharedAccount.ownerName || `user#${shareInfo.sharedAccount.ownerId}`}
+              </div>
+            )}
+            {shareInfo?.isOwnShared && (
+              <div style={{ fontSize: "0.75em", color: "var(--admingreen, #0e935b)" }}>
+                Спільний доступ УВІМКНЕНО
+              </div>
+            )}
           </div>
 
           <div style={{ display: "flex", alignItems: "stretch", gap: 0, marginLeft: "auto", height: 36, overflow: "hidden" }}>
@@ -801,24 +1131,43 @@ export default function TelegramBotAkkAndMedias() {
                 {contactsSort === "newest" ? <FiArrowDown /> : <FiArrowUp />}
               </span>
             </button>
-            <button
-              className="tg-logout-btn"
-              title="Вийти з Telegram"
-              onClick={async () => {
-                if (!window.confirm("Вийти з Telegram акаунту?")) return;
-                try {
-                  await axios.post(API + "/logout");
-                  setAuthState("phone");
-                  setChats([]);
-                  setCurrentChatId(null);
-                  setThisUser(null);
-                } catch (e) {
-                  alert("Помилка: " + e.message);
-                }
-              }}
-            >
-              <span className="flip-front"><FiLogOut /></span>
-            </button>
+            {shareInfo?.hasOwnAccount && (
+              <button
+                className="tg-sort-btn"
+                title={shareInfo.isOwnShared ? "Вимкнути спільний доступ" : "Увімкнути спільний доступ для інших ERP-юзерів"}
+                onClick={toggleShare}
+                style={{ color: shareInfo.isOwnShared ? "var(--admingreen, #0e935b)" : "var(--admingrey, #666)" }}
+              >
+                <span className="flip-front" style={{ fontSize: 18 }}>
+                  {shareInfo.isOwnShared ? "👥" : "👤"}
+                </span>
+              </button>
+            )}
+            {!isSharedSession && (
+              <button
+                className="tg-logout-btn"
+                title="Вийти з Telegram"
+                onClick={async () => {
+                  if (!window.confirm("Вийти з Telegram акаунту?")) return;
+                  try {
+                    const { data: j } = await axios.post(API + "/logout");
+                    if (j && j.ok === false) {
+                      alert(j.message || j.error);
+                      return;
+                    }
+                    setAuthState("phone");
+                    setChats([]);
+                    setCurrentChatId(null);
+                    setThisUser(null);
+                    setShareInfo(null);
+                  } catch (e) {
+                    alert("Помилка: " + e.message);
+                  }
+                }}
+              >
+                <span className="flip-front"><FiLogOut /></span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -900,6 +1249,22 @@ export default function TelegramBotAkkAndMedias() {
         ) : (
           <div className="tg-contacts-panel">
             {contactsLoading && <div className="tg-contacts-loading">Завантаження...</div>}
+            {!contactsLoading && contactsError && (
+              <div className="tg-contacts-error" style={{ padding: "1rem", textAlign: "center", color: "var(--adminred, #ee3c23)" }}>
+                <div style={{ marginBottom: 8 }}>Не вдалось завантажити контакти: {contactsError}</div>
+                <div className="tg-auth-btn tg-auth-btn--primary" style={{ display: "inline-block", cursor: "pointer" }} onClick={loadContacts}>
+                  <span className="tg-auth-btn-text">Перезавантажити</span>
+                </div>
+              </div>
+            )}
+            {!contactsLoading && !contactsError && contacts.length === 0 && (
+              <div className="tg-contacts-empty" style={{ padding: "1rem", textAlign: "center", color: "var(--admingrey, #666)" }}>
+                <div style={{ marginBottom: 8 }}>Контактів не знайдено</div>
+                <div className="tg-auth-btn" style={{ display: "inline-block", cursor: "pointer" }} onClick={loadContacts}>
+                  <span className="tg-auth-btn-text">Перезавантажити</span>
+                </div>
+              </div>
+            )}
             {contacts.map(ct => (
               <div key={ct.tgUserId} className="tg-contact-row">
                 <div

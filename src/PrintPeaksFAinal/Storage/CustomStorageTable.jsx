@@ -15,7 +15,7 @@ import MaterialSettingsModal from "./MaterialSettingsModal";
 
 /* Колонки в порядку відображення (settings — між y та created) */
 const COLUMNS = [
-  'article', 'name', 'type', 'typeUse', 'description',
+  'article', 'articleCode', 'name', 'type', 'typeUse', 'description',
   'amount', 'quantity', 'unit', 'thickness', 'cost',
   'price1', 'price2', 'price3', 'price4', 'price5',
   'x', 'y', 'settings', 'created', 'createdAt', 'updatedAt'
@@ -167,7 +167,7 @@ const CustomStorageTable = ({ name }) => {
       inPageCount: limit,
       currentPage,
       search,
-      columnName: { column: sortColumn, reverse: sortReverse },
+      columnName: { column: sortColumn === 'articleCode' ? 'article' : sortColumn, reverse: sortReverse },
     })
       .then(res => {
         setData(res.data);
@@ -207,11 +207,14 @@ const CustomStorageTable = ({ name }) => {
 
   /* ── Збереження однієї клітинки (Excel-like) ── */
   const handleCellSave = useCallback(async (itemId, field, newValue) => {
+    // articleCode → article (маппінг для бекенду)
+    const dbField = field === 'articleCode' ? 'article' : field;
+
     // Оптимістичне оновлення
     setData(prev => {
       if (!prev) return prev;
       const newRows = prev.rows.map(row =>
-        row.id === itemId ? { ...row, [field]: newValue } : row
+        row.id === itemId ? { ...row, [dbField]: newValue } : row
       );
       return { ...prev, rows: newRows };
     });
@@ -219,12 +222,12 @@ const CustomStorageTable = ({ name }) => {
     await axios.put('/materials/OnlyOneField', {
       tableName: name,
       id: itemId,
-      tablePosition: field,
+      tablePosition: dbField,
       input: newValue,
       search: search || '',
       inPageCount: limit,
       currentPage,
-      columnName: { column: sortColumn, reverse: sortReverse },
+      columnName: { column: sortColumn === 'articleCode' ? 'article' : sortColumn, reverse: sortReverse },
     });
   }, [name, search, limit, currentPage, sortColumn, sortReverse]);
 
@@ -235,7 +238,7 @@ const CustomStorageTable = ({ name }) => {
       inPageCount: limit,
       currentPage,
       search: search || '',
-      columnName: { column: sortColumn, reverse: sortReverse },
+      columnName: { column: sortColumn === 'articleCode' ? 'article' : sortColumn, reverse: sortReverse },
     })
       .then(res => {
         setData(res.data);
@@ -348,6 +351,22 @@ const CustomStorageTable = ({ name }) => {
             margin={0}
           />
         </div>
+      );
+    }
+
+    // articleCode — текстове поле артикулу (дані з item.article)
+    if (col === 'articleCode') {
+      const colIdx = EDITABLE_COLS.indexOf(col);
+      const cellIndex = rowIndex * COLS_PER_ROW + colIdx;
+      return (
+        <EditableCell
+          value={item.article}
+          field="articleCode"
+          itemId={item.id}
+          onSave={handleCellSave}
+          className=""
+          cellIndex={cellIndex}
+        />
       );
     }
 

@@ -62,12 +62,27 @@ const Materials2 = ({
 
   // ✅ Завантаження списку матеріалів (без примусового setMaterial("Немає"))
   useEffect(() => {
+    // 🔽 Глобальне налаштування сортування матеріалів (Profile → Калькулятори)
+    let sortPref = { column: "id", reverse: false };
+    try {
+      const raw = localStorage.getItem("printpeaks_material_sort");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") {
+          sortPref = {
+            column: ["id", "article", "name", "createdAt"].includes(parsed.column) ? parsed.column : "id",
+            reverse: !!parsed.reverse,
+          };
+        }
+      }
+    } catch (e) { /* ignore */ }
+
     const data = {
       name: "MaterialsPrices",
       inPageCount: 999999,
       currentPage: 1,
       search: "",
-      columnName: {column: "id", reverse: false},
+      columnName: sortPref,
       typeOfPosluga: typeOfPosluga,
       size,
       material, // бек у тебе фільтрує по type/thickness
@@ -89,8 +104,12 @@ const Materials2 = ({
 
         // Якщо є preferredMaterialName — завжди вибирати його
         if (preferredMaterialName && rows.length > 0) {
-          const preferred = rows.find((r) => r.name === preferredMaterialName);
-          const target = preferred || rows[0];
+          const exact = rows.find((r) => r.name === preferredMaterialName);
+          // якщо немає точного збігу — пробуємо часткове входження (case-insensitive)
+          const partial = !exact
+            ? rows.find((r) => (r.name || "").toLowerCase().includes(String(preferredMaterialName).toLowerCase()))
+            : null;
+          const target = exact || partial || rows[0];
           if (String(target.id) !== String(material?.materialId)) {
             setMaterial((prev) => ({
               ...prev,
@@ -225,13 +244,37 @@ const Materials2 = ({
             if (disabled) return;
             if (!open && dropdownRef.current) {
               const rect = dropdownRef.current.getBoundingClientRect();
-              setDropdownStyle({
+              const vh = window.innerHeight || document.documentElement.clientHeight;
+              const viewportW = window.innerWidth || document.documentElement.clientWidth;
+              const margin = 12;
+              // якщо пунктів широкий dropdownWidth — використовуємо його, інакше ширину триггера
+              const naturalWidth = Math.max(rect.width, parseInt(dropdownWidth, 10) || 0);
+              // не вилазимо за правий край viewport
+              let left = rect.left;
+              if (left + naturalWidth + margin > viewportW) {
+                left = Math.max(margin, viewportW - naturalWidth - margin);
+              }
+              // не вилазимо за нижній/верхній край viewport
+              const spaceBelow = vh - rect.bottom - margin;
+              const spaceAbove = rect.top - margin;
+              const flipUp = spaceBelow < 200 && spaceAbove > spaceBelow;
+              const maxHeight = Math.max(120, flipUp ? spaceAbove : spaceBelow);
+
+              const base = {
                 position: "fixed",
-                top: rect.bottom + 2,
-                left: rect.left,
+                left,
                 width: rect.width,
+                maxWidth: `calc(100vw - ${margin * 2}px)`,
+                maxHeight,
+                overflowY: "auto",
                 zIndex: 99999,
-              });
+              };
+              if (flipUp) {
+                base.bottom = vh - rect.top + 2;
+              } else {
+                base.top = rect.bottom + 2;
+              }
+              setDropdownStyle(base);
             }
             setOpen(!open);
           }}

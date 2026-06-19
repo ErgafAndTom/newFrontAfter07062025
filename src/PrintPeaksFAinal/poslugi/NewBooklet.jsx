@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { ScModal, ScSection, ScCountSize, ScPricing, ScAddButton, ScTabs } from "./shared";
+import ServiceSettingsModal from "./shared/ServiceSettingsModal";
 import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
 import useServiceTabs from "../../hooks/useServiceTabs";
 
@@ -98,8 +99,54 @@ const NewBooklet = ({
   const [count, setCount] = useState(DEFAULTS.count);
   const [pereplet, setPereplet] = useState(DEFAULTS.pereplet);
   const [selectedService, setSelectedService] = useState(DEFAULTS.selectedService);
-  const { services, addService, removeService } = useServiceTabs("Booklet", SERVICES_BOOKLET);
-  const [isEditServices, setIsEditServices] = useState(false);
+  const { services, addService, removeService, updateService, reorderServices } = useServiceTabs("Booklet", SERVICES_BOOKLET);
+  const [showSettings, setShowSettings] = useState(false);
+
+  const DEFAULT_SIZES = [
+    { label: "А5", x: 148, y: 210 }, { label: "A4", x: 210, y: 297 },
+    { label: "А3", x: 297, y: 420 }, { label: "SR A3", x: 310, y: 440 },
+  ];
+  const sizeButtons = useMemo(() => {
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+    const sizes = svc?.presets?.sizes;
+    if (Array.isArray(sizes) && sizes.length > 0) return sizes;
+    return DEFAULT_SIZES;
+  }, [services, selectedService]);
+
+  const handleServiceSelect = useCallback((name) => {
+    setSelectedService(name);
+    if (isEdit) return;
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === name);
+    const p = svc?.presets;
+    if (!p) return;
+    if (p.sizeX || p.sizeY) {
+      setSize({ x: p.sizeX ? Number(p.sizeX) : size.x, y: p.sizeY ? Number(p.sizeY) : size.y });
+    }
+    if (p.coverColor) {
+      setMaterialAndDrukFront((prev) => ({ ...prev, drukColor: p.coverColor }));
+    }
+    if (p.coverSides) {
+      setMaterialAndDrukFront((prev) => ({ ...prev, drukSides: p.coverSides }));
+    }
+    if (p.coverThickness) {
+      setMaterialAndDrukFront((prev) => ({ ...prev, materialType: p.coverThickness === "Офісний" ? "Офісний" : "Папір", materialTypeUse: p.coverThickness, material: "", materialId: "" }));
+    }
+    if (p.blockColor) {
+      setMaterialAndDrukBack((prev) => ({ ...prev, drukColor: p.blockColor }));
+    }
+    if (p.blockPages) {
+      setMaterialAndDrukBack((prev) => ({ ...prev, count: Number(p.blockPages) }));
+    }
+    if (p.blockSides) {
+      setMaterialAndDrukBack((prev) => ({ ...prev, drukSides: p.blockSides }));
+    }
+    if (p.blockThickness) {
+      setMaterialAndDrukBack((prev) => ({ ...prev, materialType: p.blockThickness === "Офісний" ? "Офісний" : "Папір", materialTypeUse: p.blockThickness, material: "", materialId: "" }));
+    }
+    if (p.bindingType) {
+      setPereplet((prev) => ({ ...prev, type: p.bindingType }));
+    }
+  }, [services, isEdit, size]);
   const [error, setError] = useState(null);
 
   // ========== PRICING HOOK ==========
@@ -240,7 +287,7 @@ const NewBooklet = ({
   const pricingExtras = pricesThis
     ? [
         { label: "За виріб", value: `${fmt2(pricesThis.priceForItemWithExtras)} грн` },
-        { label: "Кратність", value: `${(pricesThis.sheetsPerUnit || 0) / 2} шт` },
+        { label: "Кратність", value: `${Math.floor((pricesThis.sheetsPerUnit || 0) / 2)} шт` },
         { label: "Сторінок блоку", value: `${materialAndDrukBack.count * 2} стор.` },
       ]
     : [];
@@ -273,49 +320,100 @@ const NewBooklet = ({
         )
       }
       tabsContent={
-        <ScTabs
-          services={services}
-          selectedService={selectedService}
-          onSelect={setSelectedService}
-          isEditServices={isEditServices}
-          setIsEditServices={setIsEditServices}
-          onAddService={async () => {
-            const name = prompt("Введіть назву товару");
-            if (!name) return;
-            const added = await addService(name);
-            if (added) setSelectedService(added.name);
-          }}
-          onRemoveService={async (service) => {
-            const sName = typeof service === 'string' ? service : service?.name;
-            const sId = typeof service === 'string' ? null : service?.id;
-            if (sId) await removeService(sId);
-            if (selectedService === sName) {
-              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
-              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
-            }
-          }}
-        />
+        <>
+          <div className="sc-tabs-count-row">
+            <div className="sc-count-inline">
+              <input className="inputsArtem" type="number" value={count} min={1}
+                onChange={(e) => setCount(Number(e.target.value) || 1)}
+                style={{ width: "4.4rem", textAlign: "center" }}
+              />
+              <span className="inputsArtemx" style={{ border: "transparent" }}>шт</span>
+            </div>
+            <ScTabs
+              services={services}
+              selectedService={selectedService}
+              onSelect={handleServiceSelect}
+              isEditServices={false}
+              setIsEditServices={() => {}}
+              onSettingsClick={() => setShowSettings(true)}
+            />
+          </div>
+          <ServiceSettingsModal
+            show={showSettings}
+            onClose={() => setShowSettings(false)}
+            services={services}
+            onAddService={async (name) => {
+              const added = await addService(name);
+              if (added) setSelectedService(added.name);
+            }}
+            onRemoveService={async (service) => {
+              const sId = typeof service === 'string' ? null : service?.id;
+              const sName = typeof service === 'string' ? service : service?.name;
+              if (sId) await removeService(sId);
+              if (selectedService === sName) {
+                const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
+                setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
+              }
+            }}
+            onUpdateService={updateService}
+            onReorderServices={reorderServices}
+            defaultSizes={DEFAULT_SIZES}
+            extraToggles={[]}
+            thicknessOptions={[]}
+            hideSidesOption
+            hideLaminationOption
+            hideMaterialOption
+            customPresetSections={[
+              { key: "coverColor", label: "Обкл. друк", options: [
+                { value: "Не потрібно", label: "Ні" }, { value: "Чорнобілий", label: "ЧБ" }, { value: "Кольоровий", label: "Колір" }
+              ]},
+              { key: "coverSides", label: "Обкл. сторони", options: [
+                { value: "односторонній", label: "Одност." }, { value: "двосторонній", label: "Двост." }
+              ]},
+              { key: "coverThickness", label: "Обкл. папір", options: ["Офісний", "Тонкий", "Середній", "Цупкий"] },
+              { key: "coverMaterial", label: "Обкл. матеріал", type: "materialSelect", thicknessKey: "coverThickness" },
+              { key: "blockColor", label: "Блок друк", options: [
+                { value: "Не потрібно", label: "Ні" }, { value: "Чорнобілий", label: "ЧБ" }, { value: "Кольоровий", label: "Колір" }
+              ]},
+              { key: "blockPages", label: "Блок арк.", type: "number", placeholder: "50" },
+              { key: "blockSides", label: "Блок сторони", options: [
+                { value: "односторонній", label: "Одност." }, { value: "двосторонній", label: "Двост." }
+              ]},
+              { key: "blockThickness", label: "Блок папір", options: ["Офісний", "Тонкий", "Середній", "Цупкий"] },
+              { key: "blockMaterial", label: "Блок матеріал", type: "materialSelect", thicknessKey: "blockThickness" },
+              { key: "bindingType", label: "Переплет", options: [
+                { value: "на скобу", label: "На скобу" }, { value: "на євроскобу", label: "На євроскобу" }
+              ]},
+            ]}
+          />
+          <div className="sc-section sc-section-card" style={{ margin: "0 2rem" }}>
+            <div className="sc-sides sc-size-row">
+              {sizeButtons.map((f) => (
+                <button key={f.label}
+                  className={`sc-side-btn${size.x === f.x && size.y === f.y ? " sc-side-active" : ""}`}
+                  onClick={() => setSize({ x: f.x, y: f.y })}
+                >
+                  <span className="sc-side-text">{f.label}</span>
+                </button>
+              ))}
+              <button className={`sc-side-btn${!sizeButtons.some((f) => size.x === f.x && size.y === f.y) ? " sc-side-active" : ""}`}
+                onClick={() => {}}
+              >
+                <span className="sc-side-text">Свій розмір</span>
+              </button>
+              <div className="sc-size-inline-inputs">
+                <input className="inputsArtem" type="number" value={size.x} min={10}
+                  onChange={(e) => setSize({ x: Number(e.target.value) || 0, y: size.y })} />
+                <span className="sc-size-x">x</span>
+                <input className="inputsArtem" type="number" value={size.y} min={10}
+                  onChange={(e) => setSize({ x: size.x, y: Number(e.target.value) || 0 })} />
+                <span className="sc-size-mm">мм</span>
+              </div>
+            </div>
+          </div>
+        </>
       }
     >
-      {/* 1. Кількість + Розмір */}
-      <ScCountSize
-        count={count}
-        onCountChange={(v) => setCount(v)}
-        sizeComponent={
-          <NewNoModalSizeNote
-            size={size}
-            setSize={setSize}
-            prices={[]}
-            type={"SheetCut"}
-            buttonsArr={["односторонній", "двосторонній"]}
-            color={color}
-            setColor={setColor}
-            count={count}
-            setCount={setCount}
-            defaultt={"А3 (297 х 420 мм)"}
-          />
-        }
-      />
 
       {/* 2. Обкладинка (внутрішній toggle у Materials2NoteFront) */}
       <Materials2NoteFront
@@ -332,6 +430,10 @@ const NewBooklet = ({
         buttonsArrColor={["Не потрібно", "Чорнобілий", "Кольоровий"]}
         buttonsArrLamination={["З глянцевим ламінуванням", "З матовим ламінуванням", "З ламінуванням SoftTouch"]}
         typeUse={null}
+        preferredMaterialName={(() => {
+          const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+          return svc?.presets?.coverMaterial || undefined;
+        })()}
       />
 
       {/* 3. Блок */}
@@ -349,6 +451,10 @@ const NewBooklet = ({
         buttonsArrColor={["Не потрібно", "Чорнобілий", "Кольоровий"]}
         buttonsArrLamination={["з глянцевим ламінуванням", "з матовим ламінуванням", "з ламінуванням SoftTouch"]}
         typeUse={null}
+        preferredMaterialName={(() => {
+          const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+          return svc?.presets?.blockMaterial || undefined;
+        })()}
       />
 
       {/* 4. Брошурування */}

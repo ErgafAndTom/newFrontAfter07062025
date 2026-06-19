@@ -1,5 +1,5 @@
 import axios from '../../api/axiosInstance';
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useState, useMemo, useRef } from "react";
 import NewNoModalLamination from "./newnomodals/NewNoModalLamination";
 import Materials2 from "./newnomodals/Materials2";
 
@@ -11,6 +11,7 @@ import ScToggleSection from "./shared/ScToggleSection";
 import ScPricing from "./shared/ScPricing";
 import ScAddButton from "./shared/ScAddButton";
 import ScTabs from "./shared/ScTabs";
+import ServiceSettingsModal from "./shared/ServiceSettingsModal";
 import useServiceTabs from "../../hooks/useServiceTabs";
 
 import "./Poslugy.css";
@@ -98,7 +99,8 @@ export default function NewSheetCutBW({
 
   const [lamination, setLamination] = useState(DEFAULTS.lamination);
 
-  const { services, addService, removeService } = useServiceTabs("SheetCutBw", [
+  const [showSettings, setShowSettings] = useState(false);
+  const { services, addService, removeService, updateService, reorderServices, loading: servicesLoading } = useServiceTabs("SheetCutBw", [
     "Документ",
     "Договір",
     "Дипломна робота",
@@ -108,6 +110,52 @@ export default function NewSheetCutBW({
     "Аналізи",
     "Квиток",
   ]);
+
+  const DEFAULT_SIZES = [
+    { label: "A4", x: 210, y: 297 },
+    { label: "А3", x: 297, y: 420 },
+  ];
+
+  const sizeButtons = useMemo(() => {
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+    const sizes = svc?.presets?.sizes;
+    if (Array.isArray(sizes) && sizes.length > 0) return sizes;
+    return DEFAULT_SIZES;
+  }, [services, selectedService]);
+
+  // Hide/show ламінації
+  const [hideLamination, setHideLamination] = useState(false);
+  useEffect(() => {
+    if (servicesLoading) return;
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+    const p = svc?.presets;
+    setHideLamination(p?.lamination === false);
+  }, [services, selectedService, servicesLoading]);
+
+  // Застосувати пресети
+  const handleServiceSelect = useCallback((name) => {
+    setSelectedService(name);
+    if (isEdit) return;
+    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === name);
+    const p = svc?.presets;
+    if (!p) return;
+
+    if (p.sizeX || p.sizeY) {
+      setSize({ x: p.sizeX ? Number(p.sizeX) : size.x, y: p.sizeY ? Number(p.sizeY) : size.y });
+    }
+    if (p.sides) {
+      setColor((prev) => ({ ...prev, sides: p.sides }));
+    }
+    if (p.lamination !== undefined && p.lamination) {
+      const lamType = p.laminationType || "з глянцевим ламінуванням";
+      const isOn = p.laminationDefault !== false;
+      if (isOn) {
+        setLamination({ type: lamType, material: lamType, materialId: "", size: p.laminationThickness ? String(p.laminationThickness) : "", typeUse: "А3" });
+      } else {
+        setLamination(DEFAULTS.lamination);
+      }
+    }
+  }, [services, isEdit]);
 
   /* ===================== INIT MODAL (NEW/EDIT) ===================== */
 
@@ -155,9 +203,11 @@ export default function NewSheetCutBW({
     setLamination(opt?.lamination ?? DEFAULTS.lamination);
 
     const matched = services.find(
-      (s) => s.toLowerCase() === savedName.toLowerCase()
+      (s) => (typeof s === 'string' ? s : s?.name)?.toLowerCase() === savedName.toLowerCase()
     );
-    setSelectedService(matched || services[0] || "");
+    const matchedName = matched ? (typeof matched === 'string' ? matched : matched.name) : null;
+    const firstName = services[0] ? (typeof services[0] === 'string' ? services[0] : services[0].name) : "";
+    setSelectedService(matchedName || firstName);
     setError(null);
   }, [showNewSheetCutBW, isEdit, options, editingOrderUnit]);
 
@@ -335,62 +385,92 @@ export default function NewSheetCutBW({
         ) : null
       }
       tabsContent={
-        <ScTabs
-          services={services}
-          selectedService={selectedService}
-          onSelect={setSelectedService}
-          isEditServices={isEditServices}
-          setIsEditServices={setIsEditServices}
-          onAddService={async () => {
-            const name = prompt("Введіть назву товару");
-            if (!name) return;
-            const added = await addService(name);
-            if (added) setSelectedService(added.name);
-          }}
-          onRemoveService={async (service) => {
-            const sName = typeof service === 'string' ? service : service?.name;
-            const sId = typeof service === 'string' ? null : service?.id;
-            if (sId) await removeService(sId);
-            if (selectedService === sName) {
-              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
-              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
-            }
-          }}
-        />
+        <>
+          <div className="sc-tabs-count-row">
+            <div className="sc-count-inline">
+              <input
+                className="inputsArtem"
+                type="number"
+                value={count}
+                min={1}
+                onChange={(e) => setCount(Number(e.target.value) || 1)}
+                style={{ width: "4.4rem", textAlign: "center" }}
+              />
+              <span className="inputsArtemx" style={{ border: "transparent" }}>шт</span>
+            </div>
+            <ScTabs
+              services={services}
+              selectedService={selectedService}
+              onSelect={handleServiceSelect}
+              isEditServices={false}
+              setIsEditServices={() => {}}
+              onSettingsClick={() => setShowSettings(true)}
+            />
+          </div>
+          <ServiceSettingsModal
+            show={showSettings}
+            onClose={() => setShowSettings(false)}
+            services={services}
+            onAddService={async (name) => {
+              const added = await addService(name);
+              if (added) setSelectedService(added.name);
+            }}
+            onRemoveService={async (service) => {
+              const sId = typeof service === 'string' ? null : service?.id;
+              const sName = typeof service === 'string' ? service : service?.name;
+              if (sId) await removeService(sId);
+              if (selectedService === sName) {
+                const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
+                setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
+              }
+            }}
+            onUpdateService={updateService}
+            onReorderServices={reorderServices}
+            defaultSizes={DEFAULT_SIZES}
+            thicknessOptions={["Офісний"]}
+            extraToggles={[]}
+          />
+          {/* Розміри — під табами */}
+          <div className="sc-section sc-section-card" style={{ margin: "0 2rem" }}>
+            <div className="sc-sides sc-size-row">
+              {sizeButtons.map((f) => (
+                <button
+                  key={f.label}
+                  className={`sc-side-btn${size.x === f.x && size.y === f.y ? " sc-side-active" : ""}`}
+                  onClick={() => {
+                    const fmt = SIZE_FORMATS.find((sf) => sf.x === f.x && sf.y === f.y);
+                    if (fmt) handleSizeSelect(fmt);
+                    else setSize({ x: f.x, y: f.y });
+                  }}
+                >
+                  <span className="sc-side-text">{f.label}</span>
+                </button>
+              ))}
+              <div className="sc-size-inline-inputs">
+                <input
+                  className="inputsArtem"
+                  type="number"
+                  value={size.x}
+                  min={10}
+                  max={445}
+                  onChange={(e) => setSize({ x: Number(e.target.value) || 0, y: size.y })}
+                />
+                <span className="sc-size-x">x</span>
+                <input
+                  className="inputsArtem"
+                  type="number"
+                  value={size.y}
+                  min={10}
+                  max={445}
+                  onChange={(e) => setSize({ x: size.x, y: Number(e.target.value) || 0 })}
+                />
+                <span className="sc-size-mm">мм</span>
+              </div>
+            </div>
+          </div>
+        </>
       }
     >
-      {/* 1. Кількість + Розмір */}
-      <ScCountSize
-        count={count}
-        onCountChange={(v) => setCount(Number(v) || 1)}
-        sizeComponent={
-          <div
-            className="custom-select-container selectArtem selectArtemBefore"
-            ref={sizeDropdownRef}
-            style={{ zIndex: 10, width: "100%" }}
-          >
-            <div
-              className="custom-select-header"
-              onClick={() => setSizeDropdownOpen(!sizeDropdownOpen)}
-            >
-              {sizeTitle}
-            </div>
-            {sizeDropdownOpen && (
-              <div className="custom-select-dropdown">
-                {SIZE_FORMATS.map((item) => (
-                  <div
-                    key={item.name}
-                    className={`custom-option ${item.name === sizeTitle ? "active" : ""}`}
-                    onClick={() => handleSizeSelect(item)}
-                  >
-                    <span className="name">{item.name}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        }
-      />
 
       {/* 2. Сторонність */}
       <ScSides
@@ -419,14 +499,17 @@ export default function NewSheetCutBW({
       </ScSection>
 
       {/* 4. Ламінування */}
-      <ScToggleSection
+      {!hideLamination && <ScToggleSection
         label="Ламінування"
         title="Ламінування"
         isOn={lamination.type !== "Не потрібно"}
         onToggle={() => {
           const laminTypeUse = (material.typeUse === "Офісний" && Math.max(size.x, size.y) <= 297) ? "А4" : "А3";
           if (lamination.type === "Не потрібно") {
-            setLamination({ ...lamination, type: "з глянцевим ламінуванням", material: "з глянцевим ламінуванням", materialId: "", size: "", typeUse: laminTypeUse });
+            const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+            const presetLamType = svc?.presets?.laminationType || "з глянцевим ламінуванням";
+            const presetLamThick = svc?.presets?.laminationThickness ? String(svc.presets.laminationThickness) : "";
+            setLamination({ ...lamination, type: presetLamType, material: presetLamType, materialId: "", size: presetLamThick, typeUse: laminTypeUse });
           } else {
             setLamination({ type: "Не потрібно", material: "", materialId: "", size: "", typeUse: laminTypeUse });
           }
@@ -440,6 +523,8 @@ export default function NewSheetCutBW({
           size={size}
           type={"SheetCut"}
           paperTypeUse={material.typeUse}
+          presetLamType={services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService)?.presets?.laminationType}
+          presetLamThickness={services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService)?.presets?.laminationThickness}
           buttonsArr={[
             "з глянцевим ламінуванням",
             "з матовим ламінуванням",
@@ -452,7 +537,7 @@ export default function NewSheetCutBW({
             "з ламінуванням SoftTouch": "SoftTouch",
           }}
         />
-      </ScToggleSection>
+      </ScToggleSection>}
     </ScModal>
   );
 }

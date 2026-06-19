@@ -32,6 +32,7 @@ export default function ClientCabinet({
   const [profileOpen, setProfileOpen] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const currentUser = useSelector((state) => state.auth.user);
   const currentOrderRef = useRef(null);
   const sentinelRef = useRef(null);
@@ -49,6 +50,29 @@ export default function ClientCabinet({
     axios.post(`/orders/createForThisUser`, { userId: userInBase.id })
       .then(res => { window.location.href = `/Orders/${res.data.id}`; })
       .catch(err => console.log(err.message));
+  };
+
+  const onExportExcel = async () => {
+    if (!userInBase?.id || exporting) return;
+    setExporting(true);
+    try {
+      const res = await axios.get(`/orders/exportForUser/${userInBase.id}`, { responseType: 'blob' });
+      const url = URL.createObjectURL(new Blob([res.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      }));
+      const a = document.createElement('a');
+      const dateStr = new Date().toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\./g, '-');
+      const safeName = (userInBase.firstName || userInBase.username || `id${userInBase.id}`).replace(/[^\wа-яА-ЯіІїЇєЄґҐ-]+/g, '_');
+      a.href = url;
+      a.download = `zamovlennia_${safeName}_${dateStr}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.log('export error:', err?.message);
+      alert('Помилка експорту');
+    } finally {
+      setExporting(false);
+    }
   };
 
   /* ---------- keyboard ---------- */
@@ -162,7 +186,7 @@ export default function ClientCabinet({
   const statusLabel = (s) => {
     const v = String(s || "");
     if (v === "-1") return "Скасоване";
-    if (v === "0") return "Обробка";
+    if (v === "0") return "Скіко";
     if (v === "1") return "Друк";
     if (v === "2") return "Постпрес";
     if (v === "3") return "Готово";
@@ -268,6 +292,9 @@ export default function ClientCabinet({
           </button>
           <button className="cc-btn" onClick={() => setShowFiles(true)}>
             <span className="cc-btn-text">Файли</span>
+          </button>
+          <button className="cc-btn" onClick={onExportExcel} disabled={exporting || !userInBase?.id}>
+            <span className="cc-btn-text">{exporting ? 'Експорт…' : 'Експорт XLSX'}</span>
           </button>
           <BarcodeLabel type="client" data={userInBase} variant="compact" className="cc-btn" />
         </div>
