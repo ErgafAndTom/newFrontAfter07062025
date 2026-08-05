@@ -48,12 +48,21 @@ export const login = (credentials, navigate) => async (dispatch) => {
             const token = response.data.token;
             localStorage.setItem('token', token);
             dispatch({ type: LOGIN_SUCCESS, payload: token });
-            dispatch(fetchUser());
+            const user = await dispatch(fetchUser());
             // Міграція localStorage налаштувань на сервер (один раз)
             import('../hooks/useUserSettings').then(({ migrateLocalStorageToServer }) => {
               migrateLocalStorageToServer();
             }).catch(() => {});
-            navigate('/Desktop');
+            if (user?.role === 'user') {
+              try {
+                const orderRes = await axios.post('/orders/create');
+                navigate(`/Orders/${orderRes.data.id}`);
+              } catch {
+                navigate('/Orders');
+              }
+            } else {
+              navigate('/Desktop');
+            }
         } else {
             throw new Error('Failed to retrieve a valid token.');
         }
@@ -74,6 +83,7 @@ export const fetchUser = () => async (dispatch) => {
         const user = response.data.user;
         // console.log(user);
         dispatch({ type: FETCH_USER_SUCCESS, payload: user });
+        return user;
     } catch (error) {
         dispatch({
             type: FETCH_USER_FAILURE,

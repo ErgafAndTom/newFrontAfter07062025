@@ -468,7 +468,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
       {/*<ShiftControlModal />*/}
 
       {/* Блок вибору методів оплати */}
-      {(!thisOrder.Payment ||
+      {currentUser?.role !== 'user' && (!thisOrder.Payment ||
         ["CANCELLED", "EXPIRED"].includes(thisOrder.Payment.status)) && (
           <>
             {oplata && (

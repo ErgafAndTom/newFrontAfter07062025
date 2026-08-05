@@ -11,6 +11,7 @@ import TopClientsCard from "./TopClientsCard";
 import ExpensesCard from "./ExpensesCard";
 import CategoryBarChart from "./CategoryBarChart";
 import ClientPaymentStats from "./ClientPaymentStats";
+import RoiChart from "./RoiChart";
 import OrdersListModal from "./OrdersListModal";
 import './Desktop.css';
 
@@ -326,6 +327,12 @@ const Desktop = () => {
                             >
                                 Витрати
                             </button>
+                            <button
+                                className={`dsh-chart-tab ${activeBottomTab === 'roi' ? 'active' : ''}`}
+                                onClick={() => setActiveBottomTab('roi')}
+                            >
+                                ROI
+                            </button>
                         </div>
                     </div>
                     <div className="dsh-chart-body">
@@ -339,7 +346,9 @@ const Desktop = () => {
                                         ? <PaymentDoughnutChart methodsData={payMethods}/>
                                         : activeBottomTab === 'expenses'
                                             ? <ExpensesBarChart data={expensesData}/>
-                                            : <CategoryBarChart data={categoryData} mode={activeBottomTab === 'catValue' ? 'value' : 'count'}/>
+                                            : activeBottomTab === 'roi'
+                                                ? <RoiChart dateRange={dateRange}/>
+                                                : <CategoryBarChart data={categoryData} mode={activeBottomTab === 'catValue' ? 'value' : 'count'}/>
                         }
                     </div>
                 </div>

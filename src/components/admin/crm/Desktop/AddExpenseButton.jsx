@@ -208,7 +208,7 @@ const AddExpenseButton = () => {
                 setMaterialName(created.name);
                 setMaterialId(created.id);
                 setMaterialUnit(created.unit || 'шт.');
-                setIsNewMaterial(false);
+                setAllMaterials(prev => [created, ...prev]);
                 setForm(f => ({...f, description: f.description || created.name}));
             }
             setShowNewMat(false);
@@ -228,7 +228,11 @@ const AddExpenseButton = () => {
 
             {showModal && (
                 <div className="aeb-overlay">
-                    <div className="aeb-modal" onClick={e => e.stopPropagation()}>
+                    <div
+                        className="aeb-modal"
+                        onClick={e => e.stopPropagation()}
+                        onScroll={() => catOpen && setCatOpen(false)}
+                    >
                         <div className="aeb-title">
                             Нова витрата
                             <button className="aeb-close-btn" onClick={handleClose} aria-label="Закрити">&#x2715;</button>

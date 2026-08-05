@@ -4,7 +4,7 @@ import axios from '../api/axiosInstance';
 const API_BASE = '/api/service-tabs';
 const CACHE_PREFIX = 'svcTabs_';
 
-const mapTab = (t) => ({ id: t.id, name: t.name, color: t.color || null, presets: t.presets || null });
+const mapTab = (t) => ({ id: t.id, name: t.name, color: t.color || null, presets: t.presets || null, orderName: t.orderName || null, isDefault: !!t.isDefault });
 
 /** Читати кеш з localStorage */
 const readCache = (category) => {
@@ -34,7 +34,7 @@ export default function useServiceTabs(category, defaults = []) {
         // Спочатку з кешу, потім дефолти
         const cached = readCache(category);
         if (cached && cached.length > 0) return cached;
-        return defaults.map((name, i) => ({ id: `default-${i}`, name, color: null, presets: null }));
+        return defaults.map((name, i) => ({ id: `default-${i}`, name, color: null, presets: null, orderName: null, isDefault: false }));
     });
     const [loading, setLoading] = useState(true);
     const [mountId, setMountId] = useState(0);
@@ -99,7 +99,7 @@ export default function useServiceTabs(category, defaults = []) {
                 alert('Така назва вже існує');
             } else {
                 console.error('[useServiceTabs] add error:', err);
-                const newItem = { id: `local-${Date.now()}`, name: trimmed, color: null, presets: null };
+                const newItem = { id: `local-${Date.now()}`, name: trimmed, color: null, presets: null, orderName: null, isDefault: false };
                 setServices((prev) => [...prev, newItem]);
                 return newItem;
             }
@@ -129,7 +129,12 @@ export default function useServiceTabs(category, defaults = []) {
             const { data: tab } = await axios.put(`${API_BASE}/${category}/${id}`, updates);
             const updated = mapTab(tab);
             setServices((prev) => {
-                const next = prev.map((s) => s.id === id ? updated : s);
+                // сервер знімає isDefault з інших табів категорії — відобразити це й локально
+                const next = prev.map((s) => {
+                    if (s.id === id) return updated;
+                    if (updates.isDefault) return { ...s, isDefault: false };
+                    return s;
+                });
                 writeCache(category, next);
                 return next;
             });

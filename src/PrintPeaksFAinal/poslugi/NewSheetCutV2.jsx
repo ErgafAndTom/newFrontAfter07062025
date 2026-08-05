@@ -8,7 +8,7 @@ import NewNoModalHoles from "./newnomodals/NewNoModalHoles";
 import Materials2 from "./newnomodals/Materials2";
 import { useNavigate } from "react-router-dom";
 import NewNoModalLyuversy from "./newnomodals/NewNoModalLyuversy";
-import Porizka from "./newnomodals/Porizka";
+import NewNoModalPorizka from "./newnomodals/NewNoModalPorizka";
 import NewNoModalProkleyka from "./newnomodals/NewNoModalProkleyka";
 import useServiceTabs from "../../hooks/useServiceTabs";
 import ServiceSettingsModal from "./shared/ServiceSettingsModal";
@@ -74,17 +74,6 @@ function safeNum(v, fallback) {
   return Number.isFinite(n) ? n : fallback;
 }
 
-function calcItemsPerSheet(sheetX, sheetY, itemX, itemY) {
-  const sx = Number(sheetX) || 0;
-  const sy = Number(sheetY) || 0;
-  const ix = Number(itemX) || 0;
-  const iy = Number(itemY) || 0;
-  if (!sx || !sy || !ix || !iy) return 0;
-  const normal = Math.floor(sx / ix) * Math.floor(sy / iy);
-  const rotated = Math.floor(sx / iy) * Math.floor(sy / ix);
-  return Math.max(normal, rotated);
-}
-
 function parseOptionsJson(editingOrderUnit) {
   if (!editingOrderUnit?.optionsJson) return null;
   try {
@@ -100,8 +89,103 @@ const ToggleSwitch = ({ isOn, onToggle }) => (
     type="button"
     className={`v2-sw ${isOn ? "on" : "off"}`}
     onClick={onToggle}
+    /* без цього клік мишею лишає кільце фокуса (як у «Порізка», що
+       клікнули останньою) — preventDefault на mousedown прибирає фокус
+       від миші, не займаючи Tab/Enter для клавіатури */
+    onMouseDown={(e) => e.preventDefault()}
   />
 );
+
+/* Розкладка виробу на друкарському аркуші: показує, як ляже наклад,
+   у якій орієнтації і скільки лишиться полів. */
+const ImpositionPreview = ({ sheetX, sheetY, itemX, itemY }) => {
+  const sx = Number(sheetX) || 0;
+  const sy = Number(sheetY) || 0;
+  const ix = Number(itemX) || 0;
+  const iy = Number(itemY) || 0;
+
+  if (!sx || !sy || !ix || !iy) return null;
+
+  const normal = Math.floor(sx / ix) * Math.floor(sy / iy);
+  const rotated = Math.floor(sx / iy) * Math.floor(sy / ix);
+
+  if (!normal && !rotated) {
+    return (
+      <div className="v2-sheet-empty">
+        Виріб {ix}×{iy} мм не вміщається на аркуш {sx}×{sy} мм. Зменште розмір
+        або оберіть інший матеріал.
+      </div>
+    );
+  }
+
+  const turned = rotated > normal;
+  const w = turned ? iy : ix;
+  const h = turned ? ix : iy;
+  const cols = Math.floor(sx / w);
+  const rows = Math.floor(sy / h);
+  const offX = (sx - cols * w) / 2;
+  const offY = (sy - rows * h) / 2;
+  const tick = Math.min(sx, sy) * 0.05;
+
+  const cells = [];
+  for (let r = 0; r < rows; r += 1) {
+    for (let c = 0; c < cols; c += 1) {
+      cells.push(
+        <rect
+          key={`${r}-${c}`}
+          className="v2-sheet-cell"
+          x={offX + c * w}
+          y={offY + r * h}
+          width={w}
+          height={h}
+          vectorEffect="non-scaling-stroke"
+        />
+      );
+    }
+  }
+
+  return (
+    <>
+      <svg
+        className="v2-sheet"
+        viewBox={`0 0 ${sx} ${sy}`}
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        aria-label={`Розкладка: ${cols * rows} виробів на аркуші ${sx}×${sy} мм`}
+      >
+        <rect
+          className="v2-sheet-bg"
+          x="0"
+          y="0"
+          width={sx}
+          height={sy}
+          vectorEffect="non-scaling-stroke"
+        />
+        {cells}
+        {/* мітки різки по кутах аркуша */}
+        {[
+          [0, 0, 1, 1],
+          [sx, 0, -1, 1],
+          [0, sy, 1, -1],
+          [sx, sy, -1, -1],
+        ].map(([x, y, dx, dy], i) => (
+          <g key={i} className="v2-sheet-mark" vectorEffect="non-scaling-stroke">
+            <line x1={x} y1={y} x2={x + dx * tick} y2={y} vectorEffect="non-scaling-stroke" />
+            <line x1={x} y1={y} x2={x} y2={y + dy * tick} vectorEffect="non-scaling-stroke" />
+          </g>
+        ))}
+      </svg>
+      <div className="v2-sheet-meta">
+        <span>
+          {sx}×{sy} мм{turned ? " · поворот 90°" : ""}
+        </span>
+        <span>
+          {cols}×{rows} = {cols * rows} шт
+        </span>
+      </div>
+    </>
+  );
+};
 
 const NewSheetCutV2 = ({
   thisOrder,
@@ -153,6 +237,22 @@ const NewSheetCutV2 = ({
 
   const [selectedService, setSelectedService] = useState("Зображення");
   const [showSettings, setShowSettings] = useState(false);
+
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem("printpeaks_v2_theme") || "beige";
+    } catch {
+      return "beige";
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("printpeaks_v2_theme", theme);
+    } catch {
+      // приватний режим чи заблоковане сховище — тема просто не запам'ятається
+    }
+  }, [theme]);
   const { services, addService, removeService, updateService, reorderServices, loading: servicesLoading } = useServiceTabs("SheetCut", [
     "Зображення", "Листівка", "Візитка", "Флаєр", "Буклет",
     "Брошура", "Картка", "Диплом", "Сертифікат", "Подяка",
@@ -198,6 +298,15 @@ const NewSheetCutV2 = ({
   }, [services, selectedService, servicesLoading]);
 
   const isEdit = Boolean(editingOrderUnit?.id || editingOrderUnit?.idKey);
+
+  // Один раз, коли таби завантажились — відкрити товар, позначений "за замовчуванням"
+  const didAutoSelectDefault = useRef(false);
+  useEffect(() => {
+    if (servicesLoading || isEdit || didAutoSelectDefault.current) return;
+    didAutoSelectDefault.current = true;
+    const def = services.find((s) => typeof s === 'object' && s?.isDefault);
+    if (def) setSelectedService(def.name);
+  }, [services, servicesLoading, isEdit]);
 
   const handleServiceSelect = useCallback((name) => {
     setSelectedService(name);
@@ -292,10 +401,12 @@ const NewSheetCutV2 = ({
   /* ===================== SAVE ===================== */
 
   const addNewOrderUnit = () => {
+    const customOrderName = getSvcForPreset()?.orderName;
+    const orderUnitName = customOrderName || selectedService;
     let dataToSend = {
       orderId: thisOrder.id,
       toCalc: {
-        nameOrderUnit: `${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
+        nameOrderUnit: `${orderUnitName.toLowerCase() ? orderUnitName.toLowerCase() + " " : ""}`,
         type: "SheetCut",
         size, material, color, lamination,
         big, cute, cuteLocal, prokleyka, lyuversy, design,
@@ -381,14 +492,14 @@ const NewSheetCutV2 = ({
   const sc = pricesThis.sheetCount || 0;
 
   const pricingLines = [
-    { label: "Друк", total: (pricesThis.priceDrukPerSheet || 0) * sc },
-    { label: "Матеріали", total: (pricesThis.pricePaperPerSheet || 0) * sc },
-    { label: "Ламінація", total: (pricesThis.priceLaminationPerSheet || 0) * sc },
-    { label: "Згинання", total: pricesThis.big?.totalPrice || 0 },
-    { label: "Скруглення", total: pricesThis.cute?.totalPrice || 0 },
-    { label: "Отвори", total: pricesThis.holes?.totalPrice || 0 },
-    { label: "Проклейка", total: pricesThis.prokleyka?.totalPrice || 0 },
-    { label: "Люверси", total: pricesThis.lyuversy?.totalPrice || 0 },
+    { label: "Друк", qty: sc, unit: "арк", unitPrice: pricesThis.priceDrukPerSheet || 0, total: (pricesThis.priceDrukPerSheet || 0) * sc },
+    { label: "Матеріали", qty: sc, unit: "арк", unitPrice: pricesThis.pricePaperPerSheet || 0, total: (pricesThis.pricePaperPerSheet || 0) * sc },
+    { label: "Ламінація", qty: sc, unit: "арк", unitPrice: pricesThis.priceLaminationPerSheet || 0, total: (pricesThis.priceLaminationPerSheet || 0) * sc },
+    { label: "Згинання", qty: pricesThis.big?.count || 0, unit: "шт", unitPrice: pricesThis.big?.pricePerUnit || 0, total: pricesThis.big?.totalPrice || 0 },
+    { label: "Скруглення", qty: pricesThis.cute?.count || 0, unit: "шт", unitPrice: pricesThis.cute?.pricePerUnit || 0, total: pricesThis.cute?.totalPrice || 0 },
+    { label: "Отвори", qty: pricesThis.holes?.count || 0, unit: "шт", unitPrice: pricesThis.holes?.pricePerUnit || 0, total: pricesThis.holes?.totalPrice || 0 },
+    { label: "Проклейка", qty: pricesThis.prokleyka?.count || 0, unit: "шт", unitPrice: pricesThis.prokleyka?.pricePerUnit || 0, total: pricesThis.prokleyka?.totalPrice || 0 },
+    { label: "Люверси", qty: pricesThis.lyuversy?.count || 0, unit: "шт", unitPrice: pricesThis.lyuversy?.pricePerUnit || 0, total: pricesThis.lyuversy?.totalPrice || 0 },
   ];
 
   if (pricesThis.porizka !== 0) {
@@ -396,7 +507,6 @@ const NewSheetCutV2 = ({
   }
 
   const totalPrice = pricesThis.price || 0;
-  const itemsPerSheet = calcItemsPerSheet(material.x || 320, material.y || 450, size.x, size.y);
 
   const sidesOptions = [
     { value: "односторонній", label: "Односторонній" },
@@ -406,7 +516,60 @@ const NewSheetCutV2 = ({
 
   const thicknessOptions = ["Офісний", "Тонкий", "Середній", "Цупкий", "Самоклеючі"];
 
+  /* назви мусять точно збігатись із полем name матеріалів
+     type: "Постпресс", typeUse: "Порізка" — за ним бекенд бере відсоток */
+  const PORIZKA_SUBTYPES = ["ручна легка", "на гільйотині", "ручна середня"];
+
+  const THEMES = [
+    { key: "light", label: "Світла тема", swatch: "#ffffff" },
+    { key: "dark", label: "Темна тема", swatch: "#201e1b" },
+    { key: "beige", label: "Бежева тема", swatch: "#e7e4dc" },
+  ];
+
+
   const getSvcForPreset = () => services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+
+  /* Матеріал за замовчуванням для категорії щільності. Під однією назвою на
+     складі лежать різні грамажі, і без явної щільності береться перший за id
+     (для «Середній» це 150 г/м²). Пресет товару має пріоритет над цим. */
+  const DEFAULT_MATERIAL_BY_THICKNESS = {
+    "Середній": { name: "Крейдований папір", thickness: "170" },
+  };
+
+  const thicknessDefault = DEFAULT_MATERIAL_BY_THICKNESS[material.thickness];
+  const presetMaterialName = getSvcForPreset()?.presets?.materialName;
+  const preferredMaterialName = presetMaterialName || thicknessDefault?.name;
+  // грамаж застосовуємо, коли пресет не називає інший матеріал
+  const preferredMaterialThickness =
+    thicknessDefault && (!presetMaterialName || presetMaterialName === thicknessDefault.name)
+      ? thicknessDefault.thickness
+      : undefined;
+
+  /* короткі назви операцій постобробки для рядка специфікації у шапці */
+  const LAMINATION_SHORT = {
+    "з глянцевим ламінуванням": "глянцеве",
+    "з матовим ламінуванням": "матове",
+    "з ламінуванням SoftTouch": "SoftTouch",
+    "з холодним матовим ламінуванням": "холодне",
+  };
+
+  const finishing = [];
+  if (lamination.type !== "Не потрібно") {
+    const kind = LAMINATION_SHORT[lamination.type] || lamination.type;
+    finishing.push(`Ламінування ${kind}${lamination.size ? ` ${lamination.size} мкм` : ""}`);
+  }
+  if (big !== "Не потрібно") finishing.push(`Згин ×${big}`);
+  if (cute !== "Не потрібно") {
+    finishing.push(`Скруглення${cuteLocal.radius ? ` R${cuteLocal.radius}` : ""}`);
+  }
+  if (holes !== "Не потрібно") {
+    finishing.push(`Отвори ×${holes}${holesR ? ` ${holesR}` : ""}`);
+  }
+  if (prokleyka !== "Не потрібно") finishing.push(`Проклейка ×${prokleyka}`);
+  if (lyuversy !== "Не потрібно") finishing.push(`Люверси ×${lyuversy}`);
+  if (porizka.type !== "Не потрібно") {
+    finishing.push(`Порізка${porizka.subtype ? ` ${porizka.subtype}` : ""}`);
+  }
 
   /* ===================== RENDER ===================== */
 
@@ -415,54 +578,83 @@ const NewSheetCutV2 = ({
   return (
     <>
       <div className="v2-overlay" onClick={handleClose} />
-      <div className="v2-modal" onClick={(e) => e.stopPropagation()}>
+      <div className={`v2-modal v2-theme-${theme}`} onClick={(e) => e.stopPropagation()}>
 
         {/* HEADER */}
         <div className="v2-head">
-          <span className="v2-head-title">Digital print cutting</span>
-          <div className="v2-head-count">
-            <button className="v2-count-btn" onClick={() => setCount(Math.max(1, count - 1))}>−</button>
-            <input
-              className="v2-count-val"
-              type="number"
-              value={count}
-              min={1}
-              onChange={(e) => setCount(Number(e.target.value) || 1)}
-              style={{ border: "none", background: "transparent", outline: "none" }}
-            />
-            <button className="v2-count-btn" onClick={() => setCount(count + 1)}>+</button>
-            <span className="v2-count-unit">шт</span>
+          <div className="v2-head-main">
+            <span className="v2-head-title">
+              Цифровий друк{selectedService ? ` · ${selectedService}` : ""}
+            </span>
+            <div className="v2-head-spec">
+              {size.x}×{size.y} мм ·{" "}
+              {material.thickness || "—"} ·{" "}
+              {sidesOptions.find((o) => o.value === color.sides)?.label || "—"}
+              {material.material ? ` · ${material.material}` : ""}
+              {finishing.map((f) => (
+                <span className="v2-head-finish" key={f}>
+                  {" · "}
+                  {f}
+                </span>
+              ))}
+            </div>
           </div>
+          <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
+            &times;
+          </button>
+          {/* ТИМЧАСОВО: діагностика різниці 27" vs 32" — прибрати після діагностики */}
+          <span style={{ position: "fixed", top: 2, left: 2, zIndex: 99999, background: "#ff00ff", color: "#fff", fontSize: 12, padding: "2px 6px", whiteSpace: "pre" }}>
+            {`inner:${window.innerWidth}x${window.innerHeight} dpr:${window.devicePixelRatio} screen:${window.screen.width}x${window.screen.height}`}
+          </span>
         </div>
 
         {/* BODY */}
         <div className="v2-body">
-          <div className="v2-left">
 
-            {/* TABS */}
-            <div className="v2-section">
-              <div className="v2-tabs">
-                {services.map((service) => {
-                  const name = typeof service === 'string' ? service : service?.name;
-                  return (
-                    <button
-                      key={name}
-                      className={`v2-tab${selectedService === name ? " active" : ""}`}
-                      onClick={() => handleServiceSelect(name)}
-                    >
-                      {name}
-                    </button>
-                  );
-                })}
-                <button className="v2-settings-btn" onClick={() => setShowSettings(true)} title="Налаштування">
-                  ⚙
-                </button>
-              </div>
+          {/* СТРІЧКА ВИРОБІВ — колонка, вирівняна по висоті з правою
+              панеллю наряду через align-items:stretch на .v2-body */}
+          <div className="v2-tabsrail">
+            <div className="v2-theme-switch">
+              {THEMES.map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  className={`v2-theme-btn${theme === t.key ? " active" : ""}`}
+                  style={{ "--v2-swatch": t.swatch }}
+                  onClick={() => setTheme(t.key)}
+                  title={t.label}
+                  aria-label={t.label}
+                  aria-pressed={theme === t.key}
+                />
+              ))}
             </div>
+            {services.map((service, idx) => {
+              const name = typeof service === 'string' ? service : service?.name;
+              const color = typeof service === 'string' ? null : service?.color;
+              const prevService = services[idx - 1];
+              const prevColor = prevService ? (typeof prevService === 'string' ? null : prevService?.color) : null;
+              const isNewGroup = idx > 0 && color !== prevColor;
+              return (
+                <button
+                  key={name}
+                  className={`v2-tab${selectedService === name ? " active" : ""}${isNewGroup ? " v2-tab-group-start" : ""}`}
+                  style={color ? { "--tab-color": color } : undefined}
+                  onClick={() => handleServiceSelect(name)}
+                >
+                  {name}
+                </button>
+              );
+            })}
+            <button className="v2-settings-btn" onClick={() => setShowSettings(true)} title="Налаштування">
+              ⚙
+            </button>
+          </div>
+
+          <div className="v2-left">
 
             {/* SIZES */}
             <div className="v2-section">
-              {/* <span className="v2-label">Розмір</span> */}
+              <span className="v2-label">Розмір у міліметрах</span>
               <div className="v2-sizes">
                 {sizeButtons.map((f) => (
                   <button
@@ -496,7 +688,7 @@ const NewSheetCutV2 = ({
 
             {/* SIDES */}
             <div className="v2-section">
-              {/* <span className="v2-label">Сторони друку</span> */}
+              <span className="v2-label">Друк</span>
               <div className="v2-sides" style={{ gridTemplateColumns: `repeat(${sidesOptions.length}, 1fr)` }}>
                 {sidesOptions.map((opt) => (
                   <button
@@ -512,7 +704,7 @@ const NewSheetCutV2 = ({
 
             {/* THICKNESS */}
             <div className="v2-section">
-              {/* <span className="v2-label">Щільність паперу</span> */}
+              <span className="v2-label">Папір</span>
               <div className="v2-thick-btns" style={{ gridTemplateColumns: `repeat(${thicknessOptions.length}, 1fr)` }}>
                 {thicknessOptions.map((t) => (
                   <button
@@ -540,7 +732,9 @@ const NewSheetCutV2 = ({
             </div>
 
             {/* MATERIAL */}
-            <div className="v2-material-wrap">
+            <div className="v2-section">
+              <span className="v2-label">Матеріал</span>
+              <div className="v2-material-wrap">
               <Materials2
                 material={material}
                 setMaterial={setMaterial}
@@ -555,13 +749,18 @@ const NewSheetCutV2 = ({
                 typeUse={null}
                 typeOfPosluga={"NewSheetCut"}
                 autoSelectFirst={false}
-                preferredMaterialName={getSvcForPreset()?.presets?.materialName || undefined}
+                dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                sortOverride={{ column: "article", reverse: false }}
+                preferredMaterialName={preferredMaterialName || undefined}
+                preferredMaterialThickness={preferredMaterialThickness}
               />
+              </div>
             </div>
 
             {/* POST-PROCESSING TOGGLES */}
             <div className="v2-section">
               <span className="v2-label">Постобробка</span>
+              <div className="v2-postpress">
 
               {/* Ламінування */}
               {!hideLamination && (
@@ -586,6 +785,8 @@ const NewSheetCutV2 = ({
                     ) : (
                       <div className="v2-toggle-content">
                         <NewNoModalLamination
+                          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                          label="Ламінування:"
                           lamination={lamination}
                           setLamination={setLamination}
                           prices={prices}
@@ -625,6 +826,7 @@ const NewSheetCutV2 = ({
                     ) : (
                       <div className="v2-toggle-content">
                         <NewNoModalCornerRounding
+                          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
                           big={big} setBig={setBig}
                           prices={prices} type={"SheetCut"}
                           buttonsArr={[]}
@@ -657,6 +859,7 @@ const NewSheetCutV2 = ({
                     ) : (
                       <div className="v2-toggle-content">
                         <NewNoModalCute
+                          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
                           cute={cute} setCute={setCute}
                           cuteLocal={cuteLocal} setCuteLocal={setCuteLocal}
                           prices={prices} type={"SheetCut"}
@@ -684,6 +887,7 @@ const NewSheetCutV2 = ({
                     ) : (
                       <div className="v2-toggle-content">
                         <NewNoModalHoles
+                          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
                           holes={holes} setHoles={setHoles}
                           holesR={holesR} setHolesR={setHolesR}
                           prices={prices} type={"SheetCut"}
@@ -709,6 +913,7 @@ const NewSheetCutV2 = ({
                     ) : (
                       <div className="v2-toggle-content">
                         <NewNoModalProkleyka
+                          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
                           prokleyka={prokleyka} setProkleyka={setProkleyka}
                           prices={prices} type={"SheetCut"}
                           buttonsArr={[]}
@@ -733,6 +938,7 @@ const NewSheetCutV2 = ({
                     ) : (
                       <div className="v2-toggle-content">
                         <NewNoModalLyuversy
+                          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
                           lyuversy={lyuversy} setLyuversy={setLyuversy}
                           type={"SheetCut"} buttonsArr={[]}
                           selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
@@ -750,35 +956,99 @@ const NewSheetCutV2 = ({
                     <ToggleSwitch
                       isOn={porizka.type !== "Не потрібно"}
                       onToggle={() => {
-                        if (porizka.type === "Не потрібно") setPorizka({ ...porizka, type: "Потрібно" });
-                        else setPorizka({ type: "Не потрібно" });
+                        if (porizka.type === "Не потрібно") {
+                          setPorizka({ ...porizka, type: "Потрібно", subtype: porizka.subtype || PORIZKA_SUBTYPES[0] });
+                        } else {
+                          setPorizka({ type: "Не потрібно" });
+                        }
                       }}
                     />
-                    <span className="v2-toggle-name">Порізка</span>
+                    {porizka.type === "Не потрібно" ? (
+                      <span className="v2-toggle-name">Порізка</span>
+                    ) : (
+                      <div className="v2-toggle-content">
+                        <NewNoModalPorizka
+                          porizka={porizka}
+                          setPorizka={setPorizka}
+                          selectArr={PORIZKA_SUBTYPES}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
+              </div>
             </div>
           </div>
 
-          {/* RIGHT — PRICING */}
+          {/* RIGHT — НАРЯД: розкладка + калькуляція */}
           <div className="v2-right">
-            <div className="v2-prices-title">Калькуляція</div>
-            {pricingLines.map((line, i) => (
-              <div className="v2-price-row" key={i}>
-                <span>{line.label}</span>
-                <span>{fmt2(line.total)} грн</span>
+            {/* наклад стоїть першим: від нього залежить і розкладка, і сума */}
+            <div className="v2-run">
+              <span className="v2-run-label">Наклад, шт</span>
+              <div className="v2-count-row">
+                <button className="v2-count-btn" onClick={() => setCount(Math.max(1, count - 1))}>−</button>
+                <input
+                  className="v2-count-val"
+                  type="number"
+                  value={count}
+                  min={1}
+                  onChange={(e) => setCount(Number(e.target.value) || 1)}
+                />
+                <button className="v2-count-btn" onClick={() => setCount(count + 1)}>+</button>
               </div>
-            ))}
+            </div>
+
+            <div className="v2-imposition">
+              <div className="v2-prices-title">Розкладка</div>
+              <ImpositionPreview
+                sheetX={material.x || 320}
+                sheetY={material.y || 450}
+                itemX={size.x}
+                itemY={size.y}
+              />
+            </div>
+
+            <div className="v2-prices-title">Калькуляція</div>
+            <div className="v2-prices">
+              {pricingLines.map((line, i) => {
+                /* бекенд інколи повертає порізку не рівно нулем (напр. 0.001),
+                   а "0,00 грн" все одно показуємо — тож і приглушення рядка
+                   звіряємо з тим самим округленням, що й сам напис, а не з
+                   сирим числом */
+                const isZero = Math.round((line.total || 0) * 100) === 0;
+                const hasBreakdown = !isZero && line.qty > 0 && line.unitPrice > 0;
+                return (
+                  <div
+                    className={`v2-price-row${isZero ? " is-zero" : ""}`}
+                    key={i}
+                  >
+                    <span>{line.label}</span>
+                    <i className="v2-lead" />
+                    <span className="v2-price-val">
+                      {hasBreakdown && (
+                        <span className="v2-price-calc">
+                          {line.qty} {line.unit} × {fmt2(line.unitPrice)} ={" "}
+                        </span>
+                      )}
+                      {fmt2(line.total)} грн
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
             <div className="v2-total">
               <div className="v2-total-price">
                 {fmt2(totalPrice)} <span className="v2-total-unit">грн</span>
               </div>
               <div className="v2-total-sub">
-                За 1 виріб: {count ? fmt2(totalPrice / count) : "0,00"} грн
+                <span>За 1 виріб</span>
+                <span>{count ? fmt2(totalPrice / count) : "0,00"} грн</span>
               </div>
               <div className="v2-total-sub">
-                На аркуші: {itemsPerSheet} шт · Аркушів: {sc} шт
+                <span>Використано аркушів</span>
+                <span>{sc} шт</span>
               </div>
             </div>
             <button
@@ -786,7 +1056,12 @@ const NewSheetCutV2 = ({
               onClick={addNewOrderUnit}
               disabled={!thisOrder?.id}
             >
-              ✈ {isEdit ? "Зберегти зміни" : "Додати"}
+              <span className="v2-add-btn-icon" aria-hidden="true">
+                {isEdit ? "✓" : "+"}
+              </span>
+              <span className="v2-add-btn-label">
+                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+              </span>
             </button>
           </div>
         </div>
@@ -800,6 +1075,7 @@ const NewSheetCutV2 = ({
 
         {/* SETTINGS MODAL */}
         <ServiceSettingsModal
+          variant="ssm-v2"
           show={showSettings}
           onClose={() => setShowSettings(false)}
           services={services}

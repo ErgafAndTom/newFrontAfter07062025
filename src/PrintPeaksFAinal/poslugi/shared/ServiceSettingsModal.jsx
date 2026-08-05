@@ -57,6 +57,9 @@ const ServiceSettingsModal = ({
   materialCategories,
   customPresetSections,
   hideMaterialOption,
+  // додатковий клас на overlay/модалку — дозволяє конкретній послузі
+  // мати власне оформлення налаштувань, не чіпаючи решту
+  variant,
 }) => {
   const [newName, setNewName] = useState("");
   const [newSizeLabel, setNewSizeLabel] = useState("");
@@ -67,6 +70,8 @@ const ServiceSettingsModal = ({
   const [localServices, setLocalServices] = useState(null);
   const [colorPickerForId, setColorPickerForId] = useState(null);
   const [customHex, setCustomHex] = useState("");
+  const [orderNameForId, setOrderNameForId] = useState(null);
+  const [orderNameDraft, setOrderNameDraft] = useState("");
   const [presetForId, setPresetForId] = useState(null);
   const [presetDraft, setPresetDraft] = useState({});
   const [materials, setMaterials] = useState([]);
@@ -271,6 +276,17 @@ const ServiceSettingsModal = ({
     setColorPickerForId(null);
   };
 
+  const handleSaveOrderName = async (service) => {
+    await onUpdateService(service.id, { orderName: orderNameDraft.trim() || null });
+    setOrderNameForId(null);
+  };
+
+  const handleClearOrderName = async (service) => {
+    await onUpdateService(service.id, { orderName: null });
+    setOrderNameDraft("");
+    setOrderNameForId(null);
+  };
+
   const handleAdd = async () => {
     if (!newName.trim()) return;
     await onAddService(newName.trim());
@@ -290,7 +306,7 @@ const ServiceSettingsModal = ({
   const activePresetService = displayedServices.find((s) => s.id === presetForId);
 
   return ReactDOM.createPortal(
-    <div className="ssm-overlay" onClick={onClose}>
+    <div className={`ssm-overlay${variant ? ` ${variant}` : ""}`} onClick={onClose}>
       <div className="ssm-modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="ssm-header">
@@ -324,9 +340,21 @@ const ServiceSettingsModal = ({
                 setServiceDragIdx(null);
                 setLocalServices(null);
               }}
-              style={onReorderServices ? { cursor: "grab" } : undefined}
+              style={{
+                ...(onReorderServices ? { cursor: "grab" } : null),
+                ...(service.color ? { "--svc-color": service.color } : null),
+              }}
             >
               <span className="ssm-service-name">{service.name}</span>
+
+              {/* Товар за замовчуванням — відкривається першим при вході в калькулятор */}
+              <button
+                className={`ssm-default-btn${service.isDefault ? " ssm-default-set" : ""}`}
+                onClick={() => onUpdateService(service.id, { isDefault: !service.isDefault })}
+                title="Відкривати цей товар за замовчуванням"
+              >
+                {service.isDefault ? "★" : "☆"}
+              </button>
 
               {/* Color swatch */}
               <div
@@ -335,9 +363,23 @@ const ServiceSettingsModal = ({
                 onClick={() => {
                   setColorPickerForId(colorPickerForId === service.id ? null : service.id);
                   setCustomHex(service.color || "");
+                  setOrderNameForId(null);
                 }}
                 title="Колір кнопки"
               />
+
+              {/* Order name button */}
+              <button
+                className={`ssm-orderName-btn${service.orderName ? " ssm-orderName-set" : ""}`}
+                onClick={() => {
+                  setOrderNameForId(orderNameForId === service.id ? null : service.id);
+                  setOrderNameDraft(service.orderName || "");
+                  setColorPickerForId(null);
+                }}
+                title="Назва замовлення за замовчуванням"
+              >
+                Aa
+              </button>
 
               {/* Preset button */}
               <button
@@ -345,7 +387,8 @@ const ServiceSettingsModal = ({
                 onClick={() => openPreset(service)}
                 title="Налаштування за замовчуванням"
               >
-                {service.presets ? "\u2699 \u2714" : "\u2699"}
+                {"\u2699"}
+                {service.presets && <span className="ssm-preset-dot" title="\u041f\u0440\u0435\u0441\u0435\u0442 \u0437\u0430\u0441\u0442\u043e\u0441\u043e\u0432\u0443\u0454\u0442\u044c\u0441\u044f \u0437\u0430 \u0437\u0430\u043c\u043e\u0432\u0447\u0443\u0432\u0430\u043d\u043d\u044f\u043c" />}
               </button>
 
               {/* Delete */}
@@ -359,6 +402,31 @@ const ServiceSettingsModal = ({
             </div>
           ))}
         </div>
+
+        {/* Order name editor (shown below service list when active) */}
+        {orderNameForId && (() => {
+          const svc = services.find((s) => s.id === orderNameForId);
+          if (!svc) return null;
+          return (
+            <div className="ssm-orderName-picker">
+              <span className="ssm-orderName-label">Назва замовлення за замовчуванням:</span>
+              <input
+                className="ssm-add-input"
+                placeholder={svc.name.toLowerCase()}
+                value={orderNameDraft}
+                onChange={(e) => setOrderNameDraft(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSaveOrderName(svc)}
+                autoFocus
+              />
+              <button className="ssm-add-btn" onClick={() => handleSaveOrderName(svc)}>&#10003;</button>
+              {svc.orderName && (
+                <button className="ssm-delete-btn" onClick={() => handleClearOrderName(svc)} title="Скинути">
+                  &times;
+                </button>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Color picker (shown below service list when active) */}
         {colorPickerForId && (() => {

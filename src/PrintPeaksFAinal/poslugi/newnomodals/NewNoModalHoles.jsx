@@ -13,7 +13,7 @@ const iconArray = [
     holeIcon3,
 ];
 
-const NewNoModalHoles = ({holes, setHoles, holesR, setHolesR, prices, buttonsArr, selectArr}) => {
+const NewNoModalHoles = ({holes, setHoles, holesR, setHolesR, prices, buttonsArr, selectArr, dropdownClassName = ""}) => {
     const { open: openSize, setOpen: setOpenSize, style: dropStyle, toggle, triggerRef: sizeRef, portalRef } = usePortalDropdown();
 
     let handleSelectChange = (val) => {
@@ -47,7 +47,7 @@ const NewNoModalHoles = ({holes, setHoles, holesR, setHolesR, prices, buttonsArr
                   {sizeTitle}
                 </div>
                 {openSize && ReactDOM.createPortal(
-                  <div className="custom-select-dropdown" ref={portalRef} style={dropStyle}>
+                  <div className={`custom-select-dropdown${dropdownClassName ? ` ${dropdownClassName}` : ""}`} ref={portalRef} style={dropStyle}>
                     {(selectArr || []).filter(item => item !== "").map((item) => (
                       <div
                         key={item}

@@ -259,7 +259,7 @@ const CustomOrderTable2 = () => {
               <PayCell order={order} />
               <div className="ort-cell ort-cell--center">
                 {order.client?.telegram
-                  ? <TelegramAvatar link={order.client.telegram} size={38} defaultSrc="" square />
+                  ? <TelegramAvatar link={order.client.telegram} photo={order.client.photoLink} size={38} defaultSrc="" square />
                   : '—'}
               </div>
               <div className="ort-cell ort-cell--center" style={{ opacity: 0.5 }}>{order.client?.id || '—'}</div>

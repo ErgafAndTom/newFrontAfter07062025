@@ -745,3 +745,58 @@
 .AddContractorInOrderSubmitBtn:hover::before { transform: translateY(-25px); height: 0; }
 .AddContractorInOrderSubmitBtn:hover::after  { transform: scaleX(0); transition-delay: 0.15s; }
 .AddContractorInOrderSubmitBtn:hover { color: var(--adminorange, #f5a623) !important; }
+
+/* ── Checkbox cashier toggle ── */
+.pp-cbx-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.4rem;
+  margin: 0;
+  cursor: pointer;
+}
+
+.pp-cbx-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--admingreen, #0e935b);
+  border-radius: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.pp-cbx-toggle input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.pp-cbx-toggle-text {
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
+  opacity: 0.75;
+}
+
+.pp-cbx-shift-btn {
+  height: 2.2rem;
+  padding: 0 0.9rem;
+  border: 2px solid var(--adminorange, #f5a623);
+  border-radius: 0;
+  background: transparent;
+  color: var(--adminorange, #f5a623);
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  cursor: pointer;
+  justify-self: start;
+  transition: background 0.2s, color 0.2s;
+}
+
+.pp-cbx-shift-btn:hover:not(:disabled) {
+  background: var(--adminorange, #f5a623);
+  color: var(--adminfon, #f7f5ee);
+}
+
+.pp-cbx-shift-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

@@ -6,7 +6,7 @@ import {Navigate, useNavigate} from "react-router-dom";
 import "../Poslugy.css";
 
 
-const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, selectArr, size, type, isVishichka, labelMap, paperTypeUse, presetLamType, presetLamThickness, typeOfPosluga}) => {
+const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, selectArr, size, type, isVishichka, labelMap, paperTypeUse, presetLamType, presetLamThickness, typeOfPosluga, label = "Ламінація:", dropdownClassName = ""}) => {
     const [thisLaminationSizes, setThisLaminationSizes] = useState([]);
     const [error, setError] = useState(null);
     const [load, setLoad] = useState(true);
@@ -173,7 +173,7 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
         </label>
 
         <div className="PostpressNames">
-          <span style={{  }}>Ламінація:</span>
+          <span style={{  }}>{label}</span>
 
           {lamination.type !== "Не потрібно" ? (
             <div className="sc-pp-wrap">
@@ -202,7 +202,7 @@ const NewNoModalLamination = ({lamination, setLamination, prices, buttonsArr, se
                     {thicknessTitle}
                   </div>
                   {openThickness && ReactDOM.createPortal(
-                    <div className="custom-select-dropdown" ref={portalRef} style={dropStyle}>
+                    <div className={`custom-select-dropdown${dropdownClassName ? ` ${dropdownClassName}` : ""}`} ref={portalRef} style={dropStyle}>
                       {thisLaminationSizes.map((item) => (
                         <div
                           key={item.thickness}

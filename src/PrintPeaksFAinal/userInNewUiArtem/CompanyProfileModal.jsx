@@ -145,7 +145,7 @@ function AttachUserModal({ companyId, onClose, onAttached }) {
 }
 
 /* ── Головний компонент ── */
-export default function CompanyProfileModal({ companyId, onClose }) {
+export default function CompanyProfileModal({ companyId, onClose, onCompanyUpdated }) {
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -177,6 +177,13 @@ export default function CompanyProfileModal({ companyId, onClose }) {
   };
 
   useEffect(() => { load(); }, [companyId]);
+
+  /* Знижку компанії змінили — бекенд уже перерахував активні замовлення її клієнтів,
+     тягнемо свіжі дані і повідомляємо батьківський компонент */
+  const onDiscountSaved = () => {
+    load();
+    onCompanyUpdated?.();
+  };
 
   /* Завантаження клієнтів */
   const fetchUsers = useCallback(async (page = 1) => {
@@ -277,7 +284,7 @@ export default function CompanyProfileModal({ companyId, onClose }) {
               <div className="cоm-section-title">Контакти та знижка</div>
               <FieldRow label="Телефон"    field="phoneNumber" value={company.phoneNumber} companyId={company.id} onSaved={load} />
               <FieldRow label="E-mail"     field="email"       value={company.email}       companyId={company.id} type="email" onSaved={load} />
-              <FieldRow label="Знижка (%)" field="discount"    value={discountNum}         companyId={company.id} type="number" onSaved={load} />
+              <FieldRow label="Знижка (%)" field="discount"    value={discountNum}         companyId={company.id} type="number" onSaved={onDiscountSaved} />
               <FieldRow label="Фото"       field="photoLink"   value={company.photoLink}   companyId={company.id} onSaved={load} />
               <FieldRow label="Логін"      field="username"    value={company.username}    companyId={company.id} onSaved={load} />
               <FieldRow label="Пароль"     field="password"    value={company.passwordRaw ?? ""}  companyId={company.id} type="text" onSaved={load} />
@@ -312,7 +319,7 @@ export default function CompanyProfileModal({ companyId, onClose }) {
                 return (
                   <div key={u.id} className="cоm-user-row">
                     <div className="cоm-user-avatar">
-                      <TelegramAvatar link={u.telegram} size={54} square={true} />
+                      <TelegramAvatar link={u.telegram} photo={u.photoLink} size={54} square={true} />
                       <span className="cоm-user-id">ID {u.id}</span>
                     </div>
                     <div className="cоm-user-info">

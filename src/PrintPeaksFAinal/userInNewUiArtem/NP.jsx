@@ -72,8 +72,16 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
   const [selectedRecipientSavedId, setSelectedRecipientSavedId] = useState('');
   const [savedRecipientContact, setSavedRecipientContact] = useState(null);
   const [allRecipientContacts, setAllRecipientContacts] = useState([]);
+  const [phoneSuggestions, setPhoneSuggestions] = useState([]);
+  const [phoneLookupLoading, setPhoneLookupLoading] = useState(false);
+  const [autoFilledFrom, setAutoFilledFrom] = useState(null);
   const lastWidgetDescription = useRef('');
   const lastRecipientWidgetData = useRef({});
+  const phoneLookupTimer = useRef(null);
+  const lastLookupTail = useRef('');
+  const autoFilledRef = useRef(false);
+  const recipientNameRef = useRef('');
+  recipientNameRef.current = formData.RecipientName;
 
   const handleClose = () => setShowNP(false);
 
@@ -181,6 +189,91 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
+
+  // ── Підстановка ПІБ одержувача за номером телефону ──
+  const phoneTail = (p) => String(p || '').replace(/\D/g, '').slice(-9);
+
+  const SOURCE_LABEL = {
+    saved: 'зі збережених контактів',
+    client: 'з бази клієнтів',
+    waybill: 'з попередніх ТТН',
+    np: 'з кабінету НП',
+  };
+
+  const applyRecipientSuggestion = (s, auto = false) => {
+    setFormData((prev) => ({
+      ...prev,
+      RecipientName: s.name,
+      RecipientEDRPOU: s.edrpou || prev.RecipientEDRPOU || '',
+    }));
+    if (s.recipientType === 'Organization' || s.recipientType === 'PrivatePerson') {
+      setRecipientType(s.recipientType);
+    }
+    autoFilledRef.current = true;
+    setAutoFilledFrom(s.source || (auto ? 'client' : null));
+  };
+
+  const lookupRecipientByPhone = async (digits) => {
+    const tail = digits.slice(-9);
+    // 1. Локально: збережені контакти та адреси одержувачів
+    const local = [];
+    allRecipientContacts.forEach((c) => {
+      if (c.name && phoneTail(c.phone) === tail) {
+        local.push({ name: c.name, phone: c.phone, edrpou: c.edrpou, recipientType: c.recipientType, source: 'saved' });
+      }
+    });
+    allRecipientAddresses.forEach((a) => {
+      if (a.recipientName && phoneTail(a.recipientPhone) === tail) {
+        local.push({ name: a.recipientName, phone: a.recipientPhone, source: 'saved' });
+      }
+    });
+
+    // 2. Сервер: клієнти в базі → історія ТТН → кабінет НП
+    let remote = [];
+    setPhoneLookupLoading(true);
+    try {
+      const { data } = await axios.get('/novaposhta/recipient-by-phone', { params: { phone: digits } });
+      remote = data?.suggestions || [];
+    } catch (e) {
+      console.warn('[NP] Phone lookup failed:', e.message);
+    } finally {
+      setPhoneLookupLoading(false);
+    }
+
+    const merged = [];
+    const seen = new Set();
+    [...local, ...remote].forEach((s) => {
+      const key = (s.name || '').trim().toLowerCase();
+      if (!key || seen.has(key)) return;
+      seen.add(key);
+      merged.push(s);
+    });
+    setPhoneSuggestions(merged);
+
+    // Автопідстановка — лише якщо поле порожнє або туди вже підставляли автоматично
+    const current = (recipientNameRef.current || '').trim();
+    if (merged.length > 0 && (!current || autoFilledRef.current)) {
+      applyRecipientSuggestion(merged[0], true);
+    }
+  };
+
+  useEffect(() => {
+    const digits = String(formData.RecipientsPhone || '').replace(/\D/g, '');
+    const tail = digits.slice(-9);
+    if (tail.length < 9) {
+      setPhoneSuggestions([]);
+      setAutoFilledFrom(null);
+      lastLookupTail.current = '';
+      return;
+    }
+    if (lastLookupTail.current === tail) return;
+    clearTimeout(phoneLookupTimer.current);
+    phoneLookupTimer.current = setTimeout(() => {
+      lastLookupTail.current = tail;
+      lookupRecipientByPhone(digits);
+    }, 450);
+    return () => clearTimeout(phoneLookupTimer.current);
+  }, [formData.RecipientsPhone, allRecipientContacts, allRecipientAddresses]); // eslint-disable-line
 
   // Load sender addresses from NP account + locally saved
   useEffect(() => {
@@ -679,6 +772,11 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'RecipientName') {
+      // Ручне редагування — більше не перезаписуємо ПІБ автопідстановкою
+      autoFilledRef.current = false;
+      setAutoFilledFrom(null);
+    }
     setFormData((prev) => {
       const next = { ...prev, [name]: value };
       if (['Length', 'Width', 'Height'].includes(name)) {
@@ -912,6 +1010,37 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
                   title="Видалити збережені контактні дані">−</button>
               ) : null}
             </div>
+            {/* Підказки ПІБ за номером телефону */}
+            {(() => {
+              const current = (formData.RecipientName || '').trim().toLowerCase();
+              const others = phoneSuggestions.filter(s => (s.name || '').trim().toLowerCase() !== current);
+              if (!phoneLookupLoading && !autoFilledFrom && others.length === 0) return null;
+              return (
+                <div className="np-phone-hint">
+                  {phoneLookupLoading && (
+                    <span className="np-phone-hint-label">Пошук ПІБ за номером…</span>
+                  )}
+                  {!phoneLookupLoading && autoFilledFrom && (
+                    <span className="np-phone-hint-label">
+                      ПІБ підставлено {SOURCE_LABEL[autoFilledFrom] || ''}
+                    </span>
+                  )}
+                  {!phoneLookupLoading && others.length > 0 && (
+                    <>
+                      <span className="np-phone-hint-label">Знайдено за номером:</span>
+                      {others.slice(0, 4).map((s, i) => (
+                        <button type="button" key={`sug-${i}-${s.name}`}
+                          className="np-phone-suggestion"
+                          title={`Підставити: ${s.name}${SOURCE_LABEL[s.source] ? ' (' + SOURCE_LABEL[s.source] + ')' : ''}`}
+                          onClick={() => applyRecipientSuggestion(s)}>
+                          {s.name}
+                        </button>
+                      ))}
+                    </>
+                  )}
+                </div>
+              );
+            })()}
             {/* Збережені адреси одержувача */}
             {savedRecipientAddresses.length > 0 && (
               <div className="np-field" style={{ marginBottom: '0.5rem' }}>

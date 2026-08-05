@@ -13,7 +13,15 @@ const Materials2 = ({
                       typeOfPosluga,
                       disabled = false,
                       preferredMaterialName,
+                      // уточнює вибір серед однойменних матеріалів різної щільності
+                      preferredMaterialThickness,
                       autoSelectFirst = true,
+                      // додатковий клас на випадайку — вона рендериться порталом
+                      // у body, тож інакше стилі конкретної послуги до неї не дійдуть
+                      dropdownClassName = "",
+                      // перевизначає глобальне налаштування сортування
+                      // (Profile → Калькулятори) для конкретного виклику
+                      sortOverride,
                     }) => {
   const [paper, setPaper] = useState([]);
   const [error, setError] = useState(null);
@@ -62,20 +70,28 @@ const Materials2 = ({
 
   // ✅ Завантаження списку матеріалів (без примусового setMaterial("Немає"))
   useEffect(() => {
-    // 🔽 Глобальне налаштування сортування матеріалів (Profile → Калькулятори)
+    // 🔽 Глобальне налаштування сортування матеріалів (Profile → Калькулятори),
+    // якщо конкретний виклик явно не задав своє через sortOverride
     let sortPref = { column: "id", reverse: false };
-    try {
-      const raw = localStorage.getItem("printpeaks_material_sort");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed && typeof parsed === "object") {
-          sortPref = {
-            column: ["id", "article", "name", "createdAt"].includes(parsed.column) ? parsed.column : "id",
-            reverse: !!parsed.reverse,
-          };
+    if (sortOverride) {
+      sortPref = {
+        column: ["id", "article", "name", "createdAt"].includes(sortOverride.column) ? sortOverride.column : "id",
+        reverse: !!sortOverride.reverse,
+      };
+    } else {
+      try {
+        const raw = localStorage.getItem("printpeaks_material_sort");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === "object") {
+            sortPref = {
+              column: ["id", "article", "name", "createdAt"].includes(parsed.column) ? parsed.column : "id",
+              reverse: !!parsed.reverse,
+            };
+          }
         }
-      }
-    } catch (e) { /* ignore */ }
+      } catch (e) { /* ignore */ }
+    }
 
     const data = {
       name: "MaterialsPrices",
@@ -104,12 +120,20 @@ const Materials2 = ({
 
         // Якщо є preferredMaterialName — завжди вибирати його
         if (preferredMaterialName && rows.length > 0) {
-          const exact = rows.find((r) => r.name === preferredMaterialName);
-          // якщо немає точного збігу — пробуємо часткове входження (case-insensitive)
-          const partial = !exact
-            ? rows.find((r) => (r.name || "").toLowerCase().includes(String(preferredMaterialName).toLowerCase()))
+          // назва матеріалу не унікальна: під однією назвою лежать різні
+          // щільності, тож коли задано preferredMaterialThickness — обираємо
+          // серед однойменних саме потрібні грами, інакше візьметься перший за id
+          const wanted = String(preferredMaterialName).toLowerCase();
+          const sameName = rows.filter((r) => (r.name || "").toLowerCase() === wanted);
+          const pool = sameName.length
+            ? sameName
+            : rows.filter((r) => (r.name || "").toLowerCase().includes(wanted));
+          const byThickness = preferredMaterialThickness
+            ? (pool.length ? pool : rows).find(
+                (r) => String(r.thickness) === String(preferredMaterialThickness)
+              )
             : null;
-          const target = exact || partial || rows[0];
+          const target = byThickness || pool[0] || rows[0];
           if (String(target.id) !== String(material?.materialId)) {
             setMaterial((prev) => ({
               ...prev,
@@ -156,7 +180,7 @@ const Materials2 = ({
     return () => {
       cancelled = true;
     };
-  }, [material?.thickness, material?.type, size, size?.x, size?.y, navigate, setMaterial, preferredMaterialName, autoSelectFirst]);
+  }, [material?.thickness, material?.type, size, size?.x, size?.y, navigate, setMaterial, preferredMaterialName, preferredMaterialThickness, autoSelectFirst, sortOverride?.column, sortOverride?.reverse]);
 
   // 📏 автоширина
   useEffect(() => {
@@ -298,7 +322,7 @@ const Materials2 = ({
         </div>
 
         {open && ReactDOM.createPortal(
-          <div ref={portalRef} className="custom-select-dropdown" style={{ ...dropdownStyle, minWidth: hasButtons ? dropdownWidth : dropdownStyle.width }}>
+          <div ref={portalRef} className={`custom-select-dropdown${dropdownClassName ? ` ${dropdownClassName}` : ""}`} style={{ ...dropdownStyle, minWidth: hasButtons ? dropdownWidth : dropdownStyle.width }}>
             {paper.map((item) => (
               <div
                 key={item.id}

@@ -2,6 +2,8 @@ import React, {useEffect, useRef, useState} from "react";
 import { Link } from "react-router-dom";
 import axios from "../../../api/axiosInstance";
 import TelegramAvatar from "../../Messages/TelegramAvatar";
+import AvatarUploader from "../../userInNewUiArtem/AvatarUploader";
+import CheckboxCashierToggle from "./CheckboxCashierToggle";
 import './ProfileNew.css';
 
 const FieldEdit = ({ label, field, value, userId, type = "text", setUser }) => {
@@ -272,7 +274,14 @@ export default function UserPageDetailsSelf({thisUser = null}) {
     <div>
       {/* Header */}
       <div className="pp-profile-header">
-        <TelegramAvatar link={user.telegram || ""} size={48} square={true} />
+        <AvatarUploader
+          userId={user.id}
+          telegram={user.telegram || ""}
+          photoLink={user.photoLink}
+          size={48}
+          square={true}
+          onUpdated={setUser}
+        />
         <div className="pp-profile-name-wrap">
           <span className="pp-profile-name">
             {fullName || user.username || `User #${user.id}`}
@@ -315,6 +324,7 @@ export default function UserPageDetailsSelf({thisUser = null}) {
           <FieldEdit label="Касир(пін)"     field="role2"           value={user.role2}          userId={user.id} setUser={setUser} />
           <FieldEdit label="loginCashier"   field="loginCashier"    value={user.loginCashier}   userId={user.id} setUser={setUser} />
           <FieldEdit label="passwordCashier" field="passwordCashier" value={user.passwordCashier} userId={user.id} setUser={setUser} />
+          <CheckboxCashierToggle userId={user.id} />
         </div>
 
       </div>

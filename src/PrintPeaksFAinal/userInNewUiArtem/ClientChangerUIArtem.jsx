@@ -69,6 +69,10 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
   const [bestDiscount, setBestDiscount] = useState(null);
   const [thisUserIdToCabinet, setThisUserIdToCabinet] = useState(0);
 
+  // "Вчасно" (ЕДО): увімкнено → 🔑 перед 🤖 в імені контакту Telegram
+  const [vchasnoOn, setVchasnoOn] = useState(Boolean(thisOrder?.client?.vchasno));
+  const [vchasnoBusy, setVchasnoBusy] = useState(false);
+
   const [handleThisOrderChange, setHandleThisOrderChange] = useState(thisOrder);
   const [newThisOrder, setNewThisOrder] = useState(thisOrder);
   const canEditDeadline = currentUser?.role === 'admin';
@@ -176,6 +180,25 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
     }, 350);
     return () => clearTimeout(timer);
   }, [searchQuery, searchId]);
+
+  // Знижка компанії клієнта — показуємо в дужках біля назви компанії
+  const companyDiscountNum = useMemo(
+    () => parseInt(String(thisOrder?.client?.Company?.discount ?? '0').replace(/\D/g, ''), 10) || 0,
+    [thisOrder?.client?.Company?.discount]
+  );
+
+  // Перезавантажити замовлення з сервера (напр. після зміни компанії/знижки клієнта —
+  // бекенд уже перерахував знижку, треба підтягнути свіжі ціни)
+  const reloadThisOrder = useCallback(async () => {
+    if (!thisOrder?.id) return;
+    try {
+      const response = await axios.post(`/Orders/OneOrder`, { id: thisOrder.id });
+      setThisOrder(response.data);
+      if (response.data?.OrderUnits) setSelectedThings2(response.data.OrderUnits);
+    } catch (err) {
+      console.log('reloadThisOrder error:', err?.message);
+    }
+  }, [thisOrder?.id, setThisOrder, setSelectedThings2]);
 
   const applyBestDiscount = useCallback(
     async (userId) => {
@@ -369,19 +392,76 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
     setShowOrderFiles(true);
   };
 
+  // синхронізуємо перемикач при зміні клієнта / перезавантаженні замовлення
+  useEffect(() => {
+    setVchasnoOn(Boolean(thisOrder?.client?.vchasno));
+  }, [thisOrder?.client?.id, thisOrder?.client?.vchasno]);
+
+  const toggleVchasno = async (e) => {
+    e?.stopPropagation?.();
+    const clientId = thisOrder?.client?.id;
+    if (!clientId || vchasnoBusy) return;
+
+    const next = !vchasnoOn;
+    setVchasnoBusy(true);
+    setVchasnoOn(next); // оптимістично — щоб кнопка реагувала одразу
+
+    try {
+      const { data } = await axios.post('/api/telegramAkk/contacts/vchasno', {
+        clientId,
+        enabled: next,
+      });
+
+      if (!data?.ok) {
+        setVchasnoOn(!next);
+        setError({ message: `Вчасно: ${data?.error || 'не вдалося зберегти'}` });
+        return;
+      }
+
+      const saved = Boolean(data.vchasno);
+      setVchasnoOn(saved);
+      setThisOrder((prev) => (prev?.client
+        ? { ...prev, client: { ...prev.client, vchasno: saved } }
+        : prev));
+
+      // прапорець збережений, але 🔑 у Telegram не проставився — попереджаємо
+      if (data.tgRenamed === false && data.tgError) {
+        setError({ message: `Вчасно збережено, але контакт у Telegram не перейменовано: ${data.tgError}` });
+      }
+    } catch (err) {
+      setVchasnoOn(!next);
+      setError(err);
+    } finally {
+      setVchasnoBusy(false);
+    }
+  };
+
   return (
     <div className={`nui-client-envelope-shell tone-${progressCounterTone}`} >
       <div className="nui-client-envelope-grid">
         <div className="nui-client-envelope-card">
           <div className="nui-client-card-layout">
             <div className="nui-client-avatar-wrap" onClick={() => openMessenger('telegram')} style={{ cursor: 'pointer' }}>
-              <TelegramAvatar link={thisOrder?.client?.telegram} size={56} square={true} />
+              <TelegramAvatar link={thisOrder?.client?.telegram} photo={thisOrder?.client?.photoLink} size={56} square={true} />
               <span className="nui-client-id-badge-on-avatar" onClick={handleCopy} title="Натисни, щоб скопіювати id">
                 ID {thisOrder?.client?.id ?? '—'}
               </span>
             </div>
 
             <div className="nui-client-card-right">
+              <button
+                type="button"
+                className={`nui-client-vchasno-btn${vchasnoOn ? ' is-on' : ''}`}
+                onClick={toggleVchasno}
+                disabled={!thisOrder?.client?.id || vchasnoBusy}
+                title={vchasnoOn
+                  ? 'Вчасно увімкнено — 🔑 у контакті Telegram. Натисни, щоб вимкнути'
+                  : 'Увімкнути Вчасно — додати 🔑 у контакт Telegram'}
+              >
+                <span className="nui-client-vchasno-key">🔑</span>
+                <span className="nui-client-vchasno-text">Вчасно</span>
+              </button>
+
               <div className="nui-client-meta-block">
                 <div className="nui-client-title-row">
                   <span className="nui-client-name-line">
@@ -392,7 +472,12 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
                 </div>
                 <span className="nui-client-phone-line">{formatPhone(thisOrder?.client?.phoneNumber)}</span>
                 {thisOrder?.client?.Company?.companyName && (
-                  <span className="nui-client-company-line">{thisOrder.client.Company.companyName}</span>
+                  <span className="nui-client-company-line">
+                    {thisOrder.client.Company.companyName}
+                    {companyDiscountNum > 0 && (
+                      <span className="nui-client-company-discount"> ({companyDiscountNum}%)</span>
+                    )}
+                  </span>
                 )}
               </div>
 
@@ -656,6 +741,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
           onCreateOrder={() => {}}
           onOpenChat={() => {}}
           onOpenProfile={() => {}}
+          onUserUpdated={reloadThisOrder}
           onClose={() => setClientCabinetOpen(false)}
         />
       )}

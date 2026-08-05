@@ -875,6 +875,11 @@
   text-overflow: ellipsis;
 }
 
+/* Знижка компанії в дужках біля назви */
+.nui-sheetcut-theme .nui-client-company-discount {
+  color: var(--admingreen, #0e935b);
+}
+
 .nui-sheetcut-theme .nui-client-rect-actions {
   display: flex;
   align-items: center;
@@ -1245,6 +1250,7 @@
 }
 
 .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-card-right {
+  position: relative;
   min-width: 0;
   height: 100%;
   min-height: 0;
@@ -1253,6 +1259,65 @@
   justify-content: space-between;
   align-items: stretch;
   gap: 0;
+}
+
+/* "Вчасно" (ЕДО) — перемикач у лівому верхньому куті картки клієнта.
+   Увімкнено → 🔑 перед 🤖 в імені контакту Telegram. */
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-vchasno-btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.12rem 0.35rem;
+  border: 2px solid var(--admingrey, #666666);
+  border-radius: 0;
+  background: transparent;
+  color: var(--admingrey, #666666);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: 0.2s;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-vchasno-key {
+  font-size: 0.7rem;
+  line-height: 1;
+  filter: grayscale(1);
+  opacity: 0.5;
+  transition: 0.2s;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-vchasno-text {
+  font-size: var(--font-size-xs, 12px);
+  font-weight: 400;
+  text-transform: uppercase;
+  color: inherit;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-vchasno-btn:not(:disabled):hover {
+  border-color: var(--adminorange, #f5a623);
+  color: var(--adminorange, #f5a623);
+}
+
+/* Активний стан — жовтий Вчасно */
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-vchasno-btn.is-on {
+  border-color: var(--adminorange, #f5a623);
+  background: var(--adminorange, #f5a623);
+  color: var(--adminfon, #f7f5ee);
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-vchasno-btn.is-on .nui-client-vchasno-key {
+  filter: none;
+  opacity: 1;
+}
+
+.nui-sheetcut-theme .nui-bottom-client-inline .nui-client-vchasno-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-meta-block {
@@ -1273,6 +1338,9 @@
   top: auto;
   margin-bottom: 0;
   width: 100%;
+  /* симетричний відступ — щоб довге ім'я не заїжджало під кнопку "Вчасно" */
+  padding: 0 4rem;
+  box-sizing: border-box;
 }
 
 .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-name-line,

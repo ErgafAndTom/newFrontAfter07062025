@@ -746,3 +746,147 @@
     width: calc(100% - 1rem);
   }
 }
+
+/* ============================================================
+   Мітка 🤖 в контакті + діалог підтвердження зв'язку з ERP
+   ============================================================ */
+
+.tg-contact-mark {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  color: var(--adminorange, #f5a623);
+  border: 1px solid var(--adminorange, #f5a623);
+  background: var(--adminlightorange, #fef4e5);
+  vertical-align: middle;
+  cursor: help;
+}
+
+.tg-mark-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.tg-mark-modal {
+  width: min(620px, 92vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 1.25rem;
+  background: var(--adminfon, #f7f5ee);
+  border: 1px solid var(--adminorange, #f5a623);
+  color: var(--admingrey, #666666);
+}
+
+.tg-mark-title {
+  font-size: var(--font-size-l, 1.1rem);
+  color: var(--admingrey, #666666);
+  margin-bottom: 0.5rem;
+}
+
+.tg-mark-note {
+  font-size: var(--font-size-s, 0.85rem);
+  line-height: 1.45;
+  color: var(--admingrey, #666666);
+  margin-bottom: 1rem;
+}
+
+.tg-mark-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.tg-mark-col {
+  padding: 0.75rem;
+  background: var(--adminfonelement, #f1eee7);
+  border-left: 2px solid var(--adminblue, #3c60a6);
+  min-width: 0;
+}
+
+.tg-mark-col-head {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--admingrey, #666666);
+  opacity: 0.75;
+  margin-bottom: 0.35rem;
+}
+
+.tg-mark-value {
+  font-size: var(--font-size-s, 0.9rem);
+  color: var(--admingrey, #666666);
+  word-break: break-word;
+}
+
+.tg-mark-sub {
+  font-size: 0.75rem;
+  color: var(--admingrey, #666666);
+  opacity: 0.8;
+  word-break: break-word;
+}
+
+.tg-mark-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tg-mark-btn {
+  flex: 1 1 auto;
+  padding: 0.6rem 0.9rem;
+  text-align: center;
+  font-size: var(--font-size-s, 0.85rem);
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid var(--admingrey, #666666);
+  color: var(--admingrey, #666666);
+  background: transparent;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.tg-mark-btn:hover {
+  border-color: var(--adminorange, #f5a623);
+}
+
+.tg-mark-btn--link {
+  border-color: var(--admingreen, #0e935b);
+  color: var(--admingreen, #0e935b);
+}
+
+.tg-mark-btn--link:hover {
+  background: var(--adminlightgreen, #e2f2eb);
+  border-color: var(--admingreen, #0e935b);
+}
+
+.tg-mark-btn--new:hover {
+  background: var(--adminlightorange, #fef4e5);
+}
+
+.tg-mark-btn--cancel {
+  flex: 0 0 auto;
+}
+
+.tg-mark-btn--cancel:hover {
+  background: var(--adminlightred, #fde8e5);
+  border-color: var(--adminred, #ee3c23);
+  color: var(--adminred, #ee3c23);
+}
+
+@media (max-width: 640px) {
+  .tg-mark-compare {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tg-mark-note--vchasno {
+  padding: 0.5rem 0.75rem;
+  background: var(--adminlightorange, #fef4e5);
+  border-left: 2px solid var(--adminorange, #f5a623);
+}

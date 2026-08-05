@@ -503,7 +503,7 @@ const NewUIArtem = () => {
   // Слухаємо подію прив'язки клієнта з Telegram-панелі (без перезавантаження)
   useEffect(() => {
     const handleUserAssigned = (e) => {
-      // Перевіряємо що це саме наше замовлення
+      // Перевіряємо, що це саме наше замовлення
       if (e.detail && String(e.detail.id) === String(id)) {
         setThisOrder(e.detail);
         if (e.detail.OrderUnits) {
@@ -895,7 +895,7 @@ const NewUIArtem = () => {
                     ? parseFloat(parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2))
                     : parseFloat(parseFloat(thing.priceForOneThis).toFixed(2));
                   const _rawTotal = hasDiscount ? thing.priceForThisDiscount : thing.priceForAllThis;
-                  const totalPrice = parseFloat(_rawTotal) || (unitPrice * (thing.amount || 1));
+                  const totalPrice = parseFloat(parseFloat(parseFloat(_rawTotal) || (unitPrice * (thing.amount || 1))).toFixed(2));
 
                   return (
                     <div

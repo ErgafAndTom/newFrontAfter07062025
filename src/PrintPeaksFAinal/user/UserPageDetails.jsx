@@ -3,6 +3,8 @@ import { Spinner, Button, Form, Modal } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import axios from "../../api/axiosInstance";
 import TelegramAvatar from "../Messages/TelegramAvatar";
+import AvatarUploader from "../userInNewUiArtem/AvatarUploader";
+import CheckboxCashierToggle from "./profile/CheckboxCashierToggle";
 
 const FieldEdit = ({ label, field, value, userId, type="text", as="input", load, setUser,  user }) => {
   const [val, setVal] = useState(value ?? "");
@@ -351,7 +353,14 @@ export default function UserPageDetails({thisUser = null}) {
   return (
     <div className="container-fluid" style={{padding:"1rem"}}>
       <div className="d-flex align-items-center justify-content-center" style={{gap:"2rem"}}>
-        <TelegramAvatar link={user.telegram} size={80}/>
+        <AvatarUploader
+          userId={user.id}
+          telegram={user.telegram}
+          photoLink={user.photoLink}
+          size={80}
+          square={false}
+          onUpdated={setUser}
+        />
         {/*{user.phoneNumber && (*/}
         {/*  <ViberAvatar link={user.phoneNumber} size={64}/>*/}
         {/*)}*/}
@@ -422,6 +431,7 @@ export default function UserPageDetails({thisUser = null}) {
           <FieldEdit label="Касир(пин)" field="role2" value={user.role2} userId={user.id} load={load}  setUser={setUser} user={user} />
           <FieldEdit label="loginCashier" field="loginCashier" value={user.loginCashier} userId={user.id} load={load}  setUser={setUser} user={user} />
           <FieldEdit label="passwordCashier" field="passwordCashier" value={user.passwordCashier} userId={user.id} load={load}  setUser={setUser} user={user} />
+          <CheckboxCashierToggle userId={user.id} variant="legacy" />
           {/*<FieldEdit label="Права" field="role2" value={user.role2} userId={user.id} load={load}  setUser={setUser} user={user} />*/}
         </div>
       </div>

@@ -118,7 +118,7 @@ const UsersOrdersLikeTable = () => {
               <div className="uol-cell uol-cell--center">{order.id}</div>
               <div className="uol-cell uol-cell--center">
                 {order.telegram
-                  ? <TelegramAvatar link={order.telegram} size={52} defaultSrc="" square />
+                  ? <TelegramAvatar link={order.telegram} photo={order.photoLink} size={52} defaultSrc="" square />
                   : '—'}
               </div>
               <div className="uol-cell">

@@ -1,4 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback, useMemo} from 'react';
+import ReactDOM from 'react-dom';
 import axios from "../../../../api/axiosInstance";
 
 const PALETTE = [
@@ -24,6 +25,14 @@ const PAY_LABELS = {
     invoice: 'Рахунок',
 };
 
+const PAY_OPTIONS = [
+    {key: 'cash', label: 'Готівка'},
+    {key: 'card', label: 'Картка'},
+    {key: 'iban', label: 'IBAN'},
+    {key: 'invoice', label: 'Рахунок'},
+    {key: '', label: '— не вказано —'},
+];
+
 const formatFileSize = (bytes) => {
     if (!bytes || bytes <= 0) return '';
     if (bytes < 1024) return bytes + ' B';
@@ -34,8 +43,12 @@ const formatFileSize = (bytes) => {
 const ExpensesCard = ({data, dateRange, onExpenseAdded, fullWidth}) => {
     const [expenses, setExpenses] = useState([]);
     const [uploadingId, setUploadingId] = useState(null);
+    // Редагування способу оплати: {id, style} відкритої випадайки
+    const [payMenu, setPayMenu] = useState(null);
+    const [savingPayId, setSavingPayId] = useState(null);
     const fileInputRef = useRef(null);
     const uploadExpenseRef = useRef(null);
+    const payMenuRef = useRef(null);
 
     const total = data?.totalSum ?? 0;
     const count = data?.totalCount ?? 0;
@@ -92,6 +105,62 @@ const ExpensesCard = ({data, dateRange, onExpenseAdded, fullWidth}) => {
         }
         setUploadingId(null);
     };
+
+    // ── Зміна способу оплати ──
+    const openPayMenu = (e, expenseId) => {
+        e.stopPropagation();
+        if (payMenu?.id === expenseId) return setPayMenu(null);
+        const rect = e.currentTarget.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const width = Math.max(rect.width, 110);
+        const menuHeight = PAY_OPTIONS.length * 28 + 8;
+        const flipUp = vh - rect.bottom < menuHeight && rect.top > menuHeight;
+        const style = {
+            position: 'fixed',
+            left: Math.min(rect.left, window.innerWidth - width - 8),
+            width,
+            zIndex: 100000,
+        };
+        if (flipUp) style.bottom = vh - rect.top + 2;
+        else style.top = rect.bottom + 2;
+        setPayMenu({id: expenseId, style});
+    };
+
+    const changePaymentMethod = async (expenseId, method) => {
+        setPayMenu(null);
+        const prev = expenses.find(x => x.id === expenseId)?.paymentMethod;
+        if (prev === (method || null)) return;
+        setSavingPayId(expenseId);
+        // Оптимістичне оновлення
+        setExpenses(list => list.map(x => x.id === expenseId ? {...x, paymentMethod: method || null} : x));
+        try {
+            await axios.patch(`/expenses/${expenseId}`, {paymentMethod: method});
+            // Оновити агреговані дані дашборду (каса, статистика)
+            window.dispatchEvent(new Event('expense-added'));
+        } catch (err) {
+            console.error('Помилка зміни способу оплати:', err);
+            // Відкат
+            setExpenses(list => list.map(x => x.id === expenseId ? {...x, paymentMethod: prev ?? null} : x));
+        }
+        setSavingPayId(null);
+    };
+
+    // Закрити випадайку при кліку поза нею / скролі / ресайзі
+    useEffect(() => {
+        if (!payMenu) return;
+        const close = (e) => {
+            if (e && e.type === 'mousedown' && payMenuRef.current?.contains(e.target)) return;
+            setPayMenu(null);
+        };
+        document.addEventListener('mousedown', close);
+        window.addEventListener('resize', close);
+        window.addEventListener('scroll', close, true);
+        return () => {
+            document.removeEventListener('mousedown', close);
+            window.removeEventListener('resize', close);
+            window.removeEventListener('scroll', close, true);
+        };
+    }, [payMenu]);
 
     // Категорійний мініатюрний бар
     const categories = data?.byCategory ?? [];
@@ -180,7 +249,13 @@ const ExpensesCard = ({data, dateRange, onExpenseAdded, fullWidth}) => {
                                 <span className="dsh-exp-item-dot" style={{background: color}}/>
                                 <span className="dsh-exp-item-cat">{exp.category}</span>
                                 <span className="dsh-exp-item-desc">{exp.description || '—'}</span>
-                                <span className="dsh-exp-item-pay">{PAY_LABELS[exp.paymentMethod] || '—'}</span>
+                                <span
+                                    className={`dsh-exp-item-pay dsh-exp-pay-edit${payMenu?.id === exp.id ? ' open' : ''}`}
+                                    onClick={(e) => openPayMenu(e, exp.id)}
+                                    title="Змінити спосіб оплати"
+                                >
+                                    {savingPayId === exp.id ? '...' : (PAY_LABELS[exp.paymentMethod] || '—')}
+                                </span>
                                 <span className="dsh-exp-item-date">
                                     {new Date(exp.date).toLocaleDateString('uk-UA')}
                                 </span>
@@ -231,6 +306,25 @@ const ExpensesCard = ({data, dateRange, onExpenseAdded, fullWidth}) => {
                         );
                     })}
                 </div>
+
+                {/* Випадайка вибору способу оплати */}
+                {payMenu && ReactDOM.createPortal(
+                    <div ref={payMenuRef} className="dsh-exp-pay-menu" style={payMenu.style}>
+                        {PAY_OPTIONS.map(opt => {
+                            const current = expenses.find(x => x.id === payMenu.id)?.paymentMethod || '';
+                            return (
+                                <div
+                                    key={opt.key || 'none'}
+                                    className={`dsh-exp-pay-option${current === opt.key ? ' active' : ''}`}
+                                    onClick={() => changePaymentMethod(payMenu.id, opt.key)}
+                                >
+                                    {opt.label}
+                                </div>
+                            );
+                        })}
+                    </div>,
+                    document.body
+                )}
             </div>
         );
     }

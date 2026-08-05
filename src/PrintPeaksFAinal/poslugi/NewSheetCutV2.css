@@ -1,10 +1,189 @@
-/* NewSheetCutV2 — clean flat redesign */
+/* ==========================================================================
+   NewSheetCutV2 — «наряд-замовлення» (job ticket)
+   Дизайн ізольований: усі селектори живуть під .v2-* і не впливають
+   на інші модалки послуг.
+
+   Тон: тепла сіро-бежева підкладка, елементи керування — світлі плитки
+   на ній. Чистий білий лишений лише друкарському аркушу в розкладці,
+   щоб він читався як папір, а не як фон інтерфейсу.
+
+   Шрифти: Bahnschrift (DIN 1451 — шрифт технічних креслень, є у складі
+   Windows) для підписів і кнопок, Consolas/Cascadia для чисел.
+   ========================================================================== */
 
 .v2-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(28, 26, 22, 0.42);
   z-index: 9998;
+  animation: v2-fade 0.16s ease-out;
+}
+
+/* --- локальні токени: не витікають за межі цієї послуги.
+   .ssm-v2 — модалка налаштувань, яку рендерять порталом у body,
+   тому токени їй потрібно оголосити окремо. Тема (світла/темна/бежева)
+   стосується лише .v2-modal — .ssm-v2 завжди лишається бежевою. --- */
+.v2-modal,
+.ssm-v2 {
+  /* === БЕЖЕВА ТЕМА (за замовчуванням) === */
+  --v2-ink: var(--admingrey, #666);
+  --v2-accent: var(--admingreen, #0e935b);
+  --v2-action: var(--adminorange, #f5a623);
+
+  /* підкладка трохи темніша за системний фон, плитки — світліші за неї */
+  --v2-ground: #e7e4dc;
+  --v2-ground: color-mix(in srgb, var(--adminfon, #f7f5ee) 88%, var(--admingrey, #666));
+  --v2-tile: var(--adminfon, #f7f5ee);
+  --v2-tile-hi: #fbfaf6;
+  --v2-tile-hi: color-mix(in srgb, var(--adminfon, #f7f5ee) 45%, #fff);
+  --v2-card: var(--adminfon, #f7f5ee);
+  /* друкарський аркуш — завжди білий, це імітація паперу, а не фон
+     інтерфейсу, тому тема на нього не впливає */
+  --v2-paper: #ffffff;
+
+  --v2-line: rgba(102, 102, 102, 0.16);
+  --v2-line: color-mix(in srgb, var(--admingrey, #666) 16%, transparent);
+  --v2-line-strong: rgba(102, 102, 102, 0.32);
+  --v2-line-strong: color-mix(in srgb, var(--admingrey, #666) 32%, transparent);
+  /* заливка вибраного стану (кнопки розміру/друку/паперу, пункт матеріалу) */
+  --v2-active-bg: var(--adminlightgreen, #e2f2eb);
+  /* колір «щось вибрано/натиснуто» — рамки фокуса, підсвітка активного
+     рядка, кромка вибраної кнопки. Скрізь дорівнює --v2-accent (зелений),
+     крім світлої теми, де замість кольору — чорний, за задумом теми.
+     Ціна (--v2-accent напряму) сюди не входить і лишається зеленою всюди */
+  --v2-select: var(--v2-accent);
+  /* текст на суцільній заливці вибраної кнопки (--v2-active-bg). У бежевій/
+     темній темах підкладка — це світлий тон акценту, тому текст лишається
+     самим акцентом; світла тема кладе під низ суцільний чорний і тому
+     тут потрібен білий, а не просто «кольоровий» текст */
+  --v2-active-fg: var(--v2-accent);
+
+  /* --- типографіка ---
+     Один висхідний ряд кеглів для всієї модалки — кожен текстовий елемент
+     бере розмір звідси, жоден селектор нижче не пише «магічний» rem/px.
+     0.85 еyebrow → 0.95 num → 1 ctrl → 1.05 body → 1.2 btn/lead → 1.55 head.
+     btn і lead навмисно рівні: кнопки, випадаючі списки й підписи світчів
+     читаються тим самим кеглем, що й «Крейдований папір» у матеріалі, і тим
+     самим, що й прорахунок у наряді (--v2-fs-btn у .v2-right теж 1.2rem).
+     Права панель узагалі не вигадує свою шкалу, а множить цю саму на ×1.1
+     — див. коментар там. */
+  /* Bahnschrift (DIN) — тільки для технічних підписів і заголовків */
+  --v2-font: "Bahnschrift", "Segoe UI Variable Text", "Segoe UI", Roboto,
+    system-ui, sans-serif;
+  /* кнопки й читабельні написи — звичайний інтерфейсний гротеск */
+  --v2-font-ui: "Segoe UI Variable Text", "Segoe UI", Roboto, system-ui,
+    sans-serif;
+  --v2-mono: "Cascadia Mono", Consolas, ui-monospace, "SF Mono", Menlo,
+    monospace;
+  --v2-fs-eyebrow: 0.85rem;
+  --v2-fs-num: 0.95rem;
+  --v2-fs-ctrl: 1rem;
+  --v2-fs-body: 1.05rem;
+  --v2-fs-btn: 1.15rem;
+  --v2-fs-lead: 1.2rem;
+  --v2-fs-head: 1.55rem;
+  /* глифи-іконки без тексту (⚙, −, +) — окрема, менша роль */
+  --v2-fs-icon: 1rem;
+  --v2-track: 0.06em;
+  --v2-track-wide: 0.16em;
+
+  --v2-rail: 400px;
+  /* лівий рейл виробів: вміщає розкриту (hover) кнопку 148px + відступи */
+  --v2-rail-tabs: 180px;
+  /* єдина висота елементів керування в постобробці */
+  --v2-h-ctrl: 42px;
+  /* кнопки вибору (виріб/розмір/друк/папір) — компактні у спокої,
+     на повний зріст розкриваються лише під курсором */
+  /* трохи вища за колишні 48px — торкається лише кнопок вибору
+     (Розмір/Друк/Папір/Ламінація); кнопка налаштувань (⚙) свідомо лишена
+     на фіксованих 48px нижче, щоб не рости разом з ними */
+  --v2-h-btn: 52px;
+}
+
+/* === СВІТЛА ТЕМА === строго монохромна: сірий, білий, чорний. Єдиний
+   колір, що лишається — зелений там, де показана ціна (--v2-accent сам
+   не перевизначений, тому підсумкова сума й далі зелена). Усе, що в інших
+   темах «підсвічується акцентом» (вибрана кнопка, фокус, ввімкнений
+   світч), тут підсвічується чорним через --v2-select. */
+.v2-modal.v2-theme-light {
+  --v2-ink: #1a1a1a;
+  /* загальний фон — білий; блоки зліва/справа (рейл, наряд) — сірі */
+  --v2-ground: #ffffff;
+  --v2-card: #f6f6f6;
+  /* кнопки — сірі, трохи темнішають при наведенні */
+  --v2-tile: #eeeeee;
+  --v2-tile-hi: #e2e2e2;
+  --v2-line: rgba(0, 0, 0, 0.08);
+  --v2-line-strong: rgba(0, 0, 0, 0.2);
+  /* активна кнопка: чорний фон, білий текст (не зелений тон, як в інших темах) */
+  --v2-active-bg: #000000;
+  --v2-active-fg: #ffffff;
+  --v2-select: #000000;
+  /* CTA і фокус-кільце — теж чорні, а не помаранчеві */
+  --v2-action: #000000;
+}
+
+/* два винятки, які --v2-select/--v2-active-fg самі не покривають:
+   1) .v2-tab.active має ПІЗНІШЕ правило для власного кольору товару
+      (--tab-color), яке інакше переб'є чорний;
+   2) .buttonsArtemActive фарбує підкладку від --v2-tile-hi (сірий),
+      а не від --v2-active-bg, тож токен його не дістає */
+.v2-modal.v2-theme-light .v2-tab.active,
+.v2-modal.v2-theme-light .v2-tab.active:hover {
+  background: #000 !important;
+  color: #fff !important;
+  border-bottom-color: #000 !important;
+}
+
+.v2-modal.v2-theme-light .v2-toggle .buttonsArtemActive,
+.v2-modal.v2-theme-light .v2-toggle .buttonsArtem.buttonsArtemActive {
+  background: #000 !important;
+  color: #fff !important;
+  border-bottom-color: #000 !important;
+}
+
+/* кнопки виробу в спокої/hover — прозорий фон, плитка читається як
+   контурний ярлик. Сама кольорова смуга (::after) знебарвлюється окремим
+   правилом вище (.v2-modal.v2-theme-light .v2-tab::after) */
+.v2-modal.v2-theme-light .v2-tab,
+.v2-modal.v2-theme-light .v2-tab:hover {
+  background: transparent;
+}
+
+/* синє підкреслення «поле порожнє, треба заповнити» (розмір уручну,
+   матеріал, випадайки постобробки) — теж не входить у сіро-чорно-білу
+   палітру цієї теми, тому замінене на нейтральну сіру лінію */
+.v2-modal.v2-theme-light .v2-size-custom input,
+.v2-modal.v2-theme-light .v2-material-wrap .selectArtem,
+.v2-modal.v2-theme-light .v2-toggle .selectArtem {
+  border-bottom-color: var(--v2-line-strong) !important;
+}
+
+.v2-modal.v2-theme-light .v2-material-wrap .custom-select-container::after,
+.v2-modal.v2-theme-light .v2-toggle .custom-select-container::after {
+  border-top-color: var(--v2-line-strong);
+}
+
+/* розкладка на аркуші — сигнатурний елемент, але й він мусить лишитись
+   монохромним на цій темі: сірий контур замість зеленої заливки */
+.v2-modal.v2-theme-light .v2-sheet-cell {
+  fill: #ececec;
+  stroke: var(--v2-ink);
+}
+
+/* === ТЕМНА ТЕМА === текст і лінії світлішають від чорного, а не
+   темнішають від сірого, як у решти тем. Активна заливка (--v2-active-bg)
+   мішає акцент у плитку, а не в білий — інакше вийшла б яскрава мятна
+   пляма на темному тлі замість тонкого тонування */
+.v2-modal.v2-theme-dark {
+  --v2-ink: #d7d4cd;
+  --v2-ground: #201e1b;
+  --v2-tile: #2b2925;
+  --v2-tile-hi: #363330;
+  --v2-card: #262420;
+  --v2-line: rgba(255, 255, 255, 0.10);
+  --v2-line-strong: rgba(255, 255, 255, 0.22);
+  --v2-active-bg: color-mix(in srgb, var(--v2-accent) 22%, var(--v2-tile));
 }
 
 .v2-modal {
@@ -13,325 +192,605 @@
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 9999;
-  width: 80vw;
-  max-width: 1300px;
-  max-height: 90vh;
-  background: var(--adminfon, #f7f5ee);
+  width: min(1700px, 96vw);
+  background: var(--v2-ground);
+  border-top: 2px solid var(--v2-select);
+  box-shadow: 0 18px 60px rgba(28, 26, 22, 0.24);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  /* Segoe UI — успадкований шрифт за замовчуванням для всього вмісту.
+     Bahnschrift (--v2-font) лишається винятком, який явно вмикають лише
+     заголовок і eyebrow-підписи розділів — усе решта більше не «підхоплює»
+     його випадково через успадкування, як було раніше */
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-body);
+  color: var(--v2-ink);
+  animation: v2-in 0.18s ease-out;
 }
+
+@keyframes v2-fade {
+  from { opacity: 0; }
+}
+
+@keyframes v2-in {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v2-overlay,
+  .v2-modal { animation: none; }
+  .v2-sw::after { transition: none; }
+}
+
+/* ============================ ШАПКА ============================ */
 
 .v2-head {
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  align-items: center;
-  border-bottom: 1px solid var(--adminlightgrey, #ccc);
-  background: var(--adminfon, #f7f5ee);
-}
-
-.v2-head-title {
-  padding: 10px 20px;
-  font-size: var(--font-size-l, 1.1rem);
-  font-weight: 500;
-  color: var(--admingrey, #666);
-  text-transform: uppercase;
-}
-
-.v2-head-count {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
   gap: 8px;
-  padding: 10px 20px;
-  border-left: 1px solid var(--adminlightgrey, #ccc);
+  background: var(--v2-ground);
 }
 
-.v2-count-btn {
-  width: 30px;
-  height: 30px;
+.v2-head-main {
+  flex: 1 1 auto;
+  padding: 15px 24px 13px;
+  min-width: 0;
+}
+
+/* закриття — раніше лише клік по підкладці; на весь екран на телефоні
+   підкладки не лишається, тож потрібна явна кнопка */
+.v2-close-btn {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  margin: 12px 14px 0 0;
   border: none;
-  background: transparent;
+  background: var(--v2-tile);
+  color: var(--v2-ink);
+  font-size: 1.3rem;
+  line-height: 1;
   cursor: pointer;
-  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--admingrey, #666);
-  transition: color 0.15s;
+  transition: background 0.12s, color 0.12s;
 }
 
-.v2-count-btn:hover {
-  color: var(--adminorange, #f5a623);
-}
-
-.v2-count-val {
-  font-size: var(--font-size-l, 1.1rem);
-  font-weight: 500;
-  min-width: 36px;
-  text-align: center;
-  color: var(--admingrey, #666);
-}
-
-.v2-count-unit {
-  font-size: var(--font-size-s, 0.85rem);
-  color: var(--admingrey, #999);
-}
-
-.v2-body {
-  display: flex;
-  overflow: hidden;
-  flex: 1;
-  min-height: 0;
-  background: var(--adminfon, #f7f5ee);
-}
-
-.v2-left {
-  padding: 20px 28px;
-  display: block;
-  background: var(--adminfon, #f7f5ee);
-  flex: 1;
-  overflow-y: auto;
-
-  /*max-height: 40vw;*/
-}
-
-.v2-left > .v2-section {
-  margin-bottom: 20px;
-}
-
-.v2-left > .v2-material-wrap {
-  margin-bottom: 20px;
-}
-
-.v2-right {
-  background: var(--adminfonelement, #f1eee7);
-  padding: 20px 24px;
-  border-left: 1px solid var(--adminlightgrey, #ccc);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 300px;
-  min-width: 300px;
-  overflow-y: auto;
-}
-
-/* tabs */
-.v2-tabs {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
-}
-
-.v2-tab {
-  padding: 0 24px;
-  height: 42px;
-  font-size: var(--font-size-s, 0.85rem);
-  border: none;
-  border: none;
-  background: var(--adminfonelement, #f1eee7);
-  cursor: pointer;
-  font-weight: 400;
-  color: var(--admingrey, #666);
-  transition: all 0.15s;
-  text-transform: uppercase;
-  text-align: center;
-}
-
-.v2-tab:hover {
-  background: var(--adminlightgreen, #e2f2eb);
-}
-
-.v2-tab.active {
-  background: var(--admingreen, #0e935b);
+.v2-close-btn:hover {
+  background: var(--adminred, #ee3c23);
   color: #fff;
 }
 
-/* section label */
-.v2-label {
-  font-size: var(--font-size-s, 0.85rem);
-  color: var(--admingrey, #999);
+.v2-head-title {
+  display: block;
+  font-family: var(--v2-font);
+  font-size: var(--v2-fs-head);
+  font-weight: 600;
+  font-stretch: 87.5%;
+  line-height: 1.05;
+  color: var(--v2-ink);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  letter-spacing: var(--v2-track);
+}
+
+.v2-head-spec {
+  margin-top: 6px;
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-num);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
+  /* без opacity на батьку — інакше зелений колір операцій теж приглушується */
+  color: #8a8a8a;
+  color: color-mix(in srgb, var(--admingrey, #666) 80%, var(--v2-ground));
+}
+
+/* операції постобробки — той самий приглушений сірий, що й решта рядка
+   специфікації, лише напівжирним, щоб трохи виділятись за вагою */
+.v2-head-finish {
+  font-weight: 600;
+}
+
+/* наклад — перший блок наряду, від нього залежить решта чисел */
+.v2-run {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.v2-run-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--v2-font);
+  font-size: var(--v2-fs-eyebrow);
+  font-weight: 500;
+  font-stretch: 87.5%;
+  text-transform: uppercase;
+  letter-spacing: var(--v2-track-wide);
+  color: var(--v2-ink);
+  opacity: 0.6;
+}
+
+.v2-run-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--v2-line-strong);
+}
+
+.v2-count-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.v2-count-btn {
+  width: 46px;
+  height: 46px;
+  border: none;
+  background: var(--v2-ground);
+  cursor: pointer;
+  font-size: var(--v2-fs-icon);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--v2-ink);
+  transition: background 0.12s, color 0.12s;
+}
+
+.v2-count-btn:hover {
+  background: var(--v2-select);
+  color: #fff;
+}
+
+.v2-count-val {
+  font-family: var(--v2-mono);
+  font-size: var(--v2-fs-count);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+  height: 46px;
+  text-align: center;
+  color: var(--v2-ink);
+  border: none;
+  background: transparent;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.v2-count-val::-webkit-outer-spin-button,
+.v2-count-val::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ===================== СТРІЧКА ВИРОБІВ (лівий рейл) ===================== */
+
+/* третя колонка в .v2-body, поруч із .v2-left і .v2-right. Висота — та сама
+   механіка, що й у правої панелі наряду: align-items:stretch на .v2-body
+   підганяє всі три колонки під найвищу з них, тому окремо задавати height
+   не потрібно. Фон — той самий --v2-card, що й у .v2-right, щоб обидві
+   бічні панелі читались як одна пара навколо центральної форми */
+.v2-tabsrail {
+  box-sizing: border-box;
+  flex: 0 0 var(--v2-rail-tabs);
+  width: var(--v2-rail-tabs);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 12px;
+  background: var(--v2-card);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+}
+
+.v2-tabsrail::-webkit-scrollbar {
+  width: 6px;
+}
+
+.v2-tabsrail::-webkit-scrollbar-thumb {
+  background: var(--v2-line-strong);
+}
+
+.v2-tabsrail .v2-settings-btn {
+  margin-top: 8px;
+}
+
+/* відступ між групами кольорових виробів у стрічці */
+.v2-tab-group-start {
+  margin-top: 14px;
+}
+
+/* --- перемикач теми: колір замість напису, назва — у title/aria-label --- */
+.v2-theme-switch {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding-bottom: 10px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--v2-line-strong);
+}
+
+.v2-theme-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: var(--v2-swatch);
+  box-shadow: inset 0 0 0 1px var(--v2-line-strong);
+  cursor: pointer;
+  transition: box-shadow 0.12s;
+}
+
+.v2-theme-btn:hover {
+  box-shadow: inset 0 0 0 2px var(--v2-ink);
+}
+
+.v2-theme-btn.active {
+  box-shadow: inset 0 0 0 2px var(--v2-card), 0 0 0 2px var(--v2-select);
+}
+
+/* ============================ ТІЛО ============================ */
+
+/* дві колонки — звичайний flex-рядок: кожна скролиться сама, висота
+   модалки = висота вищої з них, але не більше 90vh.
+   min-height: 0 обов'язковий — без нього flex-елемент не вміє стискатись
+   менше за свій вміст і скрол не вмикається. */
+/* без скролу взагалі: модалка має висоту свого вмісту, обидві колонки
+   показані повністю */
+.v2-body {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  flex: 1 1 auto;
+  background: var(--v2-ground);
+}
+
+.v2-left {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 18px 24px 24px;
+  background: var(--v2-ground);
+}
+
+.v2-left > .v2-section {
+  margin-bottom: 18px;
 }
 
 .v2-section {
   display: flex;
   flex-direction: column;
+  gap: 8px;
+}
+
+/* eyebrow-підпис із волосяною лінією до краю */
+.v2-label {
+  display: flex;
+  align-items: center;
   gap: 10px;
+  font-family: var(--v2-font);
+  font-size: var(--v2-fs-eyebrow);
+  font-weight: 500;
+  font-stretch: 87.5%;
+  text-transform: uppercase;
+  letter-spacing: var(--v2-track-wide);
+  color: var(--v2-ink);
+  opacity: 0.6;
+  margin: 0;
 }
 
-/* sizes */
-.v2-sizes {
+.v2-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--v2-line-strong);
+}
+
+/* ==================== КНОПКИ: плитки на підкладці ==================== */
+
+.v2-sizes,
+.v2-sides,
+.v2-thick-btns {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 3px;
 }
 
-.v2-size {
-  padding: 0 24px;
-  height: 42px;
+.v2-sizes {
+  grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+}
+
+.v2-tab,
+.v2-size,
+.v2-side,
+.v2-thick-btn {
+  /* без цього flex/grid-елемент не стискається вужче за свій текст —
+     на вузьких колонках (телефон) підпис вилазить за межі плитки замість
+     переноситись у два рядки */
+  min-width: 0;
+  padding: 0 22px;
+  height: var(--v2-h-btn);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-s, 0.85rem);
-  border: none;
-  background: var(--adminfonelement, #f1eee7);
-  cursor: pointer;
-  font-weight: 400;
-  color: var(--admingrey, #666);
-  transition: all 0.15s;
-  text-transform: uppercase;
+  /* кнопки — звичайним інтерфейсним шрифтом, але з великої літери:
+     назви виробів читаються як слова, а не як маркування */
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-btn);
+  font-weight: 500;
+  letter-spacing: 0;
   text-align: center;
+  text-transform: uppercase;
+  color: var(--v2-ink);
+  background: var(--v2-tile);
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 
-.v2-size:hover {
-  background: var(--adminlightgreen, #e2f2eb);
+.v2-tab:hover,
+.v2-size:hover,
+.v2-side:hover,
+.v2-thick-btn:hover {
+  background: var(--v2-tile-hi);
+  border-bottom-color: var(--v2-line-strong);
 }
 
-.v2-size.active {
-  background: var(--admingreen, #0e935b);
-  color: #fff;
+/* кнопки виробу — компактні у спокої (половина розміру), на повний зріст
+   розкриваються під курсором чи фокусом. Ширина й висота — фіксовані
+   пікселі, не похідні від --v2-h-btn: він спільний з кнопками розміру/
+   друку/паперу, і якби рейл читав його напряму, ті теж почали б рости.
+   Кегль такої проблеми не має (font-size нічого спільного між селекторами
+   не тягне), тому текст сидить прямо на загальній шкалі: у спокої —
+   eyebrow-розмір (як службові підписи), розкритий — той самий btn-розмір,
+   що й у решти кнопок модалки */
+.v2-tab {
+  flex: 0 0 auto;
+  height: 32px;
+  width: 140px;
+  font-size: var(--v2-fs-eyebrow);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: background 0.12s, color 0.12s, border-color 0.12s,
+    height 0.15s ease, width 0.15s ease, font-size 0.15s ease;
 }
 
+.v2-tab:hover,
+.v2-tab:focus-visible {
+  height: 42px;
+  width: 148px;
+  font-size: var(--v2-fs-btn);
+}
+
+/* вибране — не заливка на всю плитку, а «нанесена фарба»:
+   світло-зелений тон, зелений текст і суцільна зелена кромка знизу */
+.v2-tab.active,
+.v2-size.active,
+.v2-side.active,
+.v2-thick-btn.active,
+.v2-tab.active:hover,
+.v2-size.active:hover,
+.v2-side.active:hover,
+.v2-thick-btn.active:hover {
+  background: var(--v2-active-bg);
+  color: var(--v2-active-fg);
+  font-weight: 600;
+  border-bottom-color: var(--v2-select);
+}
+
+/* --- у кожного виробу свій колір, заданий у налаштуваннях.
+   Смуга — окремий шар (::after), а не border: border не можна вибірково
+   знебарвити фільтром, не зачепивши решту кнопки, а псевдоелемент можна */
+.v2-tab {
+  position: relative;
+  border-bottom-color: transparent;
+}
+
+.v2-tab::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--tab-color, transparent);
+  pointer-events: none;
+}
+
+.v2-tab:hover::after {
+  background: var(--tab-color, var(--v2-line-strong));
+}
+
+/* смуга тепер збоку (::after) — нижня кромка із загального hover-правила
+   кнопок тут зайва, вимикаємо саме для .v2-tab */
+.v2-tab:hover {
+  border-bottom-color: transparent;
+}
+
+.v2-tab.active,
+.v2-tab.active:hover {
+  /* мішаємо колір товару в поточну плитку теми, а не в жорсткий білий —
+     інакше на темній темі вийшла б яскрава біла пляма */
+  background: color-mix(in srgb, var(--tab-color, var(--v2-accent)) 14%, var(--v2-tile));
+  color: var(--tab-color, var(--v2-accent));
+  border-bottom-color: var(--tab-color, var(--v2-accent));
+}
+
+/* активний стан — суцільна заливка, смуга-псевдоелемент тут зайва */
+.v2-tab.active::after {
+  display: none;
+}
+
+.v2-tab:focus-visible,
+.v2-size:focus-visible,
+.v2-side:focus-visible,
+.v2-thick-btn:focus-visible,
+.v2-count-btn:focus-visible,
+.v2-settings-btn:focus-visible,
+.v2-add-btn:focus-visible {
+  outline: 2px solid var(--v2-action);
+  outline-offset: -2px;
+}
+
+/* власний розмір — поле у тій самій сітці */
 .v2-size-custom {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  font-size: var(--font-size-s, 0.85rem);
-  color: var(--admingrey, #666);
+  gap: 5px;
   grid-column: span 2;
+  font-family: var(--v2-font-ui);
+  /* поле для ручного вводу — найважливіші цифри в цьому рядку, тож крупніші
+     за сусідні готові розміри */
+  font-size: 1.35rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--v2-ink);
+  cursor: default;
 }
 
 .v2-size-custom input {
-  width: 80px;
+  width: 82px;
   text-align: center;
   border: none;
   border-bottom: 1.5px solid var(--adminblue, #3c60a6);
   background: transparent;
-  font-size: var(--font-size-s, 0.85rem);
-  padding: 2px 4px;
-  color: var(--admingrey, #666);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  padding: 1px 2px;
+  color: var(--v2-ink);
   outline: none;
+  -moz-appearance: textfield;
 }
 
-.v2-size-custom.active input {
-  color: #fff;
-  border-bottom-color: #fff;
+.v2-size-custom input::-webkit-outer-spin-button,
+.v2-size-custom input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .v2-size-custom span {
-  color: var(--admingrey, #999);
+  opacity: 0.6;
 }
 
+/* «мм» — рядкові, а не ВЕЛИКІ: успадковане з базового правила кнопок
+   uppercase тут зайве, це одиниця виміру, а не назва кнопки */
+.v2-size-custom span:last-child {
+  text-transform: lowercase;
+}
+
+.v2-size-custom:hover {
+  background: var(--v2-tile);
+  border-bottom-color: transparent;
+}
+
+.v2-size-custom.active,
+.v2-size-custom.active input,
 .v2-size-custom.active span {
-  color: #fff;
+  color: var(--v2-active-fg);
+  opacity: 1;
 }
 
-/* sides (segmented control) */
-.v2-sides {
-  display: grid;
-  gap: 0;
-  overflow: hidden;
+.v2-size-custom.active input {
+  border-bottom-color: var(--v2-active-fg);
 }
 
-.v2-side {
-  padding: 0 24px;
-  height: 42px;
+/* кнопка налаштувань — остання плитка у рядку вкладок; свідомо не прив'язана
+   до --v2-h-btn, щоб не рости разом із кнопками вибору */
+.v2-settings-btn {
+  flex: 0 0 auto;
+  height: 48px;
+  width: 48px;
+  border: none !important;
+  background: var(--v2-ground);
+  box-shadow: inset 0 0 0 1px var(--v2-line);
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-s, 0.85rem);
-  text-align: center;
-  cursor: pointer;
-  background: var(--adminfonelement, #f1eee7);
-  color: var(--admingrey, #666);
-  border: none;
-  transition: all 0.15s;
-  text-transform: uppercase;
+  color: var(--v2-ink);
+  font-size: var(--v2-fs-icon);
+  transition: color 0.12s, background 0.12s;
 }
 
-.v2-side:hover {
-  background: var(--adminlightgreen, #e2f2eb);
-}
-
-.v2-side.active {
-  background: var(--admingreen, #0e935b);
+.v2-settings-btn:hover {
   color: #fff;
+  background: var(--v2-ink);
+  box-shadow: none;
 }
 
-/* thickness buttons (segmented control like sides) */
-.v2-thick-btns {
-  display: grid;
-  gap: 0;
-  overflow: hidden;
-}
+/* ============================ МАТЕРІАЛ ============================ */
 
-.v2-thick-btn {
-  padding: 0 24px;
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--font-size-s, 0.85rem);
-  text-align: center;
-  cursor: pointer;
-  background: var(--adminfonelement, #f1eee7);
-  color: var(--admingrey, #666);
-  border: none;
-  transition: all 0.15s;
-  text-transform: uppercase;
-}
-
-.v2-thick-btn:hover {
-  background: var(--adminlightgreen, #e2f2eb);
-}
-
-.v2-thick-btn.active {
-  background: var(--admingreen, #0e935b);
-  color: #fff;
-}
-
-/* material selector */
 .v2-material-wrap {
   position: relative;
   z-index: 20;
 }
 
-.v2-material-wrap .custom-select-container {
-  font-size: var(--font-size-s, 0.85rem);
-  color: var(--admingrey, #666);
-  background: transparent !important;
+/* рядок матеріалу — картка складу: назва ліворуч, паспорт аркуша праворуч.
+   Порожній стан підкреслено синім (треба обрати), заповнений — зеленим. */
+.v2-material-wrap .custom-select-container,
+.v2-material-wrap .selectArtem {
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-btn);
+  color: var(--v2-ink);
+  background: var(--v2-tile) !important;
   border: none !important;
-  border-bottom: 1.5px solid var(--adminblue, #3c60a6) !important;
+  border-bottom: 2px solid var(--adminblue, #3c60a6) !important;
   border-radius: 0 !important;
   position: relative;
   width: 100%;
+  height: auto;
+  min-height: 0;
+  padding: 0;
 }
 
 .v2-material-wrap .custom-select-container.sc-has-value {
-  border-bottom: 1.5px solid var(--admingreen, #0e935b) !important;
+  border-bottom: 2px solid var(--v2-select) !important;
+  box-shadow: inset 3px 0 0 var(--v2-select);
 }
 
 .v2-material-wrap .custom-select-header {
-  font-size: var(--font-size-s, 0.85rem);
-  font-weight: 400;
-  color: var(--admingrey, #999);
+  font-size: var(--v2-fs-btn);
+  font-weight: 500;
+  color: var(--v2-ink);
   display: flex;
   align-items: center;
-  padding: 6px 2px;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 32px 0 14px;
   height: auto;
-  min-height: 32px;
+  min-height: 58px;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* ArtemStyles.css має глобальне (не .sc-wrap) правило
+   .custom-select-header:hover { font-size: 101% !important; } — без
+   прив'язки до нашого рейлу воно все одно спрацьовує й на цьому селекті.
+   Пришпилюємо розмір назад тим самим !important з вищою специфічністю */
+.v2-material-wrap .custom-select-header:hover {
+  font-size: var(--v2-fs-btn) !important;
+}
+
+.v2-material-wrap .custom-select-container.sc-has-value .custom-select-header {
+  padding-left: 17px;
+}
+
 .v2-material-wrap .custom-select-container::after {
   content: "";
   position: absolute;
-  right: 6px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
   width: 0;
@@ -343,19 +802,7 @@
 }
 
 .v2-material-wrap .custom-select-container.sc-has-value::after {
-  border-top-color: var(--admingreen, #0e935b);
-}
-
-.v2-material-wrap .selectArtem {
-  height: auto;
-  min-height: 0;
-  padding: 2px 6px;
-  font-size: var(--font-size-s, 0.85rem);
-  color: var(--admingrey, #666);
-  background: transparent;
-  border: none !important;
-  border-bottom: 1.5px solid var(--adminblue, #3c60a6) !important;
-  border-radius: 0;
+  border-top-color: var(--v2-select);
 }
 
 .v2-material-wrap .selectArtemBefore::before {
@@ -367,52 +814,141 @@
   display: none !important;
 }
 
-.v2-material-wrap .gsm-sub,
+/* паспорт аркуша — моноширинний текст без плашок */
+.v2-material-wrap .gsm-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+}
+
 .v2-material-wrap .gsm-sub sub {
-  color: var(--admingrey, #999);
-  font-size: var(--font-size-s, 0.85rem);
+  margin-right: 0 !important;
+  bottom: 0;
+  vertical-align: baseline;
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-num);
+  font-variant-numeric: tabular-nums;
+  color: var(--v2-ink);
+  opacity: 0.85;
 }
 
-.v2-material-wrap .sc-hand {
-  display: none;
-}
-
+.v2-material-wrap .sc-hand,
 .v2-material-wrap .buttonsArtem {
   display: none;
 }
 
-/* toggle sections */
+/* ============================ ПОСТОБРОБКА ============================ */
+
 .v2-toggle {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--adminfonelement, #eee);
+  /* стільки, скільки потребує ввімкнений рядок (кнопки/випадайка --v2-h-btn
+     48px + відступи) — вимкнений рядок коротший за вмістом, але піднімається
+     до тієї самої висоти, тож відстань між позиціями однакова завжди */
+  min-height: 76px;
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--v2-line);
+  transition: background 0.12s, box-shadow 0.12s;
 }
 
-.v2-toggle:last-child {
-  border-bottom: none;
+.v2-toggle:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* увімкнену операцію позначає зелена смуга і колір назви, без заливки:
+   коли ввімкнено все, суцільна зелена пляма перестає щось означати */
+.v2-toggle:has(.v2-sw.on) {
+  box-shadow: inset 3px 0 0 var(--v2-select);
+}
+
+/* активний рядок показує підкомпонент — назва в ньому теж змінює колір */
+.v2-toggle:has(.v2-sw.on) .PostpressNames > span {
+  color: var(--v2-select);
 }
 
 .v2-toggle-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex: 1;
+  min-width: 0;
+}
+
+/* коли світч вимкнений — тільки чекбокс і напис, без сусідніх кнопок/
+   випадайок, тож можна дати більше повітря між ними */
+.v2-toggle-left:has(.v2-sw.off) {
+  gap: 16px;
 }
 
 .v2-toggle-name {
-  font-size: var(--font-size-s, 0.85rem);
-  font-weight: 400;
-  color: var(--admingrey, #666);
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-btn);
+  font-weight: 500;
+  color: var(--v2-ink);
   text-transform: uppercase;
+  letter-spacing: 0;
 }
 
 .v2-toggle-content {
   flex: 1;
+  min-width: 0;
 }
 
-/* --- postprocess sub-components inside v2-toggle --- */
+/* операція або в наряді, або ні — це позначка у списку, а не тумблер */
+.v2-sw {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--v2-line-strong);
+  border-radius: 0;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.v2-sw.off {
+  background: var(--v2-tile);
+}
+
+.v2-sw.off:hover {
+  border-color: var(--v2-select);
+}
+
+.v2-sw.on {
+  background: var(--v2-select);
+  border-color: var(--v2-select);
+}
+
+.v2-sw::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 3px;
+  width: 6px;
+  height: 12px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.15s ease-out;
+}
+
+.v2-sw.on::after {
+  transform: rotate(45deg) scale(1);
+}
+
+.v2-sw:focus-visible {
+  /* кільце всередині власних меж чекбокса (не outline з offset назовні) —
+     інакше воно розсуває ліву межу на 3px, і клікнутий останнім чекбокс
+     («Порізка» на скріні) виглядає зсунутим відносно решти рядків */
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--v2-select);
+}
+
+/* --- підкомпоненти постобробки всередині .v2-toggle --- */
 .v2-toggle .allArtemElem {
   width: 100%;
 }
@@ -428,43 +964,48 @@
 .v2-toggle .PostpressNames {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: var(--font-size-s, 0.85rem);
-  color: var(--admingrey, #666);
+  gap: 8px;
+  font-size: var(--v2-fs-ctrl);
+  color: var(--v2-ink);
+}
+
+/* назви операцій стоять у власній колонці однакової ширини — керування
+   в усіх рядках починається з однієї вертикалі, як у бланку */
+.v2-toggle-name,
+.v2-toggle .PostpressNames > span {
+  flex: 0 0 auto;
+  min-width: 220px;
 }
 
 .v2-toggle .PostpressNames > span {
-  font-size: var(--font-size-s, 0.85rem);
-  font-weight: 400;
-  color: var(--admingrey, #666);
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-btn);
+  font-weight: 500;
+  color: var(--v2-ink);
   white-space: nowrap;
   text-transform: uppercase;
+  letter-spacing: 0;
 }
 
-/* hide the old skewed switch inside sub-components */
-.v2-toggle label.switch {
-  display: none !important;
-}
-
-/* hide the old toggleContainer switch */
+/* старі перемикачі підкомпонентів не потрібні */
+.v2-toggle label.switch,
 .v2-toggle .toggleContainer {
   display: none !important;
 }
 
-/* buttons (lamination type — segmented control) */
+/* група кнопок = смуга плиток, як і решта кнопок модалки */
 .v2-toggle .PostpressNames > .sc-pp-wrap > .sc-pp-wrap {
   display: flex !important;
-  gap: 0 !important;
+  gap: 2px !important;
   flex-wrap: nowrap !important;
   align-items: stretch !important;
 }
 
-/* the group of buttonsArtem forms a segmented bar */
 .v2-toggle .PostpressNames > .sc-pp-wrap > .sc-pp-wrap > .buttonsArtem {
-  border: none;
-  background: var(--adminfonelement, #f1eee7);
-  height: 42px !important;
-  min-height: 42px !important;
+  /* та сама висота, що й у кнопок «Друк» (--v2-h-btn), а не службова
+     висота керування --v2-h-ctrl */
+  height: var(--v2-h-btn) !important;
+  min-height: var(--v2-h-btn) !important;
 }
 
 .v2-toggle .PostpressNames > .sc-pp-wrap > .sc-pp-wrap > .buttonsArtem > div {
@@ -474,28 +1015,23 @@
   justify-content: center;
 }
 
-.v2-toggle .PostpressNames > .sc-pp-wrap > .sc-pp-wrap > .buttonsArtem:hover {
-  background: var(--adminlightgreen, #e2f2eb);
-}
-
-.v2-toggle .PostpressNames > .sc-pp-wrap > .sc-pp-wrap > .buttonsArtem:last-of-type {
-  border: none;
-}
-
 .v2-toggle .buttonsArtem {
-  padding: 0 24px;
-  height: 42px;
+  box-sizing: border-box;
+  padding: 0 20px;
+  height: var(--v2-h-btn);
   display: flex !important;
   align-items: center;
   justify-content: center;
-  font-weight: 400;
-  font-size: var(--font-size-s, 0.85rem);
+  font-family: var(--v2-font-ui);
+  font-weight: 500;
+  font-size: var(--v2-fs-btn);
+  letter-spacing: 0;
   border: none;
-  background: transparent;
+  border-bottom: 2px solid transparent;
+  background: var(--v2-tile);
   cursor: pointer;
-  color: var(--admingrey, #666);
-  transition: all 0.15s;
-  height: auto;
+  color: var(--v2-ink);
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
   min-height: 0;
   min-width: 0;
   width: auto;
@@ -503,53 +1039,74 @@
   clip-path: none;
   text-align: center;
   border-radius: 0 !important;
+  /* назви операцій з великої літери */
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .v2-toggle .buttonsArtem:hover {
-  background: var(--adminlightgreen, #e2f2eb);
+  background: var(--v2-tile-hi);
+  border-bottom-color: var(--v2-line-strong);
 }
 
 .v2-toggle .buttonsArtemActive,
 .v2-toggle .buttonsArtem.buttonsArtemActive {
-  background: var(--admingreen, #0e935b) !important;
-  color: #fff !important;
+  background: var(--v2-tile-hi) !important;
+  color: var(--v2-accent) !important;
+  font-weight: 600;
+  border-bottom-color: var(--v2-accent) !important;
 }
 
-/* dropdowns inside postprocess */
-.v2-toggle .custom-select-container {
-  font-size: var(--font-size-s, 0.85rem);
-  color: var(--admingrey, #666);
-  background: transparent !important;
+/* випадайки всередині постобробки */
+/* контейнер випадайки в частині компонентів має ще й клас .selectArtem —
+   тримаємо їх в одному правилі, інакше висота скидається на auto */
+.v2-toggle .custom-select-container,
+.v2-toggle .selectArtem {
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-btn);
+  color: var(--v2-ink);
+  background: var(--v2-tile) !important;
   border: none !important;
-  border-bottom: 1.5px solid var(--adminblue, #3c60a6) !important;
+  border-bottom: 2px solid var(--adminblue, #3c60a6) !important;
   border-radius: 0 !important;
   position: relative;
-  min-width: 102px;
-  margin-left: 8px !important;
+  min-width: 132px;
+  margin-left: 0 !important;
+  box-sizing: border-box;
+  /* та сама висота, що й у сегментованих кнопок поруч (--v2-h-btn) */
+  height: var(--v2-h-btn);
+  display: flex;
+  align-items: stretch;
 }
 
 .v2-toggle .custom-select-container.sc-has-value {
-  border-bottom: 1.5px solid var(--admingreen, #0e935b) !important;
+  border-bottom: 2px solid var(--v2-select) !important;
 }
 
 .v2-toggle .custom-select-header {
-  font-size: var(--font-size-s, 0.85rem);
-  font-weight: 400;
-  color: var(--admingrey, #666);
+  font-size: var(--v2-fs-btn);
+  font-weight: 500;
+  color: var(--v2-ink);
   display: flex;
   align-items: center;
-  padding: 4px 2px;
-  height: auto;
-  min-height: 26px;
+  padding: 0 22px 0 12px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
   cursor: pointer;
   white-space: nowrap;
+}
+
+/* той самий глобальний хак з ArtemStyles.css (див. коментар біля
+   .v2-material-wrap .custom-select-header:hover) */
+.v2-toggle .custom-select-header:hover {
+  font-size: var(--v2-fs-btn) !important;
 }
 
 .v2-toggle .custom-select-container::after {
   content: "";
   position: absolute;
-  right: 4px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   width: 0;
@@ -561,19 +1118,7 @@
 }
 
 .v2-toggle .custom-select-container.sc-has-value::after {
-  border-top-color: var(--admingreen, #0e935b);
-}
-
-.v2-toggle .selectArtem {
-  height: auto;
-  min-height: 0;
-  padding: 2px 6px;
-  font-size: var(--font-size-s, 0.85rem);
-  color: var(--admingrey, #666);
-  background: transparent;
-  border: none !important;
-  border-bottom: 1.5px solid var(--adminblue, #3c60a6) !important;
-  border-radius: 0;
+  border-top-color: var(--v2-select);
 }
 
 .v2-toggle .selectArtemBefore::before {
@@ -591,16 +1136,19 @@
 
 .v2-toggle .gsm-sub,
 .v2-toggle .gsm-sub sub {
-  color: var(--admingrey, #999);
-  font-size: var(--font-size-s, 0.85rem);
+  font-family: var(--v2-font-ui);
+  color: var(--v2-ink);
+  opacity: 0.75;
+  font-size: var(--v2-fs-num);
 }
 
-/* icon buttons (corner rounding, holes) */
+/* іконки (скруглення кутів, отвори) */
+/* іконки кутів і отворів — тієї ж висоти, що й решта керування в рядку */
 .v2-toggle .sc-pp-icon {
-  width: 26px;
-  height: 26px;
+  width: var(--v2-h-ctrl);
+  height: var(--v2-h-ctrl);
   min-height: unset;
-  padding: 3px;
+  padding: 4px;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -615,162 +1163,1183 @@
 }
 
 .v2-toggle .sc-pp-icon:first-of-type {
-  margin-left: 8px;
+  margin-left: 10px;
 }
 
 .v2-toggle .sc-pp-icon img {
   height: 100%;
   width: 100%;
   opacity: 1;
-  filter: brightness(0);
+  /* неактивна — сіра: invert(40%) з чорного джерела дає рівно #666 */
+  filter: brightness(0) invert(40%);
 }
 
-.v2-toggle .sc-pp-icon:hover img {
-  filter: brightness(0) saturate(100%) invert(36%) sepia(93%) saturate(460%) hue-rotate(118deg) brightness(95%) contrast(101%);
+.v2-toggle .sc-pp-icon:hover img,
+.v2-toggle .sc-pp-icon.sc-pp-icon-active img {
+  /* активна/під курсором — чорна, тобто немає інвертування взагалі */
+  filter: brightness(0);
 }
 
 .v2-toggle .sc-pp-icon.sc-pp-icon-active {
   background: transparent;
 }
 
-.v2-toggle .sc-pp-icon.sc-pp-icon-active img {
-  opacity: 1;
-  filter: brightness(0) saturate(100%) invert(36%) sepia(93%) saturate(460%) hue-rotate(118deg) brightness(95%) contrast(101%);
+/* ======================= ПРАВА ПАНЕЛЬ — НАРЯД ======================= */
+
+.v2-right {
+  /* у наряді все крупніше за форму — це підсумковий документ, який читають
+     з відстані, а не заповнюють. Не окрема шкала — та сама базова, помножена
+     на ×1.1, тому пропорції між роль ролі лишаються тими самими */
+  --v2-fs-eyebrow: 0.93rem;
+  --v2-fs-num: 1.05rem;
+  --v2-fs-ctrl: 1.1rem;
+  --v2-fs-btn: 1.2rem;
+  --v2-fs-icon: 1.25rem;
+  /* кеглі, яких немає у формі: наклад, підсумкова сума й головна дія —
+     навмисно поза загальною шкалою, це найкрупніші елементи в модалці */
+  --v2-fs-count: 2rem;
+  --v2-fs-display: 3rem;
+  --v2-fs-cta: 1.25rem;
+  --v2-fs-cta-icon: 1.9rem;
+
+  box-sizing: border-box;
+  flex: 0 0 var(--v2-rail);
+  width: var(--v2-rail);
+  background: var(--v2-card);
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.v2-toggle .sc-pp-icon:not(.sc-pp-icon-active) img {
-  filter: brightness(0);
+/* --- сигнатурний елемент: розкладка на друкарському аркуші --- */
+.v2-imposition {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.v2-sw {
-  width: 28px;
-  height: 16px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  position: relative;
-  transition: background 0.2s;
-  flex-shrink: 0;
+.v2-sheet {
+  display: block;
+  width: 100%;
+  height: 260px;
 }
 
-.v2-sw.off {
-  background: var(--admingrey, #ccc);
+.v2-sheet-bg {
+  fill: var(--v2-paper);
+  stroke: var(--admingrey, #666);
+  stroke-opacity: 0.35;
 }
 
-.v2-sw.on {
-  background: var(--admingreen, #0e935b);
+.v2-sheet-cell {
+  fill: var(--adminlightgreen, #e2f2eb);
+  stroke: var(--admingreen, #0e935b);
 }
 
-.v2-sw::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #fff;
-  transition: transform 0.2s;
+.v2-sheet-mark {
+  stroke: var(--admingrey, #666);
+  opacity: 0.55;
 }
 
-.v2-sw.on::after {
-  transform: translateX(12px);
+.v2-sheet-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-num);
+  font-variant-numeric: tabular-nums;
+  color: var(--v2-ink);
+  opacity: 0.75;
 }
 
-/* pricing panel */
+.v2-sheet-empty {
+  padding: 14px;
+  background: var(--adminlightred, #fde8e5);
+  color: var(--adminred, #ee3c23);
+  font-size: var(--v2-fs-ctrl);
+  text-align: center;
+}
+
+/* --- калькуляція --- */
 .v2-prices-title {
-  font-size: var(--font-size-m, 0.95rem);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--v2-font);
+  font-size: var(--v2-fs-eyebrow);
   font-weight: 500;
-  color: var(--admingrey, #666);
-  margin-bottom: 4px;
+  font-stretch: 87.5%;
   text-transform: uppercase;
+  letter-spacing: var(--v2-track-wide);
+  color: var(--v2-ink);
+  opacity: 0.6;
+}
+
+.v2-prices-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--v2-line-strong);
+}
+
+.v2-prices {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .v2-price-row {
   display: flex;
-  justify-content: space-between;
-  font-size: var(--font-size-m, 0.95rem);
-  color: var(--admingrey, #999);
-  padding: 3px 0;
+  align-items: baseline;
+  gap: 8px;
+  /* -2 пункти (0.05rem кожен) від --v2-fs-btn (1.2rem у наряді) — саме на
+     цей рядок, а не на всю праву шкалу, щоб не чіпати сусідів, які теж
+     її використовують */
+  font-size: 1.1rem;
+  color: var(--v2-ink);
+  padding: 4px 0;
 }
 
-.v2-price-row span:last-child {
-  color: var(--admingrey, #666);
-  font-weight: 500;
+.v2-price-row.is-zero {
+  opacity: 0.38;
+}
+
+.v2-lead {
+  flex: 1;
+  border-bottom: 1px dotted var(--v2-line-strong);
+  transform: translateY(-3px);
+}
+
+.v2-price-val {
+  font-family: var(--v2-mono);
+  /* -2 пункти від --v2-fs-num (1.05rem у наряді), окремо від var — інакше
+     зменшилися б і суми в блоці «Разом» нижче, які теж на нього спираються */
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* розбивка «кількість × ціна =» перед підсумком рядка — той самий moно,
+   але тонший і приглушений, щоб не сперечався вагою з підсумковим числом */
+.v2-price-calc {
+  font-weight: 400;
+  opacity: 0.6;
 }
 
 .v2-total {
-  border-top: 1px solid var(--admingrey, #ccc);
-  padding-top: 10px;
+  border-top: 1px solid var(--v2-line-strong);
+  padding-top: 12px;
+  /* сума та дія притиснуті до низу наряду */
   margin-top: auto;
   flex-shrink: 0;
 }
 
 .v2-total-price {
-  font-size: 1.6rem;
-  font-weight: 500;
-  color: var(--admingreen, #0e935b);
+  font-family: var(--v2-mono);
+  font-size: var(--v2-fs-display);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--v2-accent);
 }
 
 .v2-total-unit {
-  font-size: var(--font-size-s, 0.85rem);
+  font-size: var(--v2-fs-lead);
   font-weight: 400;
 }
 
 .v2-total-sub {
-  font-size: var(--font-size-m, 0.95rem);
-  color: var(--admingrey, #999);
-  margin-top: 2px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-num);
+  font-variant-numeric: tabular-nums;
+  color: var(--v2-ink);
+  opacity: 0.7;
+  margin-top: 6px;
 }
 
+/* головна дія — «відбиток штампа»: у спокої лише контур, ніби наряд ще
+   не затверджений; під курсором заливка насувається зліва направо, як
+   штамп, що лягає на аркуш, і напис/іконка стають білими їй услід */
 .v2-add-btn {
+  position: relative;
   width: 100%;
-  padding: 10px;
-  margin-top: 12px;
-  border: 1.5px solid var(--adminorange, #f5a623);
+  height: 66px;
+  padding: 0;
+  margin-top: 16px;
+  border: 2px solid var(--v2-action);
   background: transparent;
-  color: var(--adminorange, #f5a623);
-  font-size: var(--font-size-m, 0.95rem);
-  font-weight: 500;
+  color: var(--v2-action);
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-cta);
+  font-weight: 600;
+  letter-spacing: 0.01em;
   cursor: pointer;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  overflow: hidden;
+  transition: color 0.32s ease, transform 0.08s ease;
+}
+
+.v2-add-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--v2-action);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.v2-add-btn:hover::before,
+.v2-add-btn:focus-visible::before {
+  transform: scaleX(1);
+}
+
+.v2-add-btn:hover,
+.v2-add-btn:focus-visible {
+  color: #fff;
+}
+
+.v2-add-btn:active {
+  transform: scale(0.98);
+}
+
+.v2-add-btn-icon {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: 66px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: all 0.15s;
+  border-right: 2px solid currentColor;
+  font-size: var(--v2-fs-cta-icon);
+  font-weight: 400;
+  line-height: 1;
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.v2-add-btn:hover {
-  background: var(--adminlightorange, #fef4e5);
+.v2-add-btn:hover .v2-add-btn-icon {
+  /* легкий «пружний» відскок — однаково читається і для «+», і для «✓»
+     у режимі редагування (rotate тут непомітний через симетрію «+») */
+  transform: scale(1.3);
+}
+
+.v2-add-btn-label {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
 }
 
 .v2-add-btn:disabled {
-  opacity: 0.5;
+  border-color: var(--v2-line-strong);
+  color: var(--v2-line-strong);
   cursor: not-allowed;
+  transform: none;
 }
+
+.v2-add-btn:disabled::before {
+  transform: scaleX(0) !important;
+}
+
+/* ============================ ПОМИЛКА ============================ */
 
 .v2-error {
-  padding: 8px 20px;
+  padding: 10px 24px;
   background: var(--adminlightred, #fde8e5);
   color: var(--adminred, #ee3c23);
-  font-size: var(--font-size-s, 0.85rem);
+  font-size: var(--v2-fs-ctrl);
+  border-top: 1px solid var(--adminred, #ee3c23);
 }
 
-/* settings button */
-.v2-settings-btn {
-  width: 28px;
-  height: 28px;
-  border: none !important;
-  border-bottom: 1px solid var(--admingrey, #ccc) !important;
+/* ============================ АДАПТИВ ============================ */
+
+/* запобіжник: на невисоких екранах модалка не влізе цілком, і без обмеження
+   низ із кнопкою опинився б за межами вікна — там скрол повертається */
+@media (max-height: 860px) {
+  .v2-modal {
+    max-height: 94vh;
+  }
+
+  .v2-body {
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
+/* --- 1000px: планшети й розгорнутий Samsung Fold (~700-840px) ---
+   три колонки більше не вміщаються поруч: стрічка виробів лягає
+   горизонтальною смугою зверху, форма й наряд ідуть один під одним */
+@media (max-width: 1000px) {
+  .v2-modal {
+    width: 96vw;
+  }
+
+  .v2-body {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .v2-left {
+    overflow: visible;
+  }
+
+  .v2-right {
+    flex: 0 0 auto;
+    width: auto;
+    overflow: visible;
+    border-left: none;
+    border-top: 1px solid var(--v2-line-strong);
+  }
+
+  /* стрічка виробів: був вертикальний рейл 180px завширшки — тепер
+     горизонтальна смуга на всю ширину, з власним горизонтальним скролом */
+  .v2-tabsrail {
+    flex: 0 0 auto;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .v2-theme-switch {
+    flex: 0 0 auto;
+    width: auto;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    padding-right: 10px;
+    margin-right: 6px;
+    border-bottom: none;
+    border-right: 1px solid var(--v2-line-strong);
+  }
+
+  .v2-tabsrail .v2-settings-btn {
+    margin-top: 0;
+    margin-left: 8px;
+  }
+
+  /* відступ між кольоровими групами тепер по горизонталі */
+  .v2-tab-group-start {
+    margin-top: 0;
+    margin-left: 14px;
+  }
+
+  /* той самий трюк, що й нижче в (hover: none), але прив'язаний до ширини:
+     на вузькому вʼюпорті майже напевно немає миші, а деякі гібридні
+     пристрої (напр. Fold у розгорнутому вигляді) можуть звітувати hover
+     неоднозначно — тримаємо обидва запобіжники */
+  .v2-tab {
+    height: 42px;
+    width: 148px;
+    font-size: var(--v2-fs-btn);
+  }
+}
+
+/* --- дотик без наведення (телефони, Fold в обох станах): кнопка виробу
+   на hover розкривалась на повний зріст — на тач-екрані цього не станеться
+   ніколи, тож лишається лише куций стан. Вимикаємо трюк і показуємо
+   плитку одразу в повному, читабельному вигляді --- */
+@media (hover: none) {
+  .v2-tab {
+    height: 42px;
+    width: 148px;
+    font-size: var(--v2-fs-btn);
+  }
+}
+
+/* --- 1000px: рядок постобробки (назва + кнопки + випадайка в один рядок,
+   напр. ламінування з 4 кнопками й випадайкою цупкості) вже не вміщається
+   поруч зі 180px-колонкою назви — той самий поріг, що й перехід тіла
+   в колонку вище, інакше між 820 і 1000px лишається зона, де рядок
+   зависає впівоберта й вилазить за край --- */
+@media (max-width: 1000px) {
+  .v2-toggle {
+    min-height: 0;
+  }
+
+  .v2-toggle-left {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .v2-toggle-content {
+    flex-basis: 100%;
+  }
+
+  .v2-toggle .PostpressNames {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .v2-toggle-name,
+  .v2-toggle .PostpressNames > span {
+    min-width: 0;
+  }
+
+  .v2-toggle .PostpressNames > .sc-pp-wrap > .sc-pp-wrap {
+    flex-wrap: wrap !important;
+  }
+
+  /* кнопки сторонності/паперу — рахунок колонок був жорстко заданий
+     inline-стилем під кількість опцій; на вузькому екрані ті самі N колонок
+     стають смужками в 2 символи завширшки, переносимо в кілька рядків.
+     auto-fit, а не auto-fill: варіантів завжди мало (3 і 5), і auto-fill
+     тут заводив зайві порожні колонки — реальні кнопки через це ставали
+     вужчими, ніж дозволяла вільна ширина (саме це й ламало «ОДНОСТОРОННІЙ»
+     на розгорнутому Fold, де місця було вдосталь) */
+  .v2-sides,
+  .v2-thick-btns {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important;
+  }
+
+  /* довгі підписи («Односторонній», «Самоклеючі») на вузькій колонці
+     переносяться у два рядки замість того, щоб вилазити за межі кнопки —
+     висота більше не жорстко фіксована, лише мінімальна. Це суцільні слова
+     без пробілу, тому саме лише "перенесення" не спрацює: потрібен ще й
+     дозвіл розривати слово всередині (overflow-wrap) */
+  .v2-side,
+  .v2-thick-btn {
+    height: auto;
+    min-height: var(--v2-h-btn);
+    padding: 8px 10px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    line-height: 1.15;
+  }
+
+  /* власний розмір мусить мати гарантовану ширину незалежно від того,
+     скільки колонок вийшло в auto-fill сітці поруч */
+  .v2-size-custom {
+    grid-column: 1 / -1;
+  }
+}
+
+/* --- 481-1000px: розгорнутий Samsung Fold (реально виміряно 598px) та
+   подібні планшети-книжки — полотно вже суттєво вужче за десктоп, а кнопки
+   виробів/розміру/друку/паперу/ламінування/порізки досі десктопного
+   розміру. --v2-h-btn і --v2-fs-btn — спільні токени для всіх них (крім
+   .v2-right, у якого власна, окрема шкала), тож зменшення тут одразу
+   підхоплюють усі кнопки форми без потреби переписувати кожну окремо.
+
+   КРИТИЧНО: (hover: none) and (pointer: coarse) — без цього правило
+   спрацьовувало й на звичайному робочому моніторі, якщо вікно браузера чи
+   ефективна ширина (через масштабування Windows на 27" проти 32" вдома)
+   випадково потрапляла в 481-1000px — саме це й «зменшувало» кнопки на
+   робочому моніторі, хоча то не Fold і не дотиковий екран узагалі */
+@media (min-width: 481px) and (max-width: 1000px) and (hover: none) and (pointer: coarse) {
+  .v2-modal {
+    --v2-h-btn: 40px;
+    /* ще менше: 1rem → 0.85rem → 0.7rem */
+    --v2-fs-btn: 0.7rem;
+  }
+
+  .v2-tab {
+    height: 32px;
+    width: 112px;
+    /* ще менше: 0.85rem → 0.7rem → 0.55rem */
+    font-size: 0.55rem;
+  }
+
+  .v2-size,
+  .v2-side,
+  .v2-thick-btn {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .v2-toggle .buttonsArtem {
+    padding: 0 14px;
+  }
+}
+
+/* --- 600px: телефони (iPhone, Fold у згорнутому вигляді) — модалці
+   зручніше зайняти весь екран, ніж плавати центрованою карткою поверх
+   вузького вʼюпорта; низ (сума + кнопка) лишається на очах під час скролу */
+@media (max-width: 600px) {
+  .v2-overlay {
+    display: none;
+  }
+
+  .v2-modal {
+    top: 0;
+    left: 0;
+    transform: none;
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    height: 100vh;
+    max-height: 100dvh;
+    max-height: 100vh;
+    border-top: none;
+  }
+
+  .v2-head {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .v2-head-main {
+    padding: 12px 14px 10px;
+  }
+
+  .v2-head-title {
+    font-size: 1.25rem;
+  }
+
+  .v2-close-btn {
+    margin: 10px 10px 0 0;
+  }
+
+  .v2-tabsrail {
+    padding: 8px 10px;
+  }
+
+  .v2-left {
+    padding: 14px 14px 20px;
+  }
+
+  .v2-left > .v2-section {
+    margin-bottom: 14px;
+  }
+
+  .v2-sizes {
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  }
+
+  .v2-right {
+    padding: 14px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+    /* права шкала була помножена на ×1.1 від базової — на телефоні це
+       вже забагато для найбільших елементів (сума, кнопка), звужуємо
+       саме ці кеглі назад, не займаючи решту шкали */
+    --v2-fs-count: 1.6rem;
+    --v2-fs-display: 2.1rem;
+    --v2-fs-cta: 1.05rem;
+    --v2-fs-cta-icon: 1.5rem;
+  }
+
+  .v2-sheet {
+    height: 190px;
+  }
+
+  /* сума й кнопка «Додати» завжди в межах екрана, навіть коли форма
+     довша за висоту viewport — приліплюємо їх до низу скролу .v2-body */
+  .v2-total {
+    position: sticky;
+    bottom: 0;
+    background: var(--v2-card);
+    padding-bottom: 4px;
+  }
+
+  .v2-add-btn {
+    height: 56px;
+    margin-top: 12px;
+    margin-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+/* --- 380px: найвужчі екрани (закритий Samsung Fold ~344-360px) ---
+   ще трохи стискаємо відступи й сітку розмірів, щоб не впиратись у скрол */
+@media (max-width: 380px) {
+  .v2-head-title {
+    font-size: 1.1rem;
+  }
+
+  .v2-head-spec {
+    font-size: 0.85rem;
+  }
+
+  .v2-left,
+  .v2-right {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .v2-sizes {
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  }
+
+  .v2-sides,
+  .v2-thick-btns {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important;
+  }
+
+  .v2-right {
+    --v2-fs-display: 1.85rem;
+  }
+}
+
+/* ==========================================================================
+   МОДАЛКА НАЛАШТУВАНЬ ТОВАРІВ — оформлення лише для цієї послуги.
+   Вмикається через <ServiceSettingsModal variant="ssm-v2" />, тож решта
+   послуг, які використовують той самий компонент, лишаються як були.
+   ========================================================================== */
+
+.ssm-v2 {
+  background: rgba(28, 26, 22, 0.42);
+  font-family: var(--v2-font-ui);
+}
+
+.ssm-v2 .ssm-modal {
+  width: min(780px, 92vw);
+  min-width: 0;
+  max-height: 86vh;
+  padding: 0;
+  background: var(--v2-ground);
+  border-top: 2px solid var(--v2-accent);
+  box-shadow: 0 18px 60px rgba(28, 26, 22, 0.24);
+  color: var(--v2-ink);
+}
+
+/* --- шапка --- */
+.ssm-v2 .ssm-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin: 0;
+  padding: 14px 22px;
+  background: var(--v2-ground);
+  border-bottom: 1px solid var(--v2-line-strong);
+}
+
+.ssm-v2 .ssm-header-title {
+  font-family: var(--v2-font);
+  font-size: var(--v2-fs-head);
+  font-weight: 600;
+  font-stretch: 87.5%;
+  letter-spacing: var(--v2-track);
+  color: var(--v2-ink);
+}
+
+.ssm-v2 .ssm-close-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: var(--v2-fs-icon);
+  background: var(--v2-tile);
+  color: var(--v2-ink);
+  transition: background 0.12s, color 0.12s;
+}
+
+.ssm-v2 .ssm-close-btn:hover {
+  background: var(--adminred, #ee3c23);
+  color: #fff;
+}
+
+/* --- список товарів --- */
+.ssm-v2 .ssm-service-list {
+  gap: 2px;
+  margin: 0;
+  padding: 16px 22px 0;
+}
+
+.ssm-v2 .ssm-service-row {
+  gap: 10px;
+  padding: 7px 12px;
+  background: var(--v2-tile);
+  border: none;
+  /* колір товару — той самий, що й на кнопці назви у формі */
+  box-shadow: inset 3px 0 0 var(--svc-color, transparent);
+  transition: background 0.12s;
+}
+
+.ssm-v2 .ssm-service-row:hover {
+  background: var(--v2-tile-hi);
+}
+
+.ssm-v2 .ssm-service-row.ssm-service-dragging {
+  opacity: 0.4;
+  border: none;
+  outline: 1px dashed var(--v2-line-strong);
+}
+
+.ssm-v2 .ssm-service-name {
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-btn);
+  font-weight: 500;
+  color: var(--svc-color, var(--v2-ink));
+}
+
+.ssm-v2 .ssm-color-swatch {
+  width: 26px;
+  height: 26px;
+  border: none;
+  box-shadow: inset 0 0 0 1px var(--v2-line-strong);
+  transition: box-shadow 0.12s;
+}
+
+.ssm-v2 .ssm-color-swatch:hover {
+  box-shadow: inset 0 0 0 2px var(--v2-ink);
+}
+
+.ssm-v2 .ssm-preset-btn {
+  height: 26px;
+  padding: 0 10px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: var(--v2-ground);
+  color: var(--v2-ink);
+  font-size: var(--v2-fs-ctrl);
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.ssm-v2 .ssm-preset-btn:hover {
+  background: var(--v2-tile-hi);
+  border-bottom-color: var(--v2-line-strong);
+}
+
+.ssm-v2 .ssm-preset-btn.ssm-preset-active {
+  background: var(--adminlightgreen, #e2f2eb);
+  color: var(--v2-accent);
+  border-bottom-color: var(--v2-accent);
+}
+
+.ssm-v2 .ssm-delete-btn {
+  color: var(--v2-ink);
+  opacity: 0.45;
+  transition: color 0.12s, opacity 0.12s;
+}
+
+.ssm-v2 .ssm-delete-btn:hover {
+  color: var(--adminred, #ee3c23);
+  opacity: 1;
+}
+
+/* --- палітра кольорів --- */
+.ssm-v2 .ssm-color-picker {
+  gap: 6px;
+  padding: 12px;
+  margin: 8px 22px 0;
+  background: var(--v2-tile);
+}
+
+.ssm-v2 .ssm-color-option,
+.ssm-v2 .ssm-color-no {
+  width: 26px;
+  height: 26px;
+  border: none;
+  box-shadow: inset 0 0 0 1px var(--v2-line-strong);
+}
+
+.ssm-v2 .ssm-color-option:hover {
+  box-shadow: inset 0 0 0 2px var(--v2-ink);
+}
+
+.ssm-v2 .ssm-color-option.ssm-color-selected {
+  box-shadow: inset 0 0 0 2px #fff, 0 0 0 2px var(--v2-ink);
+}
+
+.ssm-v2 .ssm-color-hex-input {
+  font-family: var(--v2-mono);
+  font-size: var(--v2-fs-num);
+  border-bottom-width: 1.5px;
+  color: var(--v2-ink);
+}
+
+/* --- додавання товару --- */
+.ssm-v2 .ssm-add-row {
+  gap: 8px;
+  margin: 0;
+  padding: 14px 22px 16px;
+}
+
+.ssm-v2 .ssm-add-input {
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-btn);
+  border-bottom-width: 1.5px;
+  color: var(--v2-ink);
+  padding: 8px 4px;
+}
+
+.ssm-v2 .ssm-add-btn {
+  width: 40px;
+  padding: 0;
+  border: none;
+  background: var(--v2-accent);
+  color: #fff;
+  font-size: var(--v2-fs-icon);
+  line-height: 1;
+  transition: filter 0.12s;
+}
+
+.ssm-v2 .ssm-add-btn:hover {
+  background: var(--v2-accent);
+  color: #fff;
+  filter: brightness(0.92);
+}
+
+/* --- панель пресету --- */
+.ssm-v2 .ssm-preset-panel,
+.ssm-v2 .ssm-sizes-section {
+  margin: 0 22px 16px;
+  padding: 16px 18px;
+  background: var(--v2-tile);
+  border-left: 3px solid var(--v2-accent);
+}
+
+.ssm-v2 .ssm-preset-title {
+  font-family: var(--v2-font);
+  font-size: var(--v2-fs-eyebrow);
+  font-weight: 500;
+  font-stretch: 87.5%;
+  text-transform: uppercase;
+  letter-spacing: var(--v2-track-wide);
+  color: var(--v2-ink);
+  opacity: 0.6;
+  margin-bottom: 14px;
+}
+
+.ssm-v2 .ssm-preset-field {
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.ssm-v2 .ssm-preset-label {
+  font-family: var(--v2-font);
+  font-size: var(--v2-fs-eyebrow);
+  font-weight: 500;
+  font-stretch: 87.5%;
+  text-transform: uppercase;
+  letter-spacing: var(--v2-track-wide);
+  color: var(--v2-ink);
+  opacity: 0.6;
+}
+
+.ssm-v2 .ssm-preset-size-input,
+.ssm-v2 .ssm-material-select {
+  font-family: var(--v2-mono);
+  font-size: var(--v2-fs-num);
+  border-bottom-width: 1.5px;
+  color: var(--v2-ink);
+}
+
+.ssm-v2 .ssm-preset-size-x {
+  font-family: var(--v2-mono);
+  font-size: var(--v2-fs-num);
+  opacity: 0.7;
+}
+
+/* кнопки-опції — та сама мова, що й кнопки у формі */
+.ssm-v2 .ssm-preset-btns {
+  gap: 2px;
+}
+
+.ssm-v2 .ssm-preset-opt-btn,
+.ssm-v2 .ssm-preset-opt-btn:last-child {
+  height: 32px;
+  padding: 0 12px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: var(--v2-ground);
+  color: var(--v2-ink);
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-ctrl);
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.ssm-v2 .ssm-preset-opt-btn:hover {
+  background: var(--v2-tile-hi);
+  border-bottom-color: var(--v2-line-strong);
+}
+
+.ssm-v2 .ssm-preset-opt-btn.ssm-opt-active {
+  background: var(--adminlightgreen, #e2f2eb);
+  color: var(--v2-accent);
+  font-weight: 600;
+  border-bottom-color: var(--v2-accent);
+}
+
+/* --- розміри --- */
+.ssm-v2 .ssm-size-item {
+  padding: 5px 8px;
+  border: none;
+  background: var(--v2-ground);
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-ctrl);
+  border-bottom: 2px solid transparent;
+}
+
+.ssm-v2 .ssm-size-dims {
+  font-family: var(--v2-mono);
+  font-size: var(--v2-fs-num);
+  opacity: 0.7;
+}
+
+.ssm-v2 .ssm-size-item.ssm-size-selected {
+  background: var(--adminlightgreen, #e2f2eb);
+  border-bottom-color: var(--v2-accent);
+}
+
+.ssm-v2 .ssm-size-item.ssm-size-selected .ssm-size-label {
+  color: var(--v2-accent);
+}
+
+/* --- перемикачі --- */
+.ssm-v2 .ssm-toggle-track {
+  width: 34px;
+  height: 18px;
+  background: var(--v2-line-strong);
+}
+
+.ssm-v2 .ssm-toggle-track.ssm-toggle-on {
+  background: var(--v2-accent);
+}
+
+.ssm-v2 .ssm-toggle-thumb {
+  width: 14px;
+  height: 14px;
+}
+
+.ssm-v2 .ssm-toggle-track.ssm-toggle-on .ssm-toggle-thumb {
+  left: 18px;
+}
+
+.ssm-v2 .ssm-toggle-label {
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-ctrl);
+  color: var(--v2-ink);
+}
+
+/* --- матеріал --- */
+.ssm-v2 .ssm-material-dropdown {
+  background: var(--v2-tile);
+  border: 1px solid var(--v2-line-strong);
+}
+
+.ssm-v2 .ssm-material-item {
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-ctrl);
+  padding: 7px 10px;
+}
+
+.ssm-v2 .ssm-material-item:hover {
+  background: var(--v2-tile-hi);
+}
+
+.ssm-v2 .ssm-material-item.ssm-material-active {
+  background: var(--adminlightgreen, #e2f2eb);
+  color: var(--v2-accent);
+}
+
+.ssm-v2 .ssm-material-gsm {
+  font-family: var(--v2-mono);
+  font-size: var(--v2-fs-num);
+}
+
+/* --- підсумкові кнопки панелі --- */
+.ssm-v2 .ssm-preset-save-btn {
+  margin-top: 14px;
+  padding: 13px 10px;
+  border: none;
+  background: var(--v2-action);
+  color: #fff;
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-btn);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: filter 0.12s;
+}
+
+.ssm-v2 .ssm-preset-save-btn:hover {
+  background: var(--v2-action);
+  color: #fff;
+  filter: brightness(0.93);
+}
+
+.ssm-v2 .ssm-preset-clear-btn {
+  margin-top: 6px;
+  padding: 10px;
+  border: none;
   background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--admingrey, #666);
-  font-size: 16px;
+  color: var(--adminred, #ee3c23);
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-ctrl);
 }
 
-.v2-settings-btn:hover {
-  color: var(--adminorange, #f5a623);
+.ssm-v2 .ssm-preset-clear-btn:hover {
+  background: var(--adminlightred, #fde8e5);
+}
+
+/* ==========================================================================
+   ВИПАДАЙКА МАТЕРІАЛІВ — картотека складу.
+   Рендериться порталом у body, тому клас приходить пропом
+   dropdownClassName="v2-dropdown" і токени оголошуються тут окремо.
+   ========================================================================== */
+
+.v2-dropdown {
+  --v2-ink: var(--admingrey, #666);
+  --v2-accent: var(--admingreen, #0e935b);
+  --v2-ground: #e7e4dc;
+  --v2-ground: color-mix(in srgb, var(--adminfon, #f7f5ee) 88%, var(--admingrey, #666));
+  --v2-tile: var(--adminfon, #f7f5ee);
+  --v2-tile-hi: #fbfaf6;
+  --v2-tile-hi: color-mix(in srgb, var(--adminfon, #f7f5ee) 45%, #fff);
+  --v2-line: rgba(102, 102, 102, 0.16);
+  --v2-line: color-mix(in srgb, var(--admingrey, #666) 16%, transparent);
+  --v2-line-strong: rgba(102, 102, 102, 0.32);
+  --v2-line-strong: color-mix(in srgb, var(--admingrey, #666) 32%, transparent);
+  /* портал не бачить тему модалки (інша гілка DOM) — тему передають
+     явним класом v2-theme-* на самому дропдауні (dropdownClassName
+     у Materials2), а не успадкуванням; тому нижче дублюємо ті самі
+     перевизначення, що й .v2-modal.v2-theme-* */
+  --v2-active-bg: var(--adminlightgreen, #e2f2eb);
+  --v2-font-ui: "Segoe UI Variable Text", "Segoe UI", Roboto, system-ui,
+    sans-serif;
+  --v2-mono: "Cascadia Mono", Consolas, ui-monospace, "SF Mono", Menlo,
+    monospace;
+  /* портал у body — поза .v2-modal, тому кеглі теж треба продублювати
+     (ті самі значення, що й у базовій шкалі) */
+  --v2-fs-btn: 1.15rem;
+  --v2-fs-num: 0.95rem;
+
+  padding: 0;
+  background: var(--v2-tile) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: 0 14px 40px rgba(28, 26, 22, 0.22);
+  font-family: var(--v2-font-ui);
+  scrollbar-width: thin;
+}
+
+/* === світла тема — той самий монохромний рецепт, що й .v2-modal.v2-theme-light === */
+.v2-dropdown.v2-theme-light {
+  /* невибрані пункти — темно-сірий текст; фон списку завжди білий,
+     вибір позначає лише колір/вага тексту, без заливки-плями */
+  --v2-ink: #666666;
+  --v2-tile: #ffffff;
+  --v2-tile-hi: #f5f5f5;
+  --v2-line: rgba(0, 0, 0, 0.08);
+  --v2-line-strong: rgba(0, 0, 0, 0.2);
+  --v2-active-bg: #ffffff;
+}
+
+.v2-dropdown.v2-theme-light .custom-option.active {
+  box-shadow: inset 3px 0 0 #000000;
+}
+
+.v2-dropdown.v2-theme-light .custom-option.active .name,
+.v2-dropdown.v2-theme-light .custom-option.active .gsm-sub sub {
+  color: #000000 !important;
+}
+
+/* === темна тема — світлішають лінії/текст, підсвітка вибраного темніша === */
+.v2-dropdown.v2-theme-dark {
+  --v2-ink: #d7d4cd;
+  --v2-tile: #2b2925;
+  --v2-tile-hi: #363330;
+  --v2-line: rgba(255, 255, 255, 0.1);
+  --v2-line-strong: rgba(255, 255, 255, 0.22);
+  --v2-active-bg: color-mix(in srgb, var(--v2-accent) 22%, var(--v2-tile));
+}
+
+/* Коли місця під полем замало, компонент розкриває список угору й ставить
+   інлайн `bottom` замість `top`. У такому разі тінь має падати вгору —
+   інакше список виглядає перевернутим. */
+.v2-dropdown[style*="bottom"] {
+  box-shadow: 0 -14px 40px rgba(28, 26, 22, 0.22);
+}
+
+/* sc-base.css має глобальне (не .sc-wrap) правило
+   .custom-select-dropdown .custom-option { background/color !important }
+   — без наших власних !important воно завжди перемагало, і бежева тема
+   «працювала» лише тому, що наші кольори випадково збігалися з тими
+   глобальними значеннями (--adminfon/--admingrey) */
+.v2-dropdown .custom-option {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 46px;
+  padding: 0 16px;
+  background: transparent !important;
+  border: none;
+  border-bottom: 1px solid var(--v2-line);
+  box-shadow: inset 3px 0 0 transparent;
+  color: var(--v2-ink) !important;
+  font-weight: 500 !important;
+  cursor: pointer;
+  transition: background 0.1s, box-shadow 0.1s;
+}
+
+.v2-dropdown .custom-option:last-child {
+  border-bottom: none;
+}
+
+/* той самий глобальний !important з sc-base.css, що й для фону/тексту —
+   без цього ховер завжди був бежевим (--adminfonelement), а не сірим */
+.v2-dropdown .custom-option:hover {
+  background: var(--v2-tile-hi) !important;
+  color: var(--v2-ink) !important;
+}
+
+.v2-dropdown .custom-option.active {
+  background: var(--v2-active-bg) !important;
+  box-shadow: inset 3px 0 0 var(--v2-accent);
+}
+
+.v2-dropdown .custom-option .name {
+  font-size: var(--v2-fs-btn);
+  font-weight: 500;
+  color: var(--v2-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.v2-dropdown .custom-option.active .name {
+  font-weight: 600 !important;
+  color: var(--v2-accent) !important;
+}
+
+/* паспорт аркуша — моноширинний, вирівняний у колонку */
+.v2-dropdown .gsm-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  flex-shrink: 0;
+}
+
+.v2-dropdown .gsm-sub sub {
+  margin-right: 0 !important;
+  bottom: 0;
+  vertical-align: baseline;
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-num);
+  font-variant-numeric: tabular-nums;
+  color: var(--v2-ink);
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+.v2-dropdown .custom-option.active .gsm-sub sub {
+  color: var(--v2-accent);
+  opacity: 1;
+}
+
+/* скролбар у тон списку */
+.v2-dropdown::-webkit-scrollbar {
+  width: 10px;
+}
+
+.v2-dropdown::-webkit-scrollbar-track {
+  background: var(--v2-ground);
+}
+
+.v2-dropdown::-webkit-scrollbar-thumb {
+  background: var(--v2-line-strong);
+}
+
+.v2-dropdown::-webkit-scrollbar-thumb:hover {
+  background: var(--v2-ink);
 }

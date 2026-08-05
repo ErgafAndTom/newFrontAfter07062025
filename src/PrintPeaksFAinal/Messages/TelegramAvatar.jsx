@@ -13,8 +13,29 @@ import notTrueTelegramNoAcc from "./notTrueTelegramNoAcc.svg";
  * @param {string} link - Telegram URL або @username або номер телефону (+380...) без пробілів.
  * @param {number} size - Розмір аватарки в пікселях (за замовчуванням 32).
  * @param {string} defaultSrc - Посилання на дефолтне зображення при помилці (або для телефону).
+ * @param {string} photo - Власне завантажене фото (photoLink). Має пріоритет над телеграмним.
  */
-const TelegramAvatar = ({ link, size = 32, defaultSrc = '/default-avatar.png', square = false }) => {
+const TelegramAvatar = ({ link, size = 32, defaultSrc = '/default-avatar.png', square = false, photo = null }) => {
+  // Власна завантажена аватарка перекриває телеграмну, але без посилання на профіль
+  if (photo) return (
+    <div style={{ display: 'inline-block', width: size, height: size }}>
+      <img
+        src={photo}
+        alt=""
+        style={{
+          width: size,
+          height: size,
+          borderRadius: square ? '0' : '50%',
+          objectFit: 'cover'
+        }}
+        onError={e => {
+          e.target.onerror = null;
+          e.target.src = errorAvatarTelegram;
+        }}
+      />
+    </div>
+  );
+
   if (!link) return (
     <div
       rel="noopener noreferrer"
@@ -106,10 +127,11 @@ const TelegramAvatar = ({ link, size = 32, defaultSrc = '/default-avatar.png', s
 };
 
 TelegramAvatar.propTypes = {
-  link: PropTypes.string.isRequired,
+  link: PropTypes.string,
   size: PropTypes.number,
   defaultSrc: PropTypes.string,
-  square: PropTypes.bool
+  square: PropTypes.bool,
+  photo: PropTypes.string
 };
 
 export default TelegramAvatar;

@@ -91,6 +91,9 @@ export default function TelegramBotAkkAndMedias() {
   const [addingToErp, setAddingToErp] = useState(null);
   const [addingContactToErp, setAddingContactToErp] = useState(null);
   const [erpSuccess, setErpSuccess] = useState({});
+  // Діалог підтвердження мітки 🤖: {kind, mark, payload, onLinked}
+  const [markConfirm, setMarkConfirm] = useState(null);
+  const [markResolving, setMarkResolving] = useState(false);
   const [viewMode, setViewMode] = useState("contacts");
   const [contacts, setContacts] = useState([]);
   const allContactsRef = useRef([]);
@@ -749,32 +752,73 @@ export default function TelegramBotAkkAndMedias() {
   // =====================================================================
   // ADD TO ERP (from chat list)
   // =====================================================================
+  // Спільний виклик add-to-erp. Якщо контакт має мітку 🤖:ID, яка вказує на
+  // наявного клієнта — бекенд може попросити підтвердження замість створення
+  // дубліката. Тоді показуємо діалог і чекаємо на рішення оператора.
+  const sendAddToErp = async (payload, onLinked) => {
+    const orderId = getCurrentOrderId();
+    const { data: j } = await axios.post(API + "/contacts/add-to-erp", {
+      ...payload,
+      orderId: orderId || undefined
+    });
+
+    if (j.ok || j.error === "ALREADY_IN_ERP") {
+      const erpId = j.ok ? j.erpUser.id : j.erpUserId;
+      onLinked(erpId);
+      if (j.order) {
+        window.dispatchEvent(new CustomEvent('orderUserAssigned', { detail: j.order }));
+      } else if (orderId) {
+        assignUserToCurrentOrder(erpId);
+      }
+      return;
+    }
+
+    if (j.error === "MARK_NEEDS_CONFIRM" || j.error === "MARK_CONFLICT" || j.error === "MARK_REUSE_CONFIRM") {
+      setMarkConfirm({ kind: j.error, mark: j.mark || {}, payload, onLinked });
+      return;
+    }
+
+    alert("Помилка: " + j.error);
+  };
+
+  // Рішення оператора: прив'язати до клієнта з мітки або створити нового
+  const resolveMarkConfirm = async (choice) => {
+    if (!markConfirm) return;
+    const { kind, payload, onLinked, mark } = markConfirm;
+    setMarkConfirm(null);
+    setMarkResolving(true);
+
+    // "link" означає різне: для вільного номера — відновити клієнта під ним,
+    // для зайнятого — прив'язати до наявного клієнта
+    let decision = { ignoreMark: true };
+    if (choice === "link") {
+      decision = kind === "MARK_REUSE_CONFIRM"
+        ? { reuseConfirmed: true }
+        : { forceLinkErpId: mark.erpId };
+    }
+
+    try {
+      await sendAddToErp({ ...payload, ...decision }, onLinked);
+    } catch (e) {
+      alert("Помилка мережі: " + e.message);
+    } finally {
+      setMarkResolving(false);
+    }
+  };
+
   const addToErp = async (chat) => {
     if (!chat.tgUserId || !chat.accessHash) return;
     setAddingToErp(chat.chatId);
     cancelPendingAvatars(); // Звільнити з'єднання для POST
     try {
-      const orderId = getCurrentOrderId();
-      const { data: j } = await axios.post(API + "/contacts/add-to-erp", {
+      await sendAddToErp({
         tgUserId: chat.tgUserId,
         accessHash: chat.accessHash,
         firstName: chat.firstName,
         lastName: chat.lastName,
         username: chat.username,
-        phone: chat.phone,
-        orderId: orderId || undefined
-      });
-      if (j.ok || j.error === "ALREADY_IN_ERP") {
-        const erpId = j.ok ? j.erpUser.id : j.erpUserId;
-        setErpSuccess(prev => ({ ...prev, [chat.chatId]: erpId }));
-        if (j.order) {
-          window.dispatchEvent(new CustomEvent('orderUserAssigned', { detail: j.order }));
-        } else if (orderId) {
-          assignUserToCurrentOrder(erpId);
-        }
-      } else {
-        alert("Помилка: " + j.error);
-      }
+        phone: chat.phone
+      }, (erpId) => setErpSuccess(prev => ({ ...prev, [chat.chatId]: erpId })));
     } catch (e) {
       alert("Помилка мережі: " + e.message);
     } finally {
@@ -869,31 +913,16 @@ export default function TelegramBotAkkAndMedias() {
     setAddingContactToErp(ct.tgUserId);
     cancelPendingAvatars(); // Звільнити з'єднання для POST
     try {
-      const orderId = getCurrentOrderId();
-      const { data: j } = await axios.post(API + "/contacts/add-to-erp", {
+      await sendAddToErp({
         tgUserId: ct.tgUserId,
         accessHash: ct.accessHash,
         firstName: ct.firstName,
         lastName: ct.lastName,
         username: ct.username,
-        phone: ct.phone,
-        orderId: orderId || undefined
-      });
-      if (j.ok || j.error === "ALREADY_IN_ERP") {
-        const erpId = j.ok ? j.erpUser.id : j.erpUserId;
-        setContacts(prev => prev.map(c =>
-          c.tgUserId === ct.tgUserId ? { ...c, erpUserId: erpId } : c
-        ));
-        // Якщо бекенд повернув оновлене замовлення — оновити UI
-        if (j.order) {
-          window.dispatchEvent(new CustomEvent('orderUserAssigned', { detail: j.order }));
-        } else if (orderId) {
-          // Fallback: окремий запит (для старих версій бекенду)
-          assignUserToCurrentOrder(erpId);
-        }
-      } else {
-        alert("Помилка: " + j.error);
-      }
+        phone: ct.phone
+      }, (erpId) => setContacts(prev => prev.map(c =>
+        c.tgUserId === ct.tgUserId ? { ...c, erpUserId: erpId } : c
+      )));
     } catch (e) {
       alert("Помилка мережі: " + e.message);
     } finally {
@@ -1283,6 +1312,14 @@ export default function TelegramBotAkkAndMedias() {
                 </div>
                 <div className="tg-contact-name">
                   {[ct.firstName, ct.lastName].filter(Boolean).join(" ") || ct.username || ct.tgUserId}
+                  {!ct.erpUserId && ct.markErpId ? (
+                    <span
+                      className="tg-contact-mark"
+                      title={`В імені контакту є мітка ERP №${ct.markErpId}${ct.markVchasno ? " з ознакою Вчасно" : ""}, але зв'язку в базі немає`}
+                    >
+                      {ct.markVchasno ? "🔑 " : ""}🤖 №{ct.markErpId}
+                    </span>
+                  ) : null}
                 </div>
                 <div className="tg-contact-username">
                   {ct.username ? `@${ct.username}` : ""}
@@ -1294,7 +1331,7 @@ export default function TelegramBotAkkAndMedias() {
                 <div
                   className={`tg-add-erp-btn ${ct.erpUserId ? "tg-add-erp-btn--done" : ""} ${addingContactToErp === ct.tgUserId ? "tg-add-erp-btn--loading" : ""}`}
                   onClick={() => {
-                    if (!ct.erpUserId && addingContactToErp !== ct.tgUserId) addToErpFromContacts(ct);
+                    if (!ct.erpUserId && addingContactToErp !== ct.tgUserId && !markResolving) addToErpFromContacts(ct);
                   }}
                 >
                   <span className="flip-front">
@@ -1302,7 +1339,9 @@ export default function TelegramBotAkkAndMedias() {
                       ? "Додаю клієнта..."
                       : ct.erpUserId
                         ? `ID клієнта №${ct.erpUserId}`
-                        : "Додати до ERP"}
+                        : ct.markErpId
+                          ? `Відновити зв'язок №${ct.markErpId}`
+                          : "Додати до ERP"}
                   </span>
                 </div>
                 </div>
@@ -1313,6 +1352,90 @@ export default function TelegramBotAkkAndMedias() {
 
       </div>
 
+      {markConfirm && (
+        <div className="tg-mark-overlay" onClick={() => setMarkConfirm(null)}>
+          <div className="tg-mark-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="tg-mark-title">
+              {markConfirm.kind === "MARK_CONFLICT"
+                ? "Мітка вказує на зайнятого клієнта"
+                : markConfirm.kind === "MARK_REUSE_CONFIRM"
+                  ? `Відновити клієнта під номером №${markConfirm.mark.erpId}?`
+                  : "Контакт уже має мітку ERP"}
+            </div>
+
+            <div className="tg-mark-note">
+              {markConfirm.kind === "MARK_CONFLICT"
+                ? `Клієнт №${markConfirm.mark.erpId} уже прив'язаний до іншого Telegram-акаунта. Прив'язати до нього цей контакт не можна.`
+                : markConfirm.kind === "MARK_REUSE_CONFIRM"
+                  ? `Клієнта №${markConfirm.mark.erpId} у базі немає, номер вільний. Але до нього прив'язано замовлень: ${markConfirm.mark.orphanOrders}. Якщо це той самий клієнт — історія повернеться до нього. Якщо ні — чужі замовлення приліпляться до нового клієнта.`
+                  : `В імені контакту стоїть мітка 🤖:${markConfirm.mark.erpId}, але дані не збігаються з клієнтом №${markConfirm.mark.erpId}. Це може бути той самий клієнт зі зміненим іменем — або зовсім інша людина, якщо ID зсунулись.`}
+            </div>
+
+            {markConfirm.mark.vchasnoFromMark && (
+              <div className="tg-mark-note tg-mark-note--vchasno">
+                🔑 У назві контакту є ознака «Вчасно» — клієнту буде увімкнено цей прапорець.
+              </div>
+            )}
+
+            <div className="tg-mark-compare">
+              <div className="tg-mark-col">
+                <div className="tg-mark-col-head">Контакт у Telegram</div>
+                <div className="tg-mark-value">{markConfirm.mark.contactName || "—"}</div>
+                <div className="tg-mark-sub">
+                  {markConfirm.payload.username ? `@${markConfirm.payload.username}` : ""}
+                </div>
+                <div className="tg-mark-sub">{markConfirm.mark.contactPhone || ""}</div>
+              </div>
+
+              {markConfirm.kind === "MARK_REUSE_CONFIRM" ? (
+                <div className="tg-mark-col">
+                  <div className="tg-mark-col-head">Номер №{markConfirm.mark.erpId} в ERP</div>
+                  <div className="tg-mark-value">Клієнта немає — номер вільний</div>
+                  <div className="tg-mark-sub">
+                    Замовлень на цьому номері: {markConfirm.mark.orphanOrders}
+                  </div>
+                </div>
+              ) : (
+                <div className="tg-mark-col">
+                  <div className="tg-mark-col-head">Клієнт №{markConfirm.mark.erpId} в ERP</div>
+                  <div className="tg-mark-value">{markConfirm.mark.name || "—"}</div>
+                  <div className="tg-mark-sub">
+                    {markConfirm.mark.tgUsername ? `${markConfirm.mark.tgUsername}` : ""}
+                  </div>
+                  <div className="tg-mark-sub">{markConfirm.mark.phone || ""}</div>
+                </div>
+              )}
+            </div>
+
+            <div className="tg-mark-actions">
+              {markConfirm.kind !== "MARK_CONFLICT" && (
+                <div
+                  className="tg-mark-btn tg-mark-btn--link"
+                  onClick={() => resolveMarkConfirm("link")}
+                >
+                  {markConfirm.kind === "MARK_REUSE_CONFIRM"
+                    ? `Відновити під №${markConfirm.mark.erpId}`
+                    : `Це він — прив'язати до №${markConfirm.mark.erpId}`}
+                </div>
+              )}
+              <div
+                className="tg-mark-btn tg-mark-btn--new"
+                onClick={() => resolveMarkConfirm("new")}
+              >
+                {markConfirm.kind === "MARK_REUSE_CONFIRM"
+                  ? "Створити нового (новий номер)"
+                  : "Створити нового клієнта"}
+              </div>
+              <div
+                className="tg-mark-btn tg-mark-btn--cancel"
+                onClick={() => setMarkConfirm(null)}
+              >
+                Скасувати
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

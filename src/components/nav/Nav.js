@@ -25,7 +25,15 @@ import BarcodeScannerListener from "../../PrintPeaksFAinal/barcode/BarcodeScanne
 import { NiimbotConnectButton, BarcodeScannerButton } from "../../PrintPeaksFAinal/barcode/BarcodeLabel";
 import AddExpenseButton from "../admin/crm/Desktop/AddExpenseButton";
 import SearchOrderDropdown from "./SearchOrderDropdown";
+import NavShiftButton from "./NavShiftButton";
 
+
+const ROLE_LABELS = {
+  admin: 'Адміністратор',
+  manager: 'Менеджер',
+  operator: 'Оператор',
+  user: 'Клієнт',
+};
 
 const Nav = () => {
   const dispatch = useDispatch();
@@ -86,6 +94,15 @@ const Nav = () => {
     navigate('/login')
   }
 
+  // Хто зараз залогінений — напівпрозорий підпис під навбаром
+  const userDisplayName = [currentUser?.firstName, currentUser?.lastName].filter(Boolean).join(' ')
+    || currentUser?.familyName
+    || currentUser?.username
+    || currentUser?.email
+    || currentUser?.phoneNumber
+    || '';
+  const userRoleLabel = ROLE_LABELS[currentUser?.role] || currentUser?.role || '';
+
   if (location.pathname === '/login') return null;
 
   return (
@@ -101,7 +118,7 @@ const Nav = () => {
         {currentUser && (
           <div className="nav-actions-group">
             <AddNewOrder/>
-            <AddExpenseButton/>
+            {currentUser.role !== 'user' && <AddExpenseButton/>}
             {(currentUser.role === "admin" || currentUser.role === "operator") && (
               location.pathname.startsWith('/Companys')
                 ? <AddCompanyButton />
@@ -134,7 +151,7 @@ const Nav = () => {
           </div>}
           {currentUser ? (
             <>
-              <div className="nav-right-controls">
+              {currentUser.role !== 'user' && <div className="nav-right-controls">
                 <div className="nav-ctrl-btn-wrap">
                   <button
                     className={`adminButtonAddNav nav-np-btn${showNPCalc ? ' active' : ''}`}
@@ -208,7 +225,7 @@ const Nav = () => {
                 {/* <div className="nav-ctrl-btn-wrap">
                   <BarcodeScannerButton className="adminButtonAddNav" />
                 </div> */}
-              </div>
+              </div>}
             </>
           ) : (
             <button
@@ -240,10 +257,6 @@ const Nav = () => {
           {currentUser?.role === "user" && (
             <div className="btnBlock flipNav navTheme-amber d-flex align-items-center">
               <nav className="btnRow">
-                <NavLink to="/Desktop" className="btn">
-                  <span className="flip-front">Головна</span>
-                </NavLink>
-
                 <NavLink to="/Orders" className="btn">
                   <span className="flip-front">Замовлення</span>
                   <span className="flip-back">
@@ -452,6 +465,19 @@ const Nav = () => {
             </div>
           )}
         </>
+
+        {/* ── Правий кут: стан касової зміни + підпис, хто залогінений ── */}
+        {currentUser && (
+          <div className="nav-user-corner">
+            <NavShiftButton />
+            {userDisplayName && (
+              <div className="nav-user-badge" title={`Ви увійшли як ${userDisplayName}`}>
+                <span className="nav-user-badge-name">{userDisplayName}</span>
+                {userRoleLabel && <span className="nav-user-badge-role">{userRoleLabel}</span>}
+              </div>
+            )}
+          </div>
+        )}
 
       </div>
 

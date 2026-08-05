@@ -22,9 +22,53 @@
 
 /* Головний рядок навбару */
 .nav-bar-row {
+  position: relative;
   display: flex;
   align-items: stretch;
   width: 100%;
+}
+
+/* Правий кут під навбаром: кнопка зміни + підпис користувача */
+.nav-user-corner {
+  position: absolute;
+  right: 1rem;
+  /* від'ємний відступ — щоб підпис лишився на тій самій висоті,
+     а вища кнопка зміни виросла симетрично навколо нього */
+  bottom: -0.2rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+/* Напівпрозорий підпис — хто залогінений у системі (під навбаром справа) */
+.nav-user-badge {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.45;
+  color: var(--admingrey);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.nav-user-badge-name {
+  font-size: calc(var(--font-size-s, 0.85rem) * 0.78);
+  font-weight: 500;
+}
+
+.nav-user-badge-role {
+  font-size: calc(var(--font-size-s, 0.85rem) * 0.7);
+  font-weight: 400;
+}
+
+.nav-user-badge-role::before {
+  content: '·';
+  margin-right: 0.4rem;
 }
 
 /* Короткі/повні назви кнопок */
@@ -1082,6 +1126,20 @@
   }
   .nav-bar-row {
     flex-wrap: wrap;
+  }
+
+  /* На мобільному навбар переноситься — підпис ховаємо, щоб не перекривав кнопки.
+     Кнопку зміни лишаємо, але переносимо в звичайний потік. */
+  .nav-user-badge {
+    display: none;
+  }
+
+  .nav-user-corner {
+    position: static;
+    width: 100%;
+    order: 3;
+    justify-content: flex-end;
+    padding: 0 0.5rem 0.25rem;
   }
 
   /* Кнопки дій — в один рядок */

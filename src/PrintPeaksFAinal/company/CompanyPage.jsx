@@ -190,7 +190,7 @@ const UsersList = ({ companyId, reloadSignal = 0, onAddUser, onAttachUser }) => 
                       bottom: 0,
                       right: 0,
                     }}>
-                    <TelegramAvatar link={u.telegram} size={48}
+                    <TelegramAvatar link={u.telegram} photo={u.photoLink} size={48}
 
                     />
                     </div>

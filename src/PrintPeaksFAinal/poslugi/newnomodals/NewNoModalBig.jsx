@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import ReactDOM from "react-dom";
 import { usePortalDropdown } from "./usePortalDropdown";
 
-const NewNoModalBig = ({big, setBig, prices, buttonsArr, selectArr}) => {
+const NewNoModalBig = ({big, setBig, prices, buttonsArr, selectArr, dropdownClassName = ""}) => {
     const { open: openBig, setOpen: setOpenBig, style: dropStyle, toggle, triggerRef: bigRef, portalRef } = usePortalDropdown();
 
     let handleSelectChange = (val) => {
@@ -31,7 +31,7 @@ const NewNoModalBig = ({big, setBig, prices, buttonsArr, selectArr}) => {
                   {bigTitle}
                 </div>
                 {openBig && ReactDOM.createPortal(
-                  <div className="custom-select-dropdown" ref={portalRef} style={dropStyle}>
+                  <div className={`custom-select-dropdown${dropdownClassName ? ` ${dropdownClassName}` : ""}`} ref={portalRef} style={dropStyle}>
                     {(selectArr || []).filter(item => item !== "").map((item) => (
                       <div
                         key={item}

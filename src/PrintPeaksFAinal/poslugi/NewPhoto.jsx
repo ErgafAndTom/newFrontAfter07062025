@@ -134,6 +134,7 @@ const NewPhoto = ({
   const [customSize, setCustomSize] = useState(false);
   const [localX, setLocalX] = useState(DEFAULT_SIZE.x);
   const [localY, setLocalY] = useState(DEFAULT_SIZE.y);
+  const materialsReqRef = useRef(0);
 
   const handleServiceSelect = useCallback((name) => {
     setSelectedService(name);
@@ -319,9 +320,16 @@ const NewPhoto = ({
       size,
     };
 
+    // Відкидаємо відповіді застарілих запитів: при відкритті в режимі редагування
+    // цей ефект спершу спрацьовує зі старим size (DEFAULT_SIZE), бо setSize з ефекту
+    // ініціалізації застосується лише на наступному рендері. Без цієї перевірки
+    // відповідь на 10×15 перезаписувала збережений матеріал.
+    const reqId = ++materialsReqRef.current;
+
     axios
       .post(`/materials/NotAll`, data)
       .then((response) => {
+        if (reqId !== materialsReqRef.current) return;
         const rows = response.data.rows || [];
         setMaterials(rows);
 
@@ -336,6 +344,7 @@ const NewPhoto = ({
         }
       })
       .catch((err) => {
+        if (reqId !== materialsReqRef.current) return;
         setMaterials([]);
         if (err?.response?.status === 403) {
           navigate("/login");

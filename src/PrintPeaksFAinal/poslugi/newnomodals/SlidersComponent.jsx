@@ -4,7 +4,7 @@ import './ArtemStyles.css';
 const PRESETS = {
   Wide: {
     x: { min: 127,  max: 1000, step: 1, unit: 'мм' },
-    y: { min: 127,  max: 4000, step: 1, unit: 'мм' },
+    y: { min: 127,  max: 10000, step: 1, unit: 'мм' },
   },
   Magnets: {
     x: { min: 50,  max: 600,  step: 1, unit: 'мм' },

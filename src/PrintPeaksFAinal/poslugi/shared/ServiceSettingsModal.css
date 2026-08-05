@@ -62,7 +62,7 @@
 
 .ssm-service-row {
   display: grid;
-  grid-template-columns: 1fr auto auto auto;
+  grid-template-columns: 1fr auto auto auto auto auto;
   align-items: center;
   gap: 0.6rem;
   padding: 0.5rem 0.6rem;
@@ -79,6 +79,24 @@
   font-size: var(--font-size-m, 0.95rem);
   color: var(--admingrey, #666);
   font-weight: 500;
+}
+
+.ssm-default-btn {
+  background: none;
+  border: none;
+  color: var(--admingrey, #666);
+  opacity: 0.5;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0 0.2rem;
+}
+.ssm-default-btn:hover {
+  opacity: 0.8;
+}
+.ssm-default-btn.ssm-default-set {
+  color: var(--adminorange, #f5a623);
+  opacity: 1;
 }
 
 .ssm-color-swatch {
@@ -103,6 +121,7 @@
   display: flex;
   align-items: center;
   gap: 0.3rem;
+  position: relative;
 }
 .ssm-preset-btn:hover {
   background: var(--adminlightorange, #fef4e5);
@@ -110,6 +129,52 @@
 .ssm-preset-btn.ssm-preset-active {
   background: var(--adminlightorange, #fef4e5);
   border-color: var(--adminorange, #f5a623);
+}
+
+/* індикатор «пресет застосовується за замовчуванням» — окремо від дії відкриття/закриття */
+.ssm-preset-dot {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--admingreen, #0e935b);
+  border: 1px solid var(--adminfon, #f7f5ee);
+}
+
+.ssm-orderName-btn {
+  background: none;
+  border: 2px solid var(--adminblue, #3c60a6);
+  color: var(--admingrey, #666);
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  font-size: var(--font-size-s, 0.85rem);
+  font-weight: 600;
+  min-width: 2.2rem;
+}
+.ssm-orderName-btn:hover {
+  background: var(--adminlightblue, #e8eefa);
+}
+.ssm-orderName-btn.ssm-orderName-set {
+  background: var(--adminlightblue, #e8eefa);
+  border-color: var(--adminblue, #3c60a6);
+  color: var(--adminblue, #3c60a6);
+}
+
+.ssm-orderName-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem;
+  background: var(--adminfonelement, #f1eee7);
+  margin-bottom: 0.8rem;
+}
+
+.ssm-orderName-label {
+  font-size: var(--font-size-s, 0.85rem);
+  color: var(--admingrey, #666);
+  white-space: nowrap;
 }
 
 .ssm-delete-btn {

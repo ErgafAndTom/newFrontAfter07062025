@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "../../api/axiosInstance";
-import TelegramAvatar from "../Messages/TelegramAvatar";
+import AvatarUploader from "./AvatarUploader";
 import AddCompanyModal from "../company/AddCompanyModal";
 import "./ClientProfileModal.css";
 
@@ -241,6 +241,19 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
 
   const onSaved = (updated) => setUser(updated);
 
+  /* Знижку клієнта змінили — бекенд уже перерахував активні замовлення,
+     повідомляємо батька, щоб замовлення підтягнуло нові ціни */
+  const onDiscountSaved = (updated) => {
+    setUser(updated);
+    onUserUpdated?.(updated);
+  };
+
+  /* Аватарку змінили — оновлюємо і батька, щоб фото підмінилось у списках */
+  const onAvatarUpdated = (updated) => {
+    setUser(updated);
+    onUserUpdated?.(updated);
+  };
+
   const onCompanyAttached = () => {
     setShowAttach(false);
     load();
@@ -297,7 +310,14 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
         <header className="cpm-header">
           {user && (
             <div className="cpm-avatar-wrap">
-              <TelegramAvatar link={user.telegram} size={56} square={true} />
+              <AvatarUploader
+                userId={user.id}
+                telegram={user.telegram}
+                photoLink={user.photoLink}
+                size={56}
+                square={true}
+                onUpdated={onAvatarUpdated}
+              />
               <span className="cpm-id-badge">ID {user.id}</span>
             </div>
           )}
@@ -349,7 +369,7 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
               <FieldRow label="Viber"     field="viber"     value={user.viber}     userId={user.id} onSaved={onSaved} />
               <FieldRow label="WhatsApp"  field="whatsapp"  value={user.whatsapp}  userId={user.id} onSaved={onSaved} />
               <FieldRow label="Signal"    field="signal"    value={user.signal}    userId={user.id} onSaved={onSaved} />
-              <FieldRow label="Знижка (%)" field="discount" value={discountNum}    userId={user.id} type="number" onSaved={onSaved} />
+              <FieldRow label="Знижка (%)" field="discount" value={discountNum}    userId={user.id} type="number" onSaved={onDiscountSaved} />
               <FieldRow label="Логін"     field="username"  value={user.username}  userId={user.id} onSaved={onSaved} />
               <FieldRow label="Пароль"    field="password"  value={user.passwordRaw ?? ""}  userId={user.id} type="text"   onSaved={onSaved} />
             </div>

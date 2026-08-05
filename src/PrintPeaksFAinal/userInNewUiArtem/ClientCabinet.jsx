@@ -20,6 +20,7 @@ export default function ClientCabinet({
                                         thisOrder = {id: 0},
                                         onOpenChat,
                                         onClose,
+                                        onUserUpdated,
                                       }) {
 
   const [clientOrders, setClientOrders] = useState([]);
@@ -85,19 +86,23 @@ export default function ClientCabinet({
 
   /* ---------- data fetching ---------- */
 
+  const reloadUserInBase = useCallback(async () => {
+    if (!userId) return null;
+    try {
+      setLoading(true);
+      const res = await axios.get(`/user/getOneUser/${userId}`);
+      setUserInBase(res.data);
+      return res.data;
+    } catch (err) {
+      setError(err.message);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
   useEffect(() => {
-    if (!userId) return;
-    (async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get(`/user/getOneUser/${userId}`);
-        setUserInBase(res.data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    reloadUserInBase();
   }, []);
 
   const fetchOrders = useCallback(async (uid, page = 1) => {
@@ -242,7 +247,7 @@ export default function ClientCabinet({
         {/* ── Header ── */}
         <header className="cc-header">
           <div className="cc-avatar-wrap">
-            <TelegramAvatar link={userInBase?.telegram} size={56} square={true} />
+            <TelegramAvatar link={userInBase?.telegram} photo={userInBase?.photoLink} size={56} square={true} />
             <span className="cc-id-badge">ID {userInBase?.id ?? '—'}</span>
           </div>
 
@@ -390,13 +395,22 @@ export default function ClientCabinet({
       <ClientProfileModal
         userId={userInBase.id}
         onClose={() => setProfileOpen(false)}
-        onUserUpdated={(updatedUser) => setUserInBase(updatedUser)}
+        onUserUpdated={(updatedUser) => {
+          setUserInBase(updatedUser);
+          // прокидаємо вгору — щоб замовлення підтягнуло перераховану знижку
+          onUserUpdated?.(updatedUser);
+        }}
       />
     )}
     {companyOpen && userInBase?.Company?.id && (
       <CompanyProfileModal
         companyId={userInBase.Company.id}
         onClose={() => setCompanyOpen(false)}
+        onCompanyUpdated={async () => {
+          // змінили знижку компанії — підтягуємо клієнта і повідомляємо замовлення
+          const updated = await reloadUserInBase();
+          onUserUpdated?.(updated);
+        }}
       />
     )}
     </>,

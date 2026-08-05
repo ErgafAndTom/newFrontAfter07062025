@@ -14,7 +14,7 @@ const iconArray = [
     borderRadiusIcon2,
 ];
 
-const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttonsArr, selectArr}) => {
+const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttonsArr, selectArr, dropdownClassName = ""}) => {
     const { open: openRadius, setOpen: setOpenRadius, style: dropStyle, toggle, triggerRef: radiusRef, portalRef } = usePortalDropdown();
 
     let handleSelectChange = (val) => {
@@ -139,7 +139,7 @@ const NewNoModalCute = ({cute, setCute, cuteLocal, setCuteLocal, prices, buttons
                   {radiusTitle}
                 </div>
                 {openRadius && ReactDOM.createPortal(
-                  <div className="custom-select-dropdown" ref={portalRef} style={dropStyle}>
+                  <div className={`custom-select-dropdown${dropdownClassName ? ` ${dropdownClassName}` : ""}`} ref={portalRef} style={dropStyle}>
                     {(selectArr || []).map((item) => (
                       <div
                         key={item}

@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { usePortalDropdown } from "./usePortalDropdown";
 
-const NewNoModalLyuversy = ({ lyuversy, setLyuversy, selectArr = [] }) => {
+const NewNoModalLyuversy = ({ lyuversy, setLyuversy, selectArr = [], dropdownClassName = "" }) => {
     const { open, setOpen, style: dropStyle, toggle, triggerRef: ref, portalRef } = usePortalDropdown();
 
     const handleSelectChange = (val) => {
@@ -31,7 +31,7 @@ const NewNoModalLyuversy = ({ lyuversy, setLyuversy, selectArr = [] }) => {
                   {title}
                 </div>
                 {open && ReactDOM.createPortal(
-                  <div className="custom-select-dropdown" ref={portalRef} style={dropStyle}>
+                  <div className={`custom-select-dropdown${dropdownClassName ? ` ${dropdownClassName}` : ""}`} ref={portalRef} style={dropStyle}>
                     {selectArr.filter(item => item !== "").map(item => (
                       <div
                         key={item}
