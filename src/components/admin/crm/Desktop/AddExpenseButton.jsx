@@ -54,7 +54,10 @@ const formatFileSize = (bytes) => {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 };
 
-const AddExpenseButton = () => {
+// hideTrigger — рендерити лише модалку, без власної кнопки. Використовує
+// панель швидкого доступу (PPDock): вона малює свою плитку, а відкриває
+// модалку глобальною подією 'pp-open-expense'.
+const AddExpenseButton = ({hideTrigger = false} = {}) => {
     const [showModal, setShowModal] = useState(false);
     const [form, setForm] = useState({amount: '', description: '', category: '', date: new Date().toISOString().slice(0, 10), paymentMethod: 'invoice'});
     const [files, setFiles] = useState([]);
@@ -87,6 +90,16 @@ const AddExpenseButton = () => {
     const [selectedPrinterId, setSelectedPrinterId] = useState('');
     const [selectedConsumableId, setSelectedConsumableId] = useState(null);
     const [meterReading, setMeterReading] = useState('');
+
+    // Відкриття ззовні (плитка «Нова витрата» в панелі швидкого доступу).
+    // Слухає лише інстанс дока — інакше там, де кнопка вже є на сторінці,
+    // модалка відкрилася б двічі.
+    useEffect(() => {
+        if (!hideTrigger) return undefined;
+        const handler = () => setShowModal(true);
+        window.addEventListener('pp-open-expense', handler);
+        return () => window.removeEventListener('pp-open-expense', handler);
+    }, [hideTrigger]);
 
     useEffect(() => {
         const q = orderQuery.trim();
@@ -300,10 +313,12 @@ const AddExpenseButton = () => {
 
     return (
         <>
-            <div className="buttonSkewedOrder" onClick={() => setShowModal(true)}>
-                <span className="nav-btn-full">Нова витрата</span>
-                <span className="nav-btn-short">+ витрата</span>
-            </div>
+            {!hideTrigger && (
+                <div className="buttonSkewedOrder" onClick={() => setShowModal(true)}>
+                    <span className="nav-btn-full">Нова витрата</span>
+                    <span className="nav-btn-short">+ витрата</span>
+                </div>
+            )}
 
             {showModal && (
                 <div className="aeb-overlay">

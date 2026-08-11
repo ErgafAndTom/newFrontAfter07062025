@@ -1,8 +1,15 @@
 /* ============================================================
-   Client Profile Modal — scoped styles
+   ПРОФІЛЬ КЛІЄНТА — бренд-стиль PrintPeaks
+
+   Ті самі правила, що в кабінеті клієнта (ClientCabinet.css):
+   прямокутники без заокруглень, кнопка — світла плитка з чорною
+   кромкою 3px зліва й заливкою-«штампом» на ховері, службові
+   підписи дисплейним шрифтом капітеллю з розрядкою, колір лише
+   через CSS-змінні. Помаранчевий лишається тільки там, де він
+   означає стан «є незбережена зміна».
    ============================================================ */
 
-/* ── Overlay ── */
+/* ── Підкладка ── */
 .cpm-overlay {
   position: fixed;
   inset: 0;
@@ -15,19 +22,20 @@
   z-index: 10500;
 }
 
-/* ── Panel ── */
+/* ── Панель ── */
 .cpm-panel {
   position: relative;
-  width: min(96vw, 900px);
+  width: min(96vw, 980px);
   max-height: 90vh;
   background: var(--adminfon, #f7f5ee);
   color: var(--admingrey, #666666);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
   border-radius: 0;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.26);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: cpm-slide-up 0.25s ease-out;
+  animation: cpm-slide-up 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes cpm-slide-up {
@@ -35,37 +43,47 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Header ── */
+/* ── Шапка ── */
 .cpm-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
-  padding: 1rem 1.4rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
   flex-shrink: 0;
 }
 
 .cpm-avatar-wrap {
   position: relative;
   flex-shrink: 0;
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
 }
 
+.cpm-avatar-wrap img,
+.cpm-avatar-wrap canvas,
+.cpm-avatar-wrap svg,
+.cpm-avatar-wrap div:not([class]) {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  object-fit: cover;
+}
+
+/* id — плашка в нижньому куті аватара, як у навбарі й кабінеті */
 .cpm-id-badge {
   position: absolute;
-  right: -4px;
-  bottom: -4px;
-  height: 1.35rem;
-  padding: 0 0.4rem;
+  left: 0;
+  bottom: 0;
+  padding: 1px 5px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  background: var(--adminorange, #f5a623);
-  border: 2px solid var(--adminfon, #f7f5ee);
+  background: var(--admingrey, #666);
+  border: none;
   color: var(--adminfon, #f7f5ee);
-  font-size: 0.78rem;
-  line-height: 1;
+  font-size: calc(var(--font-size-s, 17px) * 0.72);
+  letter-spacing: 0.04em;
+  line-height: 1.25;
   white-space: nowrap;
 }
 
@@ -74,21 +92,22 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.15rem;
 }
 
 .cpm-name-row {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  align-items: baseline;
+  gap: 0.9rem;
   flex-wrap: wrap;
   min-width: 0;
 }
 
 .cpm-fullname {
-  font-size: var(--font-size-pay, 21px);
+  font-size: calc(var(--font-size-s, 17px) + 7px);
   font-weight: 400;
-  color: var(--admingrey, #666666);
+  letter-spacing: normal;
+  color: #000;
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
@@ -103,38 +122,45 @@
 
 .cpm-header-sub {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 1rem;
   flex-wrap: wrap;
 }
 
 .cpm-company-name {
-  font-size: var(--fontsmall, 15px);
+  font-size: var(--font-size-s, 17px);
   font-weight: 400;
-  color: var(--adminblue, #3c60a6);
+  color: #000;
 }
 
+/* знижка — єдиний кольоровий акцент шапки */
 .cpm-header-discount {
-  font-size: var(--fontsmall, 15px);
+  font-size: var(--font-size-s, 17px);
   font-weight: 400;
   color: var(--admingreen, #0e935b);
 }
 
 .cpm-close {
   align-self: flex-start;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: 0;
   padding: 0;
-  font-size: var(--font-size-pay, 21px);
+  font-size: calc(var(--font-size-s, 17px) + 4px);
   color: var(--admingrey, #666666);
   cursor: pointer;
   line-height: 1;
-  flex-shrink: 0;
+  transition: color 0.15s;
 }
 
 .cpm-close:hover { color: var(--adminred, #ee3c23); }
 
-/* ── Body ── */
+/* ── Тіло: дві колонки полів ── */
 .cpm-body {
   flex: 1;
   overflow-y: auto;
@@ -145,73 +171,92 @@
 }
 
 .cpm-body::-webkit-scrollbar { width: 6px; }
-.cpm-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); }
 
-/* ── Section ── */
+.cpm-body::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--admingrey, #666) 25%, transparent);
+}
+
+.cpm-body::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--admingrey, #666) 45%, transparent);
+}
+
+/* ── Секція ── */
 .cpm-section {
-  padding: 1rem 1.4rem;
+  padding: 1.1rem 1.4rem 1.4rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
 .cpm-section:first-child {
-  border-right: 1px solid rgba(0, 0, 0, 0.07);
+  border-right: 1px solid color-mix(in srgb, var(--admingrey, #666) 18%, transparent);
 }
 
+/* заголовок секції — eyebrow, як «Вироби»/«Друк» у каталозі робіт */
 .cpm-section-title {
-  font-size: var(--fontsmall, 15px);
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 18%, transparent);
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.76);
   font-weight: 400;
-  color: var(--admingrey, #666666);
-  opacity: 0.5;
+  letter-spacing: var(--pp-track-wide, 0.16em);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 0.3rem;
+  color: color-mix(in srgb, var(--admingrey, #666) 65%, transparent);
 }
 
-/* ── Field row ── */
+/* ── Рядок поля ── */
 .cpm-field-row {
   display: grid;
-  grid-template-columns: 120px 1fr 32px;
+  grid-template-columns: 130px 1fr 32px;
   align-items: center;
   gap: 0.5rem;
-  min-height: 2.4rem;
+  min-height: 2.6rem;
 }
 
 .cpm-field-label {
-  font-size: var(--fontsmall, 15px);
+  font-size: var(--font-size-s, 17px);
   font-weight: 400;
-  color: var(--admingrey, #666666);
+  color: color-mix(in srgb, var(--admingrey, #666) 80%, transparent);
   white-space: nowrap;
 }
 
+/* поле — «лінійка» без рамки; заповнене значення чорне, як дані наряду */
 .cpm-field-input {
   height: 2.4rem;
-  padding: 0 0.6rem;
-  border: 1px solid transparent;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0 0.5rem;
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
   background: transparent;
   border-radius: 0;
   outline: none;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
   font-size: var(--font-size-s, 17px);
   font-weight: 400;
-  color: var(--admingrey, #666666);
+  color: #000;
   width: 100%;
   box-sizing: border-box;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.15s, background 0.15s;
 }
 
+.cpm-field-input::placeholder {
+  color: color-mix(in srgb, var(--admingrey, #666) 45%, transparent);
+}
+
+/* фокус — чорна лінія й легка підкладка: без кольорових рамок */
 .cpm-field-input:focus {
-  border-color: var(--adminorange, #f5a623);
-  background: var(--adminfonelement, #f2f0e9);
+  border-bottom-color: #000;
+  background: var(--v2-tile-hi, #fbfaf6);
 }
 
 .cpm-field-input[data-field="discount"] {
   color: var(--admingreen, #0e935b);
 }
 
+/* незбережена зміна — єдине місце, де лишається помаранчевий сигнал */
 .cpm-field-input.is-changed {
   border-bottom-color: var(--adminorange, #f5a623);
+  border-bottom-width: 2px;
 }
 
 .cpm-field-input.is-disabled {
@@ -219,23 +264,25 @@
   cursor: not-allowed;
 }
 
-/* ── Save button ── */
+/* ── Кнопка збереження поля ── */
 .cpm-field-save {
   width: 32px;
   height: 32px;
-  border: 2px solid var(--adminorange, #f5a623);
+  border: none;
+  border-left: 3px solid #000;
   border-radius: 0;
-  background: transparent;
-  color: var(--adminorange, #f5a623);
+  background: var(--v2-tile-hi, #fbfaf6);
+  color: var(--admingrey, #666666);
   font-size: 1rem;
   font-weight: 400;
+  line-height: 1;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s, background 0.2s, color 0.2s;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
 }
 
 .cpm-field-save.is-visible {
@@ -244,32 +291,32 @@
 }
 
 .cpm-field-save:hover {
-  background: var(--adminorange, #f5a623);
-  color: var(--adminfon, #f7f5ee);
+  background: #000;
+  color: #fff;
 }
 
 .cpm-field-err {
   grid-column: 2 / -1;
-  font-size: var(--fontsmall, 15px);
+  font-size: calc(var(--font-size-s, 17px) * 0.85);
   color: var(--adminred, #ee3c23);
 }
 
-/* ── Role select ── */
+/* ── Вибір ролі ── */
 .cpm-role-select {
   appearance: none;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 400;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.6rem center;
   padding-right: 1.8rem;
 }
 
-/* ── Footer — компанія ── */
+/* ── Підвал — компанія ── */
 .cpm-footer {
   flex-shrink: 0;
-  padding: 0.8rem 1.4rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  padding: 0.9rem 1.4rem;
+  border-top: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
   display: flex;
   align-items: center;
   gap: 1.5rem;
@@ -278,7 +325,7 @@
 
 .cpm-company-actions {
   display: flex;
-  gap: 0.6rem;
+  gap: 0;
   flex-shrink: 0;
 }
 
@@ -287,137 +334,116 @@
   align-items: baseline;
   gap: 1.5rem;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .cpm-company-block-name {
-  font-size: var(--fontsmall, 15px);
+  font-size: var(--font-size-s, 17px);
   font-weight: 400;
-  color: var(--adminblue, #3c60a6);
+  color: #000;
   text-transform: uppercase;
 }
 
+/* ЄДРПОУ й подібне — службовий підпис */
 .cpm-company-detail {
-  font-size: var(--fontsmall, 15px);
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.76);
   font-weight: 400;
-  color: var(--admingrey, #666666);
-  opacity: 0.6;
+  letter-spacing: var(--pp-track-wide, 0.16em);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--admingrey, #666) 65%, transparent);
 }
 
 .cpm-no-company {
-  font-size: var(--fontsmall, 15px);
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.76);
+  letter-spacing: var(--pp-track-wide, 0.16em);
+  text-transform: uppercase;
   color: var(--admingrey, #666666);
   opacity: 0.4;
-  text-transform: uppercase;
 }
 
-/* ── Кнопка "Додати компанію" — стиль nui-client-rect-btn з --adminorange ── */
+/* ── Кнопки підвала: та сама плитка, що в кабінеті ── */
 .cpm-add-company-btn {
   position: relative;
   isolation: isolate;
-  height: 4vh;
-  min-height: 36px;
-  padding: 5px 18px;
-  border: 2px solid var(--adminorange, #f5a623);
+  overflow: hidden;
+  min-height: 38px;
+  padding: 6px 14px 6px 18px;
+  border: none;
+  border-left: 3px solid #000;
   border-radius: 0;
-  background: transparent;
+  clip-path: none;
+  background: var(--v2-tile-hi, #fbfaf6);
+  color: var(--admingrey, #666666);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  transition: 0.3s;
+  transition: color 0.32s ease;
 }
 
-.cpm-add-company-btn-text {
-  position: relative;
-  z-index: 3;
-  font-size: var(--font-size-s, 17px);
-  font-weight: 400;
-  color: var(--admingrey, #666666);
-  text-transform: uppercase;
-}
-
+/* заливка-«штамп» зліва направо */
 .cpm-add-company-btn::before {
   content: "";
   position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 6px);
-  height: calc(100% + 2px);
-  background: var(--adminfon, #f7f5ee);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: -2;
-}
-
-.cpm-add-company-btn::after {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% - 45%);
-  background: var(--adminfon, #f7f5ee);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: -1;
-}
-
-.cpm-add-company-btn:hover::before {
-  transform: translateY(-25px);
-  height: 0;
-}
-
-.cpm-add-company-btn:hover::after {
+  inset: 0;
+  background: #000;
   transform: scaleX(0);
-  transition-delay: 0.15s;
+  transform-origin: left;
+  transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: 0;
 }
 
-.cpm-add-company-btn:hover .cpm-add-company-btn-text {
-  color: var(--adminorange, #f5a623);
+.cpm-add-company-btn:hover::before { transform: scaleX(1); }
+
+.cpm-add-company-btn-text {
+  position: relative;
+  z-index: 1;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: inherit;
+  text-transform: uppercase;
 }
 
-.cpm-add-company-btn--red {
-  border-color: var(--adminred, #ee3c23);
-}
+.cpm-add-company-btn:hover,
+.cpm-add-company-btn:hover .cpm-add-company-btn-text { color: #fff; }
 
-.cpm-add-company-btn--red::before,
-.cpm-add-company-btn--red::after {
-  background: var(--adminfon, #f7f5ee);
-}
+/* руйнівна дія — червона кромка й червона заливка */
+.cpm-add-company-btn--red { border-left-color: var(--adminred, #ee3c23); }
 
-.cpm-add-company-btn--red:hover .cpm-add-company-btn-text {
-  color: var(--adminred, #ee3c23);
-}
+.cpm-add-company-btn--red::before { background: var(--adminred, #ee3c23); }
 
-/* ── Attach company modal ── */
+/* ── Модалка прив'язки компанії ── */
 .cpm-panel--fon {
   background: var(--adminfon, #f7f5ee);
 }
 
 .cpm-attach-search {
   flex-shrink: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
 }
 
 .cpm-attach-input {
   width: 100%;
-  height: 4vh;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 1.4rem;
   border: none;
   outline: none;
   background: transparent;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
   font-size: var(--font-size-s, 17px);
-  color: var(--admingrey, #666666);
+  color: #000;
   box-sizing: border-box;
 }
 
 .cpm-attach-input::placeholder {
-  color: var(--admingrey, #666666);
-  opacity: 0.4;
+  color: color-mix(in srgb, var(--admingrey, #666) 45%, transparent);
   text-transform: uppercase;
-  font-size: var(--fontsmall, 15px);
+  letter-spacing: 0.04em;
+  font-size: calc(var(--font-size-s, 17px) * 0.85);
 }
 
 .cpm-attach-list {
@@ -430,15 +456,21 @@
 }
 
 .cpm-attach-list::-webkit-scrollbar { width: 6px; }
-.cpm-attach-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); }
 
+.cpm-attach-list::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--admingrey, #666) 25%, transparent);
+}
+
+/* порожній стан — той самий, що в панелі файлів і в кабінеті */
 .cpm-attach-empty {
-  padding: 2rem;
+  padding: 2.5rem;
   text-align: center;
-  font-size: var(--fontsmall, 15px);
-  color: var(--admingrey, #666666);
-  opacity: 0.5;
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: var(--admingrey, #666666);
+  opacity: 0.4;
 }
 
 .cpm-attach-row {
@@ -447,15 +479,20 @@
   gap: 1rem;
   padding: 0.7rem 1.4rem;
   min-height: 3.2rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 14%, transparent);
+  border-left: 3px solid transparent;
   overflow: hidden;
   flex-shrink: 0;
-  transition: background 0.15s;
+  transition: background 0.14s, border-left-color 0.14s;
   background: var(--adminfon, #f7f5ee);
+  cursor: pointer;
 }
 
+/* під курсором рядок «вмикає» чорну кромку — той самий сигнал, що в
+   плиток-кнопок, тільки без заливки: рядок лишається читабельним */
 .cpm-attach-row:hover {
-  background: var(--adminfonelement, #f2f0e9);
+  background: var(--v2-tile-hi, #fbfaf6);
+  border-left-color: #000;
 }
 
 .cpm-attach-row-info {
@@ -466,7 +503,7 @@
 .cpm-attach-row-name {
   font-size: var(--font-size-s, 17px);
   font-weight: 400;
-  color: var(--admingrey, #666666);
+  color: #000;
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
@@ -477,11 +514,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
-  font-size: var(--fontsmall, 15px);
-  font-weight: 400;
-  color: var(--admingrey, #666666);
-  opacity: 0.5;
   margin-top: 0.2rem;
+  font-size: calc(var(--font-size-s, 17px) * 0.85);
+  font-weight: 400;
+  color: color-mix(in srgb, var(--admingrey, #666) 70%, transparent);
 }
 
 .cpm-attach-row-discount {
@@ -489,6 +525,19 @@
   opacity: 1;
 }
 
-*,
-*::before,
-*::after { box-sizing: border-box; }
+/* ── Вузькі екрани ── */
+@media (max-width: 900px) {
+  .cpm-body { grid-template-columns: 1fr; }
+  .cpm-section:first-child {
+    border-right: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 18%, transparent);
+  }
+  .cpm-field-row { grid-template-columns: 110px 1fr 32px; }
+  .cpm-footer { flex-wrap: wrap; gap: 0.8rem; }
+}
+
+/* box-sizing — тільки для власних вузлів модалки: раніше тут стояв
+   глобальний селектор `*`, який протікав на всю сторінку */
+.cpm-overlay *,
+.cpm-overlay *::before,
+.cpm-overlay *::after { box-sizing: border-box; }

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { useSelector } from "react-redux";
 // import './CPM.css';
 import './adminStylesCrm.css';
@@ -98,6 +99,123 @@ const NewUIArtem = () => {
   // файлів. useState (не useRef) — портал має перерендеритись, щойно вузол
   // змонтується, а useRef цього не тригерить.
   const [deadlineSlotEl, setDeadlineSlotEl] = useState(null);
+
+  // Слот над навбаром (#nui-jt-status-slot з AllWindow.js) — туди
+  // порталиться смуга статусу замовлення: вона має стояти ВИЩЕ Nav, а не
+  // всередині сітки наряду. Шукаємо вузол в ефекті, бо на першому рендері
+  // цього компонента батьківський DOM ще не закомічений.
+  const [statusSlotEl, setStatusSlotEl] = useState(null);
+  // …і слот у шапці навбара (#nui-jt-barcode-slot з NavOrderHead.jsx),
+  // куди їде штрих-код наряду — лівіше номера замовлення.
+  const [barcodeSlotEl, setBarcodeSlotEl] = useState(null);
+
+  // Одного пошуку при монтуванні мало: слот штрих-коду живе всередині
+  // NavOrderHead, а той з'являється (і перемонтовується) вже після цієї
+  // сторінки — getElementById тоді віддає null і портал не рендериться
+  // взагалі. MutationObserver доводить пошук до кінця й підхоплює новий
+  // вузол, якщо шапка перемонтувалась.
+  useEffect(() => {
+    const sync = () => {
+      const status = document.getElementById('nui-jt-status-slot');
+      const barcode = document.getElementById('nui-jt-barcode-slot');
+      setStatusSlotEl((prev) => (prev === status ? prev : status));
+      setBarcodeSlotEl((prev) => (prev === barcode ? prev : barcode));
+    };
+    sync();
+    const mo = new MutationObserver(sync);
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => mo.disconnect();
+  }, []);
+
+  /* Сітка наряду займає рівно те, що лишилось на екрані. Раніше висота
+     складалась із припущень (навбар ~84px, док ~56px) — і коли шапка чи
+     док виростали, підвал з оплатами зрізало. Тепер міряємо факт: верх
+     самої сітки через getBoundingClientRect і висоту доку, який прилипає
+     до низу вьюпорту й накриває сторінку.
+
+     rAF + порівняння значень — щоб запис змінної, який сам змінює layout,
+     не будив ResizeObserver по колу ("loop completed with undelivered
+     notifications"). */
+  const gridRef = useRef(null);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    let rafId = null;
+    let last = null;
+
+    const apply = () => {
+      rafId = null;
+      const grid = gridRef.current;
+      if (!grid) return;
+
+      /* Позицію верху сітки беремо в координатах ДОКУМЕНТА, а не вьюпорта:
+         rect.top зменшується під час прокрутки, тож на проскроленій
+         сторінці висота виходила більшою — і сторінка скролилась далі,
+         підтримуючи саму себе. */
+      const top = grid.getBoundingClientRect().top + window.scrollY;
+      const dock = document.querySelector('.ppdock-root');
+      const dockH = dock && !dock.classList.contains('is-top')
+        ? Math.ceil(dock.getBoundingClientRect().height)
+        : 0;
+
+      // запас на субпіксельні округлення (border/padding у дробових vh)
+      const height = Math.max(320, Math.floor(window.innerHeight - top - dockH - 6));
+      if (height === last) return;
+      last = height;
+      root.style.setProperty('--jt-gridh', `${height}px`);
+    };
+
+    const measure = () => { if (rafId === null) rafId = requestAnimationFrame(apply); };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    const bar = document.querySelector('.nui-jt-status-portal');
+    const dock = document.querySelector('.ppdock-root');
+    const nav = document.querySelector('.flipNav');
+    if (bar) ro.observe(bar);
+    if (dock) ro.observe(dock);
+    if (nav) ro.observe(nav);
+    if (gridRef.current) ro.observe(gridRef.current);
+    window.addEventListener('resize', measure);
+
+    return () => {
+      ro.disconnect();
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', measure);
+      root.style.removeProperty('--jt-gridh');
+    };
+  }, [statusSlotEl]);
+
+  /* Знімок останнього відкритого наряду для шапки навбара (NavOrderHead
+     читає той самий ключ). Раніше його писав ClientChangerUIArtem — його
+     з цієї сторінки прибрано разом з карткою замовника, тому запис
+     переїхав сюди. createdAt додано, щоб навбар показував дату наряду
+     поруч з кнопкою «Замовлення». */
+  useEffect(() => {
+    if (!thisOrder?.id) return;
+    const snapshot = {
+      orderId: thisOrder.id,
+      createdAt: thisOrder.createdAt || null,
+      client: thisOrder.client ? {
+        id: thisOrder.client.id,
+        firstName: thisOrder.client.firstName,
+        lastName: thisOrder.client.lastName,
+        familyName: thisOrder.client.familyName,
+        phoneNumber: thisOrder.client.phoneNumber,
+        photoLink: thisOrder.client.photoLink,
+        telegram: thisOrder.client.telegram,
+        companyId: thisOrder.client.Company?.id || null,
+        companyName: thisOrder.client.Company?.companyName || null,
+        discount: Number(thisOrder.client.Company?.discount) || 0,
+        vchasno: Boolean(thisOrder.client.vchasno),
+      } : null,
+    };
+    try { localStorage.setItem('printpeaks_last_order', JSON.stringify(snapshot)); } catch {}
+    window.dispatchEvent(new CustomEvent('pp-last-order', { detail: snapshot }));
+  }, [thisOrder?.id, thisOrder?.createdAt, thisOrder?.client?.id,
+      thisOrder?.client?.photoLink, thisOrder?.client?.Company?.companyName,
+      thisOrder?.client?.Company?.discount, thisOrder?.client?.vchasno]);
+
   const [showNewSheetCutV2, setShowNewSheetCutV2] = useState(false);
   const [showNewSheetCutBW, setShowNewSheetCutBW] = useState(false);
   const [showDigitalPrintWide, setShowDigitalPrintWide] = useState(false);
@@ -341,6 +459,31 @@ const NewUIArtem = () => {
     { value: "Scans", label: "SCANS", open: () => setShowNewScans(true) },
     { value: "Delivery", label: "DELIVERY", open: () => setShowDelivery(true) },
   ];
+  // Відкриття модалки позиції ззовні — стек «Позиції» в панелі швидкого
+  // доступу (PPDock) шле 'pp-open-order-editor' з detail.value з EDITORS.
+  useEffect(() => {
+    const handler = (e) => {
+      const target = EDITORS.find((ed) => ed.value === e.detail?.value);
+      target?.open?.();
+    };
+    window.addEventListener('pp-open-order-editor', handler);
+    return () => window.removeEventListener('pp-open-order-editor', handler);
+  });
+
+  // Кнопку позиції натиснули в «Пуску» на іншій сторінці: док записав
+  // намір у sessionStorage і привів сюди. Відкриваємо модалку, щойно наряд
+  // завантажився, і одразу гасимо ключ, щоб він не спрацював удруге при
+  // наступному заході на цю сторінку.
+  useEffect(() => {
+    if (!thisOrder?.id) return;
+    let pending = null;
+    try { pending = sessionStorage.getItem('printpeaks_pending_editor'); } catch {}
+    if (!pending) return;
+    try { sessionStorage.removeItem('printpeaks_pending_editor'); } catch {}
+    const target = EDITORS.find((ed) => ed.value === pending);
+    target?.open?.();
+  }, [thisOrder?.id]);
+
   const TYPE_ALIASES = {
     Postpress: "BigOvshik",
     Binding: "PerepletMet",
@@ -677,44 +820,45 @@ const NewUIArtem = () => {
       <div className="nui-sheetcut-theme nui-jt">
         <QuantumErrorBoundary>
 
-        <div className={`d-flex nui-jt-grid ${serviceToneClass}${hasOrders ? "" : " no-orders"}`} style={{ background: 'transparent' }}>
+        <div
+          ref={gridRef}
+          className={`d-flex nui-jt-grid ${serviceToneClass}${hasOrders ? "" : " no-orders"}`}
+          style={{ background: 'transparent' }}
+        >
 
-          {/* Корінець наряду (ребро папки з номером зліва від колонки клієнта)
-                 прибрано на прохання користувача. */}
+          {/* Маршрут цеху — повноширинна смуга НАД НАВБАРОМ, на прохання
+              користувача: рендериться через портал у #nui-jt-status-slot
+              (AllWindow.js, перед <Nav/>). Обгортка несе класи теми, бо
+              поза .nui-jt правила цієї смуги не діють. */}
+          {statusSlotEl && createPortal(
+            <div className="nui-sheetcut-theme nui-jt nui-jt-status-portal">
+              <div className="nui-order-status-inline">
+                <ProgressBar
+                  thisOrder={thisOrder}
+                  setThisOrder={setThisOrder}
+                  setSelectedThings2={setSelectedThings2}
+                  selectedThings2={selectedThings2}
+                  externalError={uiLockError}
+                  showActionRail={true}
+                  showFinance={false}
+                  showActionButton={true}
+                  showTrack={true}
+                  showError={false}
+                  stepCounter={<div className={`nui-client-step-counter-btn nui-status-step-counter tone-${stepCounterTone}`} aria-hidden="true">{stepCounterLabel}</div>}
+                />
+              </div>
+            </div>,
+            statusSlotEl
+          )}
 
-          {/* ── КОЛОНКА КЛІЄНТА — реквізити наряду: хто замовник, його файли,
-                 дедлайн і крок статусу. Ширина дзеркалить каталог робіт. ── */}
-          <section className="nui-jt-client">
-            {/* Швидкі дії — ті самі кнопки, що в глобальному навбарі
-                (AddNewOrder/AddExpenseButton/AddUserButton), додатково
-                продубльовані тут: під час роботи з нарядом їх не треба
-                шукати нагорі екрана. Навбар не зачіпаємо — інші сторінки
-                (Клієнти, Компанії, Склад) далі показують свої власні. */}
-            <div className="nui-jt-quick-actions">
-              <AddNewOrder />
-              {currentUser?.role !== 'user' && <AddExpenseButton />}
-              {(currentUser?.role === 'admin' || currentUser?.role === 'operator') && (
-                <AddUserButton fetchUsers={() => {}} />
-              )}
-              {/* Дедлайн — четвертий елемент цього самого flex-списку, тому
-                  ділить той самий gap:3px із трьома кнопками вище, без
-                  окремого контейнера й компенсуючих від'ємних margin */}
-              <div className="nui-jt-deadline-slot" ref={setDeadlineSlotEl} />
-            </div>
-
-            {/* Файли — головний вміст колонки, тому стоять першими: макети
-                надходять раніше, ніж оператор доходить до реквізитів. */}
+          {/* ── КОЛОНКА ФАЙЛІВ — права зона наряду (≈65% ширини). Швидкі дії,
+                 картка замовника і дедлайн прибрані звідси на прохання
+                 користувача: лишились самі файли. ── */}
+          <section className="nui-jt-client nui-jt-files-column">
             <div className="nui-jt-files">
-              {/* Замість табів «Замовлення»/«Клієнта» — один eyebrow-підпис
-                  тим самим стилем, що «Вироби»/«Друк» у каталозі робіт
-                  (.ppLabel). Він же й показує, куди насправді складаються
-                  файли: у папку компанії, якщо клієнт до неї належить, і в
-                  папку клієнта, якщо ні. */}
-              <p className="ppLabel nui-jt-group-label nui-jt-files-label">
-                {thisOrder?.client?.Company?.id
-                  ? `Файли компанії №${thisOrder.client.Company.id}`
-                  : 'Файли клієнта'}
-              </p>
+              {/* Eyebrow-підпис прибрано: він дублював корінь «хлібних
+                  крихт» у самій панелі (там же й номер компанії/клієнта),
+                  а куди складаються файли, видно з тієї ж крихти. */}
 
               <div className="nui-jt-files-body">
                 {thisOrder?.client?.id ? (
@@ -728,23 +872,6 @@ const NewUIArtem = () => {
                   />
                 ) : null}
               </div>
-            </div>
-
-            <p className="ppLabel nui-jt-group-label nui-jt-client-label">Клієнти</p>
-
-            <div className="nui-bottom-client-inline">
-              {/* actionButtonSlot і лічильник "n/6" прибрано звідси: обидва
-                  переїхали в повноширинний блок статусу внизу сторінки,
-                  разом з рядком кроків, на прохання користувача. */}
-              <ClientChangerUIArtem
-                thisOrder={thisOrder}
-                setThisOrder={setThisOrder}
-                setSelectedThings2={setSelectedThings2}
-                hidePaymentPanel={true}
-                onClientError={setUiLockError}
-                deadlinePortalTarget={deadlineSlotEl}
-                hideStepCounter={true}
-              />
             </div>
 
           </section>
@@ -982,14 +1109,9 @@ const NewUIArtem = () => {
           {/* Бланк лишається на екрані й порожнім — це місце, куди лягають
               рядки специфікації, а не блок, який зникає разом з ними. */}
           <div className={`d-flex flex-column nui-orders-column${hasOrders ? "" : " nui-orders-column-empty"}`}>
-            <div className={`nui-order-header-shell ${orderToneClass}`}>
-              {orderListStatusTitle && (
-                <div className="nui-order-delivered-title">
-                  {orderListStatusTitle.text}<span className="nui-order-delivered-id">№{orderListStatusTitle.id}</span>{thisOrder?.createdAt && <span style={{ color: 'var(--admingrey, #666666)' }}> від {new Date(thisOrder.createdAt).toLocaleDateString('uk-UA')}</span>}{orderListStatusTitle.suffix && <span className="nui-order-delivered-suffix">{orderListStatusTitle.suffix}</span>}
-                </div>
-              )}
-            </div>
-
+            {/* Шапка «Скіко замовлення №… від …» прибрана разом зі своєю
+                лінією на прохання користувача: номер і дата наряду тепер
+                у навбарі (NavOrderHead). */}
             {hasOrders ? (
               <div
                 className={`nui-order-list nui-order-list-shell ${orderToneClass} nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
@@ -1484,19 +1606,27 @@ const NewUIArtem = () => {
                       </div>
                     </div>
                   )}
-                  <BarcodeLabel type="order" data={thisOrder} variant="full" onAfterPrint={() => {
-                    if (thisOrder?.id) {
-                      axios.put('/orders/OneOrder/statusUpdate', { newStatus: 3, thisOrderId: thisOrder.id })
-                        .then(res => {
-                          const nextOrder = res?.data?.order ?? res?.data;
-                          if (nextOrder && typeof nextOrder === 'object') {
-                            setThisOrder(nextOrder);
-                            if (Array.isArray(nextOrder.OrderUnits)) setSelectedThings2(nextOrder.OrderUnits);
-                          }
-                        })
-                        .catch(err => console.error('Status update error:', err));
-                    }
-                  }} />
+                  {/* Штрих-код переїхав у шапку навбара, правіше «Профілю
+                      компанії» (портал у #nui-jt-barcode-slot), на прохання
+                      користувача. Логіка друку лишається тут: після друку
+                      наліпки наряд переходить у статус 3, а цей стан живе
+                      на сторінці, не в навбарі. */}
+                  {barcodeSlotEl && createPortal(
+                    <BarcodeLabel type="order" data={thisOrder} variant="full" onAfterPrint={() => {
+                      if (thisOrder?.id) {
+                        axios.put('/orders/OneOrder/statusUpdate', { newStatus: 3, thisOrderId: thisOrder.id })
+                          .then(res => {
+                            const nextOrder = res?.data?.order ?? res?.data;
+                            if (nextOrder && typeof nextOrder === 'object') {
+                              setThisOrder(nextOrder);
+                              if (Array.isArray(nextOrder.OrderUnits)) setSelectedThings2(nextOrder.OrderUnits);
+                            }
+                          })
+                          .catch(err => console.error('Status update error:', err));
+                      }
+                    }} />,
+                    barcodeSlotEl
+                  )}
                 </div>
                 </div>
                     }
@@ -1507,26 +1637,6 @@ const NewUIArtem = () => {
             </div>
           </div>
 
-          {/* Маршрут цеху — окремий блок на всю ширину екрана в самому
-              низу, разом з лічильником і кнопкою перемикання статусу
-              (обидва переїхали сюди з картки клієнта), на прохання
-              користувача. Кнопка — ширина як кнопки в блоці клієнта,
-              лічильник — між кнопкою і рядком кроків. */}
-          <div className="nui-order-status-inline">
-            <ProgressBar
-              thisOrder={thisOrder}
-              setThisOrder={setThisOrder}
-              setSelectedThings2={setSelectedThings2}
-              selectedThings2={selectedThings2}
-              externalError={uiLockError}
-              showActionRail={true}
-              showFinance={false}
-              showActionButton={true}
-              showTrack={true}
-              showError={false}
-              stepCounter={<div className={`nui-client-step-counter-btn nui-status-step-counter tone-${stepCounterTone}`} aria-hidden="true">{stepCounterLabel}</div>}
-            />
-          </div>
         </div>
 
 

@@ -1352,3 +1352,450 @@
 }
 
 
+
+/* ==========================================================================
+   Навбар після переїзду кнопок у панель швидкого доступу (PPDock).
+   Лишились пошук зліва, правий кут (зміна / аккаунт / права) і дзвоник
+   сповіщень одразу праворуч від нього.
+   ========================================================================== */
+
+/* усе, що лишилось, збирається біля правого краю: пошук → правий кут →
+   дзвоник. Розтяжку робить пошук, тому auto-відступ саме на ньому. */
+.nav-bar-row > .nav-search-slot { margin-left: auto; }
+
+.nav-bar-row > .nav-user-corner { margin-right: 0.5rem; }
+
+/* Компактне поле пошуку — утричі вужче за колишні 25vw. За фокусом
+   (клік у поле) розгортається на повну ширину і знову згортається,
+   щойно фокус піде. */
+.nav-search-slot {
+  width: calc(var(--nui-center-col-width, 25vw) / 3);
+  min-width: 130px;
+  transition: width 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-search-slot:focus-within {
+  width: calc(var(--nui-center-col-width, 25vw) / 2);
+}
+
+/* дзвоник — окремий блок праворуч від правого кута, тієї ж висоти */
+.nav-notify-corner {
+  flex: 0 0 auto;
+  height: var(--nav-h);
+  min-height: var(--nav-min-h, 36px);
+  margin: 1rem 18px 0.5rem 0;
+  align-items: center;
+}
+
+/* ==========================================================================
+   Візитівка клієнта в навбарі + номер наряду.
+   Картка приїжджає порталом із ClientChangerUIArtem (сторінка наряду),
+   номер — просто з адреси. Поза нарядом блок порожній і не займає місця.
+   ========================================================================== */
+
+/* Висота — рівно як у кнопки «Нове замовлення» (.buttonSkewedOrder),
+   тими самими змінними; align-self: stretch тут не можна — аватар з
+   aspect-ratio розтягнув би весь рядок навбару. */
+.nav-order-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  height: var(--nav-h, 3.5vh);
+  min-height: var(--nav-min-h, 36px);
+  margin: 1rem 0 0.5rem 18px;
+  box-sizing: border-box;
+}
+
+.nav-client-slot {
+  display: flex;
+  align-items: stretch;
+}
+
+/* сама візитівка */
+.nav-client-card {
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  color: var(--admingrey, #666);
+  white-space: nowrap;
+}
+
+/* Аватар — на всю висоту рядка навбару. TelegramAvatar малює квадрат
+   з inline-розміром, тому перебиваємо його !important. */
+.nav-client-avatar {
+  position: relative;
+  flex: 0 0 auto;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  cursor: pointer;
+}
+
+/* Проміжні обгортки TelegramAvatar теж мусять тягнутись: інакше
+   inline-розмір (size=56) обмежує аватар, і на високому навбарі (4К,
+   де 4vh > 56px) він виходив нижчим за штрих-код поруч. .nav-client-id —
+   абсолютна плашка в кутку, її розтягувати не можна. */
+/* `> *` без винятку розтягував і плашку id (вона теж прямий нащадок) —
+   вона накривала аватар суцільним темним квадратом. */
+.nav-client-avatar > *:not(.nav-client-id),
+.nav-client-avatar div:not(.nav-client-id),
+.nav-client-avatar img,
+.nav-client-avatar canvas,
+.nav-client-avatar svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  object-fit: cover;
+}
+
+/* id — маленька плашка в кутку аватара, як на сторінці наряду */
+.nav-client-id {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  padding: 1px 5px;
+  background: var(--admingrey, #666);
+  color: var(--adminfon, #f7f5ee);
+  font-size: calc(var(--font-size-s, 0.85rem) * 0.8);
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 0.04em;
+  cursor: copy;
+}
+
+.nav-client-meta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  padding-right: 12px;
+}
+
+.nav-client-name {
+  max-width: 16vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--font-size-s, 0.85rem);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.15;
+}
+
+.nav-client-sub {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  max-width: 20vw;
+  overflow: hidden;
+  font-size: var(--font-size-s, 0.85rem);
+  line-height: 1.15;
+  color: color-mix(in srgb, var(--admingrey, #666) 70%, transparent);
+}
+
+/* Дані наряду в шапці — імʼя клієнта, компанія, знижка й дата — одним
+   набором і одним кеглем. Осібно стоїть тільки номер замовлення:
+   він навмисно більший (див. .nav-order-badge-num). */
+.nav-client-name,
+.nav-client-sub,
+.nav-client-company,
+.nav-client-discount,
+.nav-order-badge-date {
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 0.85rem);
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 1.15;
+}
+
+/* ім'я клієнта — на 7px більше за решту рядка: воно головне в картці */
+.nav-client-name {
+  font-size: calc(var(--font-size-s, 0.85rem) + 7px);
+}
+
+.nav-client-company {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* чорним, а не приглушеним сірим від .nav-client-sub — назва компанії
+     читається як основні дані наряду, нарівні з датою */
+  color: #000;
+}
+
+.nav-client-discount { color: var(--admingreen, #0e935b); }
+
+/* телефон — рівно як назва компанії поруч: той самий набір, кегль і
+   колір, без моноширинного набору (він виглядав чужим у рядку) */
+.nav-client-phone {
+  flex: 0 0 auto;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 0.85rem);
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #000;
+}
+
+/* ── Логотип компанії в шапці наряду ──
+   Та сама квадратна плитка на всю висоту рядка, що й аватарка клієнта,
+   з такою самою плашкою id у нижньому куті. Стоїть між візитівкою і
+   кнопками дій; без компанії блок не рендериться взагалі. */
+.nav-company-avatar {
+  position: relative;
+  flex: 0 0 auto;
+  align-self: stretch;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.nav-company-avatar > *:not(.nav-company-id),
+.nav-company-avatar div:not(.nav-company-id),
+.nav-company-avatar img,
+.nav-company-avatar canvas,
+.nav-company-avatar svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  object-fit: cover;
+}
+
+/* Заглушка, поки логотип не завантажено: монограма на світлій плитці */
+.nav-company-monogram {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--v2-tile-hi, #fbfaf6);
+  border: 1px solid color-mix(in srgb, var(--admingrey, #666) 20%, transparent);
+  box-sizing: border-box;
+  color: color-mix(in srgb, var(--admingrey, #666) 70%, transparent);
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 0.85rem) * 1.4);
+  line-height: 1;
+  user-select: none;
+}
+
+.nav-company-id {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  padding: 1px 5px;
+  background: var(--admingrey, #666);
+  color: var(--adminfon, #f7f5ee);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 0.85rem) * 0.8);
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 0.04em;
+}
+
+/* номер наряду — праворуч від візитівки */
+.nav-order-badge {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  white-space: nowrap;
+}
+
+.nav-order-badge-num {
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 0.85rem) * 1.55);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--admingrey, #666);
+}
+
+/* Дії з клієнтом — тим самим рядком, плаский стиль .ppButton */
+.nav-client-actions {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  height: 100%;
+}
+
+/* Ті самі метрики, що в «Нове замовлення» (.buttonSkewedOrder), і та
+   сама смужка + «штамп», що в кнопок картки клієнта на сторінці наряду
+   (.nui-client-rect-btn у nuiJobTicket.css): кромка зліва, заливка
+   насувається зліва направо, текст услід білішає. */
+.nav-client-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  flex: 0 0 auto;
+  height: 100%;
+  width: auto;
+  padding: 0 1.2vw;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  border-left: 3px solid #000;
+  border-radius: 0;
+  background: var(--adminfon, #f7f5ee);
+  color: var(--admingrey, #666);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 0.85rem);
+  font-weight: 400;
+  font-stretch: 100%;
+  letter-spacing: normal;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: color 0.32s ease, border-color 0.12s;
+}
+
+.nav-client-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #000;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: 0;
+}
+
+/* текст поверх заливки */
+.nav-client-btn > * {
+  position: relative;
+  z-index: 1;
+}
+
+.nav-client-btn:not(:disabled):hover::before { transform: scaleX(1); }
+
+.nav-client-btn:not(:disabled):hover { color: #fff; }
+
+.nav-client-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* «Вчасно» — жовта кромка й жовтий «штамп»; на жовтому підпис чорний
+   (білий на #ffe640 не читається) */
+.nav-client-btn-vchasno { border-left-color: #ffe640; }
+
+.nav-client-btn-vchasno::before { background: #ffe640; }
+
+.nav-client-btn-vchasno:not(:disabled):hover { color: #000; }
+
+/* увімкнено — жовтий фон постійно, підпис чорний */
+.nav-client-btn-vchasno.is-on {
+  background: #ffe640;
+  color: #000;
+  border-left-color: #ffe640;
+}
+
+.nav-client-btn-key { font-size: 0.8rem; line-height: 1; }
+
+/* На сторінці наряду ці дані й кнопки вже поїхали в навбар — у лівій
+   колонці ховаємо їх, щоб не дублювались. */
+.nui-client-envelope-shell.is-identity-ported .nui-client-avatar-wrap,
+.nui-client-envelope-shell.is-identity-ported .nui-client-meta-block,
+.nui-client-envelope-shell.is-identity-ported .nui-client-vchasno-btn,
+.nui-client-envelope-shell.is-identity-ported .nui-client-rect-actions {
+  display: none;
+}
+
+/* Розділювач між номером наряду і карткою клієнта */
+.nav-order-divider {
+  flex: 0 0 auto;
+  align-self: center;
+  width: 1px;
+  height: 70%;
+  background: color-mix(in srgb, var(--admingrey, #666) 26%, transparent);
+}
+
+/* Номер тепер клікабельний — веде у свій наряд */
+.nav-order-badge {
+  cursor: pointer;
+  transition: color 0.12s;
+}
+
+.nav-order-badge:hover .nav-order-badge-num {
+  color: var(--admingreen, #0e935b);
+}
+
+:root[data-theme="light"] .nav-order-badge:hover .nav-order-badge-num {
+  color: #000000;
+}
+
+/* ── ШТРИХ-КОД НАРЯДУ В ШАПЦІ ────────────────────────────────────────────
+   Слот правіше «Профілю компанії»; вміст туди порталить сторінка наряду
+   (NewUIArtem.jsx). Порожній слот схлопується, роздільник перед ним теж
+   зникає — на сторінках без наряду в шапці нічого зайвого. */
+.nav-order-barcode-slot {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 2px;
+  box-sizing: border-box;
+}
+
+.nav-order-barcode-slot:empty {
+  display: none;
+}
+
+/* роздільник між «Профілем компанії» і штрих-кодом */
+.nav-client-sep {
+  flex: 0 0 auto;
+  align-self: center;
+  width: 1px;
+  height: 60%;
+  margin: 0 0.5vw;
+  background: var(--pp-line-strong, color-mix(in srgb, var(--admingrey, #666) 32%, transparent));
+}
+
+/* слот стоїть ПЕРЕД роздільником, тому роздільник ховає сусідський
+   селектор, а не :has */
+.nav-order-barcode-slot:empty + .nav-client-sep {
+  display: none;
+}
+
+/* сама наліпка: вписується у висоту навбара, без власного паперу */
+/* власні поля наліпки (4px 8px з BarcodeLabel.css) у навбарі зайві —
+   «тиха зона» по краях штрих-коду вже намальована всередині самого svg */
+.nav-order-barcode-slot .bc-label {
+  height: 100%;
+  margin: 0;
+  padding: 0 !important;
+  gap: 0;
+  background: transparent;
+  border: none;
+}
+
+/* внутрішня обгортка наліпки теж мусить тягнутись на висоту слота,
+   інакше svg міряє 100% від нульової висоти й штрих-код зникає */
+.nav-order-barcode-slot .bc-label__barcode {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  min-height: 0;
+}
+
+.nav-order-barcode-slot .bc-label svg {
+  height: 100% !important;
+  width: auto !important;
+  max-height: 100%;
+}
+
+/* дата наряду — третій рядок бейджа, під номером; тихіша за номер,
+   в одну лінійку з підписом «Замовлення» над ним */
+/* Дата наряду — тією ж гарнітурою, кеглем і кольором, що назва компанії
+   в картці клієнта (.nav-client-sub / .nav-client-company): це один
+   рівень другорядних даних, тож і виглядати мають однаково. */
+/* кегль і набір дати задає спільне правило вище (разом з іменем клієнта
+   й компанією) — тут лишається тільки колір */
+.nav-order-badge-date {
+  color: #000;
+}

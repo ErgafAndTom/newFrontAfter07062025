@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import ReactDOM from "react-dom";
-import TelegramAvatar from "../Messages/TelegramAvatar";
+import AvatarUploader from "./AvatarUploader";
 import axios from "../../api/axiosInstance";
 import {Link} from "react-router-dom";
 import Loader from "../../components/calc/Loader";
@@ -44,13 +44,6 @@ export default function ClientCabinet({
 
   const onOpenCompanyProfile = () => {
     if (userInBase?.Company?.id) setCompanyOpen(true);
-  };
-
-  const onCreateOrder = () => {
-    if (!userInBase?.id) return;
-    axios.post(`/orders/createForThisUser`, { userId: userInBase.id })
-      .then(res => { window.location.href = `/Orders/${res.data.id}`; })
-      .catch(err => console.log(err.message));
   };
 
   const onExportExcel = async () => {
@@ -246,8 +239,22 @@ export default function ClientCabinet({
 
         {/* ── Header ── */}
         <header className="cc-header">
+          {/* Аватарка з завантаженням: клік по ній відкриває вибір файлу,
+              хрестик прибирає власне фото й повертає телеграмне. Оновлений
+              користувач іде і в стан кабінету, і вгору в замовлення. */}
           <div className="cc-avatar-wrap">
-            <TelegramAvatar link={userInBase?.telegram} photo={userInBase?.photoLink} size={56} square={true} />
+            <AvatarUploader
+              userId={userInBase?.id}
+              telegram={userInBase?.telegram}
+              photoLink={userInBase?.photoLink}
+              size={64}
+              square
+              readOnly={!userInBase?.id}
+              onUpdated={(updated) => {
+                setUserInBase(updated);
+                onUserUpdated?.(updated);
+              }}
+            />
             <span className="cc-id-badge">ID {userInBase?.id ?? '—'}</span>
           </div>
 
@@ -282,9 +289,6 @@ export default function ClientCabinet({
 
         {/* ── Action buttons ── */}
         <div className="cc-actions">
-          <button className="cc-btn" onClick={() => onCreateOrder()}>
-            <span className="cc-btn-text">Нове замовлення</span>
-          </button>
           <button className="cc-btn" onClick={onOpenProfile}>
             <span className="cc-btn-text">Профіль</span>
           </button>

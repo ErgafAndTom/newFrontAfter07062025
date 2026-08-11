@@ -633,7 +633,7 @@ return (
             <div className="pb-metric pb-metric--cost">
               <span className="pb-metric-label">ВАРТІСТЬ:</span>
               <span className="pb-metric-inline pb-metric-inline--cost">
-                <span className="pb-cost-value-main">{formatCompactNumber(thisOrder?.price ?? 0)}</span>{' '}
+                <span className="pb-cost-value-main">{formatCompactNumber(thisOrder?.price ?? 0)}</span>
                 <small className="pb-metric-currency">грн</small>
               </span>
             </div>
@@ -655,7 +655,7 @@ return (
             <div className={`pb-metric pb-metric--due${isDiscountApplied ? ' is-discounted' : ''}`}>
               <span className="pb-metric-label">ДО СПЛАТИ:</span>
               <span className="pb-metric-inline pb-metric-inline--due">
-                <span className="pb-metric-value-main">{formatCompactNumber(thisOrder?.allPrice ?? 0)}</span>{' '}
+                <span className="pb-metric-value-main">{formatCompactNumber(thisOrder?.allPrice ?? 0)}</span>
                 <small className="pb-metric-currency">грн</small>
               </span>
             </div>

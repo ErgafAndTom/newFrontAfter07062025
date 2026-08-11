@@ -238,3 +238,69 @@
   gap: 0.8rem;
   margin-top: 0.4rem;
 }
+
+/* ════════════════════════════════════════════════════════════
+   БРЕНД-ПЕРЕВИЗНАЧЕННЯ (налаштування профілю)
+
+   Зводить кнопки, заголовки й поля цієї вкладки до спільного вигляду
+   решти проєкту. Стоїть у кінці файлу — перебиває правила вище без
+   !important. Кольорові акценти лишаються тільки там, де вони щось
+   означають: червоний — руйнівна дія, зелений — успіх.
+   ════════════════════════════════════════════════════════════ */
+
+.nbs-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 38px;
+  padding: 6px 14px 6px 18px;
+  border: none;
+  border-left: 3px solid #000;
+  border-radius: 0;
+  clip-path: none;
+  background: var(--v2-tile-hi, #fbfaf6);
+  color: var(--admingrey, #666);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: uppercase;
+  box-shadow: none;
+  cursor: pointer;
+  transition: color 0.32s ease;
+}
+
+.nbs-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #000;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: -1;
+}
+
+.nbs-btn::after { content: none; }
+
+.nbs-btn:not(:disabled):hover::before { transform: scaleX(1); }
+
+.nbs-btn:not(:disabled):hover { color: #fff; }
+
+.nbs-btn:disabled { opacity: 0.35; cursor: default; }
+
+.nbs-btn--disconnect,
+.nbs-btn--reset { border-left-color: var(--adminred, #ee3c23); }
+
+.nbs-btn--disconnect::before,
+.nbs-btn--reset::before { background: var(--adminred, #ee3c23); }
+
+.nbs-title,
+.nbs-section-title {
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.82);
+  font-weight: 400;
+  letter-spacing: var(--pp-track-wide, 0.16em);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--admingrey, #666) 65%, transparent);
+}

@@ -15,9 +15,11 @@
 /* ── Panel ── */
 .csm-panel {
   position: fixed;
-  /* Прив'язка до низу: панель росте вгору, рядок пошуку стоїть на місці */
-  top: auto;
-  bottom: 6%;
+  /* Прив'язка до верху: рядок пошуку тепер зверху, тож він стоїть на
+     місці, а список росте вниз. Раніше панель кріпилась до низу — при
+     кількох знайдених клієнтах вона з'їжджала в самий низ екрана. */
+  top: 6%;
+  bottom: auto;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9001;
@@ -33,7 +35,7 @@
 }
 
 @keyframes csm-slide-down {
-  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
   to   { opacity: 1; transform: translateX(-50%); }
 }
 
@@ -399,4 +401,188 @@
   color: var(--admingreen, #0e935b) !important;
   font-weight: 400 !important;
   text-transform: uppercase;
+}
+
+/* ==========================================================================
+   Пошук переїхав нагору (над списком), кнопка «Створити клієнта» прибрана —
+   клієнта створюють з панелі швидкого доступу.
+   ========================================================================== */
+.csm-search--top {
+  margin-top: 0;
+  border-top: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Кнопка «Вибрати» — той самий вигляд і анімація, що в «Нове замовлення»
+   (.buttonSkewedOrder) з кромкою зліва: чорний «штамп» насувається зліва
+   направо, текст услід білішає. */
+.csm-action-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  height: var(--nav-h, 3.5vh);
+  min-height: var(--nav-min-h, 36px);
+  padding: 0 1.2vw !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none !important;
+  border-left: 3px solid #000 !important;
+  border-radius: 0 !important;
+  clip-path: none !important;
+  background: var(--adminfon, #f7f5ee) !important;
+  color: var(--admingrey, #666666) !important;
+  font-family: var(--pp-font-ui);
+  font-size: var(--font-size-s) !important;
+  font-weight: 400;
+  font-stretch: 100%;
+  letter-spacing: normal;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-sizing: border-box;
+  transition: color 0.32s ease, border-color 0.12s;
+}
+
+.csm-action-btn::before {
+  content: "" !important;
+  position: absolute;
+  inset: 0;
+  background: #000 !important;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: 0;
+}
+
+.csm-action-btn::after { content: none !important; }
+
+.csm-action-btn > * {
+  position: relative;
+  z-index: 1;
+  color: inherit;
+}
+
+.csm-action-btn:hover::before { transform: scaleX(1); }
+
+.csm-action-btn:hover,
+.csm-action-btn:hover > * {
+  color: #fff !important;
+}
+
+/* фон рядка під курсором більше не перефарбовує кнопку — у неї власний
+   «штамп», інакше він губився */
+.csm-user:hover .csm-action-btn {
+  background: var(--adminfon, #f7f5ee) !important;
+}
+
+.csm-user:hover .csm-action-btn::before,
+.csm-user:hover .csm-action-btn::after {
+  background-color: #000;
+}
+
+/* Кнопка «Пошук по ID» — той самий вигляд і анімація, що в «Вибрати».
+   Увімкнений стан = «штамп» уже насунутий: чорна заливка, білий текст. */
+.csm-search-id-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  height: var(--nav-h, 3.5vh);
+  min-height: var(--nav-min-h, 36px);
+  padding: 0 1.2vw !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none !important;
+  border-left: 3px solid var(--csm-accent, var(--admingreen, #0e935b)) !important;
+  border-radius: 0 !important;
+  clip-path: none !important;
+  background: var(--adminfon, #f7f5ee) !important;
+  color: var(--admingrey, #666666) !important;
+  font-family: var(--pp-font-ui);
+  font-size: var(--font-size-s) !important;
+  font-weight: 400;
+  font-stretch: 100%;
+  letter-spacing: normal;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-sizing: border-box;
+  transition: color 0.32s ease, border-color 0.12s;
+}
+
+.csm-search-id-btn::before {
+  content: "" !important;
+  position: absolute;
+  inset: 0;
+  background: var(--csm-accent, var(--admingreen, #0e935b)) !important;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: 0;
+  display: block !important;
+}
+
+.csm-search-id-btn::after { content: none !important; }
+
+.csm-search-id-btn > * {
+  position: relative;
+  z-index: 1;
+  color: inherit;
+}
+
+.csm-search-id-btn:hover::before,
+.csm-search-id-btn.is-active::before {
+  transform: scaleX(1);
+}
+
+.csm-search-id-btn:hover,
+.csm-search-id-btn:hover > *,
+.csm-search-id-btn.is-active,
+.csm-search-id-btn.is-active > * {
+  color: #fff !important;
+}
+
+.csm-search-id-btn.is-active {
+  background: var(--adminfon, #f7f5ee) !important;
+  border-left-color: var(--csm-accent, var(--admingreen, #0e935b)) !important;
+}
+
+/* ── Світла тема: усе монохромне — акцент кнопки й смужка під полем
+      чорні, панель чисто біла (замість помаранчевої лінії й бежу) ── */
+:root[data-theme="light"] .csm-search-id-btn { --csm-accent: #000000; }
+
+:root[data-theme="light"] .csm-search-input {
+  border-bottom-color: #000000;
+}
+
+:root[data-theme="light"] .csm-panel,
+:root[data-theme="light"] .csm-search,
+:root[data-theme="light"] .csm-search-id-btn,
+:root[data-theme="light"] .csm-search-id-btn.is-active {
+  background: #ffffff !important;
+}
+
+/* Світла тема — текст у панелі чорний. Багато написів (id, компанія,
+   телефон, telegram) навмисно приглушені через --admingrey/opacity, і
+   на білому вони читались як сірі; тут ця приглушеність знімається. */
+:root[data-theme="light"] .csm-panel,
+:root[data-theme="light"] .csm-panel * {
+  color: #000000;
+}
+
+/* виняток — те, що має лишитись кольоровим/білим */
+:root[data-theme="light"] .csm-user-discount {
+  color: var(--admingreen, #0e935b);
+}
+
+:root[data-theme="light"] .csm-search-id-btn:hover,
+:root[data-theme="light"] .csm-search-id-btn:hover > *,
+:root[data-theme="light"] .csm-search-id-btn.is-active,
+:root[data-theme="light"] .csm-search-id-btn.is-active > *,
+:root[data-theme="light"] .csm-action-btn:hover,
+:root[data-theme="light"] .csm-action-btn:hover > * {
+  color: #ffffff;
+}
+
+:root[data-theme="light"] .csm-empty--error {
+  color: var(--adminred, #ee3c23);
 }

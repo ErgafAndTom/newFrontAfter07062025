@@ -1,8 +1,19 @@
 /* ============================================================
-   Client Cabinet — scoped styles
+   КАБІНЕТ КЛІЄНТА — бренд-стиль PrintPeaks
+
+   Правила, за якими зроблено цей екран (ті самі, що на сторінці
+   наряду й у блоці оплат):
+   • прямокутники, жодних заокруглень і скосів;
+   • кнопка = світла плитка з чорною кромкою 3px зліва, підпис
+     капітеллю звичайної ваги, ховер — чорна заливка зліва направо;
+   • службові підписи — дисплейним шрифтом, капітеллю, з розрядкою
+     і приглушені; дані — pp-font-ui;
+   • колір лише через CSS-змінні, тож бежева/світла/темна працюють;
+   • статус замовлення показує тонова кромка зліва, а не заливка
+     всього рядка.
    ============================================================ */
 
-/* ── Overlay ── */
+/* ── Підкладка ── */
 .cc-overlay {
   position: fixed;
   inset: 0;
@@ -15,20 +26,21 @@
   z-index: 9000;
 }
 
-/* ── Panel ── */
+/* ── Панель ── */
 .cc-panel {
   position: relative;
   z-index: 9001;
-  width: min(96vw, 860px);
+  width: min(96vw, 980px);
   max-height: 90vh;
-  background: var(--adminfonelement, #f2f0e9);
+  background: var(--adminfon, #f7f5ee);
   color: var(--admingrey, #666666);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
   border-radius: 0;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.26);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: cc-slide-up 0.25s ease-out;
+  animation: cc-slide-up 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes cc-slide-up {
@@ -36,42 +48,46 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Header ── */
+/* ── Шапка ── */
 .cc-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
-  padding: 1rem 1.4rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
 }
 
 .cc-avatar-wrap {
   position: relative;
   flex-shrink: 0;
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
 }
 
-.cc-avatar-wrap img {
-  width: 100%;
-  height: 100%;
+.cc-avatar-wrap img,
+.cc-avatar-wrap canvas,
+.cc-avatar-wrap svg,
+.cc-avatar-wrap div:not([class]) {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
   object-fit: cover;
 }
 
+/* id — плашка в нижньому куті аватара, як у навбарі */
 .cc-id-badge {
   position: absolute;
-  right: -4px;
-  bottom: -4px;
-  height: 1.35rem;
-  padding: 0 0.4rem;
+  left: 0;
+  bottom: 0;
+  padding: 1px 5px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  background: var(--adminorange, #f5a623);
-  border: 2px solid var(--adminfon, #f7f5ee);
+  background: var(--admingrey, #666);
+  border: none;
   color: var(--adminfon, #f7f5ee);
-  font-size: 0.78rem;
-  line-height: 1;
+  font-size: calc(var(--font-size-s, 17px) * 0.72);
+  letter-spacing: 0.04em;
+  line-height: 1.25;
   white-space: nowrap;
 }
 
@@ -80,49 +96,59 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-}
-
-.cc-header-sub {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.cc-header-company {
-  font-size: var(--fontsmall, 15px);
-  font-weight: 400;
-  color: var(--adminblue, #3c60a6);
-}
-
-.cc-header-discount {
-  font-size: var(--fontsmall, 15px);
-  font-weight: 400;
-  color: var(--admingreen, #0e935b);
+  gap: 0.15rem;
 }
 
 .cc-name-row {
   display: flex;
   align-items: baseline;
-  gap: 0.8rem;
+  gap: 0.9rem;
   flex-wrap: wrap;
 }
 
+/* ім'я — головне в шапці; той самий приріст, що в картці навбару */
 .cc-name {
-  font-size: var(--font-size-pay, 21px);
+  font-size: calc(var(--font-size-s, 17px) + 7px);
   font-weight: 400;
-  color: var(--admingrey, #666666);
+  letter-spacing: normal;
+  color: #000;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 28vw;
+  max-width: 30vw;
+}
+
+.cc-header-sub {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* компанія й контакти — один кегль і один колір: це рівні дані */
+.cc-header-company,
+.cc-contact {
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: #000;
+  text-decoration: none;
+}
+
+.cc-contact:hover {
+  text-decoration: underline;
+}
+
+/* знижка — єдиний кольоровий акцент шапки */
+.cc-header-discount {
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: var(--admingreen, #0e935b);
 }
 
 .cc-chip {
-  font-size: var(--fontsmall, 15px);
+  font-size: var(--font-size-s, 17px);
   font-weight: 400;
-  color: var(--adminblue, #3c60a6);
+  color: var(--admingrey, #666666);
 }
 
 .cc-contacts {
@@ -132,186 +158,175 @@
   flex-wrap: wrap;
 }
 
-.cc-contact {
-  font-size: var(--fontsmall, 15px);
-  font-weight: 400;
-  color: var(--admingrey, #666666);
-  text-decoration: none;
-}
-
-.cc-contact:hover {
-  color: var(--adminblue, #3c60a6);
-  text-decoration: underline;
-}
-
-/* Close button */
+/* Закрити */
 .cc-close {
   align-self: flex-start;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: 0;
   padding: 0;
-  font-size: var(--font-size-pay, 21px);
+  font-size: calc(var(--font-size-s, 17px) + 4px);
   color: var(--admingrey, #666666);
   cursor: pointer;
   line-height: 1;
+  transition: color 0.15s;
 }
 
 .cc-close:hover {
   color: var(--adminred, #ee3c23);
 }
 
-/* ── Action buttons ── */
+/* ── Ряд дій ──
+   Плитки впритул одна до одної, як у навбарі: кожна відбита від
+   сусідки власною чорною кромкою зліва. */
 .cc-actions {
   display: flex;
   gap: 0;
-  padding: 1rem 1.4rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  padding: 0.9rem 1.4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
 }
 
 .cc-btn {
   position: relative;
   isolation: isolate;
+  overflow: hidden;
   flex: 1 1 0;
-  height: 4vh;
-  min-height: 4vh;
-  padding: 5px 18px;
-  border: 2px solid var(--adminorange, #f5a623);
+  min-width: 0;
+  min-height: 38px;
+  padding: 6px 12px 6px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-left: 3px solid #000;
   border-radius: 0;
-  background: transparent;
+  clip-path: none;
+  background: var(--v2-tile-hi, #fbfaf6);
   color: var(--admingrey, #666666);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
   font-size: var(--font-size-s, 17px);
   font-weight: 400;
+  font-stretch: 100%;
+  letter-spacing: normal;
   text-transform: uppercase;
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   box-sizing: border-box;
-  transition: 0.3s;
+  transition: color 0.32s ease;
 }
 
+/* заливка-«штамп» зліва направо — та сама, що в «Нове замовлення» */
+.cc-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #000;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: 0;
+}
+
+.cc-btn:not(:disabled):hover::before { transform: scaleX(1); }
+
+.cc-btn:not(:disabled):hover,
+.cc-btn:not(:disabled):hover .cc-btn-text { color: #fff; }
+
 .cc-btn:disabled {
-  opacity: 0.3;
+  opacity: 0.35;
   cursor: default;
   pointer-events: none;
 }
 
+/* підпис мусить стояти НАД заливкою — інакше його ховає ::before */
 .cc-btn-text {
   position: relative;
-  z-index: 3;
-  font-size: var(--font-size-s, 17px);
-  font-weight: 400;
-  color: var(--admingrey, #666666);
+  z-index: 1;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
   text-transform: uppercase;
 }
 
-/* ::before — covers everything except the bottom line */
-.cc-btn::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 6px);
-  height: calc(100% + 2px);
-  background: var(--adminfonelement, #f2f0e9);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: -2;
-}
-
-/* ::after — covers top half to leave only bottom segment */
-.cc-btn::after {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% - 45%);
-  background: var(--adminfonelement, #f2f0e9);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: -1;
-}
-
-.cc-btn:not(:disabled):hover::before {
-  transform: translateY(-25px);
-  height: 0;
-}
-
-.cc-btn:not(:disabled):hover::after {
-  transform: scaleX(0);
-  transition-delay: 0.15s;
-}
-
-.cc-btn:not(:disabled):hover .cc-btn-text {
-  color: var(--admingrey, #666666);
-}
-
-/* Barcode label inside cc-btn — reset compact styles to match tabs */
+/* штрих-код клієнта — така сама плитка, тільки з наліпкою всередині */
 .cc-btn.bc-label--compact {
   max-width: none;
-  padding: 5px 18px;
   opacity: 1;
-  overflow: visible;
-}
-.cc-btn.bc-label--compact:hover {
-  opacity: 1;
-}
-.cc-btn.bc-label--compact svg {
-  position: relative;
-  z-index: 3;
+  overflow: hidden;
 }
 
-/* ── Stats ── */
+.cc-btn.bc-label--compact:hover { opacity: 1; }
+
+.cc-btn.bc-label--compact svg {
+  position: relative;
+  z-index: 1;
+  max-height: 26px;
+}
+
+/* ── Підсумки ──
+   Значення зверху, службовий підпис знизу — той самий порядок, що в
+   блоці оплат на сторінці наряду. */
 .cc-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0;
-  padding: 0.8rem 1.4rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  padding: 0.9rem 1.4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
 }
 
 .cc-stat {
-  padding: 0.5rem 0.6rem;
+  padding: 0.35rem 0.9rem;
 }
 
+.cc-stat:first-child { padding-left: 0; }
+
 .cc-stat + .cc-stat {
-  border-left: 1px solid rgba(0, 0, 0, 0.07);
+  border-left: 1px solid color-mix(in srgb, var(--admingrey, #666) 18%, transparent);
 }
 
 .cc-stat-v {
-  font-size: var(--font-size-pay, 21px);
-  font-weight: 400;
-  color: var(--admingrey, #666666);
-  line-height: 1.2;
+  display: flex;
+  align-items: baseline;
+  font-size: calc(var(--font-size-s, 17px) + 8px);
+  font-weight: 600;
+  color: #000;
+  line-height: 1.15;
 }
 
-.cc-stat-v--green {
-  color: var(--admingreen, #0e935b);
-}
+.cc-stat-v--green { color: var(--admingreen, #0e935b); }
+.cc-stat-v--red { color: var(--adminred, #ee3c23); }
 
-.cc-stat-v--red {
-  color: var(--adminred, #ee3c23);
-}
-
+/* «грн» — підрядкове й дрібніше за число, впритул до нього */
 .cc-stat-unit {
-  font-size: 0.65em;
-  font-weight: 400;
-  margin-left: 0.15em;
+  align-self: flex-end;
+  position: relative;
+  top: 0.18em;
+  margin: 0;
+  font-size: calc(var(--font-size-s, 17px) - 3px);
+  font-weight: 600;
+  text-transform: lowercase;
+  line-height: 1;
   color: inherit;
 }
 
+/* підпис метрики — eyebrow: дисплейний шрифт, капітель, розрядка */
 .cc-stat-l {
-  font-size: var(--fontsmall, 15px);
+  margin-top: 0.25rem;
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.76);
   font-weight: 400;
-  color: var(--admingrey, #666666);
-  opacity: 0.7;
-  margin-top: 0.15rem;
+  letter-spacing: var(--pp-track-wide, 0.16em);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--admingrey, #666) 65%, transparent);
 }
 
-/* ── Orders section ── */
+/* ── Список замовлень ── */
 .cc-orders {
   flex: 1;
   min-height: 0;
@@ -321,11 +336,11 @@
 
 .cc-order-list {
   overflow-y: auto;
-  padding: 0.8rem 1.4rem;
+  padding: 0.6rem 1.4rem 1.2rem;
   display: grid;
-  grid-template-columns: 1fr minmax(5rem, auto) auto auto auto;
-  grid-auto-rows: minmax(3rem, auto);
-  row-gap: 0.5rem;
+  grid-template-columns: 1fr minmax(6rem, auto) auto auto auto;
+  grid-auto-rows: minmax(2.8rem, auto);
+  row-gap: 0;
   column-gap: 0;
 }
 
@@ -337,83 +352,70 @@
   padding: 2rem 0;
 }
 
+/* порожній стан — той самий, що й у панелі файлів та порожнього бланка */
 .cc-empty {
   grid-column: 1 / -1;
   text-align: center;
-  padding: 2rem 0;
-  font-size: var(--font-size-s, 17px);
+  padding: 2.5rem 0;
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: 0.95rem;
   font-weight: 400;
-  color: var(--admingrey, #666666);
-  opacity: 0.6;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--admingrey, #666);
+  opacity: 0.4;
 }
 
-/* ── Order row ── */
+/* ── Рядок замовлення ──
+   Посилання й сам рядок — display:contents, тож усі властивості
+   рядка живуть на комірках. */
 .cc-order-link {
   display: contents;
   text-decoration: none !important;
   color: inherit !important;
 }
 
-.cc-order {
-  display: contents;
-}
+.cc-order { display: contents; }
 
-/* Стилі рядка застосовуємо до кожної комірки */
 .cc-order > .cc-order-col {
-  padding: 0.7rem 0.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  transition: filter 0.15s;
+  padding: 0.75rem 0.6rem;
   display: flex;
   align-items: center;
+  background: var(--v2-tile-hi, #fbfaf6);
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 14%, transparent);
+  transition: background 0.14s;
 }
 
-/* Ліва полоска тону — через border-left першої комірки */
+/* тонова кромка статусу — тільки на першій комірці */
 .cc-order > .cc-order-col:first-child {
-  border-left: 3px solid transparent;
-  padding-left: 0.8rem;
+  border-left: 3px solid var(--admingrey, #666);
+  padding-left: 0.9rem;
 }
 
-/* Hover — підсвічуємо всі комірки рядка */
 .cc-order:hover > .cc-order-col {
-  filter: brightness(0.96);
+  background: color-mix(in srgb, var(--admingrey, #666) 8%, var(--v2-tile-hi, #fbfaf6));
 }
 
+/* поточне замовлення — темніша підкладка, без фільтрів яскравості */
 .cc-order.is-current > .cc-order-col {
-  filter: brightness(0.94);
+  background: color-mix(in srgb, var(--admingrey, #666) 12%, var(--v2-tile-hi, #fbfaf6));
 }
 
-/* ── Tone colors (left border on first cell + background on all cells) ── */
-/* 0 — Обробка */
-.cc-order.cc-tone-cyan > .cc-order-col:first-child { border-left-color: var(--admincyan, #00A8C6); }
-.cc-order.cc-tone-cyan > .cc-order-col { background: color-mix(in srgb, var(--admincyan, #00A8C6) 8%, transparent); }
-
-/* 1 — Друк */
+/* ── Тони статусів: колір лише в кромці ── */
+.cc-order.cc-tone-cyan   > .cc-order-col:first-child { border-left-color: var(--admincyan, #00A8C6); }
 .cc-order.cc-tone-orange > .cc-order-col:first-child { border-left-color: var(--adminorange, #f5a623); }
-.cc-order.cc-tone-orange > .cc-order-col { background: color-mix(in srgb, var(--adminorange, #f5a623) 8%, transparent); }
-
-/* У світлій темі полоска й підсвітка статусу «Друк» — червоні, а не
-   помаранчеві (на прохання користувача; в бежевій/темній лишається
-   помаранчевим). */
-:root[data-theme="light"] .cc-order.cc-tone-orange > .cc-order-col:first-child { border-left-color: var(--adminred, #ee3c23); }
-:root[data-theme="light"] .cc-order.cc-tone-orange > .cc-order-col { background: color-mix(in srgb, var(--adminred, #ee3c23) 8%, transparent); }
-
-/* 2 — Постпрес */
-.cc-order.cc-tone-blue > .cc-order-col:first-child { border-left-color: var(--adminblue, #3c60a6); }
-.cc-order.cc-tone-blue > .cc-order-col { background: color-mix(in srgb, var(--adminblue, #3c60a6) 8%, transparent); }
-
-/* 3 — Готово */
-.cc-order.cc-tone-rose > .cc-order-col:first-child { border-left-color: var(--adminrose, #ef7aaa); }
-.cc-order.cc-tone-rose > .cc-order-col { background: color-mix(in srgb, var(--adminrose, #ef7aaa) 8%, transparent); }
-
-/* 4 — Отримано */
+.cc-order.cc-tone-blue   > .cc-order-col:first-child { border-left-color: var(--adminblue, #3c60a6); }
+.cc-order.cc-tone-rose   > .cc-order-col:first-child { border-left-color: var(--adminrose, #ef7aaa); }
 .cc-order.cc-tone-purple > .cc-order-col:first-child { border-left-color: var(--adminpurple, #6a5acd); }
-.cc-order.cc-tone-purple > .cc-order-col { background: color-mix(in srgb, var(--adminpurple, #6a5acd) 8%, transparent); }
+.cc-order.cc-tone-red    > .cc-order-col:first-child { border-left-color: var(--adminred, #ee3c23); }
 
-/* -1 — Скасоване */
-.cc-order.cc-tone-red > .cc-order-col:first-child { border-left-color: var(--adminred, #ee3c23); }
-.cc-order.cc-tone-red > .cc-order-col { background: color-mix(in srgb, var(--adminred, #ee3c23) 8%, transparent); }
+/* «Друк» у світлій темі — червоний замість помаранчевого
+   (на прохання користувача; в бежевій і темній лишається як є) */
+:root[data-theme="light"] .cc-order.cc-tone-orange > .cc-order-col:first-child {
+  border-left-color: var(--adminred, #ee3c23);
+}
 
-/* ── Order columns ── */
+/* ── Колонки ── */
 .cc-order-col {
   min-width: 0;
   white-space: nowrap;
@@ -421,145 +423,110 @@
   text-overflow: ellipsis;
 }
 
-.cc-order-col--title {
-  flex: 1;
-}
+.cc-order-col--title { flex: 1; }
 
 .cc-order-title {
   font-size: var(--font-size-s, 17px);
   font-weight: 400;
-  color: var(--admingrey, #666666);
+  color: #000;
 }
 
 .cc-order-id {
-  color: var(--admingrey, #666666);
+  color: #000;
   font-weight: 400;
 }
 
-.cc-order-id.is-current {
-  color: var(--adminred, #ee3c23);
-}
+.cc-order-id.is-current { color: var(--adminred, #ee3c23); }
 
+/* сума — акцент рядка: жирна, більша, з підрядковою одиницею */
 .cc-order-col--sum {
-  font-size: var(--font-size-s, 17px);
-  font-weight: 500;
-  color: var(--admingrey, #666666);
-  text-align: left;
+  font-size: calc(var(--font-size-s, 17px) + 3px);
+  font-weight: 600;
+  color: #000;
   justify-content: flex-start;
-  align-items: flex-end;
+  align-items: baseline;
 }
 
-.cc-order-sum-value {
-  color: inherit;
-}
+.cc-order-sum-value { color: inherit; }
 
 .cc-order-sum-unit {
-  font-size: 0.72em;
-  font-weight: 500;
-  margin-left: 0.15em;
-  margin-bottom: 0.08em;
+  align-self: flex-end;
+  position: relative;
+  top: 0.18em;
+  margin: 0;
+  font-size: calc(var(--font-size-s, 17px) - 3px);
+  font-weight: 600;
+  text-transform: lowercase;
+  line-height: 1;
   color: inherit;
 }
 
-/* Колір суми залежить від статусу оплати */
+/* колір суми задає стан оплати */
 .cc-order-col--sum.cc-pay--paid { color: var(--admingreen, #0e935b); }
 .cc-order-col--sum.cc-pay--wait { color: var(--adminorange, #f5a623); }
 .cc-order-col--sum.cc-pay--nopay { color: var(--adminred, #ee3c23); }
 .cc-order-col--sum.cc-pay--cancel { color: var(--adminred, #ee3c23); opacity: 0.7; }
 .cc-order-col--sum.cc-pay--expired { color: color-mix(in srgb, var(--adminorange, #f5a623) 80%, var(--adminred, #ee3c23)); }
+.cc-order-col--sum.cc-pay--estimate { color: var(--admingrey, #666666); }
 
 .cc-order-col--date {
-  font-size: var(--fontsmall, 15px);
+  font-size: var(--font-size-s, 17px);
   font-weight: 400;
   color: var(--admingrey, #666666);
-  text-align: center;
+  justify-content: center;
 }
 
+.cc-order-col--status {
+  min-width: 7em;
+  justify-content: flex-end;
+}
+
+/* статус і стан оплати — однакові службові мітки капітеллю */
+.cc-order-status,
+.cc-pay-badge {
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.76);
+  font-weight: 400;
+  letter-spacing: var(--pp-track-wide, 0.16em);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cc-order-status { color: color-mix(in srgb, var(--admingrey, #666) 70%, transparent); }
+
 .cc-order-col--pay {
-  display: flex;
-  align-items: center;
   justify-content: center;
   text-align: center;
   padding-left: 1rem !important;
   padding-right: 1rem !important;
 }
 
-.cc-pay-badge {
-  font-size: var(--fontsmall, 15px);
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-}
-
-/* Фон оплати на комірці — стиль NAV кнопки */
-.cc-order-col--pay[class*="cc-pay--"] {
-  border: none !important;
-  border-bottom: 2px solid transparent !important;
-  transition: border-bottom-color 0.3s ease;
-}
-
-.cc-order-col--pay.cc-pay--paid {
-  border-bottom-color: var(--admingreen, #0e935b) !important;
-  color: var(--admingreen, #0e935b);
-}
+/* стан оплати — тільки колір підпису, без підкреслень і плашок */
 .cc-order-col--pay.cc-pay--paid .cc-pay-badge { color: var(--admingreen, #0e935b); }
-
-.cc-order-col--pay.cc-pay--wait {
-  border-bottom-color: var(--adminorange, #f5a623) !important;
-  color: var(--adminorange, #f5a623);
-}
 .cc-order-col--pay.cc-pay--wait .cc-pay-badge { color: var(--adminorange, #f5a623); }
-
-.cc-order-col--pay.cc-pay--nopay {
-  border-bottom-color: var(--adminred, #ee3c23) !important;
-  color: var(--adminred, #ee3c23);
-}
 .cc-order-col--pay.cc-pay--nopay .cc-pay-badge { color: var(--adminred, #ee3c23); }
-
-.cc-order-col--pay.cc-pay--cancel {
-  border-bottom-color: var(--adminred, #ee3c23) !important;
-  color: var(--adminred, #ee3c23);
-  opacity: 0.7;
-}
-.cc-order-col--pay.cc-pay--cancel .cc-pay-badge { color: var(--adminred, #ee3c23); }
-
-.cc-order-col--pay.cc-pay--expired {
-  border-bottom-color: color-mix(in srgb, var(--adminorange, #f5a623) 80%, var(--adminred, #ee3c23)) !important;
-  color: color-mix(in srgb, var(--adminorange, #f5a623) 80%, var(--adminred, #ee3c23));
-}
+.cc-order-col--pay.cc-pay--cancel .cc-pay-badge { color: var(--adminred, #ee3c23); opacity: 0.7; }
 .cc-order-col--pay.cc-pay--expired .cc-pay-badge { color: color-mix(in srgb, var(--adminorange, #f5a623) 80%, var(--adminred, #ee3c23)); }
+.cc-order-col--pay.cc-pay--estimate .cc-pay-badge { color: color-mix(in srgb, var(--admingrey, #666) 70%, transparent); }
 
-.cc-order-col--pay.cc-pay--estimate {
-  border-bottom-color: var(--admincyan, #00A8C6) !important;
-  color: var(--admincyan, #00A8C6);
-}
-.cc-order-col--pay.cc-pay--estimate .cc-pay-badge { color: var(--admincyan, #00A8C6); }
-.cc-order-col--sum.cc-pay--estimate { color: var(--admincyan, #00A8C6); }
-
-.cc-order-col--status {
-  min-width: 6em;
-  text-align: right;
-}
-
-.cc-order-status {
-  font-size: var(--fontsmall, 15px);
-  font-weight: 400;
-  color: var(--admingrey, #666666);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-/* ── Scrollbar ── */
-.cc-order-list::-webkit-scrollbar {
-  width: 6px;
-}
+/* ── Смуга прокрутки ── */
+.cc-order-list::-webkit-scrollbar { width: 6px; }
 
 .cc-order-list::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 3px;
+  background: color-mix(in srgb, var(--admingrey, #666) 25%, transparent);
+  border-radius: 0;
 }
 
 .cc-order-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.18);
+  background: color-mix(in srgb, var(--admingrey, #666) 45%, transparent);
+}
+
+/* ── Вузькі екрани ── */
+@media (max-width: 900px) {
+  .cc-actions { flex-wrap: wrap; gap: 4px 0; }
+  .cc-stats { grid-template-columns: repeat(2, 1fr); row-gap: 0.6rem; }
+  .cc-stat:nth-child(3) { padding-left: 0; border-left: none; }
+  .cc-order-list { grid-template-columns: 1fr auto auto; }
+  .cc-order-col--date,
+  .cc-order-col--status { display: none; }
 }

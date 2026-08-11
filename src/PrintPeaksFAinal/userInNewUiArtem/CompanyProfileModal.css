@@ -1,5 +1,14 @@
 /* ============================================================
-   Company Profile Modal — scoped styles (mirrors ClientProfileModal)
+   ПРОФІЛЬ КОМПАНІЇ — бренд-стиль PrintPeaks
+
+   Дзеркалить ClientProfileModal.css: прямокутники без заокруглень,
+   кнопка — світла плитка з чорною кромкою 3px зліва й заливкою-
+   «штампом» на ховері, службові підписи дисплейним шрифтом
+   капітеллю з розрядкою, колір лише через CSS-змінні.
+   Помаранчевий лишився там, де означає «є незбережена зміна».
+
+   УВАГА: префікс класів — cоm-, де «о» КИРИЛИЧНА (U+043E). Так само
+   в CompanyProfileModal.jsx. З латинським «o» селектори не збігаються.
    ============================================================ */
 
 .cоm-overlay {
@@ -16,16 +25,17 @@
 
 .cоm-panel {
   position: relative;
-  width: min(96vw, 900px);
+  width: min(96vw, 980px);
   max-height: 90vh;
-  background: var(--adminfonelement, #f2f0e9);
+  background: var(--adminfon, #f7f5ee);
   color: var(--admingrey, #666666);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
   border-radius: 0;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.26);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: cоm-slide-up 0.25s ease-out;
+  animation: cоm-slide-up 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes cоm-slide-up {
@@ -33,13 +43,13 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Header ── */
+/* ── Шапка ── */
 .cоm-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
-  padding: 1rem 1.4rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
   flex-shrink: 0;
 }
 
@@ -48,13 +58,14 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.15rem;
 }
 
 .cоm-fullname {
-  font-size: var(--font-size-pay, 21px);
+  font-size: calc(var(--font-size-s, 17px) + 7px);
   font-weight: 400;
-  color: var(--admingrey, #666666);
+  letter-spacing: normal;
+  color: #000;
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
@@ -69,39 +80,71 @@
 
 .cоm-header-sub {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 1rem;
   flex-wrap: wrap;
 }
 
+/* ЄДРПОУ — службовий підпис капітеллю */
 .cоm-header-detail {
-  font-size: var(--fontsmall, 15px);
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.76);
   font-weight: 400;
-  color: var(--admingrey, #666666);
-  opacity: 0.6;
+  letter-spacing: var(--pp-track-wide, 0.16em);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--admingrey, #666) 65%, transparent);
 }
 
+/* знижка — єдиний кольоровий акцент шапки */
 .cоm-header-discount {
-  font-size: var(--fontsmall, 15px);
+  font-size: var(--font-size-s, 17px);
   font-weight: 400;
   color: var(--admingreen, #0e935b);
 }
 
 .cоm-close {
   align-self: flex-start;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: 0;
   padding: 0;
-  font-size: var(--font-size-pay, 21px);
+  font-size: calc(var(--font-size-s, 17px) + 4px);
   color: var(--admingrey, #666666);
   cursor: pointer;
   line-height: 1;
-  flex-shrink: 0;
+  transition: color 0.15s;
 }
 
 .cоm-close:hover { color: var(--adminred, #ee3c23); }
 
-/* ── Body ── */
+/* ── Логотип компанії в шапці ──
+   Клас навмисно без кириличного префікса: його зручніше набирати руками,
+   а колізій із чужими стилями немає. Всередині — AvatarUploader, тому
+   розтягуємо тільки безкласову обгортку TelegramAvatar, а службові вузли
+   завантажувача (.av-up-overlay, .av-up-err) не чіпаємо. */
+.company-logo-slot {
+  position: relative;
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+}
+
+.company-logo-slot img,
+.company-logo-slot canvas,
+.company-logo-slot svg,
+.company-logo-slot div:not([class]) {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  object-fit: cover;
+}
+
+/* ── Тіло: дві колонки полів ── */
 .cоm-body {
   flex-shrink: 0;
   display: grid;
@@ -109,70 +152,87 @@
 }
 
 .cоm-body::-webkit-scrollbar { width: 6px; }
-.cоm-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); }
 
-/* ── Section ── */
+.cоm-body::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--admingrey, #666) 25%, transparent);
+}
+
+/* ── Секція ── */
 .cоm-section {
-  padding: 1rem 1.4rem;
+  padding: 1.1rem 1.4rem 1.4rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
 .cоm-section:first-child {
-  border-right: 1px solid rgba(0, 0, 0, 0.07);
+  border-right: 1px solid color-mix(in srgb, var(--admingrey, #666) 18%, transparent);
 }
 
+/* заголовок секції — eyebrow з волосяною лінією */
 .cоm-section-title {
-  font-size: var(--fontsmall, 15px);
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 18%, transparent);
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.76);
   font-weight: 400;
-  color: var(--admingrey, #666666);
-  opacity: 0.5;
+  letter-spacing: var(--pp-track-wide, 0.16em);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 0.3rem;
+  color: color-mix(in srgb, var(--admingrey, #666) 65%, transparent);
 }
 
-/* ── Field row ── */
+/* ── Рядок поля ── */
 .cоm-field-row {
   display: grid;
-  grid-template-columns: 120px 1fr 32px;
+  grid-template-columns: 130px 1fr 32px;
   align-items: center;
   gap: 0.5rem;
-  min-height: 2.4rem;
+  min-height: 2.6rem;
 }
 
 .cоm-field-label {
-  font-size: var(--fontsmall, 15px);
+  font-size: var(--font-size-s, 17px);
   font-weight: 400;
-  color: var(--admingrey, #666666);
-  opacity: 0.6;
+  color: color-mix(in srgb, var(--admingrey, #666) 80%, transparent);
   white-space: nowrap;
 }
 
+/* поле — «лінійка» без рамки, значення чорне */
 .cоm-field-input {
   height: 2.4rem;
-  padding: 0 0.6rem;
-  border: 1px solid transparent;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0 0.5rem;
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
   background: transparent;
   border-radius: 0;
   outline: none;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
   font-size: var(--font-size-s, 17px);
   font-weight: 400;
-  color: var(--admingrey, #666666);
+  color: #000;
   width: 100%;
   box-sizing: border-box;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.cоm-field-input::placeholder {
+  color: color-mix(in srgb, var(--admingrey, #666) 45%, transparent);
 }
 
 .cоm-field-input:focus {
-  border-color: var(--adminorange, #f5a623);
-  background: var(--adminfon, #f7f5ee);
+  border-bottom-color: #000;
+  background: var(--v2-tile-hi, #fbfaf6);
 }
 
+.cоm-field-input[data-field="discount"] {
+  color: var(--admingreen, #0e935b);
+}
+
+/* незбережена зміна — єдиний помаранчевий сигнал у модалці */
 .cоm-field-input.is-changed {
   border-bottom-color: var(--adminorange, #f5a623);
+  border-bottom-width: 2px;
 }
 
 .cоm-field-input.is-disabled {
@@ -180,22 +240,24 @@
   cursor: not-allowed;
 }
 
-/* ── Save button ── */
+/* ── Кнопка збереження поля ── */
 .cоm-field-save {
   width: 32px;
   height: 32px;
-  border: 2px solid var(--adminorange, #f5a623);
+  border: none;
+  border-left: 3px solid #000;
   border-radius: 0;
-  background: transparent;
-  color: var(--adminorange, #f5a623);
+  background: var(--v2-tile-hi, #fbfaf6);
+  color: var(--admingrey, #666666);
   font-size: 1rem;
+  line-height: 1;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s, background 0.2s, color 0.2s;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
 }
 
 .cоm-field-save.is-visible {
@@ -204,13 +266,13 @@
 }
 
 .cоm-field-save:hover {
-  background: var(--adminorange, #f5a623);
-  color: var(--adminfon, #f7f5ee);
+  background: #000;
+  color: #fff;
 }
 
 .cоm-field-err {
   grid-column: 2 / -1;
-  font-size: var(--fontsmall, 15px);
+  font-size: calc(var(--font-size-s, 17px) * 0.85);
   color: var(--adminred, #ee3c23);
 }
 
@@ -218,7 +280,7 @@
 .cоm-users-section {
   display: flex;
   flex-direction: column;
-  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  border-top: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
   flex: 1;
   overflow: hidden;
   min-height: 0;
@@ -228,33 +290,36 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.7rem 1.4rem;
+  padding: 0.8rem 1.4rem;
   flex-shrink: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 18%, transparent);
 }
 
 .cоm-users-title {
-  font-size: var(--fontsmall, 15px);
-  font-weight: 400;
-  color: var(--admingrey, #666666);
-  opacity: 0.5;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.76);
+  font-weight: 400;
+  letter-spacing: var(--pp-track-wide, 0.16em);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--admingrey, #666) 65%, transparent);
 }
 
+/* лічильник — чорна плашка, а не помаранчева: це не попередження */
 .cоm-users-count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 1.4rem;
   height: 1.4rem;
-  padding: 0 0.3rem;
-  background: var(--adminorange, #f5a623);
+  padding: 0 0.35rem;
+  background: var(--admingrey, #666);
   color: var(--adminfon, #f7f5ee);
-  font-size: 0.78rem;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.72);
+  letter-spacing: normal;
   opacity: 1;
 }
 
@@ -266,29 +331,46 @@
 }
 
 .cоm-users-list::-webkit-scrollbar { width: 6px; }
-.cоm-users-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); }
 
-.cоm-users-empty {
-  padding: 1.2rem 1.4rem;
-  font-size: var(--fontsmall, 15px);
-  color: var(--admingrey, #666666);
-  opacity: 0.5;
-  text-transform: uppercase;
+.cоm-users-list::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--admingrey, #666) 25%, transparent);
 }
 
-/* ── Рядок клієнта ── */
-.cоm-user-row {
+/* порожні стани — той самий вигляд, що в панелі файлів і кабінеті */
+.cоm-users-empty,
+.cоm-attach-empty {
+  padding: 2.5rem 1.4rem;
+  text-align: center;
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--admingrey, #666666);
+  opacity: 0.4;
+}
+
+/* ── Рядок клієнта (і рядок у модалці прив'язки) ── */
+.cоm-user-row,
+.cоm-attach-row {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.9rem;
   padding: 0.55rem 1.4rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 14%, transparent);
+  border-left: 3px solid transparent;
   overflow: hidden;
+  flex-shrink: 0;
   background: var(--adminfon, #f7f5ee);
-  transition: background 0.15s;
+  transition: background 0.14s, border-left-color 0.14s;
 }
 
-.cоm-user-row:hover { background: var(--adminfonelement, #f2f0e9); }
+/* під курсором рядок «вмикає» чорну кромку — сигнал той самий, що в
+   плиток-кнопок, але без заливки: рядок мусить лишатись читабельним */
+.cоm-user-row:hover,
+.cоm-attach-row:hover {
+  background: var(--v2-tile-hi, #fbfaf6);
+  border-left-color: #000;
+}
 
 .cоm-user-avatar {
   position: relative;
@@ -297,23 +379,45 @@
   height: 54px;
 }
 
-.cоm-user-id {
+.cоm-attach-avatar {
+  position: relative;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+}
+
+.cоm-user-avatar img,
+.cоm-user-avatar canvas,
+.cоm-user-avatar svg,
+.cоm-attach-avatar img,
+.cоm-attach-avatar canvas,
+.cоm-attach-avatar svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  object-fit: cover;
+}
+
+/* id — чорна плашка в нижньому куті аватара, як усюди в проєкті */
+.cоm-user-id,
+.cоm-attach-id {
   position: absolute;
-  right: -4px;
-  bottom: -4px;
-  height: 1.1rem;
-  padding: 0 0.3rem;
+  left: 0;
+  bottom: 0;
+  padding: 1px 4px;
   display: inline-flex;
   align-items: center;
-  background: var(--adminorange, #f5a623);
-  border: 1px solid var(--adminfonelement, #f2f0e9);
+  background: var(--admingrey, #666);
+  border: none;
   color: var(--adminfon, #f7f5ee);
-  font-size: 0.68rem;
-  line-height: 1;
+  font-size: calc(var(--font-size-s, 17px) * 0.62);
+  letter-spacing: 0.04em;
+  line-height: 1.25;
   white-space: nowrap;
 }
 
-.cоm-user-info {
+.cоm-user-info,
+.cоm-attach-row-info {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -321,116 +425,112 @@
   gap: 0.1rem;
 }
 
-.cоm-user-name {
+.cоm-user-name,
+.cоm-attach-row-name {
   font-size: var(--font-size-s, 17px);
   font-weight: 400;
-  color: var(--admingrey, #666666);
+  color: #000;
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.cоm-user-contacts {
+.cоm-user-contacts,
+.cоm-attach-row-sub {
   display: flex;
   gap: 1rem;
-  font-size: var(--fontsmall, 15px);
-  color: var(--admingrey, #666666);
-  opacity: 0.5;
+  font-size: calc(var(--font-size-s, 17px) * 0.85);
+  color: color-mix(in srgb, var(--admingrey, #666) 70%, transparent);
 }
 
 .cоm-user-discount {
-  font-size: var(--fontsmall, 15px);
+  font-size: calc(var(--font-size-s, 17px) * 0.85);
   font-weight: 400;
   color: var(--admingreen, #0e935b);
   flex-shrink: 0;
 }
 
-/* ── Кнопка "Додати клієнта" / "Додати" — стиль nui-client-rect-btn ── */
+/* ── Кнопки-плитки ── */
 .cоm-rect-btn {
   position: relative;
   isolation: isolate;
-  height: 4vh;
-  min-height: 36px;
-  padding: 5px 18px;
-  border: 2px solid var(--adminorange, #f5a623);
+  overflow: hidden;
+  min-height: 38px;
+  padding: 6px 14px 6px 18px;
+  border: none;
+  border-left: 3px solid #000;
   border-radius: 0;
-  background: transparent;
+  clip-path: none;
+  background: var(--v2-tile-hi, #fbfaf6);
+  color: var(--admingrey, #666666);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
   flex-shrink: 0;
-  transition: 0.3s;
+  transition: color 0.32s ease;
 }
 
-.cоm-rect-btn-text {
-  position: relative;
-  z-index: 3;
-  font-size: var(--font-size-s, 17px);
-  font-weight: 400;
-  color: var(--admingrey, #666666);
-  text-transform: uppercase;
-}
-
+/* заливка-«штамп» зліва направо */
 .cоm-rect-btn::before {
   content: "";
   position: absolute;
-  top: -2px; left: -2px;
-  width: calc(100% + 6px);
-  height: calc(100% + 2px);
-  background: var(--adminfonelement, #f2f0e9);
-  transition: 0.3s ease-out;
-  z-index: -2;
+  inset: 0;
+  background: #000;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: 0;
 }
 
-.cоm-rect-btn::after {
-  content: "";
-  position: absolute;
-  top: -2px; left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% - 45%);
-  background: var(--adminfonelement, #f2f0e9);
-  transition: 0.3s ease-out;
-  z-index: -1;
+.cоm-rect-btn:hover::before { transform: scaleX(1); }
+
+.cоm-rect-btn-text {
+  position: relative;
+  z-index: 1;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: inherit;
+  text-transform: uppercase;
 }
 
-.cоm-rect-btn:hover::before { transform: translateY(-25px); height: 0; }
-.cоm-rect-btn:hover::after  { transform: scaleX(0); transition-delay: 0.15s; }
-.cоm-rect-btn:hover .cоm-rect-btn-text { color: var(--adminorange, #f5a623); }
+.cоm-rect-btn:hover,
+.cоm-rect-btn:hover .cоm-rect-btn-text { color: #fff; }
 
-.cоm-rect-btn--red { border-color: var(--adminred, #ee3c23); }
-.cоm-rect-btn--red::before,
-.cоm-rect-btn--red::after { background: var(--adminfonelement, #f2f0e9); }
-.cоm-rect-btn--red:hover .cоm-rect-btn-text { color: var(--adminred, #ee3c23); }
+/* руйнівна дія — червона кромка й червона заливка */
+.cоm-rect-btn--red { border-left-color: var(--adminred, #ee3c23); }
 
-/* ── Attach user modal ── */
+.cоm-rect-btn--red::before { background: var(--adminred, #ee3c23); }
+
+/* ── Модалка прив'язки клієнта ── */
 .cоm-panel--fon { background: var(--adminfon, #f7f5ee); }
 
 .cоm-attach-search {
   flex-shrink: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
 }
 
 .cоm-attach-input {
   width: 100%;
-  height: 4vh;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 1.4rem;
   border: none;
   outline: none;
   background: transparent;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
   font-size: var(--font-size-s, 17px);
-  color: var(--admingrey, #666666);
+  color: #000;
   box-sizing: border-box;
 }
 
 .cоm-attach-input::placeholder {
-  color: var(--admingrey, #666666);
-  opacity: 0.4;
+  color: color-mix(in srgb, var(--admingrey, #666) 45%, transparent);
   text-transform: uppercase;
-  font-size: var(--fontsmall, 15px);
+  letter-spacing: 0.04em;
+  font-size: calc(var(--font-size-s, 17px) * 0.85);
 }
 
 .cоm-attach-list {
@@ -441,77 +541,25 @@
 }
 
 .cоm-attach-list::-webkit-scrollbar { width: 6px; }
-.cоm-attach-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); }
 
-.cоm-attach-empty {
-  padding: 1.2rem 1.4rem;
-  text-align: center;
-  font-size: var(--fontsmall, 15px);
-  color: var(--admingrey, #666666);
-  opacity: 0.5;
-  text-transform: uppercase;
+.cоm-attach-list::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--admingrey, #666) 25%, transparent);
 }
 
-.cоm-attach-row {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.55rem 1.4rem;
-  min-height: 3.2rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  overflow: hidden;
-  flex-shrink: 0;
-  background: var(--adminfon, #f7f5ee);
-  transition: background 0.15s;
+.cоm-attach-row { min-height: 3.2rem; cursor: pointer; }
+
+/* ── Вузькі екрани ── */
+@media (max-width: 900px) {
+  .cоm-body { grid-template-columns: 1fr; }
+  .cоm-section:first-child {
+    border-right: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 18%, transparent);
+  }
+  .cоm-field-row { grid-template-columns: 110px 1fr 32px; }
 }
 
-.cоm-attach-row:hover { background: var(--adminfonelement, #f2f0e9); }
-
-.cоm-attach-avatar {
-  position: relative;
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-}
-
-.cоm-attach-id {
-  position: absolute;
-  right: -4px;
-  bottom: -4px;
-  height: 1.1rem;
-  padding: 0 0.3rem;
-  display: inline-flex;
-  align-items: center;
-  background: var(--adminorange, #f5a623);
-  border: 1px solid var(--adminfon, #f7f5ee);
-  color: var(--adminfon, #f7f5ee);
-  font-size: 0.68rem;
-  white-space: nowrap;
-}
-
-.cоm-attach-row-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.cоm-attach-row-name {
-  font-size: var(--font-size-s, 17px);
-  font-weight: 400;
-  color: var(--admingrey, #666666);
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.cоm-attach-row-sub {
-  font-size: var(--fontsmall, 15px);
-  font-weight: 400;
-  color: var(--admingrey, #666666);
-  opacity: 0.5;
-  margin-top: 0.1rem;
-}
-
-*,
-*::before,
-*::after { box-sizing: border-box; }
+/* box-sizing — тільки для вузлів модалки: раніше тут стояв глобальний
+   селектор `*`, який протікав на всю сторінку */
+.cоm-overlay *,
+.cоm-overlay *::before,
+.cоm-overlay *::after { box-sizing: border-box; }

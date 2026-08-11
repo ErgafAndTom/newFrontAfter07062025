@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from "../../api/axiosInstance";
 import TelegramAvatar from "../Messages/TelegramAvatar";
+import AvatarUploader from "./AvatarUploader";
 import "./CompanyProfileModal.css";
 
 const PAGE_SIZE = 20;
@@ -255,6 +256,20 @@ export default function CompanyProfileModal({ companyId, onClose, onCompanyUpdat
 
         {/* ── Header ── */}
         <header className="cоm-header">
+          {/* Логотип компанії — клік відкриває вибір файлу, хрестик прибирає.
+              Ходить на /api/company/:id/avatar: той самий контракт, що й
+              аватарка користувача, тому компонент спільний. */}
+          {!loading && company && (
+            <div className="company-logo-slot">
+              <AvatarUploader
+                endpoint={`/api/company/${company.id}`}
+                photoLink={company.photoLink}
+                size={64}
+                square
+                onUpdated={() => load()}
+              />
+            </div>
+          )}
           <div className="cоm-header-info">
             {loading
               ? <span className="cоm-loading-name">Завантаження...</span>
@@ -285,7 +300,6 @@ export default function CompanyProfileModal({ companyId, onClose, onCompanyUpdat
               <FieldRow label="Телефон"    field="phoneNumber" value={company.phoneNumber} companyId={company.id} onSaved={load} />
               <FieldRow label="E-mail"     field="email"       value={company.email}       companyId={company.id} type="email" onSaved={load} />
               <FieldRow label="Знижка (%)" field="discount"    value={discountNum}         companyId={company.id} type="number" onSaved={onDiscountSaved} />
-              <FieldRow label="Фото"       field="photoLink"   value={company.photoLink}   companyId={company.id} onSaved={load} />
               <FieldRow label="Логін"      field="username"    value={company.username}    companyId={company.id} onSaved={load} />
               <FieldRow label="Пароль"     field="password"    value={company.passwordRaw ?? ""}  companyId={company.id} type="text" onSaved={load} />
             </div>

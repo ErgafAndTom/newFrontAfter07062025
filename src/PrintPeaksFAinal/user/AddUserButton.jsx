@@ -1,10 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import AddUserWindow from './AddUserWindow';
 import './AddUserButton.css';
 
-function AddUserButton({ fetchUsers, addOrdOrOnlyClient, thisOrder, setThisOrder }) {
+// hideTrigger — рендерити лише модалку, без власної кнопки. Використовує
+// панель швидкого доступу (PPDock): вона малює свою плитку, а відкриває
+// вікно глобальною подією 'pp-open-new-client'.
+function AddUserButton({ fetchUsers, addOrdOrOnlyClient, thisOrder, setThisOrder, hideTrigger = false }) {
     const [showAddUser, setShowAddUser] = useState(false);
+
+    // слухає лише інстанс дока — інакше на сторінці наряду, де кнопка вже
+    // є, вікно відкрилося б двічі
+    useEffect(() => {
+        if (!hideTrigger) return undefined;
+        const handler = () => setShowAddUser(true);
+        window.addEventListener('pp-open-new-client', handler);
+        return () => window.removeEventListener('pp-open-new-client', handler);
+    }, [hideTrigger]);
 
     const handleAddUser = () => {
         setShowAddUser(true);
@@ -42,13 +54,15 @@ function AddUserButton({ fetchUsers, addOrdOrOnlyClient, thisOrder, setThisOrder
               {/*)}*/}
 
 
-          <div
-            className="buttonSkewedUser"
-            onClick={handleAddUser}
-          >
-            <span className="nav-btn-full">Створити клієнта</span>
-            <span className="nav-btn-short">+ клієнт</span>
-          </div>
+          {!hideTrigger && (
+            <div
+              className="buttonSkewedUser"
+              onClick={handleAddUser}
+            >
+              <span className="nav-btn-full">Створити клієнта</span>
+              <span className="nav-btn-short">+ клієнт</span>
+            </div>
+          )}
           <div style={{  }}>
             {showAddUser && (
               <AddUserWindow

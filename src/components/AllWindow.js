@@ -5,6 +5,7 @@ import AfterNav from "./calc/AfterNav";
 import {useDispatch, useSelector} from "react-redux";
 import {Route, Routes} from "react-router-dom";
 import Footer from "./footer/Footer";
+import PPDock from "./dock/PPDock";
 import Invoices from "../pages/Invoices";
 import MockupClientPage from "../PrintPeaksFAinal/mockup/MockupClientPage";
 import UklonTrackPage from "../PrintPeaksFAinal/userInNewUiArtem/UklonTrackPage";
@@ -46,9 +47,15 @@ function AllWindow() {
 
                 <Route path="*" element={(
                     <>
+                      {/* Слот над навбаром: сторінка наряду (NewUIArtem)
+                          телепортує сюди смугу статусу замовлення — вона
+                          має стояти вище Nav, на прохання користувача.
+                          Порожній div нічого не займає на інших сторінках. */}
+                      <div id="nui-jt-status-slot" />
                       {token && <Nav setErr={setErr}/>}
                       <AfterNav setErr={setErr}/>
                       {token && <Footer setErr={setErr}/>}
+                      {token && <PPDock/>}
                     </>
                 )} />
             </Routes>

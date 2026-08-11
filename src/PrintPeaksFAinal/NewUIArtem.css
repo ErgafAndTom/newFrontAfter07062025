@@ -876,7 +876,7 @@
   background-color: var(--adminfonelement, #f2f0e9) !important;
   font-family: var(--pp-font-ui);
   font-size: var(--font-size-s) !important;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--admingrey, #666666) !important;
   text-transform: uppercase;
   line-height: 1;
@@ -897,7 +897,7 @@
   position: relative;
   z-index: 1;
   font-size: var(--font-size-s);
-  font-weight: 500;
+  font-weight: 400;
   color: var(--admingrey, #666666);
   text-transform: uppercase;
 }

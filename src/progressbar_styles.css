@@ -2023,18 +2023,38 @@
   font-size: var(--font-size-s) !important;
 }
 
+/* Суми — акцент рядка: число на 5px, «грн» на 2px більші за підписи,
+   обидва жирні. Розміри живуть саме тут: цей "final lock" має ту саму
+   специфічність, що правила в nuiJobTicket.css, але вантажиться пізніше
+   й перемагав їх — тому там їх задавати марно. */
 .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-cost-value-main,
 .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due .pb-metric-value-main {
-  font-size: var(--font-size-pay) !important;
+  font-size: calc(var(--font-size-s) + 8px) !important;
+  font-weight: 600 !important;
 }
 
-.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-currency {
-  font-size: var(--fontcard) !important;
-}
-
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-currency,
 .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--cost .pb-metric-currency,
 .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due .pb-metric-currency {
-  font-size: var(--fontcard) !important;
+  /* «грн» — підрядкове й дрібніше за число, впритул до нього
+     (пробіл прибрано в ProgressBar.jsx). Контейнер .pb-metric-inline —
+     inline-flex, тому vertical-align:sub на ньому не діє: опускаємо
+     через align-self + зсув. */
+  /* та сама гарнітура, що в числа поруч — <small> інакше падає на
+     успадкований набір і виглядає чужим */
+  font-family: var(--pp-font-ui) !important;
+  font-size: calc(var(--font-size-s) - 3px) !important;
+  font-weight: 600 !important;
+  /* рядок метрик увесь у капітелі, але одиниця — не заголовок */
+  text-transform: lowercase !important;
+  align-self: flex-end;
+  position: relative;
+  top: 0.18em;
+  line-height: 1;
+  /* базове .pb-metric-currency має margin-left:0.35rem — саме він і
+     лишався видимим проміжком після зняття пробілу в JSX */
+  margin-left: 0 !important;
+  padding-left: 0 !important;
 }
 
 /* Final lock: align metrics to payment button edges */

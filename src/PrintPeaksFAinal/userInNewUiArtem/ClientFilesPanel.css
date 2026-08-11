@@ -249,11 +249,19 @@
   min-height: 0;
 }
 
+/* Порожній стан — та сама типографіка, що в порожнього бланка наряду
+   (.nui-orders-column-empty::after у nuiJobTicket.css): дисплейний шрифт,
+   капітель із розрідженням і приглушена сірість. */
 .cfp-empty {
   text-align: center;
   padding: 40px 0;
   color: var(--admingrey, #666);
-  font-size: var(--font-size-s, 17px);
+  font-family: var(--pp-font-display);
+  font-size: 0.95rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.4;
 }
 
 .cfp-file-row {
@@ -521,7 +529,8 @@
 .cfp-modal .cfp-file-client,
 .cfp-modal .cfp-statusbar-text { font-size: calc(var(--font-size-xs, 15px) + 3px) !important; }
 
-.cfp-modal .cfp-empty { font-size: calc(var(--font-size-s, 17px) + 3px) !important; }
+/* порожній стан кегля не збільшує — він навмисно тихий і однаковий
+   з порожнім бланком наряду (див. .cfp-empty вище) */
 .cfp-modal .cfp-drag-overlay { font-size: calc(var(--font-size-l, 22px) + 3px) !important; }
 .cfp-modal .cfp-file-date { font-size: 15px !important; }
 .cfp-modal .cfp-upload-progress { font-size: 16px !important; }
@@ -536,4 +545,479 @@
 @keyframes cfp-slideUp {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ПРОВІДНИК: панель інструментів, три режими перегляду, панель деталей.
+   Кольори — лише через var(--admin*), тому бежева/світла/темна теми
+   працюють без окремих гілок.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.cfp-modal {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ── Панель інструментів ───────────────────────────────────────────── */
+.cfp-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 6px 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 16%, transparent);
+}
+
+.cfp-toolbar-nav,
+.cfp-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cfp-toolbar-nav { flex: 1 1 320px; }
+.cfp-toolbar-right { flex: 0 0 auto; }
+
+.cfp-tool-btn {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--admingrey, #666);
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+}
+
+.cfp-tool-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--admingrey, #666) 12%, transparent);
+}
+
+.cfp-tool-btn:disabled { opacity: 0.3; cursor: default; }
+
+.cfp-tool-btn.is-active {
+  background: var(--admingrey, #666);
+  color: var(--adminfon, #fff);
+}
+
+/* хлібні крихти */
+.cfp-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.cfp-crumbs::-webkit-scrollbar { display: none; }
+
+.cfp-crumb {
+  flex: 0 0 auto;
+  padding: 2px 6px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--admingrey, #666);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 0.85rem);
+  cursor: pointer;
+}
+
+.cfp-crumb:hover { text-decoration: underline; }
+
+/* Корінь — назва сховища з номером, а не навігаційне посилання: капітель,
+   без підкреслення під курсором і без «клікабельного» курсора. Кнопкою
+   лишається (клік повертає в корінь), просто не поводиться як лінк. */
+.cfp-crumb-root {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: default;
+}
+
+.cfp-crumb-root:hover { text-decoration: none; }
+
+.cfp-crumb-sep {
+  flex: 0 0 auto;
+  color: color-mix(in srgb, var(--admingrey, #666) 45%, transparent);
+}
+
+/* пошук */
+.cfp-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 8px;
+  background: color-mix(in srgb, var(--admingrey, #666) 8%, transparent);
+  color: var(--admingrey, #666);
+}
+
+.cfp-search input {
+  width: 150px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--admingrey, #666);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 0.85rem);
+}
+
+.cfp-search-clear {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+}
+
+/* перемикач режимів */
+.cfp-view-switch {
+  display: inline-flex;
+  gap: 0;
+  border: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
+}
+
+.cfp-view-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--admingrey, #666);
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+}
+
+.cfp-view-btn + .cfp-view-btn {
+  border-left: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
+}
+
+.cfp-view-btn:hover { background: color-mix(in srgb, var(--admingrey, #666) 12%, transparent); }
+
+.cfp-view-btn.is-active {
+  background: var(--admingrey, #666);
+  color: var(--adminfon, #fff);
+}
+
+/* Кнопки тулбару. !important обов'язковий: базові правила плиток у
+   nuiJobTicket.css мають довший селектор (.nui-sheetcut-theme.nui-jt
+   .nui-jt-client .nui-client-rect-btn) і перебивають один клас.
+   Відступ зліва більший за правий — інакше підпис лягав упритул до
+   чорної кромки. flex-shrink:0 не дає довшій назві з'їсти цей відступ. */
+.cfp-toolbar-action {
+  height: 28px;
+  padding: 6px 12px 6px 16px !important;
+  flex: 0 0 auto !important;
+}
+
+/* ── Тіло: вміст + деталі ──────────────────────────────────────────── */
+.cfp-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.cfp-body.has-preview {
+  /* панель перегляду вдвічі ширша за первісні 280px, на прохання
+     користувача — прев'ю читається без відкриття файлу */
+  grid-template-columns: minmax(0, 1fr) 560px;
+}
+
+.cfp-content {
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* сітки для плиток і великих іконок */
+.cfp-content--tiles,
+.cfp-content--icons {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 10px;
+}
+
+.cfp-content--tiles { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.cfp-content--icons { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+
+.cfp-content--tiles .cfp-empty,
+.cfp-content--icons .cfp-empty { grid-column: 1 / -1; }
+
+/* картка файлу */
+.cfp-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 8px;
+  background: color-mix(in srgb, var(--adminfonelement, #f2f0e9) 55%, #fff);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.12s, outline-color 0.12s;
+  outline: 1px solid transparent;
+}
+
+.cfp-card:hover { background: color-mix(in srgb, var(--admingrey, #666) 8%, transparent); }
+
+.cfp-card.is-selected {
+  outline-color: var(--admingrey, #666);
+  background: color-mix(in srgb, var(--admingrey, #666) 14%, transparent);
+}
+
+.cfp-card-thumb {
+  width: 100%;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.cfp-content--icons .cfp-card-thumb { height: 128px; }
+
+.cfp-thumb-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.cfp-thumb-glyph {
+  display: inline-flex;
+  transform: scale(1.6);
+}
+
+.cfp-content--icons .cfp-thumb-glyph { transform: scale(2.4); }
+
+.cfp-card-name {
+  width: 100%;
+  text-align: center;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 0.85rem);
+  color: var(--admingrey, #666);
+  word-break: break-word;
+}
+
+.cfp-card-meta {
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: 0.7rem;
+  color: color-mix(in srgb, var(--admingrey, #666) 60%, transparent);
+}
+
+.cfp-card-orders {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  justify-content: center;
+}
+
+/* виділений рядок у табличному режимі */
+.cfp-file-row.is-selected {
+  background: color-mix(in srgb, var(--admingrey, #666) 14%, transparent);
+}
+
+/* ── Панель деталей ────────────────────────────────────────────────── */
+.cfp-preview {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  overflow-y: auto;
+  border-left: 1px solid color-mix(in srgb, var(--admingrey, #666) 16%, transparent);
+  scrollbar-width: thin;
+}
+
+.cfp-preview-empty {
+  margin: auto;
+  color: color-mix(in srgb, var(--admingrey, #666) 55%, transparent);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 0.85rem);
+}
+
+.cfp-preview-stage {
+  flex: 1 1 auto;
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--admingrey, #666) 8%, transparent);
+}
+
+.cfp-preview-img,
+.cfp-preview-pdf {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.cfp-preview-pdf { width: 100%; height: 100%; border: none; }
+
+.cfp-preview-glyph { display: inline-flex; transform: scale(2.2); }
+
+.cfp-preview-note,
+.cfp-preview-name {
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 0.85rem);
+  color: var(--admingrey, #666);
+  word-break: break-word;
+}
+
+/* назви файлів — без жирності, і в деталях, і в списку */
+.cfp-preview-name { font-weight: 400; }
+
+.cfp-file-name,
+.cfp-card-name {
+  font-weight: 400 !important;
+}
+
+.cfp-preview-props {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 10px;
+  margin: 0;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: 0.78rem;
+  color: var(--admingrey, #666);
+}
+
+.cfp-preview-props dt {
+  font-weight: 400;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cfp-preview-props dd {
+  margin: 0;
+  word-break: break-word;
+}
+
+.cfp-preview-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+}
+
+/* ── Контекстне меню ───────────────────────────────────────────────── */
+.cfp-ctx {
+  position: fixed;
+  z-index: 3000;
+  min-width: 190px;
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+  background: var(--adminfon, #fff);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  border: 1px solid color-mix(in srgb, var(--admingrey, #666) 20%, transparent);
+}
+
+.cfp-ctx button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--admingrey, #666);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 0.85rem);
+  text-align: left;
+  cursor: pointer;
+}
+
+.cfp-ctx button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--admingrey, #666) 12%, transparent);
+}
+
+.cfp-ctx button:disabled { opacity: 0.4; cursor: default; }
+.cfp-ctx button.is-danger { color: var(--adminred, #ee3c23); }
+
+/* ── Статус-рядок ──────────────────────────────────────────────────── */
+.cfp-statusbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 10px;
+  border-top: 1px solid color-mix(in srgb, var(--admingrey, #666) 16%, transparent);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--admingrey, #666) 75%, transparent);
+}
+
+.cfp-status-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.cfp-status-link:hover { text-decoration: underline; }
+
+/* Вузька колонка (панель у наряді): деталі йдуть під вміст, а не збоку */
+@media (max-width: 1100px) {
+  .cfp-body.has-preview {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  .cfp-preview {
+    border-left: none;
+    border-top: 1px solid color-mix(in srgb, var(--admingrey, #666) 16%, transparent);
+    max-height: 260px;
+  }
+}
+
+/* Шапка колонок їде разом зі скролом вмісту — тому липне до верху
+   .cfp-content і несе власний фон, інакше рядки просвічували б крізь неї */
+.cfp-content--table .cfp-list-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--adminfon, #f7f5ee);
+}
+
+/* кнопки гуртових дій у панелі інструментів — ширші за квадратні
+   іконки, бо несуть ще й лічильник/підпис */
+.cfp-tool-btn--wide {
+  width: auto;
+  gap: 5px;
+  padding: 0 8px;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: color-mix(in srgb, var(--admingrey, #666) 12%, transparent);
+}
+
+/* значки нарядів на картці — тим самим рядком, що й кнопка «+» */
+.cfp-card-orders {
+  align-items: center;
+  min-height: 20px;
 }

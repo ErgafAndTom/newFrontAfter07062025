@@ -2384,3 +2384,304 @@
         max-height: 12rem;
     }
 }
+
+/* ════════════════════════════════════════════════════════════
+   СВІТЛА ТЕМА — блоки без власної підкладки
+
+   У світлій темі фон сторінки й фон елементів майже збігаються, тож
+   прямокутники карток лише додавали шум. Прибираємо заливку й
+   лишаємо волосяну лінію-межу, щоб блоки все одно читались як блоки.
+   Бежева й темна теми не змінюються.
+   ════════════════════════════════════════════════════════════ */
+
+:root[data-theme="light"] .dsh-calendar-wrap,
+:root[data-theme="light"] .dsh-kpi-card,
+:root[data-theme="light"] .dsh-chart-main,
+:root[data-theme="light"] .dsh-chart-side,
+:root[data-theme="light"] .dsh-card,
+:root[data-theme="light"] .dsh-exp-full {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--admingrey, #666) 12%, transparent);
+}
+
+/* у KPI-картки кольорова кромка зліва лишається — вона несе сенс */
+:root[data-theme="light"] .dsh-kpi-card {
+  box-shadow: inset -1px 0 0 color-mix(in srgb, var(--admingrey, #666) 12%, transparent),
+              inset 0 1px 0 color-mix(in srgb, var(--admingrey, #666) 12%, transparent),
+              inset 0 -1px 0 color-mix(in srgb, var(--admingrey, #666) 12%, transparent);
+}
+
+/* ════════════════════════════════════════════════════════════
+   НОВА ВИТРАТА — бренд-стиль PrintPeaks (.aeb-*)
+
+   Ті самі правила, що в решті переоформлених вікон: прямокутники,
+   підписи полів — eyebrow дисплейним шрифтом капітеллю з розрядкою,
+   поля — «лінійки» без рамок (синє підкреслення прибрано), кнопки —
+   плитки з чорною кромкою 3px і заливкою-«штампом». Кольори лишились
+   там, де щось означають: помаранчевий — незбережене/активне поле
+   суми, червоний — помилка й скасування, зелений — підтвердження.
+
+   Блок у кінці файлу, тож перебиває правила вище без !important.
+   ════════════════════════════════════════════════════════════ */
+
+.aeb-overlay {
+  background: rgba(15, 15, 15, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.aeb-modal {
+  background: var(--adminfon, #f7f5ee);
+  border-radius: 0;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.26);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  color: var(--admingrey, #666);
+}
+
+.aeb-title {
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.95);
+  font-weight: 400;
+  letter-spacing: var(--pp-track-wide, 0.16em);
+  text-transform: uppercase;
+  color: #000;
+}
+
+.aeb-close-btn {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--admingrey, #666);
+  transition: color 0.15s;
+}
+
+.aeb-close-btn:hover { color: var(--adminred, #ee3c23); }
+
+/* підписи полів — службові, тому eyebrow */
+.aeb-label,
+.aeb-label-small {
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.72);
+  font-weight: 400;
+  letter-spacing: var(--pp-track-wide, 0.16em);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--admingrey, #666) 65%, transparent);
+}
+
+.aeb-label-hint {
+  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.7);
+  letter-spacing: var(--pp-track-wide, 0.16em);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--admingrey, #666) 50%, transparent);
+}
+
+/* поля — «лінійка» без кольорових підкреслень; значення чорне */
+.aeb-input,
+.aeb-input[type="date"],
+.aeb-select {
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 17px);
+  color: #000;
+}
+
+.aeb-input::placeholder {
+  color: color-mix(in srgb, var(--admingrey, #666) 45%, transparent);
+}
+
+.aeb-input:focus,
+.aeb-input[type="date"]:focus {
+  border-bottom-color: #000;
+  background: var(--v2-tile-hi, #fbfaf6);
+}
+
+/* сума — головне поле форми: більший кегль і помаранчева лінія, поки
+   значення не підтверджене кнопкою «Додати» */
+.aeb-input-big {
+  font-size: calc(var(--font-size-s, 17px) + 6px);
+  font-weight: 600;
+}
+
+.aeb-price-field .aeb-input {
+  border-bottom-color: var(--adminorange, #f5a623);
+  border-bottom-width: 2px;
+}
+
+.aeb-input-error {
+  border-bottom-color: var(--adminred, #ee3c23) !important;
+  border-bottom-width: 2px !important;
+}
+
+.aeb-error {
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.8);
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--adminred, #ee3c23);
+}
+
+/* ── Спосіб оплати: плитки впритул одна до одної ── */
+.aeb-pay-methods { gap: 0; }
+
+.aeb-pay-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 38px;
+  border: none;
+  border-left: 3px solid #000;
+  border-radius: 0;
+  background: var(--v2-tile-hi, #fbfaf6);
+  color: var(--admingrey, #666);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  text-transform: uppercase;
+  box-shadow: none;
+  transition: color 0.32s ease, background 0.15s;
+}
+
+.aeb-pay-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #000;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: -1;
+}
+
+.aeb-pay-btn:hover::before { transform: scaleX(1); }
+.aeb-pay-btn:hover { color: #fff; }
+
+/* обраний спосіб — чорна плитка, а не зелена: колір тут нічого не
+   додає, вибір і так однозначний */
+.aeb-pay-btn-active,
+.aeb-pay-btn.aeb-pay-btn-active {
+  background: #000;
+  color: #fff;
+}
+
+/* ── Зона файлів ── */
+.aeb-dropzone {
+  border: 1px dashed color-mix(in srgb, var(--admingrey, #666) 35%, transparent);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.85);
+  color: color-mix(in srgb, var(--admingrey, #666) 70%, transparent);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.aeb-dropzone:hover,
+.aeb-dropzone-active {
+  border-color: #000;
+  background: var(--v2-tile-hi, #fbfaf6);
+}
+
+.aeb-file-item {
+  border-radius: 0;
+  background: var(--v2-tile-hi, #fbfaf6);
+  border-left: 3px solid #000;
+}
+
+.aeb-file-remove {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--admingrey, #666);
+}
+
+.aeb-file-remove:hover { color: var(--adminred, #ee3c23); }
+
+/* ── Кнопки дій ── */
+.aeb-actions { gap: 0; }
+
+.aeb-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 40px;
+  padding: 6px 18px;
+  border: none;
+  border-left: 3px solid #000;
+  border-radius: 0;
+  background: var(--v2-tile-hi, #fbfaf6);
+  color: var(--admingrey, #666);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  text-transform: uppercase;
+  box-shadow: none;
+  transition: color 0.32s ease;
+}
+
+.aeb-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #000;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: -1;
+}
+
+.aeb-btn:not(:disabled):hover::before { transform: scaleX(1); }
+.aeb-btn:not(:disabled):hover { color: #fff; }
+.aeb-btn:disabled { opacity: 0.35; cursor: default; }
+
+/* скасування — червона кромка й червона заливка */
+.aeb-btn-cancel { border-left-color: var(--adminred, #ee3c23); }
+.aeb-btn-cancel::before { background: var(--adminred, #ee3c23); }
+
+/* підтвердження — зелена: єдина стверджувальна дія у вікні */
+.aeb-btn-save {
+  border-left-color: var(--admingreen, #0e935b);
+  background: var(--admingreen, #0e935b);
+  color: #fff;
+}
+
+.aeb-btn-save::before { background: #000; }
+
+/* ── Випадні списки (категорія, замовлення, матеріали) ── */
+.aeb-order-drop,
+.aeb-mat-suggestions,
+.custom-select-dropdown {
+  border: 1px solid color-mix(in srgb, var(--admingrey, #666) 20%, transparent);
+  border-radius: 0;
+  background: var(--adminfon, #f7f5ee);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+}
+
+.aeb-order-opt,
+.aeb-mat-row {
+  border-left: 3px solid transparent;
+  border-radius: 0;
+  transition: background 0.14s, border-left-color 0.14s;
+}
+
+.aeb-order-opt:hover,
+.aeb-mat-row:hover,
+.aeb-mat-row-active {
+  background: var(--v2-tile-hi, #fbfaf6);
+  border-left-color: #000;
+}
+
+.custom-select-header {
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
+  border-radius: 0;
+  background: transparent;
+  color: #000;
+}

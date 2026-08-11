@@ -1,5 +1,17 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "../../../api/axiosInstance";
+import { getStoredAppTheme, setAppTheme, onAppThemeChange } from "../../../utils/appTheme";
+import "./DesignSettings.css";
+
+/* Теми оформлення застосунку. Бежева нічого не перевизначає (дефолт),
+   світла й темна вмикаються атрибутом data-theme на <html> — див.
+   utils/appTheme.js і global.css. Зразок малюємо трьома смугами:
+   фон / фон елементів / колір тексту. */
+const APP_THEME_LIST = [
+  { id: "beige", name: "Бежева", note: "Типова", swatch: ["#f7f5ee", "#f1eee7", "#666666"] },
+  { id: "light", name: "Світла", note: "Монохром", swatch: ["#ffffff", "#f4f4f4", "#000000"] },
+  { id: "dark",  name: "Темна",  note: "Ніч",      swatch: ["#1f1e1c", "#2b2925", "#e8e6e1"] },
+];
 
 const COLOR_VARS = [
   { key: "--admingreen", label: "Green (активний)", default: "#0e935b" },
@@ -47,74 +59,6 @@ export function applyDesignSettings() {
   // CSS variables are now stored in global.css directly — nothing to apply at runtime
 }
 
-const styles = {
-  container: { padding: "1.5rem 2rem" },
-  section: { marginBottom: "2rem" },
-  sectionTitle: {
-    fontSize: "1.1rem",
-    fontWeight: 600,
-    marginBottom: "1rem",
-    color: "#333",
-    borderBottom: "1px solid #e0ddd4",
-    paddingBottom: "0.5rem",
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-    gap: "0.75rem",
-  },
-  row: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
-    padding: "0.4rem 0",
-  },
-  colorInput: {
-    width: 32,
-    height: 32,
-    border: "1px solid #d4d1c8",
-    borderRadius: 4,
-    padding: 0,
-    cursor: "pointer",
-    flexShrink: 0,
-  },
-  hexInput: {
-    width: 72,
-    padding: "0.25rem 0.4rem",
-    border: "1px solid #d4d1c8",
-    borderRadius: 4,
-    fontSize: "0.75rem",
-    fontFamily: "monospace",
-    backgroundColor: "#fff",
-    flexShrink: 0,
-  },
-  textInput: {
-    width: 80,
-    padding: "0.3rem 0.5rem",
-    border: "1px solid #d4d1c8",
-    borderRadius: 4,
-    fontSize: "0.8rem",
-    backgroundColor: "#fff",
-  },
-  label: {
-    fontSize: "0.8rem",
-    color: "var(--admingrey, #666)",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-  },
-  varName: {
-    fontSize: "0.7rem",
-    color: "#aaa",
-    fontFamily: "monospace",
-  },
-  btnRow: {
-    display: "flex",
-    gap: "0.5rem",
-    marginBottom: "1.5rem",
-  },
-};
-
 const FILE_SETTINGS_KEY = 'printpeaks_file_settings';
 const FILE_DEFAULTS = { folderMode: 'local', networkPath: '//192.168.0.121/Client', networkUser: '', networkPass: '' };
 
@@ -143,6 +87,10 @@ export default function DesignSettings() {
   const [fileSettings, setFileSettings] = useState(loadFileSettings);
   const [testStatus, setTestStatus] = useState(null); // null | 'loading' | 'ok' | 'error'
   const [testMessage, setTestMessage] = useState('');
+  const [appTheme, setAppThemeState] = useState(getStoredAppTheme);
+
+  // тему можна перемкнути й з дока — тримаємо вкладку в курсі
+  useEffect(() => onAppThemeChange(setAppThemeState), []);
 
   useEffect(() => {
     axios.get('/api/design/settings')
@@ -209,82 +157,116 @@ export default function DesignSettings() {
     }
   };
 
-  if (loading) return <div style={{ padding: '2rem', color: 'var(--admingrey)' }}>Завантаження...</div>;
+  if (loading) {
+    return <div className="pp-loading">Завантаження…</div>;
+  }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.btnRow}>
-        <button className="adminButton" onClick={handleReset}>
-          <span>Скинути все</span>
-        </button>
+    <div className="ds-wrap">
+
+      {/* ── Тема оформлення ── */}
+      <div className="ds-section">
+        <div className="ds-section-title">Тема оформлення</div>
+        <div className="ds-hint">
+          Тема задає базові кольори фону й тексту для всього застосунку.
+          Значення нижче правлять палітру поверх обраної теми.
+        </div>
+        <div className="ds-themes">
+          {APP_THEME_LIST.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className={`ds-theme${appTheme === t.id ? " is-active" : ""}`}
+              onClick={() => setAppThemeState(setAppTheme(t.id))}
+            >
+              <span className="ds-theme-swatch">
+                {t.swatch.map((c) => <i key={c} style={{ background: c }} />)}
+              </span>
+              <span className="ds-theme-meta">
+                <span className="ds-theme-name">{t.name}</span>
+                <span className="ds-theme-note">{t.note}</span>
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div style={styles.section}>
-        <div style={styles.sectionTitle}>Кольори</div>
-        <div style={styles.grid}>
+      {/* ── Кольори ── */}
+      <div className="ds-section">
+        <div className="ds-section-title">Кольори</div>
+        <div className="ds-btn-row">
+          <button className="ds-btn ds-btn--danger" onClick={handleReset}>
+            Скинути все
+          </button>
+        </div>
+        <div className="ds-grid">
           {COLOR_VARS.map((v) => (
-            <div key={v.key} style={styles.row}>
+            <div key={v.key} className={`ds-row${isChanged(v) ? " is-changed" : ""}`}>
               <input
                 type="color"
-                style={styles.colorInput}
+                className="ds-color-input"
                 value={getDraft(v)}
                 onChange={(e) => handleDraftChange(v.key, e.target.value)}
               />
               <input
                 type="text"
-                style={styles.hexInput}
+                className="ds-hex-input"
                 value={getDraft(v)}
                 onChange={(e) => handleDraftChange(v.key, e.target.value)}
               />
               <button
-                className={`pp-field-save${isChanged(v) ? ' pp-field-save--visible' : ''}`}
+                className={`ds-save${isChanged(v) ? " is-visible" : ""}`}
                 onClick={() => handleConfirm(v)}
                 disabled={!isChanged(v)}
+                title="Зберегти"
               >
                 ✓
               </button>
-              <div>
-                <div style={styles.label}>{v.label}</div>
-                <div style={styles.varName}>{v.key}</div>
-              </div>
+              <span className="ds-row-meta">
+                <span className="ds-label">{v.label}</span>
+                <span className="ds-var">{v.key}</span>
+              </span>
             </div>
           ))}
         </div>
       </div>
 
-      <div style={styles.section}>
-        <div style={styles.sectionTitle}>Розміри шрифтів</div>
-        <div style={styles.grid}>
+      {/* ── Розміри шрифтів ── */}
+      <div className="ds-section">
+        <div className="ds-section-title">Розміри шрифтів</div>
+        <div className="ds-grid">
           {SIZE_VARS.map((v) => (
-            <div key={v.key} style={styles.row}>
+            <div key={v.key} className={`ds-row${isChanged(v) ? " is-changed" : ""}`}>
               <input
                 type="text"
-                style={styles.textInput}
+                className="ds-text-input"
                 value={getDraft(v)}
                 onChange={(e) => handleDraftChange(v.key, e.target.value)}
               />
               <button
-                className={`pp-field-save${isChanged(v) ? ' pp-field-save--visible' : ''}`}
+                className={`ds-save${isChanged(v) ? " is-visible" : ""}`}
                 onClick={() => handleConfirm(v)}
                 disabled={!isChanged(v)}
+                title="Зберегти"
               >
                 ✓
               </button>
-              <div>
-                <div style={styles.label}>{v.label}</div>
-                <div style={styles.varName}>{v.key}</div>
-              </div>
+              <span className="ds-row-meta">
+                <span className="ds-label">{v.label}</span>
+                <span className="ds-var">{v.key}</span>
+              </span>
             </div>
           ))}
         </div>
       </div>
 
-      <div style={styles.section}>
-        <div style={styles.sectionTitle}>Файли — відкриття папки</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", maxWidth: 500 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <span style={{ ...styles.label, minWidth: 120 }}>Режим папки:</span>
-            <label style={{ ...styles.label, display: "flex", alignItems: "center", gap: "0.3rem", cursor: "pointer" }}>
+      {/* ── Папка файлів ── */}
+      <div className="ds-section">
+        <div className="ds-section-title">Файли — відкриття папки</div>
+        <div className="ds-form">
+          <div className="ds-form-row">
+            <span className="ds-form-label">Режим папки</span>
+            <label className="ds-radio">
               <input
                 type="radio"
                 name="folderMode"
@@ -298,7 +280,7 @@ export default function DesignSettings() {
               />
               Локальна
             </label>
-            <label style={{ ...styles.label, display: "flex", alignItems: "center", gap: "0.3rem", cursor: "pointer" }}>
+            <label className="ds-radio">
               <input
                 type="radio"
                 name="folderMode"
@@ -313,13 +295,14 @@ export default function DesignSettings() {
               Мережа
             </label>
           </div>
+
           {fileSettings.folderMode === "network" && (
             <>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <span style={{ ...styles.label, minWidth: 120 }}>Мережевий шлях:</span>
+              <div className="ds-form-row">
+                <span className="ds-form-label">Мережевий шлях</span>
                 <input
                   type="text"
-                  style={{ ...styles.textInput, flex: 1 }}
+                  className="ds-text-input"
                   value={fileSettings.networkPath}
                   onChange={(e) => {
                     const next = { ...fileSettings, networkPath: e.target.value };
@@ -329,12 +312,12 @@ export default function DesignSettings() {
                   placeholder="//192.168.0.121/Client"
                 />
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <span style={{ ...styles.label, minWidth: 120 }}>Логін:</span>
+              <div className="ds-form-row">
+                <span className="ds-form-label">Логін</span>
                 <input
                   type="text"
-                  style={{ ...styles.textInput, flex: 1 }}
-                  value={fileSettings.networkUser || ''}
+                  className="ds-text-input"
+                  value={fileSettings.networkUser || ""}
                   onChange={(e) => {
                     const next = { ...fileSettings, networkUser: e.target.value };
                     setFileSettings(next);
@@ -343,12 +326,12 @@ export default function DesignSettings() {
                   placeholder="username"
                 />
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <span style={{ ...styles.label, minWidth: 120 }}>Пароль:</span>
+              <div className="ds-form-row">
+                <span className="ds-form-label">Пароль</span>
                 <input
                   type="password"
-                  style={{ ...styles.textInput, flex: 1 }}
-                  value={fileSettings.networkPass || ''}
+                  className="ds-text-input"
+                  value={fileSettings.networkPass || ""}
                   onChange={(e) => {
                     const next = { ...fileSettings, networkPass: e.target.value };
                     setFileSettings(next);
@@ -357,35 +340,31 @@ export default function DesignSettings() {
                   placeholder="••••••"
                 />
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <div className="ds-form-row">
                 <button
-                  className="adminButton"
-                  disabled={testStatus === 'loading'}
+                  className="ds-btn"
+                  disabled={testStatus === "loading"}
                   onClick={async () => {
-                    setTestStatus('loading');
-                    setTestMessage('');
+                    setTestStatus("loading");
+                    setTestMessage("");
                     try {
-                      const res = await axios.post('/api/client-files/test-network', {
+                      const res = await axios.post("/api/client-files/test-network", {
                         networkPath: fileSettings.networkPath,
                         networkUser: fileSettings.networkUser,
                         networkPass: fileSettings.networkPass,
                       });
-                      setTestStatus('ok');
-                      setTestMessage(res.data.message || "З'єднання успішне");
+                      setTestStatus("ok");
+                      setTestMessage(res.data.message || "З’єднання успішне");
                     } catch (e) {
-                      setTestStatus('error');
-                      setTestMessage(e.response?.data?.error || "Помилка з'єднання");
+                      setTestStatus("error");
+                      setTestMessage(e.response?.data?.error || "Помилка з’єднання");
                     }
                   }}
                 >
-                  <span>{testStatus === 'loading' ? 'Перевірка...' : "Тест з'єднання"}</span>
+                  {testStatus === "loading" ? "Перевірка…" : "Тест з’єднання"}
                 </button>
-                {testStatus === 'ok' && (
-                  <span style={{ color: 'var(--admingreen)', fontSize: '0.85rem' }}>{testMessage}</span>
-                )}
-                {testStatus === 'error' && (
-                  <span style={{ color: 'var(--adminred)', fontSize: '0.85rem' }}>{testMessage}</span>
-                )}
+                {testStatus === "ok" && <span className="ds-status ds-status--ok">{testMessage}</span>}
+                {testStatus === "error" && <span className="ds-status ds-status--err">{testMessage}</span>}
               </div>
             </>
           )}

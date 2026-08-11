@@ -111,6 +111,24 @@ const ClientSelectionModal = ({
       {/* Panel */}
       <div className="csm-panel">
 
+        {/* Search bar — зверху над списком */}
+        <div className="csm-search csm-search--top">
+          <button
+            type="button"
+            className={`adminButton csm-search-id-btn${searchId ? ' is-active' : ''}`}
+            onClick={() => handleSearchChangeId(!searchId)}
+          >
+            <span>Пошук по ID</span>
+          </button>
+          <input
+            type="text"
+            className="csm-search-input"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            placeholder={searchId ? "Пошук клієнта по ID..." : "Пошук клієнта по назві..."}
+          />
+        </div>
+
         {/* User list */}
         <div className="csm-list" ref={listRef}>
           {load && (
@@ -197,31 +215,6 @@ const ClientSelectionModal = ({
           {loadingMore && (
             <div className="csm-empty" style={{ opacity: 0.5 }}>Завантаження...</div>
           )}
-        </div>
-
-        {/* Search bar — знизу */}
-        <div className="csm-search">
-          <button
-            type="button"
-            className={`adminButton csm-search-id-btn${searchId ? ' is-active' : ''}`}
-            onClick={() => handleSearchChangeId(!searchId)}
-          >
-            <span>Пошук по ID</span>
-          </button>
-          <input
-            type="text"
-            className="csm-search-input"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            placeholder={searchId ? "Пошук клієнта по ID..." : "Пошук клієнта по назві..."}
-          />
-          <button
-            type="button"
-            className="adminButton csm-create-btn"
-            onClick={() => setModalVisible(true)}
-          >
-            <span className="csm-create-btn-text">Створити клієнта</span>
-          </button>
         </div>
 
       </div>

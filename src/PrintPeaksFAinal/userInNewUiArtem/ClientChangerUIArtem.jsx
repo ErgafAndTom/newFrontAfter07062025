@@ -37,7 +37,7 @@ const formatPhone = (phone) => {
   return phone.startsWith('+') ? phone : '+' + phone;
 };
 
-const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hidePaymentPanel = false, actionButtonSlot = null, statusTrackSlot = null, onClientError = null, deadlinePortalTarget = null, hideStepCounter = false }) => {
+const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hidePaymentPanel = false, actionButtonSlot = null, statusTrackSlot = null, onClientError = null, deadlinePortalTarget = null, hideIdentity = false, hideStepCounter = false }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
   const [showAddUser, setShowAddUser] = useState(false);
@@ -478,8 +478,53 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
     </button>
   );
 
+  // Клієнта могли змінити з шапки в навбарі — підхоплюємо новий стан
+  useEffect(() => {
+    const handler = (e) => {
+      const order = e.detail;
+      if (order?.id && order.id === thisOrder?.id) {
+        setThisOrder(order);
+        if (order.OrderUnits) setSelectedThings2?.(order.OrderUnits);
+      }
+    };
+    window.addEventListener('pp-order-updated', handler);
+    return () => window.removeEventListener('pp-order-updated', handler);
+  }, [thisOrder?.id, setThisOrder, setSelectedThings2]);
+
+  /* Останній відкритий наряд — щоб навбар показував клієнта й номер і
+     після переходу на інші сторінки, де цього компонента вже немає.
+     Nav читає той самий ключ і слухає подію (див. Nav.js). */
+  useEffect(() => {
+    if (!thisOrder?.id) return;
+    /* Набір полів мусить збігатися зі snapshotFromOrder у NavOrderHead:
+       обидва пишуть той самий ключ, і бідніший знімок «гасив» би в шапці
+       дату, логотип компанії та кнопку «Профіль компанії». */
+    const snapshot = {
+      orderId: thisOrder.id,
+      createdAt: thisOrder.createdAt || null,
+      client: thisOrder.client ? {
+        id: thisOrder.client.id,
+        firstName: thisOrder.client.firstName,
+        lastName: thisOrder.client.lastName,
+        familyName: thisOrder.client.familyName,
+        phoneNumber: thisOrder.client.phoneNumber,
+        photoLink: thisOrder.client.photoLink,
+        telegram: thisOrder.client.telegram,
+        companyId: thisOrder.client.Company?.id || null,
+        companyName: thisOrder.client.Company?.companyName || null,
+        companyPhoto: thisOrder.client.Company?.photoLink || null,
+        discount: companyDiscountNum || 0,
+        vchasno: Boolean(thisOrder.client.vchasno),
+      } : null,
+    };
+    try { localStorage.setItem('printpeaks_last_order', JSON.stringify(snapshot)); } catch {}
+    window.dispatchEvent(new CustomEvent('pp-last-order', { detail: snapshot }));
+  }, [thisOrder?.id, thisOrder?.createdAt, thisOrder?.client?.id, thisOrder?.client?.photoLink,
+      thisOrder?.client?.Company?.id, thisOrder?.client?.Company?.companyName,
+      thisOrder?.client?.Company?.photoLink, thisOrder?.client?.vchasno, companyDiscountNum]);
+
   return (
-    <div className={`nui-client-envelope-shell tone-${progressCounterTone}`} >
+    <div className={`nui-client-envelope-shell tone-${progressCounterTone}${hideIdentity ? ' is-identity-ported' : ''}`} >
       {deadlinePortalTarget && ReactDOM.createPortal(deadlineButtonEl, deadlinePortalTarget)}
       <div className="nui-client-envelope-grid">
         <div className="nui-client-envelope-card">
