@@ -4,9 +4,12 @@ import { usePortalDropdown } from "./newnomodals/usePortalDropdown";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
-import { ScModal, ScSection, ScCountSize, ScPricing, ScAddButton } from "./shared";
 import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
-import "./Poslugy.css";
+import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
+
+/* Та сама розмітка й той самий CSS, що в еталонного цифрового друку
+   (NewSheetCutV2) — вузький варіант, без стрічки виробів. */
+import "./NewSheetCutV2.css";
 
 // ========== DEFAULTS ==========
 const DEFAULTS = {
@@ -63,9 +66,12 @@ const NewMagnets = ({
   const [count, setCount] = useState(DEFAULTS.count);
   const [error, setError] = useState(null);
 
+  // тема стежить за глобальною темою застосунку (перемикач у Nav)
+  const [theme, setTheme] = useState(getStoredAppTheme);
+  useEffect(() => onAppThemeChange(setTheme), []);
+
   // Dropdowns
   const [materials, setMaterials] = useState([]);
-  const { open: sizeDropdownOpen, setOpen: setSizeDropdownOpen, style: dropStyleSize, toggle: toggleSize, triggerRef: sizeDropdownRef, portalRef: portalSizeRef } = usePortalDropdown();
   const { open: materialDropdownOpen, setOpen: setMaterialDropdownOpen, style: dropStyleMaterial, toggle: toggleMaterial, triggerRef: materialDropdownRef, portalRef: portalMaterialRef } = usePortalDropdown();
 
   // Pricing hook
@@ -172,12 +178,10 @@ const NewMagnets = ({
   const handleSizeSelect = (format) => {
     if (format.custom) {
       setIsCustomSize(true);
-      setSizeDropdownOpen(false);
       return;
     }
     setIsCustomSize(false);
     setSize({ x: format.x, y: format.y });
-    setSizeDropdownOpen(false);
   };
 
   const handleCustomSizeChange = (field, value) => {
@@ -218,8 +222,6 @@ const NewMagnets = ({
   };
 
   // ========== RENDER HELPERS ==========
-  const selectedSizeFormat = SIZE_FORMATS.find((f) => !f.custom && f.x === size.x && f.y === size.y);
-  const sizeTitle = isCustomSize ? "Задати свій розмір" : (selectedSizeFormat?.name || `${size.x} x ${size.y} мм`);
   const materialTitle = material?.material || "Виберіть матеріал";
 
   // ========== PRICING DATA ==========
@@ -231,124 +233,179 @@ const NewMagnets = ({
       ]
     : [];
 
-  const pricingExtras = pricesThis
-    ? [{ label: "За виріб", value: `${fmt2(pricesThis.priceForItemWithExtras || 0)} грн` }]
-    : [];
 
   // ========== RENDER ==========
+
+  const totalPrice = Number(pricesThis?.price) || 0;
+
+  const headSpec = [
+    `${size.x}×${size.y} мм`,
+    material?.material || null,
+  ].filter(Boolean).join(" · ");
+
+  /* Готові формати без службового пункту «Задати свій розмір» — власний
+     розмір тепер живе окремою плиткою просто в сітці */
+  const sizePresets = SIZE_FORMATS.filter((f) => !f.custom);
+
+  if (!showNewMagnets) return null;
+
   return (
-    <ScModal
-      show={showNewMagnets}
-      onClose={handleClose}
-      modalStyle={{ width: "45vw" }}
-      modalClassName="sc-modal-magnets"
-      rightContent={
-        <>
-          <ScPricing
-            lines={pricingLines}
-            totalPrice={Number(pricesThis?.price) || 0}
-            extras={pricingExtras}
-            fmt={fmt2}
-            countUnit="м2"
-          />
-          <ScAddButton onClick={handleSave} isEdit={isEdit} />
-        </>
-      }
-      errorContent={
-        error && (
-          <div className="sc-error">
+    <>
+      <div className="v2-overlay" onClick={handleClose} />
+      <div className={`v2-modal v2-modal-narrow v2-theme-${theme}`} onClick={(e) => e.stopPropagation()}>
+
+        {/* ШАПКА */}
+        <div className="v2-head">
+          <div className="v2-head-main">
+            <span className="v2-head-title">Магніти</span>
+            <div className="v2-head-spec">{headSpec}</div>
+          </div>
+          <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
+            &times;
+          </button>
+        </div>
+
+        {/* ТІЛО — виробів тут немає, тож і лівої стрічки теж */}
+        <div className="v2-body">
+          <div className="v2-left">
+
+            {/* РОЗМІР */}
+            <div className="v2-section">
+              <span className="v2-label">Розмір у міліметрах</span>
+              <div className="v2-sizes">
+                {sizePresets.map((f) => (
+                  <button
+                    key={f.name}
+                    className={`v2-size${!isCustomSize && size.x === f.x && size.y === f.y ? " active" : ""}`}
+                    onClick={() => handleSizeSelect(f)}
+                  >
+                    {f.name.split(" ")[0]}
+                  </button>
+                ))}
+                <div className={`v2-size v2-size-custom${isCustomSize ? " active" : ""}`}>
+                  <input
+                    type="number"
+                    min={1}
+                    value={size.x}
+                    onChange={(e) => { setIsCustomSize(true); handleCustomSizeChange("x", e.target.value); }}
+                  />
+                  <span>×</span>
+                  <input
+                    type="number"
+                    min={1}
+                    value={size.y}
+                    onChange={(e) => { setIsCustomSize(true); handleCustomSizeChange("y", e.target.value); }}
+                  />
+                  <span>мм</span>
+                </div>
+              </div>
+            </div>
+
+            {/* МАТЕРІАЛ */}
+            <div className="v2-section">
+              <span className="v2-label">Матеріал</span>
+              <div className="v2-material-wrap">
+                <div
+                  className={`custom-select-container selectArtem selectArtemBefore${material.materialId ? " sc-has-value" : ""}`}
+                  ref={materialDropdownRef}
+                  style={{ width: "100%" }}
+                >
+                  <div className="custom-select-header" onClick={toggleMaterial}>
+                    {materialTitle}
+                  </div>
+                  {materialDropdownOpen && ReactDOM.createPortal(
+                    <div
+                      className={`custom-select-dropdown v2-dropdown v2-theme-${theme}`}
+                      ref={portalMaterialRef}
+                      style={dropStyleMaterial}
+                    >
+                      {materials.map((item) => (
+                        <div
+                          key={item.id}
+                          className={`custom-option ${String(item.id) === String(material?.materialId) ? "active" : ""}`}
+                          onClick={() => handleMaterialSelect(item)}
+                        >
+                          <span className="name">{item.name}</span>
+                        </div>
+                      ))}
+                    </div>,
+                    document.body
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ПРАВОРУЧ — НАРЯД */}
+          <div className="v2-right">
+            <div className="v2-run">
+              <span className="v2-run-label">Наклад, шт</span>
+              <div className="v2-count-row">
+                <button className="v2-count-btn" onClick={() => setCount(Math.max(1, count - 1))}>−</button>
+                <input
+                  className="v2-count-val"
+                  type="number"
+                  value={count}
+                  min={1}
+                  onChange={(e) => setCount(Math.max(1, Number(e.target.value) || 1))}
+                />
+                <button className="v2-count-btn" onClick={() => setCount(count + 1)}>+</button>
+              </div>
+            </div>
+
+            <div className="v2-prices-title">Калькуляція</div>
+            <div className="v2-prices">
+              {pricingLines.map((line, i) => {
+                const isZero = Math.round((line.total || 0) * 100) === 0;
+                const hasBreakdown = !isZero && line.count > 0 && line.perUnit > 0;
+                return (
+                  <div className={`v2-price-row${isZero ? " is-zero" : ""}`} key={i}>
+                    <span>{line.label}</span>
+                    <i className="v2-lead" />
+                    <span className="v2-price-val">
+                      {hasBreakdown && (
+                        <span className="v2-price-calc">
+                          {fmt2(line.count)} м² × {fmt2(line.perUnit)} ={" "}
+                        </span>
+                      )}
+                      {fmt2(line.total)} грн
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="v2-total">
+              <div className="v2-total-price">
+                {fmt2(totalPrice)} <span className="v2-total-unit">грн</span>
+              </div>
+              <div className="v2-total-sub">
+                <span>За виріб</span>
+                <span>{fmt2(pricesThis?.priceForItemWithExtras || 0)} грн</span>
+              </div>
+              <div className="v2-total-sub">
+                <span>Площа</span>
+                <span>{fmt2(totalM2)} м²</span>
+              </div>
+            </div>
+
+            <button className="v2-add-btn" onClick={handleSave} disabled={!thisOrder?.id}>
+              <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
+              <span className="v2-add-btn-label">
+                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* ПОМИЛКА */}
+        {error && (
+          <div className="v2-error">
             {typeof error === "string" ? error : error?.response?.data?.error || "Помилка"}
           </div>
-        )
-      }
-    >
-      {/* 1. Кількість + Розмір */}
-      <ScCountSize
-        count={count}
-        onCountChange={(v) => setCount(v)}
-        sizeComponent={
-          <div style={{ width: "100%" }}>
-            <div
-              className={`custom-select-container selectArtem selectArtemBefore${sizeTitle ? " sc-has-value" : ""}`}
-              ref={sizeDropdownRef}
-              style={{ zIndex: 10, width: "100%" }}
-            >
-              <div
-                className="custom-select-header"
-                onClick={toggleSize}
-              >
-                {sizeTitle}
-              </div>
-              {sizeDropdownOpen && ReactDOM.createPortal(
-                <div className="custom-select-dropdown" ref={portalSizeRef} style={dropStyleSize}>
-                  {SIZE_FORMATS.map((item) => (
-                    <div
-                      key={item.name}
-                      className={`custom-option ${item.name === sizeTitle ? "active" : ""}`}
-                      onClick={() => handleSizeSelect(item)}
-                    >
-                      <span className="name">{item.name}</span>
-                    </div>
-                  ))}
-                </div>,
-                document.body
-              )}
-            </div>
-            {isCustomSize && (
-              <div className="d-flex align-items-center justify-content-center" style={{ gap: "8px", marginTop: "8px" }}>
-                <input
-                  className="inputsArtem"
-                  type="number"
-                  min={1}
-                  value={size.x}
-                  onChange={(e) => handleCustomSizeChange("x", e.target.value)}
-                />
-                <span style={{ color: "var(--admingrey)", fontWeight: 600 }}>x</span>
-                <input
-                  className="inputsArtem"
-                  type="number"
-                  min={1}
-                  value={size.y}
-                  onChange={(e) => handleCustomSizeChange("y", e.target.value)}
-                />
-                <span className="inputsArtemx" style={{ border: "transparent" }}>мм</span>
-              </div>
-            )}
-          </div>
-        }
-      />
-
-      {/* 2. Матеріал */}
-      <ScSection title="" style={{ position: "relative", zIndex: 5 }}>
-        <div
-          className={`custom-select-container selectArtem selectArtemBefore${material.materialId ? " sc-has-value" : ""}`}
-          ref={materialDropdownRef}
-          style={{ width: "100%" }}
-        >
-          <div
-            className="custom-select-header"
-            onClick={toggleMaterial}
-          >
-            {materialTitle}
-          </div>
-          {materialDropdownOpen && ReactDOM.createPortal(
-            <div className="custom-select-dropdown" ref={portalMaterialRef} style={dropStyleMaterial}>
-              {materials.map((item) => (
-                <div
-                  key={item.id}
-                  className={`custom-option ${String(item.id) === String(material?.materialId) ? "active" : ""}`}
-                  onClick={() => handleMaterialSelect(item)}
-                >
-                  <span className="name">{item.name}</span>
-                </div>
-              ))}
-            </div>,
-            document.body
-          )}
-        </div>
-      </ScSection>
-
-    </ScModal>
+        )}
+      </div>
+    </>
   );
 };
 

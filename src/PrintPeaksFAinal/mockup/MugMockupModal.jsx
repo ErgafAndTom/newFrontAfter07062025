@@ -156,8 +156,11 @@ export default function MugMockupModal({ orderId, onClose }) {
 
                 {/* Header */}
                 <div className="mmm-header">
-                    <span className="mmm-title">МАКЕТ ЧАШКИ — Замовлення №{orderId}</span>
-                    <button className="mmm-close" onClick={onClose}>✕</button>
+                    <div className="mmm-head-main">
+                        <span className="mmm-title">Макет чашки</span>
+                        <div className="mmm-head-spec">Замовлення №{orderId}</div>
+                    </div>
+                    <button className="mmm-close" onClick={onClose} aria-label="Закрити">✕</button>
                 </div>
 
                 <div className="mmm-body">
@@ -194,7 +197,9 @@ export default function MugMockupModal({ orderId, onClose }) {
                             className="mmm-btn mmm-btn-upload"
                             onClick={() => fileInputRef.current?.click()}
                         >
-                            Завантажити фото
+                            {/* текст обов'язково окремим елементом: заливку ховера
+                                малює ::before, і без власного шару вона накрила б напис */}
+                            <span className="mmm-btn-text">Завантажити фото</span>
                         </button>
 
                         {/* Sliders */}
@@ -240,7 +245,9 @@ export default function MugMockupModal({ orderId, onClose }) {
                                 onClick={handleSave}
                                 disabled={saving}
                             >
-                                {saving ? 'Збереження...' : 'Створити посилання'}
+                                <span className="mmm-btn-text">
+                                    {saving ? 'Збереження...' : 'Створити посилання'}
+                                </span>
                             </button>
                         )}
 
@@ -249,7 +256,9 @@ export default function MugMockupModal({ orderId, onClose }) {
                             <div className="mmm-share-block">
                                 <div className="mmm-share-url">{shareLink}</div>
                                 <button className="mmm-btn mmm-btn-copy" onClick={handleCopy}>
-                                    {copied ? '✓ Скопійовано' : 'Скопіювати посилання'}
+                                    <span className="mmm-btn-text">
+                                        {copied ? '✓ Скопійовано' : 'Скопіювати посилання'}
+                                    </span>
                                 </button>
                             </div>
                         )}

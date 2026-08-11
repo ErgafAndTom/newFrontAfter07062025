@@ -15,6 +15,9 @@
   position: fixed;
   inset: 0;
   background: rgba(28, 26, 22, 0.42);
+  /* розмиття підкладки — як у модалці чорно-білого друку (.bw-overlay) */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   z-index: 9998;
   animation: v2-fade 0.16s ease-out;
 }
@@ -176,11 +179,16 @@
    мішає акцент у плитку, а не в білий — інакше вийшла б яскрава мятна
    пляма на темному тлі замість тонкого тонування */
 .v2-modal.v2-theme-dark {
-  --v2-ink: #d7d4cd;
-  --v2-ground: #201e1b;
-  --v2-tile: #2b2925;
-  --v2-tile-hi: #363330;
-  --v2-card: #262420;
+  /* Нейтральна сіра шкала без теплого (бежевого) підмісу — дзеркало
+     монохромної світлої теми. Раніше тут був коричнюватий тон (#201e1b
+     тощо), успадкований від бежевої бази; після переведення світлої теми
+     на чорний/сірий/білий він вибивався теплою плямою на нейтральному
+     темному фоні застосунку. */
+  --v2-ink: #e8e8e8;
+  --v2-ground: #1a1a1a;
+  --v2-tile: #262626;
+  --v2-tile-hi: #323232;
+  --v2-card: #1f1f1f;
   --v2-line: rgba(255, 255, 255, 0.10);
   --v2-line-strong: rgba(255, 255, 255, 0.22);
   --v2-active-bg: color-mix(in srgb, var(--v2-accent) 22%, var(--v2-tile));
@@ -2196,7 +2204,12 @@
   scrollbar-width: thin;
 }
 
-/* === світла тема — той самий монохромний рецепт, що й .v2-modal.v2-theme-light === */
+/* === світла тема — той самий монохромний рецепт, що й .v2-modal.v2-theme-light ===
+   Дублюємо селектор через :root[data-theme] — портал живе в <body>, тобто
+   ВСЕРЕДИНІ <html data-theme>, тож цей селектор працює завжди, навіть коли
+   підкомпонент забув передати dropdownClassName (а таких досі трапляється:
+   через це у світлій темі лишалась зелена заливка вибраного матеріалу). */
+:root[data-theme="light"] .v2-dropdown,
 .v2-dropdown.v2-theme-light {
   /* невибрані пункти — темно-сірий текст; фон списку завжди білий,
      вибір позначає лише колір/вага тексту, без заливки-плями */
@@ -2205,23 +2218,29 @@
   --v2-tile-hi: #f5f5f5;
   --v2-line: rgba(0, 0, 0, 0.08);
   --v2-line-strong: rgba(0, 0, 0, 0.2);
-  --v2-active-bg: #ffffff;
+  /* вибраний матеріал — сіра плашка замість зеленої */
+  --v2-active-bg: #ededed;
 }
 
+:root[data-theme="light"] .v2-dropdown .custom-option.active,
 .v2-dropdown.v2-theme-light .custom-option.active {
+  background: var(--v2-active-bg) !important;
   box-shadow: inset 3px 0 0 #000000;
 }
 
+:root[data-theme="light"] .v2-dropdown .custom-option.active .name,
+:root[data-theme="light"] .v2-dropdown .custom-option.active .gsm-sub sub,
 .v2-dropdown.v2-theme-light .custom-option.active .name,
 .v2-dropdown.v2-theme-light .custom-option.active .gsm-sub sub {
   color: #000000 !important;
 }
 
 /* === темна тема — світлішають лінії/текст, підсвітка вибраного темніша === */
+:root[data-theme="dark"] .v2-dropdown,
 .v2-dropdown.v2-theme-dark {
-  --v2-ink: #d7d4cd;
-  --v2-tile: #2b2925;
-  --v2-tile-hi: #363330;
+  --v2-ink: #e8e8e8;
+  --v2-tile: #262626;
+  --v2-tile-hi: #323232;
   --v2-line: rgba(255, 255, 255, 0.1);
   --v2-line-strong: rgba(255, 255, 255, 0.22);
   --v2-active-bg: color-mix(in srgb, var(--v2-accent) 22%, var(--v2-tile));
@@ -2326,4 +2345,728 @@
 
 .v2-dropdown::-webkit-scrollbar-thumb:hover {
   background: var(--v2-ink);
+}
+
+/* ==========================================================================
+   ПОВЗУНКИ РОЗМІРУ всередині модалки (широкоформат, магніти)
+
+   Розмітка приходить із SlidersComponent і базово стилізована в
+   shared/sc-base.css. Там заповнену частину доріжки малює сам браузер
+   системним accent-color — синім, який не належить жодній нашій темі.
+   Тут повзунок підпорядковано темі модалки: у бежевій і темній він
+   зелений, у світлій — чорний, як і решта «вибраного» в цій темі.
+   ========================================================================== */
+
+/* Заповнену частину доріжки малює інлайновий градієнт у SlidersComponent —
+   інлайн не перебити зовнішнім CSS, тому компонент бере кольори звідси:
+   пройдена частина — темно-сіра, залишок — світло-сірий. */
+.v2-modal {
+  --sc-slider-fill: #55534e;
+  --sc-slider-track: #e4e2db;
+}
+
+.v2-modal.v2-theme-light {
+  --sc-slider-fill: #4a4a4a;
+  --sc-slider-track: #e0e0e0;
+}
+
+.v2-modal.v2-theme-dark {
+  --sc-slider-fill: #9c968c;
+  --sc-slider-track: rgba(255, 255, 255, 0.12);
+}
+
+.v2-modal .sc-slider {
+  accent-color: var(--v2-select);
+}
+
+/* ==========================================================================
+   ВУЗЬКИЙ ВАРІАНТ — послуги без стрічки виробів (ламінація, сканування…).
+   Там немає ані лівого рейлу, ані десятка секцій, тож повна ширина 1700px
+   лишила б половину модалки порожньою.
+   ========================================================================== */
+
+.v2-modal.v2-modal-narrow {
+  width: min(1176px, 94%);
+}
+
+/* середній варіант — послуги зі стрічкою виробів, але з коротким набором
+   параметрів (фотодрук): рейл потрібен, а повні 1700px — ні */
+.v2-modal.v2-modal-mid {
+  width: min(1360px, 96%);
+}
+
+
+.v2-modal .sc-slider::-webkit-slider-thumb {
+  background: var(--v2-select);
+}
+
+.v2-modal .sc-slider::-moz-range-thumb {
+  background: var(--v2-select);
+}
+
+/* «взявся тягнути» — помаранчевий сигнал дії лишається в усіх темах,
+   бо це не колір стану, а колір активної взаємодії */
+.v2-modal .sc-slider:active::-webkit-slider-thumb {
+  background: var(--v2-action);
+}
+
+.v2-modal .sc-slider::-webkit-slider-thumb:hover,
+.v2-modal .sc-slider::-moz-range-thumb:hover {
+  box-shadow: none;
+}
+
+.v2-modal .sc-slider-val {
+  font-family: var(--v2-mono);
+  font-size: var(--v2-fs-num);
+  font-variant-numeric: tabular-nums;
+  color: var(--v2-ink);
+}
+
+.v2-modal .sc-slider-max {
+  font-family: var(--v2-font);
+  font-size: var(--v2-fs-eyebrow);
+  font-stretch: 87.5%;
+  text-transform: uppercase;
+  letter-spacing: var(--v2-track-wide);
+  color: var(--v2-ink);
+  opacity: 0.6;
+}
+
+/* ==========================================================================
+   УСПАДКОВАНІ ЕЛЕМЕНТИ КЕРУВАННЯ ВСЕРЕДИНІ V2-МОДАЛКИ
+
+   Підкомпоненти послуг (матеріали, постобробка, кольори пружини) малюють
+   свої кнопки й поля класами .buttonsArtem / .inputsArtem / .selectArtem —
+   їхній базовий вигляд живе в newnomodals/ArtemStyles.css і він
+   помаранчевий, із заокругленнями. Модалки, переведені на V2, більше не
+   тягнуть sc-base.css, який колись це перебивав, тож правила переїхали
+   сюди — у сам еталон. Діють лише всередині .v2-modal.
+   ========================================================================== */
+
+/* --------------------------- КНОПКИ-ПЛИТКИ --------------------------- */
+
+.v2-modal .buttonsArtem {
+  box-sizing: border-box;
+  width: auto;
+  min-width: 0;
+  height: var(--v2-h-btn);
+  min-height: var(--v2-h-btn);
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-btn);
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--v2-ink);
+  background: var(--v2-tile);
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.v2-modal .buttonsArtem > div {
+  position: relative;
+  z-index: 3;
+  color: inherit;
+}
+
+/* стара анімація рамки не входить у плаский стиль */
+.v2-modal .buttonsArtem::before,
+.v2-modal .buttonsArtem::after {
+  display: none;
+}
+
+.v2-modal .buttonsArtem:not(.buttonsArtemActive):hover {
+  background: var(--v2-tile-hi);
+  border-bottom-color: var(--v2-line-strong);
+}
+
+.v2-modal .buttonsArtem.buttonsArtemActive {
+  color: var(--v2-active-fg);
+  background: var(--v2-active-bg);
+  border-bottom-color: var(--v2-select);
+}
+
+.v2-modal .buttonsArtem.buttonsArtemActive > div {
+  color: var(--v2-active-fg);
+}
+
+/* ----------------------------- ПОЛЯ ВВОДУ ----------------------------- */
+
+.v2-modal .inputsArtem {
+  box-sizing: border-box;
+  height: var(--v2-h-ctrl);
+  padding: 0 10px;
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-ctrl);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--v2-ink);
+  background: var(--v2-tile);
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  outline: none;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.v2-modal .inputsArtem:hover {
+  background: var(--v2-tile-hi);
+  border-bottom-color: var(--v2-line-strong);
+}
+
+.v2-modal .inputsArtem:focus {
+  background: var(--v2-tile-hi);
+  border-bottom-color: var(--v2-select);
+  box-shadow: none;
+}
+
+.v2-modal .inputsArtem::placeholder {
+  color: var(--v2-ink);
+  opacity: 0.38;
+}
+
+/* службові написи біля полів («мм», «шт») — без помаранчевого підкреслення */
+.v2-modal .inputsArtemx {
+  font-family: var(--v2-font);
+  font-size: var(--v2-fs-eyebrow);
+  text-transform: uppercase;
+  letter-spacing: var(--v2-track-wide);
+  color: var(--v2-ink);
+  opacity: 0.6;
+  background: transparent;
+  border: none;
+  border-bottom: none;
+}
+
+/* --------------------------- ВИПАДАЮЧІ СПИСКИ --------------------------- */
+
+.v2-modal .custom-select-container,
+.v2-modal .selectArtem {
+  box-sizing: border-box;
+  /* та сама висота, що й у кнопок поруч — випадайка стоїть із ними
+     в одному ряду і не має вибиватися з лінійки */
+  height: var(--v2-h-btn);
+  min-height: var(--v2-h-btn);
+  display: flex;
+  align-items: center;
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-ctrl);
+  color: var(--v2-ink);
+  background: var(--v2-tile);
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.v2-modal .custom-select-header {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+}
+
+.v2-modal .custom-select-container:hover {
+  background: var(--v2-tile-hi);
+  border-bottom-color: var(--v2-line-strong);
+}
+
+.v2-modal .custom-select-container.sc-has-value {
+  border-bottom-color: var(--v2-select);
+}
+
+.v2-modal .custom-select-header {
+  font-family: var(--v2-font-ui);
+  color: var(--v2-ink);
+}
+
+/* ------------------------- ПІДПИСИ ПІДРОЗДІЛІВ -------------------------
+   Підкомпоненти підписують свої блоки класом .sc-title — усередині
+   V2-модалки він читається як eyebrow, а не як звичайний текст. */
+
+.v2-modal .sc-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--v2-font);
+  font-size: var(--v2-fs-eyebrow);
+  font-weight: 500 !important;
+  font-stretch: 87.5%;
+  text-transform: uppercase;
+  letter-spacing: var(--v2-track-wide);
+  color: var(--v2-ink);
+  opacity: 0.6;
+  margin: 0 !important;
+}
+
+/* Роздільник між групами («Основа», «Блок з місяцями», «Кріплення») —
+   це прямий нащадок колонки, тож він тягне волосяну лінію до краю.
+   Підписи всередині рядків («Кількість аркушів:») лінії не отримують. */
+.v2-modal .v2-left > .sc-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--v2-line-strong);
+}
+
+.v2-modal .v2-left > .sc-title {
+  margin-top: 6px !important;
+}
+
+/* --------------------------- ДРІБНІ ЕЛЕМЕНТИ --------------------------- */
+
+/* хрестик видалення кольору пружини */
+.v2-modal .buttonsArtem + span {
+  color: var(--v2-ink);
+  opacity: 0.5;
+  font-weight: 400 !important;
+  transition: opacity 0.12s, color 0.12s;
+}
+
+.v2-modal .buttonsArtem + span:hover {
+  color: var(--adminred, #c0392b);
+  opacity: 1;
+}
+
+.v2-modal .buttonsArtemActive + span {
+  color: var(--v2-active-fg);
+}
+
+/* ---------------- УСПАДКОВАНІ СЕКЦІЇ Й КНОПКИ ВИБОРУ ----------------
+   Підтипи послуг (наприклад квартальний календар) складені з .sc-side-btn
+   у .sc-sides та карток .sc-section-card. Раніше їх фарбував sc-base.css;
+   у V2-модалці вони мають ту саму мову, що й .v2-size/.v2-side. */
+
+.v2-modal .sc-section,
+.v2-modal .sc-section-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.v2-modal .sc-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.v2-modal .sc-sides {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.v2-modal .sc-side-btn {
+  flex: 1;
+  min-width: 0;
+  height: var(--v2-h-btn);
+  padding: 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-btn);
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--v2-ink);
+  background: var(--v2-tile);
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.v2-modal .sc-side-btn::before,
+.v2-modal .sc-side-btn::after {
+  display: none;
+}
+
+.v2-modal .sc-side-btn:not(.sc-side-active):hover {
+  background: var(--v2-tile-hi);
+  border-bottom-color: var(--v2-line-strong);
+}
+
+.v2-modal .sc-side-btn.sc-side-active {
+  color: var(--v2-active-fg);
+  background: var(--v2-active-bg);
+  border-bottom-color: var(--v2-select);
+}
+
+.v2-modal .sc-side-btn .sc-side-text {
+  position: relative;
+  z-index: 2;
+  color: inherit;
+}
+
+/* ------------------- НАТИВНІ SELECT І CHECKBOX -------------------
+   Дрібні підкомпоненти (кількість люверсів, «бігунок») малюють системні
+   елементи — у модалці вони мають виглядати як решта керування. */
+
+.v2-modal select:not(.v2-count-val) {
+  box-sizing: border-box;
+  height: var(--v2-h-ctrl);
+  padding: 0 10px;
+  font-family: var(--v2-font-ui);
+  font-size: var(--v2-fs-ctrl);
+  color: var(--v2-ink);
+  background: var(--v2-tile);
+  border: none;
+  border-bottom: 2px solid var(--v2-select);
+  border-radius: 0;
+  outline: none;
+  cursor: pointer;
+}
+
+.v2-modal input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--v2-select);
+  cursor: pointer;
+}
+
+/* пояснення в дужках біля полів («стандарт 36 = 12 міс. × 3 квартали») */
+.v2-modal .v2-left span[style*="admingrey"] {
+  font-size: var(--v2-fs-eyebrow);
+  color: var(--v2-ink) !important;
+  opacity: 0.55;
+}
+
+/* ==========================================================================
+   СТАРИЙ СВІТЧ (label.switch) ВСЕРЕДИНІ V2-МОДАЛКИ
+
+   Підкомпоненти обкладинки/блоку/ламінації вмикають опції скошеним
+   світчем «OFF / НАЗВА» з sc-base. Усередині .v2-toggle він просто
+   ховається (там свій .v2-sw), але в секціях на кшталт «Обкладинка»
+   він єдиний перемикач — тож не ховаємо, а перемальовуємо його тим
+   самим квадратним чекбоксом, що й решта V2.
+   ========================================================================== */
+
+.v2-modal .v2-left label.switch {
+  width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  /* світч завжди відділений від того, що стоїть за ним, — байдуже, назва
+     це операції чи одразу смуга кнопок */
+  margin: 0 10px 0 0 !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 10px;
+  overflow: visible;
+  background: transparent !important;
+  border: none !important;
+  transition: none;
+}
+
+/* Ввімкнений стан більше не розсовує світч удвічі. Від'ємний margin-right
+   (-3.5rem у sc-base) з'їдав відступ до сусідніх кнопок — тому тут не
+   нуль, а той самий крок, що й у вимкненому стані. */
+.v2-modal .v2-left label.switch:has(input:checked) {
+  width: auto !important;
+  margin-right: 10px !important;
+}
+
+/* «OFF» не потрібен: вимкнений стан видно по порожньому квадрату */
+.v2-modal .v2-left .switch .switch-off {
+  display: none !important;
+}
+
+/* Підпис усередині світча теж не потрібен: над кожною секцією вже стоїть
+   свій eyebrow-заголовок («Обкладинка», «Блок»), а поруч зі світчем
+   підкомпонент малює власну назву — разом виходило подвоєння. */
+.v2-modal .v2-left .switch .switch-on {
+  display: none !important;
+}
+
+.v2-modal .v2-left .switch .switch-on--unused {
+  position: static !important;
+  left: auto !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  transform: none !important;
+  transition: color 0.15s;
+  font-family: var(--v2-font);
+  font-size: var(--v2-fs-eyebrow);
+  font-stretch: 87.5%;
+  text-transform: uppercase;
+  letter-spacing: var(--v2-track-wide);
+  color: var(--v2-ink) !important;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+.v2-modal .v2-left .switch .switch-on span {
+  transform: none !important;
+  color: inherit !important;
+}
+
+/* Підпис поруч зі світчем лишається видимим — це назва операції
+   («Ламінування»), як у рядках постобробки цифрового друку. Службові
+   назви блоків прибрані в самих підкомпонентах, а не тут. */
+.v2-modal .v2-left label.switch + .sc-title {
+  margin: 0 !important;
+  /* назва операції читається як у рядках постобробки цифрового друку
+     (.v2-toggle-name): звичайний інтерфейсний шрифт, без розрідження */
+  font-family: var(--v2-font-ui) !important;
+  font-size: var(--v2-fs-btn);
+  font-weight: 500 !important;
+  font-stretch: normal;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--v2-ink);
+  opacity: 1;
+  gap: 0;
+}
+
+.v2-modal .v2-left label.switch + .sc-title::after {
+  content: none;
+}
+
+/* сам перемикач — квадрат 24×24 з галочкою, як .v2-sw */
+.v2-modal .v2-left .switch .slider {
+  order: -1;
+  position: static !important;
+  width: 24px !important;
+  height: 24px !important;
+  flex-shrink: 0;
+  transform: none !important;
+  border: 1px solid var(--v2-line-strong) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.v2-modal .v2-left .switch .slider::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 3px;
+  width: 6px;
+  height: 12px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.15s ease-out;
+}
+
+.v2-modal .v2-left .switch .slider {
+  position: relative !important;
+}
+
+.v2-modal .v2-left .switch input:checked ~ .slider {
+  width: 24px !important;
+  background: var(--v2-select) !important;
+  border-color: var(--v2-select) !important;
+}
+
+.v2-modal .v2-left .switch input:checked ~ .slider::after {
+  transform: rotate(45deg) scale(1);
+}
+
+/* обгортка світча зменшувала його до 56% — у V2 розмір задає сам світч */
+.v2-modal .v2-left .scale04ForButtonToggle {
+  transform: none;
+}
+
+
+/* Іконки в кнопках вибору (брошурування в буклеті й блокноті) — чорна
+   графіка на прозорому тлі. Коли плитка стає активною (чорна заливка),
+   іконка на ній зникає, тож інвертуємо її в білу. */
+.v2-modal .buttonsArtem.buttonsArtemActive img {
+  filter: brightness(0) invert(1);
+}
+
+/* у бежевій і темній темах активна плитка — світла підкладка акценту,
+   там іконка має лишатися темною */
+.v2-modal:not(.v2-theme-light) .buttonsArtem.buttonsArtemActive img {
+  filter: none;
+}
+
+
+/* Блок вибору матеріалу (кнопки товщини + випадайка в одному рядку) не має
+   вилазити за колонку: без min-width:0 flex-елемент не стискається вужче
+   за свій вміст і випадайка заходить під панель наряду. */
+.v2-modal .v2-material-wrap,
+.v2-modal .v2-material-wrap > div,
+.v2-modal .v2-material-wrap .allArtemElem,
+.v2-modal .v2-material-wrap .custom-select-container {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.v2-modal .v2-material-wrap {
+  overflow: hidden;
+}
+
+
+/* Підпис одиниці біля поля («грн за одиницю») — той самий кегль і шрифт,
+   що в головної дії «Додати в замовлення», і завжди в один рядок. */
+.v2-modal .v2-unit-note {
+  font-family: var(--v2-font-ui);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--v2-ink);
+  white-space: nowrap;
+}
+
+
+/* ==========================================================================
+   ВИПАДАЮЧІ СПИСКИ — ЄДИНИЙ ВИГЛЯД У ВСІХ МОДАЛКАХ
+
+   Компоненти-підкомпоненти ставлять частину геометрії інлайном (ширина
+   від вмісту, власна тінь, максимальна висота). Інлайн б'є будь-який
+   зовнішній CSS, тому те, що визначає впізнаваність списку — тінь,
+   заокруглення, рамка, товщина смуги прокрутки — фіксуємо через
+   !important, а розрахункові left/top/width лишаємо компонентам.
+   ========================================================================== */
+
+.v2-dropdown {
+  box-shadow: 0 14px 40px rgba(28, 26, 22, 0.22) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.v2-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.v2-dropdown::-webkit-scrollbar-thumb {
+  background: var(--v2-line-strong);
+  border-radius: 0;
+}
+
+.v2-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* пункт списку — однакова висота й ритм скрізь */
+.v2-dropdown .custom-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 0;
+  color: var(--v2-ink);
+  background: var(--v2-tile);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.v2-dropdown .custom-option + .custom-option {
+  border-top: 1px solid var(--v2-line);
+}
+
+.v2-dropdown .custom-option:hover {
+  background: var(--v2-tile-hi);
+}
+
+.v2-dropdown .custom-option .name {
+  font-size: var(--v2-fs-btn);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* службові числа (формат, щільність) — моно, приглушені */
+.v2-dropdown .gsm-sub,
+.v2-dropdown .gsm-sub sub {
+  font-family: var(--v2-mono);
+  font-size: var(--v2-fs-num);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+
+/* ==========================================================================
+   ВИПАДАЙКИ ПОЗА .v2-material-wrap І .v2-toggle
+
+   Обкладинка й блок (буклет, нотатник) малюють свої списки просто
+   в секції, тож правила для двох обгорток їх не діставали: лишався
+   синій трикутник з ArtemStyles і сіра рамка селекта. Ті самі правила,
+   але для всієї модалки.
+   ========================================================================== */
+
+/* службовий трикутник і «рука» з базових стилів — не потрібні */
+.v2-modal .selectArtemBefore::before,
+.v2-modal .custom-select-container::before {
+  display: none !important;
+}
+
+/* власний трикутник тієї самої форми, що в еталона */
+.v2-modal .custom-select-container::after {
+  content: ;
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--v2-line-strong);
+  pointer-events: none;
+}
+
+/* вибране значення — трикутник акцентом */
+.v2-modal .custom-select-container.sc-has-value::after {
+  border-top-color: var(--v2-select);
+}
+
+/* сіра рамка селекта з ArtemStyles — плаский стиль її не має */
+.v2-modal .selectArtem,
+.v2-modal select.selectArtem {
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+
+/* ==========================================================================
+   ОДНА КРОМКА НА ВИПАДАЙКУ
+
+   Контейнер випадайки несе класи .custom-select-container + .selectArtem
+   одночасно. .selectArtem з ArtemStyles додає власний border-bottom 3px
+   (жовтогарячий), і поверх плитки виходила друга, коротша смужка. Кромку
+   лишаємо рівно одну — на контейнері.
+   ========================================================================== */
+
+.v2-modal .selectArtem,
+.v2-modal .selectArtemBefore {
+  border-bottom: none !important;
+}
+
+.v2-modal .custom-select-header,
+.v2-modal .custom-select-header > * {
+  border: none !important;
+  border-bottom: none !important;
+}
+
+/* єдина кромка — на самому контейнері */
+.v2-modal .custom-select-container {
+  border-bottom: 2px solid transparent;
+}
+
+.v2-modal .custom-select-container.sc-has-value {
+  border-bottom-color: var(--v2-select);
 }

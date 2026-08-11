@@ -1,231 +1,388 @@
-/* ===== MugMockupModal ===== */
+/* ==========================================================================
+   MugMockupModal — візуалізація чашки у стилі PRINT V2
+
+   Еталон: poslugi/NewSheetCutV2.css, токени --ppm-* зі styles/ppModal.css
+   (підключені глобально в index.js), тому теми бежева/світла/темна
+   працюють автоматично.
+
+   Самої чашки стиль не торкається: 3D-сцена, її матеріали й палітра
+   кольорів чашок лишаються як були — змінено тільки оболонку модалки
+   й елементи керування навколо сцени.
+   ========================================================================== */
+
 .mmm-overlay {
     position: fixed;
     inset: 0;
     z-index: 10001;
-    background: rgba(0,0,0,0.45);
+    background: rgba(28, 26, 22, 0.42);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .mmm-modal {
-    background: var(--adminfon, #f7f5ee);
     width: 90vw;
-    max-width: 860px;
+    max-width: 1060px;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background: var(--ppm-ground);
+    border: none;
+    /* фірмова кромка зверху, нуль заокруглень */
+    border-top: 2px solid var(--ppm-select);
+    border-radius: 0;
+    box-shadow: 0 18px 60px rgba(28, 26, 22, 0.24);
+    font-family: var(--ppm-font-ui);
+    color: var(--ppm-ink);
 }
 
-/* Header */
+/* ------------------------------ ШАПКА ------------------------------ */
+
 .mmm-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 1rem;
-    border-bottom: 2px solid var(--adminorange, #f5a623);
+    gap: 12px;
+    padding: 16px 24px 12px;
+    background: var(--ppm-ground);
+    border-bottom: none;
 }
-.mmm-title {
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--admingrey, #666);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-}
-.mmm-close {
-    background: none;
-    border: none;
-    font-size: 1.3rem;
-    cursor: pointer;
-    color: var(--admingrey, #666);
-    line-height: 1;
-    padding: 0 0.3rem;
-}
-.mmm-close:hover { color: var(--adminred, #ee3c23); }
 
-/* Body — два стовпці */
+.mmm-head-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+/* службовий рядок під заголовком — номер замовлення, як спец у наряді */
+.mmm-head-spec {
+    font-family: var(--ppm-font-ui);
+    font-size: var(--ppm-fs-eyebrow);
+    color: var(--ppm-ink);
+    opacity: 0.6;
+}
+
+.mmm-title {
+    font-family: var(--ppm-font);
+    font-size: var(--ppm-fs-head);
+    font-weight: 600;
+    font-stretch: 87.5%;
+    text-transform: uppercase;
+    letter-spacing: var(--ppm-track);
+    color: var(--ppm-ink);
+}
+
+.mmm-close {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--ppm-fs-lead);
+    color: var(--ppm-ink);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: background 0.12s, opacity 0.12s;
+}
+
+.mmm-close:hover {
+    background: var(--ppm-tile-hi);
+    color: var(--ppm-ink);
+    opacity: 1;
+}
+
+/* ------------------------------- ТІЛО ------------------------------- */
+
 .mmm-body {
     display: flex;
     flex: 1;
     min-height: 0;
     overflow: auto;
+    gap: 3px;
+    padding: 0 24px 20px;
+    background: var(--ppm-ground);
 }
 
-/* Canvas area (palette + 3D) */
 .mmm-canvas-area {
     flex: 1;
     display: flex;
     flex-direction: column;
     min-height: 0;
     position: relative;
+    background: var(--ppm-tile);
 }
 
-/* Color palette — top-left row */
+/* ---------------------- ПАЛІТРА КОЛЬОРІВ ЧАШОК ----------------------
+   Самі кольори — це колір виробу, він приходить інлайном і не чіпається.
+   Стилю належить лише те, як позначено вибраний кружечок. */
+
 .mmm-color-palette {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
-    padding: 8px 10px;
-    background: var(--adminfonelement, #f1eee7);
-    border-bottom: 1px solid #e0ddd4;
+    gap: 6px;
+    padding: 12px 14px;
+    background: var(--ppm-tile);
+    border-bottom: 1px solid var(--ppm-line);
 }
+
 .mmm-color-dot {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     border: 2px solid transparent;
     cursor: pointer;
     padding: 0;
-    transition: border-color 0.15s, transform 0.15s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-}
-.mmm-color-dot:hover {
-    transform: scale(1.15);
-    border-color: var(--adminorange, #f5a623);
-}
-.mmm-color-dot.mmm-color-active {
-    border-color: var(--adminorange, #f5a623);
-    box-shadow: 0 0 0 2px var(--adminorange, #f5a623);
-    transform: scale(1.1);
-}
-/* White dot needs visible border */
-.mmm-color-dot[style*="f5f5f0"] {
-    border-color: #ccc;
-}
-.mmm-color-dot[style*="f5f5f0"].mmm-color-active {
-    border-color: var(--adminorange, #f5a623);
+    box-shadow: none;
+    transition: box-shadow 0.12s, transform 0.12s;
 }
 
-/* 3D Canvas */
+.mmm-color-dot:hover {
+    transform: scale(1.12);
+    box-shadow: 0 0 0 2px var(--ppm-line-strong);
+}
+
+.mmm-color-dot.mmm-color-active,
+.mmm-color-dot[style*="f5f5f0"].mmm-color-active {
+    box-shadow: 0 0 0 2px var(--ppm-select);
+    transform: scale(1.08);
+}
+
+/* білий кружечок інакше зливається з підкладкою */
+.mmm-color-dot[style*="f5f5f0"] {
+    box-shadow: 0 0 0 1px var(--ppm-line-strong);
+}
+
+/* --------------------------- 3D-СЦЕНА ---------------------------
+   Тільки підкладка сцени; сама чашка й освітлення — у useMugScene. */
+
 .mmm-canvas-wrap {
     flex: 1;
     min-height: 350px;
-    background: linear-gradient(135deg, #e8e6df 0%, #f7f5ee 100%);
+    background: var(--ppm-tile-hi);
     position: relative;
 }
+
 .mmm-canvas-wrap canvas {
     display: block;
     width: 100% !important;
     height: 100% !important;
 }
 
-/* Controls panel */
+/* ------------------------ ПАНЕЛЬ КЕРУВАННЯ ------------------------ */
+
 .mmm-controls {
-    width: 260px;
-    min-width: 260px;
-    padding: 1rem;
+    width: 300px;
+    min-width: 300px;
+    padding: 16px 18px;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    border-left: 1px solid #e0ddd4;
+    gap: 12px;
+    background: var(--ppm-card);
+    border-left: none;
     overflow-y: auto;
 }
 
-/* Buttons */
+/* ------------------------------ КНОПКИ ------------------------------ */
+
+/* Та сама механіка, що в кнопки «Нове замовлення» в навбарі
+   (.nav-actions-group .buttonSkewedOrder): плаcка плитка, зліва смуга 3px,
+   на ховері заливка насувається зліва направо, а напис услід стає білим. */
 .mmm-btn {
-    display: block;
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    padding: 0.6rem 0.8rem;
-    border: 2px solid var(--admingrey, #666);
-    background: var(--adminfonelement, #f1eee7);
-    color: var(--admingrey, #666);
-    font-weight: 600;
-    font-size: 0.85rem;
-    cursor: pointer;
+    height: var(--ppm-h-btn);
+    padding: 0 18px;
+    font-family: var(--ppm-font-ui);
+    font-size: var(--ppm-fs-btn);
+    font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
-    transition: border-color 0.2s, background 0.2s, color 0.2s;
+    letter-spacing: 0;
+    color: var(--ppm-ink);
+    background: var(--ppm-tile);
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    box-shadow: inset 3px 0 0 var(--ppm-select);
+    overflow: hidden;
+    cursor: pointer;
+    transition: color 0.32s ease, border-color 0.12s;
 }
+
+.mmm-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--ppm-select);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
+    z-index: 0;
+}
+
+.mmm-btn:hover::before {
+    transform: scaleX(1);
+}
+
+/* напис живе над заливкою — інакше вона його накриє */
+.mmm-btn-text {
+    position: relative;
+    z-index: 1;
+}
+
 .mmm-btn:hover {
-    border-color: var(--adminorange, #f5a623);
-    color: var(--adminorange, #f5a623);
+    color: #fff;
+    border-bottom-color: var(--ppm-select);
 }
+
 .mmm-btn:disabled {
-    opacity: 0.5;
-    cursor: default;
+    opacity: 0.45;
+    cursor: not-allowed;
 }
 
-.mmm-btn-upload { border-color: var(--adminblue, #3c60a6); color: var(--adminblue, #3c60a6); }
-.mmm-btn-upload:hover { background: var(--adminlightblue, #e8ecf4); }
+.mmm-btn:focus-visible {
+    outline: 2px solid var(--ppm-action);
+    outline-offset: -2px;
+}
 
-.mmm-btn-save { border-color: var(--admingreen, #0e935b); color: var(--admingreen, #0e935b); }
-.mmm-btn-save:hover { background: var(--adminlightgreen, #e2f2eb); }
+/* завантаження макета — звичайна плитка, без синього */
+.mmm-btn-upload {
+    color: var(--ppm-ink);
+}
 
-.mmm-btn-copy { border-color: var(--adminorange, #f5a623); color: var(--adminorange, #f5a623); }
-.mmm-btn-copy:hover { background: var(--adminlightorange, #fef4e5); }
+/* «Створити посилання» — без нижньої кромки взагалі: ані в спокої,
+   ані на ховері. Напис чорний, заливка ховера теж чорна. */
+.mmm-btn-save,
+.mmm-btn-save:hover {
+    border-bottom-color: transparent;
+}
 
-/* Sliders */
+.mmm-btn-save {
+    color: var(--ppm-ink);
+}
+
+.mmm-btn-save::before {
+    background: var(--ppm-select);
+}
+
+.mmm-btn-save:hover {
+    color: #fff;
+}
+
+.mmm-btn-save:disabled::before {
+    transform: scaleX(0);
+}
+
+.mmm-btn-copy {
+    color: var(--ppm-ink);
+}
+
+/* ----------------------------- ПОВЗУНКИ ----------------------------- */
+
 .mmm-slider-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 10px;
 }
+
 .mmm-slider-label {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
-}
-.mmm-slider-label span {
-    font-size: 0.75rem;
-    color: var(--admingrey, #666);
-    font-weight: 600;
-}
-.mmm-slider-label input[type="range"] {
-    width: 100%;
-    accent-color: var(--adminorange, #f5a623);
+    gap: 4px;
 }
 
-/* Share block */
+.mmm-slider-label span {
+    font-family: var(--ppm-font);
+    font-size: var(--ppm-fs-eyebrow);
+    font-stretch: 87.5%;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: var(--ppm-track-wide);
+    color: var(--ppm-ink);
+    opacity: 0.6;
+}
+
+.mmm-slider-label input[type="range"] {
+    width: 100%;
+    height: 5px;
+    accent-color: var(--ppm-select);
+    background: var(--ppm-line);
+    cursor: pointer;
+}
+
+/* --------------------------- ПОСИЛАННЯ --------------------------- */
+
 .mmm-share-block {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
-}
-.mmm-share-url {
-    font-size: 0.7rem;
-    word-break: break-all;
-    color: var(--adminblue, #3c60a6);
-    padding: 0.4rem;
-    background: var(--adminfonelement, #f1eee7);
-    border: 1px solid #e0ddd4;
+    gap: 6px;
 }
 
-/* Existing mockups */
+.mmm-share-url {
+    font-family: var(--ppm-mono);
+    font-size: var(--ppm-fs-num);
+    word-break: break-all;
+    color: var(--ppm-ink);
+    padding: 10px 12px;
+    background: var(--ppm-tile);
+    border: none;
+    border-bottom: 2px solid var(--ppm-line-strong);
+    border-radius: 0;
+}
+
+/* ------------------------ ЗБЕРЕЖЕНІ МАКЕТИ ------------------------ */
+
 .mmm-existing {
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
-    margin-top: 0.5rem;
+    gap: 1px;
+    margin-top: 6px;
+    background: var(--ppm-line);
 }
+
 .mmm-existing-item {
-    font-size: 0.75rem;
-    padding: 0.3rem 0.5rem;
-    color: var(--admingrey, #666);
+    font-size: var(--ppm-fs-eyebrow);
+    padding: 8px 12px;
+    color: var(--ppm-ink);
+    background: var(--ppm-tile);
 }
+
 .mmm-existing-item.mmm-status-confirmed {
-    color: var(--admingreen, #0e935b);
-    background: var(--adminlightgreen, #e2f2eb);
+    color: var(--ppm-accent);
+    box-shadow: inset 3px 0 0 var(--ppm-accent);
 }
+
 .mmm-existing-item.mmm-status-pending {
-    color: var(--adminorange, #f5a623);
-    background: var(--adminlightorange, #fef4e5);
+    color: var(--ppm-ink);
+    box-shadow: inset 3px 0 0 var(--ppm-action);
 }
 
-/* Error */
+/* ------------------------------ ПОМИЛКА ------------------------------ */
+
 .mmm-error {
-    font-size: 0.8rem;
-    color: var(--adminred, #ee3c23);
-    padding: 0.3rem;
+    font-size: var(--ppm-fs-eyebrow);
+    color: var(--adminred, #c0392b);
+    padding: 8px 12px;
+    border-left: 2px solid var(--adminred, #c0392b);
 }
 
-/* ===== Mobile ===== */
+/* ============================== МОБІЛЬНЕ ============================== */
+
 @media (max-width: 640px) {
-    .mmm-modal { width: 98vw; max-height: 95vh; }
-    .mmm-body { flex-direction: column; }
-    .mmm-controls { width: 100%; min-width: 0; border-left: none; border-top: 1px solid #e0ddd4; }
+    .mmm-modal { width: 100vw; max-height: 95vh; }
+    .mmm-body { flex-direction: column; padding: 0 12px 12px; }
+    .mmm-controls { width: 100%; min-width: 0; border-left: none; }
     .mmm-canvas-wrap { min-height: 280px; }
     .mmm-color-palette { justify-content: center; }
-    .mmm-color-dot { width: 20px; height: 20px; }
+    .mmm-color-dot { width: 22px; height: 22px; }
 }

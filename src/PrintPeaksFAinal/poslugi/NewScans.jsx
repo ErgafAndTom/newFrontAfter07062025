@@ -4,9 +4,12 @@ import { usePortalDropdown } from "./newnomodals/usePortalDropdown";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
-import { ScModal, ScSection, ScPricing, ScAddButton } from "./shared";
 import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
-import "./Poslugy.css";
+import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
+
+/* Та сама розмітка й той самий CSS, що в еталонного цифрового друку
+   (NewSheetCutV2) — вузький варіант, без стрічки виробів. */
+import "./NewSheetCutV2.css";
 
 // ========== DEFAULTS ==========
 const DEFAULTS = {
@@ -44,6 +47,10 @@ const NewScans = ({
   const [material, setMaterial] = useState(DEFAULTS.material);
   const [count, setCount] = useState(DEFAULTS.count);
   const [error, setError] = useState(null);
+
+  // тема стежить за глобальною темою застосунку (перемикач у Nav)
+  const [theme, setTheme] = useState(getStoredAppTheme);
+  useEffect(() => onAppThemeChange(setTheme), []);
 
   // Dropdown
   const [materials, setMaterials] = useState([]);
@@ -184,86 +191,148 @@ const NewScans = ({
     : [];
 
   // ========== RENDER ==========
+
+  const totalPrice = Number(pricesThis?.price) || 0;
+
+  const headSpec = [
+    material?.material || null,
+    material.x && material.y ? `${material.x}×${material.y} мм` : null,
+  ].filter(Boolean).join(" · ");
+
+  if (!showNewScans) return null;
+
   return (
-    <ScModal
-      show={showNewScans}
-      onClose={handleClose}
-      modalStyle={{ width: "55vw" }}
-      modalClassName="sc-modal-scans"
-      rightContent={
-        <>
-          <ScPricing
-            lines={pricingLines}
-            totalPrice={Number(pricesThis?.price) || 0}
-            fmt={fmt2}
-          />
-          <ScAddButton onClick={handleSave} isEdit={isEdit} />
-        </>
-      }
-      errorContent={
-        error && (
-          <div className="sc-error">
+    <>
+      <div className="v2-overlay" onClick={handleClose} />
+      <div className={`v2-modal v2-modal-narrow v2-theme-${theme}`} onClick={(e) => e.stopPropagation()}>
+
+        {/* ШАПКА */}
+        <div className="v2-head">
+          <div className="v2-head-main">
+            <span className="v2-head-title">Сканування</span>
+            <div className="v2-head-spec">{headSpec}</div>
+          </div>
+          <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
+            &times;
+          </button>
+        </div>
+
+        {/* ТІЛО — виробів у скануванні немає, тож лівої стрічки теж */}
+        <div className="v2-body">
+          <div className="v2-left">
+
+            {/* ТИП СКАНУВАННЯ */}
+            <div className="v2-section">
+              <span className="v2-label">Тип сканування</span>
+              <div className="v2-material-wrap">
+                <div
+                  className={`custom-select-container selectArtem selectArtemBefore${material.materialId ? " sc-has-value" : ""}`}
+                  ref={materialDropdownRef}
+                  style={{ width: "100%" }}
+                >
+                  <div className="custom-select-header" onClick={toggleMaterial}>
+                    {materialTitle}
+                    {material.x && material.y && (
+                      <span className="gsm-sub" style={{ marginLeft: "0.5vw" }}>
+                        <sub>{material.x}x{material.y}</sub>
+                      </span>
+                    )}
+                  </div>
+                  {materialDropdownOpen && ReactDOM.createPortal(
+                    <div
+                      className={`custom-select-dropdown v2-dropdown v2-theme-${theme}`}
+                      ref={portalRef}
+                      style={dropStyle}
+                    >
+                      {materials.map((item) => (
+                        <div
+                          key={item.id}
+                          className={`custom-option ${String(item.id) === String(material?.materialId) ? "active" : ""}`}
+                          onClick={() => handleMaterialSelect(item)}
+                        >
+                          <span className="name">{item.name}</span>
+                          <span className="gsm-sub">
+                            <sub style={{ marginRight: "0.8vw" }}>
+                              {item.x && item.y && <sub>{item.x}x{item.y}</sub>}
+                            </sub>
+                            <sub>{item.thickness} г/м<sub>2</sub></sub>
+                          </span>
+                        </div>
+                      ))}
+                    </div>,
+                    document.body
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ПРАВОРУЧ — НАРЯД */}
+          <div className="v2-right">
+            <div className="v2-run">
+              <span className="v2-run-label">Кількість, шт</span>
+              <div className="v2-count-row">
+                <button className="v2-count-btn" onClick={() => setCount(Math.max(1, count - 1))}>−</button>
+                <input
+                  className="v2-count-val"
+                  type="number"
+                  value={count}
+                  min={1}
+                  onChange={(e) => setCount(Math.max(1, Number(e.target.value) || 1))}
+                />
+                <button className="v2-count-btn" onClick={() => setCount(count + 1)}>+</button>
+              </div>
+            </div>
+
+            <div className="v2-prices-title">Калькуляція</div>
+            <div className="v2-prices">
+              {pricingLines.map((line, i) => {
+                const isZero = Math.round((line.total || 0) * 100) === 0;
+                const hasBreakdown = !isZero && line.count > 0 && line.perUnit > 0;
+                return (
+                  <div className={`v2-price-row${isZero ? " is-zero" : ""}`} key={i}>
+                    <span>{line.label}</span>
+                    <i className="v2-lead" />
+                    <span className="v2-price-val">
+                      {hasBreakdown && (
+                        <span className="v2-price-calc">
+                          {line.count} шт × {fmt2(line.perUnit)} ={" "}
+                        </span>
+                      )}
+                      {fmt2(line.total)} грн
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="v2-total">
+              <div className="v2-total-price">
+                {fmt2(totalPrice)} <span className="v2-total-unit">грн</span>
+              </div>
+              <div className="v2-total-sub">
+                <span>За 1 скан</span>
+                <span>{count ? fmt2(totalPrice / count) : "0,00"} грн</span>
+              </div>
+            </div>
+
+            <button className="v2-add-btn" onClick={handleSave} disabled={!thisOrder?.id}>
+              <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
+              <span className="v2-add-btn-label">
+                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* ПОМИЛКА */}
+        {error && (
+          <div className="v2-error">
             {typeof error === "string" ? error : error?.response?.data?.error || "Помилка"}
           </div>
-        )
-      }
-    >
-      {/* 1. Кількість */}
-      <ScSection title="">
-        <div className="d-flex flex-row align-items-center">
-          <input
-            className="inputsArtem"
-            type="number"
-            min={1}
-            value={count}
-            onChange={(e) => setCount(Math.max(1, +e.target.value || 1))}
-          />
-          <div className="inputsArtemx">шт</div>
-        </div>
-      </ScSection>
-
-      {/* 2. Матеріал */}
-      <ScSection title="" style={{ position: "relative", zIndex: 5 }}>
-        <div
-          className={`custom-select-container selectArtem selectArtemBefore${material.materialId ? " sc-has-value" : ""}`}
-          ref={materialDropdownRef}
-          style={{ width: "100%" }}
-        >
-          <div
-            className="custom-select-header"
-            onClick={toggleMaterial}
-          >
-            {materialTitle}
-            {material.x && material.y && (
-              <span className="gsm-sub" style={{ marginLeft: "0.5vw" }}>
-                <sub>{material.x}x{material.y}</sub>
-              </span>
-            )}
-          </div>
-          {materialDropdownOpen && ReactDOM.createPortal(
-            <div className="custom-select-dropdown" ref={portalRef} style={dropStyle}>
-              {materials.map((item) => (
-                <div
-                  key={item.id}
-                  className={`custom-option ${String(item.id) === String(material?.materialId) ? "active" : ""}`}
-                  onClick={() => handleMaterialSelect(item)}
-                >
-                  <span className="name">{item.name}</span>
-                  <span className="gsm-sub">
-                    <sub style={{ marginRight: "0.8vw" }}>
-                      {item.x && item.y && <sub>{item.x}x{item.y}</sub>}
-                    </sub>
-                    <sub>{item.thickness} г/м<sub>2</sub></sub>
-                  </span>
-                </div>
-              ))}
-            </div>,
-            document.body
-          )}
-        </div>
-      </ScSection>
-
-    </ScModal>
+        )}
+      </div>
+    </>
   );
 };
 

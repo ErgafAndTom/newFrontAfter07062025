@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
-import { ScModal, ScPricing, ScAddButton } from "./shared";
-import "./Poslugy.css";
+import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
+
+import "./NewSheetCutV2.css";
 
 const fmt2 = (v) =>
   new Intl.NumberFormat("uk-UA", {
@@ -27,6 +28,10 @@ const DeliveryPage = ({
   const [courierAddress] = useState(1);
   const [cost] = useState(null);
   const [error, setError] = useState(null);
+
+  // тема стежить за глобальною темою застосунку (перемикач у Nav)
+  const [theme, setTheme] = useState(getStoredAppTheme);
+  useEffect(() => onAppThemeChange(setTheme), []);
 
   const handleClose = () => setShowDelivery(false);
 
@@ -78,59 +83,103 @@ const DeliveryPage = ({
   ];
 
   // ========== RENDER ==========
+
+  if (!showDelivery) return null;
+
   return (
-    <ScModal
-      show={showDelivery}
-      onClose={handleClose}
-      modalStyle={{ width: "35vw" }}
-      modalClassName="sc-modal-delivery"
-      rightContent={
-        <>
-          <ScPricing
-            lines={pricingLines}
-            totalPrice={total}
-            fmt={fmt2}
-          />
-          <ScAddButton onClick={handleSave} />
-        </>
-      }
-      errorContent={
-        error && (
-          <div className="sc-error">
+    <>
+      <div className="v2-overlay" onClick={handleClose} />
+      <div className={`v2-modal v2-modal-narrow v2-theme-${theme}`} onClick={(e) => e.stopPropagation()}>
+
+        {/* ШАПКА */}
+        <div className="v2-head">
+          <div className="v2-head-main">
+            <span className="v2-head-title">Доставка</span>
+          </div>
+          <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
+            &times;
+          </button>
+        </div>
+
+        {/* ТІЛО */}
+        <div className="v2-body">
+          <div className="v2-left">
+            <div className="v2-section">
+              <span className="v2-label">Вартість доставки</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                <input
+                  className="inputsArtem"
+                  type="number"
+                  min={0}
+                  value={price}
+                  onChange={(e) => setPrice(+e.target.value || 0)}
+                  style={{ width: "8rem" }}
+                />
+                <span className="v2-unit-note">грн</span>
+              </div>
+            </div>
+          </div>
+
+          {/* ПРАВОРУЧ — НАРЯД */}
+          <div className="v2-right">
+            <div className="v2-run">
+              <span className="v2-run-label">Кількість, шт</span>
+              <div className="v2-count-row">
+                <button className="v2-count-btn" onClick={() => setCount(Math.max(1, count - 1))}>−</button>
+                <input
+                  className="v2-count-val"
+                  type="number"
+                  value={count}
+                  min={1}
+                  onChange={(e) => setCount(Math.max(1, +e.target.value || 1))}
+                />
+                <button className="v2-count-btn" onClick={() => setCount(count + 1)}>+</button>
+              </div>
+            </div>
+
+            <div className="v2-prices-title">Калькуляція</div>
+            <div className="v2-prices">
+              {pricingLines.map((line, i) => {
+                const isZero = Math.round((line.total || 0) * 100) === 0;
+                const hasBreakdown = !isZero && line.count > 0 && line.perUnit > 0;
+                return (
+                  <div className={`v2-price-row${isZero ? " is-zero" : ""}`} key={i}>
+                    <span>{line.label}</span>
+                    <i className="v2-lead" />
+                    <span className="v2-price-val">
+                      {hasBreakdown && (
+                        <span className="v2-price-calc">
+                          {line.count} шт × {fmt2(line.perUnit)} ={" "}
+                        </span>
+                      )}
+                      {fmt2(line.total)} грн
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="v2-total">
+              <div className="v2-total-price">
+                {fmt2(total)} <span className="v2-total-unit">грн</span>
+              </div>
+            </div>
+
+            <button className="v2-add-btn" onClick={handleSave} disabled={!thisOrder?.id}>
+              <span className="v2-add-btn-icon" aria-hidden="true">+</span>
+              <span className="v2-add-btn-label">Додати в замовлення</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ПОМИЛКА */}
+        {error && (
+          <div className="v2-error">
             {error?.response?.data?.error || error?.message || "Помилка"}
           </div>
-        )
-      }
-    >
-      {/* 1-2. Кількість + Ціна */}
-      <div className="sc-count-size-row">
-        <div className="sc-section sc-section-card" style={{ flex: 1 }}>
-          <div className="sc-row d-flex flex-row align-items-center">
-            <input
-              className="inputsArtem"
-              type="number"
-              min={1}
-              value={count}
-              onChange={(e) => setCount(Math.max(1, +e.target.value || 1))}
-            />
-            <div className="inputsArtemx">шт</div>
-          </div>
-        </div>
-        <div className="sc-section sc-section-card" style={{ flex: 1 }}>
-          <div className="sc-row d-flex flex-row align-items-center">
-            <input
-              className="inputsArtem"
-              type="number"
-              min={0}
-              value={price}
-              onChange={(e) => setPrice(+e.target.value || 0)}
-            />
-            <div className="inputsArtemx">грн</div>
-          </div>
-        </div>
+        )}
       </div>
-
-    </ScModal>
+    </>
   );
 };
 

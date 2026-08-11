@@ -141,7 +141,14 @@ const NewUIArtem = () => {
   useEffect(() => {
     const root = document.documentElement;
     let rafId = null;
+    let verifyId = null;
     let last = null;
+    /* Скільки довелось зрізати понад розрахунок. Формула нижче припускає,
+       що під сіткою немає нічого, крім доку, — але на широких екранах
+       документ усе одно виходив довшим за вьюпорт і сторінка скролилась
+       по вертикалі. Тому після кожного застосування міряємо реальне
+       переповнення документа й зрізаємо рівно на нього (див. verify). */
+    let trim = 0;
 
     const apply = () => {
       rafId = null;
@@ -159,13 +166,29 @@ const NewUIArtem = () => {
         : 0;
 
       // запас на субпіксельні округлення (border/padding у дробових vh)
-      const height = Math.max(320, Math.floor(window.innerHeight - top - dockH - 6));
-      if (height === last) return;
-      last = height;
-      root.style.setProperty('--jt-gridh', `${height}px`);
+      const height = Math.max(320, Math.floor(window.innerHeight - top - dockH - 6) - trim);
+      if (height !== last) {
+        last = height;
+        root.style.setProperty('--jt-gridh', `${height}px`);
+      }
+      if (verifyId === null) verifyId = requestAnimationFrame(verify);
+    };
+
+    /* Другий кадр: висота вже застосована, тож scrollHeight показує факт.
+       Зрізаємо накопичувально й монотонно (стеля 400px), щоб корекція не
+       ганяла layout по колу. Назад висота не росте — це робить resize,
+       який скидає trim у нуль. */
+    const verify = () => {
+      verifyId = null;
+      const over = root.scrollHeight - window.innerHeight;
+      if (over > 1 && trim < 400) {
+        trim = Math.min(400, trim + over);
+        measure();
+      }
     };
 
     const measure = () => { if (rafId === null) rafId = requestAnimationFrame(apply); };
+    const remeasure = () => { trim = 0; last = null; measure(); };
 
     measure();
     const ro = new ResizeObserver(measure);
@@ -176,15 +199,36 @@ const NewUIArtem = () => {
     if (dock) ro.observe(dock);
     if (nav) ro.observe(nav);
     if (gridRef.current) ro.observe(gridRef.current);
-    window.addEventListener('resize', measure);
+    window.addEventListener('resize', remeasure);
 
     return () => {
       ro.disconnect();
       if (rafId !== null) cancelAnimationFrame(rafId);
-      window.removeEventListener('resize', measure);
+      if (verifyId !== null) cancelAnimationFrame(verifyId);
+      window.removeEventListener('resize', remeasure);
       root.style.removeProperty('--jt-gridh');
     };
   }, [statusSlotEl]);
+
+  /* Сторінка наряду цілком вміщена у вьюпорт: сітка обмежена --jt-gridh,
+     а довгі списки (позиції, файли, каталог) скролять самі себе. Тому
+     скрол самого документа тут завжди паразитний — його породжують
+     субпіксельні залишки (дробові vh у кромках, border доку, зміна
+     висоти смуги статусу між кадрами), і корекція trim у ефекті вище
+     ловить їх лише постфактум, після кадру з видимою смугою прокрутки.
+     Глушимо скрол документа на весь час, поки наряд відкритий. */
+  useEffect(() => {
+    if (!thisOrder) return;
+    const html = document.documentElement;
+    const prevHtml = html.style.overflowY;
+    const prevBody = document.body.style.overflowY;
+    html.style.overflowY = 'hidden';
+    document.body.style.overflowY = 'hidden';
+    return () => {
+      html.style.overflowY = prevHtml;
+      document.body.style.overflowY = prevBody;
+    };
+  }, [!!thisOrder]);
 
   /* Знімок останнього відкритого наряду для шапки навбара (NavOrderHead
      читає той самий ключ). Раніше його писав ClientChangerUIArtem — його

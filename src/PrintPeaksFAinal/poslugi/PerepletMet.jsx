@@ -2,9 +2,12 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
-import { ScModal, ScSection, ScPricing, ScAddButton } from "./shared";
 import { useModalState, useOrderUnitSave } from "./shared/hooks";
-import "./Poslugy.css";
+import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
+
+/* Та сама розмітка й той самий CSS, що в еталонного цифрового друку
+   (NewSheetCutV2) — вузький варіант, без стрічки виробів. */
+import "./NewSheetCutV2.css";
 
 import PerepletPereplet from "./newnomodals/PerepletPereplet";
 
@@ -45,11 +48,13 @@ const PerepletMet = ({
   const [holes, setHoles] = useState("Не потрібно");
   const [holesR, setHolesR] = useState("");
   const [count, setCount] = useState(1);
-  const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
-  const sizeDropdownRef = useRef(null);
   const [prices] = useState([]);
   const [pricesThis, setPricesThis] = useState(null);
   const [error, setError] = useState(null);
+
+  // тема стежить за глобальною темою застосунку (перемикач у Nav)
+  const [theme, setTheme] = useState(getStoredAppTheme);
+  useEffect(() => onAppThemeChange(setTheme), []);
 
   // Save hook
   const { saveOrderUnit } = useOrderUnitSave(
@@ -131,16 +136,6 @@ const PerepletMet = ({
       });
   }, [showPerepletMet, size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count, pereplet, navigate]);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (sizeDropdownRef.current && !sizeDropdownRef.current.contains(event.target)) {
-        setSizeDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   // ========== SAVE ==========
   const handleSave = () => {
     if (!thisOrder?.id) return;
@@ -156,11 +151,8 @@ const PerepletMet = ({
 
   const handleSizeSelect = (format) => {
     setSize({ x: format.x, y: format.y });
-    setSizeDropdownOpen(false);
   };
 
-  const selectedSizeFormat = SIZE_FORMATS.find((f) => f.x === size.x && f.y === size.y);
-  const sizeTitle = selectedSizeFormat?.name || `${size.x} x ${size.y} мм`;
 
   // ========== PRICING DATA ==========
   const perepletLabel = pereplet.material
@@ -171,86 +163,155 @@ const PerepletMet = ({
     : [];
 
   // ========== RENDER ==========
+
+  const totalPrice = pricesThis?.price || 0;
+
+  const headSpec = [
+    `${size.x}×${size.y} мм`,
+    pereplet.material || null,
+    pereplet.typeUse || null,
+  ].filter(Boolean).join(" · ");
+
+  if (!showPerepletMet) return null;
+
   return (
-    <ScModal
-      show={showPerepletMet}
-      onClose={handleClose}
-      modalStyle={{ width: "63vw" }}
-      rightContent={
-        <>
-          <ScPricing
-            lines={pricingLines}
-            totalPrice={pricesThis?.price || 0}
-            fmt={fmt2}
-          />
-          <ScAddButton onClick={handleSave} isEdit={isEdit} />
-        </>
-      }
-      errorContent={
-        error && (
-          <div className="sc-error">
-            {error?.response?.data?.error || error?.message || "Помилка"}
+    <>
+      <div className="v2-overlay" onClick={handleClose} />
+      <div className={`v2-modal v2-modal-narrow v2-theme-${theme}`} onClick={(e) => e.stopPropagation()}>
+
+        {/* ШАПКА */}
+        <div className="v2-head">
+          <div className="v2-head-main">
+            <span className="v2-head-title">Брошурування</span>
+            <div className="v2-head-spec">{headSpec}</div>
           </div>
-        )
-      }
-    >
-      {/* 1-2. Кількість + Розмір в один ряд */}
-      <div className="sc-count-size-row">
-        <div className="sc-section sc-section-card" style={{ flex: 1 }}>
-          <div className="sc-row">
-            <div
-              className="custom-select-container selectArtem selectArtemBefore"
-              ref={sizeDropdownRef}
-              style={{ zIndex: 10 }}
-            >
-              <div
-                className="custom-select-header"
-                onClick={() => setSizeDropdownOpen(!sizeDropdownOpen)}
-              >
-                {sizeTitle}
-              </div>
-              {sizeDropdownOpen && (
-                <div className="custom-select-dropdown">
-                  {SIZE_FORMATS.map((item) => (
-                    <div
-                      key={item.name}
-                      className={`custom-option ${item.name === sizeTitle ? "active" : ""}`}
-                      onClick={() => handleSizeSelect(item)}
-                    >
-                      <span className="name">{item.name}</span>
-                    </div>
-                  ))}
+          <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
+            &times;
+          </button>
+        </div>
+
+        {/* ТІЛО — виробів тут немає, тож і лівої стрічки теж */}
+        <div className="v2-body">
+          <div className="v2-left">
+
+            {/* РОЗМІР */}
+            <div className="v2-section">
+              <span className="v2-label">Розмір у міліметрах</span>
+              <div className="v2-sizes">
+                {SIZE_FORMATS.map((f) => (
+                  <button
+                    key={f.name}
+                    className={`v2-size${size.x === f.x && size.y === f.y ? " active" : ""}`}
+                    onClick={() => handleSizeSelect(f)}
+                  >
+                    {f.name.split(" ")[0]}
+                  </button>
+                ))}
+                <div className={`v2-size v2-size-custom${!SIZE_FORMATS.some((f) => size.x === f.x && size.y === f.y) ? " active" : ""}`}>
+                  <input
+                    type="number"
+                    value={size.x}
+                    min={10}
+                    max={445}
+                    onChange={(e) => setSize({ x: Number(e.target.value) || 0, y: size.y })}
+                  />
+                  <span>×</span>
+                  <input
+                    type="number"
+                    value={size.y}
+                    min={10}
+                    max={445}
+                    onChange={(e) => setSize({ x: size.x, y: Number(e.target.value) || 0 })}
+                  />
+                  <span>мм</span>
                 </div>
-              )}
+              </div>
+            </div>
+
+            {/* ПРУЖИНА ТА ОБСЯГ */}
+            <div className="v2-section">
+              <span className="v2-label">Пружина</span>
+              <div className="v2-material-wrap">
+                <PerepletPereplet
+                  size={size}
+                  pereplet={pereplet}
+                  setPereplet={setPereplet}
+                  prices={prices}
+                  type="SheetCut"
+                  dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                  buttonsArr={["Брошурування до 120 аркушів", "Брошурування від 120 до 280 аркушів"]}
+                  defaultt="А3 (297 х 420 мм)"
+                />
+              </div>
             </div>
           </div>
-        </div>
-        <div className="sc-section sc-section-card">
-          <div className="sc-row d-flex flex-row align-items-center">
-            <input
-              className="inputsArtem"
-              type="number"
-              min={1}
-              value={count}
-              onChange={(e) => setCount(Math.max(1, +e.target.value || 1))}
-            />
-            <div className="inputsArtemx">шт</div>
+
+          {/* ПРАВОРУЧ — НАРЯД */}
+          <div className="v2-right">
+            <div className="v2-run">
+              <span className="v2-run-label">Наклад, шт</span>
+              <div className="v2-count-row">
+                <button className="v2-count-btn" onClick={() => setCount(Math.max(1, count - 1))}>−</button>
+                <input
+                  className="v2-count-val"
+                  type="number"
+                  value={count}
+                  min={1}
+                  onChange={(e) => setCount(Math.max(1, Number(e.target.value) || 1))}
+                />
+                <button className="v2-count-btn" onClick={() => setCount(count + 1)}>+</button>
+              </div>
+            </div>
+
+            <div className="v2-prices-title">Калькуляція</div>
+            <div className="v2-prices">
+              {pricingLines.map((line, i) => {
+                const isZero = Math.round((line.total || 0) * 100) === 0;
+                const hasBreakdown = !isZero && line.count > 0 && line.perUnit > 0;
+                return (
+                  <div className={`v2-price-row${isZero ? " is-zero" : ""}`} key={i}>
+                    <span>{line.label}</span>
+                    <i className="v2-lead" />
+                    <span className="v2-price-val">
+                      {hasBreakdown && (
+                        <span className="v2-price-calc">
+                          {line.count} шт × {fmt2(line.perUnit)} ={" "}
+                        </span>
+                      )}
+                      {fmt2(line.total)} грн
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="v2-total">
+              <div className="v2-total-price">
+                {fmt2(totalPrice)} <span className="v2-total-unit">грн</span>
+              </div>
+              <div className="v2-total-sub">
+                <span>За 1 виріб</span>
+                <span>{count ? fmt2(totalPrice / count) : "0,00"} грн</span>
+              </div>
+            </div>
+
+            <button className="v2-add-btn" onClick={handleSave} disabled={!thisOrder?.id}>
+              <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
+              <span className="v2-add-btn-label">
+                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+              </span>
+            </button>
           </div>
         </div>
+
+        {/* ПОМИЛКА */}
+        {error && (
+          <div className="v2-error">
+            {error?.response?.data?.error || error?.message || "Помилка"}
+          </div>
+        )}
       </div>
-
-      {/* 3. Переплет */}
-      <ScSection title="">
-        <PerepletPereplet
-          size={size}
-          pereplet={pereplet} setPereplet={setPereplet}
-          prices={prices} type="SheetCut"
-          buttonsArr={["Брошурування до 120 аркушів", "Брошурування від 120 до 280 аркушів"]}
-          defaultt="А3 (297 х 420 мм)"
-        />
-      </ScSection>
-
-    </ScModal>
+    </>
   );
 };
 

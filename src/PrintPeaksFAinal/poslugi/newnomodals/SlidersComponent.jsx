@@ -61,7 +61,7 @@ function SliderComponent({ size, setSize, type = 'Wide' }) {
           onTouchEnd={commitX}
           className="sc-slider"
           style={{
-            background: `linear-gradient(to right, var(--adminblue) ${xPct}%, var(--adminfonelement) ${xPct}%)`,
+            background: `linear-gradient(to right, var(--sc-slider-fill) ${xPct}%, var(--sc-slider-track) ${xPct}%)`,
           }}
         />
         <div className="sc-slider-labels">
@@ -82,7 +82,7 @@ function SliderComponent({ size, setSize, type = 'Wide' }) {
           onTouchEnd={commitY}
           className="sc-slider"
           style={{
-            background: `linear-gradient(to right, var(--adminblue) ${yPct}%, var(--adminfonelement) ${yPct}%)`,
+            background: `linear-gradient(to right, var(--sc-slider-fill) ${yPct}%, var(--sc-slider-track) ${yPct}%)`,
           }}
         />
         <div className="sc-slider-labels">

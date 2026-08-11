@@ -227,34 +227,77 @@ body {
    (green/orange/red/…) лишаються брендовими в усіх темах.
    Значення узгоджені з ізольованою темою PRINT V2 (NewSheetCutV2.css).
    ══════════════════════════════════════════════════ */
+/* ── СВІТЛА: строго монохромна (чорний / сірий / білий) ────────────────
+   Нейтральна шкала не має жодного бежевого підмісу: сторінка біла,
+   плитки/картки — світло-сірі, текст — майже чорний, підписи — сірі.
+   Акцентні кольори (зелений/червоний/…) лишаються лише там, де несуть
+   зміст (статус, помилка), фон і текст їх не використовують. */
 :root[data-theme="light"] {
-  --adminfon: #f7f5ee;
-  --adminfonelement: #f1eee7;
-  --admingrey: #666666;
-  --adminlightgrey: #666666;
+  --adminfon: #ffffff;
+  --adminfonelement: #f2f2f2;
+  --admingrey: #1a1a1a;
+  --adminlightgrey: #6b6b6b;
 
-  /* строго монохромна: вибрана кнопка — суцільна чорна заливка з білим
-     текстом (як .v2-modal.v2-theme-light в PRINT V2), а не зелений тон */
+  /* вибрана кнопка — суцільна чорна заливка з білим текстом
+     (як .v2-modal.v2-theme-light у PRINT V2) */
   --admin-active-bg: #000000;
   --admin-active-fg: #ffffff;
+
+  /* нейтралізуємо бежеві хардкоди зі старої CRM-палітри */
+  --color-fon: #f7f7f7;
+  --color-act: #fafafa;
+  --color-linen-100: #f2f2f2;
+  --color-linen-200: #ebebeb;
+  --color-linen-300: #f7f7f7;
+  --color-linen-400: rgba(0, 0, 0, 0.04);
+  --color-linen-500: rgba(0, 0, 0, 0.03);
+  --color-gainsboro: #e0e0e0;
+  --font: #6b6b6b;
 }
 
+/* ── ТЕМНА: дзеркало світлої ───────────────────────────────────────────
+   Та сама монохромна логіка, перевернута: майже чорна сторінка,
+   трохи світліші плитки, світлий текст, а стан "вибрано" — суцільна
+   БІЛА заливка з чорним текстом (інверсія чорної плашки зі світлої). */
 :root[data-theme="dark"] {
-  --adminfon: #f7f5ee;
-  --adminfonelement: #f1eee7;
-  --admingrey: #666666;
-  --adminlightgrey: #666666;
+  --adminfon: #141414;
+  --adminfonelement: #1f1f1f;
+  --admingrey: #e8e8e8;
+  --adminlightgrey: #9a9a9a;
 
-  /* "Light"-фони статусів/бейджів (рядки таблиць типу "Отримано") —
-     без цього вони лишаються яскраво-пастельними на темному тлі.
+  --admin-active-bg: #ffffff;
+  --admin-active-fg: #000000;
+
+  /* "Light"-фони статусів/бейджів (рядки таблиць типу «Отримано») —
+     без цього вони лишаються яскраво-пастельними плямами на темному тлі.
      Домішуємо колір статусу в темну основу, як --v2-active-bg у PRINT V2. */
-  --adminlightgreen: #e2f2eb;
-  --adminlightorange: #fef4e5;
-  --adminlightblue: #e8ecf4;
-  --adminlightrose: #fdeff5;
-  --adminlightred: #fde8e5;
-  --adminlightpurple: #edebf9;
-  --adminlightcyan: #e0f5f8;
+  --adminlightgreen: color-mix(in srgb, var(--admingreen) 26%, #141414);
+  --adminlightorange: color-mix(in srgb, var(--adminorange) 26%, #141414);
+  --adminlightblue: color-mix(in srgb, var(--adminblue) 30%, #141414);
+  --adminlightrose: color-mix(in srgb, var(--adminrose) 26%, #141414);
+  --adminlightred: color-mix(in srgb, var(--adminred) 26%, #141414);
+  --adminlightpurple: color-mix(in srgb, var(--adminpurple) 30%, #141414);
+  --adminlightcyan: color-mix(in srgb, var(--admincyan) 26%, #141414);
+
+  /* старі бежеві/чорні хардкоди CRM — інвертуємо, інакше на темному
+     фоні лишаються білі плями й невидимий чорний текст */
+  --color-fon: #1a1a1a;
+  --color-act: #232323;
+  --color-black: #f2f2f2;
+  --color-linen-100: #1f1f1f;
+  --color-linen-200: #262626;
+  --color-linen-300: #1a1a1a;
+  --color-linen-400: rgba(255, 255, 255, 0.06);
+  --color-linen-500: rgba(255, 255, 255, 0.04);
+  --color-darkslategray: #d8d8d8;
+  --color-gray-100: #ededed;
+  --color-gray-200: #e3e3e3;
+  --color-dimgray: #a3a3a3;
+  --color-gainsboro: #2e2e2e;
+  --color-lightgray-100: #3a3a3a;
+  --color-lightgray-200: #444444;
+  --font: #9a9a9a;
+  color-scheme: dark;
 }
 
 /* Full HD 1600-2399px: all font sizes -4px */

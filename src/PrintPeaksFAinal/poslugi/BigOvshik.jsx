@@ -2,9 +2,12 @@ import React, { useEffect, useState, useMemo, useCallback, useRef } from "react"
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
-import { ScModal, ScSection, ScToggleSection, ScPricing, ScAddButton } from "./shared";
+/* Рядок постобробки PRINT V2 — пропси ті самі, що були у ScToggleSection */
+import ScToggleSection from "./shared/V2ToggleSection";
 import { useModalState, useOrderUnitSave } from "./shared/hooks";
-import "./Poslugy.css";
+import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
+
+import "./NewSheetCutV2.css";
 
 // Import existing postpress components
 import NewNoModalCornerRounding from "./newnomodals/NewNoModalBig";
@@ -88,6 +91,10 @@ const BigOvshik = ({
   const [lamination, setLamination] = useState(DEFAULTS.lamination);
 
   const [error, setError] = useState(null);
+
+  // тема стежить за глобальною темою застосунку (перемикач у Nav)
+  const [theme, setTheme] = useState(getStoredAppTheme);
+  useEffect(() => onAppThemeChange(setTheme), []);
 
   // Pricing state
   const [pricesThis, setPricesThis] = useState({
@@ -315,153 +322,232 @@ const BigOvshik = ({
     : [];
 
   // ========== RENDER ==========
+
+  const enabledOps = [
+    big !== "Не потрібно" ? "згинання" : null,
+    prokleyka !== "Не потрібно" ? "проклейка" : null,
+    lyuversy !== "Не потрібно" ? "люверси" : null,
+    cute !== "Не потрібно" ? "скруглення" : null,
+    holes !== "Не потрібно" ? "свердління" : null,
+    design !== "Не потрібно" ? "дизайн" : null,
+  ].filter(Boolean);
+
+  if (!showBigOvshik) return null;
+
   return (
-    <ScModal
-      show={showBigOvshik}
-      onClose={handleClose}
-      modalStyle={{ width: "55vw" }}
-      rightContent={
-        <>
-          <ScPricing
-            lines={pricingLines}
-            simpleLines={pricingSimpleLines}
-            totalPrice={totalPriceFull}
-            fmt={fmt2}
-          />
-          <ScAddButton onClick={handleSave} isEdit={isEdit} />
-        </>
-      }
-      errorContent={
-        error && (
-          <div className="sc-error">
+    <>
+      <div className="v2-overlay" onClick={handleClose} />
+      <div className={`v2-modal v2-modal-narrow v2-theme-${theme}`} onClick={(e) => e.stopPropagation()}>
+
+        {/* ШАПКА */}
+        <div className="v2-head">
+          <div className="v2-head-main">
+            <span className="v2-head-title">Постобробка</span>
+            <div className="v2-head-spec">
+              {enabledOps.length ? enabledOps.join(" · ") : "операції не обрані"}
+            </div>
+          </div>
+          <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
+            &times;
+          </button>
+        </div>
+
+        {/* ТІЛО — тут немає ані виробів, ані матеріалу: лише операції */}
+        <div className="v2-body">
+          <div className="v2-left">
+            <div className="v2-section">
+              <span className="v2-label">Операції</span>
+              <div className="v2-postpress">
+
+                {/* Згинання */}
+                <ScToggleSection
+                  label="Згинання"
+                  title="Згинання"
+                  isOn={big !== "Не потрібно"}
+                  onToggle={() => big === "Не потрібно" ? setBig("1") : setBig("Не потрібно")}
+                  style={{ position: "relative", zIndex: 60 }}
+                >
+                  <NewNoModalCornerRounding
+                    big={big} setBig={setBig}
+                    type="SheetCut" buttonsArr={[]}
+                    dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                    selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+                  />
+                </ScToggleSection>
+
+                {/* Проклейка */}
+                <ScToggleSection
+                  label="Проклейка"
+                  title="Проклейка"
+                  isOn={prokleyka !== "Не потрібно"}
+                  onToggle={() => prokleyka === "Не потрібно" ? setProkleyka("1") : setProkleyka("Не потрібно")}
+                  style={{ position: "relative", zIndex: 50 }}
+                >
+                  <NewNoModalProkleyka
+                    prokleyka={prokleyka} setProkleyka={setProkleyka}
+                    type="SheetCut" buttonsArr={[]}
+                    dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                    selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+                  />
+                </ScToggleSection>
+
+                {/* Люверси */}
+                <ScToggleSection
+                  label="Люверси"
+                  title="Люверси"
+                  isOn={lyuversy !== "Не потрібно"}
+                  onToggle={() => lyuversy === "Не потрібно" ? setLyuversy("1") : setLyuversy("Не потрібно")}
+                  style={{ position: "relative", zIndex: 40 }}
+                >
+                  <NewNoModalLyuversy
+                    lyuversy={lyuversy} setLyuversy={setLyuversy}
+                    type="SheetCut" buttonsArr={[]}
+                    dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                    selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+                  />
+                </ScToggleSection>
+
+                {/* Скруглення кутів */}
+                <ScToggleSection
+                  label="Скруглення"
+                  title="Скруглення кутів"
+                  isOn={cute !== "Не потрібно"}
+                  onToggle={() => {
+                    if (cute === "Не потрібно") {
+                      setCute(4);
+                      setCuteLocal({ leftTop: true, rightTop: true, rightBottom: true, leftBottom: true, radius: "6" });
+                    } else {
+                      setCute("Не потрібно");
+                      setCuteLocal({ leftTop: false, rightTop: false, rightBottom: false, leftBottom: false, radius: "" });
+                    }
+                  }}
+                  style={{ position: "relative", zIndex: 30 }}
+                >
+                  <NewNoModalCute
+                    cute={cute} setCute={setCute}
+                    cuteLocal={cuteLocal} setCuteLocal={setCuteLocal}
+                    dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                    type="SheetCut" selectArr={["3", "6", "8", "10", "13"]}
+                  />
+                </ScToggleSection>
+
+                {/* Свердління отворів */}
+                <ScToggleSection
+                  label="Свердління"
+                  title="Свердління отворів"
+                  isOn={holes !== "Не потрібно"}
+                  onToggle={() => {
+                    if (holes === "Не потрібно") { setHoles(1); setHolesR("5 мм"); }
+                    else { setHoles("Не потрібно"); setHolesR(""); }
+                  }}
+                  style={{ position: "relative", zIndex: 20 }}
+                >
+                  <NewNoModalHoles
+                    holes={holes} setHoles={setHoles}
+                    holesR={holesR} setHolesR={setHolesR}
+                    type="SheetCut" buttonsArr={[]}
+                    dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                    selectArr={["", "3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
+                  />
+                </ScToggleSection>
+
+                {/* Дизайн */}
+                <ScToggleSection
+                  label="Дизайн"
+                  title="Дизайн"
+                  isOn={design !== "Не потрібно"}
+                  onToggle={() => setDesign(design === "Не потрібно" ? "0" : "Не потрібно")}
+                  style={{ position: "relative", zIndex: 10 }}
+                >
+                  <div className="d-flex align-items-center" style={{ gap: "0.4rem" }}>
+                    <input
+                      type="number"
+                      min={0}
+                      value={design}
+                      onChange={(e) => setDesign(e.target.value)}
+                      className="inputsArtem"
+                      style={{ width: "80px" }}
+                    />
+                    <span className="inputsArtemx">грн</span>
+                  </div>
+                </ScToggleSection>
+              </div>
+            </div>
+          </div>
+
+          {/* ПРАВОРУЧ — НАРЯД */}
+          <div className="v2-right">
+            <div className="v2-run">
+              <span className="v2-run-label">Кількість, шт</span>
+              <div className="v2-count-row">
+                <button className="v2-count-btn" onClick={() => setCount(Math.max(1, count - 1))}>−</button>
+                <input
+                  className="v2-count-val"
+                  type="number"
+                  value={count}
+                  min={1}
+                  onChange={(e) => setCount(Math.max(1, Number(e.target.value) || 1))}
+                />
+                <button className="v2-count-btn" onClick={() => setCount(count + 1)}>+</button>
+              </div>
+            </div>
+
+            <div className="v2-prices-title">Калькуляція</div>
+            <div className="v2-prices">
+              {pricingLines.map((line, i) => {
+                const isZero = Math.round((line.total || 0) * 100) === 0;
+                const hasBreakdown = !isZero && line.count > 0 && line.perUnit > 0;
+                return (
+                  <div className={`v2-price-row${isZero ? " is-zero" : ""}`} key={i}>
+                    <span>{line.label}</span>
+                    <i className="v2-lead" />
+                    <span className="v2-price-val">
+                      {hasBreakdown && (
+                        <span className="v2-price-calc">
+                          {line.count} × {fmt2(line.perUnit)} ={" "}
+                        </span>
+                      )}
+                      {fmt2(line.total)} грн
+                    </span>
+                  </div>
+                );
+              })}
+              {pricingSimpleLines.map((line, i) => (
+                <div className="v2-price-row" key={`s${i}`}>
+                  <span>{line.label}</span>
+                  <i className="v2-lead" />
+                  <span className="v2-price-val">{fmt2(line.value)} грн</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="v2-total">
+              <div className="v2-total-price">
+                {fmt2(totalPriceFull)} <span className="v2-total-unit">грн</span>
+              </div>
+              <div className="v2-total-sub">
+                <span>За 1 виріб</span>
+                <span>{count ? fmt2(totalPriceFull / count) : "0,00"} грн</span>
+              </div>
+            </div>
+
+            <button className="v2-add-btn" onClick={handleSave} disabled={!thisOrder?.id}>
+              <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
+              <span className="v2-add-btn-label">
+                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* ПОМИЛКА */}
+        {error && (
+          <div className="v2-error">
             {error?.response?.data?.error || (typeof error === "string" ? error : "Помилка")}
           </div>
-        )
-      }
-    >
-      {/* 1. Кількість */}
-      <ScSection title="">
-        <div className="d-flex flex-row align-items-center">
-          <input
-            className="inputsArtem"
-            type="number"
-            min={1}
-            value={count}
-            onChange={(e) => setCount(Math.max(1, +e.target.value || 1))}
-          />
-          <div className="inputsArtemx">шт</div>
-        </div>
-      </ScSection>
-
-      {/* 2. Згинання */}
-      <ScToggleSection
-        label="Згинання"
-        title="Згинання"
-        isOn={big !== "Не потрібно"}
-        onToggle={() => big === "Не потрібно" ? setBig("1") : setBig("Не потрібно")}
-        style={{ position: "relative", zIndex: 60 }}
-      >
-        <NewNoModalCornerRounding
-          big={big} setBig={setBig}
-          type="SheetCut" buttonsArr={[]}
-          selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
-        />
-      </ScToggleSection>
-
-      {/* 3. Проклейка */}
-      <ScToggleSection
-        label="Проклейка"
-        title="Проклейка"
-        isOn={prokleyka !== "Не потрібно"}
-        onToggle={() => prokleyka === "Не потрібно" ? setProkleyka("1") : setProkleyka("Не потрібно")}
-        style={{ position: "relative", zIndex: 50 }}
-      >
-        <NewNoModalProkleyka
-          prokleyka={prokleyka} setProkleyka={setProkleyka}
-          type="SheetCut" buttonsArr={[]}
-          selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
-        />
-      </ScToggleSection>
-
-      {/* 4. Люверси */}
-      <ScToggleSection
-        label="Люверси"
-        title="Люверси"
-        isOn={lyuversy !== "Не потрібно"}
-        onToggle={() => lyuversy === "Не потрібно" ? setLyuversy("1") : setLyuversy("Не потрібно")}
-        style={{ position: "relative", zIndex: 40 }}
-      >
-        <NewNoModalLyuversy
-          lyuversy={lyuversy} setLyuversy={setLyuversy}
-          type="SheetCut" buttonsArr={[]}
-          selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
-        />
-      </ScToggleSection>
-
-      {/* 5. Скруглення кутів */}
-      <ScToggleSection
-        label="Скруглення"
-        title="Скруглення кутів"
-        isOn={cute !== "Не потрібно"}
-        onToggle={() => {
-          if (cute === "Не потрібно") {
-            setCute(4);
-            setCuteLocal({ leftTop: true, rightTop: true, rightBottom: true, leftBottom: true, radius: "6" });
-          } else {
-            setCute("Не потрібно");
-            setCuteLocal({ leftTop: false, rightTop: false, rightBottom: false, leftBottom: false, radius: "" });
-          }
-        }}
-        style={{ position: "relative", zIndex: 30 }}
-      >
-        <NewNoModalCute
-          cute={cute} setCute={setCute}
-          cuteLocal={cuteLocal} setCuteLocal={setCuteLocal}
-          type="SheetCut" selectArr={["3", "6", "8", "10", "13"]}
-        />
-      </ScToggleSection>
-
-      {/* 6. Свердління отворів */}
-      <ScToggleSection
-        label="Свердління"
-        title="Свердління отворів"
-        isOn={holes !== "Не потрібно"}
-        onToggle={() => {
-          if (holes === "Не потрібно") { setHoles(1); setHolesR("5 мм"); }
-          else { setHoles("Не потрібно"); setHolesR(""); }
-        }}
-        style={{ position: "relative", zIndex: 20 }}
-      >
-        <NewNoModalHoles
-          holes={holes} setHoles={setHoles}
-          holesR={holesR} setHolesR={setHolesR}
-          type="SheetCut" buttonsArr={[]}
-          selectArr={["", "3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
-        />
-      </ScToggleSection>
-
-      {/* 7. Дизайн */}
-      <ScToggleSection
-        label="Дизайн"
-        title="Дизайн"
-        isOn={design !== "Не потрібно"}
-        onToggle={() => setDesign(design === "Не потрібно" ? "0" : "Не потрібно")}
-        style={{ position: "relative", zIndex: 10 }}
-      >
-        <div className="d-flex align-items-center">
-          <input
-            type="number"
-            min={0}
-            value={design}
-            onChange={(e) => setDesign(e.target.value)}
-            className="inputsArtem"
-            style={{ width: "80px" }}
-          />
-          <span className="inputsArtemx">грн</span>
-        </div>
-      </ScToggleSection>
-
-    </ScModal>
+        )}
+      </div>
+    </>
   );
 };
 

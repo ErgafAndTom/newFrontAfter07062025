@@ -6,6 +6,7 @@ import {useNavigate} from "react-router-dom";
 import {Spinner} from "react-bootstrap";
 
 const PlivkaMontajna = ({
+                          dropdownClassName = "",
                           plivkaMontajna,
                           setPlivkaMontajna,
                           size,
@@ -106,7 +107,7 @@ const PlivkaMontajna = ({
         </div>
 
         {open && ReactDOM.createPortal(
-          <div className="custom-select-dropdown" ref={portalRef} style={{...dropStyle, minWidth: dropdownWidth}}>
+          <div className={`custom-select-dropdown${dropdownClassName ? ` ${dropdownClassName}` : ""}`} ref={portalRef} style={{...dropStyle, minWidth: dropdownWidth}}>
             {/* Default: без плівки */}
             <div
               className={`custom-option ${isNone ? "active" : ""}`}

@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "../../api/axiosInstance";
-import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
 import Materials2 from "./newnomodals/Materials2";
 import SliderComponent from "./newnomodals/SlidersComponent";
 import { useNavigate } from "react-router-dom";
@@ -8,15 +7,15 @@ import Luvarsi from "./newnomodals/wideFactory/Luvarsi";
 import PlotterCutting from "./newnomodals/wideFactory/PlotterCutting";
 import MontajnaPlivkaWideFactory from "./newnomodals/wideFactory/MontajnaPlivkaWideFactory";
 import LaminationWideFactory from "./newnomodals/wideFactory/LaminationWideFactory";
-import ScModal from "./shared/ScModal";
-import ScCountSize from "./shared/ScCountSize";
-import ScSection from "./shared/ScSection";
-import ScPricing from "./shared/ScPricing";
-import ScAddButton from "./shared/ScAddButton";
-import ScTabs from "./shared/ScTabs";
 import ServiceSettingsModal from "./shared/ServiceSettingsModal";
+import V2ToggleSwitch from "./shared/V2ToggleSwitch";
 import useServiceTabs from "../../hooks/useServiceTabs";
-import "./shared/sc-base.css";
+import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
+
+/* Та сама розмітка й той самий CSS, що в еталонного цифрового друку
+   (NewSheetCutV2): шапка зі специфікацією, ліва стрічка виробів,
+   центральна колонка параметрів, права панель наряду. */
+import "./NewSheetCutV2.css";
 
 // ========== CONSTANTS ==========
 
@@ -105,6 +104,11 @@ const WideFactory = ({
   ]);
   const [selectedDruk, setSelectedDruk] = useState(DEFAULTS.selectedDruk);
   const [showSettings, setShowSettings] = useState(false);
+
+  // тема стежить за глобальною темою застосунку (перемикач у Nav)
+  const [theme, setTheme] = useState(getStoredAppTheme);
+  useEffect(() => onAppThemeChange(setTheme), []);
+
 
   const DEFAULT_SIZES = [
     { label: "A2", x: 420, y: 594 }, { label: "A1", x: 594, y: 841 },
@@ -382,252 +386,375 @@ const WideFactory = ({
     pricingSimpleLines.push({ label: "Люверси", value: parseFloat(pricesThis.totalOneItemWideLuversiPrice) || 0 });
   }
 
-  const pricingExtras = [
-    { label: "За виріб", value: `${fmt2(pricesThis?.priceForItemWithExtras || 0)} грн` },
-  ];
 
   // ========== RENDER ==========
 
-  return (
-    <ScModal
-      show={showWideFactory}
-      onClose={handleClose}
-      modalStyle={{ width: "66vw" }}
-      rightContent={
-        <>
-          {pricesThis && (
-            <ScPricing
-              lines={pricingLines}
-              simpleLines={pricingSimpleLines}
-              totalPrice={pricesThis.price || 0}
-              extras={pricingExtras}
-              fmt={fmt2}
-              countUnit="м2"
-            />
-          )}
-          <ScAddButton onClick={saveOrderUnit} isEdit={isEdit} disabled={load} />
-        </>
-      }
-      errorContent={
-        error && (
-          <div className="sc-error">
-            {error?.response?.data?.error || error?.message || "Помилка"}
-          </div>
-        )
-      }
-      tabsContent={
-        <>
-          <div className="sc-tabs-count-row">
-            <div className="sc-count-inline">
-              <input className="inputsArtem" type="number" value={count} min={1}
-                onChange={(e) => handleChangeCount(e.target.value)}
-                style={{ width: "4.4rem", textAlign: "center" }}
-              />
-              <span className="inputsArtemx" style={{ border: "transparent" }}>шт</span>
-            </div>
-            <ScTabs
-              services={services}
-              selectedService={selectedService}
-              onSelect={handleServiceSelect}
-              isEditServices={false}
-              setIsEditServices={() => {}}
-              onSettingsClick={() => setShowSettings(true)}
-            />
-          </div>
-          <ServiceSettingsModal
-            show={showSettings}
-            onClose={() => setShowSettings(false)}
-            services={services}
-            onAddService={async (name) => {
-              const added = await addService(name);
-              if (added) setSelectedService(added.name);
-            }}
-            onRemoveService={async (service) => {
-              const sId = typeof service === 'string' ? null : service?.id;
-              const sName = typeof service === 'string' ? service : service?.name;
-              if (sId) await removeService(sId);
-              if (selectedService === sName) {
-                const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
-                setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
-              }
-            }}
-            onUpdateService={updateService}
-            onReorderServices={reorderServices}
-            defaultSizes={DEFAULT_SIZES}
-            extraToggles={[]}
-            thicknessOptions={[]}
-            hideSidesOption
-            materialType={selectWideFactory}
-            materialCategories={[
-              { label: "Плівка", value: "Плівка FactoryWide" },
-              { label: "Баннер", value: "Баннер FactoryWide" },
-              { label: "Папір", value: "Папір FactoryWide" },
-              { label: "ПВХ", value: "ПВХ FactoryWide" },
-            ]}
-          />
-          <div className="sc-section sc-section-card" style={{ margin: "0 2rem" }}>
-            <div className="sc-sides sc-size-row">
-              {sizeButtons.map((f) => (
-                <button key={f.label}
-                  className={`sc-side-btn${size.x === f.x && size.y === f.y ? " sc-side-active" : ""}`}
-                  onClick={() => setSize({ x: f.x, y: f.y })}
-                >
-                  <span className="sc-side-text">{f.label}</span>
-                </button>
-              ))}
-              <button className={`sc-side-btn${!sizeButtons.some((f) => size.x === f.x && size.y === f.y) ? " sc-side-active" : ""}`}
-                onClick={() => {}}
-              >
-                <span className="sc-side-text">Свій розмір</span>
-              </button>
-              <div className="sc-size-inline-inputs">
-                <input className="inputsArtem" type="number" value={size.x} min={10}
-                  onChange={(e) => setSize({ x: Number(e.target.value) || 0, y: size.y })} />
-                <span className="sc-size-x">x</span>
-                <input className="inputsArtem" type="number" value={size.y} min={10}
-                  onChange={(e) => setSize({ x: size.x, y: Number(e.target.value) || 0 })} />
-                <span className="sc-size-mm">мм</span>
-              </div>
-            </div>
-          </div>
-        </>
-      }
-    >
-      {/* 1. Тип друку */}
-      <ScSection>
-        <div style={{ display: "flex" }}>
-          {DRUK_OPTIONS.map((druk) => {
-            const isActive = selectedDruk === druk;
-            return (
-              <div
-                key={druk}
-                className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
-                onClick={() => setSelectedDruk(druk)}
-              >
-                <div>{druk}</div>
-              </div>
-            );
-          })}
-        </div>
-      </ScSection>
+  const totalPrice = pricesThis?.price || 0;
 
-      {/* 2. Слайдер розміру */}
-      <ScSection>
-        <SliderComponent
-          size={size}
-          setSize={setSize}
-          type="WideFactory"
+  /* Рядок під заголовком — коротка специфікація наряду */
+  const headSpec = [
+    `${size.x}×${size.y} мм`,
+    selectedDruk,
+    material.material || null,
+    lamination.type !== "Не потрібно" ? "ламінація" : null,
+    plotterCutting.type !== "Не потрібно" ? "плоттерна порізка" : null,
+    luversi.type !== "Не потрібно" ? "люверси" : null,
+  ].filter(Boolean).join(" · ");
+
+  /* Постобробка залежить від категорії матеріалу й типу друку — сюди
+     потрапляє лише те, що доступне для поточного вибору */
+  const postpress = [];
+  if (selectWideFactory === "Баннер FactoryWide") {
+    postpress.push({
+      key: "luversi",
+      name: "Люверси",
+      isOn: luversi.type !== "Не потрібно",
+      toggle: () => setLuversi({ ...luversi, type: luversi.type === "Не потрібно" ? "" : "Не потрібно" }),
+      content: (
+        <Luvarsi
+          luversi={luversi}
+          setLuversi={setLuversi}
+          selectArr={[100, 200, 300, 400, 500]}
+          type={"Luversi"}
+          buttonsArr={['По кутам (на "павук")', "По периметру"]}
         />
-      </ScSection>
+      ),
+    });
+  }
 
-      {/* 4. Категорії + Матеріал */}
-      <ScSection style={{ position: "relative", zIndex: 60 }}>
-        <div style={{ display: "flex", marginBottom: "0.8vh" }}>
-          {CATEGORIES.map((val) => {
-            const isActive = selectWideFactory === val;
-            return (
-              <div
-                key={val}
-                className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
-                onClick={() => handleClickWideFactory(val)}
-              >
-                <div>{val.split(" ")[0]}</div>
-              </div>
-            );
-          })}
-        </div>
-        <Materials2
-          material={material}
-          setMaterial={setMaterial}
-          count={count}
-          setCount={setCount}
-          prices={prices}
-          size={size}
-          selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
-          name={"Широкоформатний фотодрук:"}
-          buttonsArr={[]}
-          preferredMaterialName={(() => {
-            const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
-            return svc?.presets?.materialName || undefined;
-          })()}
-        />
-      </ScSection>
-
-      {/* 6. Постобробка — умовні секції */}
-
-      {selectWideFactory === "Баннер FactoryWide" && (
-        <ScSection>
-          <Luvarsi
-            luversi={luversi}
-            setLuversi={setLuversi}
-            selectArr={[100, 200, 300, 400, 500]}
-            type={"Luversi"}
-            buttonsArr={['По кутам (на "павук")', "По периметру"]}
-          />
-        </ScSection>
-      )}
-
-      {selectWideFactory === "Плівка FactoryWide" && (
-        <>
-          {selectedDruk === "Екосольвентний друк" && (
-            <ScSection>
-              <LaminationWideFactory
-                lamination={lamination}
-                setLamination={setLamination}
-                selectArr={[100, 200, 300, 400, 500]}
-                type={"LaminationWideFactory"}
-                buttonsArr={["з глянцевим ламінуванням", "з матовим ламінуванням"]}
-              />
-            </ScSection>
-          )}
-          <ScSection>
-            <PlotterCutting
-              plotterCutting={plotterCutting}
-              setPlotterCutting={setPlotterCutting}
-              plivkaOrPVH={"Плотер плівка FactoryWide"}
-              selectArr={[100, 200, 300, 400, 500]}
-              type={"PlotterCuttingWideFactory"}
-              buttonsArr={["Простая", "Середня", "Складна"]}
-            />
-          </ScSection>
-          <ScSection>
-            <MontajnaPlivkaWideFactory
-              montajnaPlivka={montajnaPlivka}
-              plotterCutting={plotterCutting}
-              setMontajnaPlivka={setMontajnaPlivka}
-              selectArr={[100, 200, 300, 400, 500]}
-              type={"MontajnaPlivkaWideFactory"}
-              buttonsArr={[]}
-            />
-          </ScSection>
-        </>
-      )}
-
-      {selectWideFactory === "Папір FactoryWide" && selectedDruk === "Екосольвентний друк" && (
-        <ScSection>
+  if (selectWideFactory === "Плівка FactoryWide" || (selectWideFactory === "Папір FactoryWide" && selectedDruk === "Екосольвентний друк")) {
+    if (selectedDruk === "Екосольвентний друк") {
+      postpress.push({
+        key: "lamination",
+        name: "Ламінація",
+        isOn: lamination.type !== "Не потрібно",
+        toggle: () => setLamination({ ...lamination, type: lamination.type === "Не потрібно" ? "" : "Не потрібно" }),
+        content: (
           <LaminationWideFactory
             lamination={lamination}
             setLamination={setLamination}
             selectArr={[100, 200, 300, 400, 500]}
             type={"LaminationWideFactory"}
-            buttonsArr={["Глянцева", "Матова"]}
+            buttonsArr={selectWideFactory === "Плівка FactoryWide"
+              ? ["з глянцевим ламінуванням", "з матовим ламінуванням"]
+              : ["Глянцева", "Матова"]}
           />
-        </ScSection>
-      )}
+        ),
+      });
+    }
+  }
 
-      {selectWideFactory === "ПВХ FactoryWide" && (
-        <ScSection>
-          <PlotterCutting
-            plotterCutting={plotterCutting}
-            setPlotterCutting={setPlotterCutting}
-            plivkaOrPVH={"Плотер ПВХ FactoryWide"}
-            selectArr={[100, 200, 300, 400, 500]}
-            type={"PlotterCuttingWideFactory"}
-            buttonsArr={["Простая", "Середня", "Складна"]}
-          />
-        </ScSection>
-      )}
-    </ScModal>
+  if (selectWideFactory === "Плівка FactoryWide" || selectWideFactory === "ПВХ FactoryWide") {
+    postpress.push({
+      key: "plotter",
+      name: "Плоттерна порізка",
+      isOn: plotterCutting.type !== "Не потрібно",
+      toggle: () => setPlotterCutting({ ...plotterCutting, type: plotterCutting.type === "Не потрібно" ? "" : "Не потрібно" }),
+      content: (
+        <PlotterCutting
+          plotterCutting={plotterCutting}
+          setPlotterCutting={setPlotterCutting}
+          plivkaOrPVH={selectWideFactory === "Плівка FactoryWide" ? "Плотер плівка FactoryWide" : "Плотер ПВХ FactoryWide"}
+          selectArr={[100, 200, 300, 400, 500]}
+          type={"PlotterCuttingWideFactory"}
+          buttonsArr={["Простая", "Середня", "Складна"]}
+        />
+      ),
+    });
+  }
+
+  if (selectWideFactory === "Плівка FactoryWide") {
+    postpress.push({
+      key: "montajna",
+      name: "Монтажна плівка",
+      isOn: montajnaPlivka.type !== "Не потрібно",
+      toggle: () => setMontajnaPlivka({ ...montajnaPlivka, type: montajnaPlivka.type === "Не потрібно" ? "" : "Не потрібно" }),
+      content: (
+        <MontajnaPlivkaWideFactory
+          montajnaPlivka={montajnaPlivka}
+          plotterCutting={plotterCutting}
+          setMontajnaPlivka={setMontajnaPlivka}
+          selectArr={[100, 200, 300, 400, 500]}
+          type={"MontajnaPlivkaWideFactory"}
+          buttonsArr={[]}
+        />
+      ),
+    });
+  }
+
+  if (!showWideFactory) return null;
+
+  return (
+    <>
+      <div className="v2-overlay" onClick={handleClose} />
+      <div className={`v2-modal v2-theme-${theme}`} onClick={(e) => e.stopPropagation()}>
+
+        {/* ШАПКА */}
+        <div className="v2-head">
+          <div className="v2-head-main">
+            <span className="v2-head-title">
+              Широкоформат{selectedService ? ` · ${selectedService}` : ""}
+            </span>
+            <div className="v2-head-spec">{headSpec}</div>
+          </div>
+          <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
+            &times;
+          </button>
+        </div>
+
+        {/* ТІЛО */}
+        <div className="v2-body">
+
+          {/* СТРІЧКА ВИРОБІВ */}
+          <div className="v2-tabsrail">
+            {services.map((service, idx) => {
+              const name = typeof service === 'string' ? service : service?.name;
+              const tabColor = typeof service === 'string' ? null : service?.color;
+              const prevService = services[idx - 1];
+              const prevColor = prevService ? (typeof prevService === 'string' ? null : prevService?.color) : null;
+              const isNewGroup = idx > 0 && tabColor !== prevColor;
+              return (
+                <button
+                  key={name}
+                  className={`v2-tab${selectedService === name ? " active" : ""}${isNewGroup ? " v2-tab-group-start" : ""}`}
+                  style={tabColor ? { "--tab-color": tabColor } : undefined}
+                  onClick={() => handleServiceSelect(name)}
+                >
+                  {name}
+                </button>
+              );
+            })}
+            <button className="v2-settings-btn" onClick={() => setShowSettings(true)} title="Налаштування">
+              ⚙
+            </button>
+          </div>
+
+          <div className="v2-left">
+
+            {/* ТИП ДРУКУ */}
+            <div className="v2-section">
+              <span className="v2-label">Друк</span>
+              <div className="v2-sides" style={{ gridTemplateColumns: `repeat(${DRUK_OPTIONS.length}, 1fr)` }}>
+                {DRUK_OPTIONS.map((druk) => (
+                  <button
+                    key={druk}
+                    className={`v2-side${selectedDruk === druk ? " active" : ""}`}
+                    onClick={() => setSelectedDruk(druk)}
+                  >
+                    {druk}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* РОЗМІР */}
+            <div className="v2-section">
+              <span className="v2-label">Розмір у міліметрах</span>
+              <div className="v2-sizes">
+                {sizeButtons.map((f) => (
+                  <button
+                    key={f.label}
+                    className={`v2-size${size.x === f.x && size.y === f.y ? " active" : ""}`}
+                    onClick={() => setSize({ x: f.x, y: f.y })}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+                <div className={`v2-size v2-size-custom${!sizeButtons.some((f) => size.x === f.x && size.y === f.y) ? " active" : ""}`}>
+                  <input
+                    type="number"
+                    value={size.x}
+                    min={10}
+                    onChange={(e) => setSize({ x: Number(e.target.value) || 0, y: size.y })}
+                  />
+                  <span>×</span>
+                  <input
+                    type="number"
+                    value={size.y}
+                    min={10}
+                    onChange={(e) => setSize({ x: size.x, y: Number(e.target.value) || 0 })}
+                  />
+                  <span>мм</span>
+                </div>
+              </div>
+            </div>
+
+            {/* ПОВЗУНКИ РОЗМІРУ — широкоформат правлять «на око», тож
+                повзунок лишається поруч із точними полями */}
+            <div className="v2-section">
+              <span className="v2-label">Підбір розміру</span>
+              <SliderComponent size={size} setSize={setSize} type="WideFactory" />
+            </div>
+
+            {/* МАТЕРІАЛ: спершу категорія, потім конкретний матеріал */}
+            <div className="v2-section">
+              <span className="v2-label">Матеріал</span>
+              <div className="v2-thick-btns" style={{ gridTemplateColumns: `repeat(${CATEGORIES.length}, 1fr)` }}>
+                {CATEGORIES.map((val) => (
+                  <button
+                    key={val}
+                    className={`v2-thick-btn${selectWideFactory === val ? " active" : ""}`}
+                    onClick={() => handleClickWideFactory(val)}
+                  >
+                    {val.split(" ")[0]}
+                  </button>
+                ))}
+              </div>
+              <div className="v2-material-wrap">
+                <Materials2
+                  material={material}
+                  setMaterial={setMaterial}
+                  count={count}
+                  setCount={setCount}
+                  prices={prices}
+                  size={size}
+                  selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
+                  name={"Широкоформатний фотодрук:"}
+                  buttonsArr={[]}
+                  dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                  preferredMaterialName={(() => {
+                    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+                    return svc?.presets?.materialName || undefined;
+                  })()}
+                />
+              </div>
+            </div>
+
+            {/* ПОСТОБРОБКА */}
+            {postpress.length > 0 && (
+              <div className="v2-section">
+                <span className="v2-label">Постобробка</span>
+                <div className="v2-postpress">
+                  {postpress.map((op) => (
+                    <div className="v2-toggle" key={op.key}>
+                      <div className="v2-toggle-left">
+                        <V2ToggleSwitch isOn={op.isOn} onToggle={op.toggle} />
+                        {op.isOn ? (
+                          <div className="v2-toggle-content">{op.content}</div>
+                        ) : (
+                          <span className="v2-toggle-name">{op.name}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ПРАВОРУЧ — НАРЯД */}
+          <div className="v2-right">
+            <div className="v2-run">
+              <span className="v2-run-label">Наклад, шт</span>
+              <div className="v2-count-row">
+                <button className="v2-count-btn" onClick={() => handleChangeCount(Math.max(1, count - 1))}>−</button>
+                <input
+                  className="v2-count-val"
+                  type="number"
+                  value={count}
+                  min={1}
+                  onChange={(e) => handleChangeCount(e.target.value)}
+                />
+                <button className="v2-count-btn" onClick={() => handleChangeCount(count + 1)}>+</button>
+              </div>
+            </div>
+
+            {/* розкладки немає: широкоформат друкується з рулону, площею,
+                а не аркушами — замість неї показуємо метраж */}
+            <div className="v2-prices-title">Калькуляція</div>
+            <div className="v2-prices">
+              {pricingLines.map((line, i) => {
+                const isZero = Math.round((line.total || 0) * 100) === 0;
+                const hasBreakdown = !isZero && line.count > 0 && line.perUnit > 0;
+                return (
+                  <div className={`v2-price-row${isZero ? " is-zero" : ""}`} key={i}>
+                    <span>{line.label}</span>
+                    <i className="v2-lead" />
+                    <span className="v2-price-val">
+                      {hasBreakdown && (
+                        <span className="v2-price-calc">
+                          {fmt2(line.count)} м² × {fmt2(line.perUnit)} ={" "}
+                        </span>
+                      )}
+                      {fmt2(line.total)} грн
+                    </span>
+                  </div>
+                );
+              })}
+              {pricingSimpleLines.map((line, i) => (
+                <div className="v2-price-row" key={`s${i}`}>
+                  <span>{line.label}</span>
+                  <i className="v2-lead" />
+                  <span className="v2-price-val">{fmt2(line.value)} грн</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="v2-total">
+              <div className="v2-total-price">
+                {fmt2(totalPrice)} <span className="v2-total-unit">грн</span>
+              </div>
+              <div className="v2-total-sub">
+                <span>За виріб</span>
+                <span>{fmt2(pricesThis?.priceForItemWithExtras || 0)} грн</span>
+              </div>
+              <div className="v2-total-sub">
+                <span>Площа виробу</span>
+                <span>{fmt2(totalM2)} м²</span>
+              </div>
+            </div>
+
+            <button className="v2-add-btn" onClick={saveOrderUnit} disabled={load || !thisOrder?.id}>
+              <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
+              <span className="v2-add-btn-label">
+                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* ПОМИЛКА */}
+        {error && (
+          <div className="v2-error">
+            {error?.response?.data?.error || error?.message || "Помилка"}
+          </div>
+        )}
+
+        {/* НАЛАШТУВАННЯ ВИРОБІВ */}
+        <ServiceSettingsModal
+          variant="ssm-v2"
+          show={showSettings}
+          onClose={() => setShowSettings(false)}
+          services={services}
+          onAddService={async (name) => {
+            const added = await addService(name);
+            if (added) setSelectedService(added.name);
+          }}
+          onRemoveService={async (service) => {
+            const sId = typeof service === 'string' ? null : service?.id;
+            const sName = typeof service === 'string' ? service : service?.name;
+            if (sId) await removeService(sId);
+            if (selectedService === sName) {
+              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
+              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
+            }
+          }}
+          onUpdateService={updateService}
+          onReorderServices={reorderServices}
+          defaultSizes={DEFAULT_SIZES}
+          extraToggles={[]}
+          thicknessOptions={[]}
+          hideSidesOption
+          materialType={selectWideFactory}
+          materialCategories={[
+            { label: "Плівка", value: "Плівка FactoryWide" },
+            { label: "Баннер", value: "Баннер FactoryWide" },
+            { label: "Папір", value: "Папір FactoryWide" },
+            { label: "ПВХ", value: "ПВХ FactoryWide" },
+          ]}
+        />
+      </div>
+    </>
   );
 };
 

@@ -6,6 +6,7 @@ import { Spinner } from "react-bootstrap";
 import "../../Poslugy.css";
 
 const Materials2NoteFront = ({
+  dropdownClassName = "",
   materialAndDrukFront,
   setMaterialAndDrukFront,
   count,
@@ -194,7 +195,7 @@ const Materials2NoteFront = ({
           <span className="switch-off"><span>OFF</span></span>
         </label>
         {!isOn ? (
-          <div className="sc-title" style={{ marginBottom: 0 }}>{name}</div>
+          null
         ) : (
           <div className="sc-row sc-pp-row" style={{ flex: 1, alignItems: "center" }}>
             <div style={{ display: "flex" }}>
@@ -271,7 +272,7 @@ const Materials2NoteFront = ({
                 </span>
               </div>
               {openPaper && ReactDOM.createPortal(
-                <div className="custom-select-dropdown" ref={portalPaperRef} style={dropStylePaper}>
+                <div className={`custom-select-dropdown${dropdownClassName ? ` ${dropdownClassName}` : ""}`} ref={portalPaperRef} style={dropStylePaper}>
                   {paper.map((item) => (
                     <div
                       key={item.id}
@@ -303,7 +304,7 @@ const Materials2NoteFront = ({
               <span className="slider" />
               <span className="switch-off"><span>OFF</span></span>
             </label>
-            {!lamOn && <div className="sc-title" style={{ marginBottom: 0 }}>Ламінація</div>}
+            {!lamOn && <div className="sc-title">Ламінування</div>}
             {lamOn && buttonsArrLamination.map((item, i) => {
               const isActive = item.value === materialAndDrukFront.laminationTypeUse;
               return (
@@ -328,7 +329,7 @@ const Materials2NoteFront = ({
                   {lamTitle}
                 </div>
                 {openLam && ReactDOM.createPortal(
-                  <div className="custom-select-dropdown" ref={portalLamRef} style={dropStyleLam}>
+                  <div className={`custom-select-dropdown${dropdownClassName ? ` ${dropdownClassName}` : ""}`} ref={portalLamRef} style={dropStyleLam}>
                     {lamination.map((item) => (
                       <div
                         key={item.id}

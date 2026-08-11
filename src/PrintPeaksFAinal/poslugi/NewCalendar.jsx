@@ -8,12 +8,13 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import axios from "../../api/axiosInstance";
 
-import ScModal from "./shared/ScModal";
-import ScSection from "./shared/ScSection";
-import ScToggleSection from "./shared/ScToggleSection";
-import ScSides from "./shared/ScSides";
-import ScPricing from "./shared/ScPricing";
-import ScAddButton from "./shared/ScAddButton";
+/* Будівельні блоки PRINT V2 з тими самими пропсами, що були у Sc*-версій —
+   тому всі п'ять підтипів календаря переїхали на стиль еталона без правок
+   у їхніх рендерах. */
+import ScSection from "./shared/V2Section";
+import ScToggleSection from "./shared/V2ToggleSection";
+import ScSides from "./shared/V2Sides";
+import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
 
 import Materials2 from "./newnomodals/Materials2";
 import NewNoModalLamination from "./newnomodals/NewNoModalLamination";
@@ -22,8 +23,7 @@ import NewNoModalBig from "./newnomodals/NewNoModalBig";
 import NewNoModalLyuversy from "./newnomodals/NewNoModalLyuversy";
 import NewNoModalProkleyka from "./newnomodals/NewNoModalProkleyka";
 
-import "./Poslugy.css";
-import "./shared/sc-base.css";
+import "./NewSheetCutV2.css";
 
 /* ============================================================
    ТИПИ КАЛЕНДАРІВ
@@ -135,7 +135,7 @@ const DEFAULTS = {
     size: { x: 210, y: 297 }, // фіксовано A4
     headerMaterial: { ...baseMaterial, thickness: "Цупкий", typeUse: "Цупкий" },
     headerLam: { ...baseLam },
-    adFieldsCount: 1,                // 0 (без), 1 або 3
+    adFieldsCount: 3,                // 0 (без), 1 або 3
     gridKind: "standard",            // standard | individual
     gridMaterial: { ...baseMaterial, thickness: "Тонкий", typeUse: "Тонкий" },
     gridSheetsPerCopy: 36,           // 12 місяців × 3 квартали
@@ -181,6 +181,10 @@ const NewCalendar = ({
   /* ====== STATE ====== */
   const [calType, setCalType] = useState("pocket");
   const [count, setCount] = useState(DEFAULTS.count);
+
+  // тема стежить за глобальною темою застосунку (перемикач у Nav)
+  const [theme, setTheme] = useState(getStoredAppTheme);
+  useEffect(() => onAppThemeChange(setTheme), []);
 
   // POCKET
   const [pSize, setPSize] = useState(DEFAULTS.pocket.size);
@@ -230,6 +234,14 @@ const NewCalendar = ({
   const [qSpringColor, setQSpringColor] = useState(DEFAULTS.quarterly.springColor);
   const [qLyuversCount, setQLyuversCount] = useState(DEFAULTS.quarterly.lyuversCount);
   const [qBigunok, setQBigunok] = useState(DEFAULTS.quarterly.bigunok);
+
+  /* Скільки аркушів друкувати на копію індивідуальної сітки — рахується
+     від кількості рекламних полів: одне вікно = 12 місяців в один ряд,
+     три вікна = 36 аркушів (12 міс. × 3 квартали). Ставимо при кожній
+     зміні кількості полів; вручну число все одно можна перебити. */
+  useEffect(() => {
+    setQGridSheetsPerCopy(qAdFields === 3 ? 36 : 12);
+  }, [qAdFields]);
 
   // Кольори пружини (розширюваний список)
   const [springColors, setSpringColors] = useState(DEFAULT_SPRING_COLORS);
@@ -450,58 +462,38 @@ const NewCalendar = ({
      RENDER — РОЗМІРИ
      ============================================================ */
   const renderSizeRow = (presets, size, setSize) => (
-    <div className="sc-section sc-section-card">
-      <div className="sc-sides sc-size-row">
+    <div className="v2-section">
+      <span className="v2-label">Розмір у міліметрах</span>
+      <div className="v2-sizes">
         {presets.map((f) => (
           <button
             key={f.label}
-            className={`sc-side-btn${size.x === f.x && size.y === f.y ? " sc-side-active" : ""}`}
+            className={`v2-size${size.x === f.x && size.y === f.y ? " active" : ""}`}
             onClick={() => setSize({ x: f.x, y: f.y })}
           >
-            <span className="sc-side-text">{f.label}</span>
+            {f.label}
           </button>
         ))}
-        <div className="sc-size-inline-inputs">
+        <div className={`v2-size v2-size-custom${!presets.some((f) => size.x === f.x && size.y === f.y) ? " active" : ""}`}>
           <input
-            className="inputsArtem"
             type="number"
             value={size.x}
             min={10}
             onChange={(e) => setSize({ x: Number(e.target.value) || 0, y: size.y })}
           />
-          <span className="sc-size-x">x</span>
+          <span>×</span>
           <input
-            className="inputsArtem"
             type="number"
             value={size.y}
             min={10}
             onChange={(e) => setSize({ x: size.x, y: Number(e.target.value) || 0 })}
           />
-          <span className="sc-size-mm">мм</span>
+          <span>мм</span>
         </div>
       </div>
     </div>
   );
 
-  /* ============================================================
-     ВКЛАДКИ ТИПУ КАЛЕНДАРЯ (зверху)
-     ============================================================ */
-  const renderTypeTabs = () => (
-    <div className="sc-section" style={{ margin: "0 2rem", padding: 0 }}>
-      <div className="sc-sides" style={{ flexWrap: "wrap" }}>
-        {CAL_TYPES.map((t) => (
-          <button
-            key={t.key}
-            className={`sc-side-btn${calType === t.key ? " sc-side-active" : ""}`}
-            onClick={() => setCalType(t.key)}
-            style={{ flex: 1, minWidth: 0 }}
-          >
-            <span className="sc-side-text">{t.label}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 
   /* ============================================================
      БЛОК "ПРУЖИНА" з кольорами (спільний для desktop/wall/quarterly)
@@ -595,6 +587,8 @@ const NewCalendar = ({
           buttonsArr={["Тонкий", "Середній", "Цупкий"]}
           typeOfPosluga={"NewCalendarPocket"}
           autoSelectFirst={false}
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+          preferredMaterialName={"Крейдований папір 315x445 350gsm"}
         />
       </ScSection>
 
@@ -611,6 +605,7 @@ const NewCalendar = ({
         }}
       >
         <NewNoModalLamination
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
           lamination={pLam}
           setLamination={setPLam}
           size={pSize}
@@ -646,6 +641,7 @@ const NewCalendar = ({
         style={{ position: "relative", zIndex: 20 }}
       >
         <NewNoModalCute
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
           cute={pCute} setCute={setPCute}
           cuteLocal={pCuteLocal} setCuteLocal={setPCuteLocal}
           type={"Calendar"}
@@ -681,6 +677,8 @@ const NewCalendar = ({
           buttonsArr={["Цупкий"]}
           typeOfPosluga={"NewCalendarHouse"}
           autoSelectFirst={false}
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+          preferredMaterialName={"Крейдований папір 315x445 350gsm"}
         />
       </ScSection>
 
@@ -697,6 +695,7 @@ const NewCalendar = ({
         }}
       >
         <NewNoModalLamination
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
           lamination={hLam} setLamination={setHLam}
           size={hSize} type={"Calendar"}
           paperTypeUse={hMaterial.typeUse}
@@ -714,6 +713,7 @@ const NewCalendar = ({
         style={{ position: "relative", zIndex: 20 }}
       >
         <NewNoModalBig
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
           big={hBig} setBig={setHBig}
           type={"Calendar"} buttonsArr={[]}
           selectArr={["", "1", "2", "3", "4", "5", "6"]}
@@ -728,6 +728,7 @@ const NewCalendar = ({
         style={{ position: "relative", zIndex: 15 }}
       >
         <NewNoModalProkleyka
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
           prokleyka={hProkleyka} setProkleyka={setHProkleyka}
           type={"Calendar"} buttonsArr={[]}
           selectArr={["", "1", "2", "3"]}
@@ -744,7 +745,7 @@ const NewCalendar = ({
       {/* Спільний розмір для основи і блоку */}
       {renderSizeRow(SIZE_PRESETS.desktop, dSize, setDSize)}
 
-      <div className="sc-title" style={{ margin: "0 2rem", fontWeight: 600 }}>Основа (як будиночок)</div>
+      <div className="sc-title">Основа (як будиночок)</div>
 
       <ScSides
         value={dBaseColor.sides}
@@ -763,6 +764,7 @@ const NewCalendar = ({
           buttonsArr={["Цупкий"]}
           typeOfPosluga={"NewCalendarDesktopBase"}
           autoSelectFirst={false}
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
           preferredMaterialName={"Крейдований папір 315x445 350gsm"}
         />
       </ScSection>
@@ -780,6 +782,7 @@ const NewCalendar = ({
         }}
       >
         <NewNoModalLamination
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
           lamination={dBaseLam} setLamination={setDBaseLam}
           size={dSize} type={"Calendar"}
           paperTypeUse={dBaseMaterial.typeUse}
@@ -789,11 +792,11 @@ const NewCalendar = ({
         />
       </ScToggleSection>
 
-      <div className="sc-title" style={{ margin: "1rem 2rem 0", fontWeight: 600 }}>Блок з місяцями</div>
+      <div className="sc-title">Блок з місяцями</div>
 
       <ScSection>
         <div className="d-flex align-items-center" style={{ gap: "0.6rem" }}>
-          <span className="sc-title" style={{ marginBottom: 0 }}>Кількість аркушів:</span>
+          <span className="sc-title">Кількість аркушів:</span>
           <input
             className="inputsArtem"
             type="number"
@@ -823,12 +826,13 @@ const NewCalendar = ({
           buttonsArr={["Офісний", "Тонкий", "Середній"]}
           typeOfPosluga={"NewCalendarDesktopBlock"}
           autoSelectFirst={false}
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
           preferredMaterialName={"Крейдований папір 315x445 170gsm"}
         />
       </ScSection>
 
       <ScSection>
-        <div className="sc-title" style={{ marginBottom: "0.4rem" }}>Прошивка пружиною (колір):</div>
+        <div className="sc-title">Прошивка пружиною (колір):</div>
         {renderSpringColors(dPereplet.color, (c) => setDPereplet({ ...dPereplet, color: c }))}
       </ScSection>
     </>
@@ -842,7 +846,7 @@ const NewCalendar = ({
       {/* Спільний розмір для обкладинки і блоку */}
       {renderSizeRow(SIZE_PRESETS.wall, wSize, setWSize)}
 
-      <div className="sc-title" style={{ margin: "0 2rem", fontWeight: 600 }}>Обкладинка</div>
+      <div className="sc-title">Обкладинка</div>
 
       <ScSides
         value={wCoverColor.sides}
@@ -861,7 +865,8 @@ const NewCalendar = ({
           buttonsArr={["Цупкий"]}
           typeOfPosluga={"NewCalendarWallCover"}
           autoSelectFirst={false}
-          preferredMaterialName={"ColorCopy 400"}
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+          preferredMaterialName={"Крейдований папір 315x445 350gsm"}
         />
       </ScSection>
 
@@ -878,6 +883,7 @@ const NewCalendar = ({
         }}
       >
         <NewNoModalLamination
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
           lamination={wCoverLam} setLamination={setWCoverLam}
           size={wSize} type={"Calendar"}
           paperTypeUse={wCoverMaterial.typeUse}
@@ -887,11 +893,11 @@ const NewCalendar = ({
         />
       </ScToggleSection>
 
-      <div className="sc-title" style={{ margin: "1rem 2rem 0", fontWeight: 600 }}>Блок з місяцями</div>
+      <div className="sc-title">Блок з місяцями</div>
 
       <ScSection>
         <div className="d-flex align-items-center" style={{ gap: "0.6rem" }}>
-          <span className="sc-title" style={{ marginBottom: 0 }}>Кількість аркушів:</span>
+          <span className="sc-title">Кількість аркушів:</span>
           <input
             className="inputsArtem"
             type="number"
@@ -921,12 +927,13 @@ const NewCalendar = ({
           buttonsArr={["Тонкий", "Середній", "Цупкий"]}
           typeOfPosluga={"NewCalendarWallBlock"}
           autoSelectFirst={false}
-          preferredMaterialName={"Color Copy 160"}
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+          preferredMaterialName={"Крейдований папір 315x445 170gsm"}
         />
       </ScSection>
 
       <ScSection>
-        <div className="sc-title" style={{ marginBottom: "0.4rem" }}>Прошивка пружиною (колір):</div>
+        <div className="sc-title">Прошивка пружиною (колір):</div>
         {renderSpringColors(wPereplet.color, (c) => setWPereplet({ ...wPereplet, color: c }))}
       </ScSection>
     </>
@@ -949,7 +956,7 @@ const NewCalendar = ({
         </div>
       </div>
 
-      <div className="sc-title" style={{ margin: "0 2rem", fontWeight: 600 }}>Шапка</div>
+      <div className="sc-title">Шапка</div>
 
       <ScSection style={{ position: "relative", zIndex: 50 }}>
         <Materials2
@@ -959,6 +966,7 @@ const NewCalendar = ({
           buttonsArr={[]}
           typeOfPosluga={"NewCalendarQuarterlyHeader"}
           autoSelectFirst={false}
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
           preferredMaterialName={"Крейдований папір 315x445 350gsm"}
         />
       </ScSection>
@@ -976,6 +984,7 @@ const NewCalendar = ({
         }}
       >
         <NewNoModalLamination
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
           lamination={qHeaderLam} setLamination={setQHeaderLam}
           size={qSize} type={"Calendar"}
           paperTypeUse={qHeaderMaterial.typeUse}
@@ -986,7 +995,7 @@ const NewCalendar = ({
       </ScToggleSection>
 
       <ScSection>
-        <div className="sc-title" style={{ marginBottom: "0.4rem" }}>Кількість рекламних полів:</div>
+        <div className="sc-title">Кількість рекламних полів:</div>
         <div className="sc-sides" style={{ gap: "0.4rem" }}>
           {[
             { v: 0, label: "Без поля" },
@@ -1005,7 +1014,7 @@ const NewCalendar = ({
         </div>
       </ScSection>
 
-      <div className="sc-title" style={{ margin: "1rem 2rem 0", fontWeight: 600 }}>Сітка</div>
+      <div className="sc-title">Сітка</div>
       <div className="sc-section sc-section-card">
         <div className="sc-sides">
           <button
@@ -1033,12 +1042,13 @@ const NewCalendar = ({
               buttonsArr={["Тонкий", "Середній", "Цупкий"]}
               typeOfPosluga={"NewCalendarQuarterlyGrid"}
               autoSelectFirst={false}
+              dropdownClassName={`v2-dropdown v2-theme-${theme}`}
               preferredMaterialName={"Крейдований папір 315x445 130gsm"}
             />
           </ScSection>
           <ScSection>
             <div className="d-flex align-items-center" style={{ gap: "0.6rem" }}>
-              <span className="sc-title" style={{ marginBottom: 0 }}>Аркушів на копію:</span>
+              <span className="sc-title">Аркушів на копію:</span>
               <input
                 className="inputsArtem"
                 type="number"
@@ -1047,13 +1057,15 @@ const NewCalendar = ({
                 onChange={(e) => setQGridSheetsPerCopy(Number(e.target.value) || 1)}
                 style={{ width: "5rem", textAlign: "center" }}
               />
-              <span style={{ color: "var(--admingrey)" }}>(стандарт 36 = 12 міс. × 3 квартали)</span>
+              <span style={{ color: "var(--admingrey)" }}>
+                {qAdFields === 3 ? "(36 = 12 міс. × 3 квартали)" : "(12 = 12 міс. в одне вікно)"}
+              </span>
             </div>
           </ScSection>
         </>
       )}
 
-      <div className="sc-title" style={{ margin: "1rem 2rem 0", fontWeight: 600 }}>Кріплення</div>
+      <div className="sc-title">Кріплення</div>
       <div className="sc-section sc-section-card">
         <div className="sc-sides">
           <button
@@ -1073,7 +1085,7 @@ const NewCalendar = ({
 
       {qPerepletKind === "spring" && (
         <ScSection>
-          <div className="sc-title" style={{ marginBottom: "0.4rem" }}>Колір пружини:</div>
+          <div className="sc-title">Колір пружини:</div>
           {renderSpringColors(qSpringColor, setQSpringColor)}
         </ScSection>
       )}
@@ -1081,6 +1093,7 @@ const NewCalendar = ({
       {qPerepletKind === "lyuvers" && (
         <ScSection>
           <NewNoModalLyuversy
+          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
             lyuversy={qLyuversCount} setLyuversy={setQLyuversCount}
             type={"Calendar"} buttonsArr={[]}
             selectArr={["", "1", "2", "3", "4"]}
@@ -1111,58 +1124,126 @@ const NewCalendar = ({
     return [];
   }, [pricesThis]);
 
-  const pricingExtras = [
-    { label: "За 1 виріб", value: `${count ? fmt2((pricesThis.price || 0) / count) : "0,00"} грн` },
-  ];
-
   /* ============================================================
      RENDER
      ============================================================ */
+
+  const totalPrice = pricesThis.price || 0;
+  const calTypeLabel = CAL_TYPES.find((t) => t.key === calType)?.label || "";
+
+  /* розмір показуємо того підтипу, який зараз відкритий — у кожного
+     календаря свій набір станів */
+  const activeSize = { pocket: pSize, house: hSize, desktop: dSize, wall: wSize, quarterly: qSize }[calType];
+  const headSpec = activeSize ? `${activeSize.x}×${activeSize.y} мм` : "";
+
+  if (!showNewCalendar) return null;
+
   return (
-    <ScModal
-      show={showNewCalendar}
-      onClose={handleClose}
-      rightContent={
-        <>
-          <ScPricing
-            lines={pricingLines}
-            simpleLines={[]}
-            totalPrice={pricesThis.price || 0}
-            extras={pricingExtras}
-            fmt={fmt2}
-          />
-          <ScAddButton onClick={addNewOrderUnit} isEdit={isEdit} />
-        </>
-      }
-      errorContent={error && (
-        <div className="sc-error">{error.response?.data?.error || "Помилка"}</div>
-      )}
-      tabsContent={
-        <>
-          <div className="sc-tabs-count-row">
-            <div className="sc-count-inline">
-              <input
-                className="inputsArtem"
-                type="number"
-                value={count}
-                min={1}
-                onChange={(e) => setCount(Number(e.target.value) || 1)}
-                style={{ width: "4.4rem", textAlign: "center" }}
-              />
-              <span className="inputsArtemx" style={{ border: "transparent" }}>шт</span>
-            </div>
-            <div style={{ flex: 1 }} />
+    <>
+      <div className="v2-overlay" onClick={handleClose} />
+      <div className={`v2-modal v2-theme-${theme}`} onClick={(e) => e.stopPropagation()}>
+
+        {/* ШАПКА */}
+        <div className="v2-head">
+          <div className="v2-head-main">
+            <span className="v2-head-title">
+              Календар{calTypeLabel ? ` · ${calTypeLabel}` : ""}
+            </span>
+            <div className="v2-head-spec">{headSpec}</div>
           </div>
-          {renderTypeTabs()}
-        </>
-      }
-    >
-      {calType === "pocket"    && renderPocket()}
-      {calType === "house"     && renderHouse()}
-      {calType === "desktop"   && renderDesktop()}
-      {calType === "wall"      && renderWall()}
-      {calType === "quarterly" && renderQuarterly()}
-    </ScModal>
+          <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
+            &times;
+          </button>
+        </div>
+
+        {/* ТІЛО */}
+        <div className="v2-body">
+
+          {/* СТРІЧКА ТИПІВ КАЛЕНДАРЯ */}
+          <div className="v2-tabsrail">
+            {CAL_TYPES.map((t) => (
+              <button
+                key={t.key}
+                className={`v2-tab${calType === t.key ? " active" : ""}`}
+                onClick={() => setCalType(t.key)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="v2-left">
+            {calType === "pocket"    && renderPocket()}
+            {calType === "house"     && renderHouse()}
+            {calType === "desktop"   && renderDesktop()}
+            {calType === "wall"      && renderWall()}
+            {calType === "quarterly" && renderQuarterly()}
+          </div>
+
+          {/* ПРАВОРУЧ — НАРЯД */}
+          <div className="v2-right">
+            <div className="v2-run">
+              <span className="v2-run-label">Наклад, шт</span>
+              <div className="v2-count-row">
+                <button className="v2-count-btn" onClick={() => setCount(Math.max(1, count - 1))}>−</button>
+                <input
+                  className="v2-count-val"
+                  type="number"
+                  value={count}
+                  min={1}
+                  onChange={(e) => setCount(Number(e.target.value) || 1)}
+                />
+                <button className="v2-count-btn" onClick={() => setCount(count + 1)}>+</button>
+              </div>
+            </div>
+
+            <div className="v2-prices-title">Калькуляція</div>
+            <div className="v2-prices">
+              {pricingLines.map((line, i) => {
+                const isZero = Math.round((line.total || 0) * 100) === 0;
+                const hasBreakdown = !isZero && line.count > 0 && line.perUnit > 0;
+                return (
+                  <div className={`v2-price-row${isZero ? " is-zero" : ""}`} key={i}>
+                    <span>{line.label}</span>
+                    <i className="v2-lead" />
+                    <span className="v2-price-val">
+                      {hasBreakdown && (
+                        <span className="v2-price-calc">
+                          {line.count} × {fmt2(line.perUnit)} ={" "}
+                        </span>
+                      )}
+                      {fmt2(line.total)} грн
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="v2-total">
+              <div className="v2-total-price">
+                {fmt2(totalPrice)} <span className="v2-total-unit">грн</span>
+              </div>
+              <div className="v2-total-sub">
+                <span>За 1 виріб</span>
+                <span>{count ? fmt2(totalPrice / count) : "0,00"} грн</span>
+              </div>
+            </div>
+
+            <button className="v2-add-btn" onClick={addNewOrderUnit} disabled={!thisOrder?.id}>
+              <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
+              <span className="v2-add-btn-label">
+                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* ПОМИЛКА */}
+        {error && (
+          <div className="v2-error">{error.response?.data?.error || "Помилка"}</div>
+        )}
+      </div>
+    </>
   );
 };
 

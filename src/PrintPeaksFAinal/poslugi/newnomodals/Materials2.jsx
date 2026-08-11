@@ -4,6 +4,24 @@ import axios from "../../../api/axiosInstance";
 import {useNavigate} from "react-router-dom";
 import {Spinner} from "react-bootstrap";
 
+/* Кеш списків матеріалів на час життя вкладки.
+   Список за однією комбінацією (тип + щільність + розмір + послуга +
+   сортування) не змінюється, поки користувач клацає туди-сюди в модалці,
+   а запит важкий (усі позиції прайсу). Без кешу кожне перемикання
+   товщини або розміру знову чекало на мережу. */
+const materialsCache = new Map();
+const MATERIALS_CACHE_TTL = 60000;
+
+const readMaterialsCache = (key) => {
+  const hit = materialsCache.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.at > MATERIALS_CACHE_TTL) {
+    materialsCache.delete(key);
+    return null;
+  }
+  return hit.rows;
+};
+
 const Materials2 = ({
                       material,
                       setMaterial,
@@ -105,18 +123,20 @@ const Materials2 = ({
     };
 
     let cancelled = false;
-    setLoad(true);
-    setError(null);
 
-    axios
-      .post(`/materials/NotAll`, data)
-      .then((response) => {
-        if (cancelled) return;
+    const cacheKey = JSON.stringify({
+      t: material?.type,
+      th: material?.thickness,
+      x: size?.x,
+      y: size?.y,
+      p: typeOfPosluga,
+      s: sortPref,
+    });
 
-        const rawRows = response?.data?.rows || [];
-        const rows = Array.isArray(rawRows) ? rawRows : [];
-        setPaper(rows);
-        setLoad(false);
+    const applyRows = (rows) => {
+      if (cancelled) return;
+      setPaper(rows);
+      setLoad(false);
 
         // Якщо є preferredMaterialName — завжди вибирати його
         if (preferredMaterialName && rows.length > 0) {
@@ -169,6 +189,25 @@ const Materials2 = ({
             }
           }
         }
+    };
+
+    const cached = readMaterialsCache(cacheKey);
+    if (cached) {
+      // список уже є — показуємо без мережі й без миготіння лоадера
+      applyRows(cached);
+      return () => { cancelled = true; };
+    }
+
+    setLoad(true);
+    setError(null);
+
+    axios
+      .post(`/materials/NotAll`, data)
+      .then((response) => {
+        const rawRows = response?.data?.rows || [];
+        const rows = Array.isArray(rawRows) ? rawRows : [];
+        materialsCache.set(cacheKey, { rows, at: Date.now() });
+        applyRows(rows);
       })
       .catch((err) => {
         if (cancelled) return;
@@ -180,7 +219,10 @@ const Materials2 = ({
     return () => {
       cancelled = true;
     };
-  }, [material?.thickness, material?.type, size, size?.x, size?.y, navigate, setMaterial, preferredMaterialName, preferredMaterialThickness, autoSelectFirst, sortOverride?.column, sortOverride?.reverse]);
+    /* size навмисно НЕ в залежностях: це об'єкт, який батько створює
+       наново на кожен рендер, тож ефект перезапитував список нескінченно.
+       Значення беремо з size.x/size.y — вони примітиви. */
+  }, [material?.thickness, material?.type, size?.x, size?.y, typeOfPosluga, preferredMaterialName, preferredMaterialThickness, autoSelectFirst, sortOverride?.column, sortOverride?.reverse]);
 
   // 📏 автоширина
   useEffect(() => {

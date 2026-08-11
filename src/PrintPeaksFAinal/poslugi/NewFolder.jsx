@@ -2,17 +2,14 @@ import axios from '../../api/axiosInstance';
 import React, { useCallback, useEffect, useState, useMemo, useRef } from "react";
 import Materials2 from "./newnomodals/Materials2";
 
-import ScModal from "./shared/ScModal";
-import ScSides from "./shared/ScSides";
-import ScToggleSection from "./shared/ScToggleSection";
-import ScPricing from "./shared/ScPricing";
-import ScAddButton from "./shared/ScAddButton";
-import ScTabs from "./shared/ScTabs";
+/* Будівельні блоки PRINT V2 — пропси ті самі, що були у Sc*-версій */
+import ScSides from "./shared/V2Sides";
+import ScToggleSection from "./shared/V2ToggleSection";
 import ServiceSettingsModal from "./shared/ServiceSettingsModal";
 import useServiceTabs from "../../hooks/useServiceTabs";
+import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
 
-import "./Poslugy.css";
-import "./shared/sc-base.css";
+import "./NewSheetCutV2.css";
 
 const DEFAULT_SIZE = { x: 297, y: 420 };
 
@@ -92,6 +89,10 @@ export default function NewFolder({
   const [pricesThis, setPricesThis] = useState({});
 
   const [showSettings, setShowSettings] = useState(false);
+
+  // тема стежить за глобальною темою застосунку (перемикач у Nav)
+  const [theme, setTheme] = useState(getStoredAppTheme);
+  useEffect(() => onAppThemeChange(setTheme), []);
   const { services, addService, removeService, updateService, reorderServices, loading: servicesLoading } = useServiceTabs("Folder", [
     "Папка",
   ]);
@@ -317,181 +318,252 @@ export default function NewFolder({
   };
 
   /* ===================== RENDER ===================== */
+
+  const headSpec = [
+    `${size.x}×${size.y} мм`,
+    materialColor?.material || null,
+    prokleykaKisheni.enabled ? "проклейка кишені" : null,
+  ].filter(Boolean).join(" · ");
+
+  if (!showNewFolder) return null;
+
   return (
-    <ScModal
-      show={showNewFolder}
-      onClose={handleClose}
-      modalStyle={{ width: "40.25vw" }}
-      modalClassName="sc-modal-bw"
-      leftStyle={{ flex: 1.2 }}
-      rightStyle={{ width: "12.9vw", minWidth: "144px", maxWidth: "240px" }}
-      rightContent={
-        <>
-          {pricesThis && (
-            <ScPricing
-              lines={pricingLines}
-              totalPrice={totalCombined}
-              extras={pricingExtras}
-              fmt={fmt2}
-            />
-          )}
-          <ScAddButton onClick={addNewOrderUnit} isEdit={isEdit} className="sc-add-btn--bw-compact" />
-        </>
-      }
-      errorContent={
-        typeof error === "string" ? (
-          <div className="sc-error">{error}</div>
-        ) : error?.response?.data?.error ? (
-          <div className="sc-error">{error.response.data.error}</div>
-        ) : null
-      }
-      tabsContent={
-        <>
-          <div className="sc-tabs-count-row">
-            <div className="sc-count-inline">
-              <input
-                className="inputsArtem"
-                type="number"
-                value={count}
-                min={1}
-                onChange={(e) => setCount(Number(e.target.value) || 1)}
-                style={{ width: "4.4rem", textAlign: "center" }}
-              />
-              <span className="inputsArtemx" style={{ border: "transparent" }}>шт</span>
-            </div>
-            <ScTabs
-              services={services}
-              selectedService={selectedService}
-              onSelect={handleServiceSelect}
-              isEditServices={false}
-              setIsEditServices={() => {}}
-              onSettingsClick={() => setShowSettings(true)}
-            />
+    <>
+      <div className="v2-overlay" onClick={handleClose} />
+      <div className={`v2-modal v2-modal-mid v2-theme-${theme}`} onClick={(e) => e.stopPropagation()}>
+
+        {/* ШАПКА */}
+        <div className="v2-head">
+          <div className="v2-head-main">
+            <span className="v2-head-title">
+              Папка{selectedService ? ` · ${selectedService}` : ""}
+            </span>
+            <div className="v2-head-spec">{headSpec}</div>
           </div>
-          <ServiceSettingsModal
-            show={showSettings}
-            onClose={() => setShowSettings(false)}
-            services={services}
-            onAddService={async (name) => {
-              const added = await addService(name);
-              if (added) setSelectedService(added.name);
-            }}
-            onRemoveService={async (service) => {
-              const sId = typeof service === 'string' ? null : service?.id;
-              const sName = typeof service === 'string' ? service : service?.name;
-              if (sId) await removeService(sId);
-              if (selectedService === sName) {
-                const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
-                setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
-              }
-            }}
-            onUpdateService={updateService}
-            onReorderServices={reorderServices}
-            defaultSizes={DEFAULT_SIZES}
-            thicknessOptions={["Цупкий"]}
-            hideLaminationOption={true}
-            extraToggles={[]}
-          />
-          {/* Розміри */}
-          <div className="sc-section sc-section-card" style={{ margin: "0 2rem" }}>
-            <div className="sc-sides sc-size-row">
-              {sizeButtons.map((f) => (
+          <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
+            &times;
+          </button>
+        </div>
+
+        {/* ТІЛО */}
+        <div className="v2-body">
+
+          {/* СТРІЧКА ВИРОБІВ */}
+          <div className="v2-tabsrail">
+            {services.map((service, idx) => {
+              const name = typeof service === 'string' ? service : service?.name;
+              const tabColor = typeof service === 'string' ? null : service?.color;
+              const prevService = services[idx - 1];
+              const prevColor = prevService ? (typeof prevService === 'string' ? null : prevService?.color) : null;
+              const isNewGroup = idx > 0 && tabColor !== prevColor;
+              return (
                 <button
-                  key={f.label}
-                  className={`sc-side-btn${size.x === f.x && size.y === f.y ? " sc-side-active" : ""}`}
-                  onClick={() => {
-                    const fmt = SIZE_FORMATS.find((sf) => sf.x === f.x && sf.y === f.y);
-                    if (fmt) handleSizeSelect(fmt);
-                    else setSize({ x: f.x, y: f.y });
-                  }}
+                  key={name}
+                  className={`v2-tab${selectedService === name ? " active" : ""}${isNewGroup ? " v2-tab-group-start" : ""}`}
+                  style={tabColor ? { "--tab-color": tabColor } : undefined}
+                  onClick={() => handleServiceSelect(name)}
                 >
-                  <span className="sc-side-text">{f.label}</span>
+                  {name}
                 </button>
-              ))}
-              <div className="sc-size-inline-inputs">
-                <input
-                  className="inputsArtem"
-                  type="number"
-                  value={size.x}
-                  min={10}
-                  max={445}
-                  onChange={(e) => setSize({ x: Number(e.target.value) || 0, y: size.y })}
-                />
-                <span className="sc-size-x">x</span>
-                <input
-                  className="inputsArtem"
-                  type="number"
-                  value={size.y}
-                  min={10}
-                  max={445}
-                  onChange={(e) => setSize({ x: size.x, y: Number(e.target.value) || 0 })}
-                />
-                <span className="sc-size-mm">мм</span>
+              );
+            })}
+            <button className="v2-settings-btn" onClick={() => setShowSettings(true)} title="Налаштування">
+              ⚙
+            </button>
+          </div>
+
+          <div className="v2-left">
+
+            {/* РОЗМІР */}
+            <div className="v2-section">
+              <span className="v2-label">Розмір у міліметрах</span>
+              <div className="v2-sizes">
+                {sizeButtons.map((f) => (
+                  <button
+                    key={f.label}
+                    className={`v2-size${size.x === f.x && size.y === f.y ? " active" : ""}`}
+                    onClick={() => {
+                      const fmt = SIZE_FORMATS.find((sf) => sf.x === f.x && sf.y === f.y);
+                      if (fmt) handleSizeSelect(fmt);
+                      else setSize({ x: f.x, y: f.y });
+                    }}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+                <div className={`v2-size v2-size-custom${!sizeButtons.some((f) => size.x === f.x && size.y === f.y) ? " active" : ""}`}>
+                  <input
+                    type="number"
+                    value={size.x}
+                    min={10}
+                    max={445}
+                    onChange={(e) => setSize({ x: Number(e.target.value) || 0, y: size.y })}
+                  />
+                  <span>×</span>
+                  <input
+                    type="number"
+                    value={size.y}
+                    min={10}
+                    max={445}
+                    onChange={(e) => setSize({ x: size.x, y: Number(e.target.value) || 0 })}
+                  />
+                  <span>мм</span>
+                </div>
+              </div>
+            </div>
+
+            {/* СТОРОННІСТЬ */}
+            <ScSides
+              value={color.sides}
+              onChange={(sides) => setColor({ ...color, sides })}
+            />
+
+            {/* ДРУК І МАТЕРІАЛ — у папки друк завжди кольоровий,
+                тож це не перемикач, а звичайна секція */}
+            <div className="v2-section">
+              <span className="v2-label">Кольоровий друк</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <input
+                    className="inputsArtem"
+                    type="number"
+                    value={colorCount}
+                    min={1}
+                    onChange={(e) => setColorCount(Number(e.target.value) || 1)}
+                    style={{ width: "4.4rem" }}
+                  />
+                  <span className="inputsArtemx">стор</span>
+                </div>
+                <div className="v2-material-wrap" style={{ flex: 1 }}>
+                  <Materials2
+                    material={materialColor}
+                    setMaterial={setMaterialColor}
+                    count={colorCount}
+                    setCount={setColorCount}
+                    size={size}
+                    name={"Кольоровий друк:"}
+                    buttonsArr={[]}
+                    typeUse={null}
+                    disabled={false}
+                    dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                    preferredMaterialName={(() => {
+                      const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+                      return svc?.presets?.materialName || "Крейдований";
+                    })()}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* ПОСТОБРОБКА */}
+            <div className="v2-section">
+              <span className="v2-label">Постобробка</span>
+              <div className="v2-postpress">
+                <ScToggleSection
+                  label="Проклейка кишені"
+                  title="Проклейка кишені"
+                  isOn={prokleykaKisheni.enabled}
+                  onToggle={() => setProkleykaKisheni((prev) => ({ ...prev, enabled: !prev.enabled }))}
+                  style={{ position: "relative", zIndex: 5 }}
+                >
+                  <span className="v2-toggle-name">Проклейка кишені для готової папки</span>
+                </ScToggleSection>
               </div>
             </div>
           </div>
-        </>
-      }
-    >
 
-      {/* Сторонність */}
-      <ScSides
-        value={color.sides}
-        onChange={(sides) => setColor({ ...color, sides })}
-      />
+          {/* ПРАВОРУЧ — НАРЯД */}
+          <div className="v2-right">
+            <div className="v2-run">
+              <span className="v2-run-label">Наклад, шт</span>
+              <div className="v2-count-row">
+                <button className="v2-count-btn" onClick={() => setCount(Math.max(1, count - 1))}>−</button>
+                <input
+                  className="v2-count-val"
+                  type="number"
+                  value={count}
+                  min={1}
+                  onChange={(e) => setCount(Number(e.target.value) || 1)}
+                />
+                <button className="v2-count-btn" onClick={() => setCount(count + 1)}>+</button>
+              </div>
+            </div>
 
-      {/* Кольоровий друк */}
-      <ScToggleSection
-        label="Кольор. друк"
-        title="Кольоровий друк"
-        isOn={true}
-        onToggle={() => {}}
-        style={{ position: "relative", zIndex: 55 }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "0 1rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <input
-              className="inputsArtem"
-              type="number"
-              value={colorCount}
-              min={1}
-              onChange={(e) => setColorCount(Number(e.target.value) || 1)}
-              style={{ width: "4.4rem", textAlign: "center" }}
-            />
-            <span className="inputsArtemx" style={{ border: "transparent" }}>стор</span>
-          </div>
-          <div style={{ flex: 1 }}>
-            <Materials2
-              material={materialColor}
-              setMaterial={setMaterialColor}
-              count={colorCount}
-              setCount={setColorCount}
-              size={size}
-              name={"Кольоровий друк:"}
-              buttonsArr={[]}
-              typeUse={null}
-              disabled={false}
-              preferredMaterialName={(() => {
-                  const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
-                  return svc?.presets?.materialName || "Крейдований";
-                })()}
-            />
+            <div className="v2-prices-title">Калькуляція</div>
+            <div className="v2-prices">
+              {pricingLines.map((line, i) => {
+                const isZero = Math.round((line.total || 0) * 100) === 0;
+                const hasBreakdown = !isZero && line.count > 0 && line.perUnit > 0;
+                return (
+                  <div className={`v2-price-row${isZero ? " is-zero" : ""}`} key={i}>
+                    <span>{line.label}</span>
+                    <i className="v2-lead" />
+                    <span className="v2-price-val">
+                      {hasBreakdown && (
+                        <span className="v2-price-calc">
+                          {line.count} × {fmt2(line.perUnit)} ={" "}
+                        </span>
+                      )}
+                      {fmt2(line.total)} грн
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="v2-total">
+              <div className="v2-total-price">
+                {fmt2(totalCombined)} <span className="v2-total-unit">грн</span>
+              </div>
+              <div className="v2-total-sub">
+                <span>За 1 виріб</span>
+                <span>{count ? fmt2(totalCombined / count) : "0,00"} грн</span>
+              </div>
+            </div>
+
+            <button className="v2-add-btn" onClick={addNewOrderUnit} disabled={!thisOrder?.id}>
+              <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
+              <span className="v2-add-btn-label">
+                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+              </span>
+            </button>
           </div>
         </div>
-      </ScToggleSection>
 
-      {/* Проклейка кишені */}
-      <ScToggleSection
-        label="Проклейка кишені"
-        title="Проклейка кишені"
-        isOn={prokleykaKisheni.enabled}
-        onToggle={() => setProkleykaKisheni((prev) => ({ ...prev, enabled: !prev.enabled }))}
-        style={{ position: "relative", zIndex: 5 }}
-      >
-        <div style={{ padding: "0.4rem 1rem", color: "var(--admingrey, #666666)" }}>
-          Проклейка кишені для готової папки.
-        </div>
-      </ScToggleSection>
-    </ScModal>
+        {/* ПОМИЛКА */}
+        {(typeof error === "string" ? error : error?.response?.data?.error) && (
+          <div className="v2-error">
+            {typeof error === "string" ? error : error.response.data.error}
+          </div>
+        )}
+
+        {/* НАЛАШТУВАННЯ ВИРОБІВ */}
+        <ServiceSettingsModal
+          variant="ssm-v2"
+          show={showSettings}
+          onClose={() => setShowSettings(false)}
+          services={services}
+          onAddService={async (name) => {
+            const added = await addService(name);
+            if (added) setSelectedService(added.name);
+          }}
+          onRemoveService={async (service) => {
+            const sId = typeof service === 'string' ? null : service?.id;
+            const sName = typeof service === 'string' ? service : service?.name;
+            if (sId) await removeService(sId);
+            if (selectedService === sName) {
+              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
+              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
+            }
+          }}
+          onUpdateService={updateService}
+          onReorderServices={reorderServices}
+          defaultSizes={DEFAULT_SIZES}
+          thicknessOptions={["Цупкий"]}
+          hideLaminationOption={true}
+          extraToggles={[]}
+        />
+      </div>
+    </>
   );
 }

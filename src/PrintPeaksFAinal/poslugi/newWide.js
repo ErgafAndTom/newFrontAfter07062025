@@ -1,19 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from '../../api/axiosInstance';
-import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
 import Materials2 from "./newnomodals/Materials2";
 import SliderComponent from "./newnomodals/SlidersComponent";
 import { useNavigate } from "react-router-dom";
 
-import ScModal from "./shared/ScModal";
-import ScCountSize from "./shared/ScCountSize";
-import ScSection from "./shared/ScSection";
-import ScPricing from "./shared/ScPricing";
-import ScAddButton from "./shared/ScAddButton";
-import ScTabs from "./shared/ScTabs";
 import ServiceSettingsModal from "./shared/ServiceSettingsModal";
 import useServiceTabs from "../../hooks/useServiceTabs";
-import "./shared/sc-base.css";
+import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
+
+import "./NewSheetCutV2.css";
 
 const DEFAULTS = {
   size: { x: 420, y: 594 },
@@ -75,6 +70,10 @@ const NewWide = ({
   const [selectedService, setSelectedService] = useState(DEFAULTS.selectedService);
   const { services, addService, removeService, updateService, reorderServices } = useServiceTabs("Wide", SERVICES);
   const [showSettings, setShowSettings] = useState(false);
+
+  // тема стежить за глобальною темою застосунку (перемикач у Nav)
+  const [theme, setTheme] = useState(getStoredAppTheme);
+  useEffect(() => onAppThemeChange(setTheme), []);
 
   const DEFAULT_SIZES = [
     { label: "A2", x: 420, y: 594 }, { label: "A1", x: 594, y: 841 },
@@ -279,148 +278,231 @@ const NewWide = ({
     ? [{ label: "Порізка", value: (parseFloat(pricesThis.porizka) || 0) * sc }]
     : [];
 
-  const pricingExtras = [
-    { label: "За виріб", value: `${fmt2(pricesThis?.priceForItemWithExtras || 0)} грн` },
-  ];
-
   // ========== RENDER ==========
 
+  const headSpec = [
+    `${size.x}×${size.y} мм`,
+    material?.material || null,
+  ].filter(Boolean).join(" · ");
+
+  if (!showNewWide) return null;
+
   return (
-    <ScModal
-      show={showNewWide}
-      onClose={handleClose}
-      modalStyle={{ width: "54vw" }}
-      modalClassName="sc-modal-wide"
-      rightContent={
-        <>
-          {pricesThis && (
-            <ScPricing
-              lines={pricingLines}
-              simpleLines={pricingSimpleLines}
-              totalPrice={pricesThis.price || 0}
-              extras={pricingExtras}
-              fmt={fmt2}
-              countUnit="м2"
-            />
-          )}
-          <ScAddButton onClick={saveOrderUnit} isEdit={isEdit} disabled={load} />
-        </>
-      }
-      errorContent={
-        error && (
-          <div className="sc-error">
-            {error?.response?.data?.error || error?.message || "Помилка"}
+    <>
+      <div className="v2-overlay" onClick={handleClose} />
+      <div className={`v2-modal v2-theme-${theme}`} onClick={(e) => e.stopPropagation()}>
+
+        {/* ШАПКА */}
+        <div className="v2-head">
+          <div className="v2-head-main">
+            <span className="v2-head-title">
+              Широкоформатний фотодрук{selectedService ? ` · ${selectedService}` : ""}
+            </span>
+            <div className="v2-head-spec">{headSpec}</div>
           </div>
-        )
-      }
-      tabsContent={
-        <>
-          <div className="sc-tabs-count-row">
-            <div className="sc-count-inline">
-              <input className="inputsArtem" type="number" value={count} min={1}
-                onChange={(e) => handleChangeCount(e.target.value)}
-                style={{ width: "4.4rem", textAlign: "center" }}
-              />
-              <span className="inputsArtemx" style={{ border: "transparent" }}>шт</span>
-            </div>
-            <ScTabs
-              services={services}
-              selectedService={selectedService}
-              onSelect={handleServiceSelect}
-              isEditServices={false}
-              setIsEditServices={() => {}}
-              onSettingsClick={() => setShowSettings(true)}
-            />
-          </div>
-          <ServiceSettingsModal
-            show={showSettings}
-            onClose={() => setShowSettings(false)}
-            services={services}
-            onAddService={async (name) => {
-              const added = await addService(name);
-              if (added) setSelectedService(added.name);
-            }}
-            onRemoveService={async (service) => {
-              const sId = typeof service === 'string' ? null : service?.id;
-              const sName = typeof service === 'string' ? service : service?.name;
-              if (sId) await removeService(sId);
-              if (selectedService === sName) {
-                const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
-                setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
-              }
-            }}
-            onUpdateService={updateService}
-            onReorderServices={reorderServices}
-            defaultSizes={DEFAULT_SIZES}
-            extraToggles={[]}
-            thicknessOptions={[]}
-            hideSidesOption
-            hideLaminationOption
-            materialType="Папір Широкоформат"
-          />
-          <div className="sc-section sc-section-card" style={{ margin: "0 2rem" }}>
-            <div className="sc-sides sc-size-row">
-              {sizeButtons.map((f) => (
-                <button key={f.label}
-                  className={`sc-side-btn${size.x === f.x && size.y === f.y ? " sc-side-active" : ""}`}
-                  onClick={() => setSize({ x: f.x, y: f.y })}
+          <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
+            &times;
+          </button>
+        </div>
+
+        {/* ТІЛО */}
+        <div className="v2-body">
+
+          {/* СТРІЧКА ВИРОБІВ */}
+          <div className="v2-tabsrail">
+            {services.map((service, idx) => {
+              const name = typeof service === 'string' ? service : service?.name;
+              const tabColor = typeof service === 'string' ? null : service?.color;
+              const prevService = services[idx - 1];
+              const prevColor = prevService ? (typeof prevService === 'string' ? null : prevService?.color) : null;
+              const isNewGroup = idx > 0 && tabColor !== prevColor;
+              return (
+                <button
+                  key={name}
+                  className={`v2-tab${selectedService === name ? " active" : ""}${isNewGroup ? " v2-tab-group-start" : ""}`}
+                  style={tabColor ? { "--tab-color": tabColor } : undefined}
+                  onClick={() => handleServiceSelect(name)}
                 >
-                  <span className="sc-side-text">{f.label}</span>
+                  {name}
                 </button>
-              ))}
-              <button className={`sc-side-btn${!sizeButtons.some((f) => size.x === f.x && size.y === f.y) ? " sc-side-active" : ""}`}
-                onClick={() => {}}
-              >
-                <span className="sc-side-text">Свій розмір</span>
-              </button>
-              <div className="sc-size-inline-inputs">
-                <input className="inputsArtem" type="number" value={size.x} min={10}
-                  onChange={(e) => setSize({ x: Number(e.target.value) || 0, y: size.y })} />
-                <span className="sc-size-x">x</span>
-                <input className="inputsArtem" type="number" value={size.y} min={10}
-                  onChange={(e) => setSize({ x: size.x, y: Number(e.target.value) || 0 })} />
-                <span className="sc-size-mm">мм</span>
+              );
+            })}
+            <button className="v2-settings-btn" onClick={() => setShowSettings(true)} title="Налаштування">
+              ⚙
+            </button>
+          </div>
+
+          <div className="v2-left">
+
+            {/* РОЗМІР */}
+            <div className="v2-section">
+              <span className="v2-label">Розмір у міліметрах</span>
+              <div className="v2-sizes">
+                {sizeButtons.map((f) => (
+                  <button
+                    key={f.label}
+                    className={`v2-size${size.x === f.x && size.y === f.y ? " active" : ""}`}
+                    onClick={() => setSize({ x: f.x, y: f.y })}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+                <div className={`v2-size v2-size-custom${!sizeButtons.some((f) => size.x === f.x && size.y === f.y) ? " active" : ""}`}>
+                  <input
+                    type="number"
+                    value={size.x}
+                    min={10}
+                    onChange={(e) => setSize({ x: Number(e.target.value) || 0, y: size.y })}
+                  />
+                  <span>×</span>
+                  <input
+                    type="number"
+                    value={size.y}
+                    min={10}
+                    onChange={(e) => setSize({ x: size.x, y: Number(e.target.value) || 0 })}
+                  />
+                  <span>мм</span>
+                </div>
+              </div>
+            </div>
+
+            {/* ПІДБІР РОЗМІРУ ПОВЗУНКАМИ */}
+            <div className="v2-section">
+              <span className="v2-label">Підбір розміру</span>
+              <SliderComponent
+                size={size}
+                setSize={setSize}
+                prices={prices}
+                type={"Wide"}
+                buttonsArr={["односторонній"]}
+                color={color}
+                setColor={setColor}
+                count={count}
+                setCount={setCount}
+              />
+            </div>
+
+            {/* МАТЕРІАЛ */}
+            <div className="v2-section" style={{ position: "relative", zIndex: 60 }}>
+              <span className="v2-label">Матеріал</span>
+              <div className="v2-material-wrap">
+                <Materials2
+                  material={material}
+                  setMaterial={setMaterial}
+                  count={count}
+                  setCount={setCount}
+                  prices={prices}
+                  size={size}
+                  selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
+                  name={"Широкоформатний фотодрук:"}
+                  buttonsArr={[]}
+                  dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                  preferredMaterialName={(() => {
+                    const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+                    return svc?.presets?.materialName || undefined;
+                  })()}
+                />
               </div>
             </div>
           </div>
-        </>
-      }
-    >
 
-      {/* 2. Слайдер розміру */}
-      <ScSection>
-        <SliderComponent
-          size={size}
-          setSize={setSize}
-          prices={prices}
-          type={"Wide"}
-          buttonsArr={["односторонній"]}
-          color={color}
-          setColor={setColor}
-          count={count}
-          setCount={setCount}
-        />
-      </ScSection>
+          {/* ПРАВОРУЧ — НАРЯД */}
+          <div className="v2-right">
+            <div className="v2-run">
+              <span className="v2-run-label">Наклад, шт</span>
+              <div className="v2-count-row">
+                <button className="v2-count-btn" onClick={() => setCount(Math.max(1, count - 1))}>−</button>
+                <input
+                  className="v2-count-val"
+                  type="number"
+                  value={count}
+                  min={1}
+                  onChange={(e) => setCount(Number(e.target.value) || 1)}
+                />
+                <button className="v2-count-btn" onClick={() => setCount(count + 1)}>+</button>
+              </div>
+            </div>
 
-      {/* 3. Матеріал */}
-      <ScSection style={{ position: "relative", zIndex: 60 }}>
-        <Materials2
-          material={material}
-          setMaterial={setMaterial}
-          count={count}
-          setCount={setCount}
-          prices={prices}
-          size={size}
-          selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
-          name={"Широкоформатний фотодрук:"}
-          buttonsArr={[]}
-          preferredMaterialName={(() => {
-            const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
-            return svc?.presets?.materialName || undefined;
-          })()}
+            <div className="v2-prices-title">Калькуляція</div>
+            <div className="v2-prices">
+              {pricingLines.map((line, i) => {
+                const isZero = Math.round((line.total || 0) * 100) === 0;
+                const hasBreakdown = !isZero && line.count > 0 && line.perUnit > 0;
+                return (
+                  <div className={`v2-price-row${isZero ? " is-zero" : ""}`} key={i}>
+                    <span>{line.label}</span>
+                    <i className="v2-lead" />
+                    <span className="v2-price-val">
+                      {hasBreakdown && (
+                        <span className="v2-price-calc">
+                          {fmt2(line.count)} м² × {fmt2(line.perUnit)} ={" "}
+                        </span>
+                      )}
+                      {fmt2(line.total)} грн
+                    </span>
+                  </div>
+                );
+              })}
+              {pricingSimpleLines.map((line, i) => (
+                <div className="v2-price-row" key={`s${i}`}>
+                  <span>{line.label}</span>
+                  <i className="v2-lead" />
+                  <span className="v2-price-val">{fmt2(line.value)} грн</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="v2-total">
+              <div className="v2-total-price">
+                {fmt2(pricesThis?.price || 0)} <span className="v2-total-unit">грн</span>
+              </div>
+              <div className="v2-total-sub">
+                <span>За виріб</span>
+                <span>{fmt2(pricesThis?.priceForItemWithExtras || 0)} грн</span>
+              </div>
+            </div>
+
+            <button className="v2-add-btn" onClick={saveOrderUnit} disabled={load || !thisOrder?.id}>
+              <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
+              <span className="v2-add-btn-label">
+                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* ПОМИЛКА */}
+        {error && (
+          <div className="v2-error">
+            {error?.response?.data?.error || error?.message || "Помилка"}
+          </div>
+        )}
+
+        {/* НАЛАШТУВАННЯ ВИРОБІВ */}
+        <ServiceSettingsModal
+          variant="ssm-v2"
+          show={showSettings}
+          onClose={() => setShowSettings(false)}
+          services={services}
+          onAddService={async (name) => {
+            const added = await addService(name);
+            if (added) setSelectedService(added.name);
+          }}
+          onRemoveService={async (service) => {
+            const sId = typeof service === 'string' ? null : service?.id;
+            const sName = typeof service === 'string' ? service : service?.name;
+            if (sId) await removeService(sId);
+            if (selectedService === sName) {
+              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
+              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
+            }
+          }}
+          onUpdateService={updateService}
+          onReorderServices={reorderServices}
+          defaultSizes={DEFAULT_SIZES}
         />
-      </ScSection>
-    </ScModal>
+      </div>
+    </>
   );
 };
 

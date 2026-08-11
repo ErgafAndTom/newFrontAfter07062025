@@ -4,9 +4,12 @@ import { usePortalDropdown } from "./newnomodals/usePortalDropdown";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
-import { ScModal, ScSection, ScCountSize, ScPricing, ScAddButton } from "./shared";
 import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
-import "./Poslugy.css";
+import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
+
+/* Та сама розмітка й той самий CSS, що в еталонного цифрового друку
+   (NewSheetCutV2) — без лівої стрічки виробів, бо в ламінації їх немає. */
+import "./NewSheetCutV2.css";
 
 // ========== DEFAULTS ==========
 const DEFAULTS = {
@@ -67,9 +70,12 @@ const Laminator = ({
   const [count, setCount] = useState(DEFAULTS.count);
   const [error, setError] = useState(null);
 
+  // тема стежить за глобальною темою застосунку (перемикач у Nav)
+  const [theme, setTheme] = useState(getStoredAppTheme);
+  useEffect(() => onAppThemeChange(setTheme), []);
+
   // Lamination sizes from API
   const [thisLaminationSizes, setThisLaminationSizes] = useState([]);
-  const { open: sizeDropdownOpen, setOpen: setSizeDropdownOpen, style: dropStyleSize, toggle: toggleSize, triggerRef: sizeDropdownRef, portalRef: portalSizeRef } = usePortalDropdown();
   const { open: thicknessDropdownOpen, setOpen: setThicknessDropdownOpen, style: dropStyleThickness, toggle: toggleThickness, triggerRef: thicknessDropdownRef, portalRef: portalThicknessRef } = usePortalDropdown();
 
   // Pricing hook
@@ -171,7 +177,6 @@ const Laminator = ({
   const handleSizeSelect = (format) => {
     setSize({ x: format.x, y: format.y });
     setLamination((prev) => ({ ...prev, materialId: "", size: "" }));
-    setSizeDropdownOpen(false);
   };
 
   const handleLaminationTypeClick = (material) => {
@@ -218,8 +223,6 @@ const Laminator = ({
   };
 
   // ========== RENDER HELPERS ==========
-  const selectedSizeFormat = SIZE_FORMATS.find((f) => f.x === size.x && f.y === size.y);
-  const sizeTitle = selectedSizeFormat?.name || `${size.x} x ${size.y} мм`;
   const thicknessTitle = lamination.size ? `${lamination.size} мкм` : "-";
 
   // ========== PRICING DATA ==========
@@ -233,110 +236,196 @@ const Laminator = ({
     : [];
 
   // ========== RENDER ==========
+
+  const totalPrice = Number(pricesThis?.price) || 0;
+
+  const headSpec = [
+    `${size.x}×${size.y} мм`,
+    LABELS[lamination.material] ? LABELS[lamination.material].toLowerCase() : lamination.material,
+    lamination.size ? `${lamination.size} мкм` : null,
+  ].filter(Boolean).join(" · ");
+
+  /* Власний розмір скидає підібрану плівку так само, як і готовий формат:
+     товщини залежать від розміру аркуша */
+  const setCustomSize = (next) => {
+    setSize(next);
+    setLamination((prev) => ({ ...prev, materialId: "", size: "" }));
+  };
+
+  if (!showLaminator) return null;
+
   return (
-    <ScModal
-      show={showLaminator}
-      onClose={handleClose}
-      modalStyle={{ width: "55vw" }}
-      modalClassName="sc-modal-laminator"
-      rightContent={
-        <>
-          <ScPricing
-            lines={pricingLines}
-            totalPrice={Number(pricesThis?.price) || 0}
-            fmt={fmt2}
-          />
-          <ScAddButton onClick={handleSave} isEdit={isEdit} />
-        </>
-      }
-      errorContent={
-        error && (
-          <div className="sc-error">
+    <>
+      <div className="v2-overlay" onClick={handleClose} />
+      <div className={`v2-modal v2-modal-narrow v2-theme-${theme}`} onClick={(e) => e.stopPropagation()}>
+
+        {/* ШАПКА */}
+        <div className="v2-head">
+          <div className="v2-head-main">
+            <span className="v2-head-title">Ламінація</span>
+            <div className="v2-head-spec">{headSpec}</div>
+          </div>
+          <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
+            &times;
+          </button>
+        </div>
+
+        {/* ТІЛО — без лівої стрічки виробів: у ламінації немає виробів,
+            є лише формат, тип плівки й товщина */}
+        <div className="v2-body">
+          <div className="v2-left">
+
+            {/* РОЗМІР */}
+            <div className="v2-section">
+              <span className="v2-label">Розмір у міліметрах</span>
+              <div className="v2-sizes">
+                {SIZE_FORMATS.map((f) => (
+                  <button
+                    key={f.name}
+                    className={`v2-size${size.x === f.x && size.y === f.y ? " active" : ""}`}
+                    onClick={() => handleSizeSelect(f)}
+                  >
+                    {f.name.split(" ")[0]}
+                  </button>
+                ))}
+                <div className={`v2-size v2-size-custom${!SIZE_FORMATS.some((f) => size.x === f.x && size.y === f.y) ? " active" : ""}`}>
+                  <input
+                    type="number"
+                    value={size.x}
+                    min={10}
+                    max={445}
+                    onChange={(e) => setCustomSize({ x: Number(e.target.value) || 0, y: size.y })}
+                  />
+                  <span>×</span>
+                  <input
+                    type="number"
+                    value={size.y}
+                    min={10}
+                    max={445}
+                    onChange={(e) => setCustomSize({ x: size.x, y: Number(e.target.value) || 0 })}
+                  />
+                  <span>мм</span>
+                </div>
+              </div>
+            </div>
+
+            {/* ТИП ПЛІВКИ */}
+            <div className="v2-section">
+              <span className="v2-label">Плівка</span>
+              <div className="v2-thick-btns" style={{ gridTemplateColumns: `repeat(${LAMINATION_BUTTONS.length}, 1fr)` }}>
+                {LAMINATION_BUTTONS.map((item) => (
+                  <button
+                    key={item}
+                    className={`v2-thick-btn${lamination.material === item ? " active" : ""}`}
+                    onClick={() => handleLaminationTypeClick(item)}
+                  >
+                    {LABELS[item] || item}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ТОВЩИНА */}
+            <div className="v2-section">
+              <span className="v2-label">Товщина</span>
+              <div className="v2-material-wrap">
+                <div
+                  className={`custom-select-container selectArtem selectArtemBefore${lamination.size ? " sc-has-value" : ""}`}
+                  ref={thicknessDropdownRef}
+                  style={{ width: "100%" }}
+                >
+                  <div className="custom-select-header" onClick={toggleThickness}>
+                    {thicknessTitle}
+                  </div>
+                  {thicknessDropdownOpen && ReactDOM.createPortal(
+                    <div
+                      className={`custom-select-dropdown v2-dropdown v2-theme-${theme}`}
+                      ref={portalThicknessRef}
+                      style={dropStyleThickness}
+                    >
+                      {thisLaminationSizes.map((item) => (
+                        <div
+                          key={item.id}
+                          className={`custom-option ${String(item.id) === String(lamination.materialId) ? "active" : ""}`}
+                          onClick={() => handleThicknessSelect(item)}
+                        >
+                          <span className="name">{item.thickness} мкм</span>
+                        </div>
+                      ))}
+                    </div>,
+                    document.body
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ПРАВОРУЧ — НАРЯД */}
+          <div className="v2-right">
+            <div className="v2-run">
+              <span className="v2-run-label">Наклад, шт</span>
+              <div className="v2-count-row">
+                <button className="v2-count-btn" onClick={() => setCount(Math.max(1, count - 1))}>−</button>
+                <input
+                  className="v2-count-val"
+                  type="number"
+                  value={count}
+                  min={1}
+                  onChange={(e) => setCount(Number(e.target.value) || 1)}
+                />
+                <button className="v2-count-btn" onClick={() => setCount(count + 1)}>+</button>
+              </div>
+            </div>
+
+            <div className="v2-prices-title">Калькуляція</div>
+            <div className="v2-prices">
+              {pricingLines.map((line, i) => {
+                const isZero = Math.round((line.total || 0) * 100) === 0;
+                const hasBreakdown = !isZero && line.count > 0 && line.perUnit > 0;
+                return (
+                  <div className={`v2-price-row${isZero ? " is-zero" : ""}`} key={i}>
+                    <span>{line.label}</span>
+                    <i className="v2-lead" />
+                    <span className="v2-price-val">
+                      {hasBreakdown && (
+                        <span className="v2-price-calc">
+                          {line.count} арк × {fmt2(line.perUnit)} ={" "}
+                        </span>
+                      )}
+                      {fmt2(line.total)} грн
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="v2-total">
+              <div className="v2-total-price">
+                {fmt2(totalPrice)} <span className="v2-total-unit">грн</span>
+              </div>
+              <div className="v2-total-sub">
+                <span>За 1 виріб</span>
+                <span>{count ? fmt2(totalPrice / count) : "0,00"} грн</span>
+              </div>
+            </div>
+
+            <button className="v2-add-btn" onClick={handleSave} disabled={!thisOrder?.id}>
+              <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
+              <span className="v2-add-btn-label">
+                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* ПОМИЛКА */}
+        {error && (
+          <div className="v2-error">
             {typeof error === "string" ? error : error?.response?.data?.error || "Помилка"}
           </div>
-        )
-      }
-    >
-      {/* 1. Кількість + Розмір */}
-      <ScCountSize
-        count={count}
-        onCountChange={(v) => setCount(v)}
-        sizeComponent={
-          <div
-            className="custom-select-container selectArtem selectArtemBefore"
-            ref={sizeDropdownRef}
-            style={{ zIndex: 10 }}
-          >
-            <div
-              className="custom-select-header"
-              onClick={toggleSize}
-            >
-              {sizeTitle}
-            </div>
-            {sizeDropdownOpen && ReactDOM.createPortal(
-              <div className="custom-select-dropdown" ref={portalSizeRef} style={dropStyleSize}>
-                {SIZE_FORMATS.map((item) => (
-                  <div
-                    key={item.name}
-                    className={`custom-option ${item.name === sizeTitle ? "active" : ""}`}
-                    onClick={() => handleSizeSelect(item)}
-                  >
-                    <span className="name">{item.name}</span>
-                  </div>
-                ))}
-              </div>,
-              document.body
-            )}
-          </div>
-        }
-      />
-
-      {/* 2. Тип ламінації */}
-      <ScSection title="">
-        <div style={{ display: "flex", alignItems: "center" }}>
-          {LAMINATION_BUTTONS.map((item) => (
-            <div
-              key={item}
-              className={lamination.material === item ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
-              onClick={() => handleLaminationTypeClick(item)}
-            >
-              <div style={{ whiteSpace: "nowrap" }}>{LABELS[item] || item}</div>
-            </div>
-          ))}
-        </div>
-      </ScSection>
-
-      {/* 3. Товщина плівки */}
-      <ScSection title="">
-        <div
-          className={`custom-select-container selectArtem selectArtemBefore${lamination.size ? " sc-has-value" : ""}`}
-          ref={thicknessDropdownRef}
-          style={{ width: "100%" }}
-        >
-          <div
-            className="custom-select-header"
-            onClick={toggleThickness}
-          >
-            {thicknessTitle}
-          </div>
-          {thicknessDropdownOpen && ReactDOM.createPortal(
-            <div className="custom-select-dropdown" ref={portalThicknessRef} style={dropStyleThickness}>
-              {thisLaminationSizes.map((item) => (
-                <div
-                  key={item.id}
-                  className={`custom-option ${String(item.id) === String(lamination.materialId) ? "active" : ""}`}
-                  onClick={() => handleThicknessSelect(item)}
-                >
-                  <span className="name">{item.thickness} мкм</span>
-                </div>
-              ))}
-            </div>,
-            document.body
-          )}
-        </div>
-      </ScSection>
-
-    </ScModal>
+        )}
+      </div>
+    </>
   );
 };
 

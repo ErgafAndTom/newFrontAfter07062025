@@ -12,6 +12,7 @@ import NewNoModalPorizka from "./newnomodals/NewNoModalPorizka";
 import NewNoModalProkleyka from "./newnomodals/NewNoModalProkleyka";
 import useServiceTabs from "../../hooks/useServiceTabs";
 import ServiceSettingsModal from "./shared/ServiceSettingsModal";
+import ImpositionPreview from "./shared/ImpositionPreview";
 import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
 
 import "./NewSheetCutV2.css";
@@ -96,97 +97,6 @@ const ToggleSwitch = ({ isOn, onToggle }) => (
     onMouseDown={(e) => e.preventDefault()}
   />
 );
-
-/* Розкладка виробу на друкарському аркуші: показує, як ляже наклад,
-   у якій орієнтації і скільки лишиться полів. */
-const ImpositionPreview = ({ sheetX, sheetY, itemX, itemY }) => {
-  const sx = Number(sheetX) || 0;
-  const sy = Number(sheetY) || 0;
-  const ix = Number(itemX) || 0;
-  const iy = Number(itemY) || 0;
-
-  if (!sx || !sy || !ix || !iy) return null;
-
-  const normal = Math.floor(sx / ix) * Math.floor(sy / iy);
-  const rotated = Math.floor(sx / iy) * Math.floor(sy / ix);
-
-  if (!normal && !rotated) {
-    return (
-      <div className="v2-sheet-empty">
-        Виріб {ix}×{iy} мм не вміщається на аркуш {sx}×{sy} мм. Зменште розмір
-        або оберіть інший матеріал.
-      </div>
-    );
-  }
-
-  const turned = rotated > normal;
-  const w = turned ? iy : ix;
-  const h = turned ? ix : iy;
-  const cols = Math.floor(sx / w);
-  const rows = Math.floor(sy / h);
-  const offX = (sx - cols * w) / 2;
-  const offY = (sy - rows * h) / 2;
-  const tick = Math.min(sx, sy) * 0.05;
-
-  const cells = [];
-  for (let r = 0; r < rows; r += 1) {
-    for (let c = 0; c < cols; c += 1) {
-      cells.push(
-        <rect
-          key={`${r}-${c}`}
-          className="v2-sheet-cell"
-          x={offX + c * w}
-          y={offY + r * h}
-          width={w}
-          height={h}
-          vectorEffect="non-scaling-stroke"
-        />
-      );
-    }
-  }
-
-  return (
-    <>
-      <svg
-        className="v2-sheet"
-        viewBox={`0 0 ${sx} ${sy}`}
-        preserveAspectRatio="xMidYMid meet"
-        role="img"
-        aria-label={`Розкладка: ${cols * rows} виробів на аркуші ${sx}×${sy} мм`}
-      >
-        <rect
-          className="v2-sheet-bg"
-          x="0"
-          y="0"
-          width={sx}
-          height={sy}
-          vectorEffect="non-scaling-stroke"
-        />
-        {cells}
-        {/* мітки різки по кутах аркуша */}
-        {[
-          [0, 0, 1, 1],
-          [sx, 0, -1, 1],
-          [0, sy, 1, -1],
-          [sx, sy, -1, -1],
-        ].map(([x, y, dx, dy], i) => (
-          <g key={i} className="v2-sheet-mark" vectorEffect="non-scaling-stroke">
-            <line x1={x} y1={y} x2={x + dx * tick} y2={y} vectorEffect="non-scaling-stroke" />
-            <line x1={x} y1={y} x2={x} y2={y + dy * tick} vectorEffect="non-scaling-stroke" />
-          </g>
-        ))}
-      </svg>
-      <div className="v2-sheet-meta">
-        <span>
-          {sx}×{sy} мм{turned ? " · поворот 90°" : ""}
-        </span>
-        <span>
-          {cols}×{rows} = {cols * rows} шт
-        </span>
-      </div>
-    </>
-  );
-};
 
 const NewSheetCutV2 = ({
   thisOrder,

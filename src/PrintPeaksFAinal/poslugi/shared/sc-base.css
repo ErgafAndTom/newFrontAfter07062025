@@ -760,6 +760,26 @@ label.switch:has(input:checked) {
   color: var(--admingreen) !important;
 }
 
+/* Світла тема — строго монохромна: вибраний пункт випадайки сірий, а не
+   зелений. Правило прив'язане до :root[data-theme], а не до класу
+   v2-theme-light, бо випадайки рендеряться порталом у <body> і клас теми
+   до них доходить не завжди (dropdownClassName передають не всі
+   підкомпоненти) — а <body> завжди всередині <html data-theme>. */
+:root[data-theme="light"] .sc-wrap .custom-option.active,
+:root[data-theme="light"] .custom-select-dropdown .custom-option.active {
+  background: #ededed !important;
+  color: #1a1a1a !important;
+}
+
+:root[data-theme="light"] .sc-wrap .custom-option.active .name,
+:root[data-theme="light"] .sc-wrap .custom-option.active .gsm-sub,
+:root[data-theme="light"] .sc-wrap .custom-option.active sub,
+:root[data-theme="light"] .custom-select-dropdown .custom-option.active .name,
+:root[data-theme="light"] .custom-select-dropdown .custom-option.active .gsm-sub,
+:root[data-theme="light"] .custom-select-dropdown .custom-option.active sub {
+  color: #1a1a1a !important;
+}
+
 /* --- material buttons: пласка плитка PRINT V2 (без рамки, без анімації
    розкриття — фон-плитка, активна = theme-aware --admin-active-bg/-fg) --- */
 .sc-wrap .buttonsArtem {

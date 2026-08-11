@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ScModal, ScSection, ScCountSize, ScPricing, ScAddButton, ScTabs } from "./shared";
 import ServiceSettingsModal from "./shared/ServiceSettingsModal";
 import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
 import useServiceTabs from "../../hooks/useServiceTabs";
@@ -10,6 +9,9 @@ import NewNoModalSizeNote from "./newnomodals/note/NewNoModalSizeNote";
 import Materials2NoteFront from "./newnomodals/note/Materials2NoteFront";
 import Materials2NoteBack from "./newnomodals/note/Material2NoteBack";
 import PerepletPereplet from "./newnomodals/PerepletPerepletNote";
+import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
+
+import "./NewSheetCutV2.css";
 
 // ========== DEFAULTS ==========
 const SERVICES_NOTE = ["Блокнот", "Документ", "Щоденник", "Нотатник", "Книга", "Підручник", "Журнал", "Звіт", "Інструкція"];
@@ -98,6 +100,10 @@ const NewNote = ({
   const [selectedService, setSelectedService] = useState(DEFAULTS.selectedService);
   const { services, addService, removeService, updateService, reorderServices } = useServiceTabs("Note", SERVICES_NOTE);
   const [showSettings, setShowSettings] = useState(false);
+
+  // тема стежить за глобальною темою застосунку (перемикач у Nav)
+  const [theme, setTheme] = useState(getStoredAppTheme);
+  useEffect(() => onAppThemeChange(setTheme), []);
 
   const DEFAULT_SIZES = [
     { label: "А5", x: 148, y: 210 }, { label: "A4", x: 210, y: 297 },
@@ -269,192 +275,291 @@ const NewNote = ({
       ]
     : [];
 
-  const pricingExtras = pricesThis
-    ? [
-        { label: "За виріб", value: `${fmt2(pricesThis.priceForItemWithExtras)} грн` },
-        { label: "Кратність", value: `${pricesThis.sheetsPerUnit || 0} шт` },
-        { label: "Сторінок блоку", value: `${materialAndDrukBack.count * 2} стор.` },
-      ]
-    : [];
 
   // ========== RENDER ==========
+
+  const totalPrice = Number(pricesThis?.price) || 0;
+
+  const headSpec = [
+    `${size.x}×${size.y} мм`,
+    materialAndDrukBack?.count ? `блок ${materialAndDrukBack.count * 2} стор.` : null,
+    pereplet?.type && pereplet.type !== "Не потрібно" ? pereplet.type : null,
+  ].filter(Boolean).join(" · ");
+
+  if (!showNewNote) return null;
+
   return (
-    <ScModal
-      show={showNewNote}
-      onClose={handleClose}
-      modalStyle={{ width: "65vw" }}
-      rightContent={
-        <>
-          {pricesThis && (
-            <ScPricing
-              lines={pricingLines}
-              totalPrice={Number(pricesThis.price) || 0}
-              extras={pricingExtras}
-              fmt={fmt2}
-              countUnit="шт"
-            />
-          )}
-          <ScAddButton onClick={handleSave} isEdit={isEdit} />
-        </>
-      }
-      errorContent={
-        error && (
-          <div className="sc-error">
-            {typeof error === "string" ? error : error?.message || "Помилка"}
+    <>
+      <div className="v2-overlay" onClick={handleClose} />
+      <div className={`v2-modal v2-theme-${theme}`} onClick={(e) => e.stopPropagation()}>
+
+        {/* ШАПКА */}
+        <div className="v2-head">
+          <div className="v2-head-main">
+            <span className="v2-head-title">
+              Блокнот{selectedService ? ` · ${selectedService}` : ""}
+            </span>
+            <div className="v2-head-spec">{headSpec}</div>
           </div>
-        )
-      }
-      tabsContent={
-        <>
-          <div className="sc-tabs-count-row">
-            <div className="sc-count-inline">
-              <input className="inputsArtem" type="number" value={count} min={1}
-                onChange={(e) => setCount(Number(e.target.value) || 1)}
-                style={{ width: "4.4rem", textAlign: "center" }}
-              />
-              <span className="inputsArtemx" style={{ border: "transparent" }}>шт</span>
-            </div>
-            <ScTabs
-              services={services}
-              selectedService={selectedService}
-              onSelect={handleServiceSelect}
-              isEditServices={false}
-              setIsEditServices={() => {}}
-              onSettingsClick={() => setShowSettings(true)}
-            />
-          </div>
-          <ServiceSettingsModal
-            show={showSettings}
-            onClose={() => setShowSettings(false)}
-            services={services}
-            onAddService={async (name) => {
-              const added = await addService(name);
-              if (added) setSelectedService(added.name);
-            }}
-            onRemoveService={async (service) => {
-              const sId = typeof service === 'string' ? null : service?.id;
-              const sName = typeof service === 'string' ? service : service?.name;
-              if (sId) await removeService(sId);
-              if (selectedService === sName) {
-                const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
-                setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
-              }
-            }}
-            onUpdateService={updateService}
-            onReorderServices={reorderServices}
-            defaultSizes={DEFAULT_SIZES}
-            extraToggles={[]}
-            thicknessOptions={[]}
-            hideSidesOption
-            hideLaminationOption
-            hideMaterialOption
-            customPresetSections={[
-              { key: "coverColor", label: "Обкл. друк", options: [
-                { value: "Не потрібно", label: "Ні" }, { value: "Чорнобілий", label: "ЧБ" }, { value: "Кольоровий", label: "Колір" }
-              ]},
-              { key: "coverSides", label: "Обкл. сторони", options: [
-                { value: "односторонній", label: "Одност." }, { value: "двосторонній", label: "Двост." }
-              ]},
-              { key: "coverThickness", label: "Обкл. папір", options: ["Офісний", "Тонкий", "Середній", "Цупкий"] },
-              { key: "coverMaterial", label: "Обкл. матеріал", type: "materialSelect", thicknessKey: "coverThickness" },
-              { key: "blockColor", label: "Блок друк", options: [
-                { value: "Не потрібно", label: "Ні" }, { value: "Чорнобілий", label: "ЧБ" }, { value: "Кольоровий", label: "Колір" }
-              ]},
-              { key: "blockPages", label: "Блок арк.", type: "number", placeholder: "50" },
-              { key: "blockSides", label: "Блок сторони", options: [
-                { value: "односторонній", label: "Одност." }, { value: "двосторонній", label: "Двост." }
-              ]},
-              { key: "blockThickness", label: "Блок папір", options: ["Офісний", "Тонкий", "Середній", "Цупкий"] },
-              { key: "blockMaterial", label: "Блок матеріал", type: "materialSelect", thicknessKey: "blockThickness" },
-              { key: "bindingType", label: "Переплет", options: [
-                { value: "на пластик", label: "На пластик" }, { value: "на пружину", label: "На пружину" }
-              ]},
-            ]}
-          />
-          <div className="sc-section sc-section-card" style={{ margin: "0 2rem" }}>
-            <div className="sc-sides sc-size-row">
-              {sizeButtons.map((f) => (
-                <button key={f.label}
-                  className={`sc-side-btn${size.x === f.x && size.y === f.y ? " sc-side-active" : ""}`}
-                  onClick={() => setSize({ x: f.x, y: f.y })}
+          <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
+            &times;
+          </button>
+        </div>
+
+        {/* ТІЛО */}
+        <div className="v2-body">
+
+          {/* СТРІЧКА ВИРОБІВ */}
+          <div className="v2-tabsrail">
+            {services.map((service, idx) => {
+              const name = typeof service === 'string' ? service : service?.name;
+              const tabColor = typeof service === 'string' ? null : service?.color;
+              const prevService = services[idx - 1];
+              const prevColor = prevService ? (typeof prevService === 'string' ? null : prevService?.color) : null;
+              const isNewGroup = idx > 0 && tabColor !== prevColor;
+              return (
+                <button
+                  key={name}
+                  className={`v2-tab${selectedService === name ? " active" : ""}${isNewGroup ? " v2-tab-group-start" : ""}`}
+                  style={tabColor ? { "--tab-color": tabColor } : undefined}
+                  onClick={() => handleServiceSelect(name)}
                 >
-                  <span className="sc-side-text">{f.label}</span>
+                  {name}
                 </button>
-              ))}
-              <button className={`sc-side-btn${!sizeButtons.some((f) => size.x === f.x && size.y === f.y) ? " sc-side-active" : ""}`}
-                onClick={() => {}}
-              >
-                <span className="sc-side-text">Свій розмір</span>
-              </button>
-              <div className="sc-size-inline-inputs">
-                <input className="inputsArtem" type="number" value={size.x} min={10}
-                  onChange={(e) => setSize({ x: Number(e.target.value) || 0, y: size.y })} />
-                <span className="sc-size-x">x</span>
-                <input className="inputsArtem" type="number" value={size.y} min={10}
-                  onChange={(e) => setSize({ x: size.x, y: Number(e.target.value) || 0 })} />
-                <span className="sc-size-mm">мм</span>
+              );
+            })}
+            <button className="v2-settings-btn" onClick={() => setShowSettings(true)} title="Налаштування">
+              ⚙
+            </button>
+          </div>
+
+          <div className="v2-left">
+
+            {/* РОЗМІР */}
+            <div className="v2-section">
+              <span className="v2-label">Розмір у міліметрах</span>
+              <div className="v2-sizes">
+                {sizeButtons.map((f) => (
+                  <button
+                    key={f.label}
+                    className={`v2-size${size.x === f.x && size.y === f.y ? " active" : ""}`}
+                    onClick={() => setSize({ x: f.x, y: f.y })}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+                <div className={`v2-size v2-size-custom${!sizeButtons.some((f) => size.x === f.x && size.y === f.y) ? " active" : ""}`}>
+                  <input
+                    type="number"
+                    value={size.x}
+                    min={10}
+                    onChange={(e) => setSize({ x: Number(e.target.value) || 0, y: size.y })}
+                  />
+                  <span>×</span>
+                  <input
+                    type="number"
+                    value={size.y}
+                    min={10}
+                    onChange={(e) => setSize({ x: size.x, y: Number(e.target.value) || 0 })}
+                  />
+                  <span>мм</span>
+                </div>
+              </div>
+            </div>
+
+            {/* ОБКЛАДИНКА */}
+            <div className="v2-section">
+              <span className="v2-label">Обкладинка</span>
+              <Materials2NoteFront
+                materialAndDrukFront={materialAndDrukFront}
+                setMaterialAndDrukFront={setMaterialAndDrukFront}
+                count={count}
+                setCount={setCount}
+                prices={[]}
+                size={size}
+                selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
+                name={"Обкладинки:"}
+                dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                buttonsArr={["Офісний", "Тонкий", "Середній", "Цупкий"]}
+                buttonsArrDruk={["односторонній", "двосторонній"]}
+                buttonsArrColor={["Не потрібно", "Чорнобілий", "Кольоровий"]}
+                buttonsArrLamination={["З глянцевим ламінуванням", "З матовим ламінуванням", "З ламінуванням SoftTouch"]}
+                typeUse={null}
+                preferredMaterialName={(() => {
+                  const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+                  return svc?.presets?.coverMaterial || undefined;
+                })()}
+              />
+            </div>
+
+            {/* БЛОК */}
+            <div className="v2-section">
+              <span className="v2-label">Блок</span>
+              <Materials2NoteBack
+                materialAndDrukBack={materialAndDrukBack}
+                setMaterialAndDrukBack={setMaterialAndDrukBack}
+                count={count}
+                setCount={setCount}
+                prices={[]}
+                size={size}
+                selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
+                name={"Чорно-білий друк на монохромному принтері:"}
+                dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                buttonsArr={["Офісний", "Тонкий", "Середній", "Цупкий"]}
+                buttonsArrDruk={["односторонній", "двосторонній"]}
+                buttonsArrColor={["Не потрібно", "Чорнобілий", "Кольоровий"]}
+                buttonsArrLamination={["з глянцевим ламінуванням", "з матовим ламінуванням", "з ламінуванням SoftTouch"]}
+                typeUse={null}
+                preferredMaterialName={(() => {
+                  const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
+                  return svc?.presets?.blockMaterial || undefined;
+                })()}
+              />
+            </div>
+
+            {/* БРОШУРУВАННЯ */}
+            <div className="v2-section" style={{ position: "relative", zIndex: 50 }}>
+              <span className="v2-label">Брошурування</span>
+              <div className="v2-material-wrap">
+                <PerepletPereplet
+                  size={size}
+                  pereplet={pereplet}
+                  setPereplet={setPereplet}
+                  prices={[]}
+                  type={"SheetCut"}
+                  dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                  buttonsArr={["Брошурування до 120 аркушів", "Брошурування від 120 до 280 аркушів"]}
+                  defaultt={"А3 (297 х 420 мм)"}
+                />
               </div>
             </div>
           </div>
-        </>
-      }
-    >
 
-      {/* 2. Обкладинка */}
-      <Materials2NoteFront
-        materialAndDrukFront={materialAndDrukFront}
-        setMaterialAndDrukFront={setMaterialAndDrukFront}
-        count={count}
-        setCount={setCount}
-        prices={[]}
-        size={size}
-        selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
-        name={"Обкладинки:"}
-        buttonsArr={["Офісний", "Тонкий", "Середній", "Цупкий"]}
-        buttonsArrDruk={["односторонній", "двосторонній"]}
-        buttonsArrColor={["Не потрібно", "Чорнобілий", "Кольоровий"]}
-        buttonsArrLamination={["з глянцевим ламінуванням", "з матовим ламінуванням", "з ламінуванням SoftTouch"]}
-        typeUse={null}
-        preferredMaterialName={(() => {
-          const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
-          return svc?.presets?.coverMaterial || undefined;
-        })()}
-      />
+          {/* ПРАВОРУЧ — НАРЯД */}
+          <div className="v2-right">
+            <div className="v2-run">
+              <span className="v2-run-label">Наклад, шт</span>
+              <div className="v2-count-row">
+                <button className="v2-count-btn" onClick={() => setCount(Math.max(1, count - 1))}>−</button>
+                <input
+                  className="v2-count-val"
+                  type="number"
+                  value={count}
+                  min={1}
+                  onChange={(e) => setCount(Number(e.target.value) || 1)}
+                />
+                <button className="v2-count-btn" onClick={() => setCount(count + 1)}>+</button>
+              </div>
+            </div>
 
-      {/* 3. Блок */}
-      <Materials2NoteBack
-        materialAndDrukBack={materialAndDrukBack}
-        setMaterialAndDrukBack={setMaterialAndDrukBack}
-        count={count}
-        setCount={setCount}
-        prices={[]}
-        size={size}
-        selectArr={["3,5 мм", "4 мм", "5 мм", "6 мм", "8 мм"]}
-        name={"Чорно-білий друк на монохромному принтері:"}
-        buttonsArr={["Офісний", "Тонкий", "Середній", "Цупкий"]}
-        buttonsArrDruk={["односторонній", "двосторонній"]}
-        buttonsArrColor={["Не потрібно", "Чорнобілий", "Кольоровий"]}
-        buttonsArrLamination={["з глянцевим ламінуванням", "з матовим ламінуванням", "з ламінуванням SoftTouch"]}
-        typeUse={null}
-        preferredMaterialName={(() => {
-          const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
-          return svc?.presets?.blockMaterial || undefined;
-        })()}
-      />
+            <div className="v2-prices-title">Калькуляція</div>
+            <div className="v2-prices">
+              {pricingLines.map((line, i) => {
+                const isZero = Math.round((line.total || 0) * 100) === 0;
+                const hasBreakdown = !isZero && line.count > 0 && line.perUnit > 0;
+                return (
+                  <div className={`v2-price-row${isZero ? " is-zero" : ""}`} key={i}>
+                    <span>{line.label}</span>
+                    <i className="v2-lead" />
+                    <span className="v2-price-val">
+                      {hasBreakdown && (
+                        <span className="v2-price-calc">
+                          {line.count} × {fmt2(line.perUnit)} ={" "}
+                        </span>
+                      )}
+                      {fmt2(line.total)} грн
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
 
-      {/* 4. Брошурування */}
-      <ScSection style={{ position: "relative", zIndex: 50 }}>
-        <PerepletPereplet
-          size={size}
-          pereplet={pereplet}
-          setPereplet={setPereplet}
-          prices={[]}
-          type={"SheetCut"}
-          buttonsArr={["Брошурування до 120 аркушів", "Брошурування від 120 до 280 аркушів"]}
-          defaultt={"А3 (297 х 420 мм)"}
+            <div className="v2-total">
+              <div className="v2-total-price">
+                {fmt2(totalPrice)} <span className="v2-total-unit">грн</span>
+              </div>
+              <div className="v2-total-sub">
+                <span>За виріб</span>
+                <span>{fmt2(pricesThis?.priceForItemWithExtras || 0)} грн</span>
+              </div>
+              <div className="v2-total-sub">
+                <span>Кратність</span>
+                <span>{pricesThis?.sheetsPerUnit || 0} шт</span>
+              </div>
+              <div className="v2-total-sub">
+                <span>Сторінок блоку</span>
+                <span>{(materialAndDrukBack?.count || 0) * 2} стор.</span>
+              </div>
+            </div>
+
+            <button className="v2-add-btn" onClick={handleSave} disabled={!thisOrder?.id}>
+              <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
+              <span className="v2-add-btn-label">
+                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* ПОМИЛКА */}
+        {error && (
+          <div className="v2-error">
+            {typeof error === "string" ? error : error?.message || "Помилка"}
+          </div>
+        )}
+
+        {/* НАЛАШТУВАННЯ ВИРОБІВ */}
+        <ServiceSettingsModal
+          variant="ssm-v2"
+          show={showSettings}
+          onClose={() => setShowSettings(false)}
+          services={services}
+          onAddService={async (name) => {
+            const added = await addService(name);
+            if (added) setSelectedService(added.name);
+          }}
+          onRemoveService={async (service) => {
+            const sId = typeof service === 'string' ? null : service?.id;
+            const sName = typeof service === 'string' ? service : service?.name;
+            if (sId) await removeService(sId);
+            if (selectedService === sName) {
+              const first = services.find((s) => (typeof s === 'string' ? s : s?.name) !== sName);
+              setSelectedService(first ? (typeof first === 'string' ? first : first.name) : "");
+            }
+          }}
+          onUpdateService={updateService}
+          onReorderServices={reorderServices}
+          defaultSizes={DEFAULT_SIZES}
+          extraToggles={[]}
+          thicknessOptions={[]}
+          hideSidesOption
+          hideLaminationOption
+          hideMaterialOption
+          customPresetSections={[
+            { key: "coverColor", label: "Обкл. друк", options: [
+              { value: "Не потрібно", label: "Ні" }, { value: "Чорнобілий", label: "ЧБ" }, { value: "Кольоровий", label: "Колір" }
+            ]},
+            { key: "coverSides", label: "Обкл. сторони", options: [
+              { value: "односторонній", label: "Одност." }, { value: "двосторонній", label: "Двост." }
+            ]},
+            { key: "coverThickness", label: "Обкл. папір", options: ["Офісний", "Тонкий", "Середній", "Цупкий"] },
+            { key: "coverMaterial", label: "Обкл. матеріал", type: "materialSelect", thicknessKey: "coverThickness" },
+            { key: "blockColor", label: "Блок друк", options: [
+              { value: "Не потрібно", label: "Ні" }, { value: "Чорнобілий", label: "ЧБ" }, { value: "Кольоровий", label: "Колір" }
+            ]},
+            { key: "blockPages", label: "Блок арк.", type: "number", placeholder: "50" },
+            { key: "blockSides", label: "Блок сторони", options: [
+              { value: "односторонній", label: "Одност." }, { value: "двосторонній", label: "Двост." }
+            ]},
+            { key: "blockThickness", label: "Блок папір", options: ["Офісний", "Тонкий", "Середній", "Цупкий"] },
+            { key: "blockMaterial", label: "Блок матеріал", type: "materialSelect", thicknessKey: "blockThickness" },
+            { key: "bindingType", label: "Переплет", options: [
+              { value: "на пластик", label: "На пластик" }, { value: "на пружину", label: "На пружину" }
+            ]},
+          ]}
         />
-      </ScSection>
-    </ScModal>
+      </div>
+    </>
   );
 };
 

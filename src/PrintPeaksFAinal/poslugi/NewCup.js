@@ -4,9 +4,12 @@ import { usePortalDropdown } from "./newnomodals/usePortalDropdown";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
-import { ScModal, ScSection, ScPricing, ScAddButton } from "./shared";
 import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
-import "./Poslugy.css";
+import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
+
+/* Та сама розмітка й той самий CSS, що в еталонного цифрового друку
+   (NewSheetCutV2) — вузький варіант, без стрічки виробів. */
+import "./NewSheetCutV2.css";
 
 // ========== DEFAULTS ==========
 const DEFAULTS = {
@@ -45,6 +48,10 @@ const NewCup = ({
   const [material, setMaterial] = useState(DEFAULTS.material);
   const [count, setCount] = useState(DEFAULTS.count);
   const [error, setError] = useState(null);
+
+  // тема стежить за глобальною темою застосунку (перемикач у Nav)
+  const [theme, setTheme] = useState(getStoredAppTheme);
+  useEffect(() => onAppThemeChange(setTheme), []);
 
   // Dropdown
   const [materials, setMaterials] = useState([]);
@@ -177,97 +184,164 @@ const NewCup = ({
     : [];
 
   // ========== RENDER ==========
-  return (
-    <ScModal
-      show={showNewCup}
-      onClose={handleClose}
-      modalStyle={{ width: "55vw" }}
-      modalClassName="sc-modal-cup"
-      rightContent={
-        <>
-          <ScPricing
-            lines={pricingLines}
-            totalPrice={Number(pricesThis?.price) || 0}
-            fmt={fmt2}
-          />
-          <ScAddButton onClick={handleSave} isEdit={isEdit} />
-        </>
-      }
-      errorContent={
-        error && (
-          <div className="sc-error">
-            {typeof error === "string" ? error : error?.response?.data?.error || "Помилка"}
-          </div>
-        )
-      }
-    >
-      {/* 1. Кількість + Макет */}
-      <ScSection title="">
-        <div className="d-flex flex-row align-items-center" style={{ justifyContent: 'space-between' }}>
-          <div className="d-flex flex-row align-items-center">
-            <input
-              className="inputsArtem"
-              type="number"
-              min={1}
-              value={count}
-              onChange={(e) => setCount(Math.max(1, +e.target.value || 1))}
-            />
-            <div className="inputsArtemx">шт</div>
-          </div>
-          {onOpenMockup && (
-            <button
-              type="button"
-              className="nui-client-rect-btn"
-              style={{ padding: '0.3rem 1rem', fontSize: 'var(--font-size-s, 14px)', color: 'var(--adminorange, #f5a623)', border: '2px solid var(--adminorange, #f5a623)', background: 'transparent', fontWeight: 400, position: 'relative' }}
-              onClick={(e) => { e.stopPropagation(); onOpenMockup(); }}
-            >
-              <div style={{zIndex: 10}}>ВІЗУАЛІЗАЦІЯ</div>
-            </button>
-          )}
-        </div>
-      </ScSection>
 
-      {/* 2. Чашка */}
-      <ScSection title="" style={{ position: "relative", zIndex: 5 }}>
-        <div
-          className={`custom-select-container selectArtem selectArtemBefore${material.materialId ? " sc-has-value" : ""}`}
-          ref={materialDropdownRef}
-          style={{ width: "100%" }}
-        >
-          <div
-            className="custom-select-header"
-            onClick={toggleMaterial}
-          >
-            {materialTitle}
-            {material.material && (
-              <span className="gsm-sub" style={{ marginLeft: "0.5vw" }}>
-                <sub>{materials.find(m => m.id === material.materialId)?.thickness || ""} мл</sub>
-              </span>
-            )}
+  const totalPrice = Number(pricesThis?.price) || 0;
+  const cupVolume = materials.find((m) => m.id === material.materialId)?.thickness || "";
+
+  const headSpec = [
+    material?.material || null,
+    cupVolume ? `${cupVolume} мл` : null,
+  ].filter(Boolean).join(" · ");
+
+  if (!showNewCup) return null;
+
+  return (
+    <>
+      <div className="v2-overlay" onClick={handleClose} />
+      <div className={`v2-modal v2-modal-narrow v2-theme-${theme}`} onClick={(e) => e.stopPropagation()}>
+
+        {/* ШАПКА */}
+        <div className="v2-head">
+          <div className="v2-head-main">
+            <span className="v2-head-title">Чашки</span>
+            <div className="v2-head-spec">{headSpec}</div>
           </div>
-          {materialDropdownOpen && ReactDOM.createPortal(
-            <div className="custom-select-dropdown" ref={portalRef} style={dropStyle}>
-              {materials.map((item) => (
+          <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
+            &times;
+          </button>
+        </div>
+
+        {/* ТІЛО — виробів тут немає, тож і лівої стрічки теж */}
+        <div className="v2-body">
+          <div className="v2-left">
+
+            {/* ЧАШКА */}
+            <div className="v2-section">
+              <span className="v2-label">Чашка</span>
+              <div className="v2-material-wrap">
                 <div
-                  key={item.id}
-                  className={`custom-option ${String(item.id) === String(material?.materialId) ? "active" : ""}`}
-                  onClick={() => handleMaterialSelect(item)}
+                  className={`custom-select-container selectArtem selectArtemBefore${material.materialId ? " sc-has-value" : ""}`}
+                  ref={materialDropdownRef}
+                  style={{ width: "100%" }}
                 >
-                  <span className="name">{item.name}</span>
-                  {item.thickness > 0 && (
-                    <span className="gsm-sub">
-                      <sub>{item.thickness} мл</sub>
-                    </span>
+                  <div className="custom-select-header" onClick={toggleMaterial}>
+                    {materialTitle}
+                    {material.material && (
+                      <span className="gsm-sub" style={{ marginLeft: "0.5vw" }}>
+                        <sub>{cupVolume} мл</sub>
+                      </span>
+                    )}
+                  </div>
+                  {materialDropdownOpen && ReactDOM.createPortal(
+                    <div
+                      className={`custom-select-dropdown v2-dropdown v2-theme-${theme}`}
+                      ref={portalRef}
+                      style={dropStyle}
+                    >
+                      {materials.map((item) => (
+                        <div
+                          key={item.id}
+                          className={`custom-option ${String(item.id) === String(material?.materialId) ? "active" : ""}`}
+                          onClick={() => handleMaterialSelect(item)}
+                        >
+                          <span className="name">{item.name}</span>
+                          {item.thickness > 0 && (
+                            <span className="gsm-sub">
+                              <sub>{item.thickness} мл</sub>
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>,
+                    document.body
                   )}
                 </div>
-              ))}
-            </div>,
-            document.body
-          )}
-        </div>
-      </ScSection>
+              </div>
+            </div>
 
-    </ScModal>
+            {/* МАКЕТ */}
+            {onOpenMockup && (
+              <div className="v2-section">
+                <span className="v2-label">Макет</span>
+                <div className="v2-sides" style={{ gridTemplateColumns: "1fr" }}>
+                  <button
+                    type="button"
+                    className="v2-side"
+                    onClick={(e) => { e.stopPropagation(); onOpenMockup(); }}
+                  >
+                    Візуалізація
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ПРАВОРУЧ — НАРЯД */}
+          <div className="v2-right">
+            <div className="v2-run">
+              <span className="v2-run-label">Наклад, шт</span>
+              <div className="v2-count-row">
+                <button className="v2-count-btn" onClick={() => setCount(Math.max(1, count - 1))}>−</button>
+                <input
+                  className="v2-count-val"
+                  type="number"
+                  value={count}
+                  min={1}
+                  onChange={(e) => setCount(Math.max(1, Number(e.target.value) || 1))}
+                />
+                <button className="v2-count-btn" onClick={() => setCount(count + 1)}>+</button>
+              </div>
+            </div>
+
+            <div className="v2-prices-title">Калькуляція</div>
+            <div className="v2-prices">
+              {pricingLines.map((line, i) => {
+                const isZero = Math.round((line.total || 0) * 100) === 0;
+                const hasBreakdown = !isZero && line.count > 0 && line.perUnit > 0;
+                return (
+                  <div className={`v2-price-row${isZero ? " is-zero" : ""}`} key={i}>
+                    <span>{line.label}</span>
+                    <i className="v2-lead" />
+                    <span className="v2-price-val">
+                      {hasBreakdown && (
+                        <span className="v2-price-calc">
+                          {line.count} шт × {fmt2(line.perUnit)} ={" "}
+                        </span>
+                      )}
+                      {fmt2(line.total)} грн
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="v2-total">
+              <div className="v2-total-price">
+                {fmt2(totalPrice)} <span className="v2-total-unit">грн</span>
+              </div>
+              <div className="v2-total-sub">
+                <span>За 1 чашку</span>
+                <span>{count ? fmt2(totalPrice / count) : "0,00"} грн</span>
+              </div>
+            </div>
+
+            <button className="v2-add-btn" onClick={handleSave} disabled={!thisOrder?.id}>
+              <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
+              <span className="v2-add-btn-label">
+                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* ПОМИЛКА */}
+        {error && (
+          <div className="v2-error">
+            {typeof error === "string" ? error : error?.response?.data?.error || "Помилка"}
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

@@ -6,6 +6,7 @@ import { Spinner } from "react-bootstrap";
 import "../../Poslugy.css";
 
 const Materials2NoteBack = ({
+  dropdownClassName = "",
   materialAndDrukBack,
   setMaterialAndDrukBack,
   count,
@@ -202,7 +203,7 @@ const Materials2NoteBack = ({
           <span className="switch-off"><span>OFF</span></span>
         </label>
         {!isBlockOn ? (
-          <div className="sc-title" style={{ marginBottom: 0 }}>{name}</div>
+          null
         ) : (
           <>
             {buttonsArrColor.map((item, i) => {
@@ -287,7 +288,7 @@ const Materials2NoteBack = ({
                 </span>
               </div>
               {openPaper && ReactDOM.createPortal(
-                <div className="custom-select-dropdown" ref={portalPaperRef} style={dropStylePaper}>
+                <div className={`custom-select-dropdown${dropdownClassName ? ` ${dropdownClassName}` : ""}`} ref={portalPaperRef} style={dropStylePaper}>
                   {paper.map((item) => (
                     <div
                       key={item.id}
@@ -319,7 +320,7 @@ const Materials2NoteBack = ({
               <span className="slider" />
               <span className="switch-off"><span>OFF</span></span>
             </label>
-            {!lamOn && <div className="sc-title" style={{ marginBottom: 0 }}>Ламінація</div>}
+            {!lamOn && <div className="sc-title">Ламінування</div>}
             {lamOn && buttonsArrLamination.map((item, i) => {
               const isActive = item.value === materialAndDrukBack.laminationTypeUse;
               return (
@@ -344,7 +345,7 @@ const Materials2NoteBack = ({
                   {lamTitle}
                 </div>
                 {openLam && ReactDOM.createPortal(
-                  <div className="custom-select-dropdown" ref={portalLamRef} style={dropStyleLam}>
+                  <div className={`custom-select-dropdown${dropdownClassName ? ` ${dropdownClassName}` : ""}`} ref={portalLamRef} style={dropStyleLam}>
                     {lamination.map((item) => (
                       <div
                         key={item.id}
