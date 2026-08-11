@@ -28,24 +28,26 @@
   width: 100%;
 }
 
-/* Правий кут під навбаром: кнопка зміни + підпис користувача */
+/* Правий кут: три рядки — зміна / аккаунт / права — одразу справа від
+   кнопки «Вихід», разом заввишки як сам рядок кнопок навбару. */
 .nav-user-corner {
-  position: absolute;
-  right: 1rem;
-  /* від'ємний відступ — щоб підпис лишився на тій самій висоті,
-     а вища кнопка зміни виросла симетрично навколо нього */
-  bottom: -0.2rem;
-  z-index: 2;
+  flex: 0 0 auto;
+  height: var(--nav-h);
+  min-height: var(--nav-min-h);
+  /* правий відступ = той самий var(--jt-pad) (18px), що й у блока
+     модалок замовлень на сторінці наряду (nuiJobTicket.css) */
+  margin: 1rem 18px 0.5rem 0.75rem;
   display: flex;
-  align-items: center;
-  gap: 0.7rem;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  box-sizing: border-box;
 }
 
-/* Напівпрозорий підпис — хто залогінений у системі (під навбаром справа) */
-.nav-user-badge {
-  display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
+/* Напівпрозорий підпис — хто залогінений у системі */
+.nav-user-badge-name,
+.nav-user-badge-role {
+  display: block;
   line-height: 1;
   white-space: nowrap;
   pointer-events: none;
@@ -57,23 +59,31 @@
 }
 
 .nav-user-badge-name {
-  font-size: calc(var(--font-size-s, 0.85rem) * 0.78);
+  font-size: calc(var(--font-size-s, 0.85rem) * 0.7);
   font-weight: 500;
 }
 
 .nav-user-badge-role {
-  font-size: calc(var(--font-size-s, 0.85rem) * 0.7);
+  font-size: calc(var(--font-size-s, 0.85rem) * 0.62);
   font-weight: 400;
-}
-
-.nav-user-badge-role::before {
-  content: '·';
-  margin-right: 0.4rem;
 }
 
 /* Короткі/повні назви кнопок */
 .nav-btn-short { display: none; }
 .nav-btn-full { display: inline; }
+
+/* Перемикач теми оформлення (бежева/світла/темна) — розкладка групи;
+   самі квадратики-зразки задає .ppSwatch з src/styles/ppBrand.css. */
+.nav-theme-switch {
+  flex: 0 0 auto;
+  height: 4vh;
+  min-height: var(--nav-min-h, 36px);
+  margin: 1rem 0.75rem 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+}
 
 /* Конверт 1: ЗЛІВА — кнопки дій (Нове замовлення, Створити клієнта) */
 .nav-actions-group {
@@ -86,12 +96,15 @@
   display: flex;
   align-items: stretch;
   justify-content: flex-start;
+  gap: 0;
   background: transparent;
   overflow: hidden;
   box-sizing: border-box;
+  width: calc(var(--nui-right-col-width, 30vw) * 0.93);
 }
 
-/* Кнопки всередині конверту 1 — розтягнути на увесь конверт, стиль як .btn */
+/* Кнопки всередині конверту 1 — розтягнути на увесь конверт, плаский стиль,
+   впритул одна до одної (як .v2-tab без проміжків між плитками) */
 .nav-actions-group .buttonSkewedOrder,
 .nav-actions-group .buttonSkewedUser {
   flex: 1 !important;
@@ -103,16 +116,37 @@
   align-items: center !important;
   justify-content: center !important;
   background: var(--adminfonelement, #f2f0e9) !important;
-  border: 2px solid var(--adminorange, #f5a623) !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
   border-radius: 0 !important;
   color: var(--admingrey, #666666) !important;
+  overflow: hidden;
+  transition: color 0.32s ease, border-color 0.12s !important;
 }
 
+/* Ховер «штампа», як у кнопки «Додати в наряд» PRINT V2 (.v2-add-btn):
+   заливка насувається зліва направо, текст услід стає білим */
 .nav-actions-group .buttonSkewedOrder::before,
-.nav-actions-group .buttonSkewedUser::before,
-.nav-actions-group .buttonSkewedOrder::after,
-.nav-actions-group .buttonSkewedUser::after {
-  background-color: var(--adminfonelement, #f2f0e9) !important;
+.nav-actions-group .buttonSkewedUser::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #000;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: 0;
+}
+
+.nav-actions-group .buttonSkewedOrder:hover::before,
+.nav-actions-group .buttonSkewedUser:hover::before {
+  transform: scaleX(1);
+}
+
+.nav-actions-group .buttonSkewedOrder:hover,
+.nav-actions-group .buttonSkewedUser:hover {
+  color: #fff !important;
+  border-bottom-color: #000 !important;
 }
 
 /* Конверт 2: ПО ЦЕНТРУ — пошук, юзер, сповіщення, вихід */
@@ -126,7 +160,7 @@
   align-items: stretch;
   justify-content: center;
   gap: 0;
-  background: var(--adminfonelement, #f2f0e9);
+  background: transparent;
   overflow: hidden;
 }
 
@@ -138,6 +172,25 @@
   max-width: 40vw;
   opacity: 1;
   transition: max-width 0.35s ease, opacity 0.25s ease;
+}
+
+/* Центральна група (пошук → Telegram) — знебарвлена: службові кнопки
+   інтеграцій не змагаються за увагу з бізнес-даними. Колір повертається
+   лише під курсором. Той самий прийом, що й знебарвлення розкладки
+   аркуша у світлій темі PRINT V2. */
+.nav-center-group .nav-ctrl-btn-wrap > button,
+.nav-center-group .nav-ctrl-btn-wrap > button svg,
+.nav-center-group .bell-button {
+  filter: grayscale(1);
+  transition: filter 0.15s;
+}
+
+.nav-center-group .nav-ctrl-btn-wrap > button:hover,
+.nav-center-group .nav-ctrl-btn-wrap > button:hover svg,
+.nav-center-group .nav-ctrl-btn-wrap > button.active,
+.nav-center-group .nav-ctrl-btn-wrap > button.active svg,
+.nav-center-group .bell-button:hover {
+  filter: none;
 }
 
 /* Схлопуємо ТІЛЬКИ коли фокус всередині search-wrap (не на кнопках) */
@@ -171,14 +224,14 @@
   flex: 1;
   width: 100%;
   height: 100%;
-  background: var(--adminfonelement, #f2f0e9) !important;
+  background: transparent !important;
 }
 
 .nav-center-group .adminButtonAddNav::before,
 .nav-center-group .adminButtonAddNav::after,
 .nav-center-group .adminButtonAddNavExit::before,
 .nav-center-group .adminButtonAddNavExit::after {
-  background-color: var(--adminfonelement, #f2f0e9);
+  background-color: transparent;
 }
 
 /* Кнопка ЛОГІН (коли не авторизований) — зелена, на всю ширину */
@@ -210,8 +263,8 @@
   flex: 1;
   width: 100% !important;
   height: 100% !important;
-  background: var(--adminfonelement, #f2f0e9) !important;
-  background-color: var(--adminfonelement, #f2f0e9) !important;
+  background: transparent !important;
+  background-color: transparent !important;
   border-bottom: 2px solid var(--admingrey, #666666) !important;
   padding-right: 1.8rem;
   padding-left: 0.4rem;
@@ -219,7 +272,7 @@
 
 .nav-center-group .buttonSkewedSearchLupa {
   width: 100% !important;
-  background-color: var(--adminfonelement, #f2f0e9) !important;
+  background-color: transparent !important;
   background-image: none !important;
   border-bottom: 2px solid var(--admingrey, #666666) !important;
   padding-left: 0.4rem !important;
@@ -249,9 +302,10 @@
 .nav-center-group .bell-button {
   flex: 1;
   height: 100%;
-  background: var(--adminfonelement, #f2f0e9) !important;
+  background: transparent !important;
   color: var(--admingreen, #0e935b) !important;
-  border: 2px solid var(--admingreen, #0e935b) !important;
+  border: none !important;
+  border-bottom: 2px solid var(--admingreen, #0e935b) !important;
   border-radius: 0;
   display: inline-flex;
   align-items: center;
@@ -259,20 +313,11 @@
   gap: 0.3em;
   cursor: pointer;
   padding: 0 0.6rem;
-  transition: background 0.2s;
-}
-
-/* ::before і ::after у BellButton.css мають background: --adminfon і z-index:1,
-   вони накривають реальний фон — перебиваємо їх */
-.nav-center-group .bell-button::before,
-.nav-center-group .bell-button::after,
-.nav-center-group .bell-button.pulse::before,
-.nav-center-group .bell-button.pulse::after {
-  background-color: var(--adminfonelement, #f2f0e9) !important;
+  transition: background 0.12s, color 0.12s;
 }
 
 .nav-center-group .bell-button:hover {
-  background: var(--adminfonelement, #f2f0e9) !important;
+  background: transparent !important;
   color: var(--admingreen, #0e935b) !important;
 }
 
@@ -293,9 +338,19 @@
   display: flex;
   align-items: stretch;
   justify-content: flex-end;
-  background: var(--adminfonelement, #f2f0e9);
+  background: transparent;
   overflow: hidden;
   padding-right: 0;
+}
+
+/* Головна/Клієнти/Компанії/Замовлення — лівіше пошуку: конверт сидить
+   за контентом (не росте на flex:1, як правий), тому не розштовхує
+   пошук праворуч */
+.nav-primary-links.btnBlock {
+  flex: 0 0 auto;
+  margin-left: 1rem;
+  margin-right: 0;
+  justify-content: flex-start;
 }
 
 /* Nav row */
@@ -322,64 +377,43 @@
   justify-content: center !important;
 }
 
-/* Single nav link — стиль nui-client-rect-btn */
+/* Single nav link — плаский стиль PRINT V2 (uppercase-плитка,
+   кольорова кромка знизу на hover/active замість повної рамки) */
 .btn {
   position: relative;
   isolation: isolate;
   height: 100%;
   min-height: var(--nav-min-h);
   width: auto;
-
   white-space: nowrap;
+  font-family: var(--pp-font-ui);
   font-size: var(--font-size-s);
-  font-weight: 400;
+  font-weight: 500;
   color: var(--admingrey) !important;
   text-align: center;
-  border: 2px solid var(--adminorange) !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
   border-radius: 0 !important;
   text-transform: uppercase;
   text-decoration: none !important;
-  background: var(--adminfonelement) !important;
+  background: transparent !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: 0.3s;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
   cursor: pointer;
   box-sizing: border-box !important;
 }
 
-/* cover layer 1 — ховає бордер */
-.btn::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 6px);
-  height: calc(100% + 2px);
-  background-color: var(--adminfonelement);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: 1;
-}
-
-/* cover layer 2 — верхня половина */
+.btn::before,
 .btn::after {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% - 45%);
-  background-color: var(--adminfonelement);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: 1;
+  display: none !important;
 }
 
 /* текст поверх псевдоелементів */
 .flip-front {
   position: relative;
-  z-index: 3;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -391,21 +425,10 @@
   display: none;
 }
 
-/* Hover — відкриває бордер */
-.btn:not([aria-current="page"]):hover::before {
-  transform: translateY(-25px);
-  height: 0;
-}
-
-.btn:not([aria-current="page"]):hover::after {
-  transform: scaleX(0);
-  transition-delay: 0.15s;
-}
-
 .btn:not([aria-current="page"]):hover {
-  color: var(--adminorange) !important;
-  border-color: var(--adminorange) !important;
-  background: var(--adminfonelement) !important;
+  color: var(--admingrey) !important;
+  border-bottom-color: var(--pp-line-strong) !important;
+  background: var(--pp-tile-hi) !important;
   text-decoration: none !important;
 }
 
@@ -434,35 +457,31 @@
   stroke-linejoin: round;
 }
 .nav-settings-btn:hover {
-  color: var(--adminorange, #f5a623) !important;
-  border-color: var(--adminorange, #f5a623) !important;
-  background: var(--adminfonelement) !important;
+  color: var(--admingrey, #666) !important;
+  border-bottom-color: var(--pp-line-strong) !important;
+  background: var(--pp-tile-hi) !important;
 }
 
 .nav-logout-btn {
   flex: 0 0 auto !important;
   width: 3.5rem !important;
-  color: var(--adminred, #ee3c23) !important;
-  border-color: var(--adminred, #ee3c23) !important;
-}
-
-.nav-logout-btn::before,
-.nav-logout-btn::after {
-  background-color: var(--adminfonelement) !important;
+  color: var(--admingrey, #666666) !important;
+  border-bottom: 2px solid transparent !important;
 }
 
 .nav-logout-btn:hover {
   color: var(--adminred, #ee3c23) !important;
-  border-color: var(--adminred, #ee3c23) !important;
-  background: var(--adminfonelement) !important;
+  border-bottom-color: var(--adminred, #ee3c23) !important;
+  background: var(--pp-tile-hi) !important;
 }
 
-/* Active route */
+/* Active route — та сама вага, що й у .buttonSkewedOrder ("Нове замовлення") */
 .btn[aria-current="page"] {
-  color: var(--admingreen) !important;
-  background: var(--adminlightgreen) !important;
-  border: 2px solid transparent !important;
-  border-bottom: 2px solid var(--admingreen) !important;
+  color: var(--admin-active-fg, var(--admingreen)) !important;
+  background: var(--admin-active-bg, var(--adminlightgreen)) !important;
+  font-weight: 500;
+  border: none !important;
+  border-bottom: 2px solid var(--admin-active-fg, var(--admingreen)) !important;
 }
 
 .btn[aria-current="page"]::before,
@@ -485,7 +504,7 @@
   box-sizing: border-box;
 }
 
-/* Базовий стиль для всіх правих кнопок — як nui-client-rect-btn */
+/* Базовий стиль для всіх правих кнопок — плаский стиль PRINT V2 */
 .adminButtonAddNav,
 .adminButtonAddNavExit {
   position: relative;
@@ -493,10 +512,13 @@
   height: var(--nav-h, 3.5vh);
   min-height: var(--nav-min-h, 36px);
   padding: 0 1vw;
+  font-family: var(--pp-font-ui);
   font-size: var(--font-size-s);
-  font-weight: 400;
+  font-weight: 500;
   text-transform: uppercase;
   white-space: nowrap;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
   border-radius: 0 !important;
   display: inline-flex;
   align-items: center;
@@ -504,56 +526,30 @@
   gap: 0.4em;
   cursor: pointer;
   box-sizing: border-box;
-  transition: 0.3s;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.adminButtonAddNav::before,
+.adminButtonAddNav::after,
+.adminButtonAddNavExit::before,
+.adminButtonAddNavExit::after {
+  display: none !important;
 }
 
 /* User (⚙) — --adminorange */
 .adminButtonAddNav {
   color: var(--adminorange) !important;
-  background: var(--adminfon) !important;
-  border: 2px solid var(--adminorange) !important;
+  background: transparent !important;
+  border-bottom: 2px solid var(--adminorange) !important;
 }
 
-.adminButtonAddNav::before {
-  content: "";
-  position: absolute;
-  top: -2px; left: -2px;
-  width: calc(100% + 6px);
-  height: calc(100% + 2px);
-  background-color: var(--adminfon);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: 1;
-}
-
-.adminButtonAddNav::after {
-  content: "";
-  position: absolute;
-  top: -2px; left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% - 45%);
-  background-color: var(--adminfon);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: 1;
-}
-
-.adminButtonAddNav:hover::before {
-  transform: translateY(-25px);
-  height: 0;
-}
-.adminButtonAddNav:hover::after {
-  transform: scaleX(0);
-  transition-delay: 0.15s;
-}
 .adminButtonAddNav:hover {
-  color: var(--adminorange) !important;
-  border-color: var(--adminorange) !important;
+  background: var(--pp-tile-hi) !important;
 }
 
 .adminButtonAddNav > * {
   position: relative;
-  z-index: 3;
+  z-index: 1;
 }
 
 .adminButtonAddNav span {
@@ -569,59 +565,27 @@
   stroke-width: 2;
   flex-shrink: 0;
   position: relative;
-  z-index: 3;
+  z-index: 1;
 }
 
-/* Logout ([→) — --adminred */
+/* Logout (←) — --adminred */
 .adminButtonAddNavExit {
   color: var(--adminred) !important;
   background: var(--adminfon) !important;
-  border: 2px solid var(--adminred) !important;
+  border-bottom: 2px solid var(--adminred) !important;
   width: auto;
   min-width: 36px;
   margin-right: 0;
 }
 
-.adminButtonAddNavExit::before {
-  content: "";
-  position: absolute;
-  top: -2px; left: -2px;
-  width: calc(100% + 6px);
-  height: calc(100% + 2px);
-  background-color: var(--adminfon);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: 1;
-}
-
-.adminButtonAddNavExit::after {
-  content: "";
-  position: absolute;
-  top: -2px; left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% - 45%);
-  background-color: var(--adminfon);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: 1;
-}
-
-.adminButtonAddNavExit:hover::before {
-  transform: translateY(-25px);
-  height: 0;
-}
-.adminButtonAddNavExit:hover::after {
-  transform: scaleX(0);
-  transition-delay: 0.15s;
-}
 .adminButtonAddNavExit:hover {
   color: var(--adminred) !important;
-  border-color: var(--adminred) !important;
+  background: var(--pp-tile-hi) !important;
 }
 
 .adminButtonAddNavExit > * {
   position: relative;
-  z-index: 3;
+  z-index: 1;
 }
 
 /* Search input */
@@ -750,7 +714,7 @@
 .nav-right-controls .nav-np-btn.adminButtonAddNav {
   color: #DA291C !important;
   border-color: #DA291C !important;
-  background: var(--adminfonelement, #f2f0e9) !important;
+  background: transparent !important;
   padding: 0 !important;
   margin: 0 !important;
 }
@@ -765,7 +729,7 @@
 
 .nav-right-controls .nav-np-btn.adminButtonAddNav::before,
 .nav-right-controls .nav-np-btn.adminButtonAddNav::after {
-  background-color: var(--adminfonelement, #f2f0e9) !important;
+  background-color: transparent !important;
 }
 
 .nav-right-controls .nav-np-btn.adminButtonAddNav:hover {
@@ -788,7 +752,7 @@
 .nav-right-controls .nav-uklon-btn.adminButtonAddNav {
   color: #fed800 !important;
   border-color: #fed800 !important;
-  background: var(--adminfonelement, #f2f0e9) !important;
+  background: transparent !important;
   padding: 0 !important;
   margin: 0 !important;
 }
@@ -803,7 +767,7 @@
 
 .nav-right-controls .nav-uklon-btn.adminButtonAddNav::before,
 .nav-right-controls .nav-uklon-btn.adminButtonAddNav::after {
-  background-color: var(--adminfonelement, #f2f0e9) !important;
+  background-color: transparent !important;
 }
 
 .nav-right-controls .nav-uklon-btn.adminButtonAddNav:hover {
@@ -833,7 +797,7 @@
 /* ── Scanner кнопка в nav ── */
 .bc-scanner-btn.adminButtonAddNav {
   color: var(--adminpurple, #6a5acd) !important;
-  border: 2px solid var(--adminpurple, #6a5acd) !important;
+  border-bottom-color: var(--adminpurple, #6a5acd) !important;
   background: var(--adminfonelement, #f2f0e9) !important;
   padding: 0 4px !important;
   margin: 0 !important;
@@ -893,7 +857,7 @@
 /* ── Niimbot кнопка в nav ── */
 .bc-niimbot-btn.adminButtonAddNav {
   color: var(--adminblue, #3c60a6) !important;
-  border: 2px solid var(--adminblue, #3c60a6) !important;
+  border-bottom-color: var(--adminblue, #3c60a6) !important;
   background: var(--adminfonelement, #f2f0e9) !important;
   padding: 0 6px !important;
   margin: 0 !important;
@@ -966,7 +930,7 @@
 .nav-right-controls .nav-telegram-btn.buttonSkewedOrder {
   color: var(--admincyan, #00A8C6) !important;
   border-color: var(--admincyan, #00A8C6) !important;
-  background: var(--adminfonelement, #f2f0e9) !important;
+  background: transparent !important;
   padding: 0 !important;
   margin: 0 !important;
 }
@@ -977,7 +941,7 @@
 
 .nav-right-controls .nav-telegram-btn.buttonSkewedOrder::before,
 .nav-right-controls .nav-telegram-btn.buttonSkewedOrder::after {
-  background-color: var(--adminfonelement, #f2f0e9) !important;
+  background-color: transparent !important;
 }
 
 .nav-right-controls .nav-telegram-btn.buttonSkewedOrder:hover {
@@ -1034,13 +998,14 @@
   display: flex !important;
   align-items: center;
   justify-content: center;
-  background: var(--adminfonelement, #f2f0e9) !important;
-  border: 2px solid var(--adminorange, #f5a623) !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid var(--adminorange, #f5a623) !important;
   border-radius: 0 !important;
   color: var(--adminorange, #f5a623) !important;
   cursor: pointer;
   padding: 0 !important;
-  transition: 0.3s;
+  transition: background 0.12s, color 0.12s;
 }
 
 .nav-settings-center-btn:hover,
@@ -1130,15 +1095,19 @@
 
   /* На мобільному навбар переноситься — підпис ховаємо, щоб не перекривав кнопки.
      Кнопку зміни лишаємо, але переносимо в звичайний потік. */
-  .nav-user-badge {
+  .nav-user-badge-name,
+  .nav-user-badge-role {
     display: none;
   }
 
   .nav-user-corner {
-    position: static;
+    height: auto;
+    min-height: 0;
     width: 100%;
     order: 3;
+    flex-direction: row;
     justify-content: flex-end;
+    margin: 0;
     padding: 0 0.5rem 0.25rem;
   }
 

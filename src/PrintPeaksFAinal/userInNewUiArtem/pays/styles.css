@@ -33,13 +33,15 @@
 
 
 
-/* ── Кнопки в рядках таблиці контрагентів (стиль PayButtons) ── */
+/* ── Кнопки в рядках таблиці контрагентів — плаский стиль PRINT V2 ── */
 .pays-tbl-btn {
   position: relative;
-  background-color: transparent;
-  border: 1.5px solid var(--adminorange, #f5a623);
+  background-color: var(--adminfonelement, #f2f0e9);
+  border: none;
+  border-bottom: 2px solid var(--adminorange, #f5a623);
   border-radius: 0;
   color: var(--admingrey, #666666);
+  font-family: var(--pp-font-ui);
   font-size: var(--fontsmall, 15px) !important;
   padding: 2px 8px;
   cursor: pointer;
@@ -49,46 +51,12 @@
   align-items: center;
   justify-content: center;
   z-index: 0;
-  transition: color 0.3s ease-out, border-color 0.3s ease-out;
-}
-
-.pays-tbl-btn::before {
-  content: "";
-  position: absolute;
-  top: -2px; left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% + 2px);
-  background-color: var(--adminfon, #f7f5ee);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: -2;
-}
-
-.pays-tbl-btn::after {
-  content: "";
-  position: absolute;
-  top: -2px; left: -2px;
-  width: calc(100% + 4px);
-  height: calc(55% + 2px);
-  background-color: var(--adminfon, #f7f5ee);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: -1;
+  transition: background-color 0.12s ease-out, border-color 0.12s ease-out;
 }
 
 .pays-tbl-btn:hover {
-  color: var(--admingreen, #0e935b);
-  border-color: var(--admingreen, #0e935b);
-}
-
-.pays-tbl-btn:hover::before {
-  transform: translateY(-25px);
-  height: 0;
-}
-
-.pays-tbl-btn:hover::after {
-  transform: scaleX(0);
-  transition-delay: 0.15s;
+  background-color: var(--pp-tile-hi);
+  border-bottom-color: var(--pp-line-strong);
 }
 
 /* ── Кнопка "+ Додати особистого контрагента" ── */
@@ -99,10 +67,12 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  background-color: transparent;
-  border: 1.5px solid var(--adminorange, #f5a623);
+  background-color: var(--adminfonelement, #f2f0e9);
+  border: none;
+  border-bottom: 2px solid var(--adminorange, #f5a623);
   border-radius: 0;
   color: var(--admingrey, #666666);
+  font-family: var(--pp-font-ui);
   font-size: var(--fontsmall, 15px) !important;
   padding: 8px 1.2rem;
   cursor: pointer;
@@ -111,46 +81,12 @@
   text-align: right;
   white-space: nowrap;
   z-index: 0;
-  transition: color 0.3s ease-out, border-color 0.3s ease-out;
-}
-
-.pays-add-btn::before {
-  content: "";
-  position: absolute;
-  top: -2px; left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% + 2px);
-  background-color: var(--adminfon, #f7f5ee);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: -2;
-}
-
-.pays-add-btn::after {
-  content: "";
-  position: absolute;
-  top: -2px; left: -2px;
-  width: calc(100% + 4px);
-  height: calc(55% + 2px);
-  background-color: var(--adminfon, #f7f5ee);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: -1;
+  transition: background-color 0.12s ease-out, border-color 0.12s ease-out;
 }
 
 .pays-add-btn:hover {
-  color: var(--admingreen, #0e935b);
-  border-color: var(--admingreen, #0e935b);
-}
-
-.pays-add-btn:hover::before {
-  transform: translateY(-25px);
-  height: 0;
-}
-
-.pays-add-btn:hover::after {
-  transform: scaleX(0);
-  transition-delay: 0.15s;
+  background-color: var(--pp-tile-hi);
+  border-bottom-color: var(--pp-line-strong);
 }
 
 /* Placeholder з 50% прозорістю */
@@ -160,30 +96,29 @@
 
 /* Зелена — Сформувати рахунок */
 .pays-tbl-btn--green {
-  border-color: var(--admingreen, #0e935b);
+  border-bottom-color: var(--admingreen, #0e935b);
   color: var(--admingreen, #0e935b);
 }
 
 /* Червона — Видалити */
 .pays-tbl-btn--red {
-  border-color: var(--adminred, #ee3c23);
+  border-bottom-color: var(--adminred, #ee3c23);
   color: var(--adminred, #ee3c23);
 }
 
 .pays-tbl-btn--red:hover {
   color: var(--adminred, #ee3c23);
-  border-color: var(--adminred, #ee3c23);
+  border-bottom-color: var(--adminred, #ee3c23);
 }
 
 /* Hover залишається помаранчевим */
 .pays-tbl-btn--hover-orange:hover {
   color: var(--adminorange, #f5a623);
-  border-color: var(--adminorange, #f5a623);
+  border-bottom-color: var(--adminorange, #f5a623);
 }
 
 /* Фон кнопки --adminfonelement (для кнопок всередині розгорнутих рядків) */
-.pays-tbl-btn--bg-element::before,
-.pays-tbl-btn--bg-element::after {
+.pays-tbl-btn--bg-element {
   background-color: var(--adminfonelement, #f2f0e9);
 }
 
@@ -211,8 +146,8 @@
   color: var(--admingrey, #666666);
   font-size: var(--fontsmall, 15px);
   font-weight: 400;
-  width: 66vw;
-  height: 77vh;
+  width: 66%;
+  height: 77%;
   border-radius: 0;
   box-shadow: 0 8px 40px rgba(0,0,0,0.18);
   display: flex; flex-direction: column;
@@ -384,7 +319,7 @@
   color: var(--admingrey, #666666);
   font-size: var(--fontsmall, 15px);
   font-weight: 400;
-  width: 66vw; height: 77vh;
+  width: 66%; height: 77%;
   border-radius: 0;
   box-shadow: 0 8px 40px rgba(0,0,0,0.18);
   display: flex; flex-direction: column;

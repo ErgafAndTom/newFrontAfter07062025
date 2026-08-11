@@ -60,7 +60,7 @@
 body {
   margin: 0;
   line-height: normal;
-  font-family: 'HelveticaNeueCyr', sans-serif;
+  font-family: var(--pp-font-ui, "Segoe UI Variable Text", "Segoe UI", "HelveticaNeueCyr", Roboto, sans-serif);
   font-size: clamp(14px, 1.2vh, 20px);
   color: var(--admingrey);
   font-weight: 400;
@@ -79,7 +79,7 @@ body {
   inset: 0;
 }
 :root {
-  --bs-body-font-family: 'HelveticaNeueCyr', sans-serif;
+  --bs-body-font-family: var(--pp-font-ui, "Segoe UI Variable Text", "Segoe UI", "HelveticaNeueCyr", Roboto, sans-serif);
   /* fonts */
   --font-Comfortaa: 'Comfortaa';
   --font-ink-free: 'Ink Free';
@@ -129,6 +129,13 @@ body {
   --adminlightpurple: #edebf9;
   --adminlightcyan: #e0f5f8;
 
+  /* Стан "вибрано" для кнопок-плиток (розмір/друк/папір тощо) —
+     єдина пара змінних для beige/dark/light, як --v2-active-bg/--v2-active-fg
+     у PRINT V2. Бежева/темна — світло-зелена підкладка з зеленим текстом,
+     світла — суцільний чорний з білим (строго монохромна тема). */
+  --admin-active-bg: var(--adminlightgreen);
+  --admin-active-fg: var(--admingreen);
+
   --color-fon: #f2f0e7;
   --color-act: #f8f9fa;
   --color-black: #000;
@@ -159,12 +166,12 @@ body {
 }
 
 /* ══════════════════════════════════════════════════
-   .adminButton — базова кнопка ERP (копія .btn з NAV).
+   .adminButton — базова кнопка ERP, плаский стиль PRINT V2.
    Текст обов'язково загортати в <span>.
-   Використання: додати клас + перевизначити кольори.
+   Використання: додати клас + за потреби клас .active/[aria-pressed="true"]
+   для стану "вибрано" (theme-aware --admin-active-bg/-fg).
    ══════════════════════════════════════════════════ */
 .adminButton {
-
   position: relative;
   isolation: isolate;
   display: inline-flex;
@@ -174,72 +181,80 @@ body {
   height: 4vh;
   min-height: 36px;
   white-space: nowrap;
+  font-family: var(--pp-font-ui);
   font-size: var(--font-size-s, 19px);
-  font-weight: 400;
+  font-weight: 500;
   color: var(--admingrey, #666666);
   text-transform: uppercase;
-  border: 2px solid var(--adminorange, #f5a623);
+  border: none;
+  border-bottom: 2px solid transparent;
   border-radius: 0;
-  background: var(--adminfon, #f7f5ee);
+  background: var(--adminfonelement, #f2f0e9);
   cursor: pointer;
   user-select: none;
   box-sizing: border-box;
-  transition: 0.3s;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 
-/* Текст поверх pseudo-шарів */
+/* Текст поверх псевдошарів (напр. кольорової смужки ppButton--tinted) */
 .adminButton > * {
   position: relative;
-  z-index: 3;
-
-}
-
-/* Шар 1 — повне покриття, ховає бордер */
-.adminButton::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 6px);
-  height: calc(100% + 2px);
-  background-color: var(--adminfon, #f7f5ee);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
   z-index: 1;
-  overflow: hidden;
-}
-
-/* Шар 2 — верхня половина */
-.adminButton::after {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% - 45%);
-  background-color: var(--adminfon, #f7f5ee);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: 1;
-  overflow: hidden;
-}
-
-/* Hover — відкриває бордер */
-.adminButton:hover::before {
-  transform: translateY(-25px);
-  height: 0;
-
-}
-
-.adminButton:hover::after {
-  transform: scaleX(0);
-  transition-delay: 0.15s;
 }
 
 .adminButton:hover {
-  color: var(--adminorange, #f5a623) !important;
-  border-color: var(--adminorange, #f5a623) !important;
-  background: var(--adminfon, #f7f5ee) !important;
+  background: var(--pp-tile-hi) !important;
+  border-bottom-color: var(--pp-line-strong) !important;
+}
+
+.adminButton.active,
+.adminButton[aria-pressed="true"] {
+  background: var(--admin-active-bg, #e2f2eb) !important;
+  color: var(--admin-active-fg, #0e935b) !important;
+  font-weight: 700;
+  border-bottom-color: var(--admin-active-fg, #0e935b) !important;
+}
+
+.adminButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ══════════════════════════════════════════════════
+   Теми оформлення: бежева (дефолт) / світла / темна.
+   Перемикаються атрибутом data-theme на <html> (src/utils/appTheme.js).
+   Перевизначають лише нейтральну шкалу (фон/текст) — акцентні кольори
+   (green/orange/red/…) лишаються брендовими в усіх темах.
+   Значення узгоджені з ізольованою темою PRINT V2 (NewSheetCutV2.css).
+   ══════════════════════════════════════════════════ */
+:root[data-theme="light"] {
+  --adminfon: #ffffff;
+  --adminfonelement: #f0f0f0;
+  --admingrey: #1a1a1a;
+  --adminlightgrey: #1a1a1a;
+
+  /* строго монохромна: вибрана кнопка — суцільна чорна заливка з білим
+     текстом (як .v2-modal.v2-theme-light в PRINT V2), а не зелений тон */
+  --admin-active-bg: #000000;
+  --admin-active-fg: #ffffff;
+}
+
+:root[data-theme="dark"] {
+  --adminfon: #201e1b;
+  --adminfonelement: #2b2925;
+  --admingrey: #d7d4cd;
+  --adminlightgrey: #d7d4cd;
+
+  /* "Light"-фони статусів/бейджів (рядки таблиць типу "Отримано") —
+     без цього вони лишаються яскраво-пастельними на темному тлі.
+     Домішуємо колір статусу в темну основу, як --v2-active-bg у PRINT V2. */
+  --adminlightgreen: color-mix(in srgb, var(--admingreen) 18%, #2b2925);
+  --adminlightorange: color-mix(in srgb, var(--adminorange) 18%, #2b2925);
+  --adminlightblue: color-mix(in srgb, var(--adminblue) 18%, #2b2925);
+  --adminlightrose: color-mix(in srgb, var(--adminrose) 18%, #2b2925);
+  --adminlightred: color-mix(in srgb, var(--adminred) 18%, #2b2925);
+  --adminlightpurple: color-mix(in srgb, var(--adminpurple) 18%, #2b2925);
+  --adminlightcyan: color-mix(in srgb, var(--admincyan) 18%, #2b2925);
 }
 
 /* Full HD 1600-2399px: all font sizes -4px */

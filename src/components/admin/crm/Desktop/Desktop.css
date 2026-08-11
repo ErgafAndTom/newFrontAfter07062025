@@ -1104,6 +1104,86 @@
     font-variant-numeric: tabular-nums;
 }
 
+/* ── Прив'язка витрати до замовлення ── */
+.aeb-label-hint {
+    opacity: 0.5;
+    font-weight: 400;
+}
+
+.aeb-order-search { position: relative; }
+
+.aeb-order-drop {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    background: #f2f0e9;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    max-height: 12rem;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.aeb-order-opt {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.35rem 0.6rem;
+    cursor: pointer;
+    font-size: 0.68vw;
+    color: var(--admingrey, #666666);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.aeb-order-opt:hover { background: rgba(0, 0, 0, 0.05); }
+
+.aeb-order-picked {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--admingreen, #0e935b);
+    color: var(--admingrey, #666666);
+    font-size: 0.68vw;
+}
+
+.aeb-order-num {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--admingreen, #0e935b);
+}
+
+.aeb-order-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.aeb-order-sum {
+    opacity: 0.6;
+    font-variant-numeric: tabular-nums;
+}
+
+.aeb-order-clear {
+    background: none;
+    border: none;
+    color: var(--adminred, #ee3c23);
+    font-size: 1.1em;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 0.2rem;
+}
+
+.dsh-margin-hint {
+    margin-top: 0.3rem;
+    font-size: 0.55vw;
+    line-height: 1.35;
+    color: var(--adminorange, #f5a623);
+    opacity: 0.85;
+}
+
 /* ── Entrance animation ── */
 @keyframes dshSlideUp {
     from {

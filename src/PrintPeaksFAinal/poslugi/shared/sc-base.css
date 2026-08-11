@@ -151,8 +151,8 @@ label.switch:has(input:checked) {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 62vw;
-  max-height: 90vh;
+  width: 62%;
+  max-height: 90%;
   background: var(--adminfon);
   border-radius: 4px;
   display: flex;
@@ -760,21 +760,23 @@ label.switch:has(input:checked) {
   color: var(--admingreen) !important;
 }
 
-/* --- material buttons: Uiverse border-reveal animation --- */
+/* --- material buttons: пласка плитка PRINT V2 (без рамки, без анімації
+   розкриття — фон-плитка, активна = theme-aware --admin-active-bg/-fg) --- */
 .sc-wrap .buttonsArtem {
   flex: 1 1 auto;
   height: var(--sc-btn-h, 3.84vh);
   min-height: var(--sc-btn-h, 3.84vh);
   width: auto;
   min-width: fit-content;
-  border: 2px solid var(--adminorange) !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
   border-radius: 0;
   cursor: pointer;
   font-size: var(--font-size-s);
-  font-weight: 450;
+  font-weight: 500;
   text-transform: uppercase;
-  transition: 0.3s;
-  background-color: transparent !important;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  background-color: var(--adminfonelement) !important;
   color: var(--admingrey) !important;
   padding: 0 0.6vw;
   margin-right: 0;
@@ -785,59 +787,22 @@ label.switch:has(input:checked) {
   justify-content: center;
 }
 
-/* text stays above pseudo-elements */
 .sc-wrap .buttonsArtem > div {
   position: relative;
   z-index: 3;
-  color: var(--admingrey) !important;
-  transition: color 0.3s;
+  color: inherit !important;
+  transition: color 0.12s;
 }
 
-/* --- cover layer 1 (full): hides the border --- */
-.sc-wrap .buttonsArtem::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 6px);
-  height: calc(100% + 2px);
-  background-color: var(--adminfonelement);
-  transition: 0.3s ease-out;
-  transform: scaleY(1);
-  z-index: 1;
-}
-
-/* --- cover layer 2 (top portion): hides upper border --- */
+/* стара анімація розкриття рамки вимкнена — плаский стиль PRINT V2 */
+.sc-wrap .buttonsArtem::before,
 .sc-wrap .buttonsArtem::after {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% - 50%);
-  background-color: var(--adminfonelement);
-  transition: 0.3s ease-out;
-  transform: scaleY(1);
-  z-index: 2;
-}
-
-/* --- hover (inactive): covers animate away → border revealed, text → AdminOrange --- */
-.sc-wrap .buttonsArtem:not(.buttonsArtemActive):hover::before {
-  transform: translateY(-25px);
-  height: 0;
-}
-
-.sc-wrap .buttonsArtem:not(.buttonsArtemActive):hover::after {
-  transform: scaleX(0);
-  transition-delay: 0.15s;
+  display: none !important;
 }
 
 .sc-wrap .buttonsArtem:not(.buttonsArtemActive):hover {
-  border-color: var(--adminorange) !important;
-}
-
-.sc-wrap .buttonsArtem:not(.buttonsArtemActive):hover > div {
-  color: var(--adminorange) !important;
+  background-color: var(--pp-tile-hi) !important;
+  border-bottom-color: var(--pp-line-strong) !important;
 }
 
 /* single button: auto width */
@@ -846,26 +811,19 @@ label.switch:has(input:checked) {
   padding: 0 2vw;
 }
 
-/* --- active: admingreen background + light text --- */
+/* --- active: theme-aware active-bg/-fg (як .v2-size.active у PRINT V2) --- */
 .sc-wrap .buttonsArtem.buttonsArtemActive,
 .sc-wrap .buttonsArtem[style*="background-color: rgb(245, 166, 35)"] {
-  background-color: var(--adminlightgreen) !important;
-  border: 2px solid transparent !important;
-  border-bottom: 2px solid var(--admingreen) !important;
-  color: var(--admingreen) !important;
+  background-color: var(--admin-active-bg) !important;
+  border-bottom: 2px solid var(--admin-active-fg) !important;
+  color: var(--admin-active-fg) !important;
+  font-weight: 700;
   z-index: 2;
 }
 
 .sc-wrap .buttonsArtem.buttonsArtemActive > div,
 .sc-wrap .buttonsArtem[style*="background-color: rgb(245, 166, 35)"] > div {
-  color: var(--admingreen) !important;
-}
-
-.sc-wrap .buttonsArtem.buttonsArtemActive::before,
-.sc-wrap .buttonsArtem.buttonsArtemActive::after,
-.sc-wrap .buttonsArtem[style*="background-color: rgb(245, 166, 35)"]::before,
-.sc-wrap .buttonsArtem[style*="background-color: rgb(245, 166, 35)"]::after {
-  display: none;
+  color: var(--admin-active-fg) !important;
 }
 
 /* --- postpress wrapper: flex center --- */
@@ -951,14 +909,15 @@ label.switch:has(input:checked) {
   flex: 1;
   height: var(--sc-btn-h, 3.84vh);
   min-height: var(--sc-btn-h, 3.84vh);
-  border: 2px solid var(--adminorange) !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
   border-radius: 0;
   cursor: pointer;
   font-size: var(--font-size-s);
-  font-weight: 450;
+  font-weight: 500;
   text-transform: uppercase;
-  transition: 0.3s;
-  background-color: transparent !important;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  background-color: var(--adminfonelement) !important;
   color: var(--admingrey) !important;
   position: relative;
   min-width: fit-content;
@@ -968,77 +927,35 @@ label.switch:has(input:checked) {
   justify-content: center;
 }
 
-/* text stays above pseudo-elements */
 .sc-wrap .sc-side-text {
   position: relative;
   z-index: 3;
-  color: var(--admingrey) !important;
-  transition: color 0.3s;
+  color: inherit !important;
+  transition: color 0.12s;
 }
 
-/* --- cover layer 1 (full): hides the border --- */
-.sc-wrap .sc-side-btn::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 6px);
-  height: calc(100% + 2px);
-  background-color: var(--adminfonelement);
-  transition: 0.3s ease-out;
-  transform: scaleY(1);
-  z-index: 1;
-}
-
-/* --- cover layer 2 (top portion): hides upper border --- */
+/* стара анімація розкриття рамки вимкнена — плаский стиль PRINT V2 */
+.sc-wrap .sc-side-btn::before,
 .sc-wrap .sc-side-btn::after {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% - 50%);
-  background-color: var(--adminfonelement);
-  transition: 0.3s ease-out;
-  transform: scaleY(1);
-  z-index: 2;
-}
-
-/* --- hover (inactive): covers animate away → border revealed --- */
-.sc-wrap .sc-side-btn:not(.sc-side-active):hover::before {
-  transform: translateY(-25px);
-  height: 0;
-}
-
-.sc-wrap .sc-side-btn:not(.sc-side-active):hover::after {
-  transform: scaleX(0);
-  transition-delay: 0.15s;
+  display: none !important;
 }
 
 .sc-wrap .sc-side-btn:not(.sc-side-active):hover {
-  border-color: var(--adminorange) !important;
+  background-color: var(--pp-tile-hi) !important;
+  border-bottom-color: var(--pp-line-strong) !important;
 }
 
-.sc-wrap .sc-side-btn:not(.sc-side-active):hover .sc-side-text {
-  color: var(--adminorange) !important;
-}
-
-/* --- active: admingreen background + light text --- */
+/* --- active: theme-aware active-bg/-fg (як .v2-side.active у PRINT V2) --- */
 .sc-wrap .sc-side-btn.sc-side-active {
-  background-color: var(--adminlightgreen) !important;
-  border: 2px solid transparent !important;
-  border-bottom: 2px solid var(--admingreen) !important;
-  color: var(--admingreen) !important;
+  background-color: var(--admin-active-bg) !important;
+  border-bottom: 2px solid var(--admin-active-fg) !important;
+  color: var(--admin-active-fg) !important;
+  font-weight: 700;
   z-index: 2;
 }
 
 .sc-wrap .sc-side-btn.sc-side-active .sc-side-text {
-  color: var(--admingreen) !important;
-}
-
-.sc-wrap .sc-side-btn.sc-side-active::before,
-.sc-wrap .sc-side-btn.sc-side-active::after {
-  display: none;
+  color: var(--admin-active-fg) !important;
 }
 
 /* --- pricing panel (right) --- */
@@ -1214,16 +1131,17 @@ label.switch:has(input:checked) {
   z-index: 0;
 }
 
-/* --- tab buttons: Uiverse border-reveal animation --- */
+/* --- tab buttons: пласка плитка PRINT V2, без анімації розкриття рамки --- */
 .sc-wrap .sc-tabs .btn {
   position: relative !important;
-  background: var(--adminfon) !important;
-  background-color: var(--adminfon) !important;
+  background: var(--adminfonelement) !important;
+  background-color: var(--adminfonelement) !important;
   background-image: none !important;
-  border: 2px solid var(--adminorange) !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
   border-radius: 0 !important;
   color: var(--admingrey) !important;
-  transition: 0.3s !important;
+  transition: background 0.12s, color 0.12s, border-color 0.12s !important;
   cursor: pointer;
   overflow: visible !important;
   animation: none !important;
@@ -1232,88 +1150,51 @@ label.switch:has(input:checked) {
   height: var(--sc-btn-h, 3.84vh) !important;
   min-height: var(--sc-btn-h, 3.84vh) !important;
   font-size: var(--font-size-s) !important;
-  font-weight: 450 !important;
+  font-weight: 500 !important;
   text-transform: uppercase !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
 }
 
-/* text stays above pseudo-elements */
 .sc-wrap .sc-tab-text {
   position: relative;
   z-index: 3;
-  color: var(--admingrey) !important;
-  transition: color 0.3s;
+  color: inherit !important;
+  transition: color 0.12s;
 }
 
-/* --- cover layer 1 (full): hides top/left/right, leaves bottom border --- */
-.sc-wrap .sc-tabs .adminButtonAdd-active::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% + 2px);
-  background-color: var(--adminfon);
-  transition: 0.3s ease-out;
-  transform: scaleY(1);
-  z-index: 1;
-}
-
-/* --- cover layer 2 (top portion) --- */
+/* стара анімація розкриття рамки вимкнена — плаский стиль PRINT V2 */
+.sc-wrap .sc-tabs .adminButtonAdd-active::before,
 .sc-wrap .sc-tabs .adminButtonAdd-active::after {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% - 50%);
-  background-color: var(--adminfon);
-  transition: 0.3s ease-out;
-  transform: scaleY(1);
-  z-index: 2;
-}
-
-/* --- hover (inactive): covers animate away → border revealed --- */
-.sc-wrap .sc-tabs .adminButtonAdd-active:hover::before {
-  transform: translateY(-25px);
-  height: 0;
-}
-
-.sc-wrap .sc-tabs .adminButtonAdd-active:hover::after {
-  transform: scaleX(0);
-  transition-delay: 0.15s;
+  display: none !important;
 }
 
 .sc-wrap .sc-tabs .adminButtonAdd-active:hover {
-  border-color: var(--adminorange) !important;
-  background: transparent !important;
+  background: var(--pp-tile-hi) !important;
+  border-bottom-color: var(--pp-line-strong) !important;
 }
 
-.sc-wrap .sc-tabs .adminButtonAdd-active:hover .sc-tab-text {
-  color: var(--adminorange) !important;
-}
-
-/* --- active tab: lightgreen background + green border/text --- */
+/* --- active tab: theme-aware active-bg/-fg (як .v2-tab.active у PRINT V2) --- */
 .sc-wrap .sc-tabs .adminButtonAdd {
-  background: var(--adminlightgreen) !important;
-  background-color: var(--adminlightgreen) !important;
+  background: var(--admin-active-bg) !important;
+  background-color: var(--admin-active-bg) !important;
   background-image: none !important;
-  border: 2px solid transparent !important;
-  border-bottom: 2px solid var(--admingreen) !important;
-  color: var(--admingreen) !important;
+  border: none !important;
+  border-bottom: 2px solid var(--admin-active-fg) !important;
+  color: var(--admin-active-fg) !important;
+  font-weight: 700;
   animation: none !important;
 }
 
 .sc-wrap .sc-tabs .adminButtonAdd .sc-tab-text {
-  color: var(--admingreen) !important;
+  color: var(--admin-active-fg) !important;
 }
 
 .sc-wrap .sc-tabs .adminButtonAdd:hover {
-  background: var(--adminlightgreen) !important;
-  background-color: var(--adminlightgreen) !important;
-  color: var(--admingreen) !important;
+  background: var(--admin-active-bg) !important;
+  background-color: var(--admin-active-bg) !important;
+  color: var(--admin-active-fg) !important;
 }
 
 .sc-wrap .sc-tabs .adminButtonAdd::before,

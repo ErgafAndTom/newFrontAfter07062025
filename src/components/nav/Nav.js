@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from "react";
+import React, {useEffect, useState} from "react";
 import {NavLink, useLocation} from "react-router-dom";
 import {useSelector} from "react-redux";
 import "./Nav.css";
@@ -8,9 +8,6 @@ import {FiSettings, FiLogOut} from "react-icons/fi";
 import {fetchUser, logout} from "../../actions/authActions";
 import {Form} from "react-bootstrap";
 import './logo/Logo.css';
-import AddNewOrder from "../../PrintPeaksFAinal/Orders/AddNewOrder";
-import AddUserButton from "../../PrintPeaksFAinal/user/AddUserButton.jsx";
-import AddCompanyButton from "../../PrintPeaksFAinal/company/AddCompanyButton.jsx";
 import {useNavigate} from "react-router-dom";
 import PopupLeftNotification from "./PopupLeftNotification";
 import {searchChange} from "../../actions/searchAction";
@@ -23,9 +20,10 @@ import NovaPoshtaCalculator from "../../PrintPeaksFAinal/novaPoshta/NovaPoshtaCa
 import UklonDelivery from "../../PrintPeaksFAinal/userInNewUiArtem/UklonDelivery";
 import BarcodeScannerListener from "../../PrintPeaksFAinal/barcode/BarcodeScannerListener";
 import { NiimbotConnectButton, BarcodeScannerButton } from "../../PrintPeaksFAinal/barcode/BarcodeLabel";
-import AddExpenseButton from "../admin/crm/Desktop/AddExpenseButton";
 import SearchOrderDropdown from "./SearchOrderDropdown";
 import NavShiftButton from "./NavShiftButton";
+import { getStoredAppTheme, setAppTheme } from "../../utils/appTheme";
+import AddNewOrder from "../../PrintPeaksFAinal/Orders/AddNewOrder";
 
 
 const ROLE_LABELS = {
@@ -34,6 +32,12 @@ const ROLE_LABELS = {
   operator: 'Оператор',
   user: 'Клієнт',
 };
+
+const THEME_OPTIONS = [
+  { key: 'beige', label: 'Бежева тема', swatch: '#e7e4dc' },
+  { key: 'light', label: 'Світла тема', swatch: '#ffffff' },
+  { key: 'dark', label: 'Темна тема', swatch: '#201e1b' },
+];
 
 const Nav = () => {
   const dispatch = useDispatch();
@@ -46,7 +50,11 @@ const Nav = () => {
   const [showTelegram, setShowTelegram] = useState(false);
   const [showNPCalc, setShowNPCalc] = useState(false);
   const [showUklon, setShowUklon] = useState(false);
-  const newOrderButtonRef = useRef(null);
+  const [appTheme, setAppThemeState] = useState(getStoredAppTheme);
+
+  const handleAppThemeClick = (themeKey) => {
+    setAppThemeState(setAppTheme(themeKey));
+  };
   const navigate = useNavigate();
   const openTelegramDrawer = (e) => {
     e.preventDefault();
@@ -114,16 +122,60 @@ const Nav = () => {
       <div className="nav-bar-row"
            style={{borderRadius: '0vh', marginBottom: '0vh'}}>
 
-        {/* ── Конверт 1: ЗЛІВА — Нове замовлення + Створити клієнта / компанію ── */}
+        {/* ── Перемикач теми оформлення: бежева / світла / темна ── */}
         {currentUser && (
-          <div className="nav-actions-group">
-            <AddNewOrder/>
-            {currentUser.role !== 'user' && <AddExpenseButton/>}
-            {(currentUser.role === "admin" || currentUser.role === "operator") && (
-              location.pathname.startsWith('/Companys')
-                ? <AddCompanyButton />
-                : <AddUserButton fetchUsers={() => dispatch(fetchUser())} />
-            )}
+          <div className="nav-theme-switch" role="group" aria-label="Тема оформлення">
+            {THEME_OPTIONS.map((t) => (
+              <button
+                key={t.key}
+                type="button"
+                className={`ppSwatch${appTheme === t.key ? ' active' : ''}`}
+                style={{ '--pp-tint': t.swatch }}
+                onClick={() => handleAppThemeClick(t.key)}
+                title={t.label}
+                aria-label={t.label}
+                aria-pressed={appTheme === t.key}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Конверт 1 (Нова витрата / Створити клієнта) прибрано з навбара:
+            ці дії лишились на сторінці наряду в колонці клієнта. «Нове
+            замовлення» — виняток: показуємо його тут же лівіше «Головна»,
+            коли ми НЕ на самій сторінці наряду (там уже є власна кнопка). */}
+
+        {/* ── Головна/Клієнти/Компанії — лівіше пошуку. Замовлення звідси
+               переїхало правіше Логістики (нижче, у правому конверті). ── */}
+        {(currentUser?.role === "operator" || currentUser?.role === "admin") && (
+          <div className="nav-primary-links btnBlock flipNav navTheme-amber d-flex align-items-center">
+            {!/^\/Orders\/[^/]+/.test(location.pathname) && <AddNewOrder />}
+            <nav className="btnRow">
+              <NavLink to="/Desktop" className="btn">
+                <span className="flip-front">Головна</span>
+              </NavLink>
+
+              <NavLink to="/Users" className="btn">
+                <span className="flip-front">Клієнти</span>
+                <span className="flip-back">
+                  <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="7" r="3"/>
+                    <path d="M17 21v-2a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3v2"/>
+                  </svg>
+                </span>
+              </NavLink>
+
+              <NavLink to="/Companys" className="btn">
+                <span className="flip-front">Компанії</span>
+                <span className="flip-back">
+                  <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 8V4h6v4"/>
+                    <rect x="6" y="8" width="12" height="12" rx="1"/>
+                    <path d="M9 12h2m2 0h2m-6 3h2m2 0h2"/>
+                  </svg>
+                </span>
+              </NavLink>
+            </nav>
           </div>
         )}
 
@@ -255,7 +307,7 @@ const Nav = () => {
         {/* ── Конверт 3: СПРАВА — Навігаційні посилання (Головна → Зміни) ── */}
         <>
           {currentUser?.role === "user" && (
-            <div className="btnBlock flipNav navTheme-amber d-flex align-items-center">
+            <div className="nav-secondary-links btnBlock flipNav navTheme-amber d-flex align-items-center">
               <nav className="btnRow">
                 <NavLink to="/Orders" className="btn">
                   <span className="flip-front">Замовлення</span>
@@ -286,33 +338,8 @@ const Nav = () => {
           )}
 
           {currentUser?.role === "operator" && (
-            <div className="btnBlock flipNav navTheme-amber d-flex align-items-center">
+            <div className="nav-secondary-links btnBlock flipNav navTheme-amber d-flex align-items-center">
               <nav className="btnRow">
-                <NavLink to="/Desktop" className="btn">
-                  <span className="flip-front">Головна</span>
-                </NavLink>
-
-                <NavLink to="/Users" className="btn">
-                  <span className="flip-front">Клієнти</span>
-                  <span className="flip-back">
-                    <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
-                      <circle cx="12" cy="7" r="3"/>
-                      <path d="M17 21v-2a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3v2"/>
-                    </svg>
-                  </span>
-                </NavLink>
-
-                <NavLink to="/Companys" className="btn">
-                  <span className="flip-front">Компанії</span>
-                  <span className="flip-back">
-                    <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M6 8V4h6v4"/>
-                      <rect x="6" y="8" width="12" height="12" rx="1"/>
-                      <path d="M9 12h2m2 0h2m-6 3h2m2 0h2"/>
-                    </svg>
-                  </span>
-                </NavLink>
-
                 <NavLink to="/Orders" className="btn">
                   <span className="flip-front">Замовлення</span>
                   <span className="flip-back">
@@ -376,33 +403,8 @@ const Nav = () => {
           )}
 
           {currentUser?.role === "admin" && (
-            <div className="btnBlock flipNav navTheme-amber d-flex align-items-center">
+            <div className="nav-secondary-links btnBlock flipNav navTheme-amber d-flex align-items-center">
               <nav className="btnRow">
-                <NavLink to="/Desktop" className="btn">
-                  <span className="flip-front">Головна</span>
-                </NavLink>
-
-                <NavLink to="/Users" className="btn">
-                  <span className="flip-front">Клієнти</span>
-                  <span className="flip-back">
-                    <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
-                      <circle cx="12" cy="7" r="3"/>
-                      <path d="M17 21v-2a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3v2"/>
-                    </svg>
-                  </span>
-                </NavLink>
-
-                <NavLink to="/Companys" className="btn">
-                  <span className="flip-front">Компанії</span>
-                  <span className="flip-back">
-                    <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M6 8V4h6v4"/>
-                      <rect x="6" y="8" width="12" height="12" rx="1"/>
-                      <path d="M9 12h2m2 0h2m-6 3h2m2 0h2"/>
-                    </svg>
-                  </span>
-                </NavLink>
-
                 <NavLink to="/Orders" className="btn">
                   <span className="flip-front">Замовлення</span>
                   <span className="flip-back">
@@ -458,6 +460,17 @@ const Nav = () => {
                   </span>
                 </NavLink>
 
+                <NavLink to="/Roi" className="btn">
+                  <span className="flip-front">ROI</span>
+                  <span className="flip-back">
+                    <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M4 19V5"/>
+                      <path d="M4 19h16"/>
+                      <path d="M7 15l4-5 3 3 5-7"/>
+                    </svg>
+                  </span>
+                </NavLink>
+
                 <button onClick={logoutt} className="btn nav-logout-btn">
                   <span className="flip-front"><FiLogOut/></span>
                 </button>
@@ -466,16 +479,18 @@ const Nav = () => {
           )}
         </>
 
-        {/* ── Правий кут: стан касової зміни + підпис, хто залогінений ── */}
+        {/* ── Правий кут: стан касової зміни + підпис, хто залогінений —
+               три рядки (зміна / аккаунт / права) заввишки як кнопки навбару,
+               одразу справа від «Вихід» ── */}
         {currentUser && (
           <div className="nav-user-corner">
             <NavShiftButton />
             {userDisplayName && (
-              <div className="nav-user-badge" title={`Ви увійшли як ${userDisplayName}`}>
-                <span className="nav-user-badge-name">{userDisplayName}</span>
-                {userRoleLabel && <span className="nav-user-badge-role">{userRoleLabel}</span>}
-              </div>
+              <span className="nav-user-badge-name" title={`Ви увійшли як ${userDisplayName}`}>
+                {userDisplayName}
+              </span>
             )}
+            {userRoleLabel && <span className="nav-user-badge-role">{userRoleLabel}</span>}
           </div>
         )}
 

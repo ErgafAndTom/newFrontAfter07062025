@@ -190,9 +190,14 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  /* --v2-scale — загальний візуальний масштаб модалки. За замовчуванням 1;
+     на низьких моніторах його зменшує медіа-запит у секції АДАПТИВ нижче.
+     Живе окремою змінною, щоб і transform, і max-height, і keyframe появи
+     рахувались від одного числа й не розʼїжджались */
+  --v2-scale: 1;
+  transform: translate(-50%, -50%) scale(var(--v2-scale));
   z-index: 9999;
-  width: min(1700px, 96vw);
+  width: min(1700px, 96%);
   background: var(--v2-ground);
   border-top: 2px solid var(--v2-select);
   box-shadow: 0 18px 60px rgba(28, 26, 22, 0.24);
@@ -214,7 +219,7 @@
 }
 
 @keyframes v2-in {
-  from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)); }
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)) scale(var(--v2-scale)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -384,9 +389,7 @@
   gap: 3px;
   padding: 12px;
   background: var(--v2-card);
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: thin;
+  overflow: visible;
 }
 
 .v2-tabsrail::-webkit-scrollbar {
@@ -404,36 +407,6 @@
 /* відступ між групами кольорових виробів у стрічці */
 .v2-tab-group-start {
   margin-top: 14px;
-}
-
-/* --- перемикач теми: колір замість напису, назва — у title/aria-label --- */
-.v2-theme-switch {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  padding-bottom: 10px;
-  margin-bottom: 6px;
-  border-bottom: 1px solid var(--v2-line-strong);
-}
-
-.v2-theme-btn {
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: none;
-  background: var(--v2-swatch);
-  box-shadow: inset 0 0 0 1px var(--v2-line-strong);
-  cursor: pointer;
-  transition: box-shadow 0.12s;
-}
-
-.v2-theme-btn:hover {
-  box-shadow: inset 0 0 0 2px var(--v2-ink);
-}
-
-.v2-theme-btn.active {
-  box-shadow: inset 0 0 0 2px var(--v2-card), 0 0 0 2px var(--v2-select);
 }
 
 /* ============================ ТІЛО ============================ */
@@ -1463,16 +1436,38 @@
 
 /* ============================ АДАПТИВ ============================ */
 
-/* запобіжник: на невисоких екранах модалка не влізе цілком, і без обмеження
-   низ із кнопкою опинився б за межами вікна — там скрол повертається */
-@media (max-height: 860px) {
-  .v2-modal {
-    max-height: 94vh;
-  }
+/* запобіжник: модалка ніколи не вилазить за межі вікна по висоті. Раніше це
+   правило стояло під @media (max-height: 860px) — і між 860px та висотою
+   контенту лишалася мертва зона, куди потрапляли Full HD (948px) і wide
+   (893px): місця вже бракувало, а обмеження ще не вмикалося, тож центрована
+   fixed-модалка обрізалася зверху й знизу без скролу. Безумовне правило нічого
+   не змінює на високих екранах (94vh там більше за контент) і рятує низькі */
+/* ділимо на масштаб: transform не впливає на розкладку, тому 94vh обмежили б
+   модалку ще ДО зменшення — вона скролилась би всередині, хоча на екрані
+   займає лише 0.8 від цього. Після ділення підсумкова висота на екрані —
+   рівно 94vh, тобто зменшення дає більше вмісту без скролу, а не менше */
+.v2-modal {
+  max-height: calc(94vh / var(--v2-scale));
+}
 
-  .v2-body {
-    min-height: 0;
-    overflow-y: auto;
+/* Прокрутки в модалці немає ніде: ні в тілі, ні в колонках, ні у стрічці
+   виробів. Модалка показує весь вміст одразу — після зменшення до 0.8 на
+   низьких моніторах він вміщається без потреби щось прокручувати. */
+.v2-body,
+.v2-left,
+.v2-right,
+.v2-tabsrail {
+  overflow: visible;
+}
+
+/* --- зменшення на низьких моніторах ---
+   Поріг саме за ВИСОТОЮ: Full HD (948px) і wide (893px) треба зменшити,
+   робочий монітор (1308px) і 4K (1308px) — ні. За висотою між цими парами
+   прірва (893-948 проти 1308), тоді як завширшки wide (2428px) і робочий
+   монітор (2512px) майже не відрізняються — поріг по ширині зачепив би обидва */
+@media (max-height: 1100px) {
+  .v2-modal {
+    --v2-scale: 0.8;
   }
 }
 
@@ -1512,17 +1507,6 @@
     overflow-y: hidden;
     padding: 10px 12px;
     -webkit-overflow-scrolling: touch;
-  }
-
-  .v2-theme-switch {
-    flex: 0 0 auto;
-    width: auto;
-    padding-bottom: 0;
-    margin-bottom: 0;
-    padding-right: 10px;
-    margin-right: 6px;
-    border-bottom: none;
-    border-right: 1px solid var(--v2-line-strong);
   }
 
   .v2-tabsrail .v2-settings-btn {

@@ -13,7 +13,9 @@ import "../userInNewUiArtem/ClientFilesPanel.css";
 import ClientFilesPanel from "../userInNewUiArtem/ClientFilesPanel";
 import CompanyFilesPanel from "../userInNewUiArtem/CompanyFilesPanel";
 
-const OrderFilesPanel = ({ thisOrder, onClose }) => {
+// inline — панель вбудована в колонку клієнта, а не відкрита оверлеєм
+// поверх сторінки: без порталу, затемнення й закриття по кліку повз неї.
+const OrderFilesPanel = ({ thisOrder, onClose, inline = false }) => {
   const navigate = useNavigate();
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -240,10 +242,10 @@ const OrderFilesPanel = ({ thisOrder, onClose }) => {
 
   const isRoot = !currentFolder;
 
-  return ReactDOM.createPortal(
-    <div className="cfp-overlay" onClick={onClose}>
+  const panel = (
+    <>
       <div
-        className={`cfp-modal ${dragActive ? "cfp-drag-active" : ""}`}
+        className={`cfp-modal ${inline ? "cfp-modal--inline " : ""}${dragActive ? "cfp-drag-active" : ""}`}
         onClick={(e) => e.stopPropagation()}
         onDragEnter={onDragEnter}
         onDragOver={onDragOver}
@@ -435,7 +437,13 @@ const OrderFilesPanel = ({ thisOrder, onClose }) => {
           onClose={() => setShowCompanyFiles(false)}
         />
       )}
-    </div>,
+    </>
+  );
+
+  if (inline) return panel;
+
+  return ReactDOM.createPortal(
+    <div className="cfp-overlay" onClick={onClose}>{panel}</div>,
     document.body
   );
 };

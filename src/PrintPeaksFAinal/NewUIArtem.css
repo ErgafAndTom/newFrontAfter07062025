@@ -200,7 +200,7 @@
 }
 
 .nui-uklon-map-zone iframe {
-  border-radius: 6px;
+  border-radius: 0;
   width: 100%;
   min-height: 781px;
 }
@@ -296,7 +296,7 @@
 .nui-uklon-tracking-info {
   background: var(--adminfon, #f7f5ee);
   padding: 0.3rem 0.7rem;
-  border-radius: 6px;
+  border-radius: 0;
   margin-bottom: 4px;
 }
 
@@ -318,7 +318,7 @@
   font-size: 0.75rem;
   padding: 2px 8px;
   background: var(--adminfonelement, #f1eee7);
-  border-radius: 4px;
+  border-radius: 0;
   color: var(--admingrey, #666);
   font-weight: 500;
 }
@@ -359,7 +359,7 @@
   font-size: 1.3rem;
   text-decoration: none;
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: 0;
   transition: background 0.15s;
 }
 
@@ -381,8 +381,9 @@
   height: var(--nav-h, 3.5vh);
   min-height: var(--nav-min-h, 36px);
   padding: 0 1vw;
+  font-family: var(--pp-font-ui);
   font-size: var(--font-size-s);
-  font-weight: 400;
+  font-weight: 500;
   text-transform: uppercase;
   white-space: nowrap;
   border-radius: 0 !important;
@@ -392,49 +393,21 @@
   gap: 0.4em;
   cursor: pointer;
   box-sizing: border-box;
-  transition: 0.3s;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
   color: var(--adminred, #ee3c23) !important;
-  background: var(--adminfon, #f7f5ee) !important;
-  border: 2px solid var(--adminred, #ee3c23) !important;
+  background: var(--adminfonelement, #f2f0e9) !important;
+  border: none !important;
+  border-bottom: 2px solid var(--adminred, #ee3c23) !important;
 }
 
 .nui-uklon-cancel-btn > * {
   position: relative;
-  z-index: 2;
-}
-
-.nui-uklon-cancel-btn::before {
-  content: "";
-  position: absolute;
-  top: -2px; left: -2px;
-  width: calc(100% + 6px);
-  height: calc(100% + 2px);
-  background-color: var(--adminfon, #f7f5ee);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
   z-index: 1;
 }
 
-.nui-uklon-cancel-btn::after {
-  content: "";
-  position: absolute;
-  top: -2px; left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% - 45%);
-  background-color: var(--adminfon, #f7f5ee);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: 1;
-}
-
-.nui-uklon-cancel-btn:hover::before {
-  transform: translateY(-25px);
-  height: 0;
-}
-
-.nui-uklon-cancel-btn:hover::after {
-  transform: scaleX(0);
-  transition-delay: 0.15s;
+.nui-uklon-cancel-btn:hover {
+  background: var(--pp-tile-hi) !important;
+  border-bottom-color: var(--adminred, #ee3c23) !important;
 }
 
 .nui-order-delivered-title {
@@ -652,9 +625,9 @@
 .nui-sheetcut-theme .nui-bottom-shell {
   position: fixed;
   left: 0;
-  right: 0.5vw;
+  right: 0.5%;
   width: auto;
-  bottom: 0.5vh;
+  bottom: 0.5%;
   height: auto;
   display: flex !important;
   align-items: stretch;
@@ -692,9 +665,9 @@
 }
 
 .nui-sheetcut-theme .nui-bottom-finance-inline {
-  flex: 0 0 calc(var(--nui-bottom-finance-width) - 2rem);
+  flex: 0 1 calc(var(--nui-bottom-finance-width) - 2rem);
   width: calc(var(--nui-bottom-finance-width) - 2rem);
-  min-width: calc(var(--nui-bottom-finance-width) - 2rem);
+  min-width: 0;
   max-width: calc(var(--nui-bottom-finance-width) - 2rem);
   min-height: 0;
   display: flex;
@@ -708,9 +681,9 @@
 }
 
 .nui-sheetcut-theme .nui-bottom-client-inline {
-  flex: 0 0 var(--nui-center-col-width);
+  flex: 0 1 var(--nui-center-col-width);
   width: var(--nui-center-col-width);
-  min-width: var(--nui-center-col-width);
+  min-width: 0;
   max-width: var(--nui-center-col-width);
   display: flex;
   align-items: start;
@@ -748,8 +721,8 @@
 
 .nui-sheetcut-theme .nui-bottom-client-inline {
 
-  flex: 0 0 var(--nui-center-col-width);
-  min-width: var(--nui-center-col-width);
+  flex: 0 1 var(--nui-center-col-width);
+  min-width: 0;
   max-width: var(--nui-center-col-width);
 
   display: flex;
@@ -897,11 +870,13 @@
   height: 4vh;
   min-height: 4vh;
   padding: 5px 18px;
-  border: 2px solid var(--client-accent, #666666) !important;
+  border: none !important;
+  border-bottom: 2px solid var(--client-accent, #666666) !important;
   border-radius: 0;
-  background-color: transparent !important;
+  background-color: var(--adminfonelement, #f2f0e9) !important;
+  font-family: var(--pp-font-ui);
   font-size: var(--font-size-s) !important;
-  font-weight: 400;
+  font-weight: 500;
   color: var(--admingrey, #666666) !important;
   text-transform: uppercase;
   line-height: 1;
@@ -911,65 +886,25 @@
   justify-content: center;
   cursor: pointer;
   box-sizing: border-box !important;
-  transition: 0.3s;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 
 .nui-sheetcut-theme .nui-client-rect-btn + .nui-client-rect-btn {
   margin-left: 0;
 }
 
-.nui-sheetcut-theme .nui-client-rect-btn::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 6px);
-  height: calc(100% + 2px);
-  background-color: var(--adminfonelement, #f2f0e9);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-
-}
-
-.nui-sheetcut-theme .nui-client-rect-btn::after {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% - 45%);
-  background-color: var(--adminfonelement, #f2f0e9);
-  transform: scaleY(1);
-  transition: 0.3s ease-out;
-  z-index: -1;
-}
-
 .nui-sheetcut-theme .nui-client-rect-btn-text {
   position: relative;
-  z-index: 3;
+  z-index: 1;
   font-size: var(--font-size-s);
-  font-weight: 400;
+  font-weight: 500;
   color: var(--admingrey, #666666);
   text-transform: uppercase;
 }
 
 .nui-sheetcut-theme .nui-client-rect-btn:not(:disabled):hover {
-  color: var(--client-accent, #666666) !important;
-  border-color: var(--client-accent, #666666) !important;
-}
-
-.nui-sheetcut-theme .nui-client-rect-btn:not(:disabled):hover::before {
-  transform: translateY(-25px);
-  height: 0;
-}
-
-.nui-sheetcut-theme .nui-client-rect-btn:not(:disabled):hover::after {
-  transform: scaleX(0);
-  transition-delay: 0.15s;
-}
-
-.nui-sheetcut-theme .nui-client-rect-btn:not(:disabled):hover .nui-client-rect-btn-text {
-  color: var(--client-accent, #666666) !important;
+  background: var(--pp-tile-hi) !important;
+  border-bottom-color: var(--client-accent, #666666) !important;
 }
 
 .nui-sheetcut-theme .nui-client-rect-btn:disabled {
@@ -992,9 +927,9 @@
 }
 
 .nui-sheetcut-theme .nui-bottom-finance-inline {
-  flex: 0 0 calc(var(--nui-bottom-finance-width) - 2rem);
+  flex: 0 1 calc(var(--nui-bottom-finance-width) - 2rem);
   width: calc(var(--nui-bottom-finance-width) - 2rem);
-  min-width: calc(var(--nui-bottom-finance-width) - 2rem);
+  min-width: 0;
   max-width: calc(var(--nui-bottom-finance-width) - 2rem);
   min-height: 0;
   display: flex;
@@ -1008,7 +943,7 @@
 }
 
 .nui-sheetcut-theme .nui-bottom-status-inline {
-  flex: 0 0 38%;
+  flex: 0 1 38%;
   min-width: 0;
   display: flex;
   align-items: stretch;
@@ -1034,8 +969,8 @@
 
 .nui-sheetcut-theme .nui-order-status-inline {
   position: fixed;
-  right: 0.5vw;
-  bottom: calc(0.5vh + 0.5rem);
+  right: 0.5%;
+  bottom: calc(0.5% + 0.5rem);
   width: var(--nui-right-col-width);
   margin-top: 0;
   background: var(--adminfon);
@@ -1043,9 +978,9 @@
   box-sizing: border-box;
 
   overflow: hidden;
-  height: 4vh;
-  min-height: 4vh;
-  max-height: 4vh;
+  height: 4%;
+  min-height: 4%;
+  max-height: 4%;
 }
 
 .nui-sheetcut-theme .nui-order-status-inline .nui-progressbar.pb-shell.pb-shell--action-only {
@@ -1272,15 +1207,17 @@
   align-items: center;
   gap: 0.2rem;
   padding: 0.12rem 0.35rem;
-  border: 2px solid var(--admingrey, #666666);
+  border: none;
+  border-bottom: 2px solid var(--admingrey, #666666);
   border-radius: 0;
-  background: transparent;
+  background: var(--adminfonelement, #f2f0e9);
   color: var(--admingrey, #666666);
+  font-family: var(--pp-font-ui);
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
   box-sizing: border-box;
-  transition: 0.2s;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 
 .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-vchasno-key {
@@ -1299,15 +1236,17 @@
 }
 
 .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-vchasno-btn:not(:disabled):hover {
-  border-color: var(--adminorange, #f5a623);
+  border-bottom-color: var(--adminorange, #f5a623);
   color: var(--adminorange, #f5a623);
+  background: var(--pp-tile-hi);
 }
 
 /* Активний стан — жовтий Вчасно */
 .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-vchasno-btn.is-on {
-  border-color: var(--adminorange, #f5a623);
+  border-bottom-color: var(--adminorange, #f5a623);
   background: var(--adminorange, #f5a623);
   color: var(--adminfon, #f7f5ee);
+  font-weight: 700;
 }
 
 .nui-sheetcut-theme .nui-bottom-client-inline .nui-client-vchasno-btn.is-on .nui-client-vchasno-key {
@@ -1571,12 +1510,8 @@
   display: none !important;
 }
 .nui-sheetcut-theme .nui-ttn-rect-btn:not(:disabled):hover {
-  border-bottom-color: var(--adminorange, #f5a623) !important;
-  color: var(--adminorange, #f5a623) !important;
-}
-.nui-sheetcut-theme .nui-ttn-rect-btn:not(:disabled):hover .nui-client-rect-btn-text,
-.nui-sheetcut-theme .nui-ttn-rect-btn:not(:disabled):hover > span {
-  color: var(--adminorange, #f5a623) !important;
+  border-bottom-color: var(--pp-line-strong) !important;
+  background: var(--pp-tile-hi) !important;
 }
 .nui-sheetcut-theme .nui-ttn-rect-btn .nui-client-rect-btn-text,
 .nui-sheetcut-theme .nui-ttn-rect-btn > span {
@@ -1723,9 +1658,9 @@
 /* Конверт помилки над рядком статусів */
 .nui-sheetcut-theme .nui-error-bar {
   position: fixed;
-  left: calc(0.5vw + var(--nui-bottom-finance-width) + 1rem + var(--nui-right-col-width) + 1rem);
-  right: 0.5vw;
-  bottom: calc(0.5vh + 0.5rem + 4vh + 1rem);
+  left: calc(0.5% + var(--nui-bottom-finance-width) + 1rem + var(--nui-right-col-width) + 1rem);
+  right: 0.5%;
+  bottom: calc(0.5% + 0.5rem + 4% + 1rem);
   width: auto;
   height: 1.8rem;
   min-height: 1.8rem;

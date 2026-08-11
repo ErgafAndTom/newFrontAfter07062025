@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import axios from "../../api/axiosInstance";
 import { Spinner } from "react-bootstrap";
-import { FiPlus, FiMinus, FiLink, FiTrash2, FiFolder, FiFolderPlus, FiChevronLeft, FiChevronDown, FiChevronUp, FiChevronsUp } from "react-icons/fi";
+import { FiPlus, FiMinus, FiLink, FiTrash2, FiFolder, FiChevronLeft, FiChevronDown, FiChevronUp, FiChevronsUp } from "react-icons/fi";
 import { fileTypeMeta, shortName, formatBytes } from "../../utils/fileUtils";
 import { loadFileSettings } from "../user/profile/DesignSettings";
 import CompanyFilesPanel from "./CompanyFilesPanel";
@@ -17,6 +17,10 @@ const ClientFilesPanel = ({
   orderId,
   companyId,
   companyName = "",
+  // inline — панель вбудована в сторінку (колонка клієнта в наряді), а не
+  // відкрита оверлеєм поверх усього: без порталу, без затемнення й без
+  // закриття по кліку повз неї.
+  inline = false,
 }) => {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -54,7 +58,6 @@ const ClientFilesPanel = ({
     return () => clearInterval(id);
   }, [userId, fetchFiles]);
 
-  const folderInputRef = useRef(null);
 
   const uploadFile = async (file, subfolderOverride) => {
     if (!userId || !file) return;
@@ -144,9 +147,71 @@ const ClientFilesPanel = ({
   const onDragEnter = (e) => { e.preventDefault(); e.stopPropagation(); dragCounter.current += 1; setDragActive(true); };
   const onDragLeave = (e) => { e.preventDefault(); e.stopPropagation(); dragCounter.current -= 1; if (dragCounter.current <= 0) setDragActive(false); };
   const onDragOver = (e) => { e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; };
-  const onDrop = (e) => {
+  /**
+   * Збирає всі файли з перетягнутої папки, зберігаючи структуру підпапок.
+   *
+   * dataTransfer.files для папки віддає лише саму папку без вмісту, тому
+   * читаємо дерево через webkitGetAsEntry: інакше перетягування папки
+   * (єдиний шлях додати її після того, як окрему кнопку «Додати папку»
+   * прибрано) молча нічого не завантажувало б.
+   *
+   * @returns {Promise<Array<{file: File, subfolder: string}>>}
+   */
+  const collectEntry = (entry, prefix = "") => new Promise((resolve) => {
+    if (!entry) return resolve([]);
+
+    if (entry.isFile) {
+      return entry.file(
+        (file) => resolve([{ file, subfolder: prefix }]),
+        () => resolve([])
+      );
+    }
+
+    if (entry.isDirectory) {
+      const dirPath = prefix ? `${prefix}/${entry.name}` : entry.name;
+      const reader = entry.createReader();
+      const all = [];
+      // readEntries віддає вміст порціями — читаємо, поки не порожньо
+      const readBatch = () => reader.readEntries(async (batch) => {
+        if (!batch.length) {
+          const nested = await Promise.all(all.map(en => collectEntry(en, dirPath)));
+          return resolve(nested.flat());
+        }
+        all.push(...batch);
+        readBatch();
+      }, () => resolve([]));
+      return readBatch();
+    }
+
+    resolve([]);
+  });
+
+  const onDrop = async (e) => {
     e.preventDefault(); e.stopPropagation();
     setDragActive(false); dragCounter.current = 0;
+
+    const items = e.dataTransfer?.items;
+    const hasEntryApi = items?.length && typeof items[0].webkitGetAsEntry === "function";
+
+    if (hasEntryApi) {
+      // знімаємо entry синхронно — після await items уже недоступні
+      const entries = Array.from(items)
+        .map(it => (it.kind === "file" ? it.webkitGetAsEntry() : null))
+        .filter(Boolean);
+
+      if (entries.some(en => en.isDirectory)) {
+        const collected = (await Promise.all(entries.map(en => collectEntry(en)))).flat();
+        for (const { file, subfolder } of collected) {
+          const target = subfolder && currentFolder
+            ? `${currentFolder}/${subfolder}`
+            : (subfolder || currentFolder || "");
+          await uploadFile(file, target || undefined);
+        }
+        fetchFiles();
+        return;
+      }
+    }
+
     if (e.dataTransfer?.files?.length) uploadFiles(e.dataTransfer.files);
   };
 
@@ -291,10 +356,9 @@ const ClientFilesPanel = ({
       : <FiChevronUp size={11} style={{ color: "var(--adminorange, #f5a623)", marginLeft: 4 }}/>;
   };
 
-  return ReactDOM.createPortal(
-    <div className="cfp-overlay" onClick={onClose}>
+  const panel = (
       <div
-        className={`cfp-modal ${dragActive ? "cfp-drag-active" : ""}`}
+        className={`cfp-modal ${inline ? "cfp-modal--inline " : ""}${dragActive ? "cfp-drag-active" : ""}`}
         onClick={(e) => e.stopPropagation()}
         onDragEnter={onDragEnter}
         onDragOver={onDragOver}
@@ -304,38 +368,24 @@ const ClientFilesPanel = ({
         {/* Header */}
         <div className="cfp-header">
           <div className="cfp-header-right">
-            <button className="cfp-admin-btn" onClick={createFolder} title="Нова папка">
-              <span className="cfp-btn-inner">
-                <FiPlus size={14}/>
-                <span>Нова папка</span>
-              </span>
+            {/* Свідомо БЕЗ .cfp-admin-btn: у того класу власні ::before і
+                ::after — «cover layers» з z-index:1, що ховають бордер, і
+                вони боролися за той самий ::before з nui-заливкою, через
+                що ховер не було видно. Лишається лише
+                .nui-client-rect-btn — той самий клас, що в «Змінити
+                клієнта», тож вигляд і анімація беруться з одного джерела. */}
+            <button className="nui-client-rect-btn" onClick={createFolder} title="Нова папка">
+              <span className="nui-client-rect-btn-text">Нова папка</span>
             </button>
-            <button className="cfp-admin-btn" onClick={() => folderInputRef.current?.click()} title="Додати папку">
-              <span className="cfp-btn-inner">
-                <FiFolderPlus size={14}/>
-                <span>Додати папку</span>
-              </span>
-            </button>
-            <button className="cfp-admin-btn" onClick={() => inputRef.current?.click()} title="Додати файли">
-              <span className="cfp-btn-inner">
-                <FiPlus size={14}/>
-                <span>Додати файли</span>
-              </span>
-            </button>
+            {/* «Додати папку» прибрана — папку тепер можна перетягнути в цю
+                ж панель (onDrop обходить її вміст). «Додати файли» переїхала
+                під список файлів (нижче) — дія над усім вмістом стоїть після
+                нього, а не в шапці. */}
           </div>
           <input
             ref={inputRef}
             type="file"
             multiple
-            style={{ display: "none" }}
-            onChange={(e) => uploadFiles(e.target.files)}
-          />
-          <input
-            ref={folderInputRef}
-            type="file"
-            multiple
-            webkitdirectory=""
-            directory=""
             style={{ display: "none" }}
             onChange={(e) => uploadFiles(e.target.files)}
           />
@@ -460,28 +510,47 @@ const ClientFilesPanel = ({
           })}
         </div>
 
-        {/* Status bar */}
-        <div className="cfp-statusbar-flex">
-          <button className="cfp-admin-btn" onClick={openFolder} title="Відкрити папку клієнта">
-            <span className="cfp-btn-inner">
-              <FiFolder size={14}/>
-              <span>Відкрити локальну папку</span>
-            </span>
-          </button>
-          <span className="cfp-statusbar-text">
-            {selectMode ? "Прив'язати файл" : "Файли клієнта"}
-            {clientName && ` — ${clientName}`}
-            {files.length > 0 && ` (${files.filter(f => f.mimeType !== "directory").length})`}
-          </span>
-          {companyId ? (
-            <button className="cfp-admin-btn" onClick={() => setShowCompanyFiles(true)} title="Файли компанії">
+        {/* Status bar. В inline-режимі (колонка клієнта в наряді) підпис
+            «Файли клієнта»/«Файли компанії» вже стоїть eyebrow-заголовком
+            над панеллю, а кнопка «Файли компанії» більше не потрібна: файли
+            компанії тепер не окремий перегляд, а те саме сховище, яке ця
+            панель і показує. Тому тут лишається лише кількість файлів. */}
+        {/* В inline-режимі внизу — сама дія «Додати файли»: лічильник і
+            підпис звідси прибрані (підпис уже стоїть eyebrow-заголовком над
+            панеллю, а кількість файлів видно зі списку). */}
+        {inline ? (
+          <div className="cfp-footer-actions">
+            <button
+              className="nui-client-rect-btn"
+              onClick={() => inputRef.current?.click()}
+              title="Додати файли — або перетягніть сюди файли чи цілу папку"
+            >
+              <span className="nui-client-rect-btn-text">Додати файли</span>
+            </button>
+          </div>
+        ) : (
+          <div className="cfp-statusbar-flex">
+            <button className="cfp-admin-btn" onClick={openFolder} title="Відкрити папку клієнта">
               <span className="cfp-btn-inner">
                 <FiFolder size={14}/>
-                <span>Файли компанії</span>
+                <span>Відкрити локальну папку</span>
               </span>
             </button>
-          ) : <div/>}
-        </div>
+            <span className="cfp-statusbar-text">
+              {selectMode ? "Прив'язати файл" : 'Файли клієнта'}
+              {clientName && ` — ${clientName}`}
+              {files.length > 0 && ` (${files.filter(f => f.mimeType !== "directory").length})`}
+            </span>
+            {companyId ? (
+              <button className="cfp-admin-btn" onClick={() => setShowCompanyFiles(true)} title="Файли компанії">
+                <span className="cfp-btn-inner">
+                  <FiFolder size={14}/>
+                  <span>Файли компанії</span>
+                </span>
+              </button>
+            ) : <div/>}
+          </div>
+        )}
 
         {showCompanyFiles && companyId && (
           <CompanyFilesPanel
@@ -491,7 +560,12 @@ const ClientFilesPanel = ({
           />
         )}
       </div>
-    </div>,
+  );
+
+  if (inline) return panel;
+
+  return ReactDOM.createPortal(
+    <div className="cfp-overlay" onClick={onClose}>{panel}</div>,
     document.body
   );
 };

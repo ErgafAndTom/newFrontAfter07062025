@@ -3,6 +3,7 @@ import './StylesOld.css';
 import './index.css';
 import './bootstrap.css';
 import './bootstrap.css.map';
+import './styles/ppBootstrap.css';
 import {Provider} from "react-redux";
 import {store} from "./stores/store";
 import {BrowserRouter as Router} from 'react-router-dom'

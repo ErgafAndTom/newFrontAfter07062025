@@ -975,6 +975,12 @@ background: #f1eee7;
   margin-left: auto;
 }
 
+/* Світла тема: увесь текст розгорнутого рядка чорний, без винятку для
+   кнопки «Видалити» (той самий монохромний підхід, що й в .omp). */
+:root[data-theme="light"] .ort-expanded .pays-tbl-btn--red {
+  color: #000 !important;
+}
+
 /* ── OrderUnit карточки ── */
 .ort-units {
   display: flex; flex-wrap: wrap; gap: 0.6rem;

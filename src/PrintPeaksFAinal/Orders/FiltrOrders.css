@@ -8,8 +8,8 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 0.3rem;
-  padding: 0.35rem 0.5rem;
-  background: var(--adminfonelement, #f2f0e9);
+  padding: 0 0.5rem;
+  background: transparent;
   border-bottom: 1px solid rgba(0,0,0,0.08);
 }
 
@@ -19,7 +19,7 @@
   align-items: center;
   gap: 0.1rem;
   background: var(--adminfon, #f7f5ee);
-  padding: 0.2rem 0.35rem;
+  padding: 0 0.35rem;
   flex-wrap: nowrap;
   white-space: nowrap;
 }

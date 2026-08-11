@@ -9,9 +9,9 @@
   position: fixed;
   top: 0;
   right: 0;
-  width: 38vw;
-  max-width: 90vw;
-  height: 100vh;
+  width: 38%;
+  max-width: 90%;
+  height: 100%;
   border-radius: 15px;
   background: #faf9f5;
   box-shadow: -4px 0 20px rgba(0,0,0,0.2);

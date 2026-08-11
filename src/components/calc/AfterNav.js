@@ -3,6 +3,7 @@ import {Link, Route, Routes, Navigate, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import Loader from "./Loader";
 import Desktop from "../admin/crm/Desktop/Desktop";
+import RoiPage from "../../PrintPeaksFAinal/roi/RoiPage";
 import Vimogi from "../admin/crm/Vimogi/Vimogi";
 import Files from "./files/Files";
 import CreateOrder from "./createorder/CreateOrder";
@@ -160,6 +161,7 @@ const AfterNav = () => {
                 <Route path="/Storage" element={<CustomStorageTable name={"Склад"} />} />
                 <Route path="/Devices" element={<TableStorage name={"Devices"} />} />
                 <Route path="/Desktop" element={<Desktop />} />
+                {user?.role === 'admin' && <Route path="/Roi" element={<RoiPage />} />}
                 <Route path="/CounterpartyList" element={<CounterpartyList />} />
 
                 <Route path="/Invoices" element={<Invoices />} />

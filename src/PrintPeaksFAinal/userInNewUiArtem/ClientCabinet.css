@@ -391,6 +391,12 @@
 .cc-order.cc-tone-orange > .cc-order-col:first-child { border-left-color: var(--adminorange, #f5a623); }
 .cc-order.cc-tone-orange > .cc-order-col { background: color-mix(in srgb, var(--adminorange, #f5a623) 8%, transparent); }
 
+/* У світлій темі полоска й підсвітка статусу «Друк» — червоні, а не
+   помаранчеві (на прохання користувача; в бежевій/темній лишається
+   помаранчевим). */
+:root[data-theme="light"] .cc-order.cc-tone-orange > .cc-order-col:first-child { border-left-color: var(--adminred, #ee3c23); }
+:root[data-theme="light"] .cc-order.cc-tone-orange > .cc-order-col { background: color-mix(in srgb, var(--adminred, #ee3c23) 8%, transparent); }
+
 /* 2 — Постпрес */
 .cc-order.cc-tone-blue > .cc-order-col:first-child { border-left-color: var(--adminblue, #3c60a6); }
 .cc-order.cc-tone-blue > .cc-order-col { background: color-mix(in srgb, var(--adminblue, #3c60a6) 8%, transparent); }

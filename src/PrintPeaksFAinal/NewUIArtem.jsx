@@ -1,7 +1,9 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { useSelector } from "react-redux";
 // import './CPM.css';
 import './adminStylesCrm.css';
 import './NewUIArtem.css';
+import './nuiJobTicket.css';
 import { useNavigate, useParams } from "react-router-dom";
 import axios from '../api/axiosInstance';
 
@@ -26,12 +28,15 @@ import deliveryIcon from "../components/newUIArtem/printers/delivery.png";
 import MUG from "../components/newUIArtem/printers/mug.png";
 import magnets from "./magnetsIcon.png";
 import ClientChangerUIArtem from "../PrintPeaksFAinal/userInNewUiArtem/ClientChangerUIArtem";
+import ClientFilesPanel from "../PrintPeaksFAinal/userInNewUiArtem/ClientFilesPanel";
+import AddNewOrder from "./Orders/AddNewOrder";
+import AddExpenseButton from "../components/admin/crm/Desktop/AddExpenseButton";
+import AddUserButton from "./user/AddUserButton";
 
 
 import OneProductInOrders from "../components/newcalc/Orders/OneProductInOrders";
 
 import NewWide from "./poslugi/newWide";
-import NewSheetCut from "./poslugi/NewSheetCut";
 import NewSheetCutV2 from "./poslugi/NewSheetCutV2";
 import DigitalPrintWide from "./poslugi/DigitalPrintWide";
 // import NewSheetCutBW from "./poslugi/NewSheetCutBW"
@@ -66,7 +71,6 @@ const NewUIArtem = () => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [uiLockError, setUiLockError] = useState(null);
-  const [showEnvelopeBarcode, setShowEnvelopeBarcode] = useState(false);
   const { id } = useParams();
   const [editingOrderUnit, setEditingOrderUnit] = useState(null);
   const editingOrderUnitSafe = editingOrderUnit;
@@ -85,7 +89,15 @@ const NewUIArtem = () => {
 
 
 
-  const [showNewSheetCut, setShowNewSheetCut] = useState(false);
+  // для показу кнопок «Нова витрата» / «Створити клієнта» — та сама
+  // перевірка ролі, що в глобальному навбарі (Nav.js)
+  const currentUser = useSelector((state) => state.auth.user);
+
+  // DOM-вузол на самому верху колонки клієнта, куди ClientChangerUIArtem
+  // порталить кнопку у — вона завжди видна, не ховається під списком
+  // файлів. useState (не useRef) — портал має перерендеритись, щойно вузол
+  // змонтується, а useRef цього не тригерить.
+  const [deadlineSlotEl, setDeadlineSlotEl] = useState(null);
   const [showNewSheetCutV2, setShowNewSheetCutV2] = useState(false);
   const [showNewSheetCutBW, setShowNewSheetCutBW] = useState(false);
   const [showDigitalPrintWide, setShowDigitalPrintWide] = useState(false);
@@ -306,7 +318,7 @@ const NewUIArtem = () => {
   const EDITORS = [
     { value: "SheetCutBW", label: "BLACK & WHITE", open: () => setShowNewSheetCutBW(true) },
     { value: "DigitalPrintWide", label: "DIGITAL PRINT WIDE", open: () => setShowDigitalPrintWide(true) },
-    { value: "SheetCut", label: "DIGITAL PRINT CUTING", open: () => setShowNewSheetCut(true) },
+    { value: "SheetCut", label: "DIGITAL PRINT", open: () => setShowNewSheetCutV2(true) },
 
     { value: "Vishichka", label: "PLOTTER CUT", open: () => setShowVishichka(true) },
     { value: "Photo", label: "PHOTO", open: () => setShowNewPhoto(true) },
@@ -590,6 +602,41 @@ const NewUIArtem = () => {
   const isOrderLockedForEdit = Number.isFinite(statusValue) && [4, 5].includes(statusValue);
   const hasOrders = Array.isArray(selectedThings2) && selectedThings2.length > 0;
 
+  /* Лічильник "n/6" — переїхав з картки клієнта (ClientChangerUIArtem,
+     hideStepCounter={true} нижче) у повноширинний блок статусу внизу.
+     Та сама формула, що й там: 5 статусів замовлення + прапорець оплати. */
+  const stepCounterLabel = useMemo(() => {
+    const stageCount = 6;
+    const rawStatus = Number.parseInt(thisOrder?.status, 10);
+    const normalizedStatus = Number.isFinite(rawStatus) ? Math.min(Math.max(rawStatus, 0), stageCount - 1) : 0;
+
+    const paymentStatus = String(thisOrder?.Payment?.status || '').toUpperCase();
+    let isPaid = paymentStatus === 'PAID';
+    if (!isPaid && Array.isArray(thisOrder?.Payments)) {
+      isPaid = thisOrder.Payments.some((item) => {
+        const statusVal = String(item?.status || item?.payStatus || '').toUpperCase();
+        return statusVal === 'PAID';
+      });
+    }
+
+    const completed = Math.min(stageCount, normalizedStatus + 1 + (isPaid ? 1 : 0));
+    return `${completed}/${stageCount}`;
+  }, [thisOrder?.status, thisOrder?.Payment?.status, thisOrder?.Payments]);
+
+  const stepCounterTone = useMemo(() => {
+    const rawStatus = Number.parseInt(thisOrder?.status, 10);
+    const normalizedStatus = Number.isFinite(rawStatus) ? Math.min(Math.max(rawStatus, 0), 5) : 0;
+    const tones = ['warn', 'brown', 'blue', 'pink', 'purple', 'green'];
+    return tones[normalizedStatus] || 'warn';
+  }, [thisOrder?.status]);
+
+  /* Корінець наряду: коротка назва поточної дільниці — те, що написано на
+     ребрі папки, коли вона стоїть на полиці. Довгі формулювання лишаються
+     в шапці бланка (orderListStatusTitle). */
+  const jtStageLabel = isCancelledOrder
+    ? 'Скасоване'
+    : ({ 0: 'Скіко', 1: 'Друк', 2: 'Постпрес', 3: 'Готово', 4: 'Отримано', 5: 'Видалене' })[statusValue] || 'Скіко';
+
   const lockStatusLabel = (() => {
     switch (statusValue) {
       case 2:
@@ -627,11 +674,83 @@ const NewUIArtem = () => {
 
   if (thisOrder) {
     return (
-      <div className="nui-sheetcut-theme">
+      <div className="nui-sheetcut-theme nui-jt">
         <QuantumErrorBoundary>
 
-        <div className={`d-flex  ${serviceToneClass}${hasOrders ? "" : " no-orders"}`} style={{ background: 'transparent' }}>
+        <div className={`d-flex nui-jt-grid ${serviceToneClass}${hasOrders ? "" : " no-orders"}`} style={{ background: 'transparent' }}>
+
+          {/* Корінець наряду (ребро папки з номером зліва від колонки клієнта)
+                 прибрано на прохання користувача. */}
+
+          {/* ── КОЛОНКА КЛІЄНТА — реквізити наряду: хто замовник, його файли,
+                 дедлайн і крок статусу. Ширина дзеркалить каталог робіт. ── */}
+          <section className="nui-jt-client">
+            {/* Швидкі дії — ті самі кнопки, що в глобальному навбарі
+                (AddNewOrder/AddExpenseButton/AddUserButton), додатково
+                продубльовані тут: під час роботи з нарядом їх не треба
+                шукати нагорі екрана. Навбар не зачіпаємо — інші сторінки
+                (Клієнти, Компанії, Склад) далі показують свої власні. */}
+            <div className="nui-jt-quick-actions">
+              <AddNewOrder />
+              {currentUser?.role !== 'user' && <AddExpenseButton />}
+              {(currentUser?.role === 'admin' || currentUser?.role === 'operator') && (
+                <AddUserButton fetchUsers={() => {}} />
+              )}
+              {/* Дедлайн — четвертий елемент цього самого flex-списку, тому
+                  ділить той самий gap:3px із трьома кнопками вище, без
+                  окремого контейнера й компенсуючих від'ємних margin */}
+              <div className="nui-jt-deadline-slot" ref={setDeadlineSlotEl} />
+            </div>
+
+            {/* Файли — головний вміст колонки, тому стоять першими: макети
+                надходять раніше, ніж оператор доходить до реквізитів. */}
+            <div className="nui-jt-files">
+              {/* Замість табів «Замовлення»/«Клієнта» — один eyebrow-підпис
+                  тим самим стилем, що «Вироби»/«Друк» у каталозі робіт
+                  (.ppLabel). Він же й показує, куди насправді складаються
+                  файли: у папку компанії, якщо клієнт до неї належить, і в
+                  папку клієнта, якщо ні. */}
+              <p className="ppLabel nui-jt-group-label nui-jt-files-label">
+                {thisOrder?.client?.Company?.id
+                  ? `Файли компанії №${thisOrder.client.Company.id}`
+                  : 'Файли клієнта'}
+              </p>
+
+              <div className="nui-jt-files-body">
+                {thisOrder?.client?.id ? (
+                  <ClientFilesPanel
+                    inline
+                    userId={thisOrder.client.id}
+                    clientName={thisOrder.client.firstName ? `${thisOrder.client.firstName} ${thisOrder.client.lastName || ''}` : ''}
+                    companyId={thisOrder.client?.Company?.id}
+                    companyName={thisOrder.client?.Company?.companyName || ''}
+                    orderId={thisOrder?.id}
+                  />
+                ) : null}
+              </div>
+            </div>
+
+            <p className="ppLabel nui-jt-group-label nui-jt-client-label">Клієнти</p>
+
+            <div className="nui-bottom-client-inline">
+              {/* actionButtonSlot і лічильник "n/6" прибрано звідси: обидва
+                  переїхали в повноширинний блок статусу внизу сторінки,
+                  разом з рядком кроків, на прохання користувача. */}
+              <ClientChangerUIArtem
+                thisOrder={thisOrder}
+                setThisOrder={setThisOrder}
+                setSelectedThings2={setSelectedThings2}
+                hidePaymentPanel={true}
+                onClientError={setUiLockError}
+                deadlinePortalTarget={deadlineSlotEl}
+                hideStepCounter={true}
+              />
+            </div>
+
+          </section>
+
           <div className="nui-services-column">
+            <p className="ppLabel nui-jt-group-label">Друк</p>
 
             {/* === GRID OF SERVICE TILES === */}
             <div
@@ -656,36 +775,21 @@ const NewUIArtem = () => {
                 </div>
               </p>
 
-              {/* 2) DIGITAL PRINT CUTTING */}
-              <p
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditingOrderUnitSafe(null);      // ✅ важливо
-                  setShowNewSheetCut(true);
-                }}
-              >
-                <div className="tileContent">
-                  <span className="verticalText">DIGITAL PRINT CUTING</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={colorPrintIcon} alt="" />
-                </div>
-              </p>
-
-              {/* 3) DIGITAL PRINT CUTTING V2 — redesign */}
+              {/* 2) DIGITAL PRINT — раніше "DIGITAL PRINT CUTING" (legacy NewSheetCut), тепер відкриває V2 */}
               <p
                 onClick={(e) => {
                   e.stopPropagation();
                   setEditingOrderUnitSafe(null);
                   setShowNewSheetCutV2(true);
                 }}
-                style={{ border: "2px solid var(--admingreen, #0e935b)" }}
               >
                 <div className="tileContent">
-                  <span className="verticalText">PRINT V2 ✦</span>
+                  <span className="verticalText">DIGITAL PRINT</span>
                   <img className="icon64 CardPrintersPoslugiImg" src={colorPrintIcon} alt="" />
                 </div>
               </p>
 
-              {/* 4) PHOTO */}
+              {/* 3) PHOTO */}
               <p onClick={() => openEditorForOrderUnit(null, 'Photo')}>
                 <div className="tileContent">
                   <span className="verticalText">PHOTO</span>
@@ -693,7 +797,7 @@ const NewUIArtem = () => {
                 </div>
               </p>
 
-              {/* 5) WIDE PHOTO */}
+              {/* 4) WIDE PHOTO */}
               <p onClick={() => openEditorForOrderUnit(null, 'Wide')}>
                 <div className="tileContent">
                   <span className="verticalText">WIDE PHOTO</span>
@@ -701,7 +805,7 @@ const NewUIArtem = () => {
                 </div>
               </p>
 
-              {/* 6) DIGITAL PRINT WIDE — широкоформатний цифровий друк 330x660 */}
+              {/* 5) DIGITAL PRINT WIDE — широкоформатний цифровий друк 330x660 */}
               <p
                 onClick={(e) => {
                   e.stopPropagation();
@@ -717,6 +821,7 @@ const NewUIArtem = () => {
 
             </div>
 
+            <p className="ppLabel nui-jt-group-label">Постпрес</p>
             <div
               className={`CardPrintersPoslugi nui-services-grid nui-services-grid-middle nui-services-position-middle nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
               onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
@@ -773,6 +878,7 @@ const NewUIArtem = () => {
             </div>
 
             {/* Третя група — DIPLOM, NOTE, BOOKLET, MUG (purple) */}
+            <p className="ppLabel nui-jt-group-label">Вироби</p>
             <div className={`CardPrintersPoslugi nui-services-grid nui-services-grid-tertiary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
                  onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
             >
@@ -839,6 +945,7 @@ const NewUIArtem = () => {
             </div>
 
             {/* Четверта група — SCANS, DELIVERY, WIDE FACTORY (rose) */}
+            <p className="ppLabel nui-jt-group-label">Послуги</p>
             <div className={`CardPrintersPoslugi nui-services-grid nui-services-grid-secondary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
                  onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
             >
@@ -869,9 +976,12 @@ const NewUIArtem = () => {
                 </div>
               </p>
             </div>
+
           </div>
 
-          <div className={`d-flex flex-column nui-orders-column${hasOrders ? "" : " nui-orders-column-empty"}`} style={!hasOrders ? { display: "none" } : undefined}>
+          {/* Бланк лишається на екрані й порожнім — це місце, куди лягають
+              рядки специфікації, а не блок, який зникає разом з ними. */}
+          <div className={`d-flex flex-column nui-orders-column${hasOrders ? "" : " nui-orders-column-empty"}`}>
             <div className={`nui-order-header-shell ${orderToneClass}`}>
               {orderListStatusTitle && (
                 <div className="nui-order-delivered-title">
@@ -963,21 +1073,6 @@ const NewUIArtem = () => {
                 {uiLockError}
               </div>
             )}
-            <div className="nui-order-status-inline">
-              <ProgressBar
-                thisOrder={thisOrder}
-                setThisOrder={setThisOrder}
-                setSelectedThings2={setSelectedThings2}
-                selectedThings2={selectedThings2}
-                externalError={uiLockError}
-                showActionRail={true}
-                showFinance={false}
-                showActionButton={false}
-                showTrack={true}
-                showError={false}
-              />
-            </div>
-
           </div>
 
           {/* ── Uklon Map + Tracking (правіше від списку замовлень) ── */}
@@ -1336,124 +1431,101 @@ const NewUIArtem = () => {
                     showFinance={true}
                     showError={false}
                     onDiscountError={setUiLockError}
-                  />
-                  </div>
-                  <div className={`nui-deadline-envelope${isDeadlineOverdue ? ' nui-deadline--overdue' : ''}`}>
-                    {orderDeadlineCountdown && (
-                      <button
-                        className="nui-envelope-toggle-btn"
-                        onClick={() => setShowEnvelopeBarcode(prev => !prev)}
-                        title={showEnvelopeBarcode ? 'Показати дедлайн' : 'Показати штрих-код'}
-                      >
-                        {showEnvelopeBarcode ? '⏱' : '|||'}
-                      </button>
-                    )}
-                    {!orderDeadlineCountdown || showEnvelopeBarcode ? (
-                      <div className="nui-barcode-with-ttn">
-                        {thisOrder?.Waybills?.length > 0 && (
-                          <div className="nui-ttn-block">
-                            <span className="nui-ttn-number">{thisOrder.Waybills[0].intDocNumber}</span>
-                            <div className="nui-ttn-buttons">
-                              <button
-                                className="nui-client-rect-btn nui-ttn-rect-btn"
-                                title="Завантажити ТТН (PDF)"
-                                onClick={() => {
-                                  axios.get(`/novaposhta/print/${thisOrder.Waybills[0].ref}`, { responseType: 'blob' })
-                                    .then(res => {
-                                      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
-                                      const a = document.createElement('a');
-                                      a.href = url;
-                                      a.download = `TTN_${thisOrder.Waybills[0].intDocNumber}.pdf`;
-                                      a.click();
-                                      window.URL.revokeObjectURL(url);
-                                    })
-                                    .catch(err => console.error('[NP] TTN download error:', err));
-                                }}
-                              ><span className="nui-client-rect-btn-text">ТТН</span></button>
-                              <button
-                                className="nui-client-rect-btn nui-ttn-rect-btn"
-                                title="Завантажити наліпку (PDF)"
-                                onClick={() => {
-                                  axios.get(`/novaposhta/print-sticker/${thisOrder.Waybills[0].ref}`, { responseType: 'blob' })
-                                    .then(res => {
-                                      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
-                                      const a = document.createElement('a');
-                                      a.href = url;
-                                      a.download = `Sticker_${thisOrder.Waybills[0].intDocNumber}.pdf`;
-                                      a.click();
-                                      window.URL.revokeObjectURL(url);
-                                    })
-                                    .catch(err => console.error('[NP] Sticker download error:', err));
-                                }}
-                              ><span className="nui-client-rect-btn-text">НАЛІПКА</span></button>
-                              <NovaPoshtaThermalButton
-                                waybillRef={thisOrder.Waybills[0].ref}
-                                intDocNumber={thisOrder.Waybills[0].intDocNumber}
-                                className="nui-client-rect-btn nui-ttn-rect-btn"
-                              />
-                            </div>
-                          </div>
-                        )}
-                        <BarcodeLabel type="order" data={thisOrder} variant="full" onAfterPrint={() => {
-                          if (thisOrder?.id) {
-                            axios.put('/orders/OneOrder/statusUpdate', { newStatus: 3, thisOrderId: thisOrder.id })
+                    /* Штрих-код (+ТТН, якщо є накладна) — правий край
+                       фінансового рядка, у слоті financeAside. Раніше стояв
+                       у самому низу каталогу модалок; там він з'їдав висоту,
+                       якої не вистачало каталогу на Full HD. Сусідом самому
+                       рядку метрик його не поставиш — стрічка кнопок над
+                       ними мусить лишатись на всю ширину картки. */
+                    financeAside={
+                      <div className={`nui-deadline-envelope nui-jt-foot-barcode${isDeadlineOverdue ? ' nui-deadline--overdue' : ''}`}>
+                <div className="nui-barcode-with-ttn">
+                  {thisOrder?.Waybills?.length > 0 && (
+                    <div className="nui-ttn-block">
+                      <span className="nui-ttn-number">{thisOrder.Waybills[0].intDocNumber}</span>
+                      <div className="nui-ttn-buttons">
+                        <button
+                          className="nui-client-rect-btn nui-ttn-rect-btn"
+                          title="Завантажити ТТН (PDF)"
+                          onClick={() => {
+                            axios.get(`/novaposhta/print/${thisOrder.Waybills[0].ref}`, { responseType: 'blob' })
                               .then(res => {
-                                const nextOrder = res?.data?.order ?? res?.data;
-                                if (nextOrder && typeof nextOrder === 'object') {
-                                  setThisOrder(nextOrder);
-                                  if (Array.isArray(nextOrder.OrderUnits)) setSelectedThings2(nextOrder.OrderUnits);
-                                }
+                                const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = `TTN_${thisOrder.Waybills[0].intDocNumber}.pdf`;
+                                a.click();
+                                window.URL.revokeObjectURL(url);
                               })
-                              .catch(err => console.error('Status update error:', err));
-                          }
-                        }} />
+                              .catch(err => console.error('[NP] TTN download error:', err));
+                          }}
+                        ><span className="nui-client-rect-btn-text">ТТН</span></button>
+                        <button
+                          className="nui-client-rect-btn nui-ttn-rect-btn"
+                          title="Завантажити наліпку (PDF)"
+                          onClick={() => {
+                            axios.get(`/novaposhta/print-sticker/${thisOrder.Waybills[0].ref}`, { responseType: 'blob' })
+                              .then(res => {
+                                const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = `Sticker_${thisOrder.Waybills[0].intDocNumber}.pdf`;
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                              })
+                              .catch(err => console.error('[NP] Sticker download error:', err));
+                          }}
+                        ><span className="nui-client-rect-btn-text">НАЛІПКА</span></button>
+                        <NovaPoshtaThermalButton
+                          waybillRef={thisOrder.Waybills[0].ref}
+                          intDocNumber={thisOrder.Waybills[0].intDocNumber}
+                          className="nui-client-rect-btn nui-ttn-rect-btn"
+                        />
                       </div>
-                    ) : (
-                      <>
-                        <span className="nui-deadline-envelope__prefix">
-                          {isDeadlineOverdue ? 'Замовлення необхідно було віддати:' : 'Замовлення необхідно віддати через:'}
-                        </span>
-                        <span className="nui-deadline-envelope__counter">
-                          {orderDeadlineCountdown.split(' ').map((token, i) => {
-                            const m = token.match(/^(\d+)(Д|Г|ХВ)$/i);
-                            if (!m) return <span key={i}>{token} </span>;
-                            return (
-                              <span key={i} className="nui-deadline-token">
-                                {m[1]}<span className="nui-deadline-unit">{m[2]}</span>{' '}
-                              </span>
-                            );
-                          })}
-                        </span>
-                      </>
-                    )}
-                  </div>
+                    </div>
+                  )}
+                  <BarcodeLabel type="order" data={thisOrder} variant="full" onAfterPrint={() => {
+                    if (thisOrder?.id) {
+                      axios.put('/orders/OneOrder/statusUpdate', { newStatus: 3, thisOrderId: thisOrder.id })
+                        .then(res => {
+                          const nextOrder = res?.data?.order ?? res?.data;
+                          if (nextOrder && typeof nextOrder === 'object') {
+                            setThisOrder(nextOrder);
+                            if (Array.isArray(nextOrder.OrderUnits)) setSelectedThings2(nextOrder.OrderUnits);
+                          }
+                        })
+                        .catch(err => console.error('Status update error:', err));
+                    }
+                  }} />
                 </div>
-                <div className="nui-bottom-client-inline">
-                  <ClientChangerUIArtem
-                    thisOrder={thisOrder}
-                    setThisOrder={setThisOrder}
-                    setSelectedThings2={setSelectedThings2}
-                    hidePaymentPanel={true}
-                    onClientError={setUiLockError}
-                    actionButtonSlot={(
-                      <ProgressBar
-                        thisOrder={thisOrder}
-                        setThisOrder={setThisOrder}
-                        setSelectedThings2={setSelectedThings2}
-                        selectedThings2={selectedThings2}
-                        externalError={uiLockError}
-                        showActionRail={true}
-                        showFinance={false}
-                        showActionButton={true}
-                        showTrack={false}
-                        compactActionButton={true}
-                        showError={false}
-                      />
-                    )}
+                </div>
+                    }
                   />
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Маршрут цеху — окремий блок на всю ширину екрана в самому
+              низу, разом з лічильником і кнопкою перемикання статусу
+              (обидва переїхали сюди з картки клієнта), на прохання
+              користувача. Кнопка — ширина як кнопки в блоці клієнта,
+              лічильник — між кнопкою і рядком кроків. */}
+          <div className="nui-order-status-inline">
+            <ProgressBar
+              thisOrder={thisOrder}
+              setThisOrder={setThisOrder}
+              setSelectedThings2={setSelectedThings2}
+              selectedThings2={selectedThings2}
+              externalError={uiLockError}
+              showActionRail={true}
+              showFinance={false}
+              showActionButton={true}
+              showTrack={true}
+              showError={false}
+              stepCounter={<div className={`nui-client-step-counter-btn nui-status-step-counter tone-${stepCounterTone}`} aria-hidden="true">{stepCounterLabel}</div>}
+            />
           </div>
         </div>
 
@@ -1481,21 +1553,6 @@ const NewUIArtem = () => {
             setShowNewSheetCutBW={setShowNewSheetCutBW}
             editingOrderUnit={editingOrderUnitSafe}
             setEditingOrderUnit={setEditingOrderUnitSafe}
-          />
-        }
-        {showNewSheetCut &&
-          <NewSheetCut
-            productName={productName}
-            thisOrder={thisOrder}
-            newThisOrder={newThisOrder}
-            selectedThings2={selectedThings2}
-            setNewThisOrder={setNewThisOrder}
-            setShowNewSheetCut={setShowNewSheetCut}
-            setThisOrder={setThisOrder}
-            setSelectedThings2={setSelectedThings2}
-            showNewSheetCut={showNewSheetCut}
-            editingOrderUnit={editingOrderUnitSafe}    // ← нове
-
           />
         }
         {showNewSheetCutV2 &&

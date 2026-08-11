@@ -29,8 +29,9 @@
 }
 
 .sod-id {
-  font-weight: 600;
-  color: var(--adminblue, #3c60a6);
+  font-family: var(--pp-font-ui);
+  font-weight: 500;
+  color: var(--admingrey, #666666);
   white-space: nowrap;
 }
 

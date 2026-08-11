@@ -270,6 +270,49 @@
   background: var(--adminfonelement, #f1eee7);
 }
 
+/* ── INLINE-РЕЖИМ: вузька колонка наряду ──────────────────────────────
+   Сітка на 7 колонок має 356px фіксованих + 48px проміжків = 404px, а
+   колонка клієнта в наряді ~330px. Через це `1fr` під назву стискався
+   буквально до нуля, і назва файлу рендерилась вертикально — по одній
+   літері в рядок. Тут лишаються лише чотири потрібні колонки (іконка,
+   назва, розмір, кошик), а «Тип», «Дата» й «Зам.» ховаються: тип уже
+   видно з іконки, а дата й номер замовлення в цій вузькій колонці все
+   одно не читались. */
+.cfp-modal--inline .cfp-list-header,
+.cfp-modal--inline .cfp-file-row {
+  /* остання колонка 34px, не 30px: збільшена іконка кошика (20px) плюс
+     padding кнопки в 30px не влазила й сплющувалась по ширині до 6px */
+  grid-template-columns: 28px minmax(0, 1fr) 64px 34px;
+  gap: 6px;
+}
+
+/* svg не має стискатись у flex-контейнері кнопки */
+.cfp-modal--inline .cfp-file-row .cfp-admin-btn-red {
+  padding: 0 !important;
+  min-width: 0;
+}
+
+.cfp-modal--inline .cfp-file-row .cfp-admin-btn-red svg {
+  flex: 0 0 auto;
+}
+
+.cfp-modal--inline .cfp-list-header > *:nth-child(3),
+.cfp-modal--inline .cfp-list-header > *:nth-child(5),
+.cfp-modal--inline .cfp-list-header > *:nth-child(6),
+.cfp-modal--inline .cfp-file-row > *:nth-child(3),
+.cfp-modal--inline .cfp-file-row > *:nth-child(5),
+.cfp-modal--inline .cfp-file-row > *:nth-child(6) {
+  display: none;
+}
+
+/* назва мусить різатись «…», а не розпихати або ламатись по літері */
+.cfp-modal--inline .cfp-file-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .cfp-file-icon {
   width: 36px;
   height: 36px;

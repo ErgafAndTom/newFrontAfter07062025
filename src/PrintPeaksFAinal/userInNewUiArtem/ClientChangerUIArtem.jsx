@@ -23,7 +23,6 @@ import ClientCabinet from "./ClientCabinet";
 import "./ClientCabinet.css";
 import ClientFilesPanel from "./ClientFilesPanel";
 import PaysInOrderRestored_OrdersLike from "./pays/PaysInOrderRestored_OrdersLike";
-import BarcodeLabel from "../barcode/BarcodeLabel";
 import OrderFilesPanel from "../commentsInOrders/OrderFilesPanel";
 
 const formatPhone = (phone) => {
@@ -38,7 +37,7 @@ const formatPhone = (phone) => {
   return phone.startsWith('+') ? phone : '+' + phone;
 };
 
-const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hidePaymentPanel = false, actionButtonSlot = null, statusTrackSlot = null, onClientError = null }) => {
+const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hidePaymentPanel = false, actionButtonSlot = null, statusTrackSlot = null, onClientError = null, deadlinePortalTarget = null, hideStepCounter = false }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
   const [showAddUser, setShowAddUser] = useState(false);
@@ -315,7 +314,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
       const hours = Math.floor((totalSeconds % 86400) / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
 
-      if (days > 0) return `${days}д ${String(hours).padStart(2, '0')}г`;
+      if (days > 0) return `${days}д ${String(hours).padStart(2, '0')}г ${String(minutes).padStart(2, '0')}хв`;
       return `${String(hours).padStart(2, '0')}г ${String(minutes).padStart(2, '0')}хв`;
     };
 
@@ -338,7 +337,10 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
     if (deadlineBtnRef.current) {
       const rect = deadlineBtnRef.current.getBoundingClientRect();
       const calHeight = 360;
-      const top = rect.top - calHeight > 0 ? rect.top - calHeight : rect.bottom;
+      // календар розкривається під кнопкою; вгору відкидається лише тоді,
+      // коли внизу екрана для нього справді немає місця
+      const fitsBelow = window.innerHeight - rect.bottom >= calHeight;
+      const top = fitsBelow ? rect.bottom : Math.max(8, rect.top - calHeight);
       setDatePickerPos({ top, left: rect.left });
     }
     setShowDatePicker(true);
@@ -436,8 +438,49 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
     }
   };
 
+  const deadlineIsOverdue = deadlineCountdown.startsWith('-');
+  const deadlineValue = deadlineIsOverdue ? deadlineCountdown.slice(1) : deadlineCountdown;
+  const deadlineButtonEl = (
+    <button
+      ref={deadlineBtnRef}
+      type="button"
+      // щойно відлік пішов, це вже не кнопка, а показник: клік і
+      // ховер вимкнені, щоб дедлайн не перепризначили випадково
+      onClick={deadlineCountdown ? undefined : (e) => {
+        e.stopPropagation();
+        openDeadlinePicker();
+      }}
+      disabled={!deadlineCountdown && !canEditDeadline}
+      aria-disabled={Boolean(deadlineCountdown)}
+      className={`nui-client-rect-btn nui-client-deadline-btn${deadlineCountdown ? ' has-countdown' : ''}${deadlineIsOverdue ? ' is-overdue' : ''}`}
+      title={deadlineCountdown ? '' : 'Призначити дедлайн'}
+    >
+      {deadlineCountdown ? (
+        <span className="nui-client-rect-btn-text nui-dl-cd">
+          <span className="nui-dl-cd-label">
+            {deadlineIsOverdue ? 'Прострочено' : 'Лишилось'}
+          </span>
+          <span className="nui-dl-cd-value">
+            {deadlineValue.split(' ').map((token, i) => {
+              const m = token.match(/^(\d+)(д|г|хв)$/i);
+              if (!m) return <span key={i}>{token} </span>;
+              return (
+                <span key={i} className="nui-dl-token">
+                  {m[1]}<span className="nui-dl-unit">{m[2]}</span>
+                </span>
+              );
+            })}
+          </span>
+        </span>
+      ) : (
+        <span className="nui-client-rect-btn-text">Дедлайн</span>
+      )}
+    </button>
+  );
+
   return (
     <div className={`nui-client-envelope-shell tone-${progressCounterTone}`} >
+      {deadlinePortalTarget && ReactDOM.createPortal(deadlineButtonEl, deadlinePortalTarget)}
       <div className="nui-client-envelope-grid">
         <div className="nui-client-envelope-card">
           <div className="nui-client-card-layout">
@@ -451,7 +494,7 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
             <div className="nui-client-card-right">
               <button
                 type="button"
-                className={`nui-client-vchasno-btn${vchasnoOn ? ' is-on' : ''}`}
+                className={`nui-client-rect-btn nui-client-vchasno-btn${vchasnoOn ? ' is-on' : ''}`}
                 onClick={toggleVchasno}
                 disabled={!thisOrder?.client?.id || vchasnoBusy}
                 title={vchasnoOn
@@ -490,12 +533,12 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
                     handleShow();
                   }}
                 >
-                  <span className="nui-client-rect-btn-text">{thisOrder?.client ? "Змінити" : "Вибрати"}</span>
+                  <span className="nui-client-rect-btn-text">{thisOrder?.client ? "Змінити клієнта" : "Вибрати"}</span>
                 </button>
 
                 <button
                   type="button"
-                  className="nui-client-rect-btn"
+                  className="nui-client-rect-btn nui-client-files-btn"
                   onClick={(e) => { e.stopPropagation(); setShowClientFiles(true); }}
                   disabled={!thisOrder?.client}
                 >
@@ -508,16 +551,19 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
                   onClick={(e) => setThisUserToCabinetFunc(true, thisOrder?.client, e)}
                   disabled={!thisOrder?.client}
                 >
-                  <span className="nui-client-rect-btn-text">Кабінет</span>
+                  <span className="nui-client-rect-btn-text">Кабінет клієнта</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="nui-client-rect-btn nui-client-profile-btn"
+                  onClick={(e) => { e.stopPropagation(); navigate(`/company/${thisOrder.client?.Company?.id}`); }}
+                  disabled={!thisOrder?.client?.Company?.id}
+                >
+                  <span className="nui-client-rect-btn-text">Профіль компанії</span>
                 </button>
               </div>
             </div>
-
-            {thisOrder?.client?.id && (
-              <div className="nui-client-barcode-right">
-                <BarcodeLabel type="client" data={thisOrder.client} variant="compact" />
-              </div>
-            )}
           </div>
 
           {thisOrder?.client?.address && (
@@ -529,28 +575,25 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
 
         <div className="nui-client-controls-card" onClick={(e) => e.stopPropagation()}>
           <div className="nui-client-controls-row">
-            {!deadlineCountdown && (
-              <button
-                ref={deadlineBtnRef}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openDeadlinePicker();
-                }}
-                disabled={!canEditDeadline}
-                className="nui-client-rect-btn nui-client-deadline-btn"
-              >
-                <span className="nui-client-rect-btn-text">Дедлайн</span>
-              </button>
-            )}
+            {/* Поки дедлайну немає — кнопка. Щойно він заданий, на тому самому
+                місці цокає відлік, і клік по ньому відкриває той самий пікер:
+                одне місце для «коли віддати», а не два різні блоки.
+
+                deadlinePortalTarget: коли переданий (сторінка наряду виносить
+                дедлайн на верх лівої панелі, над списком файлів), кнопка не
+                малюється тут — лише портал нижче. Логіка (відлік, пікер,
+                запит на сервер) лишається тут же, переноситься лише вивід. */}
+            {!deadlinePortalTarget && deadlineButtonEl}
             <button
               type="button"
               onClick={openFilesFolder}
-              className="nui-client-rect-btn"
+              className="nui-client-rect-btn nui-client-folder-btn"
             >
               <span className="nui-client-rect-btn-text">Файли замовлення</span>
             </button>
-            <div className={`nui-client-step-counter-btn tone-${progressCounterTone}`} aria-hidden="true">{progressCounterLabel}</div>
+            {!hideStepCounter && (
+              <div className={`nui-client-step-counter-btn tone-${progressCounterTone}`} aria-hidden="true">{progressCounterLabel}</div>
+            )}
             {actionButtonSlot}
             {showDatePicker && ReactDOM.createPortal(
               <div

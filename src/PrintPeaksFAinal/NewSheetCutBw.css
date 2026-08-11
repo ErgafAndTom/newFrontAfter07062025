@@ -10,8 +10,6 @@
 .ppBwOverlay{
   position:fixed;
   inset:0;
-  width:100vw;
-  height:100vh;
   background:rgba(15,15,15,0.45);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
@@ -24,8 +22,8 @@
   position:fixed;
   top:50%;
   left:50%;
-  width:min(50vw, 94vw);
-  height:min(820px, 92vh);
+  width:min(50%, 94%);
+  height:min(820px, 92%);
   transform:translate(-50%,-50%);
   border-radius:22px;
   background:var(--pp-bg);
@@ -129,8 +127,8 @@
 
   position: fixed;
 
-  left: 2vh;
-  top: 2vw;
+  left: 2%;
+  top: 2%;
   box-shadow:0 10px 24px rgba(0,0,0,0.10);
 }
 

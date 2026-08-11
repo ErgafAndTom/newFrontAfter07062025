@@ -26,7 +26,6 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
   const [oplata, setOplata] = useState(false);
   const intervalRef = useRef(null);
   const currentUser = useSelector((state) => state.auth.user);
-  const buttonStyles = {};
   const [showAwaitPays, setShowAwaitPays] = useState(false);
   const [showAwaitCashPays, setShowAwaitCashPays] = useState(false);
   const [showInvoiceDocs, setShowInvoiceDocs] = useState(false);
@@ -458,134 +457,93 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
         />
       )}
 
-      {/* Інтеграція ShiftManager (з другого) */}
-      {/*<ShiftManager*/}
-      {/*  createTerminalPayment={createTerminalPayment}*/}
-      {/*  thisOrder={thisOrder}*/}
-      {/*  setShowPays={setShowPays}*/}
-      {/*  setThisOrder={setThisOrder}*/}
-      {/*/>*/}
-      {/*<ShiftControlModal />*/}
-
       {/* Блок вибору методів оплати */}
       {currentUser?.role !== 'user' && (!thisOrder.Payment ||
-        ["CANCELLED", "EXPIRED"].includes(thisOrder.Payment.status)) && (
-          <>
-            {oplata && (
-              <div className="payment-methods-panel d-flex align-items-center">
-                <button
-                  className="PayButtons adminTextBigPay cash"
-                  // onClick={() => handleSelect("cash")}
-                >
-                  Готівка
-                </button>
-                <button
-                  className="PayButtons adminTextBigPay terminal"
-                  // onClick={() => handleSelect("terminal")}
-                >
-                  <Loader/>
-                </button>
-                <button
-                  className="PayButtons adminTextBigPay online"
-                  // onClick={() => handleSelect("online")}
-                >
-                  Посилання
-                </button>
-                <button
-                  onClick={() => setShowPays(true)}
-                  title="Платежі"
-                  style={{ ...buttonStyles.base, ...buttonStyles.iconButton }}
-                  className="PayButtons adminTextBigPay invoices"
-                >
-                  Рахунок
-                </button>
-                <button
-                  className="PayButtons adminTextBigPay iban"
-                >
-                  на IBAN
-                </button>
-              </div>
-            )}
-            {!oplata && (
-              <div className="payment-methods-panel">
-                <button
-                  className="nui-client-rect-btn"
-                  onClick={() => handleSelect("cash")}
-                  disabled={!thisOrder.allPrice}
-                >
-                  <span className="nui-client-rect-btn-text">Готівка</span>
-                  {thisOrder.Payment && thisOrder.Payment.method === 'cash' && (
-                    <span className="pay-sel-status">
-                      {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}
-                    </span>
-                  )}
-                </button>
-                <button
-                  className="nui-client-rect-btn"
-                  onClick={() => handleSelect("terminal")}
-                  disabled={!thisOrder.allPrice}
-                >
-                  <span className="nui-client-rect-btn-text">Картка</span>
-                  {thisOrder.Payment && thisOrder.Payment.method === 'terminal' && (
-                    <span className="pay-sel-status">
-                      {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}
-                    </span>
-                  )}
-                </button>
-                <button
-                  className="nui-client-rect-btn"
-                  onClick={() => handleSelect("online")}
-                  disabled={!thisOrder.allPrice}
-                >
-                  <span className="nui-client-rect-btn-text">Посилання</span>
-                  {(thisOrder.Payment?.method === 'link' || thisOrder.Payment?.method === null) && (
-                    <span className="pay-sel-status">
-                      {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}
-                    </span>
-                  )}
-                </button>
-                <button
-                  className="nui-client-rect-btn"
-                  onClick={() => setShowPays(true)}
-                  title="Платежі"
-                  disabled={!thisOrder.allPrice}
-                >
-                  <span className="nui-client-rect-btn-text">Рахунок</span>
-                </button>
-                <button
-                  className="nui-client-rect-btn"
-                  onClick={() => handleSelect("iban")}
-                  disabled={!thisOrder.allPrice}
-                >
-                  <span className="nui-client-rect-btn-text">на IBAN</span>
-                  {thisOrder.Payment && thisOrder.Payment.method === 'iban' && (
-                    <span className="pay-sel-status">
-                      {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}
-                    </span>
-                  )}
-                </button>
-              </div>
-            )}
-          </>
+        ["CANCELLED", "EXPIRED"].includes(thisOrder.Payment.status)) && (oplata ? (
+          <div className="payment-methods-panel payment-methods-panel--loading">
+            <div className="nui-client-rect-btn" aria-disabled="true">
+              <Loader/>
+            </div>
+          </div>
+        ) : (
+          <div className="payment-methods-panel">
+            <button
+              className="nui-client-rect-btn"
+              onClick={() => handleSelect("cash")}
+              disabled={!thisOrder.allPrice}
+            >
+              <span className="nui-client-rect-btn-text">Готівка</span>
+              {thisOrder.Payment && thisOrder.Payment.method === 'cash' && (
+                <span className="pay-sel-status">
+                  {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}
+                </span>
+              )}
+            </button>
+            <button
+              className="nui-client-rect-btn"
+              onClick={() => handleSelect("terminal")}
+              disabled={!thisOrder.allPrice}
+            >
+              <span className="nui-client-rect-btn-text">Картка</span>
+              {thisOrder.Payment && thisOrder.Payment.method === 'terminal' && (
+                <span className="pay-sel-status">
+                  {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}
+                </span>
+              )}
+            </button>
+            <button
+              className="nui-client-rect-btn"
+              onClick={() => handleSelect("online")}
+              disabled={!thisOrder.allPrice}
+            >
+              <span className="nui-client-rect-btn-text">Посилання</span>
+              {(thisOrder.Payment?.method === 'link' || thisOrder.Payment?.method === null) && (
+                <span className="pay-sel-status">
+                  {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}
+                </span>
+              )}
+            </button>
+            <button
+              className="nui-client-rect-btn"
+              onClick={() => setShowPays(true)}
+              title="Платежі"
+              disabled={!thisOrder.allPrice}
+            >
+              <span className="nui-client-rect-btn-text">Рахунок</span>
+            </button>
+            <button
+              className="nui-client-rect-btn"
+              onClick={() => handleSelect("iban")}
+              disabled={!thisOrder.allPrice}
+            >
+              <span className="nui-client-rect-btn-text">на IBAN</span>
+              {thisOrder.Payment && thisOrder.Payment.method === 'iban' && (
+                <span className="pay-sel-status">
+                  {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}
+                </span>
+              )}
+            </button>
+          </div>
+        )
       )}
 
       {thisOrder.Payment?.status === "CREATED" && (
         <>
           {thisOrder.Payment?.method === 'terminal' && (
             <>
-              <div className="payment-methods-panel payment-methods-panel--await d-flex align-items-center">
+              <div className="payment-methods-panel payment-methods-panel--await">
                 <button
                   className="PayButtons pay-await-open"
                 >
                   <Loader/>
                 </button>
                 <div
-                  className="PayButtons wait pay-await-state"
+                  className="PayButtons pay-await-state"
                 >
                   <span className="pay-shimmer-txt">В очікуванні оплати</span>
                 </div>
                 <button
-                  className="PayButtons check pay-await-receipt"
+                  className="PayButtons pay-await-receipt"
 
                   // onClick={invalidateInvoice}
 
@@ -598,7 +556,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
           )}
           {thisOrder.Payment?.method === 'link' && (
             <>
-              <div className="payment-methods-panel payment-methods-panel--await d-flex align-items-center">
+              <div className="payment-methods-panel payment-methods-panel--await">
                 <button
                   className="PayButtons pay-await-open"
                   onClick={() => {
@@ -608,12 +566,12 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                   Відкрити посилання
                 </button>
                 <div
-                  className="PayButtons wait pay-await-state"
+                  className="PayButtons pay-await-state"
                 >
                   <span className="pay-shimmer-txt">В очікуванні оплати</span>
                 </div>
                 <button
-                  className="PayButtons end pay-await-cancel"
+                  className="PayButtons pay-await-cancel"
                   // style={{background:"#e01729"}}
                   onClick={invalidateInvoice}>
 
@@ -624,15 +582,15 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
           )}
           {thisOrder.Payment?.method === 'iban' && (
             <>
-              <div className="payment-methods-panel payment-methods-panel--await d-flex align-items-center">
+              <div className="payment-methods-panel payment-methods-panel--await">
                 <button className="PayButtons pay-await-open">
                   на IBAN
                 </button>
-                <div className="PayButtons wait pay-await-state">
+                <div className="PayButtons pay-await-state">
                   <span className="pay-shimmer-txt">В очікуванні оплати</span>
                 </div>
                 <button
-                  className="PayButtons end pay-await-cancel"
+                  className="PayButtons pay-await-cancel"
                   onClick={cancelIbanPayment}>
                   Скасувати
                 </button>
@@ -649,11 +607,11 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
           )}
           {thisOrder.Payment?.method === 'cod' && (
             <>
-              <div className="payment-methods-panel payment-methods-panel--await d-flex align-items-center">
+              <div className="payment-methods-panel payment-methods-panel--await">
                 <button className="PayButtons pay-await-open" style={{ color: 'var(--adminorange)' }}>
                   Наложений платіж
                 </button>
-                <div className="PayButtons wait pay-await-state">
+                <div className="PayButtons pay-await-state">
                   <span className="pay-shimmer-txt">Очікування доставки</span>
                 </div>
               </div>
@@ -669,7 +627,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
           )}
           {thisOrder.Payment?.method === 'invoice' && (
             <>
-              <div className="payment-methods-panel payment-methods-panel--await payment-methods-panel--invoice d-flex align-items-center">
+              <div className="payment-methods-panel payment-methods-panel--await payment-methods-panel--invoice">
                 <button
                   className="PayButtons pay-await-open pay-await-open--wide"
                   onClick={downloadInvoiceDocs}
@@ -677,12 +635,12 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                   {loading ? <Loader/> : "Завантажити документи"}
                 </button>
                 <div
-                  className="PayButtons wait pay-await-state pay-await-state--small"
+                  className="PayButtons pay-await-state pay-await-state--small"
                 >
                   <span className="pay-shimmer-txt">В очікуванні оплати рахунку</span>
                 </div>
                 <button
-                  className="PayButtons end pay-await-cancel"
+                  className="PayButtons pay-await-cancel"
                   onClick={cancelInvoiceDoc}>
                   Скасувати
                 </button>
@@ -751,12 +709,6 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
           </div>
         </>
       )}
-
-      {/*{thisOrder.Payment.status && (*/}
-      {/*  <div className="payment-methods-panel d-flex align-items-center">*/}
-      {/*    thisOrder.Payment.status = {thisOrder.Payment.status}*/}
-      {/*  </div>*/}
-      {/*)}*/}
 
       {showAwaitPays && (
         <AwaitPays

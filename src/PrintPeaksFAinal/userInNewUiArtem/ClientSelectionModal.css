@@ -17,13 +17,13 @@
   position: fixed;
   /* Прив'язка до низу: панель росте вгору, рядок пошуку стоїть на місці */
   top: auto;
-  bottom: 6vh;
+  bottom: 6%;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9001;
-  width: min(96vw, 880px);
+  width: min(96%, 880px);
   height: auto;
-  max-height: 88vh;
+  max-height: 88%;
   background: var(--adminfon, #f7f5ee);
   display: flex;
   flex-direction: column;

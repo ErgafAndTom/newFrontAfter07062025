@@ -321,6 +321,11 @@ export default function UserPageDetailsSelf({thisUser = null}) {
           <FieldEdit label="Signal"         field="signal"          value={user.signal}         userId={user.id} setUser={setUser} />
           <FieldEdit label="Знижка (%)"     field="discount"        value={discountNum}         userId={user.id} type="number" setUser={setUser} />
           <FieldEdit label="Доступ(Права)"  field="role"            value={user.role}           userId={user.id} setUser={setUser} />
+          {/* Ставка формує вартість робочого дня — потрібна лише співробітникам */}
+          {['admin', 'operator'].includes(user.role) && (
+            <FieldEdit label="Вартість годино-роботи (₴)" field="hourlyRate"
+                       value={user.hourlyRate ?? ''} userId={user.id} type="number" setUser={setUser} />
+          )}
           <FieldEdit label="Касир(пін)"     field="role2"           value={user.role2}          userId={user.id} setUser={setUser} />
           <FieldEdit label="loginCashier"   field="loginCashier"    value={user.loginCashier}   userId={user.id} setUser={setUser} />
           <FieldEdit label="passwordCashier" field="passwordCashier" value={user.passwordCashier} userId={user.id} setUser={setUser} />

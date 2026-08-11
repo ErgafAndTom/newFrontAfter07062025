@@ -428,6 +428,12 @@ export default function UserPageDetails({thisUser = null}) {
           <FieldEdit label="Знижка (%)"  field="discount" value={parseInt(String(user.discount).replace(/\D/g, ''), 10) || 0} userId={user.id} type="number" load={load} style={{ background: "#008249" }}  setUser={setUser} user={user} />
           <FieldEdit label="Фото" field="photoLink" value={user.photoLink} userId={user.id} load={load}  setUser={setUser} user={user} />
           <FieldEdit label="Доступ(Права)" field="role" value={user.role} userId={user.id} load={load}  setUser={setUser} user={user} />
+          {/* Ставка потрібна лише співробітникам — вона формує вартість робочого дня */}
+          {['admin', 'operator'].includes(user.role) && (
+            <FieldEdit label="Вартість годино-роботи (₴)" field="hourlyRate"
+                       value={user.hourlyRate ?? ''} userId={user.id} type="number"
+                       load={load} setUser={setUser} user={user} />
+          )}
           <FieldEdit label="Касир(пин)" field="role2" value={user.role2} userId={user.id} load={load}  setUser={setUser} user={user} />
           <FieldEdit label="loginCashier" field="loginCashier" value={user.loginCashier} userId={user.id} load={load}  setUser={setUser} user={user} />
           <FieldEdit label="passwordCashier" field="passwordCashier" value={user.passwordCashier} userId={user.id} load={load}  setUser={setUser} user={user} />

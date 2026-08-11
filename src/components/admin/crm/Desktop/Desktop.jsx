@@ -12,6 +12,7 @@ import ExpensesCard from "./ExpensesCard";
 import CategoryBarChart from "./CategoryBarChart";
 import ClientPaymentStats from "./ClientPaymentStats";
 import RoiChart from "./RoiChart";
+import MarginChart from "./MarginChart";
 import OrdersListModal from "./OrdersListModal";
 import './Desktop.css';
 
@@ -202,6 +203,10 @@ const Desktop = () => {
 
     return (
         <div className="dsh-wrap">
+            {/* ТИМЧАСОВО: діагностика різниці 27" vs 32" — прибрати після діагностики */}
+            <span style={{ position: "fixed", top: 2, left: 2, zIndex: 99999, background: "#ff00ff", color: "#fff", fontSize: 12, padding: "2px 6px", whiteSpace: "pre" }}>
+                {`inner:${window.innerWidth}x${window.innerHeight} dpr:${window.devicePixelRatio} screen:${window.screen.width}x${window.screen.height}`}
+            </span>
             {/* Row 1: Calendar + KPI */}
             <div className="dsh-row-top">
                 <div className="dsh-calendar-wrap">
@@ -333,6 +338,12 @@ const Desktop = () => {
                             >
                                 ROI
                             </button>
+                            <button
+                                className={`dsh-chart-tab ${activeBottomTab === 'margin' ? 'active' : ''}`}
+                                onClick={() => setActiveBottomTab('margin')}
+                            >
+                                Маржа
+                            </button>
                         </div>
                     </div>
                     <div className="dsh-chart-body">
@@ -348,7 +359,9 @@ const Desktop = () => {
                                             ? <ExpensesBarChart data={expensesData}/>
                                             : activeBottomTab === 'roi'
                                                 ? <RoiChart dateRange={dateRange}/>
-                                                : <CategoryBarChart data={categoryData} mode={activeBottomTab === 'catValue' ? 'value' : 'count'}/>
+                                                : activeBottomTab === 'margin'
+                                                    ? <MarginChart dateRange={dateRange}/>
+                                                    : <CategoryBarChart data={categoryData} mode={activeBottomTab === 'catValue' ? 'value' : 'count'}/>
                         }
                     </div>
                 </div>

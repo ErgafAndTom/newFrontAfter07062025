@@ -12,6 +12,7 @@ import NewNoModalPorizka from "./newnomodals/NewNoModalPorizka";
 import NewNoModalProkleyka from "./newnomodals/NewNoModalProkleyka";
 import useServiceTabs from "../../hooks/useServiceTabs";
 import ServiceSettingsModal from "./shared/ServiceSettingsModal";
+import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
 
 import "./NewSheetCutV2.css";
 
@@ -238,21 +239,11 @@ const NewSheetCutV2 = ({
   const [selectedService, setSelectedService] = useState("Зображення");
   const [showSettings, setShowSettings] = useState(false);
 
-  const [theme, setTheme] = useState(() => {
-    try {
-      return localStorage.getItem("printpeaks_v2_theme") || "beige";
-    } catch {
-      return "beige";
-    }
-  });
+  // тема V2 більше не вибирається окремо — вона стежить за глобальною
+  // темою застосунку (перемикач у Nav) через appTheme.js
+  const [theme, setTheme] = useState(getStoredAppTheme);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem("printpeaks_v2_theme", theme);
-    } catch {
-      // приватний режим чи заблоковане сховище — тема просто не запам'ятається
-    }
-  }, [theme]);
+  useEffect(() => onAppThemeChange(setTheme), []);
   const { services, addService, removeService, updateService, reorderServices, loading: servicesLoading } = useServiceTabs("SheetCut", [
     "Зображення", "Листівка", "Візитка", "Флаєр", "Буклет",
     "Брошура", "Картка", "Диплом", "Сертифікат", "Подяка",
@@ -520,13 +511,6 @@ const NewSheetCutV2 = ({
      type: "Постпресс", typeUse: "Порізка" — за ним бекенд бере відсоток */
   const PORIZKA_SUBTYPES = ["ручна легка", "на гільйотині", "ручна середня"];
 
-  const THEMES = [
-    { key: "light", label: "Світла тема", swatch: "#ffffff" },
-    { key: "dark", label: "Темна тема", swatch: "#201e1b" },
-    { key: "beige", label: "Бежева тема", swatch: "#e7e4dc" },
-  ];
-
-
   const getSvcForPreset = () => services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
 
   /* Матеріал за замовчуванням для категорії щільності. Під однією назвою на
@@ -614,20 +598,6 @@ const NewSheetCutV2 = ({
           {/* СТРІЧКА ВИРОБІВ — колонка, вирівняна по висоті з правою
               панеллю наряду через align-items:stretch на .v2-body */}
           <div className="v2-tabsrail">
-            <div className="v2-theme-switch">
-              {THEMES.map((t) => (
-                <button
-                  key={t.key}
-                  type="button"
-                  className={`v2-theme-btn${theme === t.key ? " active" : ""}`}
-                  style={{ "--v2-swatch": t.swatch }}
-                  onClick={() => setTheme(t.key)}
-                  title={t.label}
-                  aria-label={t.label}
-                  aria-pressed={theme === t.key}
-                />
-              ))}
-            </div>
             {services.map((service, idx) => {
               const name = typeof service === 'string' ? service : service?.name;
               const color = typeof service === 'string' ? null : service?.color;

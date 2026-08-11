@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import Barcode from 'react-barcode';
 import { printLabel } from './niimbotPrintService';
 import {
@@ -18,11 +18,24 @@ import './BarcodeLabel.css';
  *   client: { id, firstName, lastName }
  * @param {'compact'|'full'} variant — compact = маленька іконка для таблиць, full = повний штрих-код
  * @param {string} [className] — додатковий CSS-клас
+ * @param {boolean} [stretch] — розтягнути смугу на всю ширину контейнера
+ *   (preserveAspectRatio="none"), а не тримати власне співвідношення сторін.
+ *   На екрані це лише прев'ю для кліку-друку — саме друк формує штрих-код
+ *   заново на бекенді, тому розтяг тут не впливає на якість фізичної наліпки.
  */
-export default function BarcodeLabel({ type = 'order', data, variant = 'compact', className = '', onAfterPrint }) {
+export default function BarcodeLabel({ type = 'order', data, variant = 'compact', className = '', onAfterPrint, stretch = false }) {
   const [printing, setPrinting] = useState(false);
+  const wrapRef = useRef(null);
 
   const barcodeValue = type === 'order' ? `ORD${data?.id || 0}` : `CLN${data?.id || 0}`;
+
+  // preserveAspectRatio — SVG-атрибут, не CSS-властивість (браузер її просто
+  // ігнорує в style/CSS), тому ставимо його напряму на змонтований <svg>
+  useEffect(() => {
+    if (!stretch || !wrapRef.current) return;
+    const svg = wrapRef.current.querySelector('svg');
+    if (svg) svg.setAttribute('preserveAspectRatio', 'none');
+  }, [stretch, barcodeValue]);
 
   const getClientName = () => {
     if (type === 'client') {
@@ -57,8 +70,8 @@ export default function BarcodeLabel({ type = 'order', data, variant = 'compact'
 
   if (variant === 'compact') {
     return (
-      <div className={`bc-label bc-label--compact bc-label--${type}${printingClass} ${className}`} onClick={handlePrint} title={`Друк ${type === 'order' ? 'замовлення' : 'клієнта'} ${barcodeValue}`}>
-        <Barcode value={barcodeValue} width={1} height={22} background="transparent" fontSize={0} displayValue={false} margin={0} />
+      <div ref={wrapRef} className={`bc-label bc-label--compact bc-label--${type}${printingClass} ${className}`} onClick={handlePrint} title={`Друк ${type === 'order' ? 'замовлення' : 'клієнта'} ${barcodeValue}`}>
+        <Barcode value={barcodeValue} width={1} height={22} background="#ffffff" fontSize={0} displayValue={false} margin={6} />
       </div>
     );
   }
@@ -66,7 +79,14 @@ export default function BarcodeLabel({ type = 'order', data, variant = 'compact'
   return (
     <div className={`bc-label bc-label--full bc-label--${type}${printingClass} ${className}`} onClick={handlePrint} title={`Друк ${type === 'order' ? 'замовлення' : 'клієнта'} ${barcodeValue}`}>
       <div className="bc-label__barcode">
-        <Barcode value={barcodeValue} width={type === 'order' ? 2 : 1.2} height={type === 'order' ? 36 : 28} background="transparent" fontSize={0} displayValue={false} margin={0} />
+        {/* background — суцільний білий, а не transparent: без нього контраст
+            штрихів залежить від фону теми (бежева/темна), а сканер вимагає
+            гарантованого білого поля. margin — «тиха зона» по краях, без якої
+            декодер не завжди знаходить межі символу (це, а не сам алгоритм
+            кодування, найімовірніша причина «не зчитується»: власний
+            CODE128-кодер для друку звірений побітово з jsbarcode й співпадає
+            точно). */}
+        <Barcode value={barcodeValue} width={type === 'order' ? 2 : 1.2} height={type === 'order' ? 36 : 28} background="#ffffff" fontSize={0} displayValue={false} margin={8} />
       </div>
     </div>
   );

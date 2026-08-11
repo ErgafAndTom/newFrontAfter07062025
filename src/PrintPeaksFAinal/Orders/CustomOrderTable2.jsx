@@ -16,6 +16,7 @@ import FiltrOrders from "./FiltrOrders";
 import { searchChange } from "../../actions/searchAction";
 import Loader from "../../components/calc/Loader";
 import ActivatorCheckPaymentStatus from "./ActivatorCheckPaymentStatus";
+import OrderMarginPanel from "./OrderMarginPanel";
 
 /* ── Бейдж оплати (винесено за межі компонента, щоб React не remount-ив щосекунди) ── */
 const PayCell = ({ order }) => {
@@ -385,6 +386,8 @@ const CustomOrderTable2 = () => {
                     </button>
                   </div>
                 </div>
+
+                <OrderMarginPanel orderId={order.id} />
 
                 {order.OrderUnits?.length > 0 && (
                   <div className="ort-units">

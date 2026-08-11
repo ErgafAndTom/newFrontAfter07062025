@@ -1061,64 +1061,27 @@
   height: var(--pb-price-field-height);
   min-height: var(--pb-price-field-height);
   padding: 0;
-  border: 2px solid var(--adminrose, #ef7aaa);
+  border: none;
+  border-bottom: 2px solid var(--adminrose, #ef7aaa);
   border-radius: 0 !important;
   text-transform: uppercase;
   color: var(--adminrose, #ef7aaa);
+  font-family: var(--pp-font-ui);
   font-weight: 600;
   font-size: var(--fontsmall) !important;
   letter-spacing: 0;
   line-height: 1;
-  transition: border-color 0.3s ease-out, color 0.3s ease-out;
-  background-color: transparent;
+  transition: background-color 0.12s ease-out, border-color 0.12s ease-out;
+  background-color: var(--adminfonelement, #f2f0e9);
   box-sizing: border-box;
   overflow: hidden;
   isolation: isolate;
   cursor: pointer;
 }
 
-.nui-progressbar .dc-deadline-btn::before {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: calc(100% - 4px);
-  height: calc(100% - 4px);
-  background-color: var(--adminfon, #f7f5ee);
-  transition: 0.3s ease-out;
-  transform: scaleY(1);
-
-  pointer-events: none;
-  border-radius: 0 !important;
-}
-
-.nui-progressbar .dc-deadline-btn::after {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: calc(100% - 4px);
-  height: calc(100% - 45%);
-  background-color: var(--adminfon, #f7f5ee);
-  transition: 0.3s ease-out;
-  transform: scaleY(1);
-
-  pointer-events: none;
-  border-radius: 0 !important;
-}
-
-.nui-progressbar .dc-deadline-btn:not(.is-readonly):not(:disabled):hover::before {
-  transform: translateY(-120%);
-  height: 0;
-}
-
-.nui-progressbar .dc-deadline-btn:not(.is-readonly):not(:disabled):hover::after {
-  transform: scaleX(0);
-  transition-delay: 0.15s;
-}
-
 .nui-progressbar .dc-deadline-btn:not(.is-readonly):not(:disabled):hover {
-  border: 2px solid var(--adminrose, #ef7aaa);
+  background-color: var(--pp-tile-hi);
+  border-bottom-color: var(--pp-line-strong);
 }
 
 .nui-progressbar .dc-deadline-btn .pb-deadline-btn-label {
@@ -1554,7 +1517,7 @@
   font-size: var(--font-size-s) !important;
 
   height: 4vh !important;
-  border-color: var(--adminorange, #f5a623) !important;
+  border-bottom-color: var(--adminorange, #f5a623) !important;
   color: var(--admingrey, #666666) !important;
   justify-content: center !important;
 }
@@ -1573,15 +1536,10 @@
   margin-left: 0 !important;
 }
 
-.client-action-btn::before,
-.client-action-btn::after {
-  background-color: var(--adminfonelement, #f2f0e9) !important;
-}
-
 .client-action-btn:hover,
 .client-action-btn:focus-visible,
 .client-action-btn.pay-btn-active {
-  border-color: var(--adminorange, #f5a623) !important;
+  border-bottom-color: var(--adminorange, #f5a623) !important;
   color: var(--adminorange, #f5a623) !important;
 }
 

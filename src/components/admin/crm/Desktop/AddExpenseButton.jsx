@@ -5,6 +5,10 @@ import '../../../../PrintPeaksFAinal/poslugi/shared/sc-base.css';
 
 const CATEGORIES = ['Матеріали', 'Розхідники', 'Зарплата', 'Оренда', 'Логістика', 'Обладнання', 'Підписки', 'Ремонт', 'Постачальники', 'Особисті', 'Податки', 'Інше'];
 
+// Категорії, де можна прив'язати витрату до принтера/розхідника — оновлює
+// закупівельну ціну й перераховує собівартість кліку/м²
+const PRINTER_CATEGORIES = ['Розхідники', 'Ремонт'];
+
 const PAYMENT_METHODS = [
     {key: 'cash', label: 'Готівка'},
     {key: 'card', label: 'Картка'},
@@ -70,6 +74,30 @@ const AddExpenseButton = () => {
     const [materialUnit, setMaterialUnit] = useState('шт.');
     const [allMaterials, setAllMaterials] = useState([]);
     const [matsLoading, setMatsLoading] = useState(false);
+
+    // Прив'язка витрати до замовлення — робить її прямою і включає в маржу цього замовлення
+    const [orderQuery, setOrderQuery] = useState('');
+    const [orderResults, setOrderResults] = useState([]);
+    const [linkedOrder, setLinkedOrder] = useState(null);
+
+    // Принтери/розхідники: категорія «Розхідники»/«Ремонт» → закупівля оновлює
+    // ціну консюмабла і собівартість кліку/м² перераховується сама
+    const [printers, setPrinters] = useState([]);
+    const [printersLoading, setPrintersLoading] = useState(false);
+    const [selectedPrinterId, setSelectedPrinterId] = useState('');
+    const [selectedConsumableId, setSelectedConsumableId] = useState(null);
+    const [meterReading, setMeterReading] = useState('');
+
+    useEffect(() => {
+        const q = orderQuery.trim();
+        if (!q) { setOrderResults([]); return; }
+        const timer = setTimeout(() => {
+            axios.get(`/api/roi/searchOrders?q=${encodeURIComponent(q)}`)
+                .then(({data}) => setOrderResults(Array.isArray(data) ? data : []))
+                .catch(e => console.warn('Order search error:', e.message));
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [orderQuery]);
     const matNameRef = useRef(null);
 
     const isNewMaterial = !!materialName && !allMaterials.some(
@@ -90,6 +118,17 @@ const AddExpenseButton = () => {
             .finally(() => setMatsLoading(false));
     }, [form.category]);
 
+    // Завантажити принтери при виборі категорії «Розхідники»/«Ремонт»
+    useEffect(() => {
+        if (!PRINTER_CATEGORIES.includes(form.category)) return;
+        if (printers.length > 0) return;
+        setPrintersLoading(true);
+        axios.get('/api/roi/printers')
+            .then(r => setPrinters(r.data || []))
+            .catch(() => {})
+            .finally(() => setPrintersLoading(false));
+    }, [form.category]);
+
     // Клік поза dropdown категорій
     useEffect(() => {
         if (!catOpen) return;
@@ -103,6 +142,10 @@ const AddExpenseButton = () => {
     const resetMat = () => {
         setMaterialName(''); setMaterialId(null);
         setMaterialQty(''); setMaterialUnit('шт.');
+    };
+
+    const resetPrinterPick = () => {
+        setSelectedPrinterId(''); setSelectedConsumableId(null); setMeterReading('');
     };
 
     const validate = () => {
@@ -129,11 +172,20 @@ const AddExpenseButton = () => {
                 if (materialQty) formData.append('materialQty', materialQty);
                 if (materialUnit) formData.append('materialUnit', materialUnit);
             }
+            if (PRINTER_CATEGORIES.includes(form.category)) {
+                if (selectedPrinterId) formData.append('printerId', selectedPrinterId);
+                if (selectedConsumableId) formData.append('consumableId', selectedConsumableId);
+                if (meterReading) formData.append('meterReading', meterReading);
+            }
+            if (linkedOrder) formData.append('orderId', linkedOrder.id);
             for (const file of files) formData.append('files', file);
             await axios.post('/expenses/create', formData, {headers: {'Content-Type': 'multipart/form-data'}});
             setForm({amount: '', description: '', category: '', date: new Date().toISOString().slice(0, 10), paymentMethod: 'invoice'});
             setFiles([]);
             resetMat();
+            resetPrinterPick();
+            setLinkedOrder(null);
+            setOrderQuery('');
             setShowModal(false);
             window.dispatchEvent(new Event('expense-added'));
         } catch (e) {
@@ -162,6 +214,7 @@ const AddExpenseButton = () => {
         setFiles([]);
         setForm({amount: '', description: '', category: '', date: new Date().toISOString().slice(0, 10), paymentMethod: 'invoice'});
         resetMat();
+        resetPrinterPick();
     };
 
     // Вибір матеріалу зі списку → підтягнути unit
@@ -217,6 +270,32 @@ const AddExpenseButton = () => {
             console.error(e);
         }
         setCreatingMat(false);
+    };
+
+    // Модал "Новий розхідник"
+    const [showNewConsumable, setShowNewConsumable] = useState(false);
+    const [newConsumable, setNewConsumable] = useState({name: '', wearBasis: 'page', resourceQty: '', unit: 'шт.', currentPrice: ''});
+    const [creatingConsumable, setCreatingConsumable] = useState(false);
+
+    const handleCreateConsumable = async () => {
+        if (!newConsumable.name.trim() || !selectedPrinterId) return;
+        setCreatingConsumable(true);
+        try {
+            const res = await axios.post(`/api/roi/printers/${selectedPrinterId}/consumables`, newConsumable);
+            const created = res.data;
+            if (created) {
+                setPrinters(prev => prev.map(p => p.id === parseInt(selectedPrinterId, 10)
+                    ? {...p, consumables: [...(p.consumables || []), created]}
+                    : p));
+                setSelectedConsumableId(created.id);
+                setForm(f => ({...f, description: f.description || created.name}));
+            }
+            setShowNewConsumable(false);
+            setNewConsumable({name: '', wearBasis: 'page', resourceQty: '', unit: 'шт.', currentPrice: ''});
+        } catch (e) {
+            console.error(e);
+        }
+        setCreatingConsumable(false);
     };
 
     return (
@@ -297,6 +376,7 @@ const AddExpenseButton = () => {
                                                         setErrors(p => ({...p, category: ''}));
                                                         setCatOpen(false);
                                                         if (cat !== 'Матеріали') resetMat();
+                                                        if (!PRINTER_CATEGORIES.includes(cat)) resetPrinterPick();
                                                     }}
                                                 >
                                                     <span className="name">{cat}</span>
@@ -397,6 +477,77 @@ const AddExpenseButton = () => {
                             </>
                         )}
 
+                        {/* Розхідники/ремонт: принтер + розхідник + лічильник */}
+                        {PRINTER_CATEGORIES.includes(form.category) && (
+                            <>
+                                <div className="aeb-row aeb-row-material">
+                                    <div className="aeb-field" style={{flex: 1}}>
+                                        <label className="aeb-label">Принтер</label>
+                                        <select
+                                            className="aeb-input aeb-select"
+                                            value={selectedPrinterId}
+                                            onChange={e => { setSelectedPrinterId(e.target.value); setSelectedConsumableId(null); }}
+                                        >
+                                            <option value="">— Без прив'язки —</option>
+                                            {printers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {selectedPrinterId && (() => {
+                                    const printer = printers.find(p => p.id === parseInt(selectedPrinterId, 10));
+                                    const consumables = (printer?.consumables || []).filter(c => c.active);
+                                    return (
+                                        <>
+                                            <div className="aeb-mat-list">
+                                                {printersLoading ? (
+                                                    <div className="aeb-mat-empty">Завантаження...</div>
+                                                ) : consumables.length === 0 ? (
+                                                    <div className="aeb-mat-empty">У цього принтера ще нема розхідників</div>
+                                                ) : (
+                                                    consumables.map(c => (
+                                                        <div
+                                                            key={c.id}
+                                                            className={`aeb-mat-row${c.id === selectedConsumableId ? ' aeb-mat-row-active' : ''}`}
+                                                            onClick={() => {
+                                                                setSelectedConsumableId(c.id);
+                                                                setForm(f => ({...f, description: f.description || c.name}));
+                                                            }}
+                                                        >
+                                                            <span className="aeb-mat-name">{c.name}</span>
+                                                            <span className="aeb-mat-meta">{c.currentPrice} ₴ · {c.unit}</span>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+
+                                            <div className="aeb-row aeb-row-material">
+                                                <div className="aeb-field" style={{flex: 1}}>
+                                                    <label className="aeb-label">Лічильник (на момент)</label>
+                                                    <input
+                                                        type="number"
+                                                        className="aeb-input"
+                                                        value={meterReading}
+                                                        onChange={e => setMeterReading(e.target.value)}
+                                                        onKeyDown={handleKeyDown}
+                                                        placeholder="напр. 128400"
+                                                    />
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    className="aeb-btn aeb-btn-save"
+                                                    style={{alignSelf: 'flex-end', whiteSpace: 'nowrap', padding: '0.4rem 1rem', fontSize: 'var(--font-size-s, 0.85rem)'}}
+                                                    onClick={() => setShowNewConsumable(true)}
+                                                >
+                                                    + Новий розхідник
+                                                </button>
+                                            </div>
+                                        </>
+                                    );
+                                })()}
+                            </>
+                        )}
+
                         <div className="aeb-field">
                             <label className="aeb-label">Опис</label>
                             <input
@@ -435,6 +586,55 @@ const AddExpenseButton = () => {
                                     value={form.date}
                                     onChange={e => setForm({...form, date: e.target.value})}
                                 />
+                            </div>
+                            <div className="aeb-field" style={{flex: 1}}>
+                                <label className="aeb-label">
+                                    Замовлення <span className="aeb-label-hint">— пряма витрата</span>
+                                </label>
+                                {linkedOrder ? (
+                                    <div className="aeb-order-picked">
+                                        <span className="aeb-order-num">№{linkedOrder.id}</span>
+                                        <span className="aeb-order-name">
+                                            {linkedOrder.client
+                                                ? `${linkedOrder.client.firstName || ''} ${linkedOrder.client.lastName || ''}`.trim()
+                                                : ''}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            className="aeb-order-clear"
+                                            onClick={() => { setLinkedOrder(null); setOrderQuery(''); }}
+                                            title="Відв'язати"
+                                        >×</button>
+                                    </div>
+                                ) : (
+                                    <div className="aeb-order-search">
+                                        <input
+                                            className="aeb-input"
+                                            placeholder="номер замовлення…"
+                                            value={orderQuery}
+                                            onChange={e => setOrderQuery(e.target.value)}
+                                        />
+                                        {orderResults.length > 0 && (
+                                            <div className="aeb-order-drop">
+                                                {orderResults.map(o => (
+                                                    <div
+                                                        key={o.id}
+                                                        className="aeb-order-opt"
+                                                        onClick={() => { setLinkedOrder(o); setOrderResults([]); }}
+                                                    >
+                                                        <span className="aeb-order-num">№{o.id}</span>
+                                                        <span className="aeb-order-name">
+                                                            {o.client
+                                                                ? `${o.client.firstName || ''} ${o.client.lastName || ''}`.trim()
+                                                                : ''}
+                                                        </span>
+                                                        <span className="aeb-order-sum">{o.allPrice} ₴</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -547,6 +747,54 @@ const AddExpenseButton = () => {
                             <button className="aeb-btn aeb-btn-cancel" onClick={() => setShowNewMat(false)}>Скасувати</button>
                             <button className="aeb-btn aeb-btn-save" onClick={handleCreateMaterial} disabled={creatingMat || !newMat.name.trim()}>
                                 {creatingMat ? '...' : 'Зберегти'}
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* Модал: Новий розхідник */}
+            {showNewConsumable && ReactDOM.createPortal(
+                <div className="aeb-overlay" style={{zIndex: 100000}} onClick={() => setShowNewConsumable(false)}>
+                    <div className="aeb-modal aeb-newmat-modal" onClick={e => e.stopPropagation()}>
+                        <div className="aeb-title">Новий розхідник</div>
+
+                        <div className="aeb-row">
+                            <div className="aeb-field" style={{flex: 1}}>
+                                <label className="aeb-label">Назва</label>
+                                <input className="aeb-input" value={newConsumable.name}
+                                       onChange={e => setNewConsumable(p => ({...p, name: e.target.value}))}
+                                       placeholder="Тонер чорний" autoFocus/>
+                            </div>
+                        </div>
+
+                        <div className="aeb-row">
+                            <div className="aeb-field" style={{flex: 1}}>
+                                <label className="aeb-label">Основа зносу</label>
+                                <select className="aeb-input aeb-select" value={newConsumable.wearBasis}
+                                        onChange={e => setNewConsumable(p => ({...p, wearBasis: e.target.value}))}>
+                                    <option value="coverage">за покриттям (тонер)</option>
+                                    <option value="page">за відбитками (барабан/ремонт)</option>
+                                    <option value="ml">за мілілітрами (чорнило)</option>
+                                </select>
+                            </div>
+                            <div className="aeb-field" style={{flex: 1}}>
+                                <label className="aeb-label">Ресурс</label>
+                                <input type="number" className="aeb-input" value={newConsumable.resourceQty}
+                                       onChange={e => setNewConsumable(p => ({...p, resourceQty: e.target.value}))} placeholder="30000"/>
+                            </div>
+                            <div className="aeb-field" style={{flex: 1}}>
+                                <label className="aeb-label">Ціна закупки</label>
+                                <input type="number" className="aeb-input" value={newConsumable.currentPrice}
+                                       onChange={e => setNewConsumable(p => ({...p, currentPrice: e.target.value}))} placeholder="0"/>
+                            </div>
+                        </div>
+
+                        <div className="aeb-actions">
+                            <button className="aeb-btn aeb-btn-cancel" onClick={() => setShowNewConsumable(false)}>Скасувати</button>
+                            <button className="aeb-btn aeb-btn-save" onClick={handleCreateConsumable} disabled={creatingConsumable || !newConsumable.name.trim()}>
+                                {creatingConsumable ? '...' : 'Зберегти'}
                             </button>
                         </div>
                     </div>

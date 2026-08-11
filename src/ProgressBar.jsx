@@ -134,6 +134,13 @@ const
                        compactActionButton = false,
                        showError = true,
                        onDiscountError = null,
+                       stepCounter = null,
+                       /* Довільний вузол у правому краю фінансового рядка
+                          (у наряді — штрих-код замовлення). Слот, а не
+                          власна розмітка: рядок метрик мусить лишатись
+                          на всю ширину, тому сусіда йому не приставиш
+                          зовні — лише всередину. */
+                       financeAside = null,
                        }) => {
 
 
@@ -571,6 +578,10 @@ return (
       </div>
       )}
 
+      {stepCounter && (
+      <div className="pb-step-counter-slot">{stepCounter}</div>
+      )}
+
       {showTrack && (
       <div className="pb-track-row">
         {STAGES.map((stage) => {
@@ -649,6 +660,8 @@ return (
               </span>
             </div>
           </div>
+
+          {financeAside}
         </div>
       </div>
 
