@@ -177,7 +177,10 @@ export default function PaysInOrderRestored_OrdersLike({
       search: typeSelect,
       columnName: thisColumn,
       startDate, endDate,
-      clientId: thisOrder.clientId,
+      clientId: thisOrder?.clientId,
+      // зі списку компаній клієнта-ініціатора немає — тоді бекенд бере
+      // контрагентів одразу по компанії
+      companyId: thisOrder?.companyId,
     };
     setLoad(true);
     axios.post('/api/contractorsN/getContractors', payload)

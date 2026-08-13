@@ -10,6 +10,7 @@ import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
 /* Та сама розмітка й той самий CSS, що в еталонного цифрового друку
    (NewSheetCutV2) — без лівої стрічки виробів, бо в ламінації їх немає. */
 import "./NewSheetCutV2.css";
+import ExtraSheetsButton from "./shared/ExtraSheetsButton";
 
 // ========== DEFAULTS ==========
 const DEFAULTS = {
@@ -265,6 +266,7 @@ const Laminator = ({
             <span className="v2-head-title">Ламінація</span>
             <div className="v2-head-spec">{headSpec}</div>
           </div>
+          <ExtraSheetsButton />
           <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
             &times;
           </button>

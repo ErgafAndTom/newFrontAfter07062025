@@ -2,10 +2,11 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import axios from "../../api/axiosInstance";
 import { Spinner } from "react-bootstrap";
-import { FiPlus, FiMinus, FiLink, FiTrash2, FiFolder, FiChevronLeft, FiChevronDown, FiChevronUp, FiChevronsUp,
-  FiList, FiGrid, FiImage, FiSearch, FiArrowUp, FiDownload, FiEye, FiRefreshCw, FiX } from "react-icons/fi";
+import { FiPlus, FiMinus, FiLink, FiTrash2, FiFolder, FiChevronDown, FiChevronUp, FiChevronsUp,
+  FiList, FiGrid, FiImage, FiSearch, FiArrowUp, FiDownload, FiEye, FiRefreshCw, FiX, FiFolderPlus, FiFilePlus, FiUploadCloud, FiCalendar } from "react-icons/fi";
 import { fileTypeMeta, shortName, formatBytes } from "../../utils/fileUtils";
 import { loadFileSettings } from "../user/profile/DesignSettings";
+import { DOCK_ICONS, DOCK_IMAGES } from "../../components/dock/dockIcons";
 import CompanyFilesPanel from "./CompanyFilesPanel";
 import "./ClientFilesPanel.css";
 
@@ -25,6 +26,61 @@ const VIEWS = [
 /* прев'ю тягнемо тим самим download-ендпоінтом (окремого thumbnail на
    бекенді немає), тому за розміром — лише невеликі зображення, інакше
    сітка з важкими сканами вбила б і мережу, і пам'ять */
+const FILE_ORDER_EDITORS = [
+  { value: "SheetCutBW", label: "Black & White", icon: "printer", tint: "--adminorange" },
+  { value: "SheetCut", label: "Digital Print", icon: "printer", tint: "--adminorange" },
+  { value: "Photo", label: "Photo", icon: "photo", tint: "--adminorange" },
+  { value: "Wide", label: "Wide Photo", icon: "wideprint", tint: "--adminorange" },
+  { value: "DigitalPrintWide", label: "Digital Print Wide", icon: "wideprint", tint: "--adminorange" },
+  { value: "Vishichka", label: "Plotter Cut", icon: "plotter", tint: "--adminblue" },
+  { value: "Magnets", label: "Magnets", icon: "magnet", tint: "--adminblue" },
+  { value: "Laminator", label: "Lamination", icon: "laminate", tint: "--adminblue" },
+  { value: "PerepletMet", label: "Binding", icon: "binding", tint: "--adminblue" },
+  { value: "BigOvshik", label: "Postpress", icon: "postpress", tint: "--adminblue" },
+  { value: "Calendar", label: "Calendar", icon: "calendar", tint: "--adminrose" },
+  { value: "Diplom", label: "Diplom", icon: "diploma", tint: "--adminrose" },
+  { value: "Folder", label: "Folder", icon: "folder", tint: "--adminrose" },
+  { value: "Note", label: "Note", icon: "note", tint: "--adminrose" },
+  { value: "Booklet", label: "Booklet", icon: "booklet", tint: "--adminrose" },
+  { value: "Cup", label: "Mug", icon: "mug", tint: "--adminrose" },
+  { value: "Scans", label: "Scans", icon: "scan", tint: "--adminpurple" },
+  { value: "Delivery", label: "Delivery", icon: "car", tint: "--adminpurple" },
+  { value: "WideFactory", label: "Wide Factory", icon: "factory", tint: "--adminpurple" },
+];
+
+const FILE_EDITOR_LABELS = {
+  SheetCutBW: "\u0427/\u0411 \u0434\u0440\u0443\u043a",
+  SheetCut: "\u0426\u0438\u0444\u0440\u043e\u0432\u0438\u0439 \u0434\u0440\u0443\u043a",
+  Photo: "\u0424\u043e\u0442\u043e\u0434\u0440\u0443\u043a",
+  Wide: "\u0428\u0438\u0440\u043e\u043a\u0435 \u0444\u043e\u0442\u043e",
+  DigitalPrintWide: "\u0428\u0438\u0440\u043e\u043a\u0438\u0439 \u0434\u0440\u0443\u043a",
+  Vishichka: "\u041f\u043b\u043e\u0442\u0435\u0440\u043d\u0430 \u043f\u043e\u0440\u0456\u0437\u043a\u0430",
+  Magnets: "\u041c\u0430\u0433\u043d\u0456\u0442\u0438",
+  Laminator: "\u041b\u0430\u043c\u0456\u043d\u0430\u0446\u0456\u044f",
+  PerepletMet: "\u041f\u0435\u0440\u0435\u043f\u043b\u0456\u0442",
+  BigOvshik: "\u041f\u043e\u0441\u0442\u043f\u0440\u0435\u0441",
+  Calendar: "\u041a\u0430\u043b\u0435\u043d\u0434\u0430\u0440\u0456",
+  Diplom: "\u0414\u0438\u043f\u043b\u043e\u043c\u0438",
+  Folder: "\u041f\u0430\u043f\u043a\u0438",
+  Note: "\u0411\u043b\u043e\u043a\u043d\u043e\u0442\u0438",
+  Booklet: "\u0411\u0443\u043a\u043b\u0435\u0442\u0438",
+  Cup: "\u0427\u0430\u0448\u043a\u0438",
+  Scans: "\u0421\u043a\u0430\u043d\u0443\u0432\u0430\u043d\u043d\u044f",
+  Delivery: "\u0414\u043e\u0441\u0442\u0430\u0432\u043a\u0430",
+  WideFactory: "\u0428\u0438\u0440\u043e\u043a\u0438\u0439 \u0446\u0435\u0445",
+};
+
+const FILE_EDITOR_GROUPS = [
+  { id: "print", label: "\u0414\u0440\u0443\u043a", tint: "--adminorange", values: ["SheetCutBW", "SheetCut", "Photo", "Wide", "DigitalPrintWide"] },
+  { id: "postpress", label: "\u041f\u043e\u0441\u0442\u043f\u0440\u0435\u0441", tint: "--adminblue", values: ["Vishichka", "Magnets", "Laminator", "PerepletMet", "BigOvshik"] },
+  { id: "goods", label: "\u0422\u043e\u0432\u0430\u0440\u0438", tint: "--adminrose", values: ["Calendar", "Diplom", "Folder", "Note", "Booklet", "Cup"] },
+  { id: "services", label: "\u041f\u043e\u0441\u043b\u0443\u0433\u0438", tint: "--adminpurple", values: ["Scans", "Delivery", "WideFactory"] },
+];
+
+FILE_ORDER_EDITORS.forEach((editor) => {
+  editor.label = FILE_EDITOR_LABELS[editor.value];
+});
+
 const THUMB_LIMIT = 6 * 1024 * 1024;
 const isImageFile = (f) => String(f?.mimeType || "").startsWith("image/") && (f?.size || 0) <= THUMB_LIMIT;
 const isPdfFile = (f) => String(f?.mimeType || "") === "application/pdf";
@@ -72,6 +128,8 @@ const ClientFilesPanel = ({
   orderId,
   companyId,
   companyName = "",
+  workspaceSwapped = false,
+  onToggleWorkspaceSwap,
   // inline — панель вбудована в сторінку (колонка клієнта в наряді), а не
   // відкрита оверлеєм поверх усього: без порталу, без затемнення й без
   // закриття по кліку повз неї.
@@ -110,6 +168,18 @@ const ClientFilesPanel = ({
 
   useEffect(() => { try { localStorage.setItem(VIEW_KEY, viewMode); } catch {} }, [viewMode]);
   useEffect(() => { try { localStorage.setItem(PREVIEW_KEY, showPreview ? "1" : "0"); } catch {} }, [showPreview]);
+
+  // In the inline order workspace the preview is a permanent part of the layout.
+  useEffect(() => {
+    if (inline) setShowPreview(true);
+  }, [inline]);
+  useEffect(() => {
+    if (!inline || !orderId) return undefined;
+    const syncFileSearch = (event) => setQuery(String(event.detail?.query ?? ""));
+    setQuery(String(window.__ppFileSearchQuery ?? ""));
+    window.addEventListener("pp-file-search", syncFileSearch);
+    return () => window.removeEventListener("pp-file-search", syncFileSearch);
+  }, [inline, orderId]);
 
   const fetchFiles = useCallback(async (silent = false) => {
     if (!userId) return;
@@ -413,7 +483,7 @@ const ClientFilesPanel = ({
       setSortDesc(prev => !prev);
     } else {
       setSortColumn(col);
-      setSortDesc(true);
+      setSortDesc(col !== "name");
     }
   };
 
@@ -549,8 +619,8 @@ const ClientFilesPanel = ({
   const SortArrow = ({ col }) => {
     if (sortColumn !== col) return <FiChevronsUp size={11} style={{ opacity: 0.3, marginLeft: 4 }}/>;
     return sortDesc
-      ? <FiChevronDown size={11} style={{ color: "var(--adminorange, #f5a623)", marginLeft: 4 }}/>
-      : <FiChevronUp size={11} style={{ color: "var(--adminorange, #f5a623)", marginLeft: 4 }}/>;
+      ? <FiChevronDown size={11} style={{ color: "currentColor", marginLeft: 4 }}/>
+      : <FiChevronUp size={11} style={{ color: "currentColor", marginLeft: 4 }}/>;
   };
 
   const panel = (
@@ -572,21 +642,27 @@ const ClientFilesPanel = ({
               className="cfp-tool-btn"
               onClick={goBack}
               disabled={!currentFolder}
-              title="Назад"
-            ><FiChevronLeft size={15} /></button>
-            <button
-              type="button"
-              className="cfp-tool-btn"
-              onClick={goBack}
-              disabled={!currentFolder}
               title="На рівень вище"
             ><FiArrowUp size={15} /></button>
+            <div className="cfp-view-switch cfp-view-switch--left" role="group" aria-label={"\u0420\u0435\u0436\u0438\u043c \u043f\u0435\u0440\u0435\u0433\u043b\u044f\u0434\u0443"}>
+              {VIEWS.map((v) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  className={`cfp-view-btn${viewMode === v.id ? " is-active" : ""}`}
+                  onClick={() => setViewMode(v.id)}
+                  title={v.label}
+                >{v.icon}</button>
+              ))}
+            </div>
+
             <button
               type="button"
-              className="cfp-tool-btn"
+              className="cfp-tool-btn cfp-refresh-action cfp-refresh-action--left"
               onClick={() => fetchFiles()}
-              title="Оновити"
-            ><FiRefreshCw size={14} /></button>
+              title={"\u041e\u043d\u043e\u0432\u0438\u0442\u0438"}
+              aria-label={"\u041e\u043d\u043e\u0432\u0438\u0442\u0438 \u0441\u043f\u0438\u0441\u043e\u043a \u0444\u0430\u0439\u043b\u0456\u0432"}
+            ><FiRefreshCw /></button>
 
             <div className="cfp-crumbs">
               {/* Корінь — не кнопка, а підпис: він називає сховище (папка
@@ -626,6 +702,27 @@ const ClientFilesPanel = ({
               )}
             </label>
 
+            <div className="cfp-sort-switch" role="group" aria-label={"\u0421\u043e\u0440\u0442\u0443\u0432\u0430\u043d\u043d\u044f \u0444\u0430\u0439\u043b\u0456\u0432"}>
+              <button
+                type="button"
+                className={`cfp-sort-btn${sortColumn === "name" ? " is-active" : ""}`}
+                onClick={() => toggleSort("name")}
+                title={"\u0421\u043e\u0440\u0442\u0443\u0432\u0430\u0442\u0438 \u0437\u0430 \u043d\u0430\u0437\u0432\u043e\u044e"}
+              >
+                <span className="cfp-sort-letter" aria-hidden="true">{"\u0407"}</span>
+                <SortArrow col="name" />
+              </button>
+              <button
+                type="button"
+                className={`cfp-sort-btn${sortColumn === "date" ? " is-active" : ""}`}
+                onClick={() => toggleSort("date")}
+                title={"\u0421\u043e\u0440\u0442\u0443\u0432\u0430\u0442\u0438 \u0437\u0430 \u0434\u0430\u0442\u043e\u044e"}
+              >
+                <FiCalendar className="cfp-sort-icon" aria-hidden="true" />
+                <SortArrow col="date" />
+              </button>
+            </div>
+
             <div className="cfp-view-switch" role="group" aria-label="Режим перегляду">
               {VIEWS.map((v) => (
                 <button
@@ -664,12 +761,21 @@ const ClientFilesPanel = ({
 
             <button
               type="button"
-              className={`cfp-tool-btn${showPreview ? " is-active" : ""}`}
+              className={`cfp-tool-btn cfp-preview-toggle${showPreview ? " is-active" : ""}`}
               onClick={() => setShowPreview((v) => !v)}
               title="Панель перегляду"
             ><FiEye size={15} /></button>
 
+            <button
+              type="button"
+              className="cfp-tool-btn cfp-refresh-action"
+              onClick={() => fetchFiles()}
+              title="Оновити"
+              aria-label="Оновити список файлів"
+            ><FiRefreshCw /></button>
+
             <button className="nui-client-rect-btn cfp-toolbar-action" onClick={createFolder} title="Нова папка">
+              <FiFolderPlus aria-hidden="true" />
               <span className="nui-client-rect-btn-text">Нова папка</span>
             </button>
             <button
@@ -677,6 +783,7 @@ const ClientFilesPanel = ({
               onClick={() => inputRef.current?.click()}
               title="Додати файли — або перетягніть сюди файли чи цілу папку"
             >
+              <FiFilePlus aria-hidden="true" />
               <span className="nui-client-rect-btn-text">Додати файли</span>
             </button>
             <button
@@ -684,6 +791,7 @@ const ClientFilesPanel = ({
               onClick={() => dirInputRef.current?.click()}
               title="Додати папку з диска — структура підпапок збережеться"
             >
+              <FiUploadCloud aria-hidden="true" />
               <span className="nui-client-rect-btn-text">Додати папку</span>
             </button>
           </div>
@@ -786,7 +894,7 @@ const ClientFilesPanel = ({
                     {...common}
                   >
                     <div className="cfp-file-icon" style={{ color: meta.color }}>{meta.icon}</div>
-                    <div className="cfp-file-name">{shortName(name, 50)}</div>
+                    <div className="cfp-file-name">{name}</div>
                     <div className="cfp-file-type">{isDir ? "—" : getExt(name)}</div>
                     <div className="cfp-file-size">{isDir ? "—" : formatBytes(f.size)}</div>
                     <div className="cfp-file-date">{isDir ? "" : formatDate(f.createdAt)}</div>
@@ -946,6 +1054,59 @@ const ClientFilesPanel = ({
                     )}
                   </div>
                 </>
+              )}
+              {inline && orderId && (
+                <section className="cfp-order-editors" aria-label="Order services">
+                  <div className="cfp-order-editors-head">
+                    <strong>{"\u0414\u043e\u0434\u0430\u0442\u0438 \u0434\u043e \u0437\u0430\u043c\u043e\u0432\u043b\u0435\u043d\u043d\u044f"}</strong>
+                    <span>{"\u041e\u0431\u0435\u0440\u0456\u0442\u044c \u043f\u043e\u0441\u043b\u0443\u0433\u0443"}</span>
+                  </div>
+                  <div className="cfp-order-editor-groups">
+                    {FILE_EDITOR_GROUPS.map((group) => (
+                      <section
+                        key={group.id}
+                        className={`cfp-order-editor-group is-${group.id}`}
+                        style={{ "--cfp-group-tint": `var(${group.tint}, #666)` }}
+                      >
+                        <h3 className="cfp-order-editor-group-title">{group.label}</h3>
+                        <div className="cfp-order-editors-grid">
+                          {FILE_ORDER_EDITORS.filter((editor) => group.values.includes(editor.value)).map((editor) => {
+                            const image = DOCK_IMAGES[editor.value];
+                            return (
+                              <button
+                                key={editor.value}
+                                type="button"
+                                className="cfp-order-editor-btn"
+                                style={{ "--cfp-editor-tint": `var(${editor.tint}, #666)` }}
+                                onClick={() => window.dispatchEvent(new CustomEvent(
+                                  "pp-open-order-editor",
+                                  { detail: { value: editor.value } }
+                                ))}
+                                title={editor.label}
+                              >
+                                <span className={`cfp-order-editor-icon${image ? " has-img" : ""}`} aria-hidden="true">
+                                  {image ? <img src={image} alt="" draggable={false} /> : DOCK_ICONS[editor.icon]}
+                                </span>
+                                <span className="cfp-order-editor-label">{editor.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </section>
+                    ))}
+                  </div>
+                </section>
+              )}
+              {inline && orderId && onToggleWorkspaceSwap && (
+                <button
+                  type="button"
+                  className={`cfp-workspace-swap${workspaceSwapped ? " is-swapped" : ""}`}
+                  onClick={onToggleWorkspaceSwap}
+                  title={workspaceSwapped ? "Повернути блоки на місце" : "Поміняти крайні блоки місцями"}
+                  aria-label={workspaceSwapped ? "Повернути блоки на місце" : "Поміняти крайні блоки місцями"}
+                >
+                  <span className="cfp-workspace-swap-arrow" aria-hidden="true" />
+                </button>
               )}
             </aside>
           )}

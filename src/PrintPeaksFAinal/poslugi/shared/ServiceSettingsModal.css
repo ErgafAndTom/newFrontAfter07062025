@@ -390,6 +390,126 @@
   margin-bottom: 0.8rem;
 }
 
+/* --- Висувні групи пресету --- */
+
+.ssm-group {
+  border-bottom: 1px solid var(--adminfon, #f7f5ee);
+  margin-bottom: 0.2rem;
+}
+.ssm-group:last-of-type {
+  border-bottom: none;
+}
+
+.ssm-group-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  padding: 0.45rem 0.3rem;
+  cursor: pointer;
+  text-align: left;
+}
+.ssm-group-head:hover {
+  background: var(--adminfon, #f7f5ee);
+}
+.ssm-group.ssm-group-open > .ssm-group-head {
+  border-left-color: var(--adminorange, #f5a623);
+  background: var(--adminfon, #f7f5ee);
+}
+
+.ssm-group-arrow {
+  font-size: 0.7rem;
+  color: var(--adminorange, #f5a623);
+  width: 0.9rem;
+  flex-shrink: 0;
+}
+
+.ssm-group-title {
+  font-size: var(--font-size-s, 0.85rem);
+  color: var(--admingrey, #666);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+/* резюме згорнутої групи — щоб не розкривати заради перевірки */
+.ssm-group-summary {
+  margin-left: auto;
+  font-size: var(--font-size-s, 0.85rem);
+  color: var(--admingreen, #0e935b);
+  opacity: 0.85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 55%;
+  text-align: right;
+}
+
+.ssm-group-body {
+  padding: 0.6rem 0 0.4rem 1.2rem;
+}
+
+.ssm-preset-hint {
+  font-size: var(--font-size-s, 0.85rem);
+  color: var(--admingrey, #666);
+  opacity: 0.75;
+  margin-bottom: 0.6rem;
+}
+
+/* --- Правила прозапасу --- */
+
+.ssm-ranges {
+  margin-top: 0.4rem;
+  padding: 0.6rem;
+  background: var(--adminfon, #f7f5ee);
+  border-left: 3px solid var(--adminblue, #3c60a6);
+}
+
+.ssm-ranges-title {
+  font-size: var(--font-size-s, 0.85rem);
+  color: var(--admingrey, #666);
+  margin-bottom: 0.5rem;
+}
+
+.ssm-ranges-empty {
+  font-size: var(--font-size-s, 0.85rem);
+  color: var(--admingrey, #666);
+  opacity: 0.6;
+  margin-bottom: 0.5rem;
+}
+
+.ssm-range-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.ssm-range-add {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--admingrey, #666);
+}
+
+.ssm-range-word {
+  font-size: var(--font-size-s, 0.85rem);
+  color: var(--admingrey, #666);
+  white-space: nowrap;
+}
+
+.ssm-range-input {
+  width: 3.6rem;
+}
+
+.ssm-range-add .ssm-add-btn {
+  padding: 0.15rem 0.7rem;
+}
+
 .ssm-preset-field {
   display: flex;
   align-items: center;

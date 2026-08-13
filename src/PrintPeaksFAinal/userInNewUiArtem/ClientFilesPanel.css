@@ -767,7 +767,7 @@
   align-items: center;
   gap: 4px;
   padding: 10px 8px;
-  background: color-mix(in srgb, var(--adminfonelement, #f2f0e9) 55%, #fff);
+  background: transparent;
   cursor: pointer;
   user-select: none;
   transition: background 0.12s, outline-color 0.12s;
@@ -1020,4 +1020,947 @@
 .cfp-card-orders {
   align-items: center;
   min-height: 20px;
+}
+
+/* Order editors now live below the compact file preview in the job ticket. */
+.cfp-preview {
+  justify-content: flex-start;
+}
+
+.cfp-preview-stage {
+  flex: 0 0 clamp(170px, 26vh, 290px);
+  min-height: 170px;
+  width: 100%;
+  align-self: center;
+}
+
+.cfp-preview-actions {
+  display: none;
+}
+
+.cfp-order-editors {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 12px 0 4px;
+  border-top: 1px solid color-mix(in srgb, var(--admingrey, #666) 18%, transparent);
+}
+
+.cfp-order-editors-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--admingrey, #555);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+}
+
+.cfp-order-editors-head strong {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.cfp-order-editors-head span {
+  font-size: 0.72rem;
+  opacity: 0.58;
+  white-space: nowrap;
+}
+
+.cfp-order-editors-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.cfp-order-editor-btn {
+  position: relative;
+  min-width: 0;
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 29px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px 7px 11px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--cfp-editor-tint, #666) 24%, transparent);
+  border-radius: 9px;
+  color: var(--admingrey, #555);
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--cfp-editor-tint, #666) 13%, var(--adminfon, #fff)),
+    color-mix(in srgb, var(--cfp-editor-tint, #666) 4%, var(--adminfon, #fff))
+  );
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 58%, transparent);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.cfp-order-editor-btn::before {
+  content: "";
+  position: absolute;
+  inset: 9px auto 9px 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--cfp-editor-tint, #666);
+}
+
+.cfp-order-editor-btn:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--cfp-editor-tint, #666) 62%, transparent);
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--cfp-editor-tint, #666) 16%, transparent);
+}
+
+.cfp-order-editor-btn:active {
+  transform: translateY(0);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.14);
+}
+
+.cfp-order-editor-icon {
+  width: 29px;
+  height: 29px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cfp-editor-tint, #666);
+}
+
+.cfp-order-editor-icon svg,
+.cfp-order-editor-icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.cfp-order-editor-label {
+  min-width: 0;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: clamp(10px, 0.68vw, 12px);
+  font-weight: 650;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1100px) {
+  .cfp-modal--inline .cfp-preview { max-height: min(64vh, 620px); }
+  .cfp-order-editors-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Grouped order editor catalog: preview above, actions fill the space to the dock. */
+.cfp-body.has-preview {
+  grid-template-columns: minmax(0, 1fr) min(672px, 48vw);
+}
+
+.cfp-preview {
+  overflow: hidden;
+}
+
+.cfp-preview-stage {
+  flex: 0 0 clamp(204px, 31.2vh, 348px);
+  min-height: 204px;
+  width: 100%;
+}
+
+.cfp-preview-props,
+.cfp-preview-actions {
+  display: none;
+}
+
+.cfp-order-editors {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.cfp-order-editor-groups {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cfp-order-editor-group {
+  flex: 1 1 0;
+  min-height: 74px;
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 8px;
+}
+
+.cfp-order-editor-group-title {
+  position: relative;
+  min-width: 0;
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 8px 8px 8px 13px;
+  border: 1px solid color-mix(in srgb, var(--cfp-group-tint, #666) 24%, transparent);
+  border-radius: 2px;
+  color: var(--admingrey, #555);
+  background: color-mix(in srgb, var(--cfp-group-tint, #666) 8%, var(--adminfon, #fff));
+  font-family: var(--pp-font-display, "Bahnschrift", "Segoe UI", system-ui, sans-serif);
+  font-size: clamp(11px, 0.72vw, 14px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.cfp-order-editor-group-title::before {
+  content: "";
+  position: absolute;
+  inset: 8px auto 8px 0;
+  width: 4px;
+  background: var(--cfp-group-tint, #666);
+}
+
+.cfp-order-editor-group .cfp-order-editors-grid {
+  height: 100%;
+  gap: 6px;
+}
+
+.cfp-order-editor-group.is-print .cfp-order-editors-grid,
+.cfp-order-editor-group.is-postpress .cfp-order-editors-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.cfp-order-editor-group.is-goods .cfp-order-editors-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.cfp-order-editor-group.is-services .cfp-order-editors-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cfp-order-editor-group .cfp-order-editor-btn {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 5px;
+  border-radius: 2px;
+  text-align: center;
+}
+
+.cfp-order-editor-group .cfp-order-editor-icon {
+  width: clamp(34px, 2.25vw, 45px);
+  height: clamp(34px, 2.25vw, 45px);
+  flex: 0 0 auto;
+}
+
+.cfp-order-editor-group .cfp-order-editor-label {
+  font-size: clamp(10px, 0.64vw, 12px);
+  line-height: 1.08;
+}
+
+/* Light theme is deliberately monochrome: category is communicated by grouping. */
+:root[data-theme="light"] .cfp-order-editor-group {
+  --cfp-group-tint: #111111 !important;
+}
+
+:root[data-theme="light"] .cfp-order-editor-group-title {
+  color: #111111;
+  border-color: #c8c8c8;
+  background: #f1f1f1;
+}
+
+:root[data-theme="light"] .cfp-order-editor-btn {
+  --cfp-editor-tint: #111111 !important;
+  color: #111111;
+  border-color: #c8c8c8;
+  background: linear-gradient(180deg, #ffffff 0%, #eeeeee 100%);
+  box-shadow: inset 0 1px 0 #ffffff;
+}
+
+:root[data-theme="light"] .cfp-order-editor-btn:hover {
+  border-color: #111111;
+  background: #e5e5e5;
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.14);
+}
+
+:root[data-theme="light"] .cfp-order-editor-icon,
+:root[data-theme="light"] .cfp-order-editor-icon svg {
+  color: #111111;
+}
+
+:root[data-theme="light"] .cfp-order-editor-icon img {
+  filter: grayscale(1) contrast(1.16);
+}
+
+:root[data-theme="light"] .cfp-preview-stage {
+  background: #f2f2f2;
+}
+
+@media (max-width: 1100px) {
+  .cfp-body.has-preview {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  .cfp-modal--inline .cfp-preview { max-height: min(72vh, 720px); }
+  .cfp-order-editor-group { grid-template-columns: 82px minmax(0, 1fr); }
+}
+
+/* Compact service catalogue aligned with the vertical type tag in order items. */
+.cfp-order-editors-head {
+  display: none;
+}
+
+.cfp-order-editor-group {
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 6px;
+}
+
+.cfp-order-editor-group-title {
+  min-width: 34px;
+  width: 34px;
+  padding: 5px 0;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  border: none;
+  border-radius: 0;
+  background: color-mix(in srgb, var(--cfp-group-tint, #666) 12%, var(--adminfon, #fff));
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 15px) - 5px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.cfp-order-editor-group-title::before,
+.cfp-order-editor-btn::before {
+  display: none;
+  content: none;
+}
+
+.cfp-order-editor-group .cfp-order-editor-label,
+.cfp-order-editor-label {
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--fontsmall, 15px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+:root[data-theme="light"] .cfp-order-editor-group-title {
+  border: none;
+  background: #ededed;
+  color: #111111;
+}
+
+@media (max-width: 1100px) {
+  .cfp-order-editor-group { grid-template-columns: 34px minmax(0, 1fr); }
+}
+
+.cfp-order-editor-group .cfp-order-editor-label,
+.cfp-order-editor-label {
+  font-size: clamp(10px, 0.64vw, 12px);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+/* No selected file: use the released preview area for larger service controls. */
+.cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-group .cfp-order-editor-icon {
+  width: clamp(52px, 3.5vw, 72px);
+  height: clamp(52px, 3.5vw, 72px);
+}
+
+.cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-group .cfp-order-editor-label {
+  font-size: clamp(13px, 0.86vw, 17px);
+  line-height: 1.12;
+}
+
+.cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-btn {
+  gap: clamp(8px, 1vh, 14px);
+  padding: 12px 8px;
+}
+
+@media (max-width: 1100px) {
+  .cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-group .cfp-order-editor-icon {
+    width: clamp(46px, 6vw, 64px);
+    height: clamp(46px, 6vw, 64px);
+  }
+}
+
+/* File toolbar: one control height and three clear icon-only primary actions. */
+.cfp-toolbar .cfp-search {
+  display: none;
+}
+
+.cfp-toolbar .cfp-tool-btn,
+.cfp-toolbar .cfp-view-btn,
+.cfp-toolbar .cfp-toolbar-action {
+  height: 42px !important;
+  min-height: 42px !important;
+}
+
+.cfp-toolbar .cfp-tool-btn:not(.cfp-tool-btn--wide),
+.cfp-toolbar .cfp-view-btn,
+.cfp-toolbar .cfp-toolbar-action {
+  width: 42px !important;
+  min-width: 42px !important;
+}
+
+.cfp-toolbar .cfp-tool-btn--wide {
+  width: auto !important;
+  padding-inline: 10px;
+}
+
+.cfp-toolbar .cfp-view-switch {
+  height: 42px;
+}
+
+.cfp-toolbar .cfp-tool-btn > svg,
+.cfp-toolbar .cfp-view-btn > svg {
+  width: 18px;
+  height: 18px;
+}
+
+.cfp-toolbar .cfp-toolbar-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 42px !important;
+  padding: 0 !important;
+  border: 1px solid color-mix(in srgb, var(--admingrey, #666) 24%, transparent) !important;
+  background: color-mix(in srgb, var(--admingrey, #666) 6%, var(--adminfon, #fff)) !important;
+  color: var(--admingrey, #555) !important;
+}
+
+.cfp-toolbar .cfp-toolbar-action:hover {
+  border-color: var(--admingrey, #555) !important;
+  background: color-mix(in srgb, var(--admingrey, #666) 14%, var(--adminfon, #fff)) !important;
+}
+
+.cfp-toolbar-action .nui-client-rect-btn-text {
+  display: none !important;
+}
+
+.cfp-toolbar-action > svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.7;
+}
+
+/* Disable inherited cover-layer animation; match the direct hover on the left controls. */
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action::before,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action::after {
+  content: none !important;
+  display: none !important;
+}
+
+:root[data-theme="light"] .cfp-toolbar .cfp-toolbar-action {
+  color: #111111 !important;
+  border-color: #bdbdbd !important;
+  background: #f5f5f5 !important;
+}
+
+/* Final toolbar treatment: same flat language as the view controls. */
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action {
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--admingrey, #555) !important;
+  overflow: visible;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action + .cfp-toolbar-action {
+  border-left: 1px solid color-mix(in srgb, var(--admingrey, #666) 32%, transparent) !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action > svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.7;
+}
+
+/* Disable inherited cover-layer animation; match the direct hover on the left controls. */
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action::before,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action::after {
+  content: none !important;
+  display: none !important;
+}
+
+:root[data-theme="light"] .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action {
+  color: #111111 !important;
+  background: transparent !important;
+}
+
+:root[data-theme="light"] .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action:hover {
+  background: #eeeeee !important;
+}
+
+:root[data-theme="dark"] .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action {
+  background: #ffffff !important;
+}
+
+/* Final inline file workspace: the preview starts at toolbar level and the
+   controls share one monochrome interaction language. */
+.cfp-modal--inline .cfp-toolbar-right > .cfp-preview-toggle {
+  display: none !important;
+}
+
+.cfp-toolbar {
+  --cfp-control-border: color-mix(in srgb, var(--admingrey, #666) 30%, transparent);
+  --cfp-control-hover: color-mix(in srgb, var(--admingrey, #666) 13%, var(--adminfon, #fff));
+  --cfp-control-active: var(--admingrey, #222);
+}
+
+.cfp-toolbar-nav,
+.cfp-toolbar-right {
+  gap: 0;
+}
+
+.cfp-toolbar .cfp-crumbs {
+  margin-left: 10px;
+}
+
+.cfp-toolbar .cfp-view-switch {
+  height: 42px;
+  margin-right: 10px;
+  border: none;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-tool-btn,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-view-btn,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action {
+  border: 1px solid var(--cfp-control-border) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--admingrey, #444) !important;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease !important;
+}
+
+.cfp-toolbar-nav > .cfp-tool-btn + .cfp-tool-btn,
+.cfp-toolbar .cfp-view-btn + .cfp-view-btn,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action + .cfp-toolbar-action {
+  border-left: none !important;
+}
+
+.cfp-toolbar .cfp-tool-btn--wide {
+  margin-left: 8px;
+}
+
+.cfp-toolbar .cfp-toolbar-action:nth-last-of-type(3) {
+  margin-left: 10px;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-tool-btn:hover:not(:disabled),
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-view-btn:hover,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action:hover {
+  border-color: color-mix(in srgb, var(--admingrey, #444) 62%, transparent) !important;
+  background: var(--cfp-control-hover) !important;
+  color: var(--admingrey, #222) !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-view-btn.is-active,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-tool-btn.is-active {
+  border-color: var(--cfp-control-active) !important;
+  background: var(--cfp-control-active) !important;
+  color: var(--adminfon, #fff) !important;
+}
+
+.cfp-toolbar .cfp-tool-btn:focus-visible,
+.cfp-toolbar .cfp-view-btn:focus-visible,
+.cfp-toolbar .cfp-toolbar-action:focus-visible {
+  outline: 2px solid var(--admingrey, #222);
+  outline-offset: 2px;
+}
+
+@media (min-width: 1281px) {
+  .cfp-modal--inline:has(> .cfp-body.has-preview) {
+    --cfp-inline-toolbar-height: 55px;
+    --cfp-inline-preview-width: min(820px, 56vw);
+  }
+
+  .cfp-modal--inline:has(> .cfp-body.has-preview) > .cfp-toolbar {
+    width: calc(100% - var(--cfp-inline-preview-width));
+    min-height: var(--cfp-inline-toolbar-height);
+    flex-wrap: nowrap;
+    align-self: flex-start;
+    box-sizing: border-box;
+  }
+
+  .cfp-modal--inline > .cfp-body.has-preview {
+    grid-template-columns: minmax(0, 1fr) var(--cfp-inline-preview-width);
+    overflow: visible;
+  }
+
+  .cfp-modal--inline > .cfp-body.has-preview > .cfp-preview {
+    position: relative;
+    z-index: 3;
+    height: calc(100% + var(--cfp-inline-toolbar-height));
+    margin-top: calc(-1 * var(--cfp-inline-toolbar-height));
+    box-sizing: border-box;
+    background: var(--adminfon, #fff);
+  }
+}
+
+/* Borderless file controls and an exact 40/30 split inside the 70% file zone. */
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-tool-btn,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-view-btn,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-tool-btn:hover:not(:disabled),
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-view-btn:hover,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action:hover,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-view-btn.is-active,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-tool-btn.is-active {
+  border: none !important;
+}
+
+@media (min-width: 1281px) {
+  .cfp-modal--inline:has(> .cfp-body.has-preview) {
+    --cfp-inline-preview-width: 42.857143%;
+  }
+
+  .cfp-modal--inline:has(> .cfp-body.has-preview) > .cfp-toolbar {
+    width: calc(57.142857% - 8px);
+  }
+
+  .cfp-modal--inline > .cfp-body.has-preview {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 3fr);
+    column-gap: var(--jt-workspace-gap, 14px);
+  }
+
+  .cfp-modal--inline > .cfp-body.has-preview > .cfp-preview {
+    border-left: none;
+  }
+}
+
+/* Flat service tiles: square, borderless and shadowless in every state. */
+.cfp-order-editor-group .cfp-order-editor-btn,
+.cfp-order-editor-group .cfp-order-editor-btn:hover,
+.cfp-order-editor-group .cfp-order-editor-btn:active {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.cfp-order-editor-group .cfp-order-editor-btn {
+  background: color-mix(in srgb, var(--cfp-editor-tint, #666) 8%, var(--adminfon, #fff));
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.cfp-order-editor-group .cfp-order-editor-btn:hover {
+  transform: none;
+  background: color-mix(in srgb, var(--cfp-editor-tint, #666) 16%, var(--adminfon, #fff));
+}
+
+.cfp-order-editor-group .cfp-order-editor-btn:active {
+  transform: none;
+  background: color-mix(in srgb, var(--cfp-editor-tint, #666) 22%, var(--adminfon, #fff));
+}
+
+:root[data-theme="light"] .cfp-order-editor-group .cfp-order-editor-btn {
+  background: #f2f2f2;
+}
+
+:root[data-theme="light"] .cfp-order-editor-group .cfp-order-editor-btn:hover {
+  background: #e5e5e5;
+}
+
+:root[data-theme="light"] .cfp-order-editor-group .cfp-order-editor-btn:active {
+  background: #dcdcdc;
+}
+
+/* No file selected: remove the former preview divider and consume all height. */
+.cfp-preview:not(:has(.cfp-preview-stage)) {
+  gap: 0;
+}
+
+.cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editors {
+  flex: 1 1 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border-top: none;
+}
+
+.cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-groups {
+  height: 100%;
+}
+
+/* Centered file title and explicit name/date sorting for every view mode. */
+.cfp-toolbar .cfp-toolbar-nav {
+  min-width: 0;
+}
+
+.cfp-toolbar .cfp-crumbs {
+  flex: 1 1 auto;
+  justify-content: center;
+  margin-left: 0;
+  text-align: center;
+}
+
+.cfp-toolbar .cfp-crumb-root {
+  text-align: center;
+}
+
+.cfp-sort-switch {
+  height: 42px;
+  display: inline-flex;
+  align-items: stretch;
+  margin-right: 10px;
+}
+
+.cfp-sort-btn {
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--admingrey, #444);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 400;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+
+.cfp-sort-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  stroke-width: 1.7;
+}
+.cfp-sort-btn:hover {
+  background: color-mix(in srgb, var(--admingrey, #666) 13%, var(--adminfon, #fff));
+}
+
+.cfp-sort-btn.is-active {
+  background: var(--admingrey, #222);
+  color: var(--adminfon, #fff);
+}
+
+@media (max-width: 1680px) {
+  .cfp-sort-btn {
+    width: 42px;
+    min-width: 42px;
+    padding: 0;
+  }
+
+  .cfp-sort-btn > span {
+    display: none;
+  }
+}
+
+/* Final labels: order creation buttons use uppercase titles. */
+.cfp-order-editor-group .cfp-order-editor-label,
+.cfp-order-editor-label {
+  text-transform: uppercase !important;
+}
+
+/* View modes and refresh belong to the far-left navigation group. */
+.cfp-toolbar-right > .cfp-view-switch,
+.cfp-toolbar-right > .cfp-refresh-action {
+  display: none !important;
+}
+
+.cfp-toolbar-nav > .cfp-view-switch--left,
+.cfp-toolbar-nav > .cfp-refresh-action--left {
+  display: inline-flex !important;
+}
+
+/* File toolbar controls form continuous zero-gap button runs. */
+.cfp-toolbar-nav,
+.cfp-toolbar-right {
+  gap: 0 !important;
+}
+
+.cfp-toolbar .cfp-view-switch,
+.cfp-toolbar .cfp-sort-switch,
+.cfp-toolbar .cfp-tool-btn--wide,
+.cfp-toolbar .cfp-toolbar-action,
+.cfp-toolbar .cfp-toolbar-action:nth-last-of-type(3) {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Tile mode uses quieter typography without changing thumbnails. */
+.cfp-content--tiles .cfp-card-name {
+  font-size: calc(var(--font-size-s, 15px) - 3px);
+}
+
+.cfp-content--tiles .cfp-card-meta {
+  font-size: calc(0.7rem - 3px);
+}
+
+/* Inline list mode restores the file date between size and delete. */
+.cfp-modal--inline .cfp-list-header,
+.cfp-modal--inline .cfp-file-row {
+  grid-template-columns: 28px minmax(0, 1fr) 64px 84px 34px;
+}
+
+.cfp-modal--inline .cfp-list-header > *:nth-child(5),
+.cfp-modal--inline .cfp-file-row > *:nth-child(5) {
+  display: block;
+}
+
+.cfp-modal--inline .cfp-file-date {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cfp-sort-letter {
+  width: 20px;
+  height: 20px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 20px;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+/* Flush transparent category rails beside the order-editor buttons. */
+.cfp-order-editor-groups {
+  gap: 6px;
+}
+
+.cfp-order-editor-group {
+  gap: 0;
+}
+
+.cfp-order-editor-group-title,
+:root[data-theme="light"] .cfp-order-editor-group-title {
+  background: transparent;
+}
+
+/* Keep the name-sort direction marker tight to the letter. */
+.cfp-sort-icon + svg {
+  margin-left: -1px !important;
+}
+
+/* Split the outer 67% zone into absolute page shares: 40% files / 27% actions. */
+@media (min-width: 1281px) {
+  .cfp-modal--inline:has(> .cfp-body.has-preview) {
+    --cfp-inline-preview-width: 40.298507%;
+    --jt-workspace-gap: 4px;
+  }
+
+  .cfp-modal--inline:has(> .cfp-body.has-preview) > .cfp-toolbar {
+    width: calc(59.701493% - var(--jt-workspace-gap));
+  }
+
+  .cfp-modal--inline > .cfp-body.has-preview {
+    grid-template-columns: minmax(0, var(--jt-files-width, 40fr)) minmax(0, var(--jt-actions-width, 27fr));
+    column-gap: var(--jt-workspace-gap);
+  }
+
+}
+/* List view: icons are redundant here; use their column for longer names. */
+.cfp-content--table .cfp-list-header,
+.cfp-content--table .cfp-file-row {
+  grid-template-columns: minmax(0, 1fr) 60px 80px 80px minmax(60px, auto) 36px;
+}
+
+.cfp-content--table .cfp-list-header > :first-child,
+.cfp-content--table .cfp-file-row > .cfp-file-icon {
+  display: none;
+}
+
+.cfp-modal--inline .cfp-content--table .cfp-list-header,
+.cfp-modal--inline .cfp-content--table .cfp-file-row {
+  grid-template-columns: minmax(0, 1fr) 64px 84px 34px;
+}
+
+.cfp-content--table .cfp-file-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cfp-order-editor-groups {
+  gap: 8px;
+}
+
+.cfp-order-editor-group {
+  flex: 1 1 0;
+  height: auto;
+  min-height: 74px;
+  gap: 6px;
+}
+
+.cfp-order-editor-group-title,
+:root[data-theme="light"] .cfp-order-editor-group-title {
+  align-self: center;
+  height: min(94px, calc(100% - 12px));
+  min-height: 76px;
+}
+
+.cfp-modal--inline .cfp-preview {
+  padding-left: 2px;
+}
+
+.cfp-modal--inline .cfp-order-editor-group {
+  grid-template-columns: 28px minmax(0, 1fr);
+}
+
+.cfp-modal--inline .cfp-order-editor-group-title {
+  width: 28px;
+  min-width: 28px;
+}
+
+
+.cfp-workspace-swap {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  margin: 8px auto 2px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--adminfonelement, #f1f1f1);
+  color: var(--admindark, #111111);
+  cursor: pointer;
+}
+
+.cfp-workspace-swap:hover,
+.cfp-workspace-swap:focus-visible {
+  outline: none;
+  background: var(--admindark, #111111);
+  color: var(--adminfon, #ffffff);
+}
+
+.cfp-workspace-swap-arrow {
+  width: 9px;
+  height: 9px;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 180ms ease;
+}
+
+.cfp-workspace-swap.is-swapped .cfp-workspace-swap-arrow {
+  transform: rotate(-135deg);
 }

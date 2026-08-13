@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FaTelegramPlane } from 'react-icons/fa';
 import { FiPhone, FiFolder, FiShoppingBag } from 'react-icons/fi';
 import Pagination from '../tools/Pagination';
+import PaysInOrderRestored_OrdersLike from "../userInNewUiArtem/pays/PaysInOrderRestored_OrdersLike";
 import Loader from '../../components/calc/Loader';
 import { Settings } from 'lucide-react';
 import { searchChange } from '../../actions/searchAction';
@@ -27,6 +28,7 @@ const CompanyTabl = () => {
   const [cabinetCompanyId, setCabinetCompanyId] = useState(null);
   const [filesCompany, setFilesCompany] = useState(null);   // { id, name }
   const [ordersCompany, setOrdersCompany] = useState(null); // { id, name }
+  const [paysCompany, setPaysCompany] = useState(null);     // рахунки/контрагенти
   const [sortColumn, setSortColumn]   = useState('id');
   const [sortReverse, setSortReverse] = useState(true);
 
@@ -108,6 +110,7 @@ const CompanyTabl = () => {
         <div className="cot-cell cot-cell--center cot-cell--sortable" onClick={() => handleSort('ordersCount')}>
           <FiShoppingBag size={14} /><SortArrow col="ordersCount" />
         </div>
+        <div className="cot-cell cot-cell--center" title="Рахунки та контрагенти">Рахунки</div>
         <div className="cot-cell cot-cell--center"><Settings size={14} /></div>
       </div>
 
@@ -139,6 +142,15 @@ const CompanyTabl = () => {
               </div>
               <div className="cot-cell cot-cell--center cot-cell--clickable" onClick={e => { e.stopPropagation(); setOrdersCompany({ id: company.id, name: company.companyName }); }}>
                 {company.ordersCount ?? '—'}
+              </div>
+              <div className="cot-cell cot-cell--center" onClick={e => e.stopPropagation()}>
+                <button
+                  className="pays-tbl-btn pays-tbl-btn--bg-element"
+                  onClick={() => setPaysCompany(company)}
+                  title="Рахунки та контрагенти компанії"
+                >
+                  Рахунки
+                </button>
               </div>
               <div className="cot-cell cot-cell--actions" onClick={e => e.stopPropagation()}>
                 <button className="cot-settings-btn" onClick={() => setCabinetCompanyId(company.id)}>
@@ -220,6 +232,17 @@ const CompanyTabl = () => {
           companyName={ordersCompany.name}
           onClose={() => setOrdersCompany(null)}
           onOpenOrder={(orderId) => navigate(`/Orders/${orderId}`)}
+        />
+      )}
+
+      {/* Рахунки й контрагенти компанії — те саме вікно, що зі сторінки
+          наряду. Клієнта-ініціатора тут немає, тож ідемо по companyId. */}
+      {paysCompany && (
+        <PaysInOrderRestored_OrdersLike
+          showPays={Boolean(paysCompany)}
+          setShowPays={(v) => { if (!v) setPaysCompany(null); }}
+          thisOrder={{ companyId: paysCompany.id }}
+          setThisOrder={() => {}}
         />
       )}
     </div>

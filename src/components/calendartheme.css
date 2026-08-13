@@ -203,9 +203,12 @@
   color: var(--admingrey, #666666);
 }
 
+/* «Сьогодні» позначаємо рискою, а не кольором тексту: помаранчевий на
+   світлому фоні давав контраст 1.2:1 — число фактично зникало. */
 .rdrDayToday .rdrDayNumber span {
   font-weight: 700;
-  color: var(--adminorange, #f5a623);
+  color: var(--admingrey, #666666);
+  box-shadow: inset 0 -2px 0 var(--adminorange, #f5a623);
 }
 
 .rdrDayToday .rdrDayNumber span:after {
@@ -220,10 +223,17 @@
 }
 
 .rdrDay:not(.rdrDayPassive) .rdrInRange ~ .rdrDayNumber span,
-.rdrDay:not(.rdrDayPassive) .rdrStartEdge ~ .rdrDayNumber span,
-.rdrDay:not(.rdrDayPassive) .rdrEndEdge ~ .rdrDayNumber span,
 .rdrDay:not(.rdrDayPassive) .rdrSelected ~ .rdrDayNumber span {
   color: var(--admingreen, #0e935b);
+  font-weight: 700;
+}
+
+/* Межі діапазону — суцільна зелена плашка, тому цифра на ній має бути
+   світлою в усіх темах (у темній --adminfon сам по собі темний, тому
+   беремо фіксований білий, а не токен фону). */
+.rdrDay:not(.rdrDayPassive) .rdrStartEdge ~ .rdrDayNumber span,
+.rdrDay:not(.rdrDayPassive) .rdrEndEdge ~ .rdrDayNumber span {
+  color: #ffffff;
   font-weight: 700;
 }
 
@@ -234,6 +244,17 @@
   left: 0;
   right: 0;
   bottom: 3px;
+}
+
+/* Раніше виділення діапазону трималось лише на кольорі цифри — на бежевому
+   фоні його майже не було видно, а в темній темі й поготів. Тепер тіло
+   діапазону має підкладку, а межі — заливку акцентом. */
+.rdrInRange {
+  background: var(--adminlightgreen, #e2f2eb);
+}
+
+.rdrStartEdge, .rdrEndEdge, .rdrSelected {
+  background: var(--admingreen, #0e935b);
 }
 
 .rdrSelected {
@@ -267,6 +288,8 @@
   right: 0px;
 }
 
+/* Прев'ю другої межі діапазону. Раніше воно було повністю прозорим і без
+   рамки — під час вибору не було видно, що саме захоплюється. */
 .rdrDayStartPreview, .rdrDayInPreview, .rdrDayEndPreview {
   background: transparent;
   position: absolute;
@@ -275,9 +298,14 @@
   right: 0px;
   bottom: 3px;
   pointer-events: none;
-  border: none;
+  border: 0 solid var(--adminorange, #f5a623);
+  border-top-width: 1px;
+  border-bottom-width: 1px;
   z-index: 1;
 }
+
+.rdrDayStartPreview { border-left-width: 1px; }
+.rdrDayEndPreview { border-right-width: 1px; }
 
 .rdrDayStartPreview {
   border-right-width: 0;
@@ -314,7 +342,7 @@
 .rdrDefinedRangesWrapper {
   font-size: 0.7vh;
   width: 10vw;
-  border-right: 1px solid rgba(0,0,0,0.1);
+  border-right: 1px solid color-mix(in srgb, var(--admingrey, #666) 16%, transparent);
   background: var(--adminfonelement, #f1eee7);
 }
 
@@ -322,9 +350,13 @@
   background: var(--adminfonelement, #f1eee7);
 }
 
+/* Вибраний пресет: зелений текст на світлому давав 3.4:1, тому колір
+   лишаємо основним, а вибір показуємо жирністю й кромкою — як стан
+   «вибрано» у решті інтерфейсу. */
 .rdrDefinedRangesWrapper .rdrStaticRangeSelected {
-  color: var(--admingreen, #0e935b) !important;
-  font-weight: 600;
+  color: var(--admingrey, #666666) !important;
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 var(--admingreen, #0e935b);
 }
 
 .rdrStaticRange {
@@ -332,15 +364,17 @@
   cursor: pointer;
   display: block;
   outline: 0;
-  border-bottom: 1px solid rgba(0,0,0,0.07);
+  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 10%, transparent);
   padding: 0;
   background: var(--adminfonelement, #f1eee7);
   color: var(--admingrey, #666666);
 }
 
+/* hover має бути видимим і на плитці, а не лише на тексті — інакше
+   підсвітка зливається з фоном панелі */
 .rdrStaticRange:hover .rdrStaticRangeLabel,
 .rdrStaticRange:focus .rdrStaticRangeLabel {
-  background: var(--adminfonelement, #f2f0e9);
+  background: var(--pp-tile-hi, rgba(0, 0, 0, 0.05));
   color: var(--adminorange, #f5a623);
 }
 
@@ -395,7 +429,7 @@
 }
 
 .rdrDayPassive .rdrDayNumber span {
-  color: rgba(102, 102, 102, 0.3);
+  color: color-mix(in srgb, var(--admingrey, #666) 38%, transparent);
 }
 
 .rdrDayPassive .rdrInRange, .rdrDayPassive .rdrStartEdge, .rdrDayPassive .rdrEndEdge,
@@ -409,7 +443,7 @@
 }
 
 .rdrDayDisabled .rdrDayNumber span {
-  color: rgba(102, 102, 102, 0.25);
+  color: color-mix(in srgb, var(--admingrey, #666) 32%, transparent);
 }
 
 .rdrDayDisabled .rdrInRange, .rdrDayDisabled .rdrStartEdge, .rdrDayDisabled .rdrEndEdge,

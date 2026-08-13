@@ -1,107 +1,151 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from '../../api/axiosInstance';
+import './ExportImportComponent.css';
 
-const LS_KEY = 'autoBackup_settings';
-
-function getNextSaveDate(intervalHours) {
-    const d = new Date();
-    d.setHours(d.getHours() + intervalHours, 0, 0, 0);
-    return d.toISOString();
-}
+// Розклад і теку зберігання тримає бекенд (AppSettings + services/backupService),
+// тому бекап робиться навіть із закритим браузером і переживає ребілд фронта.
 
 function fmtDate(iso) {
     if (!iso) return '—';
     const d = new Date(iso);
     const pad = (n) => String(n).padStart(2, '0');
-    return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-const INTERVALS = [
-    { label: '6 год',  hours: 6  },
-    { label: '12 год', hours: 12 },
-    { label: '24 год', hours: 24 },
-    { label: '48 год', hours: 48 },
-];
+function fmtSize(bytes) {
+    if (!bytes && bytes !== 0) return '';
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} КБ`;
+    return `${(bytes / 1024 / 1024).toFixed(1)} МБ`;
+}
+
+const EMPTY_DRAFT = {
+    time: '18:00',
+    localPath: '',
+    keepLocal: 14,
+    gdriveEnabled: false,
+    gdriveFolderId: '',
+    keepDrive: 0,
+};
 
 const ExportImportComponent = () => {
-    // ── стан автозбереження ──
-    const [autoEnabled, setAutoEnabled]   = useState(false);
-    const [intervalH,   setIntervalH]     = useState(24);
-    const [nextSave,    setNextSave]       = useState(null);
-    const [lastSaved,   setLastSaved]      = useState(null);
-    const [saving,      setSaving]         = useState(false);
-    const [saveMsg,     setSaveMsg]        = useState('');
-    const timerRef = useRef(null);
+    const [status, setStatus] = useState(null);
+    const [draft, setDraft] = useState(EMPTY_DRAFT);
+    const [showPanel, setShowPanel] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [busy, setBusy] = useState(false);
+    const [msg, setMsg] = useState('');
+    const [msgErr, setMsgErr] = useState(false);
 
-    // Завантаження із localStorage
-    useEffect(() => {
-        try {
-            const raw = localStorage.getItem(LS_KEY);
-            if (raw) {
-                const s = JSON.parse(raw);
-                setAutoEnabled(s.enabled ?? false);
-                setIntervalH(s.intervalH ?? 24);
-                setNextSave(s.nextSave ?? null);
-                setLastSaved(s.lastSaved ?? null);
-            }
-        } catch {}
+    const applyStatus = useCallback((data) => {
+        setStatus(data);
+        setDraft({ ...EMPTY_DRAFT, ...(data?.settings || {}) });
     }, []);
 
-    // Зберігати до localStorage при зміні
-    useEffect(() => {
-        localStorage.setItem(LS_KEY, JSON.stringify({
-            enabled: autoEnabled, intervalH, nextSave, lastSaved
-        }));
-    }, [autoEnabled, intervalH, nextSave, lastSaved]);
-
-    // Таймер перевірки
-    useEffect(() => {
-        if (timerRef.current) clearInterval(timerRef.current);
-        if (!autoEnabled || !nextSave) return;
-
-        timerRef.current = setInterval(() => {
-            if (new Date() >= new Date(nextSave)) {
-                triggerBackup(true);
-            }
-        }, 60_000); // перевіряємо кожну хвилину
-
-        return () => clearInterval(timerRef.current);
-    }, [autoEnabled, nextSave]); // eslint-disable-line
-
-    const triggerBackup = async (auto = false) => {
-        if (saving) return;
-        setSaving(true);
-        setSaveMsg('');
+    const load = useCallback(async () => {
         try {
-            const res = await axios.post('/db/backup-db');
-            const now = new Date().toISOString();
-            setLastSaved(now);
-            if (auto) {
-                setNextSave(getNextSaveDate(intervalH));
-            }
-            setSaveMsg(`✓ ${res.data.filename}`);
+            const { data } = await axios.get('/db/backup-settings');
+            applyStatus(data);
         } catch (e) {
-            setSaveMsg(`✗ ${e?.response?.data?.error || e.message}`);
+            setMsgErr(true);
+            setMsg(`Не вдалось прочитати налаштування: ${e?.response?.data?.error || e.message}`);
+        }
+    }, [applyStatus]);
+
+    useEffect(() => { load(); }, [load]);
+
+    // Підтягуємо «Наступний» без перезавантаження сторінки. Поля панелі при
+    // цьому не чіпаємо — інакше фоновий тік затер би недописане налаштування.
+    useEffect(() => {
+        const t = setInterval(async () => {
+            try {
+                const { data } = await axios.get('/db/backup-settings');
+                setStatus(data);
+            } catch { /* тимчасова мережева похибка — спробуємо наступного разу */ }
+        }, 120_000);
+        return () => clearInterval(t);
+    }, []);
+
+    const settings = status?.settings || EMPTY_DRAFT;
+    const state = status?.state || {};
+
+    const savePatch = async (patch, note = '') => {
+        setSaving(true);
+        setMsgErr(false);
+        setMsg('');
+        try {
+            const { data } = await axios.put('/db/backup-settings', patch);
+            applyStatus(data);
+            if (note) setMsg(note);
+        } catch (e) {
+            setMsgErr(true);
+            setMsg(`✗ ${e?.response?.data?.error || e.message}`);
         } finally {
             setSaving(false);
         }
     };
 
-    const handleToggle = (e) => {
-        const on = e.target.checked;
-        setAutoEnabled(on);
-        if (on) {
-            setNextSave(getNextSaveDate(intervalH));
-            setSaveMsg('');
-        } else {
-            setNextSave(null);
-            setSaveMsg('');
+    const handleToggle = (e) => savePatch({ enabled: e.target.checked });
+    const handleTimeChange = (e) => savePatch({ time: e.target.value });
+
+    // Час має власний інпут у верхньому рядку й зберігається одразу — тут його не чіпаємо
+    const handleSavePanel = () => savePatch({
+        localPath: draft.localPath,
+        keepLocal: draft.keepLocal,
+        gdriveEnabled: draft.gdriveEnabled,
+        gdriveFolderId: draft.gdriveFolderId,
+        keepDrive: draft.keepDrive,
+    }, '✓ Налаштування збережено');
+
+    const triggerBackup = async () => {
+        if (busy) return;
+        setBusy(true);
+        setMsgErr(false);
+        setMsg('');
+        try {
+            const { data } = await axios.post('/db/backup-db');
+            if (data.status) applyStatus(data.status);
+            setMsgErr(!!data.driveError);
+            setMsg(data.driveError
+                ? `✓ ${data.filename}, але Google Drive: ${data.driveError}`
+                : `✓ ${data.filename} (${fmtSize(data.size)})${data.driveLink ? ' + Google Drive' : ''}`);
+        } catch (e) {
+            setMsgErr(true);
+            setMsg(`✗ ${e?.response?.data?.error || e.message}`);
+        } finally {
+            setBusy(false);
         }
     };
 
-    const handleIntervalChange = (h) => {
-        setIntervalH(h);
-        if (autoEnabled) setNextSave(getNextSaveDate(h));
+    const checkDrive = async () => {
+        setBusy(true);
+        setMsgErr(false);
+        setMsg('');
+        try {
+            const { data } = await axios.post('/db/backup-check-drive', { folderId: draft.gdriveFolderId });
+            setMsg(`✓ Тека на Drive: «${data.folder.name}»`);
+        } catch (e) {
+            setMsgErr(true);
+            setMsg(`✗ ${e?.response?.data?.error || e.message}`);
+        } finally {
+            setBusy(false);
+        }
+    };
+
+    const downloadBackup = async (name) => {
+        try {
+            const res = await axios.get(`/db/backup-file/${encodeURIComponent(name)}`, { responseType: 'blob' });
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', name);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (e) {
+            setMsgErr(true);
+            setMsg(`✗ ${e?.response?.data?.error || e.message}`);
+        }
     };
 
     // ── Експорт / Імпорт ──
@@ -131,78 +175,164 @@ const ExportImportComponent = () => {
         }
     };
 
-    const btnStyle = {
-        margin: 0, fontSize: '1vw', whiteSpace: 'nowrap', cursor: 'pointer',
-        background: '#e0e0e0', border: '1px solid #999', padding: '1px 6px',
-    };
-    const labelStyle = {
-        margin: 0, color: '#fff', fontSize: '1vw',
-        display: 'flex', alignItems: 'center', gap: '0.3vw', whiteSpace: 'nowrap',
-    };
-
     return (
-        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: '0.8vw', padding: '2px 0.4vw' }}>
+        <div className="pp-bk">
+            <div className="pp-bk-row">
+                {/* ── Експорт / Імпорт ── */}
+                <button className="pp-bk-btn" onClick={handleExport}>Експорт даних</button>
+                <input type="file" onChange={handleImport} style={{ fontSize: '0.9vw', color: 'inherit' }} />
 
-            {/* ── Експорт / Імпорт ── */}
-            <button style={btnStyle} onClick={handleExport}>Експорт даних</button>
-            <input type="file" onChange={handleImport} style={{ fontSize: '1vw', color: '#fff' }} />
+                <span className="pp-bk-sep">|</span>
 
-            {/* ── Роздільник ── */}
-            <span style={{ color: '#aaa', fontSize: '1vw' }}>|</span>
+                {/* ── Автобекап ── */}
+                <label className="pp-bk-label">
+                    <input
+                        type="checkbox"
+                        className="pp-bk-check"
+                        checked={!!settings.enabled}
+                        onChange={handleToggle}
+                        disabled={saving}
+                    />
+                    Автобекап щодня о
+                </label>
 
-            {/* ── Автозбереження бази ── */}
-            <label style={labelStyle}>
                 <input
-                    type="checkbox"
-                    checked={autoEnabled}
-                    onChange={handleToggle}
-                    style={{ width: '0.9vw', height: '0.9vw', cursor: 'pointer' }}
+                    type="time"
+                    className="pp-bk-time"
+                    value={settings.time || '18:00'}
+                    onChange={handleTimeChange}
+                    disabled={saving}
                 />
-                Автозбереження бази
-            </label>
 
-            {/* Інтервал */}
-            <label style={labelStyle}>
-                Кожні:
-                <select
-                    value={intervalH}
-                    onChange={(e) => handleIntervalChange(+e.target.value)}
-                    style={{ fontSize: '1vw', padding: '0 2px', background: '#444', color: '#fff', border: '1px solid #777' }}
+                {settings.enabled && status?.nextRun && (
+                    <span className="pp-bk-next">Наступний: {fmtDate(status.nextRun)}</span>
+                )}
+
+                {state.lastRun && (
+                    <span className="pp-bk-muted">
+                        Останній: {fmtDate(state.lastRun)}
+                        {state.lastStatus === 'error' ? ' ⚠' : ''}
+                    </span>
+                )}
+
+                <button className="pp-bk-btn" onClick={() => setShowPanel(v => !v)}>
+                    {showPanel ? '▲ Налаштування' : '⚙ Налаштування'}
+                </button>
+
+                <button
+                    className="pp-bk-btn pp-bk-btn--primary"
+                    onClick={triggerBackup}
+                    disabled={busy}
                 >
-                    {INTERVALS.map(({ label, hours }) => (
-                        <option key={hours} value={hours}>{label}</option>
-                    ))}
-                </select>
-            </label>
+                    {busy ? '...' : '💾 Зберегти зараз'}
+                </button>
 
-            {/* Наступне збереження */}
-            {autoEnabled && nextSave && (
-                <label style={{ ...labelStyle, color: '#7fffb0' }}>
-                    Наступне: {fmtDate(nextSave)}
-                </label>
-            )}
+                {msg && <span className={msgErr ? 'pp-bk-err' : 'pp-bk-ok'}>{msg}</span>}
+            </div>
 
-            {/* Останнє збереження */}
-            {lastSaved && (
-                <label style={{ ...labelStyle, color: '#aaa', fontSize: '0.85vw' }}>
-                    Останнє: {fmtDate(lastSaved)}
-                </label>
-            )}
+            {showPanel && (
+                <div className="pp-bk-panel">
+                    <span className="pp-bk-panel-title">Куди зберігати</span>
 
-            {/* Зберегти зараз */}
-            <button
-                style={{ ...btnStyle, background: saving ? '#888' : '#2a7', color: '#fff', border: 'none' }}
-                onClick={() => triggerBackup(false)}
-                disabled={saving}
-            >
-                {saving ? '...' : '💾 Зберегти зараз'}
-            </button>
+                    <div className="pp-bk-panel-row">
+                        <label className="pp-bk-label" style={{ flex: 1 }}>
+                            Тека на сервері:
+                            <input
+                                className="pp-bk-input"
+                                value={draft.localPath}
+                                placeholder={status?.defaultPath || 'data/BackupDB'}
+                                onChange={(e) => setDraft(d => ({ ...d, localPath: e.target.value }))}
+                            />
+                        </label>
+                        <label className="pp-bk-label">
+                            Тримати копій:
+                            <input
+                                type="number"
+                                min="0"
+                                className="pp-bk-num"
+                                value={draft.keepLocal}
+                                onChange={(e) => setDraft(d => ({ ...d, keepLocal: e.target.value }))}
+                            />
+                        </label>
+                    </div>
 
-            {/* Повідомлення про результат */}
-            {saveMsg && (
-                <span style={{ fontSize: '0.85vw', color: saveMsg.startsWith('✓') ? '#7fffb0' : '#ff6b6b', whiteSpace: 'nowrap' }}>
-                    {saveMsg}
-                </span>
+                    <span className="pp-bk-hint">
+                        Шлях абсолютний (<code>E:\Backups</code>) або відносний до теки Backend
+                        (<code>config/backups</code>). Зараз пишемо в: {status?.resolvedPath || '—'}.
+                        «Тримати копій» = 0 — старі архіви не видаляти.
+                    </span>
+
+                    <span className="pp-bk-panel-title">Google Drive</span>
+
+                    <div className="pp-bk-panel-row">
+                        <label className="pp-bk-label">
+                            <input
+                                type="checkbox"
+                                className="pp-bk-check"
+                                checked={!!draft.gdriveEnabled}
+                                onChange={(e) => setDraft(d => ({ ...d, gdriveEnabled: e.target.checked }))}
+                            />
+                            Дублювати копію на Google Drive
+                        </label>
+                        <label className="pp-bk-label" style={{ flex: 1 }}>
+                            ID теки:
+                            <input
+                                className="pp-bk-input"
+                                value={draft.gdriveFolderId}
+                                placeholder="1AbC...xyz"
+                                onChange={(e) => setDraft(d => ({ ...d, gdriveFolderId: e.target.value }))}
+                            />
+                        </label>
+                        <button className="pp-bk-btn" onClick={checkDrive} disabled={busy || !draft.gdriveFolderId}>
+                            Перевірити
+                        </button>
+                        <label className="pp-bk-label">
+                            Тримати на Drive:
+                            <input
+                                type="number"
+                                min="0"
+                                className="pp-bk-num"
+                                value={draft.keepDrive}
+                                onChange={(e) => setDraft(d => ({ ...d, keepDrive: e.target.value }))}
+                            />
+                        </label>
+                    </div>
+
+                    <span className="pp-bk-hint">
+                        ID теки — це хвіст її адреси: drive.google.com/drive/folders/<b>ID</b>.
+                        {status?.driveAccount
+                            ? <> Спершу відкрийте доступ «Редактор» для сервісного акаунта <b>{status.driveAccount}</b>.</>
+                            : <> Сервісний ключ Google на сервері не налаштований — вивантаження на Drive не працюватиме.</>}
+                        {' '}«Тримати на Drive» = 0 — на Drive нічого не видаляти.
+                    </span>
+
+                    <div className="pp-bk-panel-row">
+                        <button className="pp-bk-btn pp-bk-btn--primary" onClick={handleSavePanel} disabled={saving}>
+                            {saving ? '...' : 'Зберегти налаштування'}
+                        </button>
+                        <button className="pp-bk-btn" onClick={load} disabled={saving}>Оновити</button>
+                        {state.lastStatus === 'error' && state.lastError && (
+                            <span className="pp-bk-err">Остання помилка: {state.lastError}</span>
+                        )}
+                    </div>
+
+                    {!!status?.files?.length && (
+                        <>
+                            <span className="pp-bk-panel-title">Збережені копії ({status.files.length})</span>
+                            <div className="pp-bk-files">
+                                {status.files.map(f => (
+                                    <div className="pp-bk-file" key={f.name}>
+                                        <button className="pp-bk-file-name" onClick={() => downloadBackup(f.name)}>
+                                            {f.name}
+                                        </button>
+                                        <span>{fmtSize(f.size)}</span>
+                                        <span>{fmtDate(f.mtime)}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </div>
             )}
         </div>
     );

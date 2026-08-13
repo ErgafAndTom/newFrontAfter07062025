@@ -263,6 +263,8 @@ const NewBooklet = ({
     } : materialAndDrukFront;
     const toCalcData = {
       nameOrderUnit: `${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
+      serviceCategory: "Booklet",
+      serviceName: selectedService,
       newField6: "Booklet",
       type: "Note",
       size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count,

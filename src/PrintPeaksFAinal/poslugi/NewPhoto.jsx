@@ -386,6 +386,8 @@ const NewPhoto = ({
   const handleSave = () => {
     const toCalcData = {
       nameOrderUnit: `${selectedService.toLowerCase() || ""} `,
+      serviceCategory: "Photo",
+      serviceName: selectedService,
       type: "Photo",
       selectedService: normalizeService(selectedService),
       newField1: normalizeService(selectedService),

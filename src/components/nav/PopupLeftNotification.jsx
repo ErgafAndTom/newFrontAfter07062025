@@ -97,13 +97,25 @@ const PopupLeftNotification = () => {
         const bottom = navEl ? navEl.getBoundingClientRect().bottom : 0;
         setPopupPos({ top: bottom, left: 0 });
       } else {
-        const navCenterGroup = document.querySelector('.nav-center-group');
-        if (navCenterGroup) {
-          const rect = navCenterGroup.getBoundingClientRect();
-          const popupWidth = 0.18 * window.innerWidth;
-          const left = Math.max(0, rect.right - popupWidth);
-          setPopupPos({ top: rect.bottom, left });
-        }
+        /* Прив'язка до правого краю робочої області, а не до поля пошуку:
+           раніше позиція рахувалась від .nav-center-group, і попап
+           з'їжджав далеко вліво від дзвоника. Праву панель «Пуску» (якщо
+           вона праворуч) віднімаємо — інакше попап заліз би під неї. */
+        const bellRect = bellWrapRef.current?.getBoundingClientRect();
+        const popupWidth = 0.18 * window.innerWidth;
+        const rootStyle = getComputedStyle(document.documentElement);
+        const sideW = document.body.classList.contains('pp-dockside-active')
+          && !document.body.classList.contains('pp-dockside-left')
+          ? parseFloat(rootStyle.getPropertyValue('--ppdock-sidew')) || 0
+          : 0;
+
+        const rightEdge = window.innerWidth - sideW - 8;
+        const left = Math.max(8, rightEdge - popupWidth);
+        // навбар унизу — розкриваємось угору, інакше попап пішов би за екран
+        const openUp = document.body.classList.contains('pp-nav-bottom');
+        const top = bellRect ? bellRect.bottom : 0;
+        const bottom = bellRect ? window.innerHeight - bellRect.top : 0;
+        setPopupPos({ top, left, bottom, openUp });
       }
     }
     setShow((prev) => !prev);
@@ -217,7 +229,11 @@ const PopupLeftNotification = () => {
           ref={popupRef}
           style={{
             position: 'fixed',
-            top: isMobile ? popupPos.top : popupPos.top + 32,
+            ...(isMobile
+              ? { top: popupPos.top }
+              : popupPos.openUp
+                ? { bottom: popupPos.bottom + 8 }
+                : { top: popupPos.top + 8 }),
             left: isMobile ? 0 : popupPos.left,
             width: isMobile ? '100vw' : '18vw',
             backgroundColor: 'var(--adminfonelement, #f2f0e9)',

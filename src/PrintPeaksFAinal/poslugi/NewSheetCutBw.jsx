@@ -245,6 +245,8 @@ export default function NewSheetCutBW({
         : {}),
       toCalc: {
         nameOrderUnit: selectedService || "",
+        serviceCategory: "SheetCutBw",
+        serviceName: selectedService,
         type: "SheetCutBW",
         size,
         material,

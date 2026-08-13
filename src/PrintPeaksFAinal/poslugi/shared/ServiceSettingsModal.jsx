@@ -1,6 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import axios from "../../../api/axiosInstance";
+import {
+  DEFAULT_EXTRA_SETTINGS,
+  EXTRA_SHEETS_KEY,
+  EXTRA_UNIT_DEFAULTS,
+  EXTRA_UNIT_TYPE_LABELS,
+  normalizeExtraSettings,
+} from "./zapasRules";
 import "./ServiceSettingsModal.css";
 
 const PRESET_COLORS = [
@@ -40,6 +47,146 @@ const Toggle = ({ value, onChange, label }) => (
   </div>
 );
 
+/**
+ * Висувна секція пресету. Полів у пресеті десятки, і суцільним стовпцем вони
+ * ховають одне одного — тому кожна група згорнута, а в заголовку видно
+ * коротке резюме, щоб не розкривати заради перевірки.
+ */
+const PresetGroup = ({ title, summary, open, onToggle, children }) => (
+  <div className={`ssm-group${open ? " ssm-group-open" : ""}`}>
+    <button type="button" className="ssm-group-head" onClick={onToggle}>
+      <span className="ssm-group-arrow">{open ? "▾" : "▸"}</span>
+      <span className="ssm-group-title">{title}</span>
+      {summary ? <span className="ssm-group-summary">{summary}</span> : null}
+    </button>
+    {open && <div className="ssm-group-body">{children}</div>}
+  </div>
+);
+
+/**
+ * Таблиця правил запасу: від якого до якого обсягу скільки давати понад тираж.
+ * Одиниця залежить від того, для чого правила — аркуші друку чи готові вироби.
+ */
+const ZapasRanges = ({ title, hint, unit, ranges, onChange, onEdit, onCommit }) => {
+  const [draft, setDraft] = useState({ from: "", to: "", sheets: "" });
+  const list = ranges || [];
+
+  const patchRange = (i, field, value) => {
+    const arr = [...list];
+    arr[i] = { ...arr[i], [field]: value };
+    onEdit(arr);
+  };
+
+  const numInput = (value, onValue, placeholder) => (
+    <input
+      className="ssm-preset-size-input ssm-range-input"
+      type="number"
+      placeholder={placeholder}
+      value={value ?? ""}
+      onChange={(e) => onValue(e.target.value)}
+      onBlur={onCommit}
+    />
+  );
+
+  return (
+    <div className="ssm-ranges">
+      <div className="ssm-ranges-title">{title}</div>
+      {hint && <div className="ssm-ranges-empty">{hint}</div>}
+
+      {list.length === 0 && (
+        <div className="ssm-ranges-empty">
+          Правил немає — запас доведеться вбивати вручну
+        </div>
+      )}
+
+      {list.map((r, i) => (
+        <div key={i} className="ssm-range-row">
+          <span className="ssm-range-word">від</span>
+          {numInput(r.from, (v) => patchRange(i, "from", v))}
+          <span className="ssm-range-word">до</span>
+          {numInput(r.to, (v) => patchRange(i, "to", v), "∞")}
+          <span className="ssm-range-word">{unit} →</span>
+          {numInput(r.sheets, (v) => patchRange(i, "sheets", v))}
+          <span className="ssm-range-word">{unit} запасу</span>
+          <button
+            className="ssm-delete-btn"
+            onClick={() => onChange(list.filter((_, idx) => idx !== i))}
+            title="Видалити правило"
+          >
+            &times;
+          </button>
+        </div>
+      ))}
+
+      <div className="ssm-range-row ssm-range-add">
+        <span className="ssm-range-word">від</span>
+        <input className="ssm-preset-size-input ssm-range-input" type="number"
+               value={draft.from} onChange={(e) => setDraft((d) => ({ ...d, from: e.target.value }))}/>
+        <span className="ssm-range-word">до</span>
+        <input className="ssm-preset-size-input ssm-range-input" type="number" placeholder="∞"
+               value={draft.to} onChange={(e) => setDraft((d) => ({ ...d, to: e.target.value }))}/>
+        <span className="ssm-range-word">{unit} →</span>
+        <input className="ssm-preset-size-input ssm-range-input" type="number"
+               value={draft.sheets} onChange={(e) => setDraft((d) => ({ ...d, sheets: e.target.value }))}/>
+        <span className="ssm-range-word">{unit} запасу</span>
+        <button
+          className="ssm-add-btn"
+          onClick={() => {
+            if (draft.from === "" || draft.sheets === "") {
+              alert("Вкажіть початок діапазону і кількість");
+              return;
+            }
+            onChange([...list, { ...draft }].sort((a, b) => (Number(a.from) || 0) - (Number(b.from) || 0)));
+            setDraft({ from: "", to: "", sheets: "" });
+          }}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * В яких одиницях запасає кожен тип роботи. Дефолти прописані в коді, тут
+ * лише те, що користувач вирішив зробити інакше.
+ */
+const ExtraUnitsByType = ({ unitByType, onChange }) => {
+  const [open, setOpen] = useState(false);
+  const current = (type) => unitByType?.[type] || EXTRA_UNIT_DEFAULTS[type] || "sheets";
+
+  return (
+    <div className="ssm-units">
+      <button type="button" className="ssm-units-toggle" onClick={() => setOpen((v) => !v)}>
+        {open ? "▾" : "▸"} Одиниці запасу за типами робіт
+      </button>
+      {open && (
+        <div className="ssm-units-list">
+          {EXTRA_UNIT_TYPE_LABELS.map(([type, label]) => {
+            const mode = current(type);
+            return (
+              <div key={type} className="ssm-units-row">
+                <span className="ssm-units-name">{label}</span>
+                <div className="ssm-preset-btns">
+                  {[["sheets", "аркуші"], ["items", "вироби"]].map(([value, text]) => (
+                    <button
+                      key={value}
+                      className={`ssm-preset-opt-btn${mode === value ? " ssm-opt-active" : ""}`}
+                      onClick={() => onChange({ ...(unitByType || {}), [type]: value })}
+                    >
+                      {text}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const ServiceSettingsModal = ({
   show,
   onClose,
@@ -60,6 +207,9 @@ const ServiceSettingsModal = ({
   // додатковий клас на overlay/модалку — дозволяє конкретній послузі
   // мати власне оформлення налаштувань, не чіпаючи решту
   variant,
+  // режим для калькуляторів без списку товарів (магніти, ламінація, чашки…):
+  // показуємо лише спільні налаштування браку й запасу
+  extraOnly,
 }) => {
   const [newName, setNewName] = useState("");
   const [newSizeLabel, setNewSizeLabel] = useState("");
@@ -74,6 +224,13 @@ const ServiceSettingsModal = ({
   const [orderNameDraft, setOrderNameDraft] = useState("");
   const [presetForId, setPresetForId] = useState(null);
   const [presetDraft, setPresetDraft] = useState({});
+  // які групи пресету розгорнуті; за замовчуванням усі згорнуті
+  const [openGroups, setOpenGroups] = useState({});
+  // Брак і запас — спільні для всіх товарів усіх калькуляторів, тому
+  // окрема настройка (AppSetting), а не частина пресету конкретного товару
+  const [extraSettings, setExtraSettings] = useState(DEFAULT_EXTRA_SETTINGS);
+  const [extraOpen, setExtraOpen] = useState(false);
+  const [newRange, setNewRange] = useState({ from: "", to: "", sheets: "" });
   const [materials, setMaterials] = useState([]);
   const [materialsLoading, setMaterialsLoading] = useState(false);
   const [materialDropdownOpen, setMaterialDropdownOpen] = useState(false);
@@ -188,6 +345,16 @@ const ServiceSettingsModal = ({
     loadLaminationThicknesses(presetDraft.laminationType);
   }, [presetForId, presetDraft.lamination, presetDraft.laminationType, loadLaminationThicknesses]);
 
+  // Спільні налаштування браку й запасу — вантажимо при відкритті модалки
+  useEffect(() => {
+    if (!show) return;
+    let cancelled = false;
+    axios.get(`/api/app-settings/${EXTRA_SHEETS_KEY}`)
+      .then(({ data }) => { if (!cancelled) setExtraSettings(normalizeExtraSettings(data?.value)); })
+      .catch(() => { /* ще не збережене — лишаються дефолти */ });
+    return () => { cancelled = true; };
+  }, [show]);
+
   // Завантажити матеріали коли відкривається пресет
   useEffect(() => {
     if (!presetForId) return;
@@ -242,6 +409,8 @@ const ServiceSettingsModal = ({
       laminationThickness: p.laminationThickness ?? "",
       sizes: Array.isArray(p.sizes) ? [...p.sizes] : (defaultSizes ? [...defaultSizes] : []),
     });
+    setOpenGroups({});
+    setNewRange({ from: "", to: "", sheets: "" });
   };
 
   const handleSavePreset = async (service) => {
@@ -302,20 +471,69 @@ const ServiceSettingsModal = ({
     await onRemoveService(service);
   };
 
-  const displayedServices = localServices || services;
+  const displayedServices = localServices || services || [];
   const activePresetService = displayedServices.find((s) => s.id === presetForId);
+
+  const toggleGroup = (key) => setOpenGroups((g) => ({ ...g, [key]: !g[key] }));
+
+  // Брак і запас зберігаються одразу: правила легко набити й піти,
+  // не натиснувши жодної кнопки «зберегти».
+  const persistExtra = (patch) => {
+    const next = { ...extraSettings, ...patch };
+    setExtraSettings(next);
+    axios.put(`/api/app-settings/${EXTRA_SHEETS_KEY}`, { value: next })
+      .catch((e) => console.error("[extra_sheets] не збереглось:", e?.message));
+  };
+
+  const extraTitle = [
+    extraSettings.brakEnabled ? "" : "брак вимкнено",
+    extraSettings.zapasEnabled ? "" : "запас вимкнено",
+    extraSettings.zapasRanges?.length ? `${extraSettings.zapasRanges.length} прав.` : "без правил",
+  ].filter(Boolean).join(" · ");
+
+  // Які групи взагалі мають вміст для цієї послуги
+  const hasThicknessOpt = !thicknessOptions || thicknessOptions.length > 0;
+  const hasPrintGroup = !hideSidesOption || hasThicknessOpt || !hideMaterialOption;
+  const hasFinishGroup = !extraToggles
+    || (extraToggles && extraToggles.length > 0)
+    || (customPresetSections && customPresetSections.length > 0);
+
+  // Короткі резюме в заголовках згорнутих груп
+  const sizeSummary = presetDraft.sizeX && presetDraft.sizeY
+    ? `${presetDraft.sizeX}×${presetDraft.sizeY} мм`
+    : "";
+  const printSummary = [
+    presetDraft.sides,
+    presetDraft.thickness,
+    presetDraft.materialName,
+  ].filter(Boolean).join(" · ");
+  const finishSummary = (() => {
+    const on = [];
+    if (extraToggles) extraToggles.forEach((t) => { if (presetDraft[t.key]) on.push(t.label); });
+    if (presetDraft.vishichkaType) {
+      on.push(VISHICHKA_OPTIONS.find((v) => v.value === presetDraft.vishichkaType)?.label || presetDraft.vishichkaType);
+    }
+    if (presetDraft.plivka) on.push("монт. плівка");
+    return on.join(" · ");
+  })();
+  const laminationSummary = presetDraft.lamination
+    ? [LAMINATION_OPTIONS.find((l) => l.value === presetDraft.laminationType)?.label,
+       presetDraft.laminationThickness ? `${presetDraft.laminationThickness} мкм` : ""].filter(Boolean).join(" · ") || "увімкнено"
+    : "";
 
   return ReactDOM.createPortal(
     <div className={`ssm-overlay${variant ? ` ${variant}` : ""}`} onClick={onClose}>
       <div className="ssm-modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="ssm-header">
-          <span className="ssm-header-title">Налаштування товарів</span>
+          <span className="ssm-header-title">
+            {extraOnly ? "Брак і запас" : "Налаштування товарів"}
+          </span>
           <button className="ssm-close-btn" onClick={onClose}>&times;</button>
         </div>
 
         {/* Service list */}
-        <div className="ssm-service-list">
+        {!extraOnly && <div className="ssm-service-list">
           {displayedServices.map((service, i) => (
             <div
               key={service.id}
@@ -401,10 +619,10 @@ const ServiceSettingsModal = ({
               </button>
             </div>
           ))}
-        </div>
+        </div>}
 
         {/* Order name editor (shown below service list when active) */}
-        {orderNameForId && (() => {
+        {!extraOnly && orderNameForId && (() => {
           const svc = services.find((s) => s.id === orderNameForId);
           if (!svc) return null;
           return (
@@ -429,7 +647,7 @@ const ServiceSettingsModal = ({
         })()}
 
         {/* Color picker (shown below service list when active) */}
-        {colorPickerForId && (() => {
+        {!extraOnly && colorPickerForId && (() => {
           const svc = services.find((s) => s.id === colorPickerForId);
           if (!svc) return null;
           return (
@@ -481,7 +699,7 @@ const ServiceSettingsModal = ({
         })()}
 
         {/* Add new */}
-        <div className="ssm-add-row">
+        {!extraOnly && <div className="ssm-add-row">
           <input
             className="ssm-add-input"
             placeholder="Нова назва товару..."
@@ -490,16 +708,84 @@ const ServiceSettingsModal = ({
             onKeyDown={(e) => e.key === "Enter" && handleAdd()}
           />
           <button className="ssm-add-btn" onClick={handleAdd}>+</button>
+        </div>}
+
+        {/* Брак і запас — спільні для всіх товарів, не для окремої назви */}
+        <div className="ssm-global-section">
+          <PresetGroup
+            title={extraOnly ? "Брак і запас" : "Брак і запас — для всіх товарів"}
+            summary={extraTitle}
+            open={extraOnly || extraOpen}
+            onToggle={() => setExtraOpen((v) => !v)}
+          >
+            <div className="ssm-preset-hint">
+              Ці вироби не входять у вартість замовлення, але враховуються в собівартість:
+              на 2 зайві блокноти піде і папір, і друк, і пружини.
+              Налаштування спільні для всіх товарів і всіх калькуляторів.
+            </div>
+
+            <div className="ssm-preset-field">
+              <span className="ssm-preset-label">Брак:</span>
+              <Toggle
+                value={extraSettings.brakEnabled}
+                onChange={(v) => persistExtra({ brakEnabled: v })}
+                label="показувати в замовленні"
+              />
+            </div>
+
+            <div className="ssm-preset-field">
+              <span className="ssm-preset-label">Запас:</span>
+              <Toggle
+                value={extraSettings.zapasEnabled}
+                onChange={(v) => persistExtra({ zapasEnabled: v })}
+                label="показувати в замовленні"
+              />
+            </div>
+
+            {extraSettings.zapasEnabled && (
+              <>
+                <ZapasRanges
+                  title="Друк, постпрес, послуги — запас в АРКУШАХ"
+                  hint="аркуші проходять весь ланцюжок: друк, ламінація, різка"
+                  unit="арк"
+                  ranges={extraSettings.zapasRanges}
+                  onChange={(next) => persistExtra({ zapasRanges: next })}
+                  onEdit={(next) => setExtraSettings((s) => ({ ...s, zapasRanges: next }))}
+                  onCommit={() => persistExtra({})}
+                />
+                <ZapasRanges
+                  title="Товари — запас у ВИРОБАХ"
+                  hint="на зайвий виріб іде й поштучне: пружини, чашки, магніти"
+                  unit="шт"
+                  ranges={extraSettings.zapasRangesItems}
+                  onChange={(next) => persistExtra({ zapasRangesItems: next })}
+                  onEdit={(next) => setExtraSettings((s) => ({ ...s, zapasRangesItems: next }))}
+                  onCommit={() => persistExtra({})}
+                />
+              </>
+            )}
+
+            <ExtraUnitsByType
+              unitByType={extraSettings.unitByType}
+              onChange={(next) => persistExtra({ unitByType: next })}
+            />
+          </PresetGroup>
         </div>
 
         {/* Preset config panel */}
-        {activePresetService && (
+        {!extraOnly && activePresetService && (
           <div className="ssm-preset-panel">
             <div className="ssm-preset-title">
               Пресет для "{activePresetService.name}"
             </div>
 
             {/* Size */}
+            <PresetGroup
+              title="Розмір"
+              summary={sizeSummary}
+              open={!!openGroups.size}
+              onToggle={() => toggleGroup("size")}
+            >
             <div className="ssm-preset-field">
               <span className="ssm-preset-label">Розмір:</span>
               <div className="ssm-preset-size-inputs">
@@ -608,7 +894,16 @@ const ServiceSettingsModal = ({
                 </div>
               </div>
             )}
+            </PresetGroup>
 
+            {/* Друк і матеріал */}
+            {hasPrintGroup && (
+            <PresetGroup
+              title="Друк і матеріал"
+              summary={printSummary}
+              open={!!openGroups.print}
+              onToggle={() => toggleGroup("print")}
+            >
             {/* Sides */}
             {!hideSidesOption && <div className="ssm-preset-field">
               <span className="ssm-preset-label">Сторонність:</span>
@@ -718,7 +1013,17 @@ const ServiceSettingsModal = ({
             </div>
 
             </React.Fragment>}
+            </PresetGroup>
+            )}
 
+            {/* Постобробка */}
+            {hasFinishGroup && (
+            <PresetGroup
+              title="Постобробка"
+              summary={finishSummary}
+              open={!!openGroups.finish}
+              onToggle={() => toggleGroup("finish")}
+            >
             {/* Vishichka type — тільки для Vishichka */}
             {!extraToggles && (
               <>
@@ -940,7 +1245,17 @@ const ServiceSettingsModal = ({
                 )}
               </div>
             ))}
+            </PresetGroup>
+            )}
 
+            {/* Ламінація */}
+            {!hideLaminationOption && (
+            <PresetGroup
+              title="Ламінація"
+              summary={laminationSummary}
+              open={!!openGroups.lamination}
+              onToggle={() => toggleGroup("lamination")}
+            >
             {/* Lamination — toggle + вибір типу */}
             {!hideLaminationOption && <div className="ssm-preset-field">
               <span className="ssm-preset-label">Ламінація:</span>
@@ -1013,6 +1328,9 @@ const ServiceSettingsModal = ({
                 </div>
               </div>
             )}
+            </PresetGroup>
+            )}
+
 
             {/* Save / Clear */}
             <button

@@ -31,7 +31,9 @@
 /* Правий кут: три рядки — зміна / аккаунт / права — одразу справа від
    кнопки «Вихід», разом заввишки як сам рядок кнопок навбару. */
 .nav-user-corner {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
   height: var(--nav-h);
   min-height: var(--nav-min-h);
   /* правий відступ = той самий var(--jt-pad) (18px), що й у блока
@@ -1369,8 +1371,9 @@
    (клік у поле) розгортається на повну ширину і знову згортається,
    щойно фокус піде. */
 .nav-search-slot {
+  flex: 0 1 auto;
   width: calc(var(--nui-center-col-width, 25vw) / 3);
-  min-width: 130px;
+  min-width: 90px;
   transition: width 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -1396,13 +1399,23 @@
 /* Висота — рівно як у кнопки «Нове замовлення» (.buttonSkewedOrder),
    тими самими змінними; align-self: stretch тут не можна — аватар з
    aspect-ratio розтягнув би весь рядок навбару. */
+/* Висота — НЕ фіксована: ім'я клієнта набране на 7px більше за решту,
+   і два рядки картки разом виходили вищими за --nav-h (на Full HD це
+   ~41px проти 37.8px) — телефон обрізало знизу. Тепер рядок може
+   підрости під вміст, а квадратні аватари тримає max-height нижче,
+   інакше вони б розтягли навбар за собою. */
+/* Стискається першим: коли рядка не вистачає (Full HD + права панель),
+   переповнення виштовхувало за екран останній елемент — дзвоник
+   сповіщень. Тепер зайве з'їдає блок клієнта, а правий край цілий. */
 .nav-order-head {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
   display: flex;
-  align-items: stretch;
+  align-items: center;
   gap: 14px;
-  height: var(--nav-h, 3.5vh);
-  min-height: var(--nav-min-h, 36px);
+  height: auto;
+  min-height: max(var(--nav-h, 3.5vh), var(--nav-min-h, 36px));
   margin: 1rem 0 0.5rem 18px;
   box-sizing: border-box;
 }
@@ -1414,9 +1427,9 @@
 
 /* сама візитівка */
 .nav-client-card {
-  height: 100%;
+  height: auto;
   display: flex;
-  align-items: stretch;
+  align-items: center;
   gap: 10px;
   font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
   color: var(--admingrey, #666);
@@ -1428,7 +1441,8 @@
 .nav-client-avatar {
   position: relative;
   flex: 0 0 auto;
-  height: 100%;
+  align-self: center;
+  height: max(var(--nav-h, 3.5vh), var(--nav-min-h, 36px));
   aspect-ratio: 1 / 1;
   display: flex;
   cursor: pointer;
@@ -1476,7 +1490,7 @@
 }
 
 .nav-client-name {
-  max-width: 16vw;
+  max-width: calc(16 * var(--pp-vw-unit, 1vw));
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: var(--font-size-s, 0.85rem);
@@ -1490,7 +1504,7 @@
   display: flex;
   align-items: baseline;
   gap: 10px;
-  max-width: 20vw;
+  max-width: calc(20 * var(--pp-vw-unit, 1vw));
   overflow: hidden;
   font-size: var(--font-size-s, 0.85rem);
   line-height: 1.15;
@@ -1545,8 +1559,8 @@
 .nav-company-avatar {
   position: relative;
   flex: 0 0 auto;
-  align-self: stretch;
-  height: 100%;
+  align-self: center;
+  height: max(var(--nav-h, 3.5vh), var(--nav-min-h, 36px));
   aspect-ratio: 1 / 1;
   display: flex;
   margin-right: 10px;
@@ -1614,11 +1628,16 @@
 }
 
 /* Дії з клієнтом — тим самим рядком, плаский стиль .ppButton */
+/* Висота — вдвічі більша за рядок навбару. Задана явно, а не через
+   height:100%: батьківська картка тепер тягнеться по вмісту (див.
+   .nav-order-head), і від неї відсотки нема від чого рахувати. */
 .nav-client-actions {
   display: flex;
   align-items: stretch;
+  align-self: center;
   gap: 0;
-  height: 100%;
+  height: max(var(--nav-h, 3.5vh), var(--nav-min-h, 36px));
+  min-width: 0;
 }
 
 /* Ті самі метрики, що в «Нове замовлення» (.buttonSkewedOrder), і та
@@ -1798,4 +1817,95 @@
    й компанією) — тут лишається тільки колір */
 .nav-order-badge-date {
   color: #000;
+}
+
+/* ==========================================================================
+   Навбар знизу.
+
+   Кнопка-стрілка біля дзвоника перекидає рядок навбару вниз: він стає
+   fixed і стає над «Пуском» (--ppdock-h), а body отримує відступ на його
+   висоту (--pp-nav-h), щоб контент нічого не втратив. Клас на <body>
+   читає ще й вікно вибору клієнта — воно теж переїжджає вниз.
+   ========================================================================== */
+
+.nav-move-btn {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: color-mix(in srgb, var(--admingrey, #666) 55%, transparent);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.nav-move-btn:hover { color: var(--admingrey, #666); }
+
+.nav-move-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* дзвоник і стрілка стоять поруч */
+.nav-notify-corner { display: flex; gap: 4px; }
+
+body.pp-nav-bottom .nav-bar-row {
+  position: fixed;
+  left: 0;
+  right: 0;
+  /* базове width:100% лишає розкладку «переобумовленою» (left + width +
+     right ≠ ширина вікна) — браузер тоді ігнорує right, і зсув на ширину
+     бічної панелі не звужував навбар, а виштовхував його за край екрана */
+  width: auto;
+  bottom: var(--ppdock-h, 0px);
+  z-index: 3500;
+  background: var(--adminfon, #f7f5ee);
+  border-top: 1px solid color-mix(in srgb, var(--admingrey, #666) 18%, transparent);
+  box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.08);
+}
+
+/* права панель «Пуску» звужує робочу область — навбар не має під неї лізти */
+body.pp-nav-bottom.pp-dockside-active .nav-bar-row { right: var(--ppdock-sidew, 0px); }
+body.pp-nav-bottom.pp-dockside-active.pp-dockside-left .nav-bar-row {
+  right: 0;
+  left: var(--ppdock-sidew, 0px);
+}
+
+/* місце під навбар: сумуємо з відступом, який уже тримає «Пуск» */
+body.pp-nav-bottom { padding-bottom: var(--pp-nav-h, 0px); }
+body.pp-nav-bottom.pp-dock-active {
+  padding-bottom: calc(var(--ppdock-h, 0px) + var(--pp-nav-h, 0px));
+}
+body.pp-nav-bottom.pp-dock-active.pp-dock-top {
+  padding-bottom: var(--pp-nav-h, 0px);
+}
+
+:root[data-theme="light"] body.pp-nav-bottom .nav-bar-row {
+  background: #ffffff;
+}
+
+/* On a job ticket the header search controls the visible client files. */
+.nav-search-slot:has(.nav-search-wrap.is-file-search) {
+  width: min(290px, calc(var(--nui-center-col-width, 25vw) * 0.72));
+  min-width: 190px;
+}
+
+.nav-search-slot:has(.nav-search-wrap.is-file-search):focus-within {
+  width: min(360px, calc(var(--nui-center-col-width, 25vw) * 0.9));
+}
+
+.nav-search-wrap.is-file-search .buttonSkewedSearch {
+  padding-left: 0.7rem !important;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 0.85rem);
+  font-weight: 400;
 }

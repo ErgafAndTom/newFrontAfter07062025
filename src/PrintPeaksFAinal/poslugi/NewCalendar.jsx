@@ -24,6 +24,7 @@ import NewNoModalLyuversy from "./newnomodals/NewNoModalLyuversy";
 import NewNoModalProkleyka from "./newnomodals/NewNoModalProkleyka";
 
 import "./NewSheetCutV2.css";
+import ExtraSheetsButton from "./shared/ExtraSheetsButton";
 
 /* ============================================================
    ТИПИ КАЛЕНДАРІВ
@@ -1151,6 +1152,7 @@ const NewCalendar = ({
             </span>
             <div className="v2-head-spec">{headSpec}</div>
           </div>
+          <ExtraSheetsButton />
           <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
             &times;
           </button>

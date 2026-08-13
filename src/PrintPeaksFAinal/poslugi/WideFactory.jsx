@@ -317,6 +317,8 @@ const WideFactory = ({
 
     const toCalc = {
       nameOrderUnit: selectedService ? `${selectedService.toLowerCase()} ` : "",
+      serviceCategory: "WideFactory",
+      serviceName: selectedService,
       type: "WideFactory",
       newField6: "WideFactory",
       size,

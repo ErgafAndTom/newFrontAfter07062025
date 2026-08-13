@@ -563,3 +563,104 @@
 .cоm-overlay *,
 .cоm-overlay *::before,
 .cоm-overlay *::after { box-sizing: border-box; }
+
+/* ── Видалення компанії (тільки admin) ──
+   Кнопка стоїть у шапці секції клієнтів поруч із «Додати клієнта»,
+   підтвердження — окреме вікно в тому ж плаcкому стилі, що й решта
+   діалогів проєкту: кромка зліва, «штамп» насувається зліва направо. */
+
+.cоm-rect-btn--danger {
+  border-color: var(--adminred, #ee3c23);
+  color: var(--adminred, #ee3c23);
+}
+
+.cpm-confirm {
+  width: min(94%, 460px);
+  margin: auto;
+  background: var(--adminfon, #f7f5ee);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  color: var(--admingrey, #666);
+  display: flex;
+  flex-direction: column;
+}
+
+.cpm-confirm-head {
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.cpm-confirm-title {
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+}
+
+.cpm-confirm-sub {
+  margin-top: 6px;
+  font-size: var(--fontsmall, 15px);
+  opacity: 0.7;
+  word-break: break-word;
+}
+
+.cpm-confirm-err {
+  padding: 10px 18px;
+  border-left: 3px solid var(--adminred, #ee3c23);
+  background: color-mix(in srgb, var(--adminred, #ee3c23) 8%, transparent);
+  color: var(--adminred, #ee3c23);
+  font-size: var(--font-size-s, 0.85rem);
+  line-height: 1.35;
+}
+
+.cpm-confirm-actions {
+  display: flex;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.cpm-confirm-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  flex: 1 1 auto;
+  padding: 12px 16px;
+  border: none;
+  border-left: 3px solid #000;
+  border-radius: 0;
+  background: var(--adminfon, #f7f5ee);
+  color: var(--admingrey, #666);
+  font-family: inherit;
+  font-size: var(--font-size-s, 0.85rem);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.32s ease;
+}
+
+.cpm-confirm-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #000;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: 0;
+}
+
+.cpm-confirm-btn > * { position: relative; z-index: 1; }
+.cpm-confirm-btn:not(:disabled):hover::before { transform: scaleX(1); }
+.cpm-confirm-btn:not(:disabled):hover { color: #fff; }
+.cpm-confirm-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.cpm-confirm-btn--danger { border-left-color: var(--adminred, #ee3c23); }
+.cpm-confirm-btn--danger::before { background: var(--adminred, #ee3c23); }
+
+:root[data-theme="light"] .cpm-confirm,
+:root[data-theme="light"] .cpm-confirm-btn {
+  background: #ffffff;
+  color: #000000;
+}
+
+:root[data-theme="light"] .cpm-confirm-btn:not(:disabled):hover { color: #ffffff; }
+
+:root[data-theme="dark"] .cpm-confirm-btn::before,
+:root[data-theme="dark"] .cpm-confirm-btn--danger::before { background: #ffffff; }
+:root[data-theme="dark"] .cpm-confirm-btn:not(:disabled):hover { color: #000000; }

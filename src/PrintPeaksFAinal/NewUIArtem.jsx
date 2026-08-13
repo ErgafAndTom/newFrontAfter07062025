@@ -67,6 +67,8 @@ import UklonDelivery from "./userInNewUiArtem/UklonDelivery";
 import UklonMap from "./userInNewUiArtem/UklonMap";
 import NewSheetCutBW from "./poslugi/NewSheetCutBw";
 import QuantumErrorBoundary from "../QuantumErrorBoundary";
+import OrderItemExtraSheets from "./OrderItemExtraSheets";
+import { DEFAULT_EXTRA_SETTINGS, normalizeExtraSettings } from "./poslugi/shared/zapasRules";
 
 const NewUIArtem = () => {
   const navigate = useNavigate();
@@ -108,6 +110,18 @@ const NewUIArtem = () => {
   // …і слот у шапці навбара (#nui-jt-barcode-slot з NavOrderHead.jsx),
   // куди їде штрих-код наряду — лівіше номера замовлення.
   const [barcodeSlotEl, setBarcodeSlotEl] = useState(null);
+  const [workspaceSwapped, setWorkspaceSwapped] = useState(() => {
+    try { return localStorage.getItem('nui_workspace_swapped') === '1'; } catch { return false; }
+  });
+
+  const toggleWorkspaceSwap = useCallback(() => {
+    setWorkspaceSwapped((current) => {
+      const next = !current;
+      try { localStorage.setItem('nui_workspace_swapped', next ? '1' : '0'); } catch {}
+      return next;
+    });
+  }, []);
+
 
   // Одного пошуку при монтуванні мало: слот штрих-коду живе всередині
   // NavOrderHead, а той з'являється (і перемонтовується) вже після цієї
@@ -321,6 +335,26 @@ const NewUIArtem = () => {
     return () => window.removeEventListener('toggle-uklon', handler);
   }, []);
 
+  // Брак і запас: налаштування спільні для всіх товарів і калькуляторів,
+  // тому одна настройка на систему, а не пресет кожного ServiceTab.
+  const [extraSettings, setExtraSettings] = useState(DEFAULT_EXTRA_SETTINGS);
+  useEffect(() => {
+    let cancelled = false;
+    axios.get('/api/app-settings/extra_sheets')
+      .then(({ data }) => { if (!cancelled) setExtraSettings(normalizeExtraSettings(data?.value)); })
+      .catch(() => { /* налаштування ще не збережене — лишаються дефолти */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Позиція перерахувалась після зміни браку/прозапасу — оновити її в списку.
+  // Ціна не змінюється (ці аркуші лише в собівартості), тому чіпаємо лише її.
+  const handleExtraSheetsSaved = useCallback((updatedUnit) => {
+    if (!updatedUnit?.idKey) return;
+    setSelectedThings2((prev) => prev.map((u) => (
+      u.idKey === updatedUnit.idKey ? { ...u, ...updatedUnit } : u
+    )));
+  }, []);
+
   // Відновлення карти Uklon з даних замовлення
   const uklonRestoreRef = useRef(false); // Блокує повторне відновлення після симуляції
   useEffect(() => {
@@ -478,30 +512,30 @@ const NewUIArtem = () => {
   const [expandedThingIndex, setExpandedThingIndex] = useState(null);
   // ✅ Єдина мапа типів -> модалка (УЗГОДЖЕНО з беком: newField6 = toCalc.type)
   const EDITORS = [
-    { value: "SheetCutBW", label: "BLACK & WHITE", open: () => setShowNewSheetCutBW(true) },
-    { value: "DigitalPrintWide", label: "DIGITAL PRINT WIDE", open: () => setShowDigitalPrintWide(true) },
-    { value: "SheetCut", label: "DIGITAL PRINT", open: () => setShowNewSheetCutV2(true) },
+    { value: "SheetCutBW", label: "\u0427/\u0411 \u0414\u0420\u0423\u041a", open: () => setShowNewSheetCutBW(true) },
+    { value: "DigitalPrintWide", label: "\u0428\u0418\u0420\u041e\u041a\u0418\u0419 \u0414\u0420\u0423\u041a", open: () => setShowDigitalPrintWide(true) },
+    { value: "SheetCut", label: "\u0426\u0418\u0424\u0420\u041e\u0412\u0418\u0419 \u0414\u0420\u0423\u041a", open: () => setShowNewSheetCutV2(true) },
 
-    { value: "Vishichka", label: "PLOTTER CUT", open: () => setShowVishichka(true) },
-    { value: "Photo", label: "PHOTO", open: () => setShowNewPhoto(true) },
+    { value: "Vishichka", label: "\u041f\u041b\u041e\u0422\u0415\u0420\u041d\u0410 \u041f\u041e\u0420\u0406\u0417\u041a\u0410", open: () => setShowVishichka(true) },
+    { value: "Photo", label: "\u0424\u041e\u0422\u041e\u0414\u0420\u0423\u041a", open: () => setShowNewPhoto(true) },
 
-    { value: "Wide", label: "WIDE PHOTO", open: () => setShowNewWide(true) },
-    { value: "WideFactory", label: "WIDE FACTORY", open: () => setShowWideFactory(true) },
+    { value: "Wide", label: "\u0428\u0418\u0420\u041e\u041a\u0415 \u0424\u041e\u0422\u041e", open: () => setShowNewWide(true) },
+    { value: "WideFactory", label: "\u0428\u0418\u0420\u041e\u041a\u0418\u0419 \u0426\u0415\u0425", open: () => setShowWideFactory(true) },
 
-    { value: "BigOvshik", label: "POSTPRESS", open: () => setShowBigOvshik(true) },
-    { value: "PerepletMet", label: "BINDING", open: () => setShowPerepletMet(true) },
+    { value: "BigOvshik", label: "\u041f\u041e\u0421\u0422\u041f\u0420\u0415\u0421", open: () => setShowBigOvshik(true) },
+    { value: "PerepletMet", label: "\u041f\u0415\u0420\u0415\u041f\u041b\u0406\u0422", open: () => setShowPerepletMet(true) },
 
-    { value: "Laminator", label: "LAMINATION", open: () => setShowLaminator(true) },
-    { value: "Calendar", label: "CALENDAR", open: () => setShowNewCalendar(true) },
-    { value: "Diplom", label: "DIPLOM", open: () => setShowNewDiplom(true) },
-    { value: "Folder", label: "FOLDER", open: () => setShowNewFolder(true) },
-    { value: "Note", label: "NOTE", open: () => setShowNewNote(true) },
-    { value: "Booklet", label: "BOOKLET", open: () => setShowNewBooklet(true) },
+    { value: "Laminator", label: "\u041b\u0410\u041c\u0406\u041d\u0410\u0426\u0406\u042f", open: () => setShowLaminator(true) },
+    { value: "Calendar", label: "\u041a\u0410\u041b\u0415\u041d\u0414\u0410\u0420\u0406", open: () => setShowNewCalendar(true) },
+    { value: "Diplom", label: "\u0414\u0418\u041f\u041b\u041e\u041c\u0418", open: () => setShowNewDiplom(true) },
+    { value: "Folder", label: "\u041f\u0410\u041f\u041a\u0418", open: () => setShowNewFolder(true) },
+    { value: "Note", label: "\u0411\u041b\u041e\u041a\u041d\u041e\u0422\u0418", open: () => setShowNewNote(true) },
+    { value: "Booklet", label: "\u0411\u0423\u041a\u041b\u0415\u0422\u0418", open: () => setShowNewBooklet(true) },
 
-    { value: "Cup", label: "MUG", open: () => setShowNewCup(true) },
-    { value: "Magnets", label: "MAGNETS", open: () => setShowNewMagnets(true) },
-    { value: "Scans", label: "SCANS", open: () => setShowNewScans(true) },
-    { value: "Delivery", label: "DELIVERY", open: () => setShowDelivery(true) },
+    { value: "Cup", label: "\u0427\u0410\u0428\u041a\u0418", open: () => setShowNewCup(true) },
+    { value: "Magnets", label: "\u041c\u0410\u0413\u041d\u0406\u0422\u0418", open: () => setShowNewMagnets(true) },
+    { value: "Scans", label: "\u0421\u041a\u0410\u041d\u0423\u0412\u0410\u041d\u041d\u042f", open: () => setShowNewScans(true) },
+    { value: "Delivery", label: "\u0414\u041e\u0421\u0422\u0410\u0412\u041a\u0410", open: () => setShowDelivery(true) },
   ];
   // Відкриття модалки позиції ззовні — стек «Позиції» в панелі швидкого
   // доступу (PPDock) шле 'pp-open-order-editor' з detail.value з EDITORS.
@@ -571,8 +605,13 @@ const NewUIArtem = () => {
   };
 
   const getEditorByThing = (thing) => {
-    const t = getOrderUnitType(thing);
-    return EDITORS.find((e) => e.value === t) || null;
+    const raw = String(getOrderUnitType(thing) || '').trim();
+    const type = TYPE_ALIASES[raw] || raw;
+    const normalized = type.toLocaleLowerCase('en');
+    return EDITORS.find((editor) => (
+      editor.value.toLocaleLowerCase('en') === normalized
+      || editor.label.toLocaleLowerCase('en') === normalized
+    )) || null;
   };
 
   const getPluralForm = (value, one, few, many) => {
@@ -711,7 +750,15 @@ const NewUIArtem = () => {
       }
     };
     window.addEventListener('orderUserAssigned', handleUserAssigned);
-    return () => window.removeEventListener('orderUserAssigned', handleUserAssigned);
+    /* Те саме, але з шапки навбару (NavOrderHead — кнопка «Змінити»):
+       зміна клієнта перераховує знижку й усі ціни на сервері, а сторінка
+       про це не знала — на екрані лишалась знижка попереднього клієнта,
+       поки не перезавантажиш наряд. */
+    window.addEventListener('pp-order-updated', handleUserAssigned);
+    return () => {
+      window.removeEventListener('orderUserAssigned', handleUserAssigned);
+      window.removeEventListener('pp-order-updated', handleUserAssigned);
+    };
   }, [id]);
 
   useEffect(() => {
@@ -866,7 +913,7 @@ const NewUIArtem = () => {
 
         <div
           ref={gridRef}
-          className={`d-flex nui-jt-grid ${serviceToneClass}${hasOrders ? "" : " no-orders"}`}
+          className={`d-flex nui-jt-grid ${serviceToneClass}${hasOrders ? "" : " no-orders"}${workspaceSwapped ? " is-workspace-swapped" : ""}`}
           style={{ background: 'transparent' }}
         >
 
@@ -913,6 +960,8 @@ const NewUIArtem = () => {
                     companyId={thisOrder.client?.Company?.id}
                     companyName={thisOrder.client?.Company?.companyName || ''}
                     orderId={thisOrder?.id}
+                    workspaceSwapped={workspaceSwapped}
+                    onToggleWorkspaceSwap={toggleWorkspaceSwap}
                   />
                 ) : null}
               </div>
@@ -1179,6 +1228,7 @@ const NewUIArtem = () => {
                       className={`nui-order-item ${orderToneClass} ${editorAccentClass}${expandedThingIndex === index ? " is-expanded" : ""}`}
                       onClick={() => toggleExpandedThing(index)}
                     >
+                      <div className="nui-item-body">
                       <div className="nui-item-header">
                         <div className={`nui-item-name${isNameParagraph ? ' is-paragraph' : ''}`} style={!isCancelledOrder ? { color: 'var(--admingrey)' } : undefined}>
                           {String(formattedName).split(/(²)/).map((part, i) =>
@@ -1193,15 +1243,11 @@ const NewUIArtem = () => {
                       <div className="nui-price-row">
                         <span className="nui-price-left">{thing.amount}<span className="nui-unit-sub">шт</span>{" х "}{unitPrice}<span className="nui-unit-sub">грн</span>{" = "}</span>
                         <span className={`nui-price-total${hasDiscount ? ' nui-price-total--discount' : ''}`}>{parseFloat(totalPrice)}<span className="nui-price-total-unit">грн</span></span>
-                        <button
-                          type="button"
-                          className={`nui-item-type-btn ${editorAccentClass}`}
-                          onClick={(e) => { e.stopPropagation(); openEditor(thing, e); }}
-                          title={editorLabel}
-                        >
-                          <span className="nui-type-icon">✎</span>
-                          <span className="nui-type-label">{editorLabel}</span>
-                        </button>
+                        <OrderItemExtraSheets
+                          thing={thing}
+                          settings={extraSettings}
+                          onSaved={handleExtraSheetsSaved}
+                        />
                       </div>
 
                       {expandedThingIndex === index && (
@@ -1228,6 +1274,17 @@ const NewUIArtem = () => {
                           </div>
                         </div>
                       )}
+                      </div>
+
+                      {/* тип роботи — вертикальною смугою вздовж правого краю позиції */}
+                      <button
+                        type="button"
+                        className={`nui-item-type-btn nui-item-type-side ${editorAccentClass}`}
+                        onClick={(e) => { e.stopPropagation(); openEditor(thing, e); }}
+                        title={editorLabel}
+                      >
+                        <span className="nui-type-label">{editorLabel}</span>
+                      </button>
                     </div>
                   );
                 })}

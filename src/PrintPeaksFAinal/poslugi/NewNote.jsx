@@ -250,6 +250,8 @@ const NewNote = ({
   const handleSave = () => {
     const toCalcData = {
       nameOrderUnit: `${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
+      serviceCategory: "Note",
+      serviceName: selectedService,
       type: "Note",
       size, material, color, lamination, big, cute, cuteLocal, holes, holesR, count,
       pereplet, materialAndDrukFront, materialAndDrukInBody, materialAndDrukBack,

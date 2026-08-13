@@ -309,6 +309,10 @@ const NewSheetCutV2 = ({
       toCalc: {
         nameOrderUnit: `${orderUnitName.toLowerCase() ? orderUnitName.toLowerCase() + " " : ""}`,
         type: "SheetCut",
+        // з якого товару створена позиція — щоб список замовлення знав її
+        // налаштування (брак/прозапас) навіть за кастомної назви замовлення
+        serviceCategory: "SheetCut",
+        serviceName: selectedService,
         size, material, color, lamination,
         big, cute, cuteLocal, prokleyka, lyuversy, design,
         holes, holesR, count, porizka,

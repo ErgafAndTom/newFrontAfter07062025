@@ -275,6 +275,30 @@
   color: #fff;
 }
 
+/* Шестерінка в шапці — для калькуляторів без стрічки виробів: там немає
+   .v2-settings-btn, а до налаштувань браку й запасу треба якось дійти */
+.v2-head-settings-btn {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  margin: 12px 8px 0 0;
+  border: none;
+  background: var(--v2-tile);
+  color: var(--v2-ink);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+}
+
+.v2-head-settings-btn:hover {
+  background: var(--v2-active-bg, var(--adminlightgreen, #e2f2eb));
+  color: var(--v2-active-fg, var(--admingreen, #0e935b));
+}
+
 .v2-head-title {
   display: block;
   font-family: var(--v2-font);

@@ -229,6 +229,8 @@ const NewWide = ({
 
     const toCalc = {
       nameOrderUnit: selectedService ? `${selectedService.toLowerCase()} ` : "",
+      serviceCategory: "Wide",
+      serviceName: selectedService,
       type: "Wide",
       size,
       material,

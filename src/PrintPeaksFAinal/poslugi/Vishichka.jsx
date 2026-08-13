@@ -538,6 +538,8 @@ const Vishichka = ({
       orderId: thisOrder?.id,
       toCalc: {
         nameOrderUnit,
+        serviceCategory: "Vishichka",
+        serviceName: selectedService,
         type: "Vishichka",
         size,
         material,

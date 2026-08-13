@@ -63,7 +63,14 @@ function ModalDeleteOrder({
       }
     } catch (err) {
       setLoad(false);
-      setError(err?.response?.data?.message || err.message || 'Помилка видалення');
+      // сервер пояснює причину відмови в `error` (напр. на контрагента
+      // виписані рахунки) — без цього лишалось «Request failed with status code 500»
+      setError(
+        err?.response?.data?.error
+        || err?.response?.data?.message
+        || err.message
+        || 'Помилка видалення'
+      );
     }
   }, [thisOrderForDelete, setData, setShowDeleteOrderModal, setThisOrderForDelete, url]);
 

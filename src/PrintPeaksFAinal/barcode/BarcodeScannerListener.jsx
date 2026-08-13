@@ -71,6 +71,13 @@ export default function BarcodeScannerListener() {
   useEffect(() => {
     const handleKeyDown = (e) => {
       const now = Date.now();
+      const focusedElement = document.activeElement;
+      if (focusedElement?.dataset?.barcodeIgnore === "true") {
+        bufferRef.current = "";
+        lastKeyTimeRef.current = 0;
+        return;
+      }
+
       const gap = now - lastKeyTimeRef.current;
       const inputFocused = isInputFocused();
 

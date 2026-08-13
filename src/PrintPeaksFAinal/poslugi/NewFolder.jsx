@@ -205,6 +205,8 @@ export default function NewFolder({
           : {}),
         toCalc: {
           nameOrderUnit: selectedService || "Папка",
+          serviceCategory: "Folder",
+          serviceName: selectedService,
           type: "Folder",
           size,
           color,

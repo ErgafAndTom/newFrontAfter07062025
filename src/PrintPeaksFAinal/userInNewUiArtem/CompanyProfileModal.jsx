@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from "../../api/axiosInstance";
 import TelegramAvatar from "../Messages/TelegramAvatar";
@@ -147,7 +148,14 @@ function AttachUserModal({ companyId, onClose, onAttached }) {
 
 /* ── Головний компонент ── */
 export default function CompanyProfileModal({ companyId, onClose, onCompanyUpdated }) {
+  const currentUser = useSelector((state) => state.auth.user);
+  const isAdmin = currentUser?.role === 'admin';
+
   const [company, setCompany] = useState(null);
+  // видалення компанії — тільки для адміна
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const [users, setUsers] = useState([]);
@@ -242,8 +250,57 @@ export default function CompanyProfileModal({ companyId, onClose, onCompanyUpdat
     ? parseInt(String(company.discount ?? "0").replace(/\D/g, ""), 10) || 0
     : 0;
 
+  /* Видалення компанії. Сервер відмовляє, якщо на компанії ще висять
+     клієнти, контрагенти або файли, і пояснює причину — показуємо її
+     просто у вікні підтвердження. */
+  const deleteCompany = async () => {
+    setDeleteBusy(true);
+    setDeleteError(null);
+    try {
+      await axios.delete(`/api/company/${companyId}`);
+      setConfirmDelete(false);
+      onCompanyUpdated?.(null);
+      onClose?.();
+    } catch (e) {
+      setDeleteError(
+        e?.response?.data?.error || e?.message || 'Не вдалося видалити компанію'
+      );
+    } finally {
+      setDeleteBusy(false);
+    }
+  };
+
   return (
     <>
+    {confirmDelete && (
+      <div className="cоm-overlay" style={{ zIndex: 10700 }} onClick={() => !deleteBusy && setConfirmDelete(false)}>
+        <div className="cpm-confirm" onClick={(e) => e.stopPropagation()} role="dialog">
+          <div className="cpm-confirm-head">
+            <div className="cpm-confirm-title">Видалити компанію?</div>
+            <div className="cpm-confirm-sub">{company?.companyName || `№${companyId}`}</div>
+          </div>
+          {deleteError && <div className="cpm-confirm-err">{deleteError}</div>}
+          <div className="cpm-confirm-actions">
+            <button
+              type="button"
+              className="cpm-confirm-btn"
+              onClick={() => setConfirmDelete(false)}
+              disabled={deleteBusy}
+            >
+              <span>Скасувати</span>
+            </button>
+            <button
+              type="button"
+              className="cpm-confirm-btn cpm-confirm-btn--danger"
+              onClick={deleteCompany}
+              disabled={deleteBusy}
+            >
+              <span>{deleteBusy ? 'Видалення…' : 'Видалити'}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     {showAttach && (
       <AttachUserModal
         companyId={companyId}
@@ -319,6 +376,15 @@ export default function CompanyProfileModal({ companyId, onClose, onCompanyUpdat
               <button className="cоm-rect-btn" onClick={() => setShowAttach(true)}>
                 <span className="cоm-rect-btn-text">Додати клієнта</span>
               </button>
+              {isAdmin && (
+                <button
+                  className="cоm-rect-btn cоm-rect-btn--danger"
+                  onClick={() => { setDeleteError(null); setConfirmDelete(true); }}
+                  title="Видалити компанію"
+                >
+                  <span className="cоm-rect-btn-text">Видалити компанію</span>
+                </button>
+              )}
             </div>
 
             {/* Список */}

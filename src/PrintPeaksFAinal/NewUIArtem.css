@@ -1,14 +1,21 @@
 /* Root Variables & Theme */
+
+/* Ширини колонок рахуються не від «сирих» vw, а від --pp-vw-unit: це
+   один відсоток ВІЛЬНОЇ ширини вікна. Бічна панель «Пуску» звужує
+   робочу область через padding у body, але vw про це не знає — колонки
+   лишались на всю ширину екрана і заповзали під панель (на 4К із-під
+   неї зникав дзвоник сповіщень). PPDock перераховує --pp-vw-unit;
+   без панелі fallback 1vw — поведінка як була. */
 :root {
-  --nui-right-col-width: 30vw;
-  --nui-center-col-width: 25vw;
+  --nui-right-col-width: calc(30 * var(--pp-vw-unit, 1vw));
+  --nui-center-col-width: calc(25 * var(--pp-vw-unit, 1vw));
 }
 
 .nui-sheetcut-theme {
-  --nui-right-col-width: 30vw;
-  --nui-center-col-width: 25vw;
-  --nui-left-col-width: 50vw;
-  --nui-bottom-total-width: 75vw;
+  --nui-right-col-width: calc(30 * var(--pp-vw-unit, 1vw));
+  --nui-center-col-width: calc(25 * var(--pp-vw-unit, 1vw));
+  --nui-left-col-width: calc(50 * var(--pp-vw-unit, 1vw));
+  --nui-bottom-total-width: calc(75 * var(--pp-vw-unit, 1vw));
   --nui-bottom-finance-width: var(--nui-right-col-width);
   --nui-bottom-envelope-padding: 0.35rem;
   --nui-bottom-envelope-bg: var(--adminfonelement, #f2f0e9);
@@ -435,12 +442,25 @@
 
 .nui-order-item {
   --order-item-tone: var(--admingrey, #666666);
+  /* ширина вертикальної смуги з типом роботи вздовж правого краю позиції */
+  --nui-type-side-w: 1.75rem;
   background: var(--adminfonelement, #f2f0e9);
   border-radius: 0px;
   margin-bottom: 0.4rem;
-  padding: 0.5rem 1rem;
+  /* праворуч padding немає: смуга типу притиснута до самого краю картки */
+  padding: 0.5rem 0 0.5rem 1rem;
   box-shadow: none;
   position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--nui-type-side-w);
+  column-gap: 0.6rem;
+  align-items: stretch;
+}
+
+/* весь вміст позиції — у лівій колонці, смуга типу лишається праворуч */
+.nui-item-body {
+  grid-column: 1;
+  min-width: 0;
 }
 
 .nui-order-item.nui-order-tone-orange { --order-item-tone: var(--adminorange, #f5a623); }
@@ -485,7 +505,8 @@
   font-size: 1rem;
   position: absolute;
   top: 0.1rem;
-  right: 0.3rem;
+  /* ліворуч від вертикальної смуги типу, щоб не накладатись на неї */
+  right: calc(var(--nui-type-side-w, 1.75rem) + 0.5rem);
 
   line-height: 1;
 }
@@ -577,6 +598,105 @@
 
 .nui-item-type-btn .nui-type-label {
   color: inherit !important;
+}
+
+/* --- Вертикальна смуга типу роботи (DIGITAL PRINT / BINDING …) --- */
+
+.nui-item-type-btn.nui-item-type-side {
+  --nui-type-side-bg: color-mix(in srgb, var(--admingrey, #666666) 14%, var(--adminfon, #f7f5ee));
+  grid-column: 2;
+  grid-row: 1;
+  align-self: stretch;
+  /* поворот назви на 90° за годинниковою: читається згори вниз */
+  writing-mode: vertical-rl;
+  margin-left: 0;
+  padding: 0.35rem 0;
+  background: var(--nui-type-side-bg);
+  border: none;
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.nui-item-type-btn.nui-item-type-side:hover {
+  background: color-mix(in srgb, var(--admingrey, #666666) 24%, var(--adminfon, #f7f5ee));
+}
+
+.nui-item-type-btn.nui-item-type-side .nui-type-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 100%;
+}
+
+/* --- Брак і прозапас у рядку ціни --- */
+
+.nui-extra-sheets {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  flex-shrink: 0;
+}
+
+.nui-extra-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: default;
+  margin: 0;
+}
+
+/* підпис — тим самим кеглем і вагою, що назва замовлення в шапці позиції */
+.nui-extra-label {
+  font-size: var(--font-size-pay);
+  color: var(--admingrey, #666666);
+  text-transform: none;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+/* поле вводу — світла плашка без рамки, заввишки як рядок цін ліворуч */
+.nui-extra-input {
+  width: 5rem;
+  height: calc(var(--font-size-paybig) * 1.4);
+  border: none;
+  border-radius: 0;
+  background: var(--adminfon, #ffffff);
+  text-align: center;
+  padding: 0 0.4rem;
+  font-size: var(--font-size-pay);
+  color: var(--admingrey, #666666);
+  outline: none;
+}
+
+/* рамки немає, тому фокус показуємо підкресленням усередині плашки */
+.nui-extra-input:focus {
+  box-shadow: inset 0 -2px 0 var(--adminorange, #f5a623);
+}
+
+/* стрілки number-інпута тут лише заважають — значення вбивають з клавіатури */
+.nui-extra-input::-webkit-outer-spin-button,
+.nui-extra-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.nui-extra-input {
+  -moz-appearance: textfield;
+}
+
+.nui-extra-sheets.is-saving .nui-extra-input {
+  opacity: 0.55;
+}
+
+/* одиниця запасу — залежить від типу роботи: аркуші в друці, штуки в товарах */
+.nui-extra-unit {
+  font-size: var(--font-size-s);
+  color: var(--admingrey, #666666);
+  opacity: 0.6;
+  white-space: nowrap;
+  margin-left: -0.9rem;
 }
 
 .nui-details-footer-row {
@@ -1689,26 +1809,26 @@
 /* lg: MacBook 1200-1599px */
 @media (min-width: 1200px) and (max-width: 1599px) {
   :root {
-    --nui-right-col-width: 44vw;
-    --nui-center-col-width: 25vw;
+    --nui-right-col-width: calc(44 * var(--pp-vw-unit, 1vw));
+    --nui-center-col-width: calc(25 * var(--pp-vw-unit, 1vw));
   }
   .nui-sheetcut-theme {
-    --nui-right-col-width: 44vw;
-    --nui-center-col-width: 25vw;
-    --nui-bottom-total-width: 84vw;
+    --nui-right-col-width: calc(44 * var(--pp-vw-unit, 1vw));
+    --nui-center-col-width: calc(25 * var(--pp-vw-unit, 1vw));
+    --nui-bottom-total-width: calc(84 * var(--pp-vw-unit, 1vw));
   }
 }
 
 /* xl: Full HD 1600-2399px */
 @media (min-width: 1600px) and (max-width: 2399px) {
   :root {
-    --nui-right-col-width: 28vw;
-    --nui-center-col-width: 25vw;
+    --nui-right-col-width: calc(28 * var(--pp-vw-unit, 1vw));
+    --nui-center-col-width: calc(25 * var(--pp-vw-unit, 1vw));
   }
   .nui-sheetcut-theme {
-    --nui-right-col-width: 28vw;
-    --nui-center-col-width: 25vw;
-    --nui-bottom-total-width: 63vw;
+    --nui-right-col-width: calc(28 * var(--pp-vw-unit, 1vw));
+    --nui-center-col-width: calc(25 * var(--pp-vw-unit, 1vw));
+    --nui-bottom-total-width: calc(63 * var(--pp-vw-unit, 1vw));
   }
   .nui-sheetcut-theme .bc-label--order.bc-label--full {
     max-width: 80%;
@@ -1721,21 +1841,21 @@
 /* xxl: Ultrawide 2400px+ (Samsung Odyssey G5, 4K) */
 @media (min-width: 2400px) {
   :root {
-    --nui-right-col-width: 30vw;
-    --nui-center-col-width: 25vw;
+    --nui-right-col-width: calc(30 * var(--pp-vw-unit, 1vw));
+    --nui-center-col-width: calc(25 * var(--pp-vw-unit, 1vw));
   }
   .nui-sheetcut-theme {
-    --nui-right-col-width: 30vw;
-    --nui-center-col-width: 25vw;
-    --nui-bottom-total-width: 60vw;
+    --nui-right-col-width: calc(30 * var(--pp-vw-unit, 1vw));
+    --nui-center-col-width: calc(25 * var(--pp-vw-unit, 1vw));
+    --nui-bottom-total-width: calc(60 * var(--pp-vw-unit, 1vw));
   }
 }
 
 /* sm: Galaxy Fold open, small tablets 481-768px */
 @media (min-width: 481px) and (max-width: 768px) {
   .nui-sheetcut-theme {
-    --nui-right-col-width: 100vw;
-    --nui-center-col-width: 100vw;
+    --nui-right-col-width: calc(100 * var(--pp-vw-unit, 1vw));
+    --nui-center-col-width: calc(100 * var(--pp-vw-unit, 1vw));
   }
 
   .nui-sheetcut-theme .nui-orders-column {
@@ -1783,9 +1903,9 @@
 /* xs+sm: Mobile ≤768px — single column layout */
 @media (max-width: 768px) {
   .nui-sheetcut-theme {
-    --nui-right-col-width: 100vw;
-    --nui-center-col-width: 100vw;
-    --nui-bottom-finance-width: 100vw;
+    --nui-right-col-width: calc(100 * var(--pp-vw-unit, 1vw));
+    --nui-center-col-width: calc(100 * var(--pp-vw-unit, 1vw));
+    --nui-bottom-finance-width: calc(100 * var(--pp-vw-unit, 1vw));
   }
 
   /* Main container — single column, no flex row */
@@ -1947,6 +2067,22 @@
     padding: 0 0.2rem !important;
     max-width: 100% !important;
     word-break: break-word !important;
+  }
+
+  /* …окрім вертикальної смуги: перенос на її ширині зламав би напис */
+  .nui-sheetcut-theme .nui-item-type-btn.nui-item-type-side {
+    white-space: nowrap !important;
+    word-break: normal !important;
+    padding: 0.35rem 0 !important;
+  }
+
+  /* на вузькому екрані брак/прозапас переїжджають під ціну, а не тиснуть її */
+  .nui-price-row {
+    flex-wrap: wrap;
+  }
+
+  .nui-extra-sheets {
+    gap: 0.6rem;
   }
 
   /* Deadline prefix — allow wrap */

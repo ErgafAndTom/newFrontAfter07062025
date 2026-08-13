@@ -10,6 +10,7 @@ import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
 import "./NewSheetCutV2.css";
 
 import PerepletPereplet from "./newnomodals/PerepletPereplet";
+import ExtraSheetsButton from "./shared/ExtraSheetsButton";
 
 const fmt2 = (v) =>
   new Intl.NumberFormat("uk-UA", {
@@ -185,6 +186,7 @@ const PerepletMet = ({
             <span className="v2-head-title">Брошурування</span>
             <div className="v2-head-spec">{headSpec}</div>
           </div>
+          <ExtraSheetsButton />
           <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
             &times;
           </button>

@@ -281,6 +281,8 @@ export default function NewDiplom({
           : {}),
         toCalc: {
           nameOrderUnit: selectedService || "",
+          serviceCategory: "Diplom",
+          serviceName: selectedService,
           type: "Diplom",
           size,
           color,

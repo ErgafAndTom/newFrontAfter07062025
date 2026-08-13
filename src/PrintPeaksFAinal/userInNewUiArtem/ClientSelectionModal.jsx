@@ -47,6 +47,10 @@ const ClientSelectionModal = ({
                                 loadMoreUsers,
                                 error,
                                 handleSelectUser,
+                                /* Пояснення, чому вибір не пройшов (напр. наряд уже
+                                   оплачено). Необов'язковий — інші місця, де живе
+                                   ця модалка, його просто не передають. */
+                                notice,
                                 setModalVisible,
                                 thisOrder,
                                 setThisOrder,
@@ -129,6 +133,13 @@ const ClientSelectionModal = ({
           />
         </div>
 
+        {notice && (
+          <div className="csm-notice" role="alert">
+            <span className="csm-notice-icon" aria-hidden="true">!</span>
+            <span className="csm-notice-text">{notice}</span>
+          </div>
+        )}
+
         {/* User list */}
         <div className="csm-list" ref={listRef}>
           {load && (
@@ -144,6 +155,9 @@ const ClientSelectionModal = ({
             const isExpanded = index === expandedThingIndex;
             const personalDiscount = norm(user?.discount ?? user?.prepayment);
             const companyDiscount = norm(user?.Company?.discount ?? user?.companyDiscount ?? user?.company?.discount);
+            // прив'язана компанія vs просто текст у картці клієнта
+            const linkedCompany = user?.Company?.companyName || '';
+            const looseCompany = typeof user?.company === 'string' ? user.company : '';
             const effectiveDiscount = Math.max(personalDiscount, companyDiscount);
             const hasDiscount = effectiveDiscount > 0;
 
@@ -161,10 +175,27 @@ const ClientSelectionModal = ({
                   </div>
                   <div className="csm-user-info">
                     <div className="csm-user-name">{user.lastName} {user.firstName}</div>
-                    {(user.Company?.companyName || user.company) && (
-                      <span className="csm-user-company">{user.Company?.companyName || user.company}</span>
-                    )}
                   </div>
+                  {/* Компанія — власним стовпчиком: за нею тепер і шукають.
+                      Прив'язана компанія (Company через companyId) і просто
+                      текст у полі User.company — різні речі: знижка компанії
+                      діє тільки в першому випадку. Тому текстова назва без
+                      прив'язки показується приглушено й з позначкою, інакше
+                      клієнт виглядає учасником компанії, хоч ним не є. */}
+                  <span
+                    className={`csm-user-company${linkedCompany ? '' : ' is-unlinked'}`}
+                    title={linkedCompany
+                      ? `${linkedCompany}${companyDiscount > 0 ? ` — знижка компанії ${companyDiscount}%` : ''}`
+                      : (looseCompany ? `${looseCompany} — компанія не прив'язана, знижка компанії не діє` : '')}
+                  >
+                    {linkedCompany || looseCompany || ''}
+                    {linkedCompany && companyDiscount > 0 && (
+                      <span className="csm-user-company-discount"> ({companyDiscount}%)</span>
+                    )}
+                    {!linkedCompany && looseCompany && (
+                      <span className="csm-user-company-loose"> (не прив'язана)</span>
+                    )}
+                  </span>
                   <span className="csm-user-discount">{hasDiscount && effectiveDiscount > 0 ? `${effectiveDiscount}%` : ''}</span>
                   <span className="csm-user-telegram">{user.telegram || ''}</span>
                   <span className="csm-user-phone">{formatPhone(user.phoneNumber)}</span>

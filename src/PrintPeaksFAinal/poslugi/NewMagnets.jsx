@@ -10,6 +10,7 @@ import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
 /* Та сама розмітка й той самий CSS, що в еталонного цифрового друку
    (NewSheetCutV2) — вузький варіант, без стрічки виробів. */
 import "./NewSheetCutV2.css";
+import ExtraSheetsButton from "./shared/ExtraSheetsButton";
 
 // ========== DEFAULTS ==========
 const DEFAULTS = {
@@ -260,6 +261,7 @@ const NewMagnets = ({
             <span className="v2-head-title">Магніти</span>
             <div className="v2-head-spec">{headSpec}</div>
           </div>
+          <ExtraSheetsButton />
           <button className="v2-close-btn" onClick={handleClose} title="Закрити" aria-label="Закрити">
             &times;
           </button>

@@ -89,6 +89,17 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
     const [printersLoading, setPrintersLoading] = useState(false);
     const [selectedPrinterId, setSelectedPrinterId] = useState('');
     const [selectedConsumableId, setSelectedConsumableId] = useState(null);
+    // Закупівля зазвичай містить кілька позицій одразу (чотири тонери, чотири
+    // барабани) — тримаємо кошик {consumableId: {price, qty}}, щоб не пробивати
+    // кожну окремою витратою
+    const [consumableCart, setConsumableCart] = useState({});
+    // Спільний розхідник стоїть у кількох машинах — при заміні треба зафіксувати
+    // показники всіх, бо ресурс з'їдається їхнім сумарним пробігом.
+    // {printerId: 'значення'}
+    const [meterByPrinter, setMeterByPrinter] = useState({});
+    const [poolPrinters, setPoolPrinters] = useState([]);
+    // {printerId: {loading, source: 'printer'|'db', error}} — звідки взявся показник
+    const [meterStatus, setMeterStatus] = useState({});
     const [meterReading, setMeterReading] = useState('');
 
     // Відкриття ззовні (плитка «Нова витрата» в панелі швидкого доступу).
@@ -157,8 +168,81 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
         setMaterialQty(''); setMaterialUnit('шт.');
     };
 
+    // Сума витрати = сума обраних позицій: пробиваючи чотири тонери одним
+    // документом, оператор не має складати їх у голові
+    useEffect(() => {
+        const items = Object.values(consumableCart);
+        if (!items.length) return;
+        const total = items.reduce((s, v) => {
+            const price = parseFloat(String(v.price || 0).replace(',', '.')) || 0;
+            const qty = parseFloat(String(v.qty || 1).replace(',', '.')) || 1;
+            return s + price * qty;
+        }, 0);
+        if (total > 0) setForm(f => ({...f, amount: String(Math.round(total * 100) / 100)}));
+    }, [consumableCart]);
+
+    // Які машини ділять розхідники з обраною — їхні лічильники теж треба вписати.
+    // Рахуємо з уже завантаженого списку принтерів: спільна позиція має той самий
+    // id у consumables обох машин, тож окремий запит на сервер не потрібен.
+    useEffect(() => {
+        if (!selectedPrinterId) { setPoolPrinters([]); return; }
+        const selfId = parseInt(selectedPrinterId, 10);
+        const self = printers.find(p => p.id === selfId);
+        if (!self) { setPoolPrinters([]); return; }
+
+        const ownIds = new Set((self.consumables || []).map(c => c.id));
+        const list = [
+            {id: self.id, name: self.name, currentCounter: self.currentCounter},
+            ...printers
+                .filter(p => p.id !== selfId && (p.consumables || []).some(c => ownIds.has(c.id)))
+                .map(p => ({id: p.id, name: p.name, currentCounter: p.currentCounter})),
+        ];
+
+        setPoolPrinters(list);
+        setMeterByPrinter(prev => {
+            const next = {...prev};
+            for (const p of list) if (next[p.id] === undefined) next[p.id] = '';
+            return next;
+        });
+    }, [selectedPrinterId, printers]);
+
+    // Показники підтягуються самі, щойно визначився пул машин. Якщо машина не
+    // відповідає — лишаємо останнє відоме з бази й показуємо причину, щоб
+    // витрату все одно можна було зберегти.
+    useEffect(() => {
+        if (!poolPrinters.length) return;
+        let alive = true;
+
+        poolPrinters.forEach(p => {
+            setMeterStatus(prev => ({...prev, [p.id]: {loading: true}}));
+            axios.get(`/api/roi/printers/${p.id}/counter-read`)
+                .then(({data}) => {
+                    if (!alive) return;
+                    setMeterByPrinter(prev => ({...prev, [p.id]: String(data.counter ?? '')}));
+                    setMeterStatus(prev => ({
+                        ...prev,
+                        [p.id]: {loading: false, source: data.source, error: data.error},
+                    }));
+                })
+                .catch(e => {
+                    if (!alive) return;
+                    setMeterByPrinter(prev => ({
+                        ...prev,
+                        [p.id]: prev[p.id] || String(p.currentCounter || ''),
+                    }));
+                    setMeterStatus(prev => ({
+                        ...prev,
+                        [p.id]: {loading: false, source: 'db', error: e.response?.data?.error || e.message},
+                    }));
+                });
+        });
+
+        return () => { alive = false; };
+    }, [poolPrinters]);
+
     const resetPrinterPick = () => {
         setSelectedPrinterId(''); setSelectedConsumableId(null); setMeterReading('');
+        setConsumableCart({}); setMeterByPrinter({}); setPoolPrinters([]); setMeterStatus({});
     };
 
     const validate = () => {
@@ -187,8 +271,32 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
             }
             if (PRINTER_CATEGORIES.includes(form.category)) {
                 if (selectedPrinterId) formData.append('printerId', selectedPrinterId);
-                if (selectedConsumableId) formData.append('consumableId', selectedConsumableId);
-                if (meterReading) formData.append('meterReading', meterReading);
+                const cartItems = Object.entries(consumableCart)
+                    .filter(([, v]) => v && v.price !== '' && Number(v.price) > 0)
+                    .map(([consumableId, v]) => ({
+                        consumableId: parseInt(consumableId, 10),
+                        price: parseFloat(String(v.price).replace(',', '.')),
+                        qty: parseFloat(String(v.qty || 1).replace(',', '.')) || 1,
+                    }));
+                if (cartItems.length) {
+                    formData.append('consumableItems', JSON.stringify(cartItems));
+                    formData.append('consumableId', cartItems[0].consumableId);
+                } else if (selectedConsumableId) {
+                    formData.append('consumableId', selectedConsumableId);
+                }
+                const readings = Object.entries(meterByPrinter)
+                    .filter(([, v]) => String(v).trim() !== '')
+                    .map(([printerId, counter]) => ({
+                        printerId: parseInt(printerId, 10),
+                        counter: parseInt(counter, 10),
+                    }))
+                    .filter(r => Number.isFinite(r.counter));
+                if (readings.length) {
+                    formData.append('meterReadings', JSON.stringify(readings));
+                    formData.append('meterReading', readings[0].counter);
+                } else if (meterReading) {
+                    formData.append('meterReading', meterReading);
+                }
             }
             if (linkedOrder) formData.append('orderId', linkedOrder.id);
             for (const file of files) formData.append('files', file);
@@ -287,7 +395,7 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
 
     // Модал "Новий розхідник"
     const [showNewConsumable, setShowNewConsumable] = useState(false);
-    const [newConsumable, setNewConsumable] = useState({name: '', wearBasis: 'page', resourceQty: '', unit: 'шт.', currentPrice: ''});
+    const [newConsumable, setNewConsumable] = useState({name: '', category: 'consumable', wearBasis: 'page', resourceQty: '', unit: 'шт.', currentPrice: ''});
     const [creatingConsumable, setCreatingConsumable] = useState(false);
 
     const handleCreateConsumable = async () => {
@@ -304,7 +412,7 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
                 setForm(f => ({...f, description: f.description || created.name}));
             }
             setShowNewConsumable(false);
-            setNewConsumable({name: '', wearBasis: 'page', resourceQty: '', unit: 'шт.', currentPrice: ''});
+            setNewConsumable({name: '', category: 'consumable', wearBasis: 'page', resourceQty: '', unit: 'шт.', currentPrice: ''});
         } catch (e) {
             console.error(e);
         }
@@ -392,6 +500,9 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
                                                         setCatOpen(false);
                                                         if (cat !== 'Матеріали') resetMat();
                                                         if (!PRINTER_CATEGORIES.includes(cat)) resetPrinterPick();
+                                                        // «Розхідники» й «Ремонт» показують різні списки —
+                                                        // старий вибір після перемикання вже нерелевантний
+                                                        else { setConsumableCart({}); setSelectedConsumableId(null); }
                                                     }}
                                                 >
                                                     <span className="name">{cat}</span>
@@ -511,50 +622,144 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
 
                                 {selectedPrinterId && (() => {
                                     const printer = printers.find(p => p.id === parseInt(selectedPrinterId, 10));
-                                    const consumables = (printer?.consumables || []).filter(c => c.active);
+                                    // Категорія витрати визначає, що показувати: «Ремонт» — вузли
+                                    // й запчастини конкретної машини, «Розхідники» — спільну купу
+                                    // тонерів і барабанів
+                                    const wantCategory = form.category === 'Ремонт' ? 'part' : 'consumable';
+                                    const consumables = (printer?.consumables || [])
+                                        .filter(c => c.active && (c.category || 'consumable') === wantCategory);
                                     return (
                                         <>
                                             <div className="aeb-mat-list">
                                                 {printersLoading ? (
                                                     <div className="aeb-mat-empty">Завантаження...</div>
                                                 ) : consumables.length === 0 ? (
-                                                    <div className="aeb-mat-empty">У цього принтера ще нема розхідників</div>
+                                                    <div className="aeb-mat-empty">
+                                                        {wantCategory === 'part'
+                                                            ? 'У цієї машини ще нема запчастин'
+                                                            : 'У цієї машини ще нема розхідників'}
+                                                    </div>
                                                 ) : (
-                                                    consumables.map(c => (
+                                                    consumables.map(c => {
+                                                        const picked = !!consumableCart[c.id];
+                                                        return (
                                                         <div
                                                             key={c.id}
-                                                            className={`aeb-mat-row${c.id === selectedConsumableId ? ' aeb-mat-row-active' : ''}`}
+                                                            className={`aeb-mat-row aeb-mat-row-multi${picked ? ' aeb-mat-row-picked' : ''}`}
                                                             onClick={() => {
                                                                 setSelectedConsumableId(c.id);
-                                                                setForm(f => ({...f, description: f.description || c.name}));
+                                                                setConsumableCart(cart => {
+                                                                    const next = {...cart};
+                                                                    if (next[c.id]) delete next[c.id];
+                                                                    else next[c.id] = {price: String(c.currentPrice || ''), qty: '1'};
+                                                                    return next;
+                                                                });
                                                             }}
                                                         >
-                                                            <span className="aeb-mat-name">{c.name}</span>
-                                                            <span className="aeb-mat-meta">{c.currentPrice} ₴ · {c.unit}</span>
+                                                            <span className="aeb-mat-name">
+                                                                <input type="checkbox" readOnly checked={picked}/>
+                                                                <span>{c.name}</span>
+                                                            </span>
+                                                            {picked ? (
+                                                                <span className="aeb-mat-meta aeb-mat-inputs" onClick={e => e.stopPropagation()}>
+                                                                    <input
+                                                                        type="number"
+                                                                        className="aeb-input aeb-mat-price"
+                                                                        placeholder="ціна"
+                                                                        value={consumableCart[c.id].price}
+                                                                        onChange={e => setConsumableCart(cart => ({
+                                                                            ...cart,
+                                                                            [c.id]: {...cart[c.id], price: e.target.value},
+                                                                        }))}
+                                                                    />
+                                                                    <input
+                                                                        type="number"
+                                                                        className="aeb-input aeb-mat-qty"
+                                                                        placeholder="к-сть"
+                                                                        value={consumableCart[c.id].qty}
+                                                                        onChange={e => setConsumableCart(cart => ({
+                                                                            ...cart,
+                                                                            [c.id]: {...cart[c.id], qty: e.target.value},
+                                                                        }))}
+                                                                    />
+                                                                </span>
+                                                            ) : (
+                                                                <span className="aeb-mat-meta">{c.currentPrice} ₴ · {c.unit}</span>
+                                                            )}
                                                         </div>
-                                                    ))
+                                                        );
+                                                    })
                                                 )}
                                             </div>
 
-                                            <div className="aeb-row aeb-row-material">
+                                            <div className="aeb-row aeb-row-material aeb-meters-row">
                                                 <div className="aeb-field" style={{flex: 1}}>
-                                                    <label className="aeb-label">Лічильник (на момент)</label>
-                                                    <input
-                                                        type="number"
-                                                        className="aeb-input"
-                                                        value={meterReading}
-                                                        onChange={e => setMeterReading(e.target.value)}
-                                                        onKeyDown={handleKeyDown}
-                                                        placeholder="напр. 128400"
-                                                    />
+                                                    <label className="aeb-label">
+                                                        {poolPrinters.length > 1
+                                                            ? 'Лічильники машин (на момент заміни)'
+                                                            : 'Лічильник (на момент)'}
+                                                    </label>
+                                                    {poolPrinters.length > 1 && (
+                                                        <div className="aeb-meters-hint">
+                                                            Ці машини беруть розхідники зі спільної купи — ресурс
+                                                            з'їдається їхнім сумарним пробігом, тому вписуйте обидва
+                                                            показники.
+                                                        </div>
+                                                    )}
+                                                    <div className="aeb-meters">
+                                                        {(poolPrinters.length ? poolPrinters : []).map(p => (
+                                                            <div className="aeb-meter" key={p.id}>
+                                                                <span className="aeb-meter-name">
+                                                                    {p.name}
+                                                                    {meterStatus[p.id]?.loading && (
+                                                                        <span className="aeb-meter-note">зчитую…</span>
+                                                                    )}
+                                                                    {meterStatus[p.id]?.error && (
+                                                                        <span className="aeb-meter-note aeb-meter-err"
+                                                                              title={meterStatus[p.id].error}>
+                                                                            помилка зв'язку з принтером — показник з бази
+                                                                        </span>
+                                                                    )}
+                                                                    {meterStatus[p.id]?.source === 'printer' && (
+                                                                        <span className="aeb-meter-note aeb-meter-ok">
+                                                                            з принтера
+                                                                        </span>
+                                                                    )}
+                                                                </span>
+                                                                <input
+                                                                    type="number"
+                                                                    className="aeb-input aeb-meter-input"
+                                                                    value={meterByPrinter[p.id] ?? ''}
+                                                                    onChange={e => setMeterByPrinter(prev => ({
+                                                                        ...prev, [p.id]: e.target.value,
+                                                                    }))}
+                                                                    onKeyDown={handleKeyDown}
+                                                                    placeholder={p.currentCounter ? String(p.currentCounter) : 'напр. 128400'}
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                        {!poolPrinters.length && (
+                                                            <input
+                                                                type="number"
+                                                                className="aeb-input"
+                                                                value={meterReading}
+                                                                onChange={e => setMeterReading(e.target.value)}
+                                                                onKeyDown={handleKeyDown}
+                                                                placeholder="напр. 128400"
+                                                            />
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 <button
                                                     type="button"
                                                     className="aeb-btn aeb-btn-save"
-                                                    style={{alignSelf: 'flex-end', whiteSpace: 'nowrap', padding: '0.4rem 1rem', fontSize: 'var(--font-size-s, 0.85rem)'}}
-                                                    onClick={() => setShowNewConsumable(true)}
+                                                    style={{whiteSpace: 'nowrap', padding: '0.4rem 1rem', fontSize: 'var(--font-size-s, 0.85rem)'}}
+                                                    onClick={() => {
+                                                        setNewConsumable(n => ({...n, category: wantCategory}));
+                                                        setShowNewConsumable(true);
+                                                    }}
                                                 >
-                                                    + Новий розхідник
+                                                    {wantCategory === 'part' ? '+ Нова запчастина' : '+ Новий розхідник'}
                                                 </button>
                                             </div>
                                         </>

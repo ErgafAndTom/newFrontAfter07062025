@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useLayoutEffect, useRef, useState} from "react";
 import {useLocation} from "react-router-dom";
 import {useSelector} from "react-redux";
 import "./Nav.css";
@@ -33,16 +33,72 @@ const ROLE_LABELS = {
   user: 'Клієнт',
 };
 
+/* Бік навбару — як і розкладка «Пуску», належить конкретному акаунту:
+   за одним браузером працюють різні люди. */
+const NAV_POSITION_KEY = 'printpeaks_nav_position';
+const navPositionKeyFor = (userId) => (userId ? `${NAV_POSITION_KEY}:${userId}` : NAV_POSITION_KEY);
+
+const loadNavPosition = (userId) => {
+  try {
+    return localStorage.getItem(navPositionKeyFor(userId)) === 'bottom' ? 'bottom' : 'top';
+  } catch {
+    return 'top';
+  }
+};
+
 const Nav = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const currentUser = useSelector((state) => state.auth.user);
   const search = useSelector((state) => state.search.search);
   const navigate = useNavigate();
+  const onOrderPage = /^\/Orders\/[^/]+/.test(location.pathname);
+  const [fileSearch, setFileSearch] = useState("");
 
   const handleClick = () => {
     navigate("/login");
   };
+
+  /* ── Навбар зверху або знизу ──
+     Знизу він стає fixed і стоїть над «Пуском», а body отримує відступ на
+     його висоту (--pp-nav-h), щоб нічого не перекривати. Той самий клас
+     на body читає вікно вибору клієнта — воно теж переїжджає вниз. */
+  const userId = currentUser?.id;
+  const [navPosition, setNavPosition] = useState(() => loadNavPosition(userId));
+  const barRef = useRef(null);
+
+  useEffect(() => { setNavPosition(loadNavPosition(userId)); }, [userId]);
+
+  const toggleNavPosition = () => {
+    const next = navPosition === 'bottom' ? 'top' : 'bottom';
+    try { localStorage.setItem(navPositionKeyFor(userId), next); } catch {}
+    setNavPosition(next);
+  };
+
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    const apply = () => {
+      const h = barRef.current?.offsetHeight || 0;
+      root.style.setProperty('--pp-nav-h', `${h}px`);
+    };
+    apply();
+    document.body.classList.toggle('pp-nav-bottom', navPosition === 'bottom');
+    // бічна панель «Пуску» рахує свою висоту з огляду на навбар — хай
+    // перерахується одразу, а не аж після ресайзу вікна
+    window.dispatchEvent(new CustomEvent('pp-nav-moved', { detail: { navPosition } }));
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(apply) : null;
+    if (ro && barRef.current) ro.observe(barRef.current);
+    window.addEventListener('resize', apply);
+    return () => {
+      if (ro) ro.disconnect();
+      window.removeEventListener('resize', apply);
+    };
+  }, [navPosition, currentUser]);
+
+  useEffect(() => () => {
+    document.body.classList.remove('pp-nav-bottom');
+    document.documentElement.style.removeProperty('--pp-nav-h');
+  }, []);
 
   useEffect(() => {
     const handler = () => dispatch(openDrawer());
@@ -55,7 +111,14 @@ const Nav = () => {
   }, [dispatch])
 
   const handleSearchChange = (e) => {
-    dispatch(searchChange(e.target.value))
+    const next = e.target.value;
+    if (onOrderPage) {
+      setFileSearch(next);
+      window.__ppFileSearchQuery = next;
+      window.dispatchEvent(new CustomEvent("pp-file-search", { detail: { query: next } }));
+      return;
+    }
+    dispatch(searchChange(next));
   };
 
   // Хто зараз залогінений — напівпрозорий підпис під навбаром
@@ -75,6 +138,7 @@ const Nav = () => {
     <div style={{marginTop: '0'}}>
 
       <div className="nav-bar-row"
+           ref={barRef}
            style={{borderRadius: '0vh', marginBottom: '0vh'}}>
 
         {/* ── Номер наряду + візитівка клієнта з діями. Компонент бере
@@ -84,13 +148,14 @@ const Nav = () => {
         {/* ── Пошук: компактне поле праворуч, розкривається при фокусі ── */}
         <div className="nav-center-group nav-search-slot">
           {currentUser ? (
-            <div className="nav-search-wrap">
+            <div className={`nav-search-wrap${onOrderPage ? " is-file-search" : ""}`}>
               <Form.Control
                 className="buttonSkewedSearch buttonSkewedSearchLupa"
                 name="search"
                 type="text"
-                placeholder=""
-                value={search}
+                data-barcode-ignore={onOrderPage ? "true" : undefined}
+                placeholder={onOrderPage ? "\u041f\u043e\u0448\u0443\u043a \u0443 \u0444\u0430\u0439\u043b\u0430\u0445" : ""}
+                value={onOrderPage ? fileSearch : search}
                 style={{borderRadius: '0', height: "100%", zIndex: "0"}}
                 onChange={(e) => { handleSearchChange(e) }}
               />
@@ -102,7 +167,7 @@ const Nav = () => {
                   <path d="M22 22L20 20" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </span>
-              <SearchOrderDropdown />
+              {!onOrderPage && <SearchOrderDropdown />}
             </div>
           ) : (
             <button
@@ -147,6 +212,20 @@ const Nav = () => {
                 <div className="nav-ctrl-btn-wrap">
                   <PopupLeftNotification/>
                 </div>
+                {/* стрілка: перекинути навбар униз / повернути наверх */}
+                <button
+                  type="button"
+                  className="nav-move-btn"
+                  onClick={toggleNavPosition}
+                  title={navPosition === 'bottom' ? 'Перемістити навбар наверх' : 'Перемістити навбар вниз'}
+                  aria-label={navPosition === 'bottom' ? 'Перемістити навбар наверх' : 'Перемістити навбар вниз'}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    {navPosition === 'bottom'
+                      ? <path d="M12 19V5M6 11l6-6 6 6"/>
+                      : <path d="M12 5v14M6 13l6 6 6-6"/>}
+                  </svg>
+                </button>
               </div>
             )}
           </>

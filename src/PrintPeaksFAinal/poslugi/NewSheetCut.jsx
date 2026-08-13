@@ -350,6 +350,8 @@ const NewSheetCut = ({
       orderId: thisOrder.id,
       toCalc: {
         nameOrderUnit: `${selectedService.toLowerCase() ? selectedService.toLowerCase() + " " : ""}`,
+        serviceCategory: "SheetCut",
+        serviceName: selectedService,
         type: "SheetCut",
         size, material, color, lamination,
         big, cute, cuteLocal, prokleyka, lyuversy, design,

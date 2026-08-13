@@ -14,6 +14,7 @@ import { Settings } from "lucide-react";
 import { searchChange } from "../../actions/searchAction";
 import ClientCabinet from "../userInNewUiArtem/ClientCabinet";
 import BarcodeLabel from "../barcode/BarcodeLabel";
+import PaysInOrderRestored_OrdersLike from "../userInNewUiArtem/pays/PaysInOrderRestored_OrdersLike";
 
 const UsersOrdersLikeTable = () => {
   const [data, setData]           = useState(null);
@@ -25,6 +26,8 @@ const UsersOrdersLikeTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [limit]                   = useState(100);
   const [cabinetUserId, setCabinetUserId] = useState(null);
+  // клієнт, чиї рахунки/контрагенти зараз відкриті
+  const [paysClient, setPaysClient] = useState(null);
   const [sortColumn, setSortColumn]   = useState('id');
   const [sortReverse, setSortReverse] = useState(true);
 
@@ -97,6 +100,7 @@ const UsersOrdersLikeTable = () => {
         <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('totalPaid')}>Оплачено<SortArrow col="totalPaid" /></div>
         <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('debt')}>Борг<SortArrow col="debt" /></div>
         <div className="uol-cell uol-cell--center uol-cell--sortable" onClick={() => handleSort('balance')}>Баланс<SortArrow col="balance" /></div>
+        <div className="uol-cell uol-cell--center" title="Рахунки та контрагенти">Рахунки</div>
         <div className="uol-cell uol-cell--center" title="Штрих-код">Штрих-код</div>
         <div className="uol-cell uol-cell--center"><Settings size={14} /></div>
       </div>
@@ -143,6 +147,15 @@ const UsersOrdersLikeTable = () => {
               <div className="uol-cell uol-cell--center"
                 style={balance !== 0 ? { color: balance < 0 ? 'var(--adminred)' : 'var(--admingreen)' } : undefined}>
                 {charged > 0 || paid > 0 ? balance : '—'}
+              </div>
+              <div className="uol-cell uol-cell--center" onClick={e => e.stopPropagation()}>
+                <button
+                  className="pays-tbl-btn pays-tbl-btn--bg-element"
+                  onClick={() => setPaysClient(order)}
+                  title="Рахунки та контрагенти клієнта"
+                >
+                  Рахунки
+                </button>
               </div>
               <div className="uol-cell uol-cell--center" onClick={e => e.stopPropagation()}>
                 <BarcodeLabel type="client" data={order} variant="compact" />
@@ -203,6 +216,15 @@ const UsersOrdersLikeTable = () => {
           totalPages={Math.ceil(data.count / limit)}
           onPageChange={setCurrentPage}
           limit={limit}
+        />
+      )}
+
+      {paysClient && (
+        <PaysInOrderRestored_OrdersLike
+          showPays={Boolean(paysClient)}
+          setShowPays={(v) => { if (!v) setPaysClient(null); }}
+          thisOrder={{ clientId: paysClient.id, companyId: paysClient.companyId }}
+          setThisOrder={() => {}}
         />
       )}
 

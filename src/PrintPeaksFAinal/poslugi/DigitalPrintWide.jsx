@@ -219,6 +219,8 @@ const DigitalPrintWide = ({
       ...(isEdit ? { orderUnitId: editingOrderUnit?.id || editingOrderUnit?.idKey, idKey: editingOrderUnit?.id || editingOrderUnit?.idKey } : {}),
       toCalc: {
         nameOrderUnit: `${selectedService ? selectedService.toLowerCase() + " " : ""}`,
+        serviceCategory: "DigitalPrintWide",
+        serviceName: selectedService,
         type: TYPE_KEY,
         newField6: TYPE_KEY,
         size,

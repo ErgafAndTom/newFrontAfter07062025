@@ -23,7 +23,8 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 9001;
-  width: min(96%, 880px);
+  /* +20% до колишніх 880px: у рядку з'явився стовпчик компанії */
+  width: min(96%, 1056px);
   height: auto;
   max-height: 88%;
   background: var(--adminfon, #f7f5ee);
@@ -136,7 +137,8 @@
 
 .csm-user-row {
   display: grid;
-  grid-template-columns: auto 52px 1fr auto auto 150px auto;
+  /* id · аватар · ім'я · компанія · знижка · telegram · телефон · дія */
+  grid-template-columns: auto 52px 1.2fr 1fr auto auto 150px auto;
   align-items: center;
   gap: 0 0.5vw;
   padding: 5px 1.5rem;
@@ -186,13 +188,32 @@
   text-overflow: ellipsis;
 }
 
+/* окремий стовпчик, а не підпис під іменем */
 .csm-user-company {
+  min-width: 0;
   font-size: var(--fontsmall, 15px);
   font-weight: 400;
   color: var(--adminblue, #3c60a6);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* знижка компанії у дужках — тим самим зеленим, що й знижка клієнта */
+.csm-user-company-discount {
+  color: var(--admingreen, #0e935b);
+}
+
+/* назва без прив'язки до компанії — приглушено, щоб не читалась як
+   членство в компанії */
+.csm-user-company.is-unlinked {
+  color: var(--admingrey, #666666);
+  opacity: 0.55;
+}
+
+.csm-user-company-loose {
+  font-size: 0.85em;
+  text-transform: lowercase;
 }
 
 .csm-user-discount {
@@ -586,3 +607,62 @@
 :root[data-theme="light"] .csm-empty--error {
   color: var(--adminred, #ee3c23);
 }
+
+/* ── Банер відмови ──
+   Сервер може не дати змінити клієнта (наприклад, наряд уже оплачено).
+   Раніше вікно просто закривалось і виглядало, ніби нічого не сталось;
+   тепер причина стоїть над списком, а список лишається робочим. */
+.csm-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-left: 3px solid var(--adminred, #ee3c23);
+  background: color-mix(in srgb, var(--adminred, #ee3c23) 8%, transparent);
+  color: var(--adminred, #ee3c23);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 0.85rem);
+  letter-spacing: 0.02em;
+}
+
+.csm-notice-icon {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--adminred, #ee3c23);
+  color: #fff;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.csm-notice-text { flex: 1 1 auto; }
+
+/* ── Навбар знизу: вікно теж їде вниз ──
+   Кнопка «Змінити» стоїть у навбарі, тож коли він унизу, вікно вибору
+   має відкриватись поруч із нею, а не в протилежному кінці екрана.
+   Клас на <body> ставить Nav.js. Порядок дітей міняє order: рядок
+   пошуку опиняється під списком, ближче до кнопки й до курсора. */
+
+body.pp-nav-bottom .csm-panel {
+  top: auto;
+  bottom: calc(var(--ppdock-h, 0px) + var(--pp-nav-h, 0px) + 12px);
+  animation: csm-slide-up 0.25s ease-out;
+}
+
+@keyframes csm-slide-up {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%); }
+}
+
+body.pp-nav-bottom .csm-search--top {
+  order: 3;
+  border-bottom: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+body.pp-nav-bottom .csm-notice { order: 2; }
+body.pp-nav-bottom .csm-list { order: 1; }

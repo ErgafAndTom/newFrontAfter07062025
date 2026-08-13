@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import ReactDOM from "react-dom";
 import axios from '../../api/axiosInstance';
 import {useNavigate} from "react-router-dom";
+import "./AwaitPaysCash.css";
 
 const AwaitPaysCash = ({
                      thisOrder, setThisOrder, showAwaitCashPays, setShowAwaitCashPays, setOplata, oplata
@@ -97,117 +98,67 @@ const AwaitPaysCash = ({
     }
   }, [showAwaitCashPays]);
 
+  const total = Number(thisOrder?.allPrice ?? 0);
+  const given = Number(clientAmount);
+  const hasGiven = clientAmount !== '' && given > 0;
+  const change = given - total;
+
   return (
     <>
       {isVisible && ReactDOM.createPortal(
-        <div>
-          {/* Backdrop */}
+        <>
           <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              zIndex: 99998,
-              background: "rgba(0, 0, 0, 0.35)",
-              opacity: isAnimating ? 1 : 0,
-              transition: "opacity 0.3s ease-in-out",
-            }}
+            className={`apc-overlay${isAnimating ? ' is-in' : ''}`}
             onClick={handleClose}
           />
-          {/* Modal */}
-          <div
-            style={{
-              position: "fixed",
-              zIndex: 99999,
-              top: "50%",
-              left: "50%",
-              transform: isAnimating
-                ? "translate(-50%, -50%) scale(1)"
-                : "translate(-50%, -50%) scale(0.95)",
-              opacity: isAnimating ? 1 : 0,
-              transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
-              background: "var(--adminfon, #f7f5ee)",
-              border: "none",
-              width: "24vw",
-              minWidth: 320,
-              padding: "1.5rem",
-              display: "flex",
-              flexDirection: "column",
-              gap: "1rem",
-            }}
-          >
-            {/* Header */}
-            <span style={{
-              fontSize: "var(--font-size-s, 17px)",
-              fontWeight: 400,
-              color: "var(--admingrey, #666)",
-              textTransform: "uppercase",
-              textAlign: "center",
-            }}>
-              Оплата готівкою
-            </span>
 
-            {/* Amount */}
-            <div style={{
-              fontSize: "var(--font-size-paybig, 26px)",
-              color: "var(--adminred, #ee3c23)",
-              fontWeight: 500,
-              textAlign: "center",
-              padding: "0.5rem 0",
-            }}>
-              {thisOrder?.allPrice ?? 0} <span style={{ fontSize: "var(--fontsmall, 15px)", color: "var(--admingrey, #666)" }}>грн</span>
+          <div
+            className={`apc-panel${isAnimating ? ' is-in' : ''}`}
+            role="dialog"
+            aria-label="Оплата готівкою"
+          >
+            <div className="apc-head">
+              <div className="apc-title">Оплата готівкою</div>
             </div>
 
-            {/* Client amount input */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", alignItems: "center" }}>
+            <div className="apc-body">
+              <div className="apc-sum">
+                {total}
+                <span className="apc-unit">грн</span>
+              </div>
+
               <input
+                className="apc-input"
                 type="number"
                 placeholder="Клієнт дає, грн"
                 value={clientAmount}
                 onChange={(e) => setClientAmount(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.5rem 0.8rem",
-                  fontSize: "var(--font-size-s, 17px)",
-                  border: "1px solid var(--admingrey, #ccc)",
-                  borderRadius: 0,
-                  textAlign: "center",
-                  outline: "none",
-                  background: "white",
-                }}
               />
-              {clientAmount && Number(clientAmount) > 0 && (
-                <div style={{
-                  fontSize: "var(--font-size-paybig, 26px)",
-                  fontWeight: 500,
-                  textAlign: "center",
-                  color: Number(clientAmount) >= (thisOrder?.allPrice ?? 0)
-                    ? "var(--admingreen, #0e935b)"
-                    : "var(--adminred, #ee3c23)",
-                }}>
-                  Решта: {(Number(clientAmount) - (thisOrder?.allPrice ?? 0)).toFixed(2)} <span style={{ fontSize: "var(--fontsmall, 15px)", color: "var(--admingrey, #666)" }}>грн</span>
+
+              {hasGiven && (
+                <div className={`apc-change${change < 0 ? ' is-short' : ''}`}>
+                  Решта: {change.toFixed(2)}
+                  <span className="apc-unit">грн</span>
                 </div>
               )}
             </div>
 
-            {/* Buttons */}
-            <div style={{ display: "flex", gap: "0.5rem" }}>
+            <div className="apc-actions">
               <button
-                className="buttonSkewedOrder await-cash-ok"
+                type="button"
+                className="apc-btn"
                 onClick={handleOk}
                 disabled={oplata}
-                style={oplata ? { cursor: "not-allowed", opacity: 0.5 } : undefined}
               >
-                <span>{oplata ? "Обробка..." : "Оплатити"}</span>
+                <span>{oplata ? 'Обробка…' : 'Оплатити'}</span>
               </button>
-              <button
-                className="buttonSkewedOrder await-cash-cancel"
-                onClick={handleClose}
-              >
+
+              <button type="button" className="apc-btn apc-btn--cancel" onClick={handleClose}>
                 <span>Відміна</span>
               </button>
             </div>
           </div>
-        </div>,
+        </>,
         document.body
       )}
     </>
