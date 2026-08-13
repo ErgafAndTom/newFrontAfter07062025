@@ -49,9 +49,12 @@ export const login = (credentials, navigate) => async (dispatch) => {
             localStorage.setItem('token', token);
             dispatch({ type: LOGIN_SUCCESS, payload: token });
             const user = await dispatch(fetchUser());
-            // Міграція localStorage налаштувань на сервер (один раз)
-            import('../hooks/useUserSettings').then(({ migrateLocalStorageToServer }) => {
-              migrateLocalStorageToServer();
+            // Міграція localStorage налаштувань на сервер (один раз), а потім
+            // прогрів у зворотний бік — щоб принтер/НП працювали одразу після
+            // входу з нового браузера, а не лише після заходу в налаштування
+            import('../hooks/useUserSettings').then(async ({ migrateLocalStorageToServer, warmUpSettingsCache }) => {
+              await migrateLocalStorageToServer();
+              await warmUpSettingsCache();
             }).catch(() => {});
             if (user?.role === 'user') {
               try {

@@ -9,6 +9,11 @@ import ExportImportComponent from "./dataMenager/ExportImportComponent";
 import Loader from "../components/calc/Loader";
 import SpriteText from "three-spritetext";
 import Laminator from "./poslugi/Laminator";
+import "./Graph2DForBD.css";
+
+// Полотно графа — canvas, тож колір потрібен рядком (CSS-змінну він не читає).
+// Той самий тон продубльовано в --g2d-canvas-bg у Graph2DForBD.css.
+const CANVAS_BG = "#000422";
 
 // ---------- нормализация ----------
 function normalizeGraph(raw) {
@@ -272,49 +277,77 @@ const Graph2DForBD = () => {
 
   // прорисовка
   return (
-    <div style={{ width: "100%", height: "50vh", display: "flex", flexDirection: "column" }}>
+    <div className="g2d-wrap">
 
-      {/* ── Рядок 1: головна панель керування ── */}
-      <div style={{ flexShrink: 0, background: "rgba(77,77,77,0.77)", display: "flex", alignItems: "center", flexWrap: "nowrap", gap: "0.4vw", padding: "0 0.4vw", zIndex: 2 }}>
-        <label style={{ margin: 0, color: "#fff", fontSize: "1vw", display: "flex", alignItems: "center", gap: "0.2vw", whiteSpace: "nowrap" }}>
-          Mode:
-          <button style={{ margin: 0, fontSize: "1vw", background: mode === "schema" ? "rgb(255,173,0)" : "rgb(255,255,255)", whiteSpace: "nowrap" }} onClick={() => setMode("schema")}>Schema</button>
-          <button style={{ margin: 0, fontSize: "1vw", background: mode === "data" ? "rgb(255,173,0)" : "rgb(255,255,255)", whiteSpace: "nowrap" }} onClick={() => setMode("data")}>Data</button>
+      {/* ── Рядок 1: керування графом ── */}
+      <div className="g2d-bar">
+        <span className="g2d-eyebrow">Режим</span>
+        <div className="g2d-seg">
+          <button
+            className={`ppButton ppButton--sm ${mode === "schema" ? "active" : ""}`}
+            aria-pressed={mode === "schema"}
+            onClick={() => setMode("schema")}
+          >
+            <span>Схема</span>
+          </button>
+          <button
+            className={`ppButton ppButton--sm ${mode === "data" ? "active" : ""}`}
+            aria-pressed={mode === "data"}
+            onClick={() => setMode("data")}
+          >
+            <span>Дані</span>
+          </button>
+        </div>
+
+        <span className="g2d-div" />
+
+        <label className="g2d-group">
+          <span className="g2d-eyebrow">Групувати за</span>
+          <input className="g2d-inp" value={groupField} onChange={(e) => setGroupField(e.target.value)} />
         </label>
-        <label style={{ margin: 0, color: "#fff", fontSize: "1vw", display: "flex", alignItems: "center", gap: "0.2vw", whiteSpace: "nowrap" }}>
-          Group:
-          <input style={{ margin: 0, fontSize: "1vw", width: 80 }} value={groupField} onChange={(e) => setGroupField(e.target.value)} />
+
+        <label className="g2d-group">
+          <span className="g2d-eyebrow">Відстань кластерів</span>
+          <input className="g2d-range" type="range" min="120" max="520" value={clusterGap} onChange={(e) => setClusterGap(+e.target.value)} />
+          <span className="g2d-val">{clusterGap}</span>
         </label>
-        <label style={{ margin: 0, color: "#fff", fontSize: "1vw", display: "flex", alignItems: "center", gap: "0.2vw", whiteSpace: "nowrap" }}>
-          Cluster gap
-          <input style={{ margin: 0, color: "#fff", fontSize: "1vw", height: "0.3vw" }} type="range" min="120" max="520" value={clusterGap} onChange={(e) => setClusterGap(+e.target.value)} />
+
+        <label className="g2d-group">
+          <span className="g2d-eyebrow">Радіус у кластері</span>
+          <input className="g2d-range" type="range" min="40" max="240" value={inClusterRadius} onChange={(e) => setInClusterRadius(+e.target.value)} />
+          <span className="g2d-val">{inClusterRadius}</span>
         </label>
-        <label style={{ margin: 0, color: "#fff", fontSize: "1vw", display: "flex", alignItems: "center", gap: "0.2vw", whiteSpace: "nowrap" }}>
-          In-cluster R
-          <input style={{ margin: 0, color: "#fff", fontSize: "1vw", height: "0.3vw" }} type="range" min="40" max="240" value={inClusterRadius} onChange={(e) => setInClusterRadius(+e.target.value)} />
-        </label>
-        <button style={{ margin: 0, fontSize: "1vw", whiteSpace: "nowrap" }} onClick={() => { apply2DProjectionWithGrouping(graphData, { groupKey: groupField, clusterSpacing: clusterGap, nodeRingRadius: inClusterRadius }); fgRef.current?.d3ReheatSimulation(); }}>
-          Apply layout
+
+        <span className="g2d-spacer" />
+
+        <button
+          className="ppButton ppButton--sm"
+          onClick={() => { apply2DProjectionWithGrouping(graphData, { groupKey: groupField, clusterSpacing: clusterGap, nodeRingRadius: inClusterRadius }); fgRef.current?.d3ReheatSimulation(); }}
+        >
+          <span>Розкласти</span>
         </button>
+
         {!isFrozen
-          ? <button style={{ margin: 0, fontSize: "1vw", whiteSpace: "nowrap" }} onClick={freezeEngine}>Freeze</button>
-          : <button style={{ margin: 0, fontSize: "1vw", whiteSpace: "nowrap" }} onClick={releaseEngine}>Release</button>
+          ? <button className="ppButton ppButton--sm" onClick={freezeEngine}><span>Зупинити</span></button>
+          : <button className="ppButton ppButton--sm active" onClick={releaseEngine}><span>Відновити</span></button>
         }
-        <label style={{ margin: 0, padding: "0 0.3vw", color: showLabels ? '#d55200' : '#000000', fontSize: "1vw", display: "flex", alignItems: "center", whiteSpace: "nowrap", boxShadow: showLabels ? '0 0 1vw rgba(255,255,0,0.5)' : 'none', background: showLabels ? "rgb(245,255,58)" : "rgb(255,255,255)", cursor: "pointer" }}>
-          {showLabels ? <>labels on</> : <>labels off</>}
-          <input style={{ width: 0, height: 0, margin: 0 }} type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} />
-        </label>
+
+        <button
+          className={`ppButton ppButton--sm ${showLabels ? "active" : ""}`}
+          aria-pressed={showLabels}
+          onClick={() => setShowLabels(v => !v)}
+        >
+          <span>{showLabels ? "Підписи ✓" : "Підписи"}</span>
+        </button>
       </div>
 
-      {/* ── Рядок 2: панель експорту/імпорту ── */}
-      <div style={{ flexShrink: 0, background: "rgba(77,77,77,0.77)", zIndex: 2 }}>
-        <ExportImportComponent/>
-      </div>
+      {/* ── Рядок 2: обмін даними й автобекап ── */}
+      <ExportImportComponent/>
 
       {/* ── Рядок 3: полотно графу (займає всю решту висоти) ── */}
-      <div ref={containerRef} style={{ flex: 1, minHeight: 0, position: "relative" }}>
+      <div ref={containerRef} className="g2d-canvas">
         {loading ? (
-          <div style={{ height: "100%", backgroundColor: "#000422", textAlign: "center", paddingTop: "40%" }}>
+          <div className="g2d-loading">
             <Loader/>
           </div>
         ) : (
@@ -339,7 +372,7 @@ const Graph2DForBD = () => {
             onLinkHover={setHoverLink}
             onNodeClick={handleSelectNode}
             cooldownTicks={isFrozen ? 0 : 80}
-            backgroundColor="#000422"
+            backgroundColor={CANVAS_BG}
             nodeCanvasObject={(node, ctx, globalScale) => {
               const size = 5;
               ctx.beginPath();
@@ -349,13 +382,16 @@ const Graph2DForBD = () => {
 
               if (showLabels) {
                 const label = getDiagramLabel(node);
-                const fontSize = 0.7 / globalScale;
-                ctx.font = `${fontSize}vw Sans-Serif`;
+                // canvas не розуміє vw — з ним підпис мовчки падав на дефолтний
+                // розмір; ділення на globalScale тримає підпис ~11px на екрані
+                // незалежно від зуму
+                const fontSize = 11 / globalScale;
+                ctx.font = `${fontSize}px "Segoe UI", sans-serif`;
                 ctx.fillStyle = "#fff";
-                ctx.fillText(label, node.x + 6, node.y + 2);
+                ctx.fillText(label, node.x + size + 2, node.y + fontSize / 3);
               }
             }}
-            style={{ backgroundColor: "#000422" }}
+            style={{ backgroundColor: CANVAS_BG }}
           />
         )}
       </div>

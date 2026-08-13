@@ -606,7 +606,10 @@ export default function FileSettings() {
                     <span className={`fs-network-result fs-network-result--${gdriveTestResult.success ? "ok" : "fail"}`}>
                       <span className="fs-network-dot" />
                       {gdriveTestResult.success
-                        ? `Підключено — ${gdriveTestResult.filesCount} папок`
+                        ? `Підключено — ${gdriveTestResult.foldersCount ?? gdriveTestResult.filesCount} папок`
+                          + (gdriveTestResult.plainFilesCount
+                              ? `, ${gdriveTestResult.plainFilesCount} файлів`
+                              : "")
                         : gdriveTestResult.error || "Помилка з'єднання"
                       }
                     </span>

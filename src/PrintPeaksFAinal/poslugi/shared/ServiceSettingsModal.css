@@ -703,3 +703,42 @@
   align-items: center;
   gap: 0.3rem;
 }
+
+/* --- Одиниці запасу за типами робіт --- */
+
+.ssm-units {
+  margin-top: 0.6rem;
+}
+
+.ssm-units-toggle {
+  background: transparent;
+  border: none;
+  padding: 0.3rem 0;
+  cursor: pointer;
+  font-size: var(--font-size-s, 0.85rem);
+  color: var(--admingrey, #666);
+  text-align: left;
+}
+
+.ssm-units-toggle:hover {
+  color: var(--adminorange, #f5a623);
+}
+
+.ssm-units-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.4rem 0 0.2rem 1rem;
+}
+
+.ssm-units-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.ssm-units-name {
+  font-size: var(--font-size-s, 0.85rem);
+  color: var(--admingrey, #666);
+  min-width: 11rem;
+}

@@ -90,6 +90,41 @@ export async function migrateLocalStorageToServer() {
 }
 
 /**
+ * Прогрів кеша в зворотний бік: сервер → localStorage, усі ключі одним запитом.
+ *
+ * Потрібен тому, що сервіси друку читають налаштування СИНХРОННО з localStorage
+ * (niimbotPrintService.getSettings, qzTrayService), а отже не вміють чекати на
+ * відповідь сервера. Коли кеш порожній — новий браузер, інший origin після
+ * деплою, очищені дані сайту — вони мовчки беруть DEFAULTS і друк іде на
+ * дефолтний IP принтера. Раніше кеш наповнювався лише як побічний ефект
+ * відкриття вкладки налаштувань принтера, звідки й брався симптом
+ * «після білда принтер не відповідає, поки не зайдеш у налаштування».
+ *
+ * @returns {Promise<number>} скільки ключів прогріто
+ */
+export async function warmUpSettingsCache() {
+    try {
+        const { data } = await axios.get(API_BASE);
+        let warmed = 0;
+        for (const [apiKey, value] of Object.entries(data || {})) {
+            // Тільки ключі з KEY_MAP: у решти (напр. dock_layout — там
+            // printpeaks_dock_layout_v1 і власна синхронізація в PPDock)
+            // localStorage-ключ інший, і вгадувати його не можна
+            const lsKey = API_KEY_TO_LS[apiKey];
+            if (!lsKey || value == null) continue;
+            localStorage.setItem(lsKey, JSON.stringify(value));
+            warmed++;
+        }
+        if (warmed) console.log(`[UserSettings] Прогріто з сервера: ${warmed} конфіг(ів)`);
+        return warmed;
+    } catch (e) {
+        // Сервер недоступний — лишаємо те, що вже є в localStorage
+        console.warn('[UserSettings] Прогрів кеша не вдався:', e.message);
+        return 0;
+    }
+}
+
+/**
  * React хук для налаштувань.
  * @param {string} apiKey — ключ конфігу (file_settings, niimbot_settings, qztray_settings)
  * @param {object} defaults — значення за замовчуванням

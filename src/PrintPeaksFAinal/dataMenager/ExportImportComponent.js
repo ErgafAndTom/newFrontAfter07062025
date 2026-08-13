@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from '../../api/axiosInstance';
 import './ExportImportComponent.css';
 
@@ -35,6 +35,7 @@ const ExportImportComponent = () => {
     const [busy, setBusy] = useState(false);
     const [msg, setMsg] = useState('');
     const [msgErr, setMsgErr] = useState(false);
+    const fileRef = useRef(null);
 
     const applyStatus = useCallback((data) => {
         setStatus(data);
@@ -75,7 +76,12 @@ const ExportImportComponent = () => {
         try {
             const { data } = await axios.put('/db/backup-settings', patch);
             applyStatus(data);
-            if (note) setMsg(note);
+            if (data.warning) {
+                setMsgErr(true);
+                setMsg(`⚠ ${data.warning}`);
+            } else if (note) {
+                setMsg(note);
+            }
         } catch (e) {
             setMsgErr(true);
             setMsg(`✗ ${e?.response?.data?.error || e.message}`);
@@ -107,7 +113,7 @@ const ExportImportComponent = () => {
             setMsgErr(!!data.driveError);
             setMsg(data.driveError
                 ? `✓ ${data.filename}, але Google Drive: ${data.driveError}`
-                : `✓ ${data.filename} (${fmtSize(data.size)})${data.driveLink ? ' + Google Drive' : ''}`);
+                : `✓ ${data.filename} (${fmtSize(data.size)})${data.driveLink ? ' + Drive' : ''}`);
         } catch (e) {
             setMsgErr(true);
             setMsg(`✗ ${e?.response?.data?.error || e.message}`);
@@ -122,7 +128,7 @@ const ExportImportComponent = () => {
         setMsg('');
         try {
             const { data } = await axios.post('/db/backup-check-drive', { folderId: draft.gdriveFolderId });
-            setMsg(`✓ Тека на Drive: «${data.folder.name}»`);
+            setMsg(`✓ Тека «${data.folder.name}»`);
         } catch (e) {
             setMsgErr(true);
             setMsg(`✗ ${e?.response?.data?.error || e.message}`);
@@ -150,6 +156,9 @@ const ExportImportComponent = () => {
 
     // ── Експорт / Імпорт ──
     const handleExport = async () => {
+        setBusy(true);
+        setMsgErr(false);
+        setMsg('');
         try {
             const response = await axios.get('/db/export-data', { responseType: 'blob' });
             const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -158,179 +167,265 @@ const ExportImportComponent = () => {
             link.setAttribute('download', 'database_backup.zip');
             document.body.appendChild(link);
             link.click();
-        } catch (error) {
-            console.error('Помилка експорту', error);
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (e) {
+            setMsgErr(true);
+            setMsg(`✗ Помилка експорту: ${e?.response?.data?.error || e.message}`);
+        } finally {
+            setBusy(false);
         }
     };
 
     const handleImport = async (event) => {
         const file = event.target.files[0];
+        if (!file) return;
+        // Імпорт перезаписує рядки в усіх таблицях — питаємо перед стартом
+        const go = window.confirm(
+            `Імпортувати «${file.name}» у базу?\n\n` +
+            'Дані з архіву перезапишуть наявні записи з тими самими id. ' +
+            'Радимо спершу зробити бекап кнопкою «Зберегти зараз».'
+        );
+        if (!go) {
+            if (fileRef.current) fileRef.current.value = '';
+            return;
+        }
+
         const formData = new FormData();
         formData.append('archive', file);
+        setBusy(true);
+        setMsgErr(false);
+        setMsg('');
         try {
             const response = await axios.post('/db/import-data', formData);
-            alert(response.data);
-        } catch (error) {
-            console.error('Помилка імпорту', error);
+            setMsg(typeof response.data === 'string' ? response.data : '✓ Дані імпортовано');
+        } catch (e) {
+            setMsgErr(true);
+            setMsg(`✗ ${e?.response?.data?.error || e?.response?.data || e.message}`);
+        } finally {
+            setBusy(false);
+            if (fileRef.current) fileRef.current.value = '';
         }
     };
 
+    const stateClass = state.lastStatus === 'error'
+        ? 'pp-bk-state pp-bk-state--err'
+        : (settings.enabled ? 'pp-bk-state pp-bk-state--on' : 'pp-bk-state');
+
     return (
         <div className="pp-bk">
-            <div className="pp-bk-row">
-                {/* ── Експорт / Імпорт ── */}
-                <button className="pp-bk-btn" onClick={handleExport}>Експорт даних</button>
-                <input type="file" onChange={handleImport} style={{ fontSize: '0.9vw', color: 'inherit' }} />
 
-                <span className="pp-bk-sep">|</span>
+            {/* ── Смуга 1: обмін даними ── */}
+            <div className="pp-bk-bar">
+                <span className="pp-bk-eyebrow">Обмін даними</span>
 
-                {/* ── Автобекап ── */}
-                <label className="pp-bk-label">
+                <button className="ppButton ppButton--sm" onClick={handleExport} disabled={busy}>
+                    <span>Експорт бази</span>
+                </button>
+
+                <label className="ppButton ppButton--sm pp-bk-file-pick pp-bk-btn-danger">
+                    <span>Імпорт з архіву</span>
+                    <input type="file" accept=".zip" ref={fileRef} onChange={handleImport} disabled={busy} />
+                </label>
+
+                <span className="pp-bk-div" />
+
+                <span className="pp-bk-eyebrow">Автобекап</span>
+
+                <label className="pp-bk-check">
                     <input
                         type="checkbox"
-                        className="pp-bk-check"
                         checked={!!settings.enabled}
                         onChange={handleToggle}
                         disabled={saving}
                     />
-                    Автобекап щодня о
+                    Щодня о
                 </label>
 
                 <input
                     type="time"
-                    className="pp-bk-time"
+                    className="pp-bk-inp pp-bk-inp--time"
                     value={settings.time || '18:00'}
                     onChange={handleTimeChange}
                     disabled={saving}
                 />
 
-                {settings.enabled && status?.nextRun && (
-                    <span className="pp-bk-next">Наступний: {fmtDate(status.nextRun)}</span>
-                )}
+                <span className={stateClass}>
+                    <span className="pp-bk-dot" />
+                    {settings.enabled && status?.nextRun
+                        ? <>Наступний <b className="pp-bk-strong">{fmtDate(status.nextRun)}</b></>
+                        : <>Вимкнено</>}
+                </span>
 
                 {state.lastRun && (
-                    <span className="pp-bk-muted">
-                        Останній: {fmtDate(state.lastRun)}
-                        {state.lastStatus === 'error' ? ' ⚠' : ''}
+                    <span className="pp-bk-cap" style={{ opacity: 0.7 }}>
+                        Останній <b className="pp-bk-strong">{fmtDate(state.lastRun)}</b>
                     </span>
                 )}
 
-                <button className="pp-bk-btn" onClick={() => setShowPanel(v => !v)}>
-                    {showPanel ? '▲ Налаштування' : '⚙ Налаштування'}
+                <span className="pp-bk-spacer" />
+
+                {msg && !msgErr && (
+                    <span className="pp-bk-msg pp-bk-ok" title={msg}>{msg}</span>
+                )}
+
+                <button
+                    className={`ppButton ppButton--sm ${showPanel ? 'active' : ''}`}
+                    onClick={() => setShowPanel(v => !v)}
+                    aria-pressed={showPanel}
+                >
+                    <span>Налаштування</span>
                 </button>
 
                 <button
-                    className="pp-bk-btn pp-bk-btn--primary"
+                    className="ppButton ppButton--sm pp-bk-btn-go"
                     onClick={triggerBackup}
                     disabled={busy}
                 >
-                    {busy ? '...' : '💾 Зберегти зараз'}
+                    <span>{busy ? 'Працюю…' : 'Зберегти зараз'}</span>
                 </button>
-
-                {msg && <span className={msgErr ? 'pp-bk-err' : 'pp-bk-ok'}>{msg}</span>}
             </div>
 
+            {/* Помилки й попередження бувають довгі (напр. про Спільний диск) —
+                показуємо їх банером, а не обрізаним рядком у смузі */}
+            {msg && msgErr && (
+                <div className="pp-bk-banner">
+                    <span>{msg}</span>
+                    <button className="pp-bk-banner-x" onClick={() => setMsg('')} title="Приховати">✕</button>
+                </div>
+            )}
+
+            {/* ── Панель налаштувань ── */}
             {showPanel && (
                 <div className="pp-bk-panel">
-                    <span className="pp-bk-panel-title">Куди зберігати</span>
 
-                    <div className="pp-bk-panel-row">
-                        <label className="pp-bk-label" style={{ flex: 1 }}>
-                            Тека на сервері:
-                            <input
-                                className="pp-bk-input"
-                                value={draft.localPath}
-                                placeholder={status?.defaultPath || 'data/BackupDB'}
-                                onChange={(e) => setDraft(d => ({ ...d, localPath: e.target.value }))}
-                            />
-                        </label>
-                        <label className="pp-bk-label">
-                            Тримати копій:
-                            <input
-                                type="number"
-                                min="0"
-                                className="pp-bk-num"
-                                value={draft.keepLocal}
-                                onChange={(e) => setDraft(d => ({ ...d, keepLocal: e.target.value }))}
-                            />
-                        </label>
+                    <div className="pp-bk-sect">
+                        <span className="pp-bk-eyebrow pp-bk-eyebrow--full">Тека на сервері</span>
+
+                        <div className="pp-bk-line">
+                            <label className="pp-bk-field pp-bk-field--grow">
+                                Шлях
+                                <input
+                                    className="pp-bk-inp pp-bk-inp--path"
+                                    value={draft.localPath}
+                                    placeholder={status?.defaultPath || 'data/BackupDB'}
+                                    onChange={(e) => setDraft(d => ({ ...d, localPath: e.target.value }))}
+                                />
+                            </label>
+                            <label className="pp-bk-field">
+                                Тримати копій
+                                <input
+                                    type="number"
+                                    min="0"
+                                    className="pp-bk-inp pp-bk-inp--num"
+                                    value={draft.keepLocal}
+                                    onChange={(e) => setDraft(d => ({ ...d, keepLocal: e.target.value }))}
+                                />
+                            </label>
+                        </div>
+
+                        <span className="pp-bk-note">
+                            Абсолютний (<code>E:\Backups</code>) або відносний до теки Backend
+                            (<code>config/backups</code>). Зараз пишемо в <code>{status?.resolvedPath || '—'}</code>.
+                            «Тримати копій» = 0 — старі архіви не видаляти.
+                        </span>
                     </div>
 
-                    <span className="pp-bk-hint">
-                        Шлях абсолютний (<code>E:\Backups</code>) або відносний до теки Backend
-                        (<code>config/backups</code>). Зараз пишемо в: {status?.resolvedPath || '—'}.
-                        «Тримати копій» = 0 — старі архіви не видаляти.
-                    </span>
+                    <div className="pp-bk-sect">
+                        <span className="pp-bk-eyebrow pp-bk-eyebrow--full">Google Drive</span>
 
-                    <span className="pp-bk-panel-title">Google Drive</span>
+                        <div className="pp-bk-line">
+                            <label className="pp-bk-check">
+                                <input
+                                    type="checkbox"
+                                    checked={!!draft.gdriveEnabled}
+                                    onChange={(e) => setDraft(d => ({ ...d, gdriveEnabled: e.target.checked }))}
+                                />
+                                Дублювати копію
+                            </label>
 
-                    <div className="pp-bk-panel-row">
-                        <label className="pp-bk-label">
-                            <input
-                                type="checkbox"
-                                className="pp-bk-check"
-                                checked={!!draft.gdriveEnabled}
-                                onChange={(e) => setDraft(d => ({ ...d, gdriveEnabled: e.target.checked }))}
-                            />
-                            Дублювати копію на Google Drive
-                        </label>
-                        <label className="pp-bk-label" style={{ flex: 1 }}>
-                            ID теки:
-                            <input
-                                className="pp-bk-input"
-                                value={draft.gdriveFolderId}
-                                placeholder="1AbC...xyz"
-                                onChange={(e) => setDraft(d => ({ ...d, gdriveFolderId: e.target.value }))}
-                            />
-                        </label>
-                        <button className="pp-bk-btn" onClick={checkDrive} disabled={busy || !draft.gdriveFolderId}>
-                            Перевірити
-                        </button>
-                        <label className="pp-bk-label">
-                            Тримати на Drive:
-                            <input
-                                type="number"
-                                min="0"
-                                className="pp-bk-num"
-                                value={draft.keepDrive}
-                                onChange={(e) => setDraft(d => ({ ...d, keepDrive: e.target.value }))}
-                            />
-                        </label>
+                            <label className="pp-bk-field pp-bk-field--grow">
+                                ID теки
+                                <input
+                                    className="pp-bk-inp pp-bk-inp--id"
+                                    value={draft.gdriveFolderId}
+                                    placeholder="1AbC…xyz"
+                                    onChange={(e) => setDraft(d => ({ ...d, gdriveFolderId: e.target.value }))}
+                                />
+                            </label>
+
+                            <button
+                                className="ppButton ppButton--sm"
+                                onClick={checkDrive}
+                                disabled={busy || !draft.gdriveFolderId}
+                            >
+                                <span>Перевірити</span>
+                            </button>
+
+                            <label className="pp-bk-field">
+                                Тримати на Drive
+                                <input
+                                    type="number"
+                                    min="0"
+                                    className="pp-bk-inp pp-bk-inp--num"
+                                    value={draft.keepDrive}
+                                    onChange={(e) => setDraft(d => ({ ...d, keepDrive: e.target.value }))}
+                                />
+                            </label>
+                        </div>
+
+                        <span className="pp-bk-note">
+                            ID теки — хвіст її адреси: drive.google.com/drive/folders/<b>ID</b>.
+                            {status?.driveAccount
+                                && <> Спершу відкрийте доступ «Редактор» для сервісного акаунта <b>{status.driveAccount}</b>.</>}
+                            {' '}«Тримати на Drive» = 0 — на Drive нічого не видаляти.
+                        </span>
+
+                        {!status?.driveAccount && status?.driveDiagnostics && (
+                            <span className="pp-bk-note pp-bk-err">
+                                Сервісний ключ Google на сервері не читається, тож вивантаження
+                                не працюватиме. Що бачить сервер: <code>{status.driveDiagnostics}</code>
+                            </span>
+                        )}
                     </div>
 
-                    <span className="pp-bk-hint">
-                        ID теки — це хвіст її адреси: drive.google.com/drive/folders/<b>ID</b>.
-                        {status?.driveAccount
-                            ? <> Спершу відкрийте доступ «Редактор» для сервісного акаунта <b>{status.driveAccount}</b>.</>
-                            : <> Сервісний ключ Google на сервері не налаштований — вивантаження на Drive не працюватиме.</>}
-                        {' '}«Тримати на Drive» = 0 — на Drive нічого не видаляти.
-                    </span>
-
-                    <div className="pp-bk-panel-row">
-                        <button className="pp-bk-btn pp-bk-btn--primary" onClick={handleSavePanel} disabled={saving}>
-                            {saving ? '...' : 'Зберегти налаштування'}
+                    <div className="pp-bk-line">
+                        <button
+                            className="ppButton ppButton--sm pp-bk-btn-go"
+                            onClick={handleSavePanel}
+                            disabled={saving}
+                        >
+                            <span>{saving ? 'Зберігаю…' : 'Зберегти налаштування'}</span>
                         </button>
-                        <button className="pp-bk-btn" onClick={load} disabled={saving}>Оновити</button>
+                        <button className="ppButton ppButton--sm" onClick={load} disabled={saving}>
+                            <span>Оновити</span>
+                        </button>
                         {state.lastStatus === 'error' && state.lastError && (
-                            <span className="pp-bk-err">Остання помилка: {state.lastError}</span>
+                            <span className="pp-bk-cap pp-bk-err">Остання помилка: {state.lastError}</span>
                         )}
                     </div>
 
                     {!!status?.files?.length && (
-                        <>
-                            <span className="pp-bk-panel-title">Збережені копії ({status.files.length})</span>
+                        <div className="pp-bk-sect">
+                            <span className="pp-bk-eyebrow pp-bk-eyebrow--full">
+                                Збережені копії · {status.files.length}
+                            </span>
                             <div className="pp-bk-files">
                                 {status.files.map(f => (
                                     <div className="pp-bk-file" key={f.name}>
-                                        <button className="pp-bk-file-name" onClick={() => downloadBackup(f.name)}>
+                                        <button
+                                            className="pp-bk-file-name"
+                                            onClick={() => downloadBackup(f.name)}
+                                            title="Завантажити архів"
+                                        >
                                             {f.name}
                                         </button>
-                                        <span>{fmtSize(f.size)}</span>
-                                        <span>{fmtDate(f.mtime)}</span>
+                                        <span className="pp-bk-file-meta">{fmtSize(f.size)}</span>
+                                        <span className="pp-bk-file-meta">{fmtDate(f.mtime)}</span>
                                     </div>
                                 ))}
                             </div>
-                        </>
+                        </div>
                     )}
                 </div>
             )}

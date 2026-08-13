@@ -57,6 +57,17 @@ function App() {
     initWebSocket();
   }, []);
 
+  // Прогрів кеша налаштувань (принтер штрихкодів, QZ Tray, адреси Нової Пошти).
+  // Саме тут, а не лише при логіні: токен живе добу, тож після ребілду фронта
+  // користувач у застосунок заходить без повторного входу — а localStorage
+  // при цьому може бути порожній (інший origin, новий браузер, чищені дані).
+  useEffect(() => {
+    if (!localStorage.getItem('token')) return;
+    import('./hooks/useUserSettings')
+        .then(({ warmUpSettingsCache }) => warmUpSettingsCache())
+        .catch(() => {});
+  }, []);
+
   return (
 
     <Provider store={store}>          {/* ← ЭТО ДОЛЖНО БЫТЬ САМОЕ ВНЕШНЕЕ */}

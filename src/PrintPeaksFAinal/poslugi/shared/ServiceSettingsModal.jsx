@@ -230,7 +230,6 @@ const ServiceSettingsModal = ({
   // окрема настройка (AppSetting), а не частина пресету конкретного товару
   const [extraSettings, setExtraSettings] = useState(DEFAULT_EXTRA_SETTINGS);
   const [extraOpen, setExtraOpen] = useState(false);
-  const [newRange, setNewRange] = useState({ from: "", to: "", sheets: "" });
   const [materials, setMaterials] = useState([]);
   const [materialsLoading, setMaterialsLoading] = useState(false);
   const [materialDropdownOpen, setMaterialDropdownOpen] = useState(false);
