@@ -1640,14 +1640,8 @@
   min-width: 0;
 }
 
-/* Ті самі метрики, що в «Нове замовлення» (.buttonSkewedOrder), і та
-   сама смужка + «штамп», що в кнопок картки клієнта на сторінці наряду
-   (.nui-client-rect-btn у nuiJobTicket.css): кромка зліва, заливка
-   насувається зліва направо, текст услід білішає. */
+/* Client actions use the same surface tokens as order modal buttons. */
 .nav-client-btn {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
   flex: 0 0 auto;
   height: 100%;
   width: auto;
@@ -1657,12 +1651,12 @@
   justify-content: center;
   gap: 6px;
   border: none;
-  border-left: 3px solid #000;
+  border-bottom: 2px solid transparent;
   border-radius: 0;
-  background: var(--adminfon, #f7f5ee);
-  color: var(--admingrey, #666);
+  background: #eeeeee;
+  color: var(--ppm-ink, var(--admingrey, #666));
   font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
-  font-size: var(--font-size-s, 0.85rem);
+  font-size: var(--ppm-fs-btn, 1.15rem);
   font-weight: 400;
   font-stretch: 100%;
   letter-spacing: normal;
@@ -1670,48 +1664,35 @@
   white-space: nowrap;
   cursor: pointer;
   box-sizing: border-box;
-  transition: color 0.32s ease, border-color 0.12s;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 
-.nav-client-btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: #000;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
-  z-index: 0;
+.nav-client-btn:not(:disabled):hover {
+  background: #e2e2e2;
+  color: var(--admingrey, #666);
+  border-bottom-color: transparent;
 }
 
-/* текст поверх заливки */
-.nav-client-btn > * {
-  position: relative;
-  z-index: 1;
+.nav-client-btn:focus-visible {
+  outline: 2px solid var(--ppm-action, #f5a623);
+  outline-offset: -2px;
 }
-
-.nav-client-btn:not(:disabled):hover::before { transform: scaleX(1); }
-
-.nav-client-btn:not(:disabled):hover { color: #fff; }
 
 .nav-client-btn:disabled {
   opacity: 0.45;
   cursor: default;
 }
 
-/* «Вчасно» — жовта кромка й жовтий «штамп»; на жовтому підпис чорний
-   (білий на #ffe640 не читається) */
-.nav-client-btn-vchasno { border-left-color: #ffe640; }
-
-.nav-client-btn-vchasno::before { background: #ffe640; }
-
-.nav-client-btn-vchasno:not(:disabled):hover { color: #000; }
-
-/* увімкнено — жовтий фон постійно, підпис чорний */
+/* Vchasno: neutral when off, yellow when on, pale yellow on hover. */
 .nav-client-btn-vchasno.is-on {
-  background: #ffe640;
+  background: #ffec00;
   color: #000;
-  border-left-color: #ffe640;
+}
+
+.nav-client-btn-vchasno:not(:disabled):hover {
+  background: #fff49b;
+  color: #000;
+  border-bottom-color: transparent;
 }
 
 .nav-client-btn-key { font-size: 0.8rem; line-height: 1; }

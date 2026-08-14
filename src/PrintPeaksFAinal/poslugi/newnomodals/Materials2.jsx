@@ -154,40 +154,48 @@ const Materials2 = ({
               )
             : null;
           const target = byThickness || pool[0] || rows[0];
-          if (String(target.id) !== String(material?.materialId)) {
-            setMaterial((prev) => ({
+          setMaterial((prev) => {
+            if (String(target.id) === String(prev?.materialId)) return prev;
+            return {
               ...prev,
               material: target.name,
               materialId: target.id,
               a: target.thickness || "",
               x: target.x || "",
               y: target.y || "",
-            }));
-          }
-        } else {
-          // Авто-вибір матеріалу якщо нічого не вибрано або поточний відсутній у результатах
-          const currentExists = rows.some((r) => String(r.id) === String(material?.materialId));
-          const isOffice = material?.typeUse === 'Офісний' || material?.thickness === 'Офісний';
-          const needsAutoSelect = !material?.materialId || material.materialId === 0 || material.materialId === "0" || !currentExists;
+            };
+          });
+        } else if (rows.length > 0) {
+          // Авто-вибір матеріалу якщо нічого не вибрано або поточний відсутній у результатах.
+          // ВАЖЛИВО: рішення приймаємо від АКТУАЛЬНОГО стану (prev), а не від material
+          // із замикання ефекту. Інакше при відкритті збереженого наряду (а надто коли
+          // список приходить з materialsCache синхронно, ще до гідратації полів модалки)
+          // збережений матеріал затирався першим рядком каталогу — типовий симптом
+          // «замість фотопаперу став крейдований» / «виберіть матеріал».
+          setMaterial((prev) => {
+            const currentExists = rows.some((r) => String(r.id) === String(prev?.materialId));
+            const isOffice = prev?.typeUse === 'Офісний' || prev?.thickness === 'Офісний';
+            const needsAutoSelect = !prev?.materialId || String(prev.materialId) === "0" || !currentExists;
 
-          // Для "Офісний" — завжди авто-вибирати матеріал за розміром
-          if (rows.length > 0 && (isOffice || (autoSelectFirst && needsAutoSelect))) {
+            // Для "Офісний" — завжди авто-вибирати матеріал за розміром
+            if (!(isOffice || (autoSelectFirst && needsAutoSelect))) return prev;
+
             const sizeMatch = size?.x && size?.y
               ? rows.find((r) => Number(r.x) === Number(size.x) && Number(r.y) === Number(size.y))
               : null;
             const target = sizeMatch || rows[0];
             // Оновлюємо тільки якщо реально потрібно (інший матеріал або немає вибору)
-            if (needsAutoSelect || (isOffice && String(target.id) !== String(material?.materialId))) {
-              setMaterial((prev) => ({
-                ...prev,
-                material: target.name,
-                materialId: target.id,
-                a: target.thickness || "",
-                x: target.x || "",
-                y: target.y || "",
-              }));
-            }
-          }
+            if (!(needsAutoSelect || (isOffice && String(target.id) !== String(prev?.materialId)))) return prev;
+
+            return {
+              ...prev,
+              material: target.name,
+              materialId: target.id,
+              a: target.thickness || "",
+              x: target.x || "",
+              y: target.y || "",
+            };
+          });
         }
     };
 
@@ -223,6 +231,53 @@ const Materials2 = ({
        наново на кожен рендер, тож ефект перезапитував список нескінченно.
        Значення беремо з size.x/size.y — вони примітиви. */
   }, [material?.thickness, material?.type, size?.x, size?.y, typeOfPosluga, preferredMaterialName, preferredMaterialThickness, autoSelectFirst, sortOverride?.column, sortOverride?.reverse]);
+
+  // Відновлення вибору, якщо матеріал зник уже після завантаження списку.
+  //
+  // React виконує ефекти дітей ПЕРЕД ефектами батька. Тому при відкритті модалки
+  // цей компонент встигає підставити матеріал (а з materialsCache — синхронно,
+  // на першому ж проході), і одразу після нього ефект ініціалізації батька
+  // кладе свої DEFAULTS з порожнім materialId, затираючи вибір. Ефект завантаження
+  // при цьому не перезапускається — type/thickness/size не змінились, — і селект
+  // лишався порожнім («Виберіть матеріал»), хоча список матеріалів завантажений.
+  useEffect(() => {
+    if (!paper.length) return;
+    if (material?.materialId && String(material.materialId) !== "0") return;
+    if (!preferredMaterialName && !autoSelectFirst) return;
+
+    let target = null;
+    if (preferredMaterialName) {
+      const wanted = String(preferredMaterialName).toLowerCase();
+      const sameName = paper.filter((r) => (r.name || "").toLowerCase() === wanted);
+      const pool = sameName.length
+        ? sameName
+        : paper.filter((r) => (r.name || "").toLowerCase().includes(wanted));
+      const byThickness = preferredMaterialThickness
+        ? (pool.length ? pool : paper).find(
+            (r) => String(r.thickness) === String(preferredMaterialThickness)
+          )
+        : null;
+      target = byThickness || pool[0] || paper[0];
+    } else {
+      const sizeMatch = size?.x && size?.y
+        ? paper.find((r) => Number(r.x) === Number(size.x) && Number(r.y) === Number(size.y))
+        : null;
+      target = sizeMatch || paper[0];
+    }
+    if (!target) return;
+
+    setMaterial((prev) => {
+      if (prev?.materialId && String(prev.materialId) !== "0") return prev;
+      return {
+        ...prev,
+        material: target.name,
+        materialId: target.id,
+        a: target.thickness || "",
+        x: target.x || "",
+        y: target.y || "",
+      };
+    });
+  }, [paper, material?.materialId, preferredMaterialName, preferredMaterialThickness, autoSelectFirst, size?.x, size?.y]); // eslint-disable-line
 
   // 📏 автоширина
   useEffect(() => {

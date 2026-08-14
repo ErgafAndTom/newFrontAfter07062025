@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from '../../api/axiosInstance';
 import {useDispatch, useSelector} from 'react-redux';
 import BellButton from './BellButton';
+import './PopupLeftNotification.css';
 import {fetchTrelloData} from "../../actions/trello_async_actions";
 
 const METHOD_LABELS = {
@@ -227,6 +228,9 @@ const PopupLeftNotification = () => {
       {show && createPortal(
         <div
           ref={popupRef}
+          className="notification-panel"
+          role="dialog"
+          aria-label="Центр сповіщень"
           style={{
             position: 'fixed',
             ...(isMobile
@@ -249,6 +253,14 @@ const PopupLeftNotification = () => {
             boxSizing: 'border-box',
           }}
         >
+          <div className="notification-panel__header">
+            <div className="notification-panel__heading">
+              <h2>Сповіщення</h2>
+              <p>Оплати, доставка та завдання</p>
+            </div>
+            <span className="notification-panel__count" aria-label={`${totalCount} сповіщень`}>{totalCount}</span>
+          </div>
+
           {/* Сповіщення оплат */}
           {paymentData.map((notif) => {
             const isExpired = notif.method === 'expired';
@@ -290,6 +302,13 @@ const PopupLeftNotification = () => {
             }
 
             const isMockup = notif.method === 'mockup';
+            const visualTone = isExpired
+              ? 'danger'
+              : isRepeat
+              ? 'info'
+              : isMockup
+              ? 'task'
+              : (isIbanPending || isInvoiceOverdue) ? 'warning' : 'success';
             const label = isIbanPending
               ? 'Очікування оплати'
               : isInvoiceOverdue
@@ -306,7 +325,10 @@ const PopupLeftNotification = () => {
             return (
               <div
                 key={`pay-${notif.id}`}
+                className={`notification-card notification-card--${visualTone}`}
                 style={{
+                  '--notification-accent': accentColor,
+                  '--notification-soft': bgColor,
                   background: bgColor,
                   borderBottom: `2px solid ${borderColor}`,
                   borderRadius: '0',
@@ -320,6 +342,7 @@ const PopupLeftNotification = () => {
                 }}
               >
                 <div
+                  className="notification-card__content"
                   style={{ flexGrow: 1, fontSize: 'var(--font-size-s, 17px)', color: 'var(--admingrey, #666)', fontWeight: 400 }}
                   onClick={() => handlePaymentClick(notif.orderId)}
                 >
@@ -336,7 +359,9 @@ const PopupLeftNotification = () => {
                 </div>
                 {!isExpired && !isIbanPending && (
                   <button
+                    type="button"
                     className="notification-check-btn"
+                    aria-label="Позначити сповіщення як переглянуте"
                     style={btnStyle}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -371,6 +396,7 @@ const PopupLeftNotification = () => {
               accentColor = '#333';
             }
 
+            const visualTone = isCanceled ? 'danger' : isDelivered ? 'success' : 'active';
             const statusLabel = UKLON_STATUS_LABELS[notif.status] || notif.status;
             const cancelReason = notif.cancellation?.reason === 'driver_search_timeout'
               ? ' (не знайшли водія)'
@@ -381,7 +407,10 @@ const PopupLeftNotification = () => {
             return (
               <div
                 key={notif.id}
+                className={`notification-card notification-card--${visualTone}`}
                 style={{
+                  '--notification-accent': isActive ? '#8a6500' : accentColor,
+                  '--notification-soft': bgColor,
                   background: bgColor,
                   borderBottom: `2px solid ${borderColor}`,
                   padding: isMobile ? '0.8vh 0.5rem' : '0.8vh 0.6vw',
@@ -393,6 +422,7 @@ const PopupLeftNotification = () => {
                 }}
               >
                 <div
+                  className="notification-card__content"
                   style={{ flexGrow: 1, fontSize: 'var(--font-size-s, 17px)', color: 'var(--admingrey, #666)', fontWeight: 400 }}
                   onClick={() => { setShow(false); navigate(`/Orders/${notif.orderId}`); }}
                 >
@@ -402,7 +432,9 @@ const PopupLeftNotification = () => {
                   {cancelReason}
                 </div>
                 <button
+                  type="button"
                   className="notification-check-btn"
+                  aria-label="Позначити сповіщення як переглянуте"
                   style={{
                     '--notif-btn-1': isCanceled ? '#f25040' : isDelivered ? '#2eaa6e' : '#ffe066',
                     '--notif-btn-2': isCanceled ? '#ee3c23' : isDelivered ? '#0e935b' : '#FFD600',
@@ -418,7 +450,12 @@ const PopupLeftNotification = () => {
 
           {/* Завдання (trello cards) */}
           {taskData.map((card) => (
-            <div key={`task-${card.id}`} style={{
+            <div
+              key={`task-${card.id}`}
+              className="notification-card notification-card--task"
+              style={{
+              '--notification-accent': 'var(--adminorange, #b86500)',
+              '--notification-soft': 'var(--adminlightorange, #fff3df)',
               background: 'var(--adminfonelement, #f1eee7)',
               borderBottom: '2px solid var(--adminorange, #f5a623)',
               borderRadius: '0',
@@ -429,12 +466,12 @@ const PopupLeftNotification = () => {
               alignItems: 'flex-start',
               gap: '0.5vw'
             }}>
-              <div style={{ flexGrow: 1 }}>
+              <div className="notification-card__content" style={{ flexGrow: 1 }}>
                 <div style={{ marginBottom: '0.5vh', fontSize: 'var(--font-size-s, 17px)', color: 'var(--admingrey, #666)', fontWeight: 400 }}>
                   {card.content}
                 </div>
                 {card.inTrelloPhoto && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                  <div className="notification-card__photos" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
                     {card.inTrelloPhoto.map((photo, idx) => (
                       <img
                         key={idx}
@@ -450,7 +487,9 @@ const PopupLeftNotification = () => {
                 )}
               </div>
               <button
+                type="button"
                 className="notification-check-btn"
+                aria-label="Завершити завдання"
                 style={{
                   '--notif-btn-1': '#f7c23b',
                   '--notif-btn-2': '#f5a623',
@@ -464,7 +503,7 @@ const PopupLeftNotification = () => {
           ))}
 
           {totalCount === 0 && (
-            <div style={{
+            <div className="notification-empty" style={{
               textAlign: 'center',
               padding: '2vh 0',
               color: 'var(--admingrey, #666)',

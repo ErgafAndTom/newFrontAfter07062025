@@ -2,9 +2,8 @@ import React, { useCallback, useEffect, useState, useMemo, lazy, Suspense } from
 import ReactDOM from "react-dom";
 import axios from "../../api/axiosInstance";
 import { Spinner } from "react-bootstrap";
-import { FiFolder, FiChevronDown, FiChevronUp, FiChevronsUp, FiTrash2 } from "react-icons/fi";
+import { FiFolder, FiChevronDown, FiChevronUp, FiChevronsUp, FiTrash2, FiCornerLeftUp } from "react-icons/fi";
 import { fileTypeMeta, shortName, formatBytes } from "../../utils/fileUtils";
-import { loadFileSettings } from "../user/profile/DesignSettings";
 import "./ClientFilesPanel.css";
 
 const ClientFilesPanel = lazy(() => import("./ClientFilesPanel"));
@@ -17,20 +16,30 @@ const CompanyFilesPanel = ({ companyId, companyName = "", onClose }) => {
   const [sortDesc, setSortDesc] = useState(true);
   const [openClientId, setOpenClientId] = useState(null);
   const [openClientName, setOpenClientName] = useState("");
+  // підпапка всередині папки компанії ('' = корінь). Тут же живе службова
+  // avatar — аватарки клієнтів компанії складаються саме в неї.
+  const [currentFolder, setCurrentFolder] = useState("");
 
   const fetchFiles = useCallback(async () => {
     if (!companyId) return;
     try {
       setError(null);
       setLoading(true);
-      const res = await axios.get(`/api/client-files/company/${companyId}`);
+      const params = currentFolder ? { folder: currentFolder } : {};
+      const res = await axios.get(`/api/client-files/company/${companyId}`, { params });
       setFiles(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       setError(e.message || "Помилка отримання файлів компанії");
     } finally {
       setLoading(false);
     }
-  }, [companyId]);
+  }, [companyId, currentFolder]);
+
+  const openSubfolder = (folderName) =>
+    setCurrentFolder(prev => (prev ? `${prev}/${folderName}` : folderName));
+
+  const breadcrumbs = currentFolder ? currentFolder.split("/") : [];
+  const goToCrumb = (idx) => setCurrentFolder(breadcrumbs.slice(0, idx + 1).join("/"));
 
   useEffect(() => { fetchFiles(); }, [fetchFiles]);
 
@@ -66,23 +75,6 @@ const CompanyFilesPanel = ({ companyId, companyName = "", onClose }) => {
       setFiles(prev => prev.filter(f => f.id !== fileId));
     } catch (e) {
       setError(e.message || "Помилка видалення");
-    }
-  };
-
-  const openFolder = async (userId) => {
-    if (!userId) return;
-    try {
-      const fileSets = loadFileSettings();
-      const { data } = await axios.post(`/api/client-files/users/${userId}/open-folder`, {
-        folderMode: fileSets.folderMode,
-        networkPath: fileSets.networkPath,
-      });
-      if (data.folderPath) {
-        const uncPath = data.folderPath.replace(/\//g, '\\');
-        window.open(`ppfolder://${encodeURIComponent(uncPath)}`, '_self');
-      }
-    } catch (e) {
-      setError("Не вдалось відкрити папку");
     }
   };
 
@@ -156,6 +148,34 @@ const CompanyFilesPanel = ({ companyId, companyName = "", onClose }) => {
           </span>
         </div>
 
+        {/* Навігація по підпапках компанії — той самий вигляд, що й у панелі клієнта */}
+        <div className="cfp-toolbar">
+          <div className="cfp-toolbar-nav">
+            <button
+              type="button"
+              className="cfp-tool-btn"
+              disabled={!currentFolder}
+              title="На рівень вище"
+              onClick={() => setCurrentFolder(breadcrumbs.slice(0, -1).join("/"))}
+            ><FiCornerLeftUp size={15}/></button>
+            <div className="cfp-crumbs">
+              <button
+                type="button"
+                className="cfp-crumb cfp-crumb-root"
+                onClick={() => setCurrentFolder("")}
+              >
+                {`Файли компанії №${companyId}`}
+              </button>
+              {breadcrumbs.map((part, i) => (
+                <React.Fragment key={`${part}-${i}`}>
+                  <span className="cfp-crumb-sep">/</span>
+                  <button type="button" className="cfp-crumb" onClick={() => goToCrumb(i)}>{part}</button>
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {loading && (
           <div style={{ textAlign: "center", padding: 20 }}>
             <Spinner animation="grow" variant="dark" size="sm"/>
@@ -192,7 +212,7 @@ const CompanyFilesPanel = ({ companyId, companyName = "", onClose }) => {
                 </div>
                 <div
                   className="cfp-file-name"
-                  onClick={() => isDir ? openFolder(f.userId) : openFile(f.id)}
+                  onClick={() => isDir ? openSubfolder(f.fileName) : openFile(f.id)}
                   title={f.originalName || f.fileName}
                 >
                   {shortName(f.originalName || f.fileName, 50)}

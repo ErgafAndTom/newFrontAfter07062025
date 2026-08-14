@@ -1466,22 +1466,26 @@
 
 :root[data-theme="light"] .cfp-toolbar .cfp-toolbar-action {
   color: #111111 !important;
-  border-color: #bdbdbd !important;
-  background: #f5f5f5 !important;
+  border-color: transparent !important;
+  background-color: var(--v2-tile, var(--adminfonelement, #f2f2f2)) !important;
 }
 
-/* Final toolbar treatment: same flat language as the view controls. */
+/* Final toolbar treatment: same flat language as the view controls.
+   Підкладка — та сама, що в решти кнопок тулбару (--v2-tile, рецепт .v2-tab
+   з модалок замовлень). Раніше тут стояв transparent, і три кнопки дій
+   (нова папка / додати файли / додати папку) виглядали білими. */
 .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action {
   border: none !important;
   border-radius: 0 !important;
-  background: transparent !important;
+  background-color: var(--v2-tile, var(--adminfonelement, #f2f0e9)) !important;
   box-shadow: none !important;
   color: var(--admingrey, #555) !important;
   overflow: visible;
 }
 
+/* роздільник між ними більше не потрібен — кнопки розділяє проміжок 6px */
 .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action + .cfp-toolbar-action {
-  border-left: 1px solid color-mix(in srgb, var(--admingrey, #666) 32%, transparent) !important;
+  border-left: none !important;
 }
 
 .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action > svg {
@@ -1497,17 +1501,19 @@
   display: none !important;
 }
 
+/* у всіх темах підкладка й ховер беруться з тих самих токенів, що й у
+   решти кнопок тулбару — інакше ці три знову випадають зі стилю */
 :root[data-theme="light"] .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action {
   color: #111111 !important;
-  background: transparent !important;
+  background-color: var(--v2-tile, var(--adminfonelement, #f2f2f2)) !important;
 }
 
 :root[data-theme="light"] .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action:hover {
-  background: #eeeeee !important;
+  background-color: var(--v2-tile-hi, #eeeeee) !important;
 }
 
 :root[data-theme="dark"] .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action {
-  background: #ffffff !important;
+  background-color: var(--v2-tile, var(--adminfonelement, #1f1f1f)) !important;
 }
 
 /* Final inline file workspace: the preview starts at toolbar level and the
@@ -1537,12 +1543,15 @@
   border: none;
 }
 
+/* Фон і ховер — як у кнопок модалок замовлень (.v2-tab у NewSheetCutV2.css):
+   спокій --v2-tile, ховер --v2-tile-hi. Рамки більше немає: у V2 кнопки
+   тримаються самою підкладкою. */
 .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-tool-btn,
 .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-view-btn,
 .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action {
-  border: 1px solid var(--cfp-control-border) !important;
+  border: none !important;
   border-radius: 0 !important;
-  background: transparent !important;
+  background: var(--v2-tile, var(--adminfonelement, #f2f0e9)) !important;
   box-shadow: none !important;
   color: var(--admingrey, #444) !important;
   transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease !important;
@@ -1565,16 +1574,21 @@
 .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-tool-btn:hover:not(:disabled),
 .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-view-btn:hover,
 .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action:hover {
-  border-color: color-mix(in srgb, var(--admingrey, #444) 62%, transparent) !important;
-  background: var(--cfp-control-hover) !important;
+  border: none !important;
+  background: var(--v2-tile-hi, color-mix(in srgb, var(--adminfon, #f7f5ee) 45%, #fff)) !important;
   color: var(--admingrey, #222) !important;
 }
 
+/* активна — чорна підкладка, білий підпис (як .v2-tab.active) */
 .nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-view-btn.is-active,
-.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-tool-btn.is-active {
-  border-color: var(--cfp-control-active) !important;
-  background: var(--cfp-control-active) !important;
-  color: var(--adminfon, #fff) !important;
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-tool-btn.is-active,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action.is-active,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-view-btn.is-active:hover,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-tool-btn.is-active:hover,
+.nui-sheetcut-theme.nui-jt .nui-jt-client .cfp-toolbar .cfp-toolbar-action.is-active:hover {
+  border: none !important;
+  background: #000 !important;
+  color: #fff !important;
 }
 
 .cfp-toolbar .cfp-tool-btn:focus-visible,
@@ -1963,4 +1977,196 @@
 
 .cfp-workspace-swap.is-swapped .cfp-workspace-swap-arrow {
   transform: rotate(-135deg);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Каталог послуг: заголовок групи над плитками + розкладка товарів
+   ───────────────────────────────────────────────────────────────── */
+
+/* Було: група — це дві колонки, де перша (28–92px) віддана під
+   вертикальний повернутий заголовок. Стало: два рядки, заголовок
+   зверху звичайним текстом. Селектори продубльовані з префіксом
+   .cfp-modal--inline, бо нижче по файлу є правила з двома класами,
+   які інакше перебивають ширину колонки назад на 28px. */
+.cfp-order-editor-group,
+.cfp-modal--inline .cfp-order-editor-group {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 5px;
+}
+
+.cfp-order-editor-group-title,
+.cfp-modal--inline .cfp-order-editor-group-title,
+:root[data-theme="light"] .cfp-order-editor-group-title {
+    writing-mode: horizontal-tb;
+    transform: none;
+    width: auto;
+    min-width: 0;
+    height: auto;
+    min-height: 0;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 0 2px 1px 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    font-size: clamp(10px, 0.62vw, 12px);
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+}
+
+/* Кольоровий маркер групи і лінія, що добирає решту ширини —
+   так заголовок читається як роздільник, а не як ще одна плитка. */
+.cfp-order-editor-group-title::before,
+.cfp-modal--inline .cfp-order-editor-group-title::before {
+    content: "";
+    display: block;
+    position: static;
+    flex: 0 0 auto;
+    width: 3px;
+    height: 11px;
+    inset: auto;
+    background: var(--cfp-group-tint, #666);
+}
+
+.cfp-order-editor-group-title::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 1px;
+    background: color-mix(in srgb, var(--cfp-group-tint, #666) 30%, transparent);
+}
+
+/* Без прев'ю файлу місця вистачає, щоб «Товари» стали двома рядами
+   по три — сітка тоді читається рівніше, ніж один ряд із шести.
+   Група забирає подвійну частку висоти, інакше її рядки сплющить. */
+.cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-group.is-goods .cfp-order-editors-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-group.is-goods {
+    flex: 2 1 0;
+    min-height: 156px;
+}
+
+/* Плитка каталогу в спокої мала діагональний linear-gradient із базового
+   правила .cfp-order-editor-btn. Групові правила перекривали лише
+   `background`-колір, а картинка-градієнт лишалась і на неактивній
+   панелі читалась як кольорова пляма. Гасимо саме шар зображення —
+   плоский фон і його стани при цьому не чіпаються. */
+.cfp-order-editor-btn,
+.cfp-order-editor-group .cfp-order-editor-btn,
+.cfp-order-editor-group .cfp-order-editor-btn:hover,
+.cfp-order-editor-group .cfp-order-editor-btn:active {
+    background-image: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   КНОПКИ ПАНЕЛІ ФАЙЛІВ — стиль кнопок модалок замовлень (PRINT V2)
+
+   Рецепт узятий з .v2-tab / .v2-size / .v2-side у NewSheetCutV2.css:
+   спокій — --v2-tile, ховер — --v2-tile-hi, активний стан — чорна
+   підкладка з білим підписом. Токени вже оголошені на .nui-jt (сторінка
+   наряду); фолбеки потрібні для модалки файлів компанії, куди вони не
+   витікають.
+
+   Кнопки притиснуті до країв тулбару (без бічного padding), а проміжок
+   між ними дорівнює відступу від кнопок до нижнього краю тулбару — 6px.
+   ══════════════════════════════════════════════════════════════════════ */
+/* Смуга з кнопками звужена: 10px від країв — те саме число, що й відступи
+   самого блоку файлів (--jt-workspace-gap), тож усі краї на сторінці
+   вишиковуються по одній лінії. */
+.cfp-toolbar {
+  padding-left: 10px;
+  padding-right: 10px;
+  column-gap: 6px;
+}
+
+/* Той самий відступ — усьому вмісту панелі, інакше рядки списку йдуть
+   ширше за кнопки тулбару і назви файлів «вилазять» лівіше за них. */
+.cfp-file-row,
+.cfp-list-header,
+.cfp-statusbar,
+.cfp-tiles,
+.cfp-icons {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+
+/* !important — нижче в файлі gap цих контейнерів перевизначається на 0 */
+.cfp-toolbar .cfp-toolbar-nav,
+.cfp-toolbar .cfp-toolbar-right,
+.cfp-toolbar .cfp-sort-switch,
+.cfp-toolbar .cfp-view-switch {
+  gap: 6px !important;
+}
+
+/* перемикач режимів був суцільною групою з рамкою і роздільниками —
+   тепер це такі самі окремі кнопки, як решта */
+.cfp-view-switch {
+  gap: 6px;
+  border: none;
+}
+
+.cfp-view-btn + .cfp-view-btn {
+  border-left: none;
+}
+
+/* !important — вище в цьому ж файлі є правила зі своїм !important
+   (напр. .nui-sheetcut-theme.nui-jt … .cfp-view-btn.is-active), інакше
+   вони перебивають ці кольори */
+/* Ловимо кнопки за тегом, а не за класами: у тулбарі їх малюють щонайменше
+   чотири різні класи (.cfp-tool-btn, .cfp-view-btn, .cfp-sort-btn,
+   .nui-client-rect-btn), і будь-який новий знову випав би зі стилю.
+   Виняток — хлібні крихти: це текстова навігація, а не кнопка дії. */
+/* У світлій темі беремо РІВНО ті тони, що й кнопки модалок замовлень
+   (.v2-modal.v2-theme-light у NewSheetCutV2.css): #eeeeee у спокої,
+   #e2e2e2 на ховері. Успадкований --adminfonelement там #f2f2f2 —
+   майже білий, і кнопки зливалися з підкладкою тулбару. */
+:root[data-theme="light"] .cfp-toolbar {
+  --v2-tile: #eeeeee;
+  --v2-tile-hi: #e2e2e2;
+}
+
+/* .cfp-toolbar подвоєний навмисно: підкладку .nui-client-rect-btn задає
+   .nui-sheetcut-theme .nui-client-rect-btn (NewUIArtem.css) через
+   background-COLOR з !important і специфічністю 0,2,0. Одинарний селектор
+   програвав їй, і кнопки «нова папка / додати файли / додати папку»
+   лишались кольору --adminfonelement (у світлій темі — білого).
+   Тому й властивість тут саме background-color. */
+.cfp-toolbar.cfp-toolbar button:not(.cfp-crumb) {
+  background-color: var(--v2-tile, var(--adminfonelement, #f2f0e9)) !important;
+  background-image: none !important;
+  color: var(--admingrey, #666) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* .nui-client-rect-btn (нова папка / додати файли / додати папку) малює
+   власну підкладку псевдоелементами — вони лягали поверх нового фону
+   і давали білий прямокутник */
+.cfp-toolbar button::before,
+.cfp-toolbar button::after {
+  content: none !important;
+  background: transparent !important;
+}
+
+.cfp-toolbar.cfp-toolbar button:not(.cfp-crumb):hover:not(:disabled) {
+  background-color: var(--v2-tile-hi, color-mix(in srgb, var(--adminfon, #f7f5ee) 45%, #fff)) !important;
+}
+
+.cfp-toolbar.cfp-toolbar button.is-active,
+.cfp-toolbar.cfp-toolbar button.is-active:hover,
+.cfp-toolbar.cfp-toolbar button[aria-pressed="true"] {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+/* підпис усередині .nui-client-rect-btn — власний <span> зі своїм кольором,
+   інакше на чорній підкладці лишався б сірим */
+.cfp-toolbar.cfp-toolbar button.is-active .nui-client-rect-btn-text {
+  color: #fff !important;
 }

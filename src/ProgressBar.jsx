@@ -641,6 +641,7 @@ return (
 
             {!isPaid && thisOrder?.Payment?.status !== "CREATED" && (
               <div className="pb-discount-wrap">
+                <span className="pb-discount-label">&#1047;&#1053;&#1048;&#1046;&#1050;&#1040;</span>
                 <DiscountCalculator
                   thisOrder={thisOrder}
                   setThisOrder={setThisOrder}

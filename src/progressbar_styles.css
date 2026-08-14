@@ -283,20 +283,17 @@
 }
 
 .nui-progressbar .pb-metric-inline--due {
-  color: var(--adminred, #ee3c23) !important;
   font-weight: 500 !important;
 }
 
 .nui-progressbar .pb-metric-inline--due .pb-metric-value-main {
-  color: var(--adminred, #ee3c23) !important;
   font-size: var(--font-size-paybig) !important;
   font-weight: 500 !important;
 }
 
-.nui-progressbar .pb-metric--due.is-discounted .pb-metric-inline--due,
-.nui-progressbar .pb-metric--due.is-discounted .pb-metric-inline--due .pb-metric-value-main {
-  color: var(--admingreen, #0e935b) !important;
-}
+/* Колір (червоний без знижки / зелений зі знижкою) зведено в один спільний
+   блок у кінці файлу — шукай "Кольорова логіка ДО СПЛАТИ". Тут навмисно
+   більше не дублюється. */
 
 .nui-progressbar .pb-metric-currency {
   font-size: var(--fontcard) !important;
@@ -514,13 +511,8 @@
   color: var(--admingrey, #666666) !important;
 }
 
-.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due .pb-metric-value-main {
-  color: var(--adminred, #ee3c23) !important;
-}
-
-.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due.is-discounted .pb-metric-inline--due .pb-metric-value-main {
-  color: var(--admingreen, #0e935b) !important;
-}
+/* Колір "ДО СПЛАТИ" (червоний/зелений) — зведено в спільний блок у кінці
+   файлу, тут не дублюється. */
 
 .nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline,
 .nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due {
@@ -1747,10 +1739,23 @@
 .nui-progressbar .pb-track-row .pb-step-card.tone-grey { --step-color: var(--admingrey, #666666); }
 .nui-progressbar .pb-track-row .pb-step-card.tone-track { --step-color: color-mix(in srgb, var(--admingrey, #666666) 36%, transparent); }
 
-.nui-progressbar .pb-track-row .pb-step-card.is-completed,
+/* Пройдені кроки — приглушено (легка підкладка, тонка рамка), щоб не
+   конкурувати з активним кроком за увагу. */
+.nui-progressbar .pb-track-row .pb-step-card.is-completed {
+  background: color-mix(in srgb, var(--step-color) 8%, var(--adminfon, #f7f5ee));
+  border-color: color-mix(in srgb, var(--step-color) 28%, transparent);
+  opacity: 0.82;
+}
+
+/* Активний крок — явно виділений: насиченіша підкладка, товща кольорова
+   рамка знизу-як-індикатор і легка тінь, щоб око одразу знаходило поточний
+   етап замовлення серед решти кроків степера. */
 .nui-progressbar .pb-track-row .pb-step-card.is-active {
-  background: color-mix(in srgb, var(--step-color) 12%, var(--adminfon, #f7f5ee));
-  border-color: color-mix(in srgb, var(--step-color) 40%, transparent);
+  background: color-mix(in srgb, var(--step-color) 20%, var(--adminfon, #f7f5ee));
+  border-color: var(--step-color);
+  box-shadow: inset 0 -3px 0 var(--step-color), 0 1px 4px color-mix(in srgb, var(--step-color) 30%, transparent);
+  position: relative;
+  z-index: 1;
 }
 
 
@@ -1863,6 +1868,10 @@
 .nui-progressbar .pb-track-row .pb-step-card.is-active .pb-step-num,
 .nui-progressbar .pb-track-row .pb-step-card.is-active .pb-step-label {
   color: var(--step-color);
+}
+
+.nui-progressbar .pb-track-row .pb-step-card.is-active .pb-step-label {
+  font-weight: 700;
 }
 
 .nui-bottom-shell .nui-bottom-pane--progress .nui-progressbar .pb-action-row .pb-action-btn,
@@ -1995,15 +2004,8 @@
   white-space: nowrap;
 }
 
-.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due,
-.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due .pb-metric-value-main {
-  color: var(--adminred, #ee3c23) !important;
-}
-
-.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due.is-discounted .pb-metric-inline--due,
-.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due.is-discounted .pb-metric-inline--due .pb-metric-value-main {
-  color: var(--admingreen, #0e935b) !important;
-}
+/* Колір "ДО СПЛАТИ" (червоний/зелений) — зведено в спільний блок у кінці
+   файлу, тут не дублюється. */
 
 /* Final lock: align "ДО СПЛАТИ" to right edge */
 .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due {
@@ -2165,7 +2167,24 @@
   max-width: 4.4ch !important;
 }
 
-/* Final lock: "ДО СПЛАТИ" turns green when discount selected */
+/* ── Кольорова логіка "ДО СПЛАТИ" — єдине джерело правди ──────────────
+   Раніше цей самий червоний/зелений колір дублювався в 4 окремих
+   блоках (.nui-progressbar / .nui-sheetcut-theme / .nui-bottom-shell,
+   двічі) — кожен новий "final lock" додавався поверх попереднього, щоб
+   перебити специфічність, а старі рядки лишались. Тепер обидва стани
+   задані один раз тут, для всіх контекстів рендеру відразу. Щоб
+   змінити відтінок — правити тільки в цьому блоці. */
+.nui-progressbar .pb-metric-inline--due,
+.nui-progressbar .pb-metric-inline--due .pb-metric-value-main,
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due .pb-metric-value-main,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due,
+.nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due .pb-metric-value-main {
+  color: var(--adminred, #ee3c23) !important;
+}
+
+.nui-progressbar .pb-metric--due.is-discounted .pb-metric-inline--due,
+.nui-progressbar .pb-metric--due.is-discounted .pb-metric-inline--due .pb-metric-value-main,
+.nui-sheetcut-theme .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due.is-discounted .pb-metric-inline--due .pb-metric-value-main,
 .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due.is-discounted .pb-metric-inline--due,
 .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due.is-discounted .pb-metric-inline--due .pb-metric-value-main,
 .nui-bottom-shell .nui-bottom-pane--progress .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due.is-discounted .pb-metric-inline--due .pb-metric-currency {
@@ -2402,3 +2421,438 @@
 }
 
 
+
+/* «Скіко» (tone-warn) більше не блакитне: на прохання користувача
+   стартовий статус носить ту саму нейтральну мову, що кнопки модалок
+   замовлення (.nui-client-rect-btn — світлий фон, чорна кромка зліва,
+   сірий текст). Решта етапів свої кольори зберігають. */
+.nui-progressbar.pb-shell.tone-warn {
+  --pb-action-color: var(--adminfon, #f7f5ee);
+}
+
+.nui-progressbar.pb-shell.tone-warn .pb-action-btn {
+  border-left: 3px solid #000;
+  color: var(--admingrey, #666666);
+}
+
+/* Підпис кнопки за замовчуванням білий (світлий текст на кольоровій
+   заливці) — на нейтральному фоні «Скіко» його не було б видно. */
+.nui-progressbar.pb-shell.tone-warn .pb-action-btn .pb-action-label {
+  color: var(--admingrey, #666666) !important;
+}
+
+/* Payment console visual refresh */
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-wrapper {
+  --pay-surface: var(--adminfonelement, #f2f0e9);
+  --pay-surface-hover: var(--pp-tile-hi, #fbfaf6);
+  --pay-line: color-mix(in srgb, var(--admingrey, #666666) 24%, transparent);
+  --pay-line-strong: color-mix(in srgb, var(--admingrey, #666666) 48%, transparent);
+  --pay-focus: var(--admingreen, #0e935b);
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-top-row {
+  gap: 8px !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  gap: 4px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel .nui-client-rect-btn {
+  position: relative !important;
+  isolation: isolate;
+  min-width: 0 !important;
+  min-height: 48px !important;
+  height: 48px !important;
+  padding: 5px 8px !important;
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  overflow: hidden !important;
+  background: var(--pay-surface) !important;
+  color: var(--admingrey, #666666) !important;
+  border: 1px solid transparent !important;
+  border-bottom: 2px solid var(--pay-line) !important;
+  box-shadow: none !important;
+  transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease !important;
+  touch-action: manipulation;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel .nui-client-rect-btn::before,
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel .nui-client-rect-btn::after {
+  display: none !important;
+  content: none !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel .nui-client-rect-btn:not(:disabled):hover {
+  background: color-mix(in srgb, var(--pay-focus) 7%, var(--pay-surface-hover)) !important;
+  color: var(--admingreen, #0e935b) !important;
+  border-color: color-mix(in srgb, var(--pay-focus) 42%, transparent) !important;
+  border-bottom-color: var(--pay-focus) !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel .nui-client-rect-btn:not(:disabled):active {
+  background: color-mix(in srgb, var(--pay-focus) 13%, var(--pay-surface-hover)) !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel .nui-client-rect-btn:focus-visible,
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .PayButtons:focus-visible,
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .dc-input:focus-visible,
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .dc-preset-btn:focus-visible {
+  outline: 2px solid var(--pay-focus) !important;
+  outline-offset: -2px !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel .nui-client-rect-btn:disabled {
+  opacity: 0.38 !important;
+  filter: grayscale(1);
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel .pay-method-icon {
+  width: 1.1rem !important;
+  height: 1.1rem !important;
+  flex-basis: 1.1rem !important;
+  stroke-width: 1.7;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel .nui-client-rect-btn-text {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: inherit !important;
+  font-size: clamp(0.62rem, 0.62vw, 0.76rem) !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.02em !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel .pay-sel-status {
+  position: relative !important;
+  inset: auto !important;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  color: var(--adminred, #ee3c23) !important;
+  background: transparent;
+  border-radius: 0 !important;
+  font-size: clamp(0.46rem, 0.44vw, 0.56rem) !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  white-space: nowrap;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric {
+  min-width: 0;
+  min-height: 50px;
+  padding: 7px 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  box-sizing: border-box;
+  background: var(--pay-surface);
+  border: 1px solid transparent;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--cost {
+  align-items: flex-start !important;
+  text-align: left !important;
+  border-left: 2px solid var(--pay-line-strong);
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due {
+  align-items: flex-end !important;
+  text-align: right !important;
+  background: color-mix(in srgb, var(--adminred, #ee3c23) 5%, var(--pay-surface));
+  border-right: 2px solid var(--adminred, #ee3c23);
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due.is-discounted {
+  background: color-mix(in srgb, var(--admingreen, #0e935b) 6%, var(--pay-surface));
+  border-right-color: var(--admingreen, #0e935b);
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-label {
+  color: var(--admingrey, #666666) !important;
+  font-size: clamp(0.56rem, 0.54vw, 0.68rem) !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.07em !important;
+  opacity: 0.82;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline,
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due {
+  width: 100%;
+  display: inline-flex !important;
+  align-items: baseline !important;
+  gap: 2px !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--cost .pb-metric-inline {
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due .pb-metric-inline--due {
+  justify-content: flex-end !important;
+  text-align: right !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-cost-value-main,
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-inline--due .pb-metric-value-main {
+  font-size: clamp(1rem, 1.25vw, 1.38rem) !important;
+  font-weight: 600 !important;
+  line-height: 0.95 !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric-currency,
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--cost .pb-metric-currency,
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-metric--due .pb-metric-currency {
+  position: static !important;
+  align-self: baseline !important;
+  top: auto !important;
+  margin: 0 !important;
+  color: currentColor;
+  font-size: clamp(0.58rem, 0.55vw, 0.68rem) !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap {
+  position: relative;
+  min-width: 5.4rem;
+  min-height: 50px;
+  padding: 6px 9px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--admingreen, #0e935b) 5%, var(--pay-surface));
+  border-top: 1px solid color-mix(in srgb, var(--admingreen, #0e935b) 16%, transparent);
+  border-bottom: 2px solid color-mix(in srgb, var(--admingreen, #0e935b) 48%, transparent);
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-label {
+  display: block;
+  color: var(--admingrey, #666666) !important;
+  font-size: clamp(0.54rem, 0.5vw, 0.64rem) !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.07em !important;
+  opacity: 0.82;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-shell,
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-envelope,
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-input-wrap {
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-prefix,
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-finance-row .pb-discount-wrap .dc-input {
+  color: var(--admingreen, #0e935b) !important;
+  font-size: clamp(0.95rem, 1.05vw, 1.2rem) !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel.payment-methods-panel--await {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 4px !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel.payment-methods-panel--paid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 4px !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--await .PayButtons,
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid .PayButtons {
+  min-height: 48px !important;
+  height: 48px !important;
+  border: 1px solid transparent !important;
+  border-bottom: 2px solid currentColor !important;
+}
+
+@media (max-width: 768px) {
+  .nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    height: auto !important;
+  }
+
+  .nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel .nui-client-rect-btn {
+    min-height: 44px !important;
+    height: 44px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel .nui-client-rect-btn,
+  .nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .PayButtons,
+  .nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pay-shimmer-txt {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Paid payment state visual refresh */
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap--under-metrics {
+  width: 100% !important;
+  margin: 8px 0 0 !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel.payment-methods-panel--paid {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr) !important;
+  align-items: stretch !important;
+  gap: 4px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid:not(.has-receipt),
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid:not(:has(.pay-receipt-strip)) {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid .PayButtons.pay-status-strip,
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid .PayButtons.pay-receipt-strip {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+  overflow: hidden;
+  box-sizing: border-box !important;
+  box-shadow: none !important;
+  text-transform: uppercase !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid .PayButtons.pay-status-strip {
+  justify-content: flex-start !important;
+  background: color-mix(in srgb, var(--admingreen, #0e935b) 6%, var(--pay-surface)) !important;
+  color: var(--admingreen, #0e935b) !important;
+  border: 1px solid color-mix(in srgb, var(--admingreen, #0e935b) 16%, transparent) !important;
+  border-left: 3px solid var(--admingreen, #0e935b) !important;
+  opacity: 1 !important;
+  cursor: default !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid .PayButtons.pay-receipt-strip {
+  justify-content: center !important;
+  background: var(--pay-surface) !important;
+  color: var(--adminblue, #3c60a6) !important;
+  border: 1px solid transparent !important;
+  border-bottom: 2px solid color-mix(in srgb, var(--adminblue, #3c60a6) 62%, transparent) !important;
+  cursor: pointer !important;
+  transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease !important;
+  touch-action: manipulation;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid .PayButtons.pay-receipt-strip:not(:disabled):hover {
+  background: color-mix(in srgb, var(--adminblue, #3c60a6) 8%, var(--pay-surface-hover)) !important;
+  color: var(--adminblue, #3c60a6) !important;
+  border-color: color-mix(in srgb, var(--adminblue, #3c60a6) 34%, transparent) !important;
+  border-bottom-color: var(--adminblue, #3c60a6) !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid .PayButtons.pay-receipt-strip:not(:disabled):active {
+  background: color-mix(in srgb, var(--adminblue, #3c60a6) 14%, var(--pay-surface-hover)) !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid .pay-paid-action-icon {
+  position: relative;
+  z-index: 1;
+  width: 1.2rem !important;
+  height: 1.2rem !important;
+  flex: 0 0 1.2rem;
+  stroke-width: 1.8;
+  color: currentColor;
+  pointer-events: none;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid .pay-status-fulltext,
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid .pay-receipt-icon {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: clamp(0.66rem, 0.64vw, 0.78rem) !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.035em !important;
+  text-decoration: none !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid .pay-status-fulltext {
+  color: var(--admingreen, #0e935b) !important;
+  text-align: left !important;
+}
+
+.nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid .pay-receipt-icon {
+  color: var(--adminblue, #3c60a6) !important;
+  text-align: center !important;
+}
+
+@media (max-width: 768px) {
+  .nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel.payment-methods-panel--paid {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr) !important;
+    height: 52px !important;
+  }
+
+  .nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid .PayButtons.pay-status-strip,
+  .nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel--paid .PayButtons.pay-receipt-strip {
+    height: 52px !important;
+    min-height: 52px !important;
+    padding: 0 10px !important;
+    gap: 7px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .nui-sheetcut-theme.nui-jt .nui-bottom-finance-inline .nui-progressbar .pb-payment-wrap .payment-methods-panel.payment-methods-panel--paid {
+    height: auto !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}

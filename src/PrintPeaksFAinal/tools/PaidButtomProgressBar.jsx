@@ -8,6 +8,7 @@ import Loader from "../../components/calc/Loader";
 import AwaitPaysCash from "./AwaitPaysCash";
 import ReceipGet from "./ReceipGet";
 import { triggerNewOrder } from "../../PrintPeaksFAinal/Orders/AddNewOrder";
+import { Banknote, CircleCheckBig, CreditCard, FileDown, Landmark, Link2, ReceiptText } from "lucide-react";
 
 const PAY_STATUS_UA = { CREATED: 'Очікування', PAID: 'Оплачено', CANCELLED: 'Скасовано', EXPIRED: 'Прострочено' };
 
@@ -472,6 +473,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
               onClick={() => handleSelect("cash")}
               disabled={!thisOrder.allPrice}
             >
+              <Banknote className="pay-method-icon" aria-hidden="true" />
               <span className="nui-client-rect-btn-text">Готівка</span>
               {thisOrder.Payment && thisOrder.Payment.method === 'cash' && (
                 <span className="pay-sel-status">
@@ -484,6 +486,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
               onClick={() => handleSelect("terminal")}
               disabled={!thisOrder.allPrice}
             >
+              <CreditCard className="pay-method-icon" aria-hidden="true" />
               <span className="nui-client-rect-btn-text">Картка</span>
               {thisOrder.Payment && thisOrder.Payment.method === 'terminal' && (
                 <span className="pay-sel-status">
@@ -496,6 +499,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
               onClick={() => handleSelect("online")}
               disabled={!thisOrder.allPrice}
             >
+              <Link2 className="pay-method-icon" aria-hidden="true" />
               <span className="nui-client-rect-btn-text">Посилання</span>
               {(thisOrder.Payment?.method === 'link' || thisOrder.Payment?.method === null) && (
                 <span className="pay-sel-status">
@@ -509,6 +513,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
               title="Платежі"
               disabled={!thisOrder.allPrice}
             >
+              <ReceiptText className="pay-method-icon" aria-hidden="true" />
               <span className="nui-client-rect-btn-text">Рахунок</span>
             </button>
             <button
@@ -516,6 +521,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
               onClick={() => handleSelect("iban")}
               disabled={!thisOrder.allPrice}
             >
+              <Landmark className="pay-method-icon" aria-hidden="true" />
               <span className="nui-client-rect-btn-text">на IBAN</span>
               {thisOrder.Payment && thisOrder.Payment.method === 'iban' && (
                 <span className="pay-sel-status">
@@ -663,6 +669,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
         <>
           <div className={`payment-methods-panel payment-methods-panel--paid${(hasFiscalReceipt || thisOrder.Payment?.method === 'invoice' || thisOrder.Payment?.method === 'iban' || thisOrder.Payment?.method === 'cod') ? ' has-receipt' : ''}`}>
             <button className="PayButtons pay-status-strip" disabled>
+              <CircleCheckBig className="pay-paid-action-icon" aria-hidden="true" />
               <span className="pay-status-fulltext">
                 {thisOrder.Payment?.method === 'iban'
                   ? 'НА IBAN оплатили'
@@ -685,6 +692,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                   }
                 }}
               >
+                <ReceiptText className="pay-paid-action-icon" aria-hidden="true" />
                 {loading ? <Loader/> : <div className="pay-receipt-icon">Фіскальний чек</div>}
               </button>
             )}
@@ -694,6 +702,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 className="PayButtons pay-receipt-strip"
                 onClick={downloadInvoiceDocs}
               >
+                <FileDown className="pay-paid-action-icon" aria-hidden="true" />
                 {loading ? <Loader/> : <div className="pay-receipt-icon">Завантажити документи</div>}
               </button>
             )}
@@ -703,6 +712,7 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
                 className="PayButtons pay-receipt-strip"
                 onClick={() => setShowAwaitPays(true)}
               >
+                <ReceiptText className="pay-paid-action-icon" aria-hidden="true" />
                 <div className="pay-receipt-icon">чек</div>
               </button>
             )}

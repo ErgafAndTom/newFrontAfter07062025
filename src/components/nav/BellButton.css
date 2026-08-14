@@ -8,7 +8,6 @@
   background: transparent !important;
   color: var(--adminorange) !important;
   border: none !important;
-  border-bottom: 2px solid var(--adminorange) !important;
   border-radius: 0;
   display: inline-flex;
   align-items: center;
@@ -43,7 +42,6 @@
 /* є непрочитані — зелений акцент */
 .bell-button.pulse {
   color: var(--admingreen) !important;
-  border-bottom-color: var(--admingreen) !important;
   animation: none;
 }
 
@@ -52,6 +50,13 @@
   background: var(--pp-tile-hi) !important;
 }
 
+/* The notification trigger stays borderless in every navbar layout. */
+.nav-center-group .nav-ctrl-btn-wrap > .bell-button,
+.nav-center-group .bell-button {
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
 .shake {
   display: inline-block;
   animation: shake 1.8s ease-in-out infinite;

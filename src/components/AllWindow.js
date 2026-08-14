@@ -47,11 +47,10 @@ function AllWindow() {
 
                 <Route path="*" element={(
                     <>
-                      {/* Слот над навбаром: сторінка наряду (NewUIArtem)
-                          телепортує сюди смугу статусу замовлення — вона
-                          має стояти вище Nav, на прохання користувача.
-                          Порожній div нічого не займає на інших сторінках. */}
-                      <div id="nui-jt-status-slot" />
+                      {/* Смуга статусу замовлення більше не стоїть над
+                          навбаром: лишилась сама кнопка статусу, і вона
+                          переїхала в док (#pp-dock-status-slot у PPDock),
+                          ліворуч від плиток. */}
                       {token && <Nav setErr={setErr}/>}
                       <AfterNav setErr={setErr}/>
                       {token && <Footer setErr={setErr}/>}

@@ -12,7 +12,6 @@ import {searchChange} from "../../actions/searchAction";
 import {openDrawer} from "../../telegram/telegramSlice";
 import BarcodeScannerListener from "../../PrintPeaksFAinal/barcode/BarcodeScannerListener";
 import SearchOrderDropdown from "./SearchOrderDropdown";
-import NavShiftButton from "./NavShiftButton";
 import NavOrderHead from "./NavOrderHead";
 
 /* ──────────────────────────────────────────────────────────────
@@ -25,13 +24,6 @@ import NavOrderHead from "./NavOrderHead";
    Навігація, теми, «Нове замовлення», Нова Пошта, Uklon, Telegram,
    налаштування й вихід тепер живуть у доку.
    ────────────────────────────────────────────────────────────── */
-
-const ROLE_LABELS = {
-  admin: 'Адміністратор',
-  manager: 'Менеджер',
-  operator: 'Оператор',
-  user: 'Клієнт',
-};
 
 /* Бік навбару — як і розкладка «Пуску», належить конкретному акаунту:
    за одним браузером працюють різні люди. */
@@ -121,15 +113,6 @@ const Nav = () => {
     dispatch(searchChange(next));
   };
 
-  // Хто зараз залогінений — напівпрозорий підпис під навбаром
-  const userDisplayName = [currentUser?.firstName, currentUser?.lastName].filter(Boolean).join(' ')
-    || currentUser?.familyName
-    || currentUser?.username
-    || currentUser?.email
-    || currentUser?.phoneNumber
-    || '';
-  const userRoleLabel = ROLE_LABELS[currentUser?.role] || currentUser?.role || '';
-
   if (location.pathname === '/login') return null;
 
   return (
@@ -145,10 +128,13 @@ const Nav = () => {
                останній відкритий наряд зі знімка й працює на всіх сторінках. ── */}
         {currentUser && <NavOrderHead />}
 
-        {/* ── Пошук: компактне поле праворуч, розкривається при фокусі ── */}
+        {/* ── Пошук: компактне поле праворуч, розкривається при фокусі.
+               На сторінці наряду його немає — пошук файлів переїхав у саму
+               панель файлів (ClientFilesPanel), на місце колишнього
+               підпису «Файли клієнта №N». ── */}
         <div className="nav-center-group nav-search-slot">
-          {currentUser ? (
-            <div className={`nav-search-wrap${onOrderPage ? " is-file-search" : ""}`}>
+          {currentUser && onOrderPage ? null : currentUser ? (
+            <div className="nav-search-wrap">
               <Form.Control
                 className="buttonSkewedSearch buttonSkewedSearchLupa"
                 name="search"
@@ -197,16 +183,8 @@ const Nav = () => {
                навбару. Дзвоник сповіщень — одразу праворуч від них. ── */}
         {currentUser && (
           <>
-            <div className="nav-user-corner">
-              <NavShiftButton />
-              {userDisplayName && (
-                <span className="nav-user-badge-name" title={`Ви увійшли як ${userDisplayName}`}>
-                  {userDisplayName}
-                </span>
-              )}
-              {userRoleLabel && <span className="nav-user-badge-role">{userRoleLabel}</span>}
-            </div>
-
+            {/* Стан касової зміни й підпис «хто залогінений» переїхали в
+                правий кут дока (PPDock.jsx) — тут лишається порожньо. */}
             {currentUser.role !== 'user' && (
               <div className="nav-right-controls nav-notify-corner">
                 <div className="nav-ctrl-btn-wrap">

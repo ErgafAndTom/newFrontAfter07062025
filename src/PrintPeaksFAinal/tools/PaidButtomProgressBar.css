@@ -337,3 +337,15 @@
     font-size: 0.6rem !important;
   }
 }
+
+/* Payment method icon layer */
+.pay-method-icon {
+  position: relative;
+  z-index: 1;
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: 0 0 1.15rem;
+  stroke-width: 1.7;
+  color: currentColor;
+  pointer-events: none;
+}

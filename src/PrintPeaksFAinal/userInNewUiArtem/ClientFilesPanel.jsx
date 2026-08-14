@@ -39,10 +39,10 @@ const FILE_ORDER_EDITORS = [
   { value: "BigOvshik", label: "Postpress", icon: "postpress", tint: "--adminblue" },
   { value: "Calendar", label: "Calendar", icon: "calendar", tint: "--adminrose" },
   { value: "Diplom", label: "Diplom", icon: "diploma", tint: "--adminrose" },
-  { value: "Folder", label: "Folder", icon: "folder", tint: "--adminrose" },
+  { value: "Cup", label: "Mug", icon: "mug", tint: "--adminrose" },
   { value: "Note", label: "Note", icon: "note", tint: "--adminrose" },
   { value: "Booklet", label: "Booklet", icon: "booklet", tint: "--adminrose" },
-  { value: "Cup", label: "Mug", icon: "mug", tint: "--adminrose" },
+  { value: "Folder", label: "Folder", icon: "folder", tint: "--adminrose" },
   { value: "Scans", label: "Scans", icon: "scan", tint: "--adminpurple" },
   { value: "Delivery", label: "Delivery", icon: "car", tint: "--adminpurple" },
   { value: "WideFactory", label: "Wide Factory", icon: "factory", tint: "--adminpurple" },
@@ -50,11 +50,11 @@ const FILE_ORDER_EDITORS = [
 
 const FILE_EDITOR_LABELS = {
   SheetCutBW: "\u0427/\u0411 \u0434\u0440\u0443\u043a",
-  SheetCut: "\u0426\u0438\u0444\u0440\u043e\u0432\u0438\u0439 \u0434\u0440\u0443\u043a",
-  Photo: "\u0424\u043e\u0442\u043e\u0434\u0440\u0443\u043a",
-  Wide: "\u0428\u0438\u0440\u043e\u043a\u0435 \u0444\u043e\u0442\u043e",
-  DigitalPrintWide: "\u0428\u0438\u0440\u043e\u043a\u0438\u0439 \u0434\u0440\u0443\u043a",
-  Vishichka: "\u041f\u043b\u043e\u0442\u0435\u0440\u043d\u0430 \u043f\u043e\u0440\u0456\u0437\u043a\u0430",
+  SheetCut: "\u0426\u0438\u0444\u0440\u0430",
+  Photo: "\u0424\u043e\u0442\u043e",
+  Wide: "\u0428\u0438\u0440\u0456\u043a",
+  DigitalPrintWide: "XLS",
+  Vishichka: "\u041f\u043b\u043e\u0442\u0435\u0440",
   Magnets: "\u041c\u0430\u0433\u043d\u0456\u0442\u0438",
   Laminator: "\u041b\u0430\u043c\u0456\u043d\u0430\u0446\u0456\u044f",
   PerepletMet: "\u041f\u0435\u0440\u0435\u043f\u043b\u0456\u0442",
@@ -67,7 +67,7 @@ const FILE_EDITOR_LABELS = {
   Cup: "\u0427\u0430\u0448\u043a\u0438",
   Scans: "\u0421\u043a\u0430\u043d\u0443\u0432\u0430\u043d\u043d\u044f",
   Delivery: "\u0414\u043e\u0441\u0442\u0430\u0432\u043a\u0430",
-  WideFactory: "\u0428\u0438\u0440\u043e\u043a\u0438\u0439 \u0446\u0435\u0445",
+  WideFactory: "\u0412\u0438\u0440\u043e\u0431\u043d\u0438\u0446\u0442\u0432\u043e",
 };
 
 const FILE_EDITOR_GROUPS = [
@@ -665,18 +665,26 @@ const ClientFilesPanel = ({
             ><FiRefreshCw /></button>
 
             <div className="cfp-crumbs">
-              {/* Корінь — не кнопка, а підпис: він називає сховище (папка
-                  компанії або клієнта) разом із номером. Повернутись у
-                  корінь є чим — стрілка «вгору» ліворуч. */}
-              <button
-                type="button"
-                className="cfp-crumb cfp-crumb-root"
-                onClick={() => setCurrentFolder("")}
-              >
-                {companyId
-                  ? `Файли компанії №${companyId}`
-                  : `Файли клієнта №${userId}`}
-              </button>
+              {/* Замість підпису «Файли клієнта №N» тут стоїть пошук: сам
+                  підпис нічого не додавав (чиї це файли, видно з наряду),
+                  а рядок пошуку називає сховище своїм плейсхолдером.
+                  Повернутись у корінь є чим — стрілка «вгору» ліворуч. */}
+              <label className="cfp-search cfp-search--title">
+                <FiSearch size={13} />
+                <input
+                  type="text"
+                  value={query}
+                  placeholder={companyId
+                    ? `Пошук файлів у компанії №${companyId}`
+                    : `Пошук файлів у клієнта №${userId}`}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+                {query && (
+                  <button type="button" className="cfp-search-clear" onClick={() => setQuery("")}>
+                    <FiX size={12} />
+                  </button>
+                )}
+              </label>
               {breadcrumbs.map((part, i) => (
                 <React.Fragment key={`${part}-${i}`}>
                   <span className="cfp-crumb-sep">/</span>
@@ -687,21 +695,8 @@ const ClientFilesPanel = ({
           </div>
 
           <div className="cfp-toolbar-right">
-            <label className="cfp-search">
-              <FiSearch size={13} />
-              <input
-                type="text"
-                value={query}
-                placeholder="Пошук у папці"
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              {query && (
-                <button type="button" className="cfp-search-clear" onClick={() => setQuery("")}>
-                  <FiX size={12} />
-                </button>
-              )}
-            </label>
-
+            {/* Поле пошуку переїхало в центр тулбара (див. .cfp-crumbs
+                вище) — на місце колишнього підпису «Файли клієнта №N». */}
             <div className="cfp-sort-switch" role="group" aria-label={"\u0421\u043e\u0440\u0442\u0443\u0432\u0430\u043d\u043d\u044f \u0444\u0430\u0439\u043b\u0456\u0432"}>
               <button
                 type="button"

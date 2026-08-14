@@ -313,13 +313,27 @@ const NewPhoto = ({
   useEffect(() => {
     if (!showNewPhoto) return;
 
+    // У режимі редагування перший прохід ефекту бачить ще DEFAULTS (setState з ефекту
+    // ініціалізації застосується лише наступним рендером). Раніше це коштувало зайвого
+    // запиту каталогу «в нікуди» — пропускаємо його, поки стан не збігся зі збереженим
+    // юнітом, і робимо рівно один запит уже з правильними параметрами.
+    if (isEdit) {
+      const wantX = Number(options?.size?.x) || DEFAULT_SIZE.x;
+      const wantY = Number(options?.size?.y) || DEFAULT_SIZE.y;
+      if (Number(size.x) !== wantX || Number(size.y) !== wantY) return;
+    }
+
     const data = {
       name: "MaterialsPrices",
       inPageCount: 999999,
       currentPage: 1,
       search: "",
       columnName: { column: "id", reverse: false },
-      material,
+      // Тип для запиту жорстко "Фотопапір": у збережених юнітах material.type
+      // лежить як "Не потрібно" (модалка так пише його при збереженні), і з таким
+      // типом жодна гілка /materials/NotAll не спрацьовує — каталог приходив
+      // порожнім, а модалка показувала «Виберіть матеріал».
+      material: { ...material, type: DEFAULTS.material.type },
       size,
     };
 
@@ -336,15 +350,16 @@ const NewPhoto = ({
         const rows = response.data.rows || [];
         setMaterials(rows);
 
-        // Auto-select first material if none selected or current not in results
-        const currentExists = rows.some((r) => String(r.id) === String(material.materialId));
-        if (rows.length > 0 && (!material.materialId || !currentExists)) {
-          setMaterial((prev) => ({
-            ...prev,
-            material: rows[0].name,
-            materialId: rows[0].id,
-          }));
-        }
+        // Auto-select first material if none selected or current not in results.
+        // Перевіряємо саме АКТУАЛЬНИЙ стан (prev), а не material із замикання ефекту:
+        // при відкритті в режимі редагування замикання містить ще DEFAULTS з порожнім
+        // materialId, і підміна затирала збережений матеріал першим рядком каталогу.
+        if (rows.length === 0) return;
+        setMaterial((prev) => {
+          const exists = rows.some((r) => String(r.id) === String(prev.materialId));
+          if (prev.materialId && exists) return prev;
+          return { ...prev, material: rows[0].name, materialId: rows[0].id };
+        });
       })
       .catch((err) => {
         if (reqId !== materialsReqRef.current) return;
@@ -353,7 +368,9 @@ const NewPhoto = ({
           navigate("/login");
         }
       });
-  }, [size, showNewPhoto, navigate]);
+    // material свідомо НЕ в залежностях: каталог фотопаперу визначається лише
+    // розміром (бек фільтрує по x/y), а сам material оновлюється в цьому ж ефекті.
+  }, [size, showNewPhoto, isEdit, options, navigate]);
 
   // Close dropdowns on outside click
   useEffect(() => {

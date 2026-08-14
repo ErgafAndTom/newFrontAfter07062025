@@ -62,6 +62,7 @@ import NewBooklet from "./poslugi/NewBooklet";
 import NewMagnets from "./poslugi/NewMagnets";
 import NewScans from "./poslugi/NewScans";
 import WideFactory from "./poslugi/WideFactory";
+import Ofset from "./poslugi/Ofset";
 import Delivery from "./poslugi/DeliveryPage";
 import UklonDelivery from "./userInNewUiArtem/UklonDelivery";
 import UklonMap from "./userInNewUiArtem/UklonMap";
@@ -102,13 +103,15 @@ const NewUIArtem = () => {
   // змонтується, а useRef цього не тригерить.
   const [deadlineSlotEl, setDeadlineSlotEl] = useState(null);
 
-  // Слот над навбаром (#nui-jt-status-slot з AllWindow.js) — туди
-  // порталиться смуга статусу замовлення: вона має стояти ВИЩЕ Nav, а не
-  // всередині сітки наряду. Шукаємо вузол в ефекті, бо на першому рендері
-  // цього компонента батьківський DOM ще не закомічений.
+  // Слот у доку (#pp-dock-status-slot з PPDock.jsx) — туди порталиться
+  // кнопка статусу замовлення. Раніше над навбаром висіла ціла смуга
+  // статусу (кнопка + п'ять кроків + лічильник); на прохання користувача
+  // блок прибраний, лишилась сама кнопка й переїхала в док. Шукаємо
+  // вузол в ефекті, бо на першому рендері цього компонента батьківський
+  // DOM ще не закомічений.
   const [statusSlotEl, setStatusSlotEl] = useState(null);
-  // …і слот у шапці навбара (#nui-jt-barcode-slot з NavOrderHead.jsx),
-  // куди їде штрих-код наряду — лівіше номера замовлення.
+  // …і слот у доці (#pp-dock-barcode-slot з PPDock.jsx), куди їде
+  // штрих-код наряду — лівіше номера замовлення.
   const [barcodeSlotEl, setBarcodeSlotEl] = useState(null);
   const [workspaceSwapped, setWorkspaceSwapped] = useState(() => {
     try { return localStorage.getItem('nui_workspace_swapped') === '1'; } catch { return false; }
@@ -130,8 +133,8 @@ const NewUIArtem = () => {
   // вузол, якщо шапка перемонтувалась.
   useEffect(() => {
     const sync = () => {
-      const status = document.getElementById('nui-jt-status-slot');
-      const barcode = document.getElementById('nui-jt-barcode-slot');
+      const status = document.getElementById('pp-dock-status-slot');
+      const barcode = document.getElementById('pp-dock-barcode-slot');
       setStatusSlotEl((prev) => (prev === status ? prev : status));
       setBarcodeSlotEl((prev) => (prev === barcode ? prev : barcode));
     };
@@ -293,6 +296,7 @@ const NewUIArtem = () => {
   const [showMugMockup, setShowMugMockup] = useState(false);
   const [showNewMagnets, setShowNewMagnets] = useState(false);
   const [showNewScans, setShowNewScans] = useState(false);
+  const [showOfset, setShowOfset] = useState(false);
   const [showLaminator, setShowLaminator] = useState(false);
   const [showVishichka, setShowVishichka] = useState(false);
   const [showDelivery, setShowDelivery] = useState(false);
@@ -510,6 +514,14 @@ const NewUIArtem = () => {
   }, [uklonMapData?.tracking?.id, uklonMapData?.tracking?.status, uklonSimulating]);
 
   const [expandedThingIndex, setExpandedThingIndex] = useState(null);
+  /* Позиція, яка зараз «складається» назад у свій калькулятор.
+     Тримаємо індекс, а не прапорець, бо анімація йде на одному рядку. */
+  const [collapsingThingIndex, setCollapsingThingIndex] = useState(null);
+  /* Зачинені позиції: рядки лишаються в списку, але схлопнуті. Тут
+     саме набір, а не один індекс — інакше згортання другої позиції
+     розчиняло б першу, і зачиненою завжди лишалась би тільки остання. */
+  const [collapsedThings, setCollapsedThings] = useState(() => new Set());
+  const collapseTimerRef = useRef(null);
   // ✅ Єдина мапа типів -> модалка (УЗГОДЖЕНО з беком: newField6 = toCalc.type)
   const EDITORS = [
     { value: "SheetCutBW", label: "\u0427/\u0411 \u0414\u0420\u0423\u041a", open: () => setShowNewSheetCutBW(true) },
@@ -536,6 +548,7 @@ const NewUIArtem = () => {
     { value: "Magnets", label: "\u041c\u0410\u0413\u041d\u0406\u0422\u0418", open: () => setShowNewMagnets(true) },
     { value: "Scans", label: "\u0421\u041a\u0410\u041d\u0423\u0412\u0410\u041d\u041d\u042f", open: () => setShowNewScans(true) },
     { value: "Delivery", label: "\u0414\u041e\u0421\u0422\u0410\u0412\u041a\u0410", open: () => setShowDelivery(true) },
+    { value: "Ofset", label: "\u041e\u0424\u0421\u0415\u0422", open: () => setShowOfset(true) },
   ];
   // Відкриття модалки позиції ззовні — стек «Позиції» в панелі швидкого
   // доступу (PPDock) шле 'pp-open-order-editor' з detail.value з EDITORS.
@@ -633,7 +646,7 @@ const NewUIArtem = () => {
     const orange = new Set(['SheetCutBW', 'SheetCut', 'DigitalPrintWide', 'Photo', 'Wide']);
     const blue   = new Set(['Vishichka', 'Magnets', 'Laminator', 'PerepletMet', 'BigOvshik', 'Postpress', 'Binding', 'Lamination']);
     const coral  = new Set(['Calendar', 'Diplom', 'Folder', 'Note', 'Booklet', 'Cup']);
-    const purple = new Set(['Scans', 'Delivery', 'WideFactory']);
+    const purple = new Set(['Scans', 'Delivery', 'WideFactory', 'Ofset']);
 
     if (orange.has(type)) return 'nui-editor-accent-orange';
     if (blue.has(type))   return 'nui-editor-accent-blue';
@@ -702,6 +715,46 @@ const NewUIArtem = () => {
   const toggleExpandedThing = (index) => {
     setExpandedThingIndex(prev => (prev === index ? null : index));
   };
+
+  /* Дві дії, що ведуть в один і той самий калькулятор позиції.
+     «Згорнути» програє анімацію складання рядка й аж тоді відкриває
+     калькулятор; «Відкрити» веде туди ж, але одразу. Подію далі не
+     передаємо: openEditor без другого аргументу сам визначить тип
+     позиції, а SyntheticEvent після таймера вже ні до чого. */
+  const collapseThingToEditor = (thing, index, e) => {
+    e.stopPropagation();
+    if (collapsingThingIndex !== null) return;
+
+    const row = e.currentTarget.closest(".nui-order-row");
+
+    if (row) {
+      /* Висоту треба зафіксувати в пікселях до старту: з `auto` перехід
+         не анімується, і рядок зникав би стрибком. Читання offsetHeight
+         одразу після запису дає потрібний reflow. */
+      row.style.height = `${row.offsetHeight}px`;
+      void row.offsetHeight;
+
+    }
+
+    setCollapsingThingIndex(index);
+    clearTimeout(collapseTimerRef.current);
+    collapseTimerRef.current = setTimeout(() => {
+      if (row) row.style.height = "";
+      setCollapsingThingIndex(null);
+      setCollapsedThings((prev) => new Set(prev).add(index));
+      openEditor(thing);
+    }, 400);
+  };
+
+  const openThingEditor = (thing, e) => {
+    e.stopPropagation();
+    openEditor(thing);
+  };
+
+  useEffect(() => () => clearTimeout(collapseTimerRef.current), []);
+
+  /* Розкриття назад немає навмисно: згорнута позиція лишається
+     зачиненою до наступного завантаження наряду. */
 
 
   const handleThingClickDelete2 = (OrderUnit, e) => {
@@ -836,33 +889,8 @@ const NewUIArtem = () => {
   const isOrderLockedForEdit = Number.isFinite(statusValue) && [4, 5].includes(statusValue);
   const hasOrders = Array.isArray(selectedThings2) && selectedThings2.length > 0;
 
-  /* Лічильник "n/6" — переїхав з картки клієнта (ClientChangerUIArtem,
-     hideStepCounter={true} нижче) у повноширинний блок статусу внизу.
-     Та сама формула, що й там: 5 статусів замовлення + прапорець оплати. */
-  const stepCounterLabel = useMemo(() => {
-    const stageCount = 6;
-    const rawStatus = Number.parseInt(thisOrder?.status, 10);
-    const normalizedStatus = Number.isFinite(rawStatus) ? Math.min(Math.max(rawStatus, 0), stageCount - 1) : 0;
-
-    const paymentStatus = String(thisOrder?.Payment?.status || '').toUpperCase();
-    let isPaid = paymentStatus === 'PAID';
-    if (!isPaid && Array.isArray(thisOrder?.Payments)) {
-      isPaid = thisOrder.Payments.some((item) => {
-        const statusVal = String(item?.status || item?.payStatus || '').toUpperCase();
-        return statusVal === 'PAID';
-      });
-    }
-
-    const completed = Math.min(stageCount, normalizedStatus + 1 + (isPaid ? 1 : 0));
-    return `${completed}/${stageCount}`;
-  }, [thisOrder?.status, thisOrder?.Payment?.status, thisOrder?.Payments]);
-
-  const stepCounterTone = useMemo(() => {
-    const rawStatus = Number.parseInt(thisOrder?.status, 10);
-    const normalizedStatus = Number.isFinite(rawStatus) ? Math.min(Math.max(rawStatus, 0), 5) : 0;
-    const tones = ['warn', 'brown', 'blue', 'pink', 'purple', 'green'];
-    return tones[normalizedStatus] || 'warn';
-  }, [thisOrder?.status]);
+  /* Лічильник "n/6" прибраний разом із блоком статусу над навбаром:
+     у доку лишилась сама кнопка переходу на наступний етап. */
 
   /* Корінець наряду: коротка назва поточної дільниці — те, що написано на
      ребрі папки, коли вона стоїть на полиці. Довгі формулювання лишаються
@@ -917,12 +945,14 @@ const NewUIArtem = () => {
           style={{ background: 'transparent' }}
         >
 
-          {/* Маршрут цеху — повноширинна смуга НАД НАВБАРОМ, на прохання
-              користувача: рендериться через портал у #nui-jt-status-slot
-              (AllWindow.js, перед <Nav/>). Обгортка несе класи теми, бо
-              поза .nui-jt правила цієї смуги не діють. */}
+          {/* Кнопка статусу замовлення — у доку, ліворуч від плиток
+              (портал у #pp-dock-status-slot, PPDock.jsx). Повноширинна
+              смуга над навбаром прибрана на прохання користувача: кроки
+              й лічильник більше не малюються, лишилась дія переходу на
+              наступний етап. Обгортка несе класи теми, бо поза .nui-jt
+              правила цієї кнопки не діють. */}
           {statusSlotEl && createPortal(
-            <div className="nui-sheetcut-theme nui-jt nui-jt-status-portal">
+            <div className="nui-sheetcut-theme nui-jt nui-jt-status-portal nui-jt-status-dock">
               <div className="nui-order-status-inline">
                 <ProgressBar
                   thisOrder={thisOrder}
@@ -933,9 +963,13 @@ const NewUIArtem = () => {
                   showActionRail={true}
                   showFinance={false}
                   showActionButton={true}
-                  showTrack={true}
-                  showError={false}
-                  stepCounter={<div className={`nui-client-step-counter-btn nui-status-step-counter tone-${stepCounterTone}`} aria-hidden="true">{stepCounterLabel}</div>}
+                  showTrack={false}
+                  /* помилку показуємо: у смузі над навбаром вона була
+                     зайвою, а в доці це єдиний спосіб зрозуміти, чому
+                     клік по кнопці не перевів наряд на наступний етап
+                     (напр. «Список замовлень порожній») */
+                  showError={true}
+                  compactActionButton={true}
                 />
               </div>
             </div>,
@@ -1195,6 +1229,23 @@ const NewUIArtem = () => {
                   <img className="icon64 CardPrintersPoslugiImg" src={wideFactoryIcon} alt="" />
                 </div>
               </p>
+
+              {/* Офсет — друк на аутсорсі в «Глянцю». Іконка: два друкарські
+                  циліндри й аркуш, що виходить із-під них — те, чим офсет
+                  відрізняється від решти плиток, де стоїть готовий виріб. */}
+              <p onClick={() => setShowOfset(true)}>
+                <div className="tileContent">
+                  <span className="verticalText">ОФСЕТ</span>
+                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
+                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="24" cy="24" r="9" />
+                    <circle cx="42" cy="24" r="6" />
+                    <path d="M12 38h40" />
+                    <path d="M18 38l4 8h20l4-8" />
+                    <line className="draw" pathLength="1" x1="16" y1="46" x2="48" y2="46" />
+                  </svg>
+                </div>
+              </p>
             </div>
 
           </div>
@@ -1214,7 +1265,9 @@ const NewUIArtem = () => {
                   const editorLabel = String(editor?.label || thing.newField6 || 'редагувати').toUpperCase();
                   const editorAccentClass = getEditorAccentClass(thing);
                   const formattedName = formatThingName(thing.name);
-                  const isNameParagraph = String(formattedName).length > 55;
+                  /* Назва стає абзацом, щойно переходить на другий рядок:
+                     у колонку наряду вміщується приблизно 88 символів. */
+                  const isNameParagraph = String(formattedName).length > 88;
                   const hasDiscount = parseFloat(thing.priceForOneThis).toFixed(2) !== parseFloat(thing.priceForOneThisDiscount).toFixed(2);
                   const unitPrice = hasDiscount
                     ? parseFloat(parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2))
@@ -1225,18 +1278,54 @@ const NewUIArtem = () => {
                   return (
                     <div
                       key={index}
+                      className={`nui-order-row${collapsingThingIndex === index ? " is-collapsing" : ""}${collapsedThings.has(index) ? " is-collapsed" : ""}`}
+                    >
+                    {/* Заголовок НАД позицією: тип роботи тим самим рядком,
+                        що й назви груп у каталозі, і дії в його правому краї. */}
+                    <div className={`nui-item-kind ${editorAccentClass}${collapsedThings.has(index) ? " is-closed" : ""}`}>
+                      <span className="nui-kind-label">{editorLabel}</span>
+                      <span className="nui-kind-rule" />
+                      <div className="nui-item-actions">
+                        <button
+                          type="button"
+                          className="nui-item-btn nui-item-open"
+                          onClick={(e) => openThingEditor(thing, e)}
+                          title={`Відкрити «${editorLabel}»`}
+                        >
+                          <svg viewBox="0 0 16 16" aria-hidden="true">
+                            <path d="M8 3v10M3 8h10" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          className="nui-item-btn nui-item-collapse"
+                          onClick={(e) => collapseThingToEditor(thing, index, e)}
+                          title={`Згорнути в «${editorLabel}»`}
+                        >
+                          <svg viewBox="0 0 16 16" aria-hidden="true">
+                            <path d="M3 3h3M3 3v3M13 3h-3M13 3v3M3 13h3M3 13v-3M13 13h-3M13 13v-3" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          className="nui-item-btn nui-item-del"
+                          onClick={(e) => handleThingClickDelete2(thing, e)}
+                          title="Видалити позицію"
+                        >✕</button>
+                      </div>
+                    </div>
+                    <div
                       className={`nui-order-item ${orderToneClass} ${editorAccentClass}${expandedThingIndex === index ? " is-expanded" : ""}`}
                       onClick={() => toggleExpandedThing(index)}
                     >
                       <div className="nui-item-body">
                       <div className="nui-item-header">
-                        <div className={`nui-item-name${isNameParagraph ? ' is-paragraph' : ''}`} style={!isCancelledOrder ? { color: 'var(--admingrey)' } : undefined}>
-                          {String(formattedName).split(/(²)/).map((part, i) =>
-                            part === '²' ? <sup key={i} style={{color: 'var(--admingrey)'}}>2</sup> : part
-                          )}
-                        </div>
-                        <div className="nui-item-actions">
-                          <div className="nui-item-btn nui-item-del" onClick={(e) => handleThingClickDelete2(thing, e)}>✕</div>
+                        <div className="nui-item-heading">
+                          <div className={`nui-item-name${isNameParagraph ? ' is-paragraph' : ''}`} style={!isCancelledOrder ? { color: 'var(--admingrey)' } : undefined}>
+                            {String(formattedName).split(/(²)/).map((part, i) =>
+                              part === '²' ? <sup key={i} style={{color: 'var(--admingrey)'}}>2</sup> : part
+                            )}
+                          </div>
                         </div>
                       </div>
 
@@ -1259,32 +1348,22 @@ const NewUIArtem = () => {
                             index={index}
                             thisOrder={thisOrder}
                           />
+                          {/* Підсумки одним рядком: спершу число, далі те,
+                              до чого воно стосується — так рядок читається
+                              як фраза, а не як чотири підписані поля. */}
                           <div className="nui-details-footer-row">
-                            <span>Розміщено на аркуші: <span className="nui-footer-accent">{thing.newField4} {getPluralForm(thing.newField4, "виріб", "вiroби", "виробів")}</span></span>
+                            <span>Розміщено {thing.newField4} {getPluralForm(thing.newField4, "виріб", "вироби", "виробів")} на аркуші</span>
                             <span className="nui-sep">|</span>
-                            <span>Загалом надруковано: <span className="nui-footer-accent">{thing.newField5} {getPluralForm(thing.newField5, "аркуш", "аркуші", "аркушів")}</span></span>
+                            <span>{thing.newField5} {getPluralForm(thing.newField5, "аркуш", "аркуші", "аркушів")} надруковано</span>
                             <span className="nui-sep">|</span>
-                            <div className="nui-summary-line">
-                              <span>За 1 аркуш:</span>{' '}<span className="nui-footer-price">{parseFloat(parseFloat(totalPrice / (thing.newField5 || 1)).toFixed(2))}<span className="nui-footer-price-unit">грн</span></span>
-                            </div>
+                            <span>{parseFloat(parseFloat(totalPrice / (thing.newField5 || 1)).toFixed(2))}<span className="nui-footer-price-unit">грн</span> за 1 аркуш</span>
                             <span className="nui-sep">|</span>
-                            <div className="nui-summary-line">
-                              <span>За 1 шт:</span>{' '}<span className="nui-footer-price">{parseFloat(unitPrice)}<span className="nui-footer-price-unit">грн</span></span>
-                            </div>
+                            <span>{parseFloat(unitPrice)}<span className="nui-footer-price-unit">грн</span> за 1 шт</span>
                           </div>
                         </div>
                       )}
                       </div>
-
-                      {/* тип роботи — вертикальною смугою вздовж правого краю позиції */}
-                      <button
-                        type="button"
-                        className={`nui-item-type-btn nui-item-type-side ${editorAccentClass}`}
-                        onClick={(e) => { e.stopPropagation(); openEditor(thing, e); }}
-                        title={editorLabel}
-                      >
-                        <span className="nui-type-label">{editorLabel}</span>
-                      </button>
+                    </div>
                     </div>
                   );
                 })}
@@ -1862,6 +1941,17 @@ const NewUIArtem = () => {
             setThisOrder={setThisOrder}
             setSelectedThings2={setSelectedThings2}
             showNewScans={showNewScans}
+            editingOrderUnit={editingOrderUnitSafe}
+            setEditingOrderUnit={setEditingOrderUnitSafe}
+          />
+        }
+        {showOfset &&
+          <Ofset
+            thisOrder={thisOrder}
+            setThisOrder={setThisOrder}
+            setSelectedThings2={setSelectedThings2}
+            showOfset={showOfset}
+            setShowOfset={setShowOfset}
             editingOrderUnit={editingOrderUnitSafe}
             setEditingOrderUnit={setEditingOrderUnitSafe}
           />
