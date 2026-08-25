@@ -56,15 +56,19 @@ export const login = (credentials, navigate) => async (dispatch) => {
               await migrateLocalStorageToServer();
               await warmUpSettingsCache();
             }).catch(() => {});
-            if (user?.role === 'user') {
-              try {
-                const orderRes = await axios.post('/orders/create');
+            // Після входу одразу відкриваємо нове замовлення — для всіх ролей.
+            // Бекенд сам поверне вже існуюче пусте замовлення, якщо воно є,
+            // тому повторні входи не плодять порожні наряди.
+            const fallbackPath = user?.role === 'user' ? '/Orders' : '/Desktop';
+            try {
+              const orderRes = await axios.post('/orders/create');
+              if (orderRes?.data?.id) {
                 navigate(`/Orders/${orderRes.data.id}`);
-              } catch {
-                navigate('/Orders');
+              } else {
+                navigate(fallbackPath);
               }
-            } else {
-              navigate('/Desktop');
+            } catch {
+              navigate(fallbackPath);
             }
         } else {
             throw new Error('Failed to retrieve a valid token.');

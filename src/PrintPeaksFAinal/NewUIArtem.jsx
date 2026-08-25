@@ -155,8 +155,35 @@ const NewUIArtem = () => {
      notifications"). */
   const gridRef = useRef(null);
 
+  /* Вузький екран — інша модель сторінки. На десктопі наряд цілком
+     вміщений у вьюпорт: сітка обмежена --jt-gridh, а колонки скролять
+     самі себе. На телефоні ті самі блоки стають одним стовпчиком із
+     семи областей — у ~600px вони не влазять, і фіксована висота
+     разом із overflow:hidden просто зрізала б усе нижче файлів.
+     Тому тут висоту не рахуємо (CSS ставить height:auto) і лишаємо
+     сторінці звичайний вертикальний скрол.
+
+     1280 — та сама межа, на якій каркас у nuiJobTicket.css уже складає
+     сітку в один стовпчик. Тримати тут менше число не можна: на
+     внутрішньому екрані Fold 6 (~1080 CSS-пікселів) сітка вже
+     одноколонкова, а висота лишалась би замкненою у вьюпорт. */
+  const [jtNarrow, setJtNarrow] = useState(
+    () => typeof window !== 'undefined'
+      && window.matchMedia('(max-width: 1280px)').matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1280px)');
+    const onChange = () => setJtNarrow(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
   useEffect(() => {
     const root = document.documentElement;
+    if (jtNarrow) {
+      root.style.removeProperty('--jt-gridh');
+      return undefined;
+    }
     let rafId = null;
     let verifyId = null;
     let last = null;
@@ -225,7 +252,7 @@ const NewUIArtem = () => {
       window.removeEventListener('resize', remeasure);
       root.style.removeProperty('--jt-gridh');
     };
-  }, [statusSlotEl]);
+  }, [statusSlotEl, jtNarrow]);
 
   /* Сторінка наряду цілком вміщена у вьюпорт: сітка обмежена --jt-gridh,
      а довгі списки (позиції, файли, каталог) скролять самі себе. Тому
@@ -233,9 +260,13 @@ const NewUIArtem = () => {
      субпіксельні залишки (дробові vh у кромках, border доку, зміна
      висоти смуги статусу між кадрами), і корекція trim у ефекті вище
      ловить їх лише постфактум, після кадру з видимою смугою прокрутки.
-     Глушимо скрол документа на весь час, поки наряд відкритий. */
+     Глушимо скрол документа на весь час, поки наряд відкритий.
+
+     На вузькому екрані (jtNarrow) — навпаки: сторінка навмисно довша за
+     вьюпорт, бо колонки розгорнуті в стовпчик, і скрол документа тут
+     єдиний спосіб дістатись підвалу з оплатами й каталогу. */
   useEffect(() => {
-    if (!thisOrder) return;
+    if (!thisOrder || jtNarrow) return;
     const html = document.documentElement;
     const prevHtml = html.style.overflowY;
     const prevBody = document.body.style.overflowY;
@@ -245,7 +276,7 @@ const NewUIArtem = () => {
       html.style.overflowY = prevHtml;
       document.body.style.overflowY = prevBody;
     };
-  }, [!!thisOrder]);
+  }, [!!thisOrder, jtNarrow]);
 
   /* Знімок останнього відкритого наряду для шапки навбара (NavOrderHead
      читає той самий ключ). Раніше його писав ClientChangerUIArtem — його
@@ -1298,16 +1329,6 @@ const NewUIArtem = () => {
                         </button>
                         <button
                           type="button"
-                          className="nui-item-btn nui-item-collapse"
-                          onClick={(e) => collapseThingToEditor(thing, index, e)}
-                          title={`Згорнути в «${editorLabel}»`}
-                        >
-                          <svg viewBox="0 0 16 16" aria-hidden="true">
-                            <path d="M3 3h3M3 3v3M13 3h-3M13 3v3M3 13h3M3 13v-3M13 13h-3M13 13v-3" />
-                          </svg>
-                        </button>
-                        <button
-                          type="button"
                           className="nui-item-btn nui-item-del"
                           onClick={(e) => handleThingClickDelete2(thing, e)}
                           title="Видалити позицію"
@@ -1332,11 +1353,15 @@ const NewUIArtem = () => {
                       <div className="nui-price-row">
                         <span className="nui-price-left">{thing.amount}<span className="nui-unit-sub">шт</span>{" х "}{unitPrice}<span className="nui-unit-sub">грн</span>{" = "}</span>
                         <span className={`nui-price-total${hasDiscount ? ' nui-price-total--discount' : ''}`}>{parseFloat(totalPrice)}<span className="nui-price-total-unit">грн</span></span>
-                        <OrderItemExtraSheets
-                          thing={thing}
-                          settings={extraSettings}
-                          onSaved={handleExtraSheetsSaved}
-                        />
+                        {/* «Брак» і «Запас» — внутрішня кухня виробництва,
+                            клієнту в позиції їх не показуємо */}
+                        {currentUser?.role !== 'user' && (
+                          <OrderItemExtraSheets
+                            thing={thing}
+                            settings={extraSettings}
+                            onSaved={handleExtraSheetsSaved}
+                          />
+                        )}
                       </div>
 
                       {expandedThingIndex === index && (
@@ -1352,13 +1377,13 @@ const NewUIArtem = () => {
                               до чого воно стосується — так рядок читається
                               як фраза, а не як чотири підписані поля. */}
                           <div className="nui-details-footer-row">
-                            <span>Розміщено {thing.newField4} {getPluralForm(thing.newField4, "виріб", "вироби", "виробів")} на аркуші</span>
+                            <span><b className="nui-footer-strong">{thing.newField4} {getPluralForm(thing.newField4, "виріб", "вироби", "виробів")}</b> на аркуші</span>
                             <span className="nui-sep">|</span>
-                            <span>{thing.newField5} {getPluralForm(thing.newField5, "аркуш", "аркуші", "аркушів")} надруковано</span>
+                            <span><b className="nui-footer-strong">{thing.newField5} {getPluralForm(thing.newField5, "аркуш", "аркуші", "аркушів")}</b> надруковано</span>
                             <span className="nui-sep">|</span>
-                            <span>{parseFloat(parseFloat(totalPrice / (thing.newField5 || 1)).toFixed(2))}<span className="nui-footer-price-unit">грн</span> за 1 аркуш</span>
+                            <span><b className="nui-footer-strong">{parseFloat(parseFloat(totalPrice / (thing.newField5 || 1)).toFixed(2))}<span className="nui-footer-price-unit">грн</span></b> за 1 аркуш</span>
                             <span className="nui-sep">|</span>
-                            <span>{parseFloat(unitPrice)}<span className="nui-footer-price-unit">грн</span> за 1 шт</span>
+                            <span><b className="nui-footer-strong">{parseFloat(unitPrice)}<span className="nui-footer-price-unit">грн</span></b> за 1 шт</span>
                           </div>
                         </div>
                       )}
@@ -1718,7 +1743,10 @@ const NewUIArtem = () => {
             );
           })()}
 
-          <div className="d-flex flex-row nui-bottom-shell">
+          {/* is-client: у клієнта в підвалі немає кнопок оплати, тож
+              мінімальна висота 130px лишала б порожню смугу (див.
+              progressbar_styles.css, .pb-shell--client) */}
+          <div className={`d-flex flex-row nui-bottom-shell${currentUser?.role === 'user' ? ' is-client' : ''}`}>
             <div className="nui-bottom-pane nui-bottom-pane--progress">
               <div className="nui-bottom-main-row">
                 <div className="nui-bottom-finance-inline">
@@ -1790,8 +1818,10 @@ const NewUIArtem = () => {
                       компанії» (портал у #nui-jt-barcode-slot), на прохання
                       користувача. Логіка друку лишається тут: після друку
                       наліпки наряд переходить у статус 3, а цей стан живе
-                      на сторінці, не в навбарі. */}
-                  {barcodeSlotEl && createPortal(
+                      на сторінці, не в навбарі. Клієнту (role === 'user')
+                      код не показуємо: наліпку друкує виробництво, а
+                      порожній слот у доці схлопує :empty. */}
+                  {barcodeSlotEl && currentUser?.role !== 'user' && createPortal(
                     <BarcodeLabel type="order" data={thisOrder} variant="full" onAfterPrint={() => {
                       if (thisOrder?.id) {
                         axios.put('/orders/OneOrder/statusUpdate', { newStatus: 3, thisOrderId: thisOrder.id })

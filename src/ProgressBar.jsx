@@ -147,6 +147,7 @@ const
   const currentUser = useSelector((state) => state.auth.user);
   const deadlineInputRef = useRef(null);
   const canEditDeadline = currentUser?.role === 'admin';
+  const isClient = currentUser?.role === 'user';
   const [error, setError] = useState(null);
   const [discountError, setDiscountError] = useState(null);
   const [activeError, setActiveError] = useState(null);
@@ -437,6 +438,48 @@ const
     setActiveError(externalError || discountError || null);
   }, [externalError, discountError]);
 
+  /* ── Документи рахунку для клієнта ──
+     Ті самі документи, що менеджер віддає з модалки оплат: постачальник
+     і покупець беруться з Payment.raw, які туди записав виставлений
+     рахунок. Ендпоінт робить findOrCreate по (orderId, supplier, buyer),
+     тож повторне завантаження не плодить нових рахунків. */
+  const invoiceDocsIds = useMemo(() => {
+    const raw = thisOrder?.Payment?.raw;
+    const supplierId = raw?.supplierId;
+    const buyerId = raw?.buyerId;
+    return supplierId && buyerId ? { supplierId, buyerId } : null;
+  }, [thisOrder?.Payment?.raw]);
+
+  const [docsLoading, setDocsLoading] = useState(false);
+
+  const downloadInvoiceDocs = useCallback(async () => {
+    if (!invoiceDocsIds || !thisOrder?.id || docsLoading) return;
+    setDocsLoading(true);
+    try {
+      const resp = await axios.post(
+        `/api/invoices/from-order/${thisOrder.id}/docInZip`,
+        invoiceDocsIds,
+        { responseType: 'blob' }
+      );
+      const cd = resp.headers?.['content-disposition'];
+      const match = cd && cd.match(/filename="(.+)"/);
+      const fileName = match?.[1] || `documents_${thisOrder.id}.zip`;
+      const url = window.URL.createObjectURL(new Blob([resp.data]));
+      const a = document.createElement('a');
+      a.href = url;
+      a.setAttribute('download', fileName);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      setActiveError(null);
+    } catch (err) {
+      setActiveError(err?.response?.data?.error || err?.message || 'Не вдалося завантажити документи');
+    } finally {
+      setDocsLoading(false);
+    }
+  }, [invoiceDocsIds, thisOrder?.id, docsLoading]);
+
   const handleDiscountError = useCallback((nextError) => {
     setDiscountError(nextError);
     if (typeof onDiscountError === 'function') onDiscountError(nextError);
@@ -549,7 +592,7 @@ const
       });
   };
 return (
-  <div className={`nui-progressbar pb-shell tone-${actionTone} hover-tone-${actionHoverTone}${showActionRail && !showFinance ? ' pb-shell--action-only' : ''}${!showActionRail && showFinance ? ' pb-shell--finance-only' : ''}${compactActionButton ? ' pb-shell--compact-action' : ''}`}>
+  <div className={`nui-progressbar pb-shell tone-${actionTone} hover-tone-${actionHoverTone}${showActionRail && !showFinance ? ' pb-shell--action-only' : ''}${!showActionRail && showFinance ? ' pb-shell--finance-only' : ''}${compactActionButton ? ' pb-shell--compact-action' : ''}${isClient ? ' pb-shell--client' : ''}`}>
     {showActionRail && (
     <div className="pb-action-rail">
       {showActionButton && (
@@ -639,7 +682,26 @@ return (
             </div>
 
 
-            {!isPaid && thisOrder?.Payment?.status !== "CREATED" && (
+            {/* Документи рахунку — у середній колонці, там само, де в
+                персоналу калькулятор знижки: між «вартістю» і «до
+                сплати». Показуємо тільки коли рахунок уже виставлено. */}
+            {isClient && invoiceDocsIds && (
+              <div className="pb-docs-wrap">
+                <button
+                  type="button"
+                  className="pb-docs-btn"
+                  onClick={downloadInvoiceDocs}
+                  disabled={docsLoading}
+                  title="Завантажити рахунок і акт"
+                >
+                  <span>{docsLoading ? 'Готуємо…' : 'Завантажити документи'}</span>
+                </button>
+              </div>
+            )}
+
+            {/* Клієнту знижки в блоці оплат не показуємо взагалі —
+                ані поля, ані числа: вона вже врахована в «ДО СПЛАТИ». */}
+            {!isClient && !isPaid && thisOrder?.Payment?.status !== "CREATED" && (
               <div className="pb-discount-wrap">
                 <span className="pb-discount-label">&#1047;&#1053;&#1048;&#1046;&#1050;&#1040;</span>
                 <DiscountCalculator

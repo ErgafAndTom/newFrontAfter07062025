@@ -16,8 +16,8 @@ import {Outlet} from "react-router-dom";
 
 export const Bukletvimogi = () => {
     return (
-        <div className="d-flex justify-content-center custom-button-row">
-    <div className="text-container">
+        <div className="vmg-content">
+    <div className="vmg-card vmg-card--wide text-container">
         <b className="tverd-text19">Макетування буклетів</b>
 <b className="tverd-text20">Скріплення на скобу</b>
 <b className="tverd-text21">Зшивання на пружину</b>

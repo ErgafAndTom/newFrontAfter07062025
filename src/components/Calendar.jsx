@@ -64,7 +64,10 @@ const ukrainianStaticRanges = createStaticRanges([
     },
 ]);
 
-const useIsMobile = (breakpoint = 768) => {
+/* 1200, а не 768: на Galaxy Z Fold 6 у розкладеному вигляді (~1080 CSS
+   пікселів) два місяці поруч уже не влазять — .rdrCalendarWrapper має
+   фіксовану ширину 27.667em, тож пікер вилазив за край сторінки. */
+const useIsMobile = (breakpoint = 1200) => {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= breakpoint);
     useEffect(() => {
         const handler = () => setIsMobile(window.innerWidth <= breakpoint);

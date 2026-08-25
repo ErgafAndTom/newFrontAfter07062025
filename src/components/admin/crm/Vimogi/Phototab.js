@@ -1,19 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { Outlet } from 'react-router-dom';
 import "./Vimogi.css";
-import "./Vimogi";
-import "./Printphotohelpsmall";
-import {Outlet} from "react-router-dom";
+import { VmgEmpty } from "./VmgSubnav";
 
-
-export const Phototab = () => {
-    return (
-        <div className="d-flex justify-content-center custom-button-row">
-            <div className="text-container">
-                efgegeggreer
-                <Outlet/>
-            </div>
-        </div>
-    );
-};
+export const Phototab = () => (
+    <>
+        <VmgEmpty />
+        <Outlet />
+    </>
+);
 
 export default Phototab;

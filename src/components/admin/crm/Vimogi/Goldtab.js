@@ -15,8 +15,8 @@ import {Outlet} from "react-router-dom";
 
 export const Goldtab = () => {
     return (
-        <div className="d-flex justify-content-center custom-button-row">
-            <div className="text-container">
+        <div className="vmg-content">
+            <div className="vmg-card vmg-card--wide text-container">
                 <p><strong>Формати макетів:</strong></p>
                 <ul>
                     <li>Файли приймаються у форматах: PDF, PSD, EPS, AI.</li>
@@ -38,45 +38,38 @@ export const Goldtab = () => {
                 <p><strong>Підготовка макета в Adobe Illustrator:</strong></p>
                 <ul>
                     <li> 1. Створіть новий зразок кольору (New Swatch).</li>
-                    <div className="gold1"
-                         style={{display: 'flex', justifyContent: 'center', margin: "0.5vw", height: '17vh'}}>
-                        <img className="gold1" alt="" src={gold1} style={{marginRight: '1vw'}}/>
+                    <div className="vmg-figure__row">
+                        <img alt="" src={gold1}/>
                     </div>
                     <li> 2. Назвіть зразок «White» та виберіть «Плашковий колір». (Spot color)</li>
-                    <div className="gold2"
-                         style={{display: 'flex', justifyContent: 'center', margin: "0.5vw", height: '30vh'}}>
-                        <img className="gold2" alt="" src={gold2} style={{marginRight: '1vw'}}/>
+                    <div className="vmg-figure__row">
+                        <img alt="" src={gold2}/>
                     </div>
                     <li> 3. Вибрати колір 100% Cyan (Блакитний плашковий канал буде представляти собою білий тонер).</li>
                     <li> 4. Всі елементи з плашковим кольором White обов'язково повинні знаходитися на передньому плані (або винесені в окремих верхній шар), а також мати атрибут «Накладення заливки» (Overprint Fill) , включити який можна у вікні Атрибути при виділеному елементі.</li>
-                    <div className="gold3"
-                         style={{display: 'flex', justifyContent: 'center', margin: "0.5vw", height: '15vh'}}>
-                        <img className="gold3" alt="" src={gold3} style={{marginRight: '1vw'}}/>
+                    <div className="vmg-figure__row">
+                        <img alt="" src={gold3}/>
                     </div>
                     <li> 5. Збережіть файл у форматі PDF.</li>
                 </ul>
                 <p><strong>Підготовка макета в Adobe Photoshop:</strong></p>
                 <ul>
                     <li> 1. Переконайтеся, що зображення в режимі CMYK (8 біт/канал).</li>
-                    <div className="gold6"
-                         style={{display: 'flex', justifyContent: 'center', margin: "0.5vw", height: '18vh'}}>
-                        <img className="gold6" alt="" src={gold6} style={{marginRight: '1vw'}}/>
+                    <div className="vmg-figure__row">
+                        <img alt="" src={gold6}/>
                     </div>
                     <li> 2. Виділіть необхідні елементи.(Щоб зробити виділення елементів шару потрібно зажати CTRL і натиснути на піктограму шару)</li>
                     <li> 3. Створіть новий плашковий канал (New spot channel) у вікні «Канали» та назвіть канал «White».</li>
-                    <div className="gold4"
-                         style={{display: 'flex', justifyContent: 'center', margin: "0.5vw", height: '22vh'}}>
-                        <img className="gold4" alt="" src={gold4} style={{marginRight: '1vw'}}/>
+                    <div className="vmg-figure__row">
+                        <img alt="" src={gold4}/>
                     </div>
                     <li> 4. Вибрати колір 100% Cyan (Блакитний плашковий канал буде представляти собою білий тонер).</li>
-                    <div className="gold5"
-                         style={{display: 'flex', justifyContent: 'center', margin: "0.5vw", height: '15vh'}}>
-                        <img className="gold5" alt="" src={gold5} style={{marginRight: '1vw'}}/>
+                    <div className="vmg-figure__row">
+                        <img alt="" src={gold5}/>
                     </div>
                     <li> 5. Збережіть файл як копію у форматі Photoshop PDF із збереженням плашечних кольорів.</li>
-                    <div className="gold7"
-                         style={{display: 'flex', justifyContent: 'center', margin: "0.5vw", height: '30vh'}}>
-                        <img className="gold7" alt="" src={gold7} style={{marginRight: '1vw'}}/>
+                    <div className="vmg-figure__row">
+                        <img alt="" src={gold7}/>
                     </div>
                 </ul>
                 <p><strong>Друк золотим тонером:</strong></p>

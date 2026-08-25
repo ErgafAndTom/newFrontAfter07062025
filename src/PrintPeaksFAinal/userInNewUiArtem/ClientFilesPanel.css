@@ -1237,7 +1237,9 @@
 }
 
 .cfp-order-editor-group.is-services .cfp-order-editors-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Послуг стало чотири (додався ОФСЕТ) — інакше остання плитка
+     звисає окремим рядком під трьома іншими. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .cfp-order-editor-group .cfp-order-editor-btn {
@@ -2169,4 +2171,199 @@
    інакше на чорній підкладці лишався б сірим */
 .cfp-toolbar.cfp-toolbar button.is-active .nui-client-rect-btn-text {
   color: #fff !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ПАНЕЛЬ ФАЙЛІВ І КАТАЛОГ ПОСЛУГ НА ТЕЛЕФОНАХ (≤1024px)
+
+   Каталог на десктопі — рядок на групу: вертикальний підпис ліворуч
+   (92px) і плитки праворуч по 5–6 у ряд. На 402px під плитки лишається
+   ~300px, тобто 60px на плитку — вужче за саму іконку. Тому підпис
+   переїжджає над плитками окремим рядком, а плиток стає 4.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Каталог: перебудова лише на телефонах (≤768). На Fold розкладеному
+   (884px) десктопна розкладка ще працює — підпис ліворуч 82px і
+   плитки по 5–6 у ряд дають ~130px на плитку; переведення на 4
+   колонки роздувало їх до 200px порожнього поля. */
+@media (max-width: 768px) {
+  /* ── Каталог послуг ── */
+
+  /* Групи не ділять залишок висоти: сторінка тепер гортається */
+  .cfp-order-editors {
+    overflow-y: visible;
+  }
+
+  .cfp-order-editor-groups {
+    flex: 0 0 auto;
+    gap: 12px;
+  }
+
+  .cfp-order-editor-group {
+    flex: 0 0 auto;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  /* Підпис групи — горизонтальна смужка над плитками */
+  .cfp-order-editor-group-title {
+    min-height: 0;
+    padding: 6px 8px 6px 13px;
+    font-size: 11px;
+  }
+
+  /* Однаково 4 в ряд для всіх груп: різні числа колонок (5/6/4) на
+     вузькому екрані давали плитки різної ширини між групами. */
+  .cfp-order-editor-group.is-print .cfp-order-editors-grid,
+  .cfp-order-editor-group.is-postpress .cfp-order-editors-grid,
+  .cfp-order-editor-group.is-goods .cfp-order-editors-grid,
+  .cfp-order-editor-group.is-services .cfp-order-editors-grid,
+  .cfp-order-editors-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    height: auto;
+  }
+
+  .cfp-order-editor-group .cfp-order-editor-btn {
+    min-height: 74px;
+    padding: 8px 4px;
+  }
+
+  .cfp-order-editor-group .cfp-order-editor-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .cfp-order-editor-group .cfp-order-editor-label {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 1200px) {
+  /* ── Тулбар панелі файлів: кнопки під палець ── */
+  .cfp-tool-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .cfp-toolbar-action {
+    height: 36px;
+  }
+
+  .cfp-toolbar {
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .cfp-toolbar-nav { flex: 1 1 100%; }
+
+  /* Поле пошуку файлів: 16px і більше, інакше Safari зумить сторінку
+     при фокусі */
+  .cfp-search input {
+    height: 36px;
+    font-size: 16px;
+  }
+
+  /* Рядки списку файлів — вища зона тапу */
+  .cfp-modal--inline .cfp-file-row {
+    padding: 10px 0;
+  }
+}
+
+/* ── Galaxy Z Fold 6 складений (~344px) ── */
+@media (max-width: 380px) {
+  .cfp-order-editor-group.is-print .cfp-order-editors-grid,
+  .cfp-order-editor-group.is-postpress .cfp-order-editors-grid,
+  .cfp-order-editor-group.is-goods .cfp-order-editors-grid,
+  .cfp-order-editor-group.is-services .cfp-order-editors-grid,
+  .cfp-order-editors-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ТЕЛЕФОН: каталог не має жити у власному вікні висотою 72vh
+
+   Коли файл не вибрано, каталог займає всю висоту .cfp-preview
+   (height:100% у правил :not(:has(.cfp-preview-stage))), а сама панель
+   обмежена max-height: min(72vh, 720px) з власним overflow-y. На
+   десктопі це вікно поруч зі списком файлів. На телефоні блоки стоять
+   один під одним, і таке вікно зрізало каталог посеред другого ряду —
+   виглядало так, ніби блок оплат наліз на список модалок.
+
+   Тут каталог просто росте по вмісту, а гортається вся сторінка.
+   Селектори повторюють :not(:has(...)) навмисно: інакше специфічність
+   не дотягується до правил вище.
+   ══════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .cfp-modal--inline .cfp-preview,
+  .cfp-modal--inline .cfp-preview:not(:has(.cfp-preview-stage)) {
+    max-height: none;
+    height: auto;
+    overflow-y: visible;
+  }
+
+  .cfp-modal--inline .cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editors,
+  .cfp-modal--inline .cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-groups {
+    height: auto;
+    flex: 0 0 auto;
+  }
+
+  /* Групи не ділять залишок висоти й не тримають мінімум під неї */
+  .cfp-modal--inline .cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-group,
+  .cfp-modal--inline .cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-group.is-goods {
+    flex: 0 0 auto;
+    min-height: 0;
+    height: auto;
+  }
+
+  /* Чотири плитки в ряд для всіх груп — правило з :has() ставило
+     «Товарам» три, і плитки виходили різної ширини між групами */
+  .cfp-modal--inline .cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-group .cfp-order-editors-grid,
+  .cfp-modal--inline .cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-group.is-goods .cfp-order-editors-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    height: auto;
+  }
+
+  /* Іконки: правило з :has() тримає clamp(46px, 6vw, 64px) — на 402px
+     це 46px, і плитка в 84px виходить майже суцільною картинкою */
+  .cfp-modal--inline .cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-group .cfp-order-editor-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .cfp-modal--inline .cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-group .cfp-order-editor-label {
+    font-size: 10px;
+  }
+
+  .cfp-modal--inline .cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-btn {
+    gap: 5px;
+    padding: 8px 4px;
+  }
+
+  /* Підпис групи горизонтальною смужкою над плитками: у inline-режимі
+     він стиснутий у 28px вертикальну колонку — на телефоні це стовпчик
+     з окремих літер. */
+  .cfp-modal--inline .cfp-order-editor-group {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cfp-modal--inline .cfp-order-editor-group-title {
+    width: auto;
+    min-width: 0;
+    height: auto;
+    min-height: 0;
+    align-self: stretch;
+    padding: 6px 8px 6px 13px;
+    font-size: 11px;
+  }
+}
+
+/* ── Galaxy Z Fold 6 складений (~344px) ── */
+@media (max-width: 380px) {
+  .cfp-modal--inline .cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-group .cfp-order-editors-grid,
+  .cfp-modal--inline .cfp-preview:not(:has(.cfp-preview-stage)) .cfp-order-editor-group.is-goods .cfp-order-editors-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }

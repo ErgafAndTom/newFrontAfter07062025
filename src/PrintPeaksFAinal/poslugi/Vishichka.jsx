@@ -720,6 +720,11 @@ const Vishichka = ({
                   autoSelectFirst={false}
                   dropdownClassName={`v2-dropdown v2-theme-${theme}`}
                   preferredMaterialName={(() => {
+                    // При редагуванні позиції пресет НЕ застосовуємо: Materials2
+                    // «завжди вибирає» preferredMaterialName і затирає матеріал,
+                    // збережений в optionsJson. Пресети — тільки для нових позицій
+                    // (так само, як у handleServiceSelect).
+                    if (isEdit) return undefined;
                     const svc = services.find((s) => (typeof s === 'string' ? s : s?.name) === selectedService);
                     return svc?.presets?.materialName || undefined;
                   })()}

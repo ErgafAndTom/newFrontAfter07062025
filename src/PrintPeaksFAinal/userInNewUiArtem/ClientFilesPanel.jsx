@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
+import { useSelector } from "react-redux";
 import axios from "../../api/axiosInstance";
 import { Spinner } from "react-bootstrap";
 import { FiPlus, FiMinus, FiLink, FiTrash2, FiFolder, FiChevronDown, FiChevronUp, FiChevronsUp,
@@ -46,6 +47,7 @@ const FILE_ORDER_EDITORS = [
   { value: "Scans", label: "Scans", icon: "scan", tint: "--adminpurple" },
   { value: "Delivery", label: "Delivery", icon: "car", tint: "--adminpurple" },
   { value: "WideFactory", label: "Wide Factory", icon: "factory", tint: "--adminpurple" },
+  { value: "Ofset", label: "Ofset", icon: "ofset", tint: "--adminpurple" },
 ];
 
 const FILE_EDITOR_LABELS = {
@@ -68,13 +70,14 @@ const FILE_EDITOR_LABELS = {
   Scans: "\u0421\u043a\u0430\u043d\u0443\u0432\u0430\u043d\u043d\u044f",
   Delivery: "\u0414\u043e\u0441\u0442\u0430\u0432\u043a\u0430",
   WideFactory: "\u0412\u0438\u0440\u043e\u0431\u043d\u0438\u0446\u0442\u0432\u043e",
+  Ofset: "Офсет",
 };
 
 const FILE_EDITOR_GROUPS = [
   { id: "print", label: "\u0414\u0440\u0443\u043a", tint: "--adminorange", values: ["SheetCutBW", "SheetCut", "Photo", "Wide", "DigitalPrintWide"] },
   { id: "postpress", label: "\u041f\u043e\u0441\u0442\u043f\u0440\u0435\u0441", tint: "--adminblue", values: ["Vishichka", "Magnets", "Laminator", "PerepletMet", "BigOvshik"] },
   { id: "goods", label: "\u0422\u043e\u0432\u0430\u0440\u0438", tint: "--adminrose", values: ["Calendar", "Diplom", "Folder", "Note", "Booklet", "Cup"] },
-  { id: "services", label: "\u041f\u043e\u0441\u043b\u0443\u0433\u0438", tint: "--adminpurple", values: ["Scans", "Delivery", "WideFactory"] },
+  { id: "services", label: "\u041f\u043e\u0441\u043b\u0443\u0433\u0438", tint: "--adminpurple", values: ["Scans", "Delivery", "WideFactory", "Ofset"] },
 ];
 
 FILE_ORDER_EDITORS.forEach((editor) => {
@@ -135,6 +138,11 @@ const ClientFilesPanel = ({
   // закриття по кліку повз неї.
   inline = false,
 }) => {
+  /* Каталог робіт клієнту показуємо не весь: «Виробництво» — це
+     аутсорс-позиція, яку заводить менеджер, а не замовник. */
+  const currentUser = useSelector((state) => state.auth.user);
+  const hiddenEditors = currentUser?.role === 'user' ? ['WideFactory'] : [];
+
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -1065,7 +1073,10 @@ const ClientFilesPanel = ({
                       >
                         <h3 className="cfp-order-editor-group-title">{group.label}</h3>
                         <div className="cfp-order-editors-grid">
-                          {FILE_ORDER_EDITORS.filter((editor) => group.values.includes(editor.value)).map((editor) => {
+                          {FILE_ORDER_EDITORS
+                            .filter((editor) => group.values.includes(editor.value)
+                              && !hiddenEditors.includes(editor.value))
+                            .map((editor) => {
                             const image = DOCK_IMAGES[editor.value];
                             return (
                               <button

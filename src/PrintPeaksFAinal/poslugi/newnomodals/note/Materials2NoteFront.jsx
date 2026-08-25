@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom";
 import { usePortalDropdown } from "../usePortalDropdown";
 import axios from "../../../../api/axiosInstance";
+import { getMaterialSort } from "../../../../utils/materialSort";
 import { Spinner } from "react-bootstrap";
 import "../../Poslugy.css";
 
@@ -86,7 +87,7 @@ const Materials2NoteFront = ({
       inPageCount: 999999,
       currentPage: 1,
       search: "",
-      columnName: { column: "id", reverse: false },
+      columnName: getMaterialSort(),
       size: size,
       typeOfPosluga: "Note/Booklet",
       material: {
@@ -136,7 +137,7 @@ const Materials2NoteFront = ({
       currentPage: 1,
       type: "SheetCut",
       search: "",
-      columnName: { column: "id", reverse: false },
+      columnName: getMaterialSort(),
       size: size,
       material: {
         type: "Ламінування",

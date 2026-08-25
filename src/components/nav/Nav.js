@@ -71,7 +71,7 @@ const Nav = () => {
     const root = document.documentElement;
     const apply = () => {
       const h = barRef.current?.offsetHeight || 0;
-      root.style.setProperty('--pp-nav-h', `${h}px`);
+      if (h) root.style.setProperty('--pp-nav-h', `${h}px`);
     };
     apply();
     document.body.classList.toggle('pp-nav-bottom', navPosition === 'bottom');
@@ -85,7 +85,14 @@ const Nav = () => {
       if (ro) ro.disconnect();
       window.removeEventListener('resize', apply);
     };
-  }, [navPosition, currentUser]);
+    /* location.pathname у залежностях обов'язковий: на /login навбар
+       повертає null, тож barRef порожній і ResizeObserver нема до чого
+       чіпляти. Після входу перехід на наряд — це SPA-навігація, під час
+       якої ані navPosition, ані currentUser уже не змінюються, і без
+       цього ефект не перезапускався: --pp-nav-h лишався від сторінки
+       логіну, а сторінка наряду рахує з нього свою висоту — звідси
+       «поламаний до F5» вигляд. */
+  }, [navPosition, currentUser, location.pathname]);
 
   useEffect(() => () => {
     document.body.classList.remove('pp-nav-bottom');

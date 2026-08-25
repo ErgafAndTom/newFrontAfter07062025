@@ -152,7 +152,6 @@ function FieldRow({ label, field, value, userId, type = "text", onSaved, disable
 const ROLES = [
   { value: 'user',     label: 'user — клієнт' },
   { value: 'operator', label: 'operator — оператор' },
-  { value: 'manager',  label: 'manager — менеджер' },
   { value: 'admin',    label: 'admin — адміністратор' },
 ];
 
@@ -179,7 +178,6 @@ function RoleRow({ userId, value, onSaved, isSelf }) {
 
   const roleColor = {
     admin: 'var(--adminred, #ee3c23)',
-    manager: 'var(--adminblue, #3c60a6)',
     operator: 'var(--admingreen, #0e935b)',
     user: 'var(--admingrey, #666)',
   }[val] || 'var(--admingrey)';
@@ -216,9 +214,13 @@ function RoleRow({ userId, value, onSaved, isSelf }) {
 export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
   const [showAttach, setShowAttach] = useState(false);
   const [showAddNew, setShowAddNew] = useState(false);
   const currentUser = useSelector((state) => state.auth.user);
+  /* Клієнт бачить свій профіль, але знижку не редагує: її рахує
+     менеджер, і бекенд усе одно віддає 403 на PATCH discount. */
+  const isClient = currentUser?.role === 'user';
 
   /* Escape */
   useEffect(() => {
@@ -231,9 +233,17 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
   const load = () => {
     if (!userId) return;
     setLoading(true);
+    setLoadError(null);
     axios.get(`/api/users/${userId}`)
       .then(r => { setUser(r.data); onUserUpdated?.(r.data); })
-      .catch(e => console.error(e))
+      .catch(e => {
+        console.error(e);
+        // без цього вікно просто зависало на «Завантаження...» і
+        // виглядало так, ніби профіль узагалі не відкривається
+        setLoadError(e?.response?.status === 403
+          ? 'Немає доступу до цього профілю'
+          : (e?.response?.data?.message || e?.message || 'Не вдалося завантажити профіль'));
+      })
       .finally(() => setLoading(false));
   };
 
@@ -325,7 +335,7 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
             <div className="cpm-name-row">
               {loading
                 ? <span className="cpm-loading-name">Завантаження...</span>
-                : <span className="cpm-fullname">{fullName}</span>
+                : <span className="cpm-fullname">{loadError ? 'Профіль' : fullName}</span>
               }
               {discountNum > 0 && (
                 <span className="cpm-header-discount">Знижка: {discountNum}%</span>
@@ -345,6 +355,14 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
         </header>
 
         {/* ── Body ── */}
+        {!loading && loadError && (
+          <div className="cpm-body">
+            <div className="cpm-section">
+              <div className="cpm-field-err">{loadError}</div>
+            </div>
+          </div>
+        )}
+
         {!loading && user && (
           <div className="cpm-body">
 
@@ -369,16 +387,20 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
               <FieldRow label="Viber"     field="viber"     value={user.viber}     userId={user.id} onSaved={onSaved} />
               <FieldRow label="WhatsApp"  field="whatsapp"  value={user.whatsapp}  userId={user.id} onSaved={onSaved} />
               <FieldRow label="Signal"    field="signal"    value={user.signal}    userId={user.id} onSaved={onSaved} />
-              <FieldRow label="Знижка (%)" field="discount" value={discountNum}    userId={user.id} type="number" onSaved={onDiscountSaved} />
-              <FieldRow label="Логін"     field="username"  value={user.username}  userId={user.id} onSaved={onSaved} />
-              <FieldRow label="Пароль"    field="password"  value={user.passwordRaw ?? ""}  userId={user.id} type="text"   onSaved={onSaved} />
+              <FieldRow label="Знижка (%)" field="discount" value={discountNum}    userId={user.id} type="number" onSaved={onDiscountSaved} disabled={isClient} />
+              {!isClient && (
+                <>
+                  <FieldRow label="Логін"     field="username"  value={user.username}  userId={user.id} onSaved={onSaved} />
+                  <FieldRow label="Пароль"    field="password"  value={user.passwordRaw ?? ""}  userId={user.id} type="text"   onSaved={onSaved} />
+                </>
+              )}
             </div>
 
           </div>
         )}
 
         {/* ── Footer — компанія ── */}
-        {!loading && user && (
+        {!loading && user && !isClient && (
           <footer className="cpm-footer">
             {user.Company ? (
               <>
@@ -406,6 +428,17 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
                 </button>
               </div>
             )}
+          </footer>
+        )}
+
+        {/* Клієнту — компанія довідково, без кнопок прикріплення */}
+        {!loading && user && isClient && user.Company && (
+          <footer className="cpm-footer">
+            <div className="cpm-company-block">
+              <div className="cpm-company-block-name">{user.Company.companyName}</div>
+              {user.Company.edrpou && <span className="cpm-company-detail">ЄДРПОУ: {user.Company.edrpou}</span>}
+              {user.Company.phoneNumber && <span className="cpm-company-detail">Тел.: {user.Company.phoneNumber}</span>}
+            </div>
           </footer>
         )}
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom";
 import { usePortalDropdown } from "../usePortalDropdown";
 import axios from "../../../../api/axiosInstance";
+import { getMaterialSort } from "../../../../utils/materialSort";
 import { Spinner } from "react-bootstrap";
 import "../../Poslugy.css";
 
@@ -95,7 +96,7 @@ const Materials2NoteBack = ({
       inPageCount: 999999,
       currentPage: 1,
       search: "",
-      columnName: { column: "id", reverse: false },
+      columnName: getMaterialSort(),
       size: size,
       typeOfPosluga: "Note/Booklet",
       material: {
@@ -144,7 +145,7 @@ const Materials2NoteBack = ({
       currentPage: 1,
       type: "SheetCut",
       search: "",
-      columnName: { column: "id", reverse: false },
+      columnName: getMaterialSort(),
       size: size,
       material: {
         type: "Ламінування",
@@ -215,7 +216,7 @@ const Materials2NoteBack = ({
                   onClick={() => setMaterialAndDrukBack((prev) => ({ ...prev, drukColor: item }))}
                 >
                   <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {item}
+                    {item === "Чорнобілий" ? "Чорно-білий" : item}
                   </div>
                 </div>
               );

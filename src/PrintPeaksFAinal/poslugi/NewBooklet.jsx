@@ -406,7 +406,7 @@ const NewBooklet = ({
                 dropdownClassName={`v2-dropdown v2-theme-${theme}`}
                 buttonsArr={["Офісний", "Тонкий", "Середній", "Цупкий"]}
                 buttonsArrDruk={["односторонній", "двосторонній"]}
-                buttonsArrColor={["Не потрібно", "Чорнобілий", "Кольоровий"]}
+                buttonsArrColor={["Кольоровий"]}
                 buttonsArrLamination={["З глянцевим ламінуванням", "З матовим ламінуванням", "З ламінуванням SoftTouch"]}
                 typeUse={null}
                 preferredMaterialName={(() => {

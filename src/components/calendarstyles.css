@@ -234,8 +234,10 @@
     font-size: 1vh;
 }
 
-/* ── Mobile: кнопки пресетів в один рядок ── */
-@media (max-width: 768px) {
+/* ── Mobile + Fold розкладений: кнопки пресетів в один рядок ──
+   Поріг збігається з useIsMobile у Calendar.jsx (1200): нижче нього
+   пікер рендериться одним місяцем вертикально. */
+@media (max-width: 1200px) {
     .rdrDateRangePickerWrapper {
         flex-direction: column;
         width: 100%;

@@ -1,6 +1,7 @@
 import React, {useEffect, useState, useRef} from "react";
 import ReactDOM from "react-dom";
 import axios from "../../../api/axiosInstance";
+import {getMaterialSort} from "../../../utils/materialSort";
 import {useNavigate} from "react-router-dom";
 import {Spinner} from "react-bootstrap";
 
@@ -90,26 +91,7 @@ const Materials2 = ({
   useEffect(() => {
     // 🔽 Глобальне налаштування сортування матеріалів (Profile → Калькулятори),
     // якщо конкретний виклик явно не задав своє через sortOverride
-    let sortPref = { column: "id", reverse: false };
-    if (sortOverride) {
-      sortPref = {
-        column: ["id", "article", "name", "createdAt"].includes(sortOverride.column) ? sortOverride.column : "id",
-        reverse: !!sortOverride.reverse,
-      };
-    } else {
-      try {
-        const raw = localStorage.getItem("printpeaks_material_sort");
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (parsed && typeof parsed === "object") {
-            sortPref = {
-              column: ["id", "article", "name", "createdAt"].includes(parsed.column) ? parsed.column : "id",
-              reverse: !!parsed.reverse,
-            };
-          }
-        }
-      } catch (e) { /* ignore */ }
-    }
+    const sortPref = getMaterialSort(sortOverride);
 
     const data = {
       name: "MaterialsPrices",

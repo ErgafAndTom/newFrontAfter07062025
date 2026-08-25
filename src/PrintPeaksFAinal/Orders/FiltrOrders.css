@@ -5,29 +5,41 @@
 /* ── Вся панель фільтрів ── */
 .flt-bar {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   flex-wrap: wrap;
-  gap: 0.3rem;
+  width: 100%;
+  box-sizing: border-box;
+  gap: 0.4rem;
   padding: 0 0.5rem;
   background: transparent;
   border-bottom: 1px solid rgba(0,0,0,0.08);
 }
 
-/* ── Конверт (група кнопок) ── */
+/* ── Конверт (група кнопок) ──
+   Групи кнопок ділять між собою всю вільну ширину рядка, дати лишаються
+   при своєму розмірі — розтягувати поля вводу немає сенсу. */
 .flt-group {
   display: flex;
   align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: space-between;
   gap: 0.1rem;
   background: var(--adminfon, #f7f5ee);
   padding: 0 0.35rem;
   flex-wrap: nowrap;
   white-space: nowrap;
 }
+.flt-group--dates {
+  flex: 0 0 auto;
+  justify-content: flex-start;
+}
 
 /* ── Роздільник між конвертами ── */
 .flt-divider {
   width: 1px;
-  height: 1.3rem;
+  height: 1.6rem;
+  align-self: center;
   background: rgba(0, 0, 0, 0.15);
   flex-shrink: 0;
   margin: 0 0.15rem;
@@ -38,14 +50,19 @@
   background: transparent;
   border: none;
   border-bottom: 1.5px solid transparent;
-  padding: 0.12rem 0.4rem;
-  font-size: var(--fontcard, 0.72rem);
+  flex: 1 1 auto;
+  text-align: center;
+  padding: 0.4rem 0.25rem;
+  /* Розмір підібраний так, щоб рядок фільтрів заповнював ширину екрана,
+     але лишався в один рядок: потрібна ширина ≈ 524px + 90px на кожен
+     піксель кегля, звідси лінійна залежність від vw. */
+  font-size: clamp(0.7rem, calc(1.11vw - 5.9px), 1.1rem);
   font-weight: 400;
   color: var(--admingrey, #666666);
   cursor: pointer;
   white-space: nowrap;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.015em;
   transition: color 0.15s, border-color 0.15s, opacity 0.15s;
   line-height: 1.4;
 }
@@ -97,6 +114,12 @@
 
 /* ── Mobile ── */
 @media (max-width: 768px) {
+  .flt-bar {
+    flex-wrap: wrap;
+  }
+  .flt-group {
+    flex: 1 1 100%;
+  }
   .flt-btn--status.flt-status--s5,
   .flt-btn--status.flt-status--cancel {
     display: none !important;
@@ -108,4 +131,41 @@
     font-size: 0.6rem;
     padding: 0.1rem 0.25rem;
   }
+}
+
+/* ── Fold розкладений і планшети: 769–1200px ──
+   Групи фільтрів не влазять в один рядок і переносяться — кожна стає
+   рядком на всю ширину. З justify-content:space-between кнопки в такому
+   рядку розлітаються по краях: між «СКІКО» і «ДРУК» лишалось по
+   півекрана порожнечі. Тут вони йдуть поспіль і переносяться самі,
+   тому розкладка не залежить від кегля (у мобільних браузерах із
+   системним збільшенням шрифту він помітно більший). */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .flt-bar {
+    gap: 0.3rem;
+    padding: 0.3rem 0.4rem;
+  }
+
+  .flt-group {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.15rem 0.35rem;
+    white-space: normal;
+  }
+
+  .flt-group--dates {
+    flex: 0 0 auto;
+    justify-content: flex-start;
+  }
+
+  .flt-btn {
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding: 0.35rem 0.6rem;
+    font-size: clamp(0.7rem, 1.5vw, 0.95rem);
+  }
+
+  /* роздільники між конвертами мають сенс лише коли конверти в рядок */
+  .flt-divider { display: none; }
 }

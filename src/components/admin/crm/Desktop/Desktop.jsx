@@ -14,6 +14,7 @@ import ClientPaymentStats from "./ClientPaymentStats";
 import RoiChart from "./RoiChart";
 import MarginChart from "./MarginChart";
 import OrdersListModal from "./OrdersListModal";
+import {triggerNewOrder} from "../../../../PrintPeaksFAinal/Orders/AddNewOrder";
 import './Desktop.css';
 
 const DELIVERY_DEFAULTS = { np: 500, uklon: 300 };
@@ -203,10 +204,37 @@ const Desktop = () => {
 
     return (
         <div className="dsh-wrap">
-            {/* ТИМЧАСОВО: діагностика різниці 27" vs 32" — прибрати після діагностики */}
-            <span style={{ position: "fixed", top: 2, left: 2, zIndex: 99999, background: "#ff00ff", color: "#fff", fontSize: 12, padding: "2px 6px", whiteSpace: "pre" }}>
-                {`inner:${window.innerWidth}x${window.innerHeight} dpr:${window.devicePixelRatio} screen:${window.screen.width}x${window.screen.height}`}
-            </span>
+            {/* Швидкі дії — тільки на планшетах і телефонах. На десктопі ті самі
+                дії лежать у доці й навбарі, а з тачскріна док із магніфікацією
+                незручний, тож дублюємо дві найчастіші дії великими плитками
+                вгорі сторінки (sticky, щоб лишались під рукою при скролі). */}
+            <div className="dsh-quick-actions">
+                <button
+                    type="button"
+                    className="dsh-qa-btn dsh-qa-order"
+                    onClick={() => triggerNewOrder()}
+                >
+                    <svg viewBox="0 0 24 24" width="1.15em" height="1.15em" fill="none"
+                         stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    <span>Нове замовлення</span>
+                </button>
+                <button
+                    type="button"
+                    className="dsh-qa-btn dsh-qa-expense"
+                    onClick={() => window.dispatchEvent(new CustomEvent('pp-open-expense'))}
+                >
+                    <svg viewBox="0 0 24 24" width="1.15em" height="1.15em" fill="none"
+                         stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+                        <path d="M3 7h15a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>
+                        <path d="M3 7l12-3v3"/>
+                        <path d="M16 13h2"/>
+                    </svg>
+                    <span>Нова витрата</span>
+                </button>
+            </div>
+
             {/* Row 1: Calendar + KPI */}
             <div className="dsh-row-top">
                 <div className="dsh-calendar-wrap">

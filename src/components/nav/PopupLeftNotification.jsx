@@ -48,13 +48,12 @@ const PopupLeftNotification = () => {
 
   const totalCount = taskData.length + paymentData.length + uklonNotifs.length;
 
-  // Звук сповіщення (синтетичний спуск затвору камери)
+  // Звук сповіщення
   const playShutterSound = () => {
     try {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const now = audioContext.currentTime;
 
-      // Перший клік (вищий тон)
       const osc1 = audioContext.createOscillator();
       const gain1 = audioContext.createGain();
       osc1.connect(gain1);
@@ -66,7 +65,6 @@ const PopupLeftNotification = () => {
       osc1.start(now);
       osc1.stop(now + 0.08);
 
-      // Другий клік (нижчий тон)
       const osc2 = audioContext.createOscillator();
       const gain2 = audioContext.createGain();
       osc2.connect(gain2);
@@ -98,10 +96,6 @@ const PopupLeftNotification = () => {
         const bottom = navEl ? navEl.getBoundingClientRect().bottom : 0;
         setPopupPos({ top: bottom, left: 0 });
       } else {
-        /* Прив'язка до правого краю робочої області, а не до поля пошуку:
-           раніше позиція рахувалась від .nav-center-group, і попап
-           з'їжджав далеко вліво від дзвоника. Праву панель «Пуску» (якщо
-           вона праворуч) віднімаємо — інакше попап заліз би під неї. */
         const bellRect = bellWrapRef.current?.getBoundingClientRect();
         const popupWidth = 0.18 * window.innerWidth;
         const rootStyle = getComputedStyle(document.documentElement);
@@ -112,7 +106,6 @@ const PopupLeftNotification = () => {
 
         const rightEdge = window.innerWidth - sideW - 8;
         const left = Math.max(8, rightEdge - popupWidth);
-        // навбар унизу — розкриваємось угору, інакше попап пішов би за екран
         const openUp = document.body.classList.contains('pp-nav-bottom');
         const top = bellRect ? bellRect.bottom : 0;
         const bottom = bellRect ? window.innerHeight - bellRect.top : 0;
@@ -122,7 +115,6 @@ const PopupLeftNotification = () => {
     setShow((prev) => !prev);
   };
 
-  // Завдання (trello cards)
   const handleCompleteTask = async (id) => {
     const response = await axios.put('/trello/updateCardCompleteZadacha', {
       cardId: id,
@@ -134,7 +126,6 @@ const PopupLeftNotification = () => {
     }
   };
 
-  // Оплати — dismiss
   const handleDismissPayment = async (id) => {
     try {
       const response = await axios.put(`/trello/paymentNotifications/${id}/dismiss`);
@@ -146,13 +137,11 @@ const PopupLeftNotification = () => {
     }
   };
 
-  // Клік на сповіщення оплати — перехід до замовлення
   const handlePaymentClick = (orderId) => {
     setShow(false);
     navigate(`/Orders/${orderId}`);
   };
 
-  // Fetch tasks
   useEffect(() => {
     if (!currentUser?.id) return;
     axios.post('/trello/getdataPost', { userId: currentUser.id })
@@ -160,14 +149,12 @@ const PopupLeftNotification = () => {
       .catch(console.error);
   }, [currentUser?.id]);
 
-  // Fetch payment notifications
   useEffect(() => {
     if (!currentUser?.id) return;
     axios.post('/trello/paymentNotifications')
       .then(res => setPaymentData(res.data))
       .catch(console.error);
 
-    // Polling кожні 15 сек
     const interval = setInterval(() => {
       axios.post('/trello/paymentNotifications')
         .then(res => setPaymentData(res.data))
@@ -176,13 +163,11 @@ const PopupLeftNotification = () => {
     return () => clearInterval(interval);
   }, [currentUser?.id]);
 
-  // Uklon WebSocket notifications
   useEffect(() => {
     const handler = (e) => {
       const { orderId, status, deliveryId, cancellation } = e.detail || {};
       if (!orderId || !status) return;
       const st = (status || '').toLowerCase();
-      // Додаємо нотифікацію (уникаємо дублів по orderId+status)
       setUklonNotifs(prev => {
         const exists = prev.some(n => n.orderId === orderId && n.status === st);
         if (exists) return prev;
@@ -205,7 +190,6 @@ const PopupLeftNotification = () => {
     setUklonNotifs(prev => prev.filter(n => n.id !== id));
   };
 
-  // Click outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       const inPopup = popupRef.current && popupRef.current.contains(e.target);
@@ -234,284 +218,258 @@ const PopupLeftNotification = () => {
           style={{
             position: 'fixed',
             ...(isMobile
-              ? { top: popupPos.top }
+              ? { top: Math.max(0, popupPos.top - 8), bottom: 0 }
               : popupPos.openUp
                 ? { bottom: popupPos.bottom + 8 }
-                : { top: popupPos.top + 8 }),
-            left: isMobile ? 0 : popupPos.left,
+                : { top: Math.max(8, popupPos.top - 8), bottom: 0 }),
+            left: 'auto',
+            right: 0,
             width: isMobile ? '100vw' : '18vw',
-            backgroundColor: 'var(--adminfonelement, #f2f0e9)',
-            boxShadow: 'none',
-            borderRadius: '0',
-            padding: '0.7rem',
-            maxHeight: isMobile ? '70vh' : '90vh',
-            overflowY: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.5rem',
+            minWidth: isMobile ? '100vw' : '300px',
+            maxWidth: isMobile ? '100vw' : '380px',
+            maxHeight: !isMobile && popupPos.openUp ? '90vh' : 'none',
             zIndex: 9999,
-            boxSizing: 'border-box',
           }}
         >
+          {/* ── Хедер ── */}
           <div className="notification-panel__header">
             <div className="notification-panel__heading">
               <h2>Сповіщення</h2>
               <p>Оплати, доставка та завдання</p>
             </div>
-            <span className="notification-panel__count" aria-label={`${totalCount} сповіщень`}>{totalCount}</span>
+            <span
+              className="notification-panel__count"
+              aria-label={`${totalCount} сповіщень`}
+            >
+              {totalCount}
+            </span>
           </div>
 
-          {/* Сповіщення оплат */}
-          {paymentData.map((notif) => {
-            const isExpired = notif.method === 'expired';
-            const isInvoiceOverdue = notif.method === 'invoice_overdue';
-            const isIbanPending = notif.method === 'iban' && !notif.isRepeat;
-            const isRepeat = notif.isRepeat;
+          {/* ── Тіло ── */}
+          <div className="notification-panel__body">
 
-            let bgColor, borderColor, accentColor, btnStyle;
-            if (isIbanPending) {
-              bgColor = '#fff5ee';
-              borderColor = 'var(--admincoral, #ff7f50)';
-              accentColor = 'var(--admincoral, #ff7f50)';
-              btnStyle = null;
-            } else if (isInvoiceOverdue) {
-              bgColor = '#fff5ee';
-              borderColor = 'var(--admincoral, #ff7f50)';
-              accentColor = 'var(--admincoral, #ff7f50)';
-              btnStyle = { '--notif-btn-1': '#ff9670', '--notif-btn-2': '#ff7f50', '--notif-btn-3': '#e06a3a' };
-            } else if (isExpired) {
-              bgColor = 'var(--adminlightred, #fde8e5)';
-              borderColor = 'var(--adminred, #ee3c23)';
-              accentColor = 'var(--adminred, #ee3c23)';
-              btnStyle = { '--notif-btn-1': '#f25040', '--notif-btn-2': '#ee3c23', '--notif-btn-3': '#d42f1a' };
-            } else if (isRepeat) {
-              bgColor = 'var(--adminlightpurple, #edebf9)';
-              borderColor = 'var(--adminpurple, #6a5acd)';
-              accentColor = 'var(--adminpurple, #6a5acd)';
-              btnStyle = { '--notif-btn-1': '#8070d4', '--notif-btn-2': '#6a5acd', '--notif-btn-3': '#5a4abf' };
-            } else if (notif.method === 'mockup') {
-              bgColor = 'var(--adminlightorange, #fef4e5)';
-              borderColor = 'var(--adminorange, #f5a623)';
-              accentColor = 'var(--adminorange, #f5a623)';
-              btnStyle = { '--notif-btn-1': '#f7b84a', '--notif-btn-2': '#f5a623', '--notif-btn-3': '#e09510' };
-            } else {
-              bgColor = 'var(--adminlightgreen, #e2f2eb)';
-              borderColor = 'var(--admingreen, #0e935b)';
-              accentColor = 'var(--admingreen, #0e935b)';
-              btnStyle = undefined;
-            }
+            {/* Оплати */}
+            {paymentData.length > 0 && (
+              <div className="notification-panel__group-label">Оплати</div>
+            )}
+            {paymentData.map((notif) => {
+              const isExpired       = notif.method === 'expired';
+              const isInvoiceOverdue = notif.method === 'invoice_overdue';
+              const isIbanPending   = notif.method === 'iban' && !notif.isRepeat;
+              const isRepeat        = notif.isRepeat;
+              const isMockup        = notif.method === 'mockup';
 
-            const isMockup = notif.method === 'mockup';
-            const visualTone = isExpired
-              ? 'danger'
-              : isRepeat
-              ? 'info'
-              : isMockup
-              ? 'task'
-              : (isIbanPending || isInvoiceOverdue) ? 'warning' : 'success';
-            const label = isIbanPending
-              ? 'Очікування оплати'
-              : isInvoiceOverdue
-              ? `Рахунок`
-              : isExpired
-              ? 'Оплата протермінована'
-              : isMockup ? 'Підтвердили' : isRepeat ? 'Повторна оплата' : 'Оплата';
-            const methodSuffix = isIbanPending
-              ? ' на IBAN'
-              : isInvoiceOverdue
-              ? ''
-              : isExpired ? '' : ` ${METHOD_LABELS[notif.method] || notif.method}`;
+              let accentColor, bgColor, borderColor, btnStyle;
+              if (isIbanPending) {
+                bgColor     = '#fff5ee';
+                borderColor = 'var(--admincoral, #ff7f50)';
+                accentColor = 'var(--admincoral, #ff7f50)';
+                btnStyle    = null;
+              } else if (isInvoiceOverdue) {
+                bgColor     = '#fff5ee';
+                borderColor = 'var(--admincoral, #ff7f50)';
+                accentColor = 'var(--admincoral, #ff7f50)';
+                btnStyle    = { '--notif-btn-1': '#ff9670', '--notif-btn-2': '#ff7f50', '--notif-btn-3': '#e06a3a' };
+              } else if (isExpired) {
+                bgColor     = 'var(--adminlightred, #fde8e5)';
+                borderColor = 'var(--adminred, #ee3c23)';
+                accentColor = 'var(--adminred, #ee3c23)';
+                btnStyle    = { '--notif-btn-1': '#f25040', '--notif-btn-2': '#ee3c23', '--notif-btn-3': '#d42f1a' };
+              } else if (isRepeat) {
+                bgColor     = 'var(--adminlightpurple, #edebf9)';
+                borderColor = 'var(--adminpurple, #6a5acd)';
+                accentColor = 'var(--adminpurple, #6a5acd)';
+                btnStyle    = { '--notif-btn-1': '#8070d4', '--notif-btn-2': '#6a5acd', '--notif-btn-3': '#5a4abf' };
+              } else if (isMockup) {
+                bgColor     = 'var(--adminlightorange, #fef4e5)';
+                borderColor = 'var(--adminorange, #f5a623)';
+                accentColor = 'var(--adminorange, #f5a623)';
+                btnStyle    = { '--notif-btn-1': '#f7b84a', '--notif-btn-2': '#f5a623', '--notif-btn-3': '#e09510' };
+              } else {
+                bgColor     = 'var(--adminlightgreen, #e2f2eb)';
+                borderColor = 'var(--admingreen, #0e935b)';
+                accentColor = 'var(--admingreen, #0e935b)';
+                btnStyle    = undefined;
+              }
 
-            return (
-              <div
-                key={`pay-${notif.id}`}
-                className={`notification-card notification-card--${visualTone}`}
-                style={{
-                  '--notification-accent': accentColor,
-                  '--notification-soft': bgColor,
-                  background: bgColor,
-                  borderBottom: `2px solid ${borderColor}`,
-                  borderRadius: '0',
-                  padding: isMobile ? '0.8vh 0.5rem' : '0.8vh 0.6vw',
-                  marginBottom: 0,
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  cursor: 'pointer',
-                }}
-              >
+              const visualTone = isExpired ? 'danger'
+                : isRepeat ? 'info'
+                : isMockup ? 'task'
+                : (isIbanPending || isInvoiceOverdue) ? 'warning'
+                : 'success';
+
+              const label = isIbanPending ? 'Очікування оплати'
+                : isInvoiceOverdue ? 'Рахунок'
+                : isExpired ? 'Оплата протермінована'
+                : isMockup ? 'Підтвердили'
+                : isRepeat ? 'Повторна оплата'
+                : 'Оплата';
+
+              const methodSuffix = isIbanPending ? ' на IBAN'
+                : isInvoiceOverdue ? ''
+                : isExpired ? ''
+                : ` ${METHOD_LABELS[notif.method] || notif.method}`;
+
+              return (
                 <div
-                  className="notification-card__content"
-                  style={{ flexGrow: 1, fontSize: 'var(--font-size-s, 17px)', color: 'var(--admingrey, #666)', fontWeight: 400 }}
-                  onClick={() => handlePaymentClick(notif.orderId)}
+                  key={`pay-${notif.id}`}
+                  className={`notification-card notification-card--${visualTone}`}
+                  style={{
+                    '--notification-accent': accentColor,
+                    '--notification-soft': bgColor,
+                    cursor: 'pointer',
+                  }}
                 >
-                  {isInvoiceOverdue ? (
-                    <>Рахунок№{notif.orderId} на суму{' '}
-                      <strong style={{ color: accentColor, fontWeight: 700 }}>{notif.amount} грн</strong>
-                      {' '}ще не оплатили
-                    </>
-                  ) : (
-                    <>{label}{methodSuffix} замовлення №{notif.orderId} на суму{' '}
-                      <strong style={{ color: accentColor, fontWeight: 700 }}>{notif.amount} грн</strong>
-                    </>
+                  <div
+                    className="notification-card__content"
+                    onClick={() => handlePaymentClick(notif.orderId)}
+                  >
+                    {isInvoiceOverdue ? (
+                      <>Рахунок&nbsp;№{notif.orderId} на суму&nbsp;
+                        <strong>{notif.amount}&nbsp;грн</strong>
+                        &nbsp;ще не оплатили
+                      </>
+                    ) : (
+                      <>{label}{methodSuffix} замовлення&nbsp;№{notif.orderId} на суму&nbsp;
+                        <strong>{notif.amount}&nbsp;грн</strong>
+                      </>
+                    )}
+                  </div>
+
+                  {!isExpired && (
+                    <button
+                      type="button"
+                      className="notification-check-btn"
+                      aria-label="Позначити як переглянуте"
+                      style={btnStyle}
+                      onClick={(e) => { e.stopPropagation(); handleDismissPayment(notif.id); }}
+                    >
+                      <span>&#10003;</span>
+                    </button>
                   )}
                 </div>
-                {!isExpired && !isIbanPending && (
+              );
+            })}
+
+            {/* Uklon */}
+            {uklonNotifs.length > 0 && (
+              <div className="notification-panel__group-label">Доставка Uklon</div>
+            )}
+            {uklonNotifs.map((notif) => {
+              const isCanceled  = ['canceled', 'cancelled', 'failed'].includes(notif.status);
+              const isDelivered = ['delivered', 'completed'].includes(notif.status);
+              const isActive    = !isCanceled && !isDelivered;
+
+              let bgColor, borderColor, accentColor;
+              if (isCanceled) {
+                bgColor     = 'var(--adminlightred, #fde8e5)';
+                borderColor = 'var(--adminred, #ee3c23)';
+                accentColor = 'var(--adminred, #ee3c23)';
+              } else if (isDelivered) {
+                bgColor     = 'var(--adminlightgreen, #e2f2eb)';
+                borderColor = 'var(--admingreen, #0e935b)';
+                accentColor = 'var(--admingreen, #0e935b)';
+              } else {
+                bgColor     = '#fff9e6';
+                borderColor = '#FFD600';
+                accentColor = '#8a6500';
+              }
+
+              const visualTone  = isCanceled ? 'danger' : isDelivered ? 'success' : 'active';
+              const statusLabel = UKLON_STATUS_LABELS[notif.status] || notif.status;
+              const cancelReason = notif.cancellation?.reason === 'driver_search_timeout'
+                ? ' (не знайшли водія)'
+                : notif.cancellation?.reason
+                  ? ` (${notif.cancellation.reason})`
+                  : '';
+
+              return (
+                <div
+                  key={notif.id}
+                  className={`notification-card notification-card--${visualTone}`}
+                  style={{
+                    '--notification-accent': isActive ? '#a07800' : accentColor,
+                    '--notification-soft': bgColor,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div
+                    className="notification-card__content"
+                    onClick={() => { setShow(false); navigate(`/Orders/${notif.orderId}`); }}
+                  >
+                    <span style={{ fontWeight: 600 }}>Uklon</span>&nbsp;замовлення&nbsp;№{notif.orderId}
+                    {' — '}
+                    <strong>{statusLabel}</strong>
+                    {cancelReason}
+                  </div>
                   <button
                     type="button"
                     className="notification-check-btn"
-                    aria-label="Позначити сповіщення як переглянуте"
-                    style={btnStyle}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDismissPayment(notif.id);
+                    aria-label="Позначити як переглянуте"
+                    style={{
+                      '--notif-btn-1': isCanceled ? '#f25040' : isDelivered ? '#2eaa6e' : '#ffe066',
+                      '--notif-btn-2': isCanceled ? '#ee3c23' : isDelivered ? '#0e935b' : '#FFD600',
+                      '--notif-btn-3': isCanceled ? '#d42f1a' : isDelivered ? '#0a7a45' : '#e6c200',
                     }}
+                    onClick={(e) => { e.stopPropagation(); handleDismissUklon(notif.id); }}
                   >
                     <span>&#10003;</span>
                   </button>
-                )}
-              </div>
-            );
-          })}
+                </div>
+              );
+            })}
 
-          {/* Uklon delivery notifications */}
-          {uklonNotifs.map((notif) => {
-            const isCanceled = ['canceled', 'cancelled', 'failed'].includes(notif.status);
-            const isDelivered = ['delivered', 'completed'].includes(notif.status);
-            const isActive = !isCanceled && !isDelivered;
-
-            let bgColor, borderColor, accentColor;
-            if (isCanceled) {
-              bgColor = 'var(--adminlightred, #fde8e5)';
-              borderColor = 'var(--adminred, #ee3c23)';
-              accentColor = 'var(--adminred, #ee3c23)';
-            } else if (isDelivered) {
-              bgColor = 'var(--adminlightgreen, #e2f2eb)';
-              borderColor = 'var(--admingreen, #0e935b)';
-              accentColor = 'var(--admingreen, #0e935b)';
-            } else {
-              bgColor = '#fff9e6';
-              borderColor = '#FFD600';
-              accentColor = '#333';
-            }
-
-            const visualTone = isCanceled ? 'danger' : isDelivered ? 'success' : 'active';
-            const statusLabel = UKLON_STATUS_LABELS[notif.status] || notif.status;
-            const cancelReason = notif.cancellation?.reason === 'driver_search_timeout'
-              ? ' (не знайшли водія)'
-              : notif.cancellation?.reason
-                ? ` (${notif.cancellation.reason})`
-                : '';
-
-            return (
+            {/* Завдання */}
+            {taskData.length > 0 && (
+              <div className="notification-panel__group-label">Завдання</div>
+            )}
+            {taskData.map((card) => (
               <div
-                key={notif.id}
-                className={`notification-card notification-card--${visualTone}`}
+                key={`task-${card.id}`}
+                className="notification-card notification-card--task"
                 style={{
-                  '--notification-accent': isActive ? '#8a6500' : accentColor,
-                  '--notification-soft': bgColor,
-                  background: bgColor,
-                  borderBottom: `2px solid ${borderColor}`,
-                  padding: isMobile ? '0.8vh 0.5rem' : '0.8vh 0.6vw',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  cursor: 'pointer',
+                  '--notification-accent': 'var(--adminorange, #f5a623)',
+                  '--notification-soft': 'var(--adminlightorange, #fff3df)',
                 }}
               >
-                <div
-                  className="notification-card__content"
-                  style={{ flexGrow: 1, fontSize: 'var(--font-size-s, 17px)', color: 'var(--admingrey, #666)', fontWeight: 400 }}
-                  onClick={() => { setShow(false); navigate(`/Orders/${notif.orderId}`); }}
-                >
-                  <span style={{ fontWeight: 600 }}>Uklon</span> замовлення №{notif.orderId}
-                  {' — '}
-                  <strong style={{ color: accentColor, fontWeight: 700 }}>{statusLabel}</strong>
-                  {cancelReason}
+                <div className="notification-card__content">
+                  <div>{card.content}</div>
+                  {card.inTrelloPhoto && (
+                    <div className="notification-card__photos">
+                      {card.inTrelloPhoto.map((photo, idx) => (
+                        <img
+                          key={idx}
+                          src={`/images/${photo.photoLink}`}
+                          alt=""
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <button
                   type="button"
                   className="notification-check-btn"
-                  aria-label="Позначити сповіщення як переглянуте"
+                  aria-label="Завершити завдання"
                   style={{
-                    '--notif-btn-1': isCanceled ? '#f25040' : isDelivered ? '#2eaa6e' : '#ffe066',
-                    '--notif-btn-2': isCanceled ? '#ee3c23' : isDelivered ? '#0e935b' : '#FFD600',
-                    '--notif-btn-3': isCanceled ? '#d42f1a' : isDelivered ? '#0a7a45' : '#e6c200',
+                    '--notif-btn-1': '#f7c23b',
+                    '--notif-btn-2': '#f5a623',
+                    '--notif-btn-3': '#e89810',
                   }}
-                  onClick={(e) => { e.stopPropagation(); handleDismissUklon(notif.id); }}
+                  onClick={() => handleCompleteTask(card.id)}
                 >
                   <span>&#10003;</span>
                 </button>
               </div>
-            );
-          })}
+            ))}
 
-          {/* Завдання (trello cards) */}
-          {taskData.map((card) => (
-            <div
-              key={`task-${card.id}`}
-              className="notification-card notification-card--task"
-              style={{
-              '--notification-accent': 'var(--adminorange, #b86500)',
-              '--notification-soft': 'var(--adminlightorange, #fff3df)',
-              background: 'var(--adminfonelement, #f1eee7)',
-              borderBottom: '2px solid var(--adminorange, #f5a623)',
-              borderRadius: '0',
-              padding: isMobile ? '0.8vh 0.5rem' : '0.8vh 0.6vw',
-              marginBottom: 0,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              gap: '0.5vw'
-            }}>
-              <div className="notification-card__content" style={{ flexGrow: 1 }}>
-                <div style={{ marginBottom: '0.5vh', fontSize: 'var(--font-size-s, 17px)', color: 'var(--admingrey, #666)', fontWeight: 400 }}>
-                  {card.content}
-                </div>
-                {card.inTrelloPhoto && (
-                  <div className="notification-card__photos" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
-                    {card.inTrelloPhoto.map((photo, idx) => (
-                      <img
-                        key={idx}
-                        src={`/images/${photo.photoLink}`}
-                        alt=""
-                        style={{
-                          height: '3.5vh', objectFit: 'cover',
-                          borderRadius: '0', pointerEvents: 'none'
-                        }}
-                      />
-                    ))}
-                  </div>
-                )}
+            {/* Порожній стан */}
+            {totalCount === 0 && (
+              <div className="notification-empty">
+                Немає сповіщень
               </div>
-              <button
-                type="button"
-                className="notification-check-btn"
-                aria-label="Завершити завдання"
-                style={{
-                  '--notif-btn-1': '#f7c23b',
-                  '--notif-btn-2': '#f5a623',
-                  '--notif-btn-3': '#e89810',
-                }}
-                onClick={() => handleCompleteTask(card.id)}
-              >
-                <span>&#10003;</span>
-              </button>
-            </div>
-          ))}
+            )}
 
-          {totalCount === 0 && (
-            <div className="notification-empty" style={{
-              textAlign: 'center',
-              padding: '2vh 0',
-              color: 'var(--admingrey, #666)',
-              fontSize: 'var(--font-size-s, 17px)',
-            }}>
-              Немає сповіщень
-            </div>
-          )}
+          </div>{/* end .notification-panel__body */}
         </div>,
         portalRoot
       )}
@@ -520,4 +478,3 @@ const PopupLeftNotification = () => {
 };
 
 export default PopupLeftNotification;
-

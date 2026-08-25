@@ -123,7 +123,7 @@
   border-radius: 0 !important;
   color: var(--admingrey, #666666) !important;
   overflow: hidden;
-  transition: color 0.32s ease, border-color 0.12s !important;
+  transition: color 0.1s ease, border-color 0.1s !important;
 }
 
 /* Ховер «штампа», як у кнопки «Додати в наряд» PRINT V2 (.v2-add-btn):
@@ -136,7 +136,9 @@
   background: #000;
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
+  /* без «виїзду» заливки: рух скоротився до тієї ж десятої секунди, що
+     й решта станів навбару */
+  transition: transform 0.1s linear;
   z-index: 0;
 }
 
@@ -315,7 +317,7 @@
   gap: 0.3em;
   cursor: pointer;
   padding: 0 0.6rem;
-  transition: background 0.12s, color 0.12s;
+  transition: background 0.1s, color 0.1s;
 }
 
 .nav-center-group .bell-button:hover {
@@ -402,7 +404,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
   cursor: pointer;
   box-sizing: border-box !important;
 }
@@ -528,7 +530,7 @@
   gap: 0.4em;
   cursor: pointer;
   box-sizing: border-box;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
 }
 
 .adminButtonAddNav::before,
@@ -646,7 +648,7 @@
   cursor: pointer;
   font-weight: 400;
   border-radius: 0 !important;
-  transition: background 0.2s;
+  transition: background 0.1s;
 }
 
 .buttonSkewedOrderClient:hover {
@@ -696,15 +698,13 @@
       var(--notif-btn-2, #0e935b));
   background-size: 250% 250%, 320% 320%;
   background-position: 30% 18%, 0% 50%;
-  animation: btnGlow 3s ease-in-out infinite;
-  transition: transform .18s ease, color .18s ease;
+  transition: color 0.1s ease;
   flex-shrink: 0;
   box-sizing: border-box;
 }
 
 .notification-check-btn:hover {
   color: #f2f0e7 !important;
-  transform: scale(1.05);
 }
 
 .notification-check-btn > * {
@@ -1007,7 +1007,7 @@
   color: var(--adminorange, #f5a623) !important;
   cursor: pointer;
   padding: 0 !important;
-  transition: background 0.12s, color 0.12s;
+  transition: background 0.1s, color 0.1s;
 }
 
 .nav-settings-center-btn:hover,
@@ -1063,7 +1063,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.1s, color 0.1s;
 }
 .tg-modal-close:hover {
   background: var(--adminorange, #f5a623);
@@ -1242,10 +1242,11 @@
     position: relative;
   }
 
-  /* Пошук — сховати на мобільних */
-  .nav-search-wrap {
-    display: none !important;
-  }
+  /* Пошук раніше ховався на мобільних — тоді навбар був набитий
+     кнопками дій і навігацією, і поле не мало куди стати. Тепер усе це
+     переїхало в док, а пошук замовлень лишився головною функцією
+     навбару, тож він показується (розкладку задає блок у кінці файлу:
+     окремий рядок на всю ширину). */
 
   /* Фон --adminfon для ВСІХ кнопок навбару */
   .nav-center-group,
@@ -1664,7 +1665,7 @@
   white-space: nowrap;
   cursor: pointer;
   box-sizing: border-box;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
 }
 
 .nav-client-btn:not(:disabled):hover {
@@ -1718,7 +1719,7 @@
 /* Номер тепер клікабельний — веде у свій наряд */
 .nav-order-badge {
   cursor: pointer;
-  transition: color 0.12s;
+  transition: color 0.1s;
 }
 
 .nav-order-badge:hover .nav-order-badge-num {
@@ -1821,7 +1822,7 @@
   background: transparent;
   color: color-mix(in srgb, var(--admingrey, #666) 55%, transparent);
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition: color 0.1s ease;
 }
 
 .nav-move-btn:hover { color: var(--admingrey, #666); }
@@ -1889,4 +1890,351 @@ body.pp-nav-bottom.pp-dock-active.pp-dock-top {
   font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
   font-size: var(--font-size-s, 0.85rem);
   font-weight: 400;
+}
+
+/* ════════════════════════════════════════════════════════════
+   НАВБАР І КАРТКА КЛІЄНТА НА ТЕЛЕФОНАХ
+
+   На широкому екрані шапка — один рядок: візитівка клієнта, шість
+   кнопок дій, пошук, дзвоник. На телефоні цей рядок не влазить, а
+   .nav-order-head має overflow:hidden — тому останні кнопки просто
+   зрізало (у Full HD це «Профіль компанії»).
+
+   Розкладка тут інша:
+     рядок 1 — аватар + імʼя/телефон + лого компанії, праворуч дзвоник
+     рядок 2 — кнопки дій сіткою (3 колонки, на Fold складеному 2)
+     рядок 3 — пошук на всю ширину
+
+   Поріг 1024px збігається з рештою мобільних правок: на Galaxy Z Fold 6
+   розкладеному (884px) шість кнопок в один рядок теж не поміщаються.
+
+   Блок стоїть у кінці файлу, але старий мобільний блок (≤768) писався
+   під іншу розмітку й повний !important — тому order доводиться
+   перебивати теж через !important.
+   ════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1200px) {
+    .nav-bar-row {
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
+    /* Картка більше не «стискається першою»: вона займає рядок і сама
+       розкладає вміст, тож ховати переповнення нема потреби. */
+    .nav-order-head {
+        /* basis 0, а не auto: з auto картка рахує базис по вмісту (кнопки
+           дій усередині мають width:100%), займає весь рядок і виштовхує
+           дзвоник на власну смугу. */
+        flex: 1 1 0;
+        min-width: 0;
+        order: 1 !important;
+        overflow: visible;
+        height: auto;
+        min-height: 0;
+        margin: 0.4rem 0 0.3rem 0.5rem;
+        gap: 8px;
+    }
+
+    .nav-client-card {
+        flex-wrap: wrap;
+        width: 100%;
+        gap: 8px;
+    }
+
+    /* Аватари — фіксовані 44px замість висоти рядка навбару: рядок тут
+       розтягнувся під вміст, і vh-висота давала завеликі плитки. */
+    .nav-client-avatar,
+    .nav-company-avatar {
+        height: 44px;
+        min-height: 44px;
+    }
+
+    /* basis 0: на телефоні блок імені має займати рівно залишок рядка
+       після аватара, інакше його «бажана» ширина (по тексту) не влазить
+       поруч і вся картка розсипається у стовпчик — аватар, ім'я й лого
+       компанії опиняються один під одним. На ширших екранах це правило
+       перебиває блок 769–1200 нижче. */
+    .nav-client-meta {
+        flex: 1 1 0;
+        min-width: 0;
+        padding-right: 0;
+    }
+
+    /* max-width: calc(16 * var(--pp-vw-unit)) на 402px це 64px — імʼя
+       зрізало на другій літері. Тут ширину дає сам рядок. */
+    .nav-client-name,
+    .nav-client-sub {
+        max-width: 100%;
+    }
+
+    .nav-client-name {
+        font-size: 0.82rem;
+        white-space: nowrap;
+    }
+
+    .nav-client-sub {
+        flex-wrap: wrap;
+        gap: 0 8px;
+        font-size: 0.75rem;
+    }
+
+    .nav-client-company,
+    .nav-client-phone {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+    }
+
+    /* Кнопки дій — окремим рядком сіткою, а не рядом, що зрізається */
+    .nav-client-actions {
+        order: 5;
+        flex: 1 1 100%;
+        width: 100%;
+        height: auto;
+        display: grid;
+        /* auto-fit сам добирає кількість колонок під ширину картки:
+           6 в один рядок на Fold розкладеному (~131px на кнопку),
+           3 на iPhone (106px) і 3 на Fold складеному (87px) — заміряно,
+           що навіть «Профіль компанії» вкладається у два рядки. */
+        grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+        gap: 1px;
+        align-self: stretch;
+    }
+
+    .nav-client-btn {
+        flex: 1 1 auto;
+        width: 100%;
+        height: auto;
+        min-height: 40px;           /* тач-таргет */
+        padding: 0.35rem 0.3rem;
+        gap: 4px;
+        font-size: 0.68rem;
+        line-height: 1.15;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .nav-client-btn-key { font-size: 0.7rem; }
+
+    /* Дзвоник і стрілка — праворуч у першому рядку, не окремою смугою */
+    .nav-notify-corner {
+        order: 2 !important;
+        flex: 0 0 auto;
+        align-self: flex-start;
+        margin: 0.4rem 0.5rem 0 0;
+    }
+
+    /* Пошук — окремим рядком на всю ширину */
+    .nav-center-group.nav-search-slot {
+        order: 3 !important;
+        width: 100%;
+        flex: 1 1 100%;
+        margin: 0 0 0.35rem;
+        padding: 0 0.5rem;
+        min-height: 38px;
+        box-sizing: border-box;
+    }
+
+    .nav-search-wrap {
+        width: 100%;
+    }
+}
+
+/* ── Galaxy Z Fold 6 складений (~344px) ──
+   Три колонки лишаються: заміряно, що при 87px на кнопку навіть
+   «Профіль компанії» вкладається у два рядки без обрізання, а дві
+   колонки додавали навбару зайвих 39px висоти. ── */
+@media (max-width: 380px) {
+    .nav-client-btn {
+        font-size: 0.65rem;
+        min-height: 38px;
+    }
+
+    .nav-order-head {
+        margin-left: 0.4rem;
+    }
+
+    .nav-client-name { font-size: 0.78rem; }
+    .nav-client-sub  { font-size: 0.7rem; }
+}
+
+/* ── Nav на телефонах: розміри під палець ──
+   Керівні елементи навбару розраховані на курсор: стрілка «перекинути
+   навбар» — 26×26px, дзвоник і поле пошуку тримаються за --nav-min-h
+   (36px). Для тапу це замало (мінімум ~44px), тому на вузьких екранах
+   вони підростають. Кегль поля пошуку лишається 19px (--font-size-s):
+   нижче 16px Safari на iOS зумить сторінку при фокусі. */
+@media (max-width: 1200px) {
+    .nav-move-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .nav-move-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .nav-notify-corner {
+        gap: 2px;
+        align-items: center;
+    }
+
+    .nav-ctrl-btn-wrap {
+        flex: 0 0 auto;
+        min-width: 44px;
+    }
+
+    .nav-center-group .bell-button,
+    .bell-button {
+        height: 40px;
+        min-height: 40px;
+        padding: 0 0.5rem;
+    }
+
+    /* Поле пошуку — вища зона тапу; висоту задає слот, а не --nav-h */
+    .nav-center-group.nav-search-slot {
+        height: auto;
+        min-height: 44px;
+    }
+
+    .nav-center-group .buttonSkewedSearch,
+    .nav-center-group .buttonSkewedSearchLupa {
+        height: 44px !important;
+        min-height: 44px;
+        font-size: var(--font-size-s, 19px);
+    }
+
+    /* Пульсацію лупи вимикаємо: на телефоні поле й так на всю ширину,
+       підказувати його рухом нема потреби, а анімація крутиться вічно. */
+    .nav-search-icon {
+        animation: none;
+    }
+}
+
+/* Кнопки дій із клієнтом: ніколи не вужчі за власний підпис.
+
+   Спершу тут стояло обрізання з ellipsis — воно прибрало накладання
+   («ВЧАСПРОФІЗМІНИТКАБІЗАМОВЛЕННЯ»), але породило не краще: на Fold
+   підписи згорнулись до «ВЧ…», «ПР…», «КАБ…». Причина в тому, що
+   кнопки — flex-елементи, які стискаються нижче свого вмісту.
+
+   min-width: fit-content забороняє це стискання, а flex-wrap на
+   контейнері переносить те, що не влізло, на наступний рядок. Разом це
+   працює на будь-якій ширині екрана й за будь-якого масштабу шрифту —
+   без прив'язки до брейкпоінтів, які на складаних телефонах і при
+   системному збільшенні тексту все одно не вгадати. */
+.nav-client-actions {
+  flex-wrap: wrap;
+  height: auto;
+  align-content: flex-start;
+  row-gap: 2px;
+}
+
+.nav-client-btn {
+  min-width: fit-content;
+  /* height:100% з базового правила при переносі ділить висоту рядка між
+     двома лініями кнопок — виходили смужки по 23px. Мінімум тримає їх
+     придатними і для ока, і для пальця. */
+  min-height: 34px;
+  white-space: normal;
+  line-height: 1.15;
+  overflow: hidden;
+}
+
+/* ── Fold розкладений і планшети (769–1200px) ──
+   Тут рядка вистачає, щоб кнопки дій лишились по вмісту, як на
+   десктопі. Сітка з рівних колонок (потрібна на телефоні, де інакше
+   кнопки різної ширини стрибають) роздувала їх до 161px суцільного
+   порожнього поля. */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .nav-client-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    /* не примусовий власний рядок (flex-basis 100%, як на телефоні), а
+       «поруч, якщо влізе»: на ширшому Fold кнопки стають в один рядок
+       з карткою, на вужчому переносяться самі */
+    flex: 1 1 auto;
+  }
+
+  .nav-client-btn {
+    flex: 0 0 auto;
+    width: auto;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.74rem;
+  }
+
+  /* Тут місця вистачає, тож блок імені — по вмісту. З basis 0 (потрібним
+     на телефоні) він розтягувався на весь вільний рядок, і лого компанії
+     відлітало до правого краю з дірою посеред картки. */
+  .nav-client-meta {
+    flex: 0 1 auto;
+  }
+}
+
+/* ── Кнопки клієнта: слова на моніторі, піктограми на телефоні ──
+   Раніше було навпаки — піктограми на всіх ширинах, бо шість текстових
+   кнопок не вміщались у рядок навбару. Місце під підписи звільнене
+   меншим кеглем і полями (див. нижче), а на телефоні, де рядка немає
+   в принципі, лишились самі піктограми: кнопки там стоять сіткою і
+   квадратна плитка під палець зручніша за два рядки тексту.
+
+   Що робить кнопка, у будь-якому режимі пояснює title. */
+.nav-client-btn-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+/* ── Монітор і планшет (≥769px): підпис ── */
+@media (min-width: 769px) {
+  /* піктограма поруч зі словом лише крала б ширину */
+  .nav-client-btn-icon { display: none; }
+
+  .nav-client-btn-label { display: inline; }
+
+  /* Смуга кнопок — на всю висоту картки клієнта, як аватарка й лого
+     компанії поруч: інакше вона висіла тонкою стрічкою посеред рядка. */
+  .nav-client-actions {
+    height: max(var(--nav-h, 4vh), 44px);
+  }
+
+  /* Кегль і поля тягнуться за шириною вікна, але з відчутним нижнім
+     порогом: на 0.62vw підписи виходили дрібні, а на початкових
+     1.2vw + 1.15rem шість кнопок у рядок не вміщались. */
+  .nav-client-btn {
+    padding: 0 clamp(13px, 1.05vw, 28px);
+    font-size: clamp(0.82rem, 0.74vw, var(--ppm-fs-btn, 1.15rem));
+    letter-spacing: 0.03em;
+    gap: 8px;
+  }
+}
+
+/* ── Телефон (≤768px): сама піктограма ── */
+@media (max-width: 768px) {
+  .nav-client-btn-label { display: none; }
+
+  /* емодзі-ключ дублював би власну піктограму «Вчасно» */
+  .nav-client-btn-key { display: none; }
+
+  /* без підписів колонки сітки можуть бути значно вужчі — шість плиток
+     стають в один рядок навіть на складеному Fold */
+  .nav-client-actions {
+    grid-template-columns: repeat(auto-fit, minmax(46px, 1fr));
+  }
+
+  .nav-client-btn {
+    padding: 0.35rem 0;
+    gap: 0;
+  }
+
+  .nav-client-btn-icon svg { width: 18px; height: 18px; }
+
+  /* стан «Вчасно увімкнено» без підпису читається лише кольором —
+     лишаємо жовту плитку помітною */
+  .nav-client-btn-vchasno.is-on .nav-client-btn-icon { color: #000; }
 }

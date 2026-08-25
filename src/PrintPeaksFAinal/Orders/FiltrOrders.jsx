@@ -37,7 +37,7 @@ const FiltrOrders = ({
     <div className="flt-bar">
 
       {/* ── Конверт 1: Дати ── */}
-      <div className="flt-group">
+      <div className="flt-group flt-group--dates">
         <DatePicker value={startDate} onChange={setStartDate} />
         <span className="flt-arrow">→</span>
         <DatePicker value={endDate} onChange={setEndDate} />

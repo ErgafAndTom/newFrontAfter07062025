@@ -8,7 +8,7 @@ import {useSelector} from "react-redux";
 import ClientProfileModal from "./ClientProfileModal";
 import CompanyProfileModal from "./CompanyProfileModal";
 import "./ClientCabinet.css";
-import BarcodeLabel from "../barcode/BarcodeLabel";
+import { FiSearch, FiX } from "react-icons/fi";
 import ClientFilesPanel from "./ClientFilesPanel";
 
 const PAGE_SIZE = 50;
@@ -30,11 +30,23 @@ export default function ClientCabinet({
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [userInBase, setUserInBase] = useState(null);
+  /* Агрегати по всій історії, а не лише по завантаженій сторінці —
+     у власному кабінеті баланс має бути справжній. */
+  const [selfStats, setSelfStats] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [companyOpen, setCompanyOpen] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
   const [exporting, setExporting] = useState(false);
+  /* Пошук і фільтр працюють по вже завантажених рядках: список
+     дотягується скролом, тож лічильник «знайдено» показує, скільки
+     збіглось саме серед підвантаженого. */
+  const [search, setSearch] = useState('');
+  const [onlyDebt, setOnlyDebt] = useState(false);
   const currentUser = useSelector((state) => state.auth.user);
+  /* Клієнт відкриває кабінет сам про себе — тоді id згори не
+     приходить і береться з його ж сесії. */
+  const isSelfCabinet = currentUser?.role === 'user';
+  const cabinetUserId = userId || (isSelfCabinet ? currentUser?.id : 0);
   const currentOrderRef = useRef(null);
   const sentinelRef = useRef(null);
 
@@ -80,10 +92,10 @@ export default function ClientCabinet({
   /* ---------- data fetching ---------- */
 
   const reloadUserInBase = useCallback(async () => {
-    if (!userId) return null;
+    if (!cabinetUserId) return null;
     try {
       setLoading(true);
-      const res = await axios.get(`/user/getOneUser/${userId}`);
+      const res = await axios.get(`/user/getOneUser/${cabinetUserId}`);
       setUserInBase(res.data);
       return res.data;
     } catch (err) {
@@ -92,22 +104,26 @@ export default function ClientCabinet({
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [cabinetUserId]);
 
   useEffect(() => {
     reloadUserInBase();
   }, []);
 
   const fetchOrders = useCallback(async (uid, page = 1) => {
-    if (currentUser.role === 'user') {
+    /* Клієнту, якому список вже передали згори (кабінет, відкритий
+       зі сторінки замовлення), нічого не тягнемо. */
+    if (currentUser.role === 'user' && orders.length) {
       setClientOrders(orders);
       setOrdersTotal(orders.length);
       return;
     }
+    /* Свій кабінет клієнт наповнює через /orders/my: /orders/all
+       закритий роль-мідлварою і віддав би 403. */
     const isFirst = page === 1;
     isFirst ? setLoading(true) : setLoadingMore(true);
     try {
-      const res = await axios.post('/orders/all', {
+      const res = await axios.post(currentUser.role === 'user' ? '/orders/my' : '/orders/all', {
         inPageCount: PAGE_SIZE,
         currentPage: page,
         search: "",
@@ -115,6 +131,11 @@ export default function ClientCabinet({
         startDate: "",
         endDate: "",
         statuses: { status0: true, status1: true, status2: true, status3: true, status4: true, status5: true },
+        /* Кабінет показує історію нарахувань, а не чернетки прорахунків:
+           «Скіко» лишається у списку, щойно на нього виставили рахунок або
+           створили посилання — навіть неоплачені. Те саме правило застосовує
+           /user/my-stats до карток вище. */
+        excludeDraftEstimates: true,
         user: uid,
       });
       const newRows = res.data.rows || [];
@@ -136,6 +157,13 @@ export default function ClientCabinet({
     if (!userInBase) return;
     fetchOrders(userInBase.id, 1);
   }, [userInBase]);
+
+  useEffect(() => {
+    if (!isSelfCabinet) return;
+    axios.get('/user/my-stats')
+      .then((res) => setSelfStats(res.data))
+      .catch(() => setSelfStats(null));
+  }, [isSelfCabinet]);
 
   /* ---------- infinite scroll ---------- */
 
@@ -171,15 +199,65 @@ export default function ClientCabinet({
   }, [userInBase]);
 
   const stats = useMemo(() => {
+    if (selfStats) {
+      /* Усе з одного агрегату по всій історії. Неоплачений «Скіко» — це
+         ще не замовлення: він нічого не нарахував, тож не потрапляє ні в
+         суми, ні в лічильник. Список нижче фільтрується тим самим
+         правилом (excludeUnpaidEstimates), тож числа збігаються. */
+      return {
+        total: selfStats.totalCharged,
+        paid: selfStats.totalPaid,
+        balance: selfStats.totalCharged - selfStats.totalPaid,
+        count: selfStats.ordersCount,
+      };
+    }
     const isEstimate = (o) => String(o.status || "") === "0" && !o.Payment;
     const total = clientOrders.reduce((s, o) => s + (isEstimate(o) ? 0 : (+o.allPrice || 0)), 0);
     const paid = clientOrders.reduce((s, o) =>
         s + (o.Payment?.status === 'PAID' ? (+o.allPrice || 0) : 0),
       0);
     return { total, paid, balance: total - paid, count: ordersTotal || clientOrders.length };
-  }, [clientOrders, ordersTotal]);
+  }, [clientOrders, ordersTotal, selfStats]);
+
+  /* Знижки — з рядків виду «15», «15%», «знижка 15» лишається число. */
+  const discounts = useMemo(() => ({
+    personal: parseInt(String(userInBase?.discount ?? '0').replace(/\D/g, ''), 10) || 0,
+    company: parseInt(String(userInBase?.Company?.discount ?? '0').replace(/\D/g, ''), 10) || 0,
+  }), [userInBase]);
+
+  /* Видимий список: пошук по номеру/сумі + фільтр «є борг».
+     Борг — це замовлення без оплати PAID; неоплачений прорахунок
+     боргом не рахується, він ще нічого не нарахував. */
+  const visibleOrders = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return clientOrders.filter((o) => {
+      if (onlyDebt) {
+        const isEstimate = String(o.status || '') === '0' && !o.Payment;
+        if (isEstimate || o.Payment?.status === 'PAID') return false;
+      }
+      if (!q) return true;
+      return String(o.id).includes(q) || String(o.allPrice ?? '').toLowerCase().includes(q);
+    });
+  }, [clientOrders, search, onlyDebt]);
+
+  const isFiltered = search.trim() !== '' || onlyDebt;
 
   /* ---------- helpers ---------- */
+
+  /* Підпис місяця-роздільника: «серпень 2026». */
+  const monthKey = (o) => {
+    if (!o.createdAt) return '';
+    const d = new Date(o.createdAt);
+    return `${d.getFullYear()}-${d.getMonth()}`;
+  };
+
+  const monthLabel = (o) => {
+    if (!o.createdAt) return 'Без дати';
+    /* uk-UA дає «серпень 2026 р.» — хвостове «р.» у заголовку зайве */
+    return new Date(o.createdAt)
+      .toLocaleDateString('uk-UA', { month: 'long', year: 'numeric' })
+      .replace(/\s*р\.?$/, '');
+  };
 
   const statusLabel = (s) => {
     const v = String(s || "");
@@ -259,30 +337,37 @@ export default function ClientCabinet({
           </div>
 
           <div className="cc-title">
-            {/* Рядок 1: ім'я + особиста знижка */}
-            <div className="cc-name-row">
-              <div className="cc-name">{fullName}</div>
-              {(() => {
-                const d = parseInt(String(userInBase?.discount ?? '0').replace(/\D/g, ''), 10) || 0;
-                return d > 0 ? <span className="cc-header-discount">Знижка: {d}%</span> : null;
-              })()}
-            </div>
-            {/* Рядок 2: компанія + знижка компанії */}
-            <div className="cc-header-sub">
-              {(userInBase?.Company?.companyName || userInBase?.company) && (
-                <span className="cc-header-company">{userInBase.Company?.companyName || userInBase.company}</span>
-              )}
-              {(() => {
-                const cd = parseInt(String(userInBase?.Company?.discount ?? '0').replace(/\D/g, ''), 10) || 0;
-                return cd > 0 ? <span className="cc-header-discount">Знижка компанії: {cd}%</span> : null;
-              })()}
-            </div>
+            {/* Рядок 1: ім'я */}
+            <div className="cc-name">{fullName}</div>
+            {/* Рядок 2: компанія — службовим шрифтом, це не частина імені */}
+            {(userInBase?.Company?.companyName || userInBase?.company) && (
+              <div className="cc-header-company">{userInBase.Company?.companyName || userInBase.company}</div>
+            )}
             {/* Рядок 3: контакти */}
             <section className="cc-contacts">
               {userInBase?.phoneNumber && <a className="cc-contact" href={`tel:${userInBase.phoneNumber}`}>{userInBase.phoneNumber}</a>}
               {userInBase?.email && <a className="cc-contact" href={`mailto:${userInBase.email}`}>{userInBase.email}</a>}
             </section>
           </div>
+
+          {/* Знижки — окремий блок праворуч: вони стосуються цін,
+              а не ідентичності клієнта, тож читаються самостійно. */}
+          {(discounts.personal > 0 || discounts.company > 0) && (
+            <div className="cc-discounts">
+              {discounts.personal > 0 && (
+                <div className="cc-disc">
+                  <div className="cc-disc-v">{discounts.personal}%</div>
+                  <div className="cc-disc-l">Знижка</div>
+                </div>
+              )}
+              {discounts.company > 0 && (
+                <div className="cc-disc">
+                  <div className="cc-disc-v">{discounts.company}%</div>
+                  <div className="cc-disc-l">Компанії</div>
+                </div>
+              )}
+            </div>
+          )}
 
           <button className="cc-close" onClick={onClose} aria-label="Закрити">✕</button>
         </header>
@@ -305,7 +390,6 @@ export default function ClientCabinet({
           <button className="cc-btn" onClick={onExportExcel} disabled={exporting || !userInBase?.id}>
             <span className="cc-btn-text">{exporting ? 'Експорт…' : 'Експорт XLSX'}</span>
           </button>
-          <BarcodeLabel type="client" data={userInBase} variant="compact" className="cc-btn" />
         </div>
 
         {showFiles && userInBase?.id && (
@@ -333,53 +417,97 @@ export default function ClientCabinet({
             <div className="cc-stat-l">Оплачено</div>
           </div>
           <div className="cc-stat">
-            <div className={`cc-stat-v${stats.balance > 0 ? ' cc-stat-v--red' : ''}`}>{fmtMoney(stats.balance)}<span className="cc-stat-unit">грн</span></div>
+            {/* Борг — це мінус на рахунку клієнта, тож і показуємо його
+                зі знаком: «-19362.57». Переплата лишається без знака. */}
+            <div className={`cc-stat-v${stats.balance > 0 ? ' cc-stat-v--red' : ''}`}>
+              {stats.balance > 0 ? '-' : ''}{fmtMoney(Math.abs(stats.balance))}<span className="cc-stat-unit">грн</span>
+            </div>
             <div className="cc-stat-l">Баланс</div>
           </div>
         </section>
 
+        {/* ── Toolbar: пошук по списку + фільтр боргів ── */}
+        <div className="cc-toolbar">
+          {/* Пошук — той самий патерн, що в панелі файлів на сторінці
+              замовлення: лупа + інпут без рамки на сірій підкладці +
+              хрестик очищення, який з'являється разом із запитом. */}
+          <label className="cc-search">
+            <FiSearch size={13} />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Пошук за номером або сумою"
+            />
+            {search && (
+              <button type="button" className="cc-search-clear" onClick={() => setSearch('')}>
+                <FiX size={12} />
+              </button>
+            )}
+          </label>
+          <button
+            className={`cc-filter${onlyDebt ? ' is-on' : ''}`}
+            onClick={() => setOnlyDebt((v) => !v)}
+            aria-pressed={onlyDebt}
+          >
+            Є борг
+          </button>
+          {isFiltered && (
+            <span className="cc-found">Знайдено {visibleOrders.length}</span>
+          )}
+        </div>
+
         {/* ── Orders list ── */}
         <section className="cc-orders">
           <div className="cc-order-list">
+            {/* Липкий рядок заголовків: комірки грід-сітки, не окремий блок */}
+            <div className="cc-head-cell cc-head-cell--num">Замовлення</div>
+            <div className="cc-head-cell cc-head-cell--date">Дата</div>
+            <div className="cc-head-cell cc-head-cell--status">Статус</div>
+            <div className="cc-head-cell cc-head-cell--pay">Оплата</div>
+            <div className="cc-head-cell cc-head-cell--sum">Сума</div>
             {loading && (
               <div className="cc-loader-wrap">
                 <Loader />
               </div>
             )}
-            {!loading && !loadingMore && clientOrders.length === 0 && (
-              <div className="cc-empty">Замовлень немає</div>
+            {!loading && !loadingMore && visibleOrders.length === 0 && (
+              <div className="cc-empty">{isFiltered ? 'Нічого не знайдено' : 'Замовлень немає'}</div>
             )}
-            {!loading && clientOrders.map((o) => {
+            {!loading && visibleOrders.map((o, i) => {
               const isCurrent = thisOrder.id === o.id;
               const tone = statusToneClass(o.status);
               const pay = paymentLabel(o);
+              /* Роздільник місяця — коли попередній рядок був з іншого */
+              const showMonth = i === 0 || monthKey(visibleOrders[i - 1]) !== monthKey(o);
               return (
-                <Link
-                  key={o.id}
-                  className="cc-order-link"
-                  to={`/Orders/${o.id}`}
-                  ref={isCurrent ? currentOrderRef : null}
-                >
-                  <div className={`cc-order ${tone}${isCurrent ? ' is-current' : ''}`}>
-                    <div className="cc-order-col cc-order-col--title">
-                      <span className="cc-order-title">
-                        Замовлення <span className={`cc-order-id${isCurrent ? ' is-current' : ''}`}>№{o.id}</span>
-                      </span>
+                <React.Fragment key={o.id}>
+                  {showMonth && <div className="cc-month">{monthLabel(o)}</div>}
+                  <Link
+                    className="cc-order-link"
+                    to={`/Orders/${o.id}`}
+                    ref={isCurrent ? currentOrderRef : null}
+                  >
+                    <div className={`cc-order ${tone}${isCurrent ? ' is-current' : ''}`}>
+                      <div className="cc-order-col cc-order-col--num">
+                        <span className="cc-order-hash">№</span>
+                        <span className={`cc-order-id${isCurrent ? ' is-current' : ''}`}>{o.id}</span>
+                      </div>
+                      <div className="cc-order-col cc-order-col--date">
+                        {o.createdAt ? new Date(o.createdAt).toLocaleDateString('uk-UA') : '—'}
+                      </div>
+                      <div className="cc-order-col cc-order-col--status">
+                        <span className="cc-order-status">{statusLabel(o.status)}</span>
+                      </div>
+                      <div className={`cc-order-col cc-order-col--pay ${pay.cls}`}>
+                        <span className="cc-pay-badge">{pay.text}</span>
+                      </div>
+                      <div className={`cc-order-col cc-order-col--sum ${pay.cls}`}>
+                        <span className="cc-order-sum-value">{fmtMoney(o.allPrice)}</span><span className="cc-order-sum-unit">грн</span>
+                      </div>
                     </div>
-                    <div className={`cc-order-col cc-order-col--sum ${pay.cls}`}>
-                      <span className="cc-order-sum-value">{fmtMoney(o.allPrice)}</span><span className="cc-order-sum-unit">грн</span>
-                    </div>
-                    <div className="cc-order-col cc-order-col--date">
-                      {o.createdAt ? new Date(o.createdAt).toLocaleDateString('uk-UA') : '—'}
-                    </div>
-                    <div className="cc-order-col cc-order-col--status">
-                      <span className="cc-order-status">{statusLabel(o.status)}</span>
-                    </div>
-                    <div className={`cc-order-col cc-order-col--pay ${pay.cls}`}>
-                      <span className="cc-pay-badge">{pay.text}</span>
-                    </div>
-                  </div>
-                </Link>
+                  </Link>
+                </React.Fragment>
               );
             })}
             {/* Sentinel для infinite scroll */}

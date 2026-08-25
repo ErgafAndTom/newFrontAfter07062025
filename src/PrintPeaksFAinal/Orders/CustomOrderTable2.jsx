@@ -17,6 +17,7 @@ import { searchChange } from "../../actions/searchAction";
 import Loader from "../../components/calc/Loader";
 import ActivatorCheckPaymentStatus from "./ActivatorCheckPaymentStatus";
 import OrderMarginPanel from "./OrderMarginPanel";
+import ModalMergeOrders from "./ModalMergeOrders";
 
 /* ── Бейдж оплати (винесено за межі компонента, щоб React не remount-ив щосекунди) ── */
 const PayCell = ({ order }) => {
@@ -38,6 +39,19 @@ const PayCell = ({ order }) => {
   return <div className="ort-cell ort-pay-cell"><span className="ort-pay-badge ort-pay-badge--none">—</span></div>;
 };
 
+/* ── Чи можна взяти замовлення в обʼєднання ──
+   Дзеркалить перевірку бекенду (routes/orderUnits.js → /merge-orders):
+   обʼєднуємо лише неоплачені та ті, що чекають оплати. */
+const mergeBlockReason = (order) => {
+  const st = String(order.status);
+  if (st === '-1') return 'Замовлення скасоване';
+  if (st === '5')  return 'Замовлення видалене';
+  const pay = order.Payment?.status;
+  if (pay === 'PAID')     return 'Замовлення вже оплачене';
+  if (pay === 'REFUNDED') return 'По замовленню було повернення';
+  return null;
+};
+
 const CustomOrderTable2 = () => {
   const [data, setData]           = useState(null);
   const dispatch                  = useDispatch();
@@ -50,6 +64,9 @@ const CustomOrderTable2 = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit]         = useState(50);
   const [nowTick, setNowTick]     = useState(Date.now());
+
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [showMergeModal, setShowMergeModal] = useState(false);
 
   const [sortColumn, setSortColumn]   = useState('id');
   const [sortReverse, setSortReverse] = useState(true);
@@ -101,6 +118,51 @@ const CustomOrderTable2 = () => {
     setCurrentPage(1);
   };
 
+  /* ── Вибір замовлень для обʼєднання ── */
+  const canMerge = !!currentUser;
+  const selectedOrders = (data?.rows || []).filter(o => selectedIds.includes(o.id));
+
+  const rowBlockReason = (order) => mergeBlockReason(order);
+
+  // Нове замовлення отримає клієнта найстарішого з вибраних — так само,
+  // як це робить бекенд. Показуємо це явно, бо клієнти можуть бути різні.
+  const targetOrder = [...selectedOrders].sort((a, b) => a.id - b.id)[0];
+  const clientLabel = (o) => {
+    const c = o?.client;
+    if (!c) return '';
+    return `${c.firstName || ''} ${c.lastName || ''}`.trim() || c.username || `#${c.id}`;
+  };
+  const selectionClientName = clientLabel(targetOrder);
+  const mixedClients = new Set(selectedOrders.map(o => o.clientId)).size > 1;
+
+  const toggleSelect = (order) => {
+    setSelectedIds(prev => prev.includes(order.id)
+      ? prev.filter(id => id !== order.id)
+      : [...prev, order.id]);
+  };
+
+  const selectableOnPage = (data?.rows || []).filter(o => !rowBlockReason(o));
+  const allSelectedOnPage = selectableOnPage.length > 0
+    && selectableOnPage.every(o => selectedIds.includes(o.id));
+
+  const toggleSelectAll = () => {
+    if (allSelectedOnPage) { setSelectedIds([]); return; }
+    setSelectedIds(selectableOnPage.map(o => o.id));
+  };
+
+  // Список пережив зміну сторінки/фільтра — вибір за межами видимих рядків
+  // тільки заплутує, бо в панелі показана сума саме видимих замовлень.
+  useEffect(() => { setSelectedIds([]); }, [currentPage, search, startDate, endDate]); // eslint-disable-line
+
+  const handleMerged = (payload) => {
+    setShowMergeModal(false);
+    setSelectedIds([]);
+    const warnings = payload?.warnings || [];
+    if (warnings.length) alert(`Обʼєднано з зауваженнями:\n\n${warnings.join('\n')}`);
+    const newId = payload?.order?.id;
+    if (newId) navigate(`/Orders/${newId}`);
+  };
+
   const SortArrow = ({ col }) => (
     <span className={`ort-sort-icon${sortColumn === col ? ' ort-sort-icon--active' : ''}`}>
       {sortColumn === col ? (sortReverse ? ' ↓' : ' ↑') : ' ↕'}
@@ -135,6 +197,15 @@ const CustomOrderTable2 = () => {
   ]); // eslint-disable-line
 
   useEffect(() => { dispatch(searchChange("")); }, []); // eslint-disable-line
+
+  // Зміна фільтра звужує вибірку: якщо лишитись на 12-й сторінці, вона
+  // виявиться за межами нового результату і список буде порожній.
+  useEffect(() => { setCurrentPage(1); }, [
+    search, startDate, endDate,
+    statuses.status0, statuses.status1, statuses.status2, statuses.status3, statuses.status4, statuses.status5, statuses.statusCancelled,
+    payments.payment0, payments.payment1, payments.payment2, payments.payment3,
+    paymentsType.payment0, paymentsType.payment1, paymentsType.payment2, paymentsType.payment3,
+  ]); // eslint-disable-line
 
   useEffect(() => {
     const timer = setInterval(() => setNowTick(Date.now()), 1000);
@@ -197,10 +268,56 @@ const CustomOrderTable2 = () => {
         paymentsType={paymentsType} setPaymentsType={setPaymentsType}
       />
 
+      {canMerge && selectedIds.length > 0 && (
+        <div className="ort-merge-bar">
+          <span className="ort-merge-bar__count">
+            Вибрано: {selectedIds.length}
+            {selectionClientName && <> · {selectionClientName}</>}
+          </span>
+          <span className="ort-merge-bar__sum">
+            {selectedOrders.reduce((acc, o) => acc + (parseFloat(o.allPrice) || 0), 0).toFixed(2)}&nbsp;грн
+          </span>
+          <button
+            type="button"
+            className="pays-tbl-btn pays-tbl-btn--green"
+            disabled={selectedIds.length < 2}
+            title={selectedIds.length < 2 ? 'Виберіть щонайменше два замовлення' : 'Обʼєднати вибрані замовлення'}
+            style={{ opacity: selectedIds.length < 2 ? 0.5 : 1 }}
+            onClick={() => setShowMergeModal(true)}
+          >
+            Обʼєднати замовлення
+          </button>
+          <button
+            type="button"
+            className="pays-tbl-btn pays-tbl-btn--hover-orange"
+            onClick={() => setSelectedIds([])}
+          >
+            Зняти вибір
+          </button>
+          <span className="ort-merge-bar__hint">
+            {mixedClients
+              ? `Клієнти різні — нове замовлення оформиться на ${selectionClientName}`
+              : 'Однакові позиції зіллються, ціна перерахується за сумарним тиражем'}
+          </span>
+        </div>
+      )}
+
+
       {/* Шапка */}
       <div className="ort-tbl-head">
-        <div className="ort-cell ort-cell--center ort-cell--sortable" onClick={() => handleSort('id')}>
-          ID<SortArrow col="id" />
+        <div className="ort-cell ort-cell--center ort-cell--id">
+          {canMerge && (
+            <input
+              type="checkbox"
+              className="ort-select-box"
+              checked={allSelectedOnPage}
+              onChange={toggleSelectAll}
+              title="Вибрати всі придатні замовлення на сторінці"
+            />
+          )}
+          <span className="ort-cell--sortable" onClick={() => handleSort('id')}>
+            ID<SortArrow col="id" />
+          </span>
         </div>
         <div className="ort-cell ort-cell--center ort-cell--sortable" onClick={() => handleSort('createdAt')}>
           Дата<SortArrow col="createdAt" />
@@ -237,6 +354,8 @@ const CustomOrderTable2 = () => {
 
       {data?.rows.map(order => {
         const isExpanded   = expandedOrderId === order.id;
+        const isSelected   = selectedIds.includes(order.id);
+        const blockReason  = rowBlockReason(order);
         const isCancelled  = parseInt(order.status) === -1;
         const rowBg        = getStatusBg(order.status, isCancelled);
         const priceIsZero  = !order.allPrice || order.allPrice === '0.00' || order.allPrice === 0;
@@ -248,11 +367,23 @@ const CustomOrderTable2 = () => {
         return (
           <div key={order.id}>
             <div
-              className={`ort-tbl-row${isExpanded ? ' ort-tbl-row--open' : ''}`}
+              className={`ort-tbl-row${isExpanded ? ' ort-tbl-row--open' : ''}${isSelected ? ' ort-tbl-row--selected' : ''}`}
               style={{ background: rowBg }}
               onClick={() => toggleOrder(order.id)}
             >
-              <div className="ort-cell ort-cell--center">{order.id}</div>
+              <div className="ort-cell ort-cell--center ort-cell--id" onClick={e => e.stopPropagation()}>
+                {canMerge && (
+                  <input
+                    type="checkbox"
+                    className="ort-select-box"
+                    checked={isSelected}
+                    disabled={!!blockReason && !isSelected}
+                    onChange={() => toggleSelect(order)}
+                    title={blockReason || 'Вибрати для обʼєднання'}
+                  />
+                )}
+                <span>{order.id}</span>
+              </div>
               <div className="ort-cell ort-cell--center" style={{ fontSize: 'var(--font-size-s)' }}>
                 {new Date(order.createdAt).toLocaleDateString('uk-UA')}
               </div>
@@ -387,7 +518,7 @@ const CustomOrderTable2 = () => {
                   </div>
                 </div>
 
-                <OrderMarginPanel orderId={order.id} />
+                {currentUser?.role !== 'user' && <OrderMarginPanel orderId={order.id} />}
 
                 {order.OrderUnits?.length > 0 && (
                   <div className="ort-units">
@@ -406,6 +537,13 @@ const CustomOrderTable2 = () => {
           </div>
         );
       })}
+
+      <ModalMergeOrders
+        show={showMergeModal}
+        onClose={() => setShowMergeModal(false)}
+        orders={selectedOrders}
+        onMerged={handleMerged}
+      />
 
       <ModalDeleteOrder
         showDeleteOrderModal={showDeleteOrderModal}

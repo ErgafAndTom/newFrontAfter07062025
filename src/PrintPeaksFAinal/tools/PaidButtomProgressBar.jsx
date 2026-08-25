@@ -467,14 +467,19 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
             </div>
           </div>
         ) : (
-          <div className="payment-methods-panel">
+          <div className="payment-methods-panel payment-methods-panel--reference">
             <button
-              className="nui-client-rect-btn"
+              className="nui-client-rect-btn payment-method-card"
+              data-pay="cash"
               onClick={() => handleSelect("cash")}
               disabled={!thisOrder.allPrice}
             >
-              <Banknote className="pay-method-icon" aria-hidden="true" />
-              <span className="nui-client-rect-btn-text">Готівка</span>
+              <div className="neo-glow-bg"></div>
+              <div className="payment-method-card__content">
+                <Banknote className="pay-method-icon" aria-hidden="true" />
+                <span className="nui-client-rect-btn-text">Готівка</span>
+              </div>
+              <span className="neo-led-dot"></span>
               {thisOrder.Payment && thisOrder.Payment.method === 'cash' && (
                 <span className="pay-sel-status">
                   {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}
@@ -482,12 +487,17 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
               )}
             </button>
             <button
-              className="nui-client-rect-btn"
+              className="nui-client-rect-btn payment-method-card"
+              data-pay="terminal"
               onClick={() => handleSelect("terminal")}
               disabled={!thisOrder.allPrice}
             >
-              <CreditCard className="pay-method-icon" aria-hidden="true" />
-              <span className="nui-client-rect-btn-text">Картка</span>
+              <div className="neo-glow-bg"></div>
+              <div className="payment-method-card__content">
+                <CreditCard className="pay-method-icon" aria-hidden="true" />
+                <span className="nui-client-rect-btn-text">Картка</span>
+              </div>
+              <span className="neo-led-dot"></span>
               {thisOrder.Payment && thisOrder.Payment.method === 'terminal' && (
                 <span className="pay-sel-status">
                   {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}
@@ -495,12 +505,17 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
               )}
             </button>
             <button
-              className="nui-client-rect-btn"
+              className="nui-client-rect-btn payment-method-card"
+              data-pay="link"
               onClick={() => handleSelect("online")}
               disabled={!thisOrder.allPrice}
             >
-              <Link2 className="pay-method-icon" aria-hidden="true" />
-              <span className="nui-client-rect-btn-text">Посилання</span>
+              <div className="neo-glow-bg"></div>
+              <div className="payment-method-card__content">
+                <Link2 className="pay-method-icon" aria-hidden="true" />
+                <span className="nui-client-rect-btn-text">Посилання</span>
+              </div>
+              <span className="neo-led-dot"></span>
               {(thisOrder.Payment?.method === 'link' || thisOrder.Payment?.method === null) && (
                 <span className="pay-sel-status">
                   {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}
@@ -508,21 +523,31 @@ const PaidButtomProgressBar = ({ thisOrder, setShowPays, setThisOrder }) => {
               )}
             </button>
             <button
-              className="nui-client-rect-btn"
+              className="nui-client-rect-btn payment-method-card"
+              data-pay="invoice"
               onClick={() => setShowPays(true)}
               title="Платежі"
               disabled={!thisOrder.allPrice}
             >
-              <ReceiptText className="pay-method-icon" aria-hidden="true" />
-              <span className="nui-client-rect-btn-text">Рахунок</span>
+              <div className="neo-glow-bg"></div>
+              <div className="payment-method-card__content">
+                <ReceiptText className="pay-method-icon" aria-hidden="true" />
+                <span className="nui-client-rect-btn-text">Рахунок</span>
+              </div>
+              <span className="neo-led-dot"></span>
             </button>
             <button
-              className="nui-client-rect-btn"
+              className="nui-client-rect-btn payment-method-card"
+              data-pay="iban"
               onClick={() => handleSelect("iban")}
               disabled={!thisOrder.allPrice}
             >
-              <Landmark className="pay-method-icon" aria-hidden="true" />
-              <span className="nui-client-rect-btn-text">на IBAN</span>
+              <div className="neo-glow-bg"></div>
+              <div className="payment-method-card__content">
+                <Landmark className="pay-method-icon" aria-hidden="true" />
+                <span className="nui-client-rect-btn-text">на IBAN</span>
+              </div>
+              <span className="neo-led-dot"></span>
               {thisOrder.Payment && thisOrder.Payment.method === 'iban' && (
                 <span className="pay-sel-status">
                   {PAY_STATUS_UA[thisOrder.Payment.status] || thisOrder.Payment.status}

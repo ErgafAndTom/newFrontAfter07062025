@@ -109,8 +109,7 @@ const OneUnitInTable = ({itemData, tablPosition, item, metaItem, handleItemClick
                 style={{
                     ...editableCellStyle,
                     backgroundColor: itemData === 'admin' ? '#ffe9e9' :
-                        itemData === 'manager' ? '#e9f8ff' :
-                            itemData === 'operator' ? '#f2ffe9' : '#f1eee7'
+                        itemData === 'operator' ? '#f2ffe9' : '#f1eee7'
 
                 }}
                 onClick={(e) => handleItemClickRed(item, e, metaItem)}

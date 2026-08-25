@@ -1,16 +1,30 @@
 /* ============================================================
-   КАБІНЕТ КЛІЄНТА — бренд-стиль PrintPeaks
+   КАБІНЕТ КЛІЄНТА — бренд-стиль PrintPeaks (редизайн)
 
-   Правила, за якими зроблено цей екран (ті самі, що на сторінці
-   наряду й у блоці оплат):
+   Правила, за якими зроблено цей екран:
    • прямокутники, жодних заокруглень і скосів;
    • кнопка = світла плитка з чорною кромкою 3px зліва, підпис
      капітеллю звичайної ваги, ховер — чорна заливка зліва направо;
-   • службові підписи — дисплейним шрифтом, капітеллю, з розрядкою
-     і приглушені; дані — pp-font-ui;
+   • шрифт один на весь екран — pp-font-ui; службові підписи (мітки
+     колонок, статуси, назви метрик) відрізняються не гарнітурою, а
+     капітеллю з розрядкою і приглушеним кольором;
+   • числа вирівнюються по розряду через font-variant-numeric:
+     tabular-nums, а не окремим моноширинним шрифтом;
    • колір лише через CSS-змінні, тож бежева/світла/темна працюють;
-   • статус замовлення показує тонова кромка зліва, а не заливка
-     всього рядка.
+   • статус замовлення показує тонова кромка зліва, а не заливка.
+
+   Що змінилось у редизайні:
+   • список став таблицею з липким рядком заголовків і розділювачами
+     місяців — сотня рядків тепер читається, а не зливається;
+   • рядки списку прозорі: підкладку дає сама панель, тож у світлій
+     темі список білий, а не бежевий (бежевий лишається тільки там,
+     де --adminfon справді бежевий — у бежевій темі);
+   • суми переїхали праворуч і вирівняні по правому краю:
+     колонка чисел читається згори вниз;
+   • слово «Замовлення» прибране з кожного рядка (воно повторювалось
+     сто разів підряд) — лишився номер як головний ідентифікатор;
+   • знижки зібрані в окремий блок праворуч у шапці;
+   • тулбар списку отримав пошук і фільтр «є борг».
    ============================================================ */
 
 /* ── Підкладка ── */
@@ -30,8 +44,8 @@
 .cc-panel {
   position: relative;
   z-index: 9001;
-  width: min(96vw, 980px);
-  max-height: 90vh;
+  width: min(96vw, 1080px);
+  max-height: 92vh;
   background: var(--adminfon, #f7f5ee);
   color: var(--admingrey, #666666);
   font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
@@ -48,20 +62,22 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Шапка ── */
+/* ── Шапка ──
+   Ліворуч аватар, у центрі ідентичність, праворуч знижки стовпчиком:
+   вони стосуються цін і читаються як окремий блок, а не як хвіст імені. */
 .cc-header {
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.1rem 1.4rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
+  align-items: stretch;
+  gap: 1.1rem;
+  padding: 1.1rem 1.4rem 1rem;
+  border-bottom: 1px solid var(--pp-line-strong, rgba(102, 102, 102, 0.32));
 }
 
 .cc-avatar-wrap {
   position: relative;
   flex-shrink: 0;
-  width: 64px;
-  height: 64px;
+  width: 68px;
+  height: 68px;
 }
 
 .cc-avatar-wrap img,
@@ -85,9 +101,10 @@
   background: var(--admingrey, #666);
   border: none;
   color: var(--adminfon, #f7f5ee);
-  font-size: calc(var(--font-size-s, 17px) * 0.72);
-  letter-spacing: 0.04em;
-  line-height: 1.25;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.76);
+  letter-spacing: 0.08em;
+  line-height: 1.3;
   white-space: nowrap;
 }
 
@@ -96,66 +113,99 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  justify-content: center;
+  gap: 0.3rem;
 }
 
-.cc-name-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.9rem;
-  flex-wrap: wrap;
-}
-
-/* ім'я — головне в шапці; той самий приріст, що в картці навбару */
+/* ім'я — головне в шапці */
 .cc-name {
-  font-size: calc(var(--font-size-s, 17px) + 7px);
+  font-size: calc(var(--font-size-s, 17px) + 9px);
   font-weight: 400;
   letter-spacing: normal;
+  line-height: 1.1;
   color: #000;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 30vw;
 }
 
-.cc-header-sub {
+/* компанія — окремий рядок службовим шрифтом: це не частина імені */
+.cc-header-company {
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.76);
+  font-weight: 400;
+  letter-spacing: var(--pp-track-wide, 0.16em);
+  text-transform: uppercase;
+  color: var(--admingrey, #666666);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* контакти — в один рядок, розділені волосяною рискою */
+.cc-contacts {
   display: flex;
-  align-items: baseline;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.7rem;
   flex-wrap: wrap;
 }
 
-/* компанія й контакти — один кегль і один колір: це рівні дані */
-.cc-header-company,
 .cc-contact {
   font-size: var(--font-size-s, 17px);
   font-weight: 400;
   color: #000;
   text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+
+.cc-contact + .cc-contact {
+  padding-left: 0.7rem;
+  border-left: 1px solid var(--pp-line-strong, rgba(102, 102, 102, 0.32));
 }
 
 .cc-contact:hover {
-  text-decoration: underline;
+  color: var(--adminorange, #f5a623);
 }
 
-/* знижка — єдиний кольоровий акцент шапки */
-.cc-header-discount {
-  font-size: var(--font-size-s, 17px);
-  font-weight: 400;
+/* ── Знижки ──
+   Дві однакові плитки: значення великим, до чого воно — капітеллю. */
+.cc-discounts {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.cc-disc {
+  padding: 0.15rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: right;
+}
+
+.cc-disc + .cc-disc {
+  border-left: 1px solid var(--pp-line-strong, rgba(102, 102, 102, 0.32));
+}
+
+.cc-disc-v {
+  font-size: calc(var(--font-size-s, 17px) + 2px);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
   color: var(--admingreen, #0e935b);
 }
 
-.cc-chip {
-  font-size: var(--font-size-s, 17px);
+.cc-disc-l {
+  margin-top: 0.15rem;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.76);
   font-weight: 400;
-  color: var(--admingrey, #666666);
-}
-
-.cc-contacts {
-  width: 100%;
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+  letter-spacing: var(--pp-track-wide, 0.16em);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--admingrey, #666) 65%, transparent);
+  white-space: nowrap;
 }
 
 /* Закрити */
@@ -182,31 +232,32 @@
 }
 
 /* ── Ряд дій ──
-   Плитки впритул одна до одної, як у навбарі: кожна відбита від
-   сусідки власною чорною кромкою зліва. */
+   Кнопки — той самий елемент, що в блоці клієнта на сторінці наряду
+   (.nui-client-rect-btn, NewUIArtem.css): плоска плитка
+   --adminfonelement, підпис версалом звичайної ваги, ховер лише
+   світлішає плиткою (--pp-tile-hi), без заливки. Кромку знизу тут
+   прибрано — плитка тримається сама. */
 .cc-actions {
   display: flex;
   gap: 0;
   padding: 0.9rem 1.4rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
 }
 
 .cc-btn {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
   flex: 1 1 0;
   min-width: 0;
-  min-height: 38px;
-  padding: 6px 12px 6px 16px;
+  height: 4vh;
+  min-height: 4vh;
+  padding: 5px 18px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: none;
-  border-left: 3px solid #000;
   border-radius: 0;
   clip-path: none;
-  background: var(--v2-tile-hi, #fbfaf6);
+  background-color: var(--adminfonelement, #f2f0e9);
   color: var(--admingrey, #666666);
   font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
   font-size: var(--font-size-s, 17px);
@@ -218,66 +269,37 @@
   white-space: nowrap;
   cursor: pointer;
   box-sizing: border-box;
-  transition: color 0.32s ease;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 
-/* заливка-«штамп» зліва направо — та сама, що в «Нове замовлення» */
-.cc-btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: #000;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.38s cubic-bezier(0.65, 0, 0.35, 1);
-  z-index: 0;
+.cc-btn:not(:disabled):hover {
+  background: var(--pp-tile-hi, #fff);
 }
-
-.cc-btn:not(:disabled):hover::before { transform: scaleX(1); }
-
-.cc-btn:not(:disabled):hover,
-.cc-btn:not(:disabled):hover .cc-btn-text { color: #fff; }
 
 .cc-btn:disabled {
-  opacity: 0.35;
+  opacity: 0.55;
   cursor: default;
   pointer-events: none;
 }
 
-/* підпис мусить стояти НАД заливкою — інакше його ховає ::before */
+/* підпис — як .nui-client-rect-btn-text: той самий кегль і колір */
 .cc-btn-text {
   position: relative;
   z-index: 1;
-  font-size: inherit;
-  font-weight: inherit;
-  color: inherit;
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  color: var(--admingrey, #666666);
   text-transform: uppercase;
-}
-
-/* штрих-код клієнта — така сама плитка, тільки з наліпкою всередині */
-.cc-btn.bc-label--compact {
-  max-width: none;
-  opacity: 1;
-  overflow: hidden;
-}
-
-.cc-btn.bc-label--compact:hover { opacity: 1; }
-
-.cc-btn.bc-label--compact svg {
-  position: relative;
-  z-index: 1;
-  max-height: 26px;
 }
 
 /* ── Підсумки ──
    Значення зверху, службовий підпис знизу — той самий порядок, що в
-   блоці оплат на сторінці наряду. */
+   блоці оплат на сторінці наряду. Знизу — смуга оплаченості. */
 .cc-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0;
-  padding: 0.9rem 1.4rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 22%, transparent);
+  padding: 0.9rem 1.4rem 0;
 }
 
 .cc-stat {
@@ -295,6 +317,7 @@
   align-items: baseline;
   font-size: calc(var(--font-size-s, 17px) + 8px);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
   color: #000;
   line-height: 1.15;
 }
@@ -308,7 +331,8 @@
   position: relative;
   top: 0.18em;
   margin: 0;
-  font-size: calc(var(--font-size-s, 17px) - 3px);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: 0.72em;
   font-weight: 600;
   text-transform: lowercase;
   line-height: 1;
@@ -318,12 +342,180 @@
 /* підпис метрики — eyebrow: дисплейний шрифт, капітель, розрядка */
 .cc-stat-l {
   margin-top: 0.25rem;
-  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
   font-size: calc(var(--font-size-s, 17px) * 0.76);
   font-weight: 400;
   letter-spacing: var(--pp-track-wide, 0.16em);
   text-transform: uppercase;
   color: color-mix(in srgb, var(--admingrey, #666) 65%, transparent);
+}
+
+/* ── Тулбар списку: пошук + фільтр ── */
+.cc-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0.9rem 1.4rem;
+  border-bottom: 1px solid var(--pp-line-strong, rgba(102, 102, 102, 0.32));
+}
+
+/* ── Пошук ──
+   Один-в-один рядок пошуку файлів на сторінці наряду
+   (nuiJobTicket.css, `.cfp-toolbar .cfp-search--title`): жодної
+   підкладки й рамки, текст по центру версалом, лупа ліворуч раз на
+   кілька секунд «проводить» жестом пошуку, а на фокусі завмирає — і
+   під полем зліва направо проростає волосінь. */
+.cc-search {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: transparent;
+  color: var(--admingrey, #666666);
+  box-sizing: border-box;
+}
+
+/* ніякої системної рамки: рядок показує себе власною волосінню знизу */
+.cc-search,
+.cc-search:hover,
+.cc-search:focus-within,
+.cc-search input,
+.cc-search input:hover,
+.cc-search input:focus,
+.cc-search input:focus-visible {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.cc-search input {
+  width: 100%;
+  min-width: 0;
+  max-width: 32ch;
+  text-align: center;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: clamp(13px, 0.86vw, 17px);
+  font-weight: 400;
+  font-stretch: 100%;
+  line-height: 1.12;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--admingrey, #666666);
+}
+
+/* плейсхолдер тим самим набором — він тут виконує роль заголовка */
+.cc-search input::placeholder {
+  color: var(--admingrey, #666666);
+  opacity: 0.72;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.cc-search > svg {
+  flex: 0 0 auto;
+  color: var(--admingrey, #666666);
+  opacity: 0.75;
+  animation: cc-search-sweep 4.8s ease-in-out infinite;
+}
+
+/* зайшли у поле — жест припиняється: робота почалась */
+.cc-search:focus-within > svg {
+  animation: none;
+  opacity: 1;
+}
+
+.cc-search::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 6px;
+  height: 1px;
+  background: var(--admingrey, #666666);
+  opacity: 0.55;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cc-search:focus-within::after { transform: scaleX(1); }
+
+@keyframes cc-search-sweep {
+  0%, 62%, 100% { transform: translateX(0); }
+  70% { transform: translateX(4px); }
+  78% { transform: translateX(-3px); }
+  86% { transform: translateX(0); }
+}
+
+.cc-search-clear {
+  flex: 0 0 auto;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-search > svg { animation: none; }
+  .cc-search::after { transition: none; }
+}
+
+/* фільтр — та сама плитка, що кнопки дій (.nui-client-rect-btn);
+   активний стан бере тему з --admin-active-* */
+.cc-filter {
+  flex: 0 0 auto;
+  height: 4vh;
+  min-height: 4vh;
+  margin-left: 0.9rem;
+  padding: 5px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--adminfonelement, #f2f0e9);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  font-stretch: 100%;
+  letter-spacing: normal;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--admingrey, #666666);
+  white-space: nowrap;
+  box-sizing: border-box;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.cc-filter:hover {
+  background: var(--pp-tile-hi, #fff);
+}
+
+.cc-filter.is-on {
+  background: var(--admin-active-bg, #e2f2eb);
+  color: var(--admin-active-fg, #0e935b);
+}
+
+/* лічильник знайденого — праворуч, тим самим службовим кеглем */
+.cc-found {
+  flex: 0 0 auto;
+  margin-left: 0.9rem;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.76);
+  letter-spacing: var(--pp-track-wide, 0.16em);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--admingrey, #666) 60%, transparent);
+  white-space: nowrap;
 }
 
 /* ── Список замовлень ── */
@@ -336,12 +528,57 @@
 
 .cc-order-list {
   overflow-y: auto;
-  padding: 0.6rem 1.4rem 1.2rem;
+  padding: 0 1.4rem 1.2rem;
   display: grid;
-  grid-template-columns: 1fr minmax(6rem, auto) auto auto auto;
-  grid-auto-rows: minmax(2.8rem, auto);
+  /* № | дата | статус | оплата | сума (праворуч) */
+  grid-template-columns: minmax(7rem, 1fr) auto minmax(7em, auto) minmax(9em, auto) minmax(8rem, auto);
+  grid-auto-rows: minmax(2.6rem, auto);
   row-gap: 0;
   column-gap: 0;
+  align-content: start;
+}
+
+/* ── Липкий рядок заголовків колонок ── */
+.cc-head-cell {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 0.55rem 0.6rem;
+  display: flex;
+  align-items: center;
+  background: var(--adminfon, #f7f5ee);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.76);
+  font-weight: 400;
+  letter-spacing: var(--pp-track-wide, 0.16em);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--admingrey, #666) 60%, transparent);
+  white-space: nowrap;
+}
+
+.cc-head-cell:first-child { padding-left: 0.9rem; }
+.cc-head-cell--date { justify-content: center; }
+.cc-head-cell--sum { justify-content: flex-end; padding-right: 0.9rem; }
+
+/* ── Розділювач місяця ── */
+.cc-month {
+  grid-column: 1 / -1;
+  padding: 1rem 0 0.35rem 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.76);
+  letter-spacing: var(--pp-track-wide, 0.16em);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--admingrey, #666) 55%, transparent);
+}
+
+.cc-month::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: color-mix(in srgb, var(--admingrey, #666) 16%, transparent);
 }
 
 .cc-loader-wrap {
@@ -357,8 +594,8 @@
   grid-column: 1 / -1;
   text-align: center;
   padding: 2.5rem 0;
-  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
-  font-size: 0.95rem;
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: calc(var(--font-size-s, 17px) * 0.76);
   font-weight: 400;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -378,11 +615,10 @@
 .cc-order { display: contents; }
 
 .cc-order > .cc-order-col {
-  padding: 0.75rem 0.6rem;
+  padding: 0.6rem;
   display: flex;
   align-items: center;
-  background: var(--v2-tile-hi, #fbfaf6);
-  border-bottom: 1px solid color-mix(in srgb, var(--admingrey, #666) 14%, transparent);
+  background: transparent;
   transition: background 0.14s;
 }
 
@@ -392,13 +628,15 @@
   padding-left: 0.9rem;
 }
 
+/* ховер і «поточне» — напівпрозора вуаль поверх фону панелі, тому
+   вони працюють однаково в бежевій, світлій і темній темах */
 .cc-order:hover > .cc-order-col {
-  background: color-mix(in srgb, var(--admingrey, #666) 8%, var(--v2-tile-hi, #fbfaf6));
+  background: color-mix(in srgb, var(--admingrey, #666) 7%, transparent);
 }
 
 /* поточне замовлення — темніша підкладка, без фільтрів яскравості */
 .cc-order.is-current > .cc-order-col {
-  background: color-mix(in srgb, var(--admingrey, #666) 12%, var(--v2-tile-hi, #fbfaf6));
+  background: color-mix(in srgb, var(--admingrey, #666) 11%, transparent);
 }
 
 /* ── Тони статусів: колір лише в кромці ── */
@@ -423,28 +661,44 @@
   text-overflow: ellipsis;
 }
 
-.cc-order-col--title { flex: 1; }
-
-.cc-order-title {
+/* номер — головний ідентифікатор рядка; табличні цифри тримають
+   колонку рівною без окремої гарнітури */
+.cc-order-col--num {
+  gap: 0.15rem;
   font-size: var(--font-size-s, 17px);
-  font-weight: 400;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
   color: #000;
 }
 
-.cc-order-id {
-  color: #000;
+.cc-order-hash {
   font-weight: 400;
+  color: color-mix(in srgb, var(--admingrey, #666) 65%, transparent);
 }
 
 .cc-order-id.is-current { color: var(--adminred, #ee3c23); }
 
-/* сума — акцент рядка: жирна, більша, з підрядковою одиницею */
+/* дата — той самий кегль, що номер: відрізняє її колір, а не розмір */
+.cc-order-col--date {
+  font-size: var(--font-size-s, 17px);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--admingrey, #666666);
+  justify-content: center;
+}
+
+.cc-order-col--status { justify-content: flex-start; }
+
+/* сума — акцент рядка: праворуч, з підрядковою одиницею. Кегль той
+   самий, що в номера й дати; виділяє її вага і колір стану оплати. */
 .cc-order-col--sum {
-  font-size: calc(var(--font-size-s, 17px) + 3px);
+  font-size: var(--font-size-s, 17px);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
   color: #000;
-  justify-content: flex-start;
+  justify-content: flex-end;
   align-items: baseline;
+  padding-right: 0.9rem;
 }
 
 .cc-order-sum-value { color: inherit; }
@@ -454,7 +708,8 @@
   position: relative;
   top: 0.18em;
   margin: 0;
-  font-size: calc(var(--font-size-s, 17px) - 3px);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
+  font-size: 0.72em;
   font-weight: 600;
   text-transform: lowercase;
   line-height: 1;
@@ -469,22 +724,10 @@
 .cc-order-col--sum.cc-pay--expired { color: color-mix(in srgb, var(--adminorange, #f5a623) 80%, var(--adminred, #ee3c23)); }
 .cc-order-col--sum.cc-pay--estimate { color: var(--admingrey, #666666); }
 
-.cc-order-col--date {
-  font-size: var(--font-size-s, 17px);
-  font-weight: 400;
-  color: var(--admingrey, #666666);
-  justify-content: center;
-}
-
-.cc-order-col--status {
-  min-width: 7em;
-  justify-content: flex-end;
-}
-
 /* статус і стан оплати — однакові службові мітки капітеллю */
 .cc-order-status,
 .cc-pay-badge {
-  font-family: var(--pp-font-display, "Bahnschrift", system-ui, sans-serif);
+  font-family: var(--pp-font-ui, "Segoe UI", system-ui, sans-serif);
   font-size: calc(var(--font-size-s, 17px) * 0.76);
   font-weight: 400;
   letter-spacing: var(--pp-track-wide, 0.16em);
@@ -494,12 +737,7 @@
 
 .cc-order-status { color: color-mix(in srgb, var(--admingrey, #666) 70%, transparent); }
 
-.cc-order-col--pay {
-  justify-content: center;
-  text-align: center;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-}
+.cc-order-col--pay { justify-content: flex-start; }
 
 /* стан оплати — тільки колір підпису, без підкреслень і плашок */
 .cc-order-col--pay.cc-pay--paid .cc-pay-badge { color: var(--admingreen, #0e935b); }
@@ -523,10 +761,128 @@
 
 /* ── Вузькі екрани ── */
 @media (max-width: 900px) {
+  .cc-header { flex-wrap: wrap; }
+  .cc-discounts { width: 100%; }
+  .cc-disc { text-align: left; padding-left: 0; }
+  .cc-disc + .cc-disc { padding-left: 0.9rem; }
   .cc-actions { flex-wrap: wrap; gap: 4px 0; }
   .cc-stats { grid-template-columns: repeat(2, 1fr); row-gap: 0.6rem; }
   .cc-stat:nth-child(3) { padding-left: 0; border-left: none; }
-  .cc-order-list { grid-template-columns: 1fr auto auto; }
+  .cc-toolbar { flex-wrap: wrap; }
+  .cc-order-list { grid-template-columns: minmax(5rem, 1fr) minmax(8em, auto) minmax(7rem, auto); }
+  .cc-head-cell--date,
+  .cc-head-cell--status,
   .cc-order-col--date,
   .cc-order-col--status { display: none; }
+}
+
+/* ── Телефони ──
+   Панель займає весь екран (модалці нема куди «плавати»), керування
+   доростає до 44px зони тапу, а поле пошуку — до 16px, інакше Safari
+   зумить сторінку на фокусі. Та сама конвенція, що в панелі файлів. */
+@media (max-width: 768px) {
+  .cc-overlay { align-items: stretch; justify-content: stretch; }
+
+  .cc-panel {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    max-height: none;
+  }
+
+  .cc-header { padding: 0.8rem 0.9rem; gap: 0.8rem; }
+  .cc-avatar-wrap { width: 56px; height: 56px; }
+  .cc-name { font-size: calc(var(--font-size-s, 17px) + 5px); }
+
+  /* знижки — окремим рядком під контактами, зліва направо */
+  .cc-discounts { order: 3; width: 100%; }
+  .cc-disc:first-child { padding-left: 0; }
+
+  /* закрити — більша мішень, притиснута до верхнього кута */
+  .cc-close { width: 44px; height: 44px; }
+
+  /* кнопки — сітка 2×2 замість чотирьох вузьких колонок */
+  .cc-actions {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0.7rem 0.9rem;
+  }
+
+  .cc-btn {
+    flex: 1 1 calc(50% - 3px);
+    height: auto;
+    min-height: 44px;
+    padding: 8px 10px;
+    white-space: normal;
+  }
+
+  .cc-stats { padding: 0.7rem 0.9rem 0; }
+  .cc-stat { padding: 0.3rem 0.6rem; }
+  .cc-stat-v { font-size: calc(var(--font-size-s, 17px) + 4px); }
+
+  /* тулбар: пошук на всю ширину, фільтр окремим рядом під ним */
+  .cc-toolbar {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0.7rem 0.9rem;
+  }
+
+  .cc-search {
+    flex: 1 1 100%;
+    height: 44px;
+    justify-content: flex-start;
+  }
+
+  .cc-search input {
+    max-width: none;
+    text-align: left;
+    font-size: 16px;
+  }
+
+  /* волосінь під полем тягнеться на всю його ширину */
+  .cc-search::after { left: 12px; right: 12px; bottom: 4px; }
+
+  .cc-filter {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 44px;
+    margin-left: 0;
+  }
+
+  .cc-found { margin-left: 0; }
+
+  .cc-order-list { padding: 0 0.9rem 1rem; }
+
+  /* вища зона тапу по рядку */
+  .cc-order > .cc-order-col { padding: 0.8rem 0.5rem; }
+  .cc-order-list { grid-auto-rows: minmax(3rem, auto); }
+
+  .cc-head-cell:first-child,
+  .cc-month { padding-left: 0.7rem; }
+  .cc-order > .cc-order-col:first-child { padding-left: 0.7rem; }
+  .cc-order-col--sum { padding-right: 0.5rem; }
+}
+
+/* ── Вузькі телефони (≈360–430px) ──
+   Лишаються дві колонки — номер і сума. Стан оплати нікуди не зникає:
+   його й далі показує колір суми, а словом він дублюється в рядку,
+   якому вистачає ширини. */
+@media (max-width: 480px) {
+  .cc-order-list { grid-template-columns: minmax(4.5rem, 1fr) minmax(6.5rem, auto); }
+
+  .cc-head-cell--pay,
+  .cc-order-col--pay { display: none; }
+
+  .cc-name { max-width: 100%; }
+  .cc-contacts { gap: 0.5rem; }
+
+  /* контакти в стовпчик — телефон і пошта не тиснуться в один рядок */
+  .cc-contact + .cc-contact {
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .cc-stats { grid-template-columns: repeat(2, 1fr); }
+  .cc-btn { font-size: calc(var(--font-size-s, 17px) - 1px); }
 }

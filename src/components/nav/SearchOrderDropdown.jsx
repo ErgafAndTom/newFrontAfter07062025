@@ -35,13 +35,24 @@ export default function SearchOrderDropdown() {
     const parent = wrapRef.current?.closest('.nav-search-wrap');
     if (!parent) return;
     const rect = parent.getBoundingClientRect();
+    const GAP = 8;                       // просвіт до краю екрана
+    const below = window.innerHeight - rect.bottom - GAP;
+    const above = rect.top - GAP;
+    /* Відкриваємо вниз, поки там є куди: інакше — вгору. На телефоні
+       поле пошуку стоїть у третьому рядку навбару, а в режимі «навбар
+       унизу» — взагалі біля нижнього краю, і список із фіксованими
+       360px ішов за екран. */
+    const openUp = below < Math.min(240, above);
+    const space = Math.max(140, Math.floor(openUp ? above : below));
     setDropStyle({
       position: 'fixed',
-      top: rect.bottom + 'px',
+      ...(openUp
+        ? { bottom: (window.innerHeight - rect.top) + 'px' }
+        : { top: rect.bottom + 'px' }),
       left: rect.left + 'px',
       width: rect.width + 'px',
       zIndex: 99999,
-      maxHeight: '360px',
+      maxHeight: Math.min(360, space) + 'px',
       overflowY: 'auto',
     });
   }, []);
@@ -59,6 +70,20 @@ export default function SearchOrderDropdown() {
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
+
+  /* Позиція рахувалась один раз — перед запитом. На телефоні цього мало:
+     екранна клавіатура міняє innerHeight, а навбар переноситься рядками,
+     тож поле пошуку ще й їде. Поки список відкритий — перераховуємо. */
+  useEffect(() => {
+    if (!visible) return undefined;
+    const onMove = () => updatePosition();
+    window.addEventListener('resize', onMove);
+    window.addEventListener('scroll', onMove, true);
+    return () => {
+      window.removeEventListener('resize', onMove);
+      window.removeEventListener('scroll', onMove, true);
+    };
+  }, [visible, updatePosition]);
 
   // Close on Escape
   useEffect(() => {
@@ -83,7 +108,7 @@ export default function SearchOrderDropdown() {
       setLoading(true);
       updatePosition();
       try {
-        const url = (currentUser.role === 'admin' || currentUser.role === 'operator' || currentUser.role === 'manager')
+        const url = (currentUser.role === 'admin' || currentUser.role === 'operator')
           ? '/orders/all'
           : '/orders/my';
 

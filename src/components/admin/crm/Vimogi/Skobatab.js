@@ -1,19 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { Outlet } from 'react-router-dom';
 import "./Vimogi.css";
-import "./Vimogi";
-import "./Layouthelpsmall";
-import {Outlet} from "react-router-dom";
+import { VmgEmpty } from "./VmgSubnav";
 
-
-export const Skobatab = () => {
-    return (
-        <div className="d-flex justify-content-center custom-button-row">
-            <div className="text-container">
-                dd
-                <Outlet/>
-            </div>
-        </div>
-    );
-};
+export const Skobatab = () => (
+    <>
+        <VmgEmpty />
+        <Outlet />
+    </>
+);
 
 export default Skobatab;

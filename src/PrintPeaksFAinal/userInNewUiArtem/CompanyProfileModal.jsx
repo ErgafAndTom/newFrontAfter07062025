@@ -149,6 +149,8 @@ function AttachUserModal({ companyId, onClose, onAttached }) {
 /* ── Головний компонент ── */
 export default function CompanyProfileModal({ companyId, onClose, onCompanyUpdated }) {
   const currentUser = useSelector((state) => state.auth.user);
+  /* Клієнту знижка компанії доступна тільки на перегляд. */
+  const isClient = currentUser?.role === 'user';
   const isAdmin = currentUser?.role === 'admin';
 
   const [company, setCompany] = useState(null);
@@ -356,7 +358,7 @@ export default function CompanyProfileModal({ companyId, onClose, onCompanyUpdat
               <div className="cоm-section-title">Контакти та знижка</div>
               <FieldRow label="Телефон"    field="phoneNumber" value={company.phoneNumber} companyId={company.id} onSaved={load} />
               <FieldRow label="E-mail"     field="email"       value={company.email}       companyId={company.id} type="email" onSaved={load} />
-              <FieldRow label="Знижка (%)" field="discount"    value={discountNum}         companyId={company.id} type="number" onSaved={onDiscountSaved} />
+              <FieldRow label="Знижка (%)" field="discount"    value={discountNum}         companyId={company.id} type="number" onSaved={onDiscountSaved} disabled={isClient} />
               <FieldRow label="Логін"      field="username"    value={company.username}    companyId={company.id} onSaved={load} />
               <FieldRow label="Пароль"     field="password"    value={company.passwordRaw ?? ""}  companyId={company.id} type="text" onSaved={load} />
             </div>

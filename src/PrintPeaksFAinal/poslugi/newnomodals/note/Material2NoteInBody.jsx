@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "../../../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from "react-bootstrap";
+import { getMaterialSort } from "../../../../utils/materialSort";
 
 const Materials2NoteInBody = ({
                                   materialAndDrukInBody,
@@ -118,7 +119,7 @@ const Materials2NoteInBody = ({
             inPageCount: 999999,
             currentPage: 1,
             search: "",
-            columnName: { column: "id", reverse: false },
+            columnName: getMaterialSort(),
             size: size,
             material: {
                 type: materialAndDrukInBody.ColorDrukMaterialType,
@@ -170,7 +171,7 @@ const Materials2NoteInBody = ({
             currentPage: 1,
             type: "SheetCut",
             search: "",
-            columnName: { column: "id", reverse: false },
+            columnName: getMaterialSort(),
             size: size,
             material: {
                 type: "Ламінування",
@@ -281,7 +282,7 @@ const Materials2NoteInBody = ({
             inPageCount: 999999,
             currentPage: 1,
             search: "",
-            columnName: { column: "id", reverse: false },
+            columnName: getMaterialSort(),
             size: size,
             material: {
                 type: materialAndDrukInBody.BwDrukMaterialType,
@@ -333,7 +334,7 @@ const Materials2NoteInBody = ({
             currentPage: 1,
             type: "SheetCut",
             search: "",
-            columnName: { column: "id", reverse: false },
+            columnName: getMaterialSort(),
             size: size,
             material: {
                 type: "Ламінування",
@@ -445,7 +446,7 @@ const Materials2NoteInBody = ({
             inPageCount: 999999,
             currentPage: 1,
             search: "",
-            columnName: { column: "id", reverse: false },
+            columnName: getMaterialSort(),
             size: size,
             material: {
                 type: materialAndDrukInBody.NonDrukMaterialType,
@@ -497,7 +498,7 @@ const Materials2NoteInBody = ({
             currentPage: 1,
             type: "SheetCut",
             search: "",
-            columnName: { column: "id", reverse: false },
+            columnName: getMaterialSort(),
             size: size,
             material: {
                 type: "Ламінування",
