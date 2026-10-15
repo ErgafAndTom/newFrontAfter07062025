@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import axios from "../../../api/axiosInstance";
+import { getMaterialSort } from "../../../utils/materialSort";
 import {
   DEFAULT_EXTRA_SETTINGS,
   EXTRA_SHEETS_KEY,
@@ -253,7 +254,7 @@ const ServiceSettingsModal = ({
       inPageCount: 999999,
       currentPage: 1,
       search: "",
-      columnName: { column: "id", reverse: false },
+      columnName: getMaterialSort(),
       size: { x: 210, y: 297 },
       material: {
         type: matType,
@@ -277,7 +278,7 @@ const ServiceSettingsModal = ({
     setCustomMatLoading((prev) => ({ ...prev, [key]: true }));
     axios.post("/materials/NotAll", {
       name: "MaterialsPrices", inPageCount: 999999, currentPage: 1, search: "",
-      columnName: { column: "id", reverse: false },
+      columnName: getMaterialSort(),
       size: { x: 310, y: 440 },
       material: { type: isSelf ? "Плівка" : "Папір", thickness, typeUse: thickness, material: "", materialId: "" },
     }).then((res) => {
@@ -307,7 +308,7 @@ const ServiceSettingsModal = ({
       }
       axios.post("/materials/NotAll", {
         name: "MaterialsPrices", inPageCount: 999999, currentPage: 1, search: "",
-        columnName: { column: "id", reverse: false },
+        columnName: getMaterialSort(),
         size: { x: 310, y: 440 },
         material: {
           type: "Ламінування",

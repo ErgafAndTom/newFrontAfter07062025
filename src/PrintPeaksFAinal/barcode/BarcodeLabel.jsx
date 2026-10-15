@@ -22,10 +22,19 @@ import './BarcodeLabel.css';
  *   (preserveAspectRatio="none"), а не тримати власне співвідношення сторін.
  *   На екрані це лише прев'ю для кліку-друку — саме друк формує штрих-код
  *   заново на бекенді, тому розтяг тут не впливає на якість фізичної наліпки.
+ * @param {number} [barWidth] — ширина модуля штриха у full-варіанті (за
+ *   замовчуванням 2 для замовлення, 1.2 для клієнта). Більше значення —
+ *   ширший код при тій самій висоті.
  */
-export default function BarcodeLabel({ type = 'order', data, variant = 'compact', className = '', onAfterPrint, stretch = false }) {
+export default function BarcodeLabel({ type = 'order', data, variant = 'compact', className = '', onAfterPrint, stretch = false, barWidth }) {
   const [printing, setPrinting] = useState(false);
   const wrapRef = useRef(null);
+
+  // Тиха зона по боках росте разом зі штрихами, а по висоті лишається 8 —
+  // інакше SVG вищає, і при фіксованій висоті на екрані приріст ширини
+  // з'їдається масштабуванням.
+  const baseBarWidth = type === 'order' ? 2 : 1.2;
+  const sideMargin = barWidth ? (8 * barWidth) / baseBarWidth : 8;
 
   const barcodeValue = type === 'order' ? `ORD${data?.id || 0}` : `CLN${data?.id || 0}`;
 
@@ -86,7 +95,7 @@ export default function BarcodeLabel({ type = 'order', data, variant = 'compact'
             кодування, найімовірніша причина «не зчитується»: власний
             CODE128-кодер для друку звірений побітово з jsbarcode й співпадає
             точно). */}
-        <Barcode value={barcodeValue} width={type === 'order' ? 2 : 1.2} height={type === 'order' ? 36 : 28} background="#ffffff" fontSize={0} displayValue={false} margin={8} />
+        <Barcode value={barcodeValue} width={barWidth ?? baseBarWidth} height={type === 'order' ? 36 : 28} background="#ffffff" fontSize={0} displayValue={false} margin={8} marginLeft={sideMargin} marginRight={sideMargin} />
       </div>
     </div>
   );

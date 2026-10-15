@@ -15,6 +15,7 @@ import ServiceSettingsModal from "./shared/ServiceSettingsModal";
 import ImpositionPreview from "./shared/ImpositionPreview";
 import useServiceTabs from "../../hooks/useServiceTabs";
 import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
+import { getVishichkaBleed, getVishichkaMarks } from "../../utils/calcBleeds";
 
 import "./NewSheetCutV2.css";
 
@@ -457,6 +458,8 @@ const Vishichka = ({
       count,
       vishichka,
       plivkaMontajna,
+      bleed: getVishichkaBleed(vishichka?.typeUse),
+      markMargin: getVishichkaMarks(vishichka?.typeUse),
     };
 
     axios
@@ -553,6 +556,8 @@ const Vishichka = ({
         count,
         vishichka: v,
         plivkaMontajna,
+        bleed: getVishichkaBleed(v.typeUse),
+        markMargin: getVishichkaMarks(v.typeUse),
       },
     };
 
@@ -880,6 +885,8 @@ const Vishichka = ({
                 sheetY={material.y || 450}
                 itemX={size.x}
                 itemY={size.y}
+                gap={getVishichkaBleed(vishichka?.typeUse)}
+                markMargin={getVishichkaMarks(vishichka?.typeUse)}
               />
             </div>
 

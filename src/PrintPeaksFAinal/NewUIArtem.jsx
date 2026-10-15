@@ -110,9 +110,6 @@ const NewUIArtem = () => {
   // вузол в ефекті, бо на першому рендері цього компонента батьківський
   // DOM ще не закомічений.
   const [statusSlotEl, setStatusSlotEl] = useState(null);
-  // …і слот у доці (#pp-dock-barcode-slot з PPDock.jsx), куди їде
-  // штрих-код наряду — лівіше номера замовлення.
-  const [barcodeSlotEl, setBarcodeSlotEl] = useState(null);
   const [workspaceSwapped, setWorkspaceSwapped] = useState(() => {
     try { return localStorage.getItem('nui_workspace_swapped') === '1'; } catch { return false; }
   });
@@ -134,9 +131,7 @@ const NewUIArtem = () => {
   useEffect(() => {
     const sync = () => {
       const status = document.getElementById('pp-dock-status-slot');
-      const barcode = document.getElementById('pp-dock-barcode-slot');
       setStatusSlotEl((prev) => (prev === status ? prev : status));
-      setBarcodeSlotEl((prev) => (prev === barcode ? prev : barcode));
     };
     sync();
     const mo = new MutationObserver(sync);
@@ -1748,6 +1743,32 @@ const NewUIArtem = () => {
               progressbar_styles.css, .pb-shell--client) */}
           <div className={`d-flex flex-row nui-bottom-shell${currentUser?.role === 'user' ? ' is-client' : ''}`}>
             <div className="nui-bottom-pane nui-bottom-pane--progress">
+              {/* Штрих-код наряду (номер + дата) — над блоком оплат. Раніше
+                  порталився в док (#pp-dock-barcode-slot), на прохання
+                  користувача переїхав сюди. Після друку наліпки наряд
+                  переходить у статус 3. Клієнту (role === 'user') код не
+                  показуємо: наліпку друкує виробництво. */}
+              {currentUser?.role !== 'user' && thisOrder?.id && (
+                <div className="nui-jt-order-barcode">
+                  <BarcodeLabel type="order" data={thisOrder} variant="full" barWidth={2.8} onAfterPrint={() => {
+                    axios.put('/orders/OneOrder/statusUpdate', { newStatus: 3, thisOrderId: thisOrder.id })
+                      .then(res => {
+                        const nextOrder = res?.data?.order ?? res?.data;
+                        if (nextOrder && typeof nextOrder === 'object') {
+                          setThisOrder(nextOrder);
+                          if (Array.isArray(nextOrder.OrderUnits)) setSelectedThings2(nextOrder.OrderUnits);
+                        }
+                      })
+                      .catch(err => console.error('Status update error:', err));
+                  }} />
+                  <div className="nui-jt-order-barcode-meta">
+                    <span className="nui-jt-order-barcode-num">№{thisOrder.id}</span>
+                    {thisOrder.createdAt && !Number.isNaN(new Date(thisOrder.createdAt).getTime()) && (
+                      <span className="nui-jt-order-barcode-date">від {new Date(thisOrder.createdAt).toLocaleDateString('uk-UA')}</span>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="nui-bottom-main-row">
                 <div className="nui-bottom-finance-inline">
                   <div className="nui-finance-pb-wrap">
@@ -1813,29 +1834,6 @@ const NewUIArtem = () => {
                         />
                       </div>
                     </div>
-                  )}
-                  {/* Штрих-код переїхав у шапку навбара, правіше «Профілю
-                      компанії» (портал у #nui-jt-barcode-slot), на прохання
-                      користувача. Логіка друку лишається тут: після друку
-                      наліпки наряд переходить у статус 3, а цей стан живе
-                      на сторінці, не в навбарі. Клієнту (role === 'user')
-                      код не показуємо: наліпку друкує виробництво, а
-                      порожній слот у доці схлопує :empty. */}
-                  {barcodeSlotEl && currentUser?.role !== 'user' && createPortal(
-                    <BarcodeLabel type="order" data={thisOrder} variant="full" onAfterPrint={() => {
-                      if (thisOrder?.id) {
-                        axios.put('/orders/OneOrder/statusUpdate', { newStatus: 3, thisOrderId: thisOrder.id })
-                          .then(res => {
-                            const nextOrder = res?.data?.order ?? res?.data;
-                            if (nextOrder && typeof nextOrder === 'object') {
-                              setThisOrder(nextOrder);
-                              if (Array.isArray(nextOrder.OrderUnits)) setSelectedThings2(nextOrder.OrderUnits);
-                            }
-                          })
-                          .catch(err => console.error('Status update error:', err));
-                      }
-                    }} />,
-                    barcodeSlotEl
                   )}
                 </div>
                 </div>

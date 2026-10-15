@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useUserSettings } from "../../../hooks/useUserSettings";
+import { DEFAULT_BLEEDS, normalizeBleed } from "../../../utils/calcBleeds";
 
 const STORAGE_KEY = "printpeaks_material_sort";
 
@@ -89,7 +91,68 @@ export default function InterfaceSettings() {
           Скинути до дефолту (ID ↑)
         </button>
       </div>
+
+      <BleedSettings />
     </div>
+  );
+}
+
+const BLEED_ROWS = [
+  { key: "digital",   label: "У цифровому друці" },
+  { key: "vishichka", label: "У висічці", note: "Плотер: висічка і стікерпаки" },
+  { key: "porizka",   label: "У плотерній порізці", note: "Плотер: порізка окремими виробами" },
+  { key: "porizkaMarks", label: "Запас під мітки", note: "Плотерна порізка: поле, яке забирають мітки окремо зверху і знизу аркуша" },
+];
+
+function BleedSettings() {
+  const { settings, setSettings } = useUserSettings("calc_bleeds", DEFAULT_BLEEDS);
+  // поле може бути тимчасово порожнім, поки користувач набирає число
+  const [draft, setDraft] = useState(null);
+  const values = draft || settings;
+
+  const handleChange = (key, raw) => {
+    const next = { ...values, [key]: raw };
+    setDraft(next);
+    const n = normalizeBleed(raw, null);
+    if (n !== null) setSettings({ ...settings, [key]: n });
+  };
+
+  const reset = () => {
+    setDraft(null);
+    setSettings({ ...DEFAULT_BLEEDS });
+  };
+
+  return (
+    <>
+      <h3 style={{ ...styles.title, marginTop: "1rem" }}>Бліди</h3>
+      <p style={styles.hint}>
+        Відступ між виробами на аркуші при розкладці, мм. Впливає на кількість виробів
+        на аркуші, а отже й на ціну.
+      </p>
+
+      {BLEED_ROWS.map((row) => (
+        <div style={styles.row} key={row.key}>
+          <span style={styles.label}>{row.label}:</span>
+          <input
+            type="number"
+            min={0}
+            max={50}
+            step={0.5}
+            value={values[row.key] ?? ""}
+            onChange={(e) => handleChange(row.key, e.target.value)}
+            onBlur={() => setDraft(null)}
+            style={styles.input}
+          />
+          <span style={styles.hint}>мм{row.note ? ` · ${row.note}` : ""}</span>
+        </div>
+      ))}
+
+      <div style={styles.row}>
+        <button type="button" onClick={reset} style={styles.resetBtn}>
+          Скинути до дефолту ({DEFAULT_BLEEDS.digital} / {DEFAULT_BLEEDS.vishichka} / {DEFAULT_BLEEDS.porizka} / {DEFAULT_BLEEDS.porizkaMarks} мм)
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -143,6 +206,14 @@ const styles = {
     borderColor: "var(--admingreen)",
     color: "var(--admingreen)",
     fontWeight: 600,
+  },
+  input: {
+    width: "6rem",
+    padding: "0.5rem",
+    background: "var(--adminfonelement)",
+    color: "var(--admingrey)",
+    border: "1px solid var(--adminorange)",
+    fontSize: "var(--font-size-mid)",
   },
   resetBtn: {
     padding: "0.5rem 1rem",

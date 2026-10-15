@@ -55,6 +55,7 @@ import {RiCalculatorLine} from "react-icons/ri";
 import ModalDeleteOrder from "../../PrintPeaksFAinal/Orders/ModalDeleteOrder";
 import AddCashModal from "../../PrintPeaksFAinal/checkbox/shifts/AddCashModal";
 import ClientCabinet from "../../PrintPeaksFAinal/userInNewUiArtem/ClientCabinet";
+import ClientGuideModal from "../../PrintPeaksFAinal/userInNewUiArtem/ClientGuideModal";
 import Pagination from "../../PrintPeaksFAinal/tools/Pagination";
 import Graph2DForBD from "../../PrintPeaksFAinal/Graph2DForBD";
 import Cash from "../../PrintPeaksFAinal/checkbox/CashCash/Cash";
@@ -96,6 +97,15 @@ const AfterNav = () => {
         const open = () => setMyCabinetOpen(true);
         window.addEventListener('pp-open-my-cabinet', open);
         return () => window.removeEventListener('pp-open-my-cabinet', open);
+    }, []);
+
+    /* Інструкція клієнта — так само подією з доку: вона потрібна з
+       будь-якої сторінки, у тому числі з порожнього нового наряду. */
+    const [guideOpen, setGuideOpen] = useState(false);
+    useEffect(() => {
+        const open = () => setGuideOpen(true);
+        window.addEventListener('pp-open-client-guide', open);
+        return () => window.removeEventListener('pp-open-client-guide', open);
     }, []);
 
     if (pricesIsLoading) {
@@ -235,6 +245,10 @@ const AfterNav = () => {
                     userId={user.id}
                     onClose={() => setMyCabinetOpen(false)}
                 />
+            )}
+
+            {guideOpen && (
+                <ClientGuideModal onClose={() => setGuideOpen(false)} />
             )}
         </div>
     );

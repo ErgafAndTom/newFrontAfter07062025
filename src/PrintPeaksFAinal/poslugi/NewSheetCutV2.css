@@ -1246,6 +1246,16 @@
   opacity: 0.55;
 }
 
+/* поле під мітки плотера (плотерна порізка) */
+.v2-sheet-marks-zone {
+  fill: var(--admingrey, #666);
+  fill-opacity: 0.08;
+}
+
+.v2-sheet-markdot {
+  fill: var(--adminred, #e53935);
+}
+
 .v2-sheet-meta {
   display: flex;
   justify-content: space-between;

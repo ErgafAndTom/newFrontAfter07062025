@@ -14,6 +14,7 @@ const KEY_MAP = {
     'printpeaks_np_sender_addresses': 'np_sender_addresses',
     'printpeaks_np_recipient_addresses': 'np_recipient_addresses',
     'printpeaks_np_recipient_contacts': 'np_recipient_contacts',
+    'printpeaks_calc_bleeds': 'calc_bleeds',
 };
 
 const API_KEY_TO_LS = {};

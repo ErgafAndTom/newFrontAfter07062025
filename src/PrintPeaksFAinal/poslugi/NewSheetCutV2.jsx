@@ -14,6 +14,7 @@ import useServiceTabs from "../../hooks/useServiceTabs";
 import ServiceSettingsModal from "./shared/ServiceSettingsModal";
 import ImpositionPreview from "./shared/ImpositionPreview";
 import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
+import { getCalcBleed } from "../../utils/calcBleeds";
 
 import "./NewSheetCutV2.css";
 
@@ -316,6 +317,7 @@ const NewSheetCutV2 = ({
         size, material, color, lamination,
         big, cute, cuteLocal, prokleyka, lyuversy, design,
         holes, holesR, count, porizka,
+        bleed: getCalcBleed("digital"),
       },
     };
     axios
@@ -371,6 +373,7 @@ const NewSheetCutV2 = ({
       size, material, color, lamination,
       big, cute, prokleyka, lyuversy, design,
       cuteLocal, holes, holesR, count, porizka,
+      bleed: getCalcBleed("digital"),
     };
     axios
       .post("/calc/pricing", dataToSend)
@@ -890,6 +893,7 @@ const NewSheetCutV2 = ({
                 sheetY={material.y || 450}
                 itemX={size.x}
                 itemY={size.y}
+                gap={getCalcBleed("digital")}
               />
             </div>
 

@@ -10,6 +10,9 @@ import NP from "../userInNewUiArtem/NP";
 import NovaPoshtaThermalButton from "./NovaPoshtaThermalButton";
 import "./NovaPoshtaCalculator.css";
 
+// Envelope is flat — thickness is fixed regardless of contents
+const ENVELOPE_THICKNESS_MM = "0.1";
+
 let nextPkgId = 1;
 let nextSplitUid = 1;
 
@@ -172,7 +175,7 @@ export default function NovaPoshtaCalculator({ onClose }) {
               weight: String(Math.max(physWeight, vw, 0.1).toFixed(2)),
               width: rec ? String(w) : "",
               height: rec ? String(h) : "",
-              thickness: rec ? String(t) : "",
+              thickness: rec?.recommended ? ENVELOPE_THICKNESS_MM : rec ? String(t) : "",
               envelope: rec?.recommended?.name || null,
             },
           }));
@@ -193,6 +196,7 @@ export default function NovaPoshtaCalculator({ onClose }) {
         if (envObj) {
           updated.width = String(envObj.width);
           updated.height = String(envObj.height);
+          updated.thickness = ENVELOPE_THICKNESS_MM;
         }
       }
 
@@ -363,7 +367,7 @@ export default function NovaPoshtaCalculator({ onClose }) {
         // Envelope — use physical envelope dimensions
         w = envObj.width;
         h = envObj.height;
-        t = r ? r.dimensions.thickness : 5;
+        t = ENVELOPE_THICKNESS_MM;
         weightStr = String(Math.max(pw, 0.1).toFixed(2));
       } else {
         // Box — use computed content dimensions with safety margin
