@@ -129,7 +129,11 @@ export function createLabelCanvas(type, data) {
   if (type === 'order') {
     const orderId = data?.id || '?';
     const barcodeValue = `ORD${orderId}`;
-    const totalPrice = data?.allPrice ?? data?.totalPrice ?? '';
+    // allPrice приходить рядком із «хвостом» обчислень (289.0000001) — до копійок
+    const rawPrice = data?.allPrice ?? data?.totalPrice;
+    const totalPrice = rawPrice !== '' && rawPrice != null && Number.isFinite(Number(rawPrice))
+      ? (Math.round(Number(rawPrice) * 100) / 100).toFixed(2)
+      : '';
     const clientId = data?.client?.id || data?.clientId || '';
     const clientName = getClientName(data);
 

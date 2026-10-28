@@ -1,22 +1,33 @@
 /**
  * NovaPoshtaThermalButton — друк офіційної наліпки НП на термопринтер EZPOS L4-W
- * Бекенд: NP API (printMarkings PDF) → Puppeteer → bitmap → TSPL BITMAP → TCP socket
+ * Бекенд: NP API (printMarkings HTML) → Puppeteer → bitmap → TSPL BITMAP → TCP socket.
+ * Багатомісна ТТН — по наліпці на кожне місце, одним завданням.
+ *
+ * label — підпис кнопки (у щільних таблицях — коротший, напр. «Термо»).
+ * onError(опис | null) — помилку показує батько (NpAlert у вікні НП);
+ * без onError короткий заголовок помилки лишається під текстом кнопки.
  */
 
 import React, { useState } from 'react';
 import axios from '../../api/axiosInstance';
 import { getSettings } from '../barcode/qzTrayService';
+import { describeNpError } from './npErrors';
 
-export default function NovaPoshtaThermalButton({ waybillRef, intDocNumber, className = '' }) {
+export default function NovaPoshtaThermalButton({ waybillRef, intDocNumber, className = '', onError, label = 'ДРУК НАЛІПКИ' }) {
   const [printing, setPrinting] = useState(false);
   const [lastOk, setLastOk] = useState(false);
   const [error, setError] = useState(null);
 
   if (!waybillRef) return null;
 
+  const report = (described) => {
+    setError(described);
+    if (onError) onError(described);
+  };
+
   const handlePrint = async () => {
     setPrinting(true);
-    setError(null);
+    report(null);
     setLastOk(false);
 
     try {
@@ -37,36 +48,39 @@ export default function NovaPoshtaThermalButton({ waybillRef, intDocNumber, clas
       });
 
       console.log('[NP Thermal]', response.data);
-      setLastOk(true);
+      setLastOk(response.data?.labels || 1);
       setTimeout(() => setLastOk(false), 3000);
     } catch (err) {
-      const msg = err?.response?.data?.error || err.message;
-      setError(msg);
-      console.error('[NP Thermal] Error:', msg);
+      console.error('[NP Thermal] Error:', err?.response?.data?.error || err.message);
+      report(describeNpError(err, 'thermal'));
     } finally {
       setPrinting(false);
     }
   };
 
+  const inlineError = error && !onError;
+
   return (
     <button
-      className={className || 'npc-btn npc-btn-outline'}
+      type="button"
+      className={className || 'npw-btn npw-btn--sm'}
       onClick={handlePrint}
       disabled={printing}
-      title={error || 'Друк офіційної наліпки НП на термопринтер'}
+      title={error ? [error.title, error.items?.[0]?.text, error.hint].filter(Boolean).join('. ') : 'Друк офіційної наліпки НП на термопринтер'}
       style={{ opacity: printing ? 0.6 : 1, position: 'relative' }}
     >
       <span>
-        {printing ? 'Друк...' : lastOk ? 'Надруковано' : 'ДРУК НАЛІПКИ'}
+        {printing ? 'Друк...' : lastOk ? (lastOk > 1 ? `Надруковано: ${lastOk}` : 'Надруковано') : label}
       </span>
-      {error && (
+      {inlineError && (
         <span style={{
           display: 'block',
           fontSize: 'var(--font-size-xs, 11px)',
           color: 'var(--adminred)',
           marginTop: 2,
+          whiteSpace: 'normal',
         }}>
-          {error.length > 40 ? error.substring(0, 40) + '...' : error}
+          {error.title}
         </span>
       )}
     </button>

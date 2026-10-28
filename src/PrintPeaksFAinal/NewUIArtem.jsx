@@ -709,19 +709,25 @@ const NewUIArtem = () => {
 
     let result = text.charAt(0).toUpperCase() + text.slice(1);
 
-    // normalize latin/cyrillic A in paper sizes
-    result = result
-      .replace(/s\s*r\s*[aа]\s*3\+?/gi, 'SR A3')
-      .replace(/s\s*r\s*[aа]\s*4\+?/gi, 'SR A4')
-      .replace(/s\s*r\s*[aа]\s*5\+?/gi, 'SR A5')
-      .replace(/s\s*r\s*[aа]\s*6\+?/gi, 'SR A6')
-      .replace(/s\s*r\s*[aа]\s*7\+?/gi, 'SR A7')
-      .replace(/sr[aа]\s*3\+?/gi, 'SRA3')
-      .replace(/[aа]\s*7\+?/gi, 'A7')
-      .replace(/[aа]\s*6\+?/gi, 'A6')
-      .replace(/[aа]\s*5\+?/gi, 'A5')
-      .replace(/[aа]\s*4\+?/gi, 'A4')
-      .replace(/[aа]\s*3\+?/gi, 'A3');
+    // normalize latin/cyrillic A in paper sizes.
+    // Формат — лише окреме слово: «а» в кінці іншого слова й цифра на
+    // початку числа форматом не є. Без цих меж «Візитка 65 x 100 мм»
+    // склеювалась у «ВізиткA65 x 100 мм» (зʼїдало пробіл і «а» → латинська A).
+    [
+      ['s\\s*r\\s*[aа]\\s*3\\+?', 'SR A3'],
+      ['s\\s*r\\s*[aа]\\s*4\\+?', 'SR A4'],
+      ['s\\s*r\\s*[aа]\\s*5\\+?', 'SR A5'],
+      ['s\\s*r\\s*[aа]\\s*6\\+?', 'SR A6'],
+      ['s\\s*r\\s*[aа]\\s*7\\+?', 'SR A7'],
+      ['sr[aа]\\s*3\\+?', 'SRA3'],
+      ['[aа]\\s*7\\+?', 'A7'],
+      ['[aа]\\s*6\\+?', 'A6'],
+      ['[aа]\\s*5\\+?', 'A5'],
+      ['[aа]\\s*4\\+?', 'A4'],
+      ['[aа]\\s*3\\+?', 'A3'],
+    ].forEach(([pattern, label]) => {
+      result = result.replace(new RegExp(`(^|[^a-zа-яіїєґ\\d])${pattern}(?!\\d)`, 'gi'), `$1${label}`);
+    });
 
     // прибрати "на матеріалі" і лапки навколо назви матеріалу
     result = result.replace(/,?\s*на матеріалі\s+["«"„""'']?([^"»""'']+)["»""'']?/gi, ', $1');

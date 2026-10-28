@@ -372,6 +372,7 @@ export default function ClientProfileModal({ userId, onClose, onUserUpdated }) {
               <FieldRow label="Ім'я"        field="firstName"   value={user.firstName}   userId={user.id} onSaved={onSaved} />
               <FieldRow label="По-батькові" field="lastName"    value={user.lastName}    userId={user.id} onSaved={onSaved} />
               <FieldRow label="Прізвище"    field="familyName"  value={user.familyName}  userId={user.id} onSaved={onSaved} />
+              <FieldRow label="Псевдонім"   field="nickname"    value={user.nickname}    userId={user.id} onSaved={onSaved} />
               <FieldRow label="Телефон"     field="phoneNumber" value={user.phoneNumber} userId={user.id} onSaved={onSaved} />
               <FieldRow label="E-mail"      field="email"       value={user.email}       userId={user.id} type="email" onSaved={onSaved} />
               <FieldRow label="Адреса"      field="address"     value={user.address}     userId={user.id} onSaved={onSaved} />

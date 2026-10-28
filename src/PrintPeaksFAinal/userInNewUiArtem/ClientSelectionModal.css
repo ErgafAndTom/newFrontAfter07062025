@@ -653,6 +653,17 @@ body.pp-nav-bottom .csm-panel {
   animation: csm-slide-up 0.25s ease-out;
 }
 
+/* док угорі — під навбаром унизу його вже немає, відступ лише на навбар */
+body.pp-nav-bottom.pp-dock-top .csm-panel {
+  bottom: calc(var(--pp-nav-h, 0px) + 12px);
+}
+
+/* Вікно вміщається між панелями, хоч би де стояв док: max-height 88% від
+   екрана з доком угорі заводило його верх під док. */
+body.pp-nav-bottom .csm-panel {
+  max-height: min(88%, calc(100vh - var(--pp-nav-h, 0px) - var(--ppdock-h, 0px) - 24px));
+}
+
 @keyframes csm-slide-up {
   from { opacity: 0; transform: translateX(-50%) translateY(10px); }
   to   { opacity: 1; transform: translateX(-50%); }

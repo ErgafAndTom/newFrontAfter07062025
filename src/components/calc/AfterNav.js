@@ -31,13 +31,12 @@ import Goldtab from "../admin/crm/Vimogi/Goldtab";
 import Phototab from "../admin/crm/Vimogi/Phototab";
 import Widephototab from "../admin/crm/Vimogi/Widephototab";
 import Holsttab from "../admin/crm/Vimogi/Holsttab";
-import CounterpartyList from "../../PrintPeaksFAinal/novaPoshta/CounterpartyList";
 import LifeHackLikeBoards2 from "../../PrintPeaksFAinal/lifeHacksBoard/LifeHackLikeBoards2";
 import UserFiles from "../../PrintPeaksFAinal/user/UserFiles";
 import Payments from "../../PrintPeaksFAinal/user/Payments";
 import Invoices from "../../pages/Invoices";
 import ClientUserProfile from "../../PrintPeaksFAinal/user/client/ClientUserProfile";
-import TrelloBoardAI from "../../PrintPeaksFAinal/trelloLikeBoards/TrelloBoardAI";
+import TasksPage from "../../PrintPeaksFAinal/tasks/TasksPage";
 import Graph3D from "../../PrintPeaksFAinal/Graph3D";
 import CompanyTabl from "../../PrintPeaksFAinal/company/CompanyTabl";
 import Graph3D_with_comments from "../../PrintPeaksFAinal/Graph3D_with_comments";
@@ -172,7 +171,9 @@ const AfterNav = () => {
                 <Route path="/db3" element={<TableManager />} />
                 <Route path="/dbGraph" element={<Graph3D_with_comments />} />
                 <Route path="/dbGraph2" element={<Graph2DForBD />} />
-                {staffRoute("/Trello", <TrelloBoardAI />)}
+                {staffRoute("/Tasks", <TasksPage />)}
+                {/* Стара trello-дошка замінена розділом «Завдання»; старі посилання ведуть туди */}
+                {staffRoute("/Trello", <Navigate to="/Tasks" replace />)}
                 {staffRoute("/Trello2", <LifeHackLikeBoards2 />)}
                 <Route path="/Vimogi" element={<Vimogi />} />
                 <Route path="/files" element={<Files />} />
@@ -206,7 +207,6 @@ const AfterNav = () => {
                 {staffRoute("/Desktop", <Desktop />)}
                 {user?.role === 'admin' && <Route path="/Roi" element={<RoiPage />} />}
                 {isClient && <Route path="/Roi" element={<Navigate to="/Orders" replace />} />}
-                <Route path="/CounterpartyList" element={<CounterpartyList />} />
 
                 <Route path="/Invoices" element={<Invoices />} />
 

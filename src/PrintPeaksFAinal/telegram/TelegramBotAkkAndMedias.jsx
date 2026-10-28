@@ -905,6 +905,10 @@ export default function TelegramBotAkkAndMedias() {
       window.dispatchEvent(new CustomEvent('orderUserAssigned', { detail: data }));
     } catch (e) {
       console.error("Помилка прив'язки клієнта до замовлення:", e);
+      // наряд оплачено або чекає оплату — клієнта в ERP додано, а в наряд не прив'язано
+      if (e.response?.status === 400 && e.response?.data?.error) {
+        alert(`Клієнта додано в ERP, але не прив'язано до наряду №${orderId}: ${e.response.data.error}`);
+      }
     }
   };
 

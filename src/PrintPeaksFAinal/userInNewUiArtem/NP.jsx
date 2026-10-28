@@ -4,9 +4,62 @@ import { loadSetting, saveSetting } from "../../hooks/useUserSettings";
 import NovaPoshtaButton from "./novaPoshta/NovaPoshtaButton";
 import NovaPoshtaAddressButton from "./novaPoshta/NovaPoshtaAddressButton";
 import NovaPoshtaThermalButton from "../novaPoshta/NovaPoshtaThermalButton";
-import "./NP.css";
+import {
+  NpHeader,
+  NpCheck,
+  NpSegment,
+  NpAlert,
+  NpFieldError,
+  npInvalid,
+  focusNpField,
+  clientDisplayName,
+  fmtNum,
+  formatTtn,
+  NP_DESCRIPTION_MAX,
+  NP_DEFAULT_DESCRIPTION,
+} from "../novaPoshta/NpBrand";
+import {
+  describeNpError,
+  describeFieldErrors,
+  fieldErrorsOf,
+  validateWaybill,
+} from "../novaPoshta/npErrors";
+import "../novaPoshta/NovaPoshta.css";
 
-function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
+// НП приймає опис до 36 символів, додаткову інформацію — до 100 (решту обрізає бекенд)
+const DESCRIPTION_PRESETS = ["Друкована продукція", "Поліграфічна продукція", "Документи"];
+
+// Підпис збереженої адреси у списку
+const savedAddrLabel = (a) =>
+  a.addressType === 'address'
+    ? `${a.cityDescription || 'Київ'} — ${a.street || ''}${a.building ? ', ' + a.building : ''}`
+    : a.shortName
+      ? `${a.cityDescription || 'Київ'} — ${a.shortName}`
+      : a.label || `${a.cityDescription} — ${a.description}`;
+
+// Об'ємна вага НП, кг: Д×Ш×В (мм → см) / 4000
+const volWeightMm = (l, w, h) =>
+  ((parseFloat(l) || 0) / 10) * ((parseFloat(w) || 0) / 10) * ((parseFloat(h) || 0) / 10) / 4000;
+const round2 = (n) => Math.round(n * 100) / 100;
+
+// Місце багатомісної ТТН. actual — фактична вага: зміна габаритів не опускає вагу нижче
+// за неї, а показуємо більшу з фактичної й об'ємної — за нею НП рахує тариф.
+let nextSeatId = 1;
+const toSeat = (s) => {
+  const actual = parseFloat(s.Weight) || 0;
+  return {
+    id: nextSeatId++,
+    Length: String(s.Length || '1'),
+    Width: String(s.Width || '1'),
+    Height: String(s.Height || '1'),
+    Weight: Math.max(0.1, volWeightMm(s.Length, s.Width, s.Height), actual).toFixed(2),
+    actual,
+    CargoType: s.CargoType || 'Cargo',
+    Pack: s.Pack || '',
+  };
+};
+
+function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData, onCloseAll }) {
   const [formData, setFormData] = useState({
     SenderWarehouseIndex: '',
     CitySender: 'Київ',
@@ -39,7 +92,9 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
       return Math.max(0.1, vw, prefillW).toFixed(2);
     })(),
     SeatsAmount: prefillData?.SeatsAmount || '1',
-    Description: prefillData?.Description || '',
+    Description: prefillData?.Description || NP_DEFAULT_DESCRIPTION,
+    // Перелік позицій з калькулятора — у формі не показується, але друкується в накладній
+    AdditionalInformation: prefillData?.AdditionalInformation || '',
     BackwardDelivery: false,
     BackwardDeliverySum: '',
     BackwardDeliveryPayer: 'Recipient',
@@ -61,7 +116,14 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
     RecipientAddressFlat: '',
   });
   const [result, setResult] = useState(null);
+  // error — опис помилки сервера/НП (describeNpError); serverErrors — її прив'язка
+  // до полів { поле: { text, sig } }: тримається, поки значення поля те саме
   const [error, setError] = useState(null);
+  const [serverErrors, setServerErrors] = useState({});
+  // Після першої спроби відправити поля перевіряються наживо
+  const [submitted, setSubmitted] = useState(false);
+  const [thermalError, setThermalError] = useState(null);
+  const formRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [senderAddresses, setSenderAddresses] = useState([]);
   const [senderAddressesLoading, setSenderAddressesLoading] = useState(false);
@@ -83,11 +145,33 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
   const recipientNameRef = useRef('');
   recipientNameRef.current = formData.RecipientName;
 
+  // Назад до посилок
   const handleClose = () => setShowNP(false);
+  // Хрестик закриває все вікно НП (якщо його відкрили з калькулятора посилок)
+  const handleCloseAll = () => (onCloseAll ? onCloseAll() : setShowNP(false));
+
+  // Блок відправника згорнутий у картку, поки адреса вже обрана
+  const [senderOpen, setSenderOpen] = useState(false);
+  const [ttnCopied, setTtnCopied] = useState(false);
+  // Фактична вага: зміна габаритів не може опустити вагу нижче за неї
+  const actualWeightRef = useRef(parseFloat(prefillData?.Weight) || 0);
+  // Кілька місць однієї ТТН (посилки з калькулятора). Порожньо — одне місце в полях Length/Width/Height/Weight
+  const [seats, setSeats] = useState(() =>
+    Array.isArray(prefillData?.Seats) && prefillData.Seats.length > 1 ? prefillData.Seats.map(toSeat) : []
+  );
+  const isMultiSeat = seats.length > 1;
 
   const [senderMode, setSenderMode] = useState('warehouse'); // 'warehouse' | 'address'
   const [recipientMode, setRecipientMode] = useState('warehouse'); // 'warehouse' | 'address'
   const [recipientType, setRecipientType] = useState('PrivatePerson'); // 'PrivatePerson' | 'Organization'
+
+  // Спосіб оплати за замовчуванням: організація-одержувач платить безготівкою
+  // (за договором з НП), фізособа-одержувач — лише готівкою. Тип одержувача
+  // ставиться і вручну, і з контакту/автопідстановки — тому ефект, а не onChange.
+  useEffect(() => {
+    const method = formData.PayerType === 'Recipient' && recipientType === 'Organization' ? 'NonCash' : 'Cash';
+    setFormData((prev) => (prev.PaymentMethod === method ? prev : { ...prev, PaymentMethod: method }));
+  }, [recipientType, formData.PayerType]);
 
   const deriveServiceType = (sMod, rMod) => {
     const s = sMod === 'address' ? 'Doors' : 'Warehouse';
@@ -148,6 +232,7 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
       CitySender: cityRef,
       SenderCityName: cityName,
       SenderAddress: departmentRef,
+      SenderAddressRef: '',
       Sender: departmentId,
     }));
   };
@@ -162,6 +247,7 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
       SenderAddressBuilding: building,
       SenderAddressFlat: flat,
       SenderStreetRef: streetRef || '',
+      SenderAddressRef: '',
     }));
   };
 
@@ -295,7 +381,8 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
       } catch (e) {
         console.warn('[NP] Failed to load saved sender addresses:', e.message);
       }
-      // Auto-select: спочатку saved, потім API
+      // Auto-select лише збережених. Адреси з кабінету НП — курʼєрські (двері), а не
+      // відділення: підставлена сама, така адреса мовчки змінила б тип доставки
       if (!formData.SenderAddress) {
         if (savedAddrs.length > 0) {
           const first = savedAddrs[0];
@@ -324,13 +411,6 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
               SendersPhone: first.sendersPhone || prev.SendersPhone,
             }));
           }
-        } else if (apiAddrs.length > 0) {
-          setFormData(prev => ({
-            ...prev,
-            CitySender: apiAddrs[0].cityRef,
-            SenderCityName: apiAddrs[0].cityDescription || prev.SenderCityName,
-            SenderAddress: apiAddrs[0].ref,
-          }));
         }
       }
       setSenderAddressesLoading(false);
@@ -409,6 +489,7 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
       setFormData(prev => ({
         ...prev,
         SenderAddress: '',
+        SenderAddressRef: '',
         SenderAddressStreet: '',
         SenderAddressBuilding: '',
         SenderAddressFlat: '',
@@ -428,6 +509,7 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
           CitySender: savedAddr.cityRef || prev.CitySender,
           SenderCityName: savedAddr.cityDescription || prev.SenderCityName,
           SenderAddress: '',
+          SenderAddressRef: '',
           SenderAddressStreet: savedAddr.street || '',
           SenderAddressBuilding: savedAddr.building || '',
           SenderAddressFlat: savedAddr.flat || '',
@@ -443,6 +525,7 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
           CitySender: savedAddr.cityRef || prev.CitySender,
           SenderCityName: savedAddr.cityDescription || prev.SenderCityName,
           SenderAddress: savedAddr.warehouseRef,
+          SenderAddressRef: '',
           SenderName: savedAddr.senderName || prev.SenderName,
           SendersPhone: savedAddr.sendersPhone || prev.SendersPhone,
           ServiceType: deriveServiceType('warehouse', recipientMode),
@@ -450,22 +533,33 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
       }
       return;
     }
-    // Потім в API адресах (warehouseRef)
+    // Потім адреси з кабінету НП — курʼєрські (двері): Ref іде окремим полем
+    // SenderAddressRef, бекенд бере його як є, без створення дубля адреси в НП
     setSelectedSavedId('');
     const addr = senderAddresses.find(a => a.ref === val);
     if (addr) {
+      const door = addr.addressType === 'address';
+      const mode = door ? 'address' : 'warehouse';
+      setSenderMode(mode);
       setFormData(prev => ({
         ...prev,
         CitySender: addr.cityRef,
         SenderCityName: addr.cityDescription || prev.SenderCityName,
-        SenderAddress: addr.ref,
+        SenderAddress: door ? '' : addr.ref,
+        SenderAddressRef: door ? addr.ref : '',
+        SenderAddressStreet: door ? addr.streetDescription || '' : '',
+        SenderAddressBuilding: door ? addr.building || '' : '',
+        SenderAddressFlat: door ? addr.flat || '' : '',
+        SenderStreetRef: '',
+        ServiceType: deriveServiceType(mode, recipientMode),
       }));
-      setSenderMode('warehouse');
     }
   };
 
   // Перевірка чи поточна адреса (warehouse або address) вже збережена
   const getCurrentSavedAddr = () => {
+    // обрано адресу з кабінету НП — локальних збережених вона не стосується
+    if (formData.SenderAddressRef) return null;
     if (senderMode === 'address') {
       const street = formData.SenderAddressStreet || '';
       const bld = formData.SenderAddressBuilding || '';
@@ -480,6 +574,8 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
 
   // Перевірка чи є що зберігати
   const canSaveAddress = () => {
+    // адреса з кабінету НП уже збережена там; локальна копія без StreetRef не пройшла б перевірку
+    if (formData.SenderAddressRef) return false;
     if (senderMode === 'address') {
       return !!(formData.SenderAddressStreet);
     }
@@ -752,7 +848,8 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
     await saveSetting('np_recipient_contacts', { contacts: updatedAll });
   };
 
-  // Auto-calculate volume (м³-equivalent) and volumetric weight (kg) — Nova Poshta formula: L×W×H(cm) / 4000
+  // Об'ємна вага для показу у формі (кг, не м³) — L×W×H(cm) / 4000.
+  // Бекенд поле Volume не використовує: VolumeGeneral у м³ рахує сам із габаритів.
   const calcVolume = (l, w, h) => {
     const lCm = (parseFloat(l) || 0) / 10;
     const wCm = (parseFloat(w) || 0) / 10;
@@ -784,13 +881,14 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
         const w = name === 'Width' ? value : prev.Width;
         const h = name === 'Height' ? value : prev.Height;
         next.Volume = calcVolume(l, w, h);
-        next.Weight = calcVolWeight(l, w, h);
+        // НП тарифікує за більшою з фактичної та об'ємної ваги
+        next.Weight = Math.max(parseFloat(calcVolWeight(l, w, h)), actualWeightRef.current || 0).toFixed(2);
+      }
+      if (name === 'Weight') {
+        actualWeightRef.current = parseFloat(value) || 0;
       }
       if (name === 'Cost' && prev.BackwardDelivery) {
         next.BackwardDeliverySum = value;
-      }
-      if (name === 'PayerType') {
-        next.PaymentMethod = 'Cash';
       }
       return next;
     });
@@ -800,14 +898,149 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
     }
   };
 
+  // ── Місця багатомісної ТТН ──
+  const editSeat = (id, name, value) => {
+    setSeats((prev) => prev.map((s) => {
+      if (s.id !== id) return s;
+      const next = { ...s, [name]: value };
+      if (['Length', 'Width', 'Height'].includes(name)) {
+        next.Weight = Math.max(parseFloat(calcVolWeight(next.Length, next.Width, next.Height)), s.actual || 0).toFixed(2);
+      }
+      if (name === 'Weight') next.actual = parseFloat(value) || 0;
+      return next;
+    }));
+  };
+
+  // Нове місце — копія останнього: найчастіше це ще одна така сама коробка
+  const addSeat = () => {
+    if (isMultiSeat) {
+      const last = seats[seats.length - 1];
+      setSeats([...seats, { ...last, id: nextSeatId++ }]);
+      return;
+    }
+    const single = {
+      id: nextSeatId++,
+      Length: formData.Length,
+      Width: formData.Width,
+      Height: formData.Height,
+      Weight: formData.Weight,
+      actual: actualWeightRef.current,
+      CargoType: formData.CargoType,
+      Pack: '',
+    };
+    setSeats([single, { ...single, id: nextSeatId++ }]);
+  };
+
+  const removeSeat = (id) => {
+    const rest = seats.filter((s) => s.id !== id);
+    if (rest.length > 1) {
+      setSeats(rest);
+      return;
+    }
+    // Лишилось одне місце — назад до звичайних полів габаритів і ваги
+    const [only] = rest;
+    actualWeightRef.current = only.actual || 0;
+    setFormData((prev) => ({
+      ...prev,
+      Length: only.Length,
+      Width: only.Width,
+      Height: only.Height,
+      Weight: only.Weight,
+      Volume: calcVolume(only.Length, only.Width, only.Height),
+    }));
+    setSeats([]);
+  };
+
+  const seatsWeight = round2(seats.reduce((sum, s) => sum + (parseFloat(s.Weight) || 0), 0));
+  const seatsVolWeight = round2(seats.reduce((sum, s) => sum + volWeightMm(s.Length, s.Width, s.Height), 0));
+
+  // ── Помилки полів ──
+  const validationOpts = { senderMode, recipientMode, recipientType, seats, isMultiSeat };
+
+  // «Відбиток» значення поля: помилка від НП зникає, щойно поле змінили
+  const fieldSig = (field) => {
+    const f = formData;
+    switch (field) {
+      case 'senderAddress':
+        return JSON.stringify([senderMode, f.SenderAddress, f.SenderAddressStreet, f.SenderStreetRef, f.CitySender, selectedSavedId]);
+      case 'recipientAddress':
+        return JSON.stringify([recipientMode, f.RecipientAddress, f.RecipientAddressStreet, f.RecipientStreetRef, f.CityRecipient, selectedRecipientSavedId]);
+      case 'dims':
+        return JSON.stringify([f.Length, f.Width, f.Height, seats.map((s) => [s.Length, s.Width, s.Height])]);
+      case 'seats':
+        return JSON.stringify(seats.map((s) => [s.Length, s.Width, s.Height, s.Weight]));
+      case 'payment':
+        return JSON.stringify([f.PayerType, f.PaymentMethod]);
+      case 'RecipientName':
+        return JSON.stringify([f.RecipientName, recipientType]);
+      default:
+        return JSON.stringify(f[field] ?? '');
+    }
+  };
+
+  const clientErrors = submitted ? validateWaybill(formData, validationOpts) : {};
+  const liveServerErrors = {};
+  Object.entries(serverErrors).forEach(([field, { text, sig }]) => {
+    if (fieldSig(field) === sig) liveServerErrors[field] = text;
+  });
+  const fieldErrors = { ...liveServerErrors, ...clientErrors };
+  const senderHasErrors = ['SenderName', 'SendersPhone', 'senderAddress'].some((f) => fieldErrors[f]);
+
+  // Блок унизу: спершу незаповнені поля, інакше — відповідь сервера/НП
+  // без пунктів, які вже виправлено
+  const footAlert = (() => {
+    if (Object.keys(clientErrors).length) return { ...describeFieldErrors(clientErrors, 'create'), compact: true };
+    if (!error) return null;
+    const items = error.items.filter((i) => !i.field || liveServerErrors[i.field]);
+    if (error.items.length && !items.length) return null;
+    // «виправте позначені поля» не лишаємо, коли позначених полів уже немає
+    const fieldsFixed = error.items.some((i) => i.field) && !items.some((i) => i.field);
+    return { ...error, items, hint: fieldsFixed ? '' : error.hint };
+  })();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+    setSubmitted(true);
+    const invalid = validateWaybill(formData, validationOpts);
+    if (Object.keys(invalid).length) {
+      setError(null);
+      setServerErrors({});
+      if (['SenderName', 'SendersPhone', 'senderAddress'].some((f) => invalid[f])) setSenderOpen(true);
+      // поле з'явиться після рендера (картка відправника могла бути згорнута)
+      const first = Object.keys(invalid)[0];
+      setTimeout(() => focusNpField(first), 30);
+      return;
+    }
     setLoading(true);
     setError(null);
+    setServerErrors({});
     setResult(null);
+    // Помилку сервера чи НП — у блок, а її поля — під самі поля
+    const fail = (errOrData) => {
+      const described = describeNpError(errOrData, 'create');
+      const byField = fieldErrorsOf(described);
+      const sigs = {};
+      Object.entries(byField).forEach(([field, text]) => { sigs[field] = { text, sig: fieldSig(field) }; });
+      setError(described);
+      setServerErrors(sigs);
+      if (['SenderName', 'SendersPhone', 'senderAddress'].some((f) => byField[f])) setSenderOpen(true);
+    };
+    // Кілька місць — масивом Seats (мм, кг), загальна вага = сума; одне місце — старим форматом
+    const shipment = isMultiSeat
+      ? {
+          Seats: seats.map(({ Length, Width, Height, Weight, CargoType }) => ({ Length, Width, Height, Weight, CargoType })),
+          SeatsAmount: String(seats.length),
+          Weight: String(seatsWeight),
+          Length: seats[0].Length,
+          Width: seats[0].Width,
+          Height: seats[0].Height,
+        }
+      : { SeatsAmount: '1' };
     try {
       const response = await axios.post('/novaposhta/create', {
         ...formData,
+        ...shipment,
         orderId: thisOrder?.id || null,
         RecipientType: recipientType,
         senderMode,
@@ -829,12 +1062,12 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
           }) : prev);
         }
       } else {
-        setError((response.data?.errors || []).join(', ') || 'Невідома помилка');
+        console.error('[NP] TTN rejected:', response.data);
+        fail(response.data || 'Нова Пошта не повернула відповіді');
       }
     } catch (err) {
-      const errMsg = err.response?.data?.error || err.response?.data?.errors?.join(', ') || err.message;
-      console.error('[NP] TTN creation error:', errMsg, err.response?.data);
-      setError(errMsg);
+      console.error('[NP] TTN creation error:', err.message, err.response?.data);
+      fail(err);
     } finally {
       setLoading(false);
     }
@@ -842,458 +1075,675 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData }) {
 
   if (!showNP) return null;
 
+  const clientName = clientDisplayName(thisOrder?.User);
+  const setField = (name, value) => handleChange({ target: { name, value } });
+
+  // ── Відправник: поки адресу обрано, показуємо картку замість форми ──
+  const senderAddrLabel = (() => {
+    if (selectedSavedId) {
+      const a = savedSenderAddresses.find((x) => x.id === selectedSavedId);
+      if (a) return savedAddrLabel(a);
+    }
+    if (senderMode === 'address') {
+      const fromNp = formData.SenderAddressRef && senderAddresses.find((x) => x.ref === formData.SenderAddressRef);
+      if (fromNp) return `${fromNp.cityDescription} — ${fromNp.description}`;
+      return formData.SenderAddressStreet
+        ? `${formData.SenderCityName || ''} — ${formData.SenderAddressStreet}${formData.SenderAddressBuilding ? ', ' + formData.SenderAddressBuilding : ''}`
+        : '';
+    }
+    if (formData.SenderAddress) {
+      const a = senderAddresses.find((x) => x.ref === formData.SenderAddress);
+      if (a) return `${a.cityDescription} — ${a.description}`;
+      const wd = lastWidgetData.current;
+      return wd?.shortName
+        ? `${wd.cityDescription || formData.SenderCityName} — ${wd.shortName}`
+        : `${formData.SenderCityName} — відділення обрано`;
+    }
+    return '';
+  })();
+  const senderReady = !!(formData.SenderName && formData.SendersPhone && senderAddrLabel);
+  // помилка в полях відправника розгортає картку, інакше її не видно
+  const showSenderEditor = senderOpen || (!senderAddressesLoading && !senderReady) || senderHasErrors;
+
+  const isOrg = recipientType === 'Organization';
+  const descLen = (formData.Description || '').length;
+  const descTooLong = descLen > NP_DESCRIPTION_MAX;
+  const payStatus = thisOrder?.Payment?.status;
+  const codDisabled = payStatus === 'PAID' || payStatus === 'CREATED';
+  const codReason = payStatus === 'PAID' ? 'замовлення оплачено' : payStatus === 'CREATED' ? 'очікується оплата' : '';
+  // Безготівкою одержувач платить лише як організація з договором НП
+  const nonCashForbidden = formData.PayerType === 'Recipient' && !isOrg;
+  const nonCashBlocked = formData.PaymentMethod === 'NonCash' && nonCashForbidden;
+  const seatsCount = isMultiSeat ? seats.length : 1;
+  const ttn = result?.data?.[0];
+
+  const PAYER_LABEL = { Sender: 'Відправник', Recipient: 'Одержувач', ThirdPerson: 'Третя особа' };
+
+  const copyTtn = () => {
+    const raw = String(ttn?.IntDocNumber || '');
+    if (!raw || !navigator.clipboard) return;
+    navigator.clipboard.writeText(raw).then(() => {
+      setTtnCopied(true);
+      setTimeout(() => setTtnCopied(false), 1600);
+    }).catch(() => {});
+  };
+
+  // Підказки ПІБ за номером телефону
+  const phoneHint = (() => {
+    const current = (formData.RecipientName || '').trim().toLowerCase();
+    const others = phoneSuggestions.filter(s => (s.name || '').trim().toLowerCase() !== current);
+    if (!phoneLookupLoading && !autoFilledFrom && others.length === 0) return null;
+    return (
+      <div className="npw-phone-hint">
+        {phoneLookupLoading && (
+          <span className="npw-phone-hint-label">Шукаю ПІБ за номером…</span>
+        )}
+        {!phoneLookupLoading && autoFilledFrom && (
+          <span className="npw-phone-hint-label">
+            ПІБ підставлено {SOURCE_LABEL[autoFilledFrom] || ''}
+          </span>
+        )}
+        {!phoneLookupLoading && others.length > 0 && (
+          <>
+            <span className="npw-phone-hint-label">{autoFilledFrom ? 'Інші:' : 'Знайдено за номером:'}</span>
+            {others.slice(0, 4).map((s, i) => (
+              <button type="button" key={`sug-${i}-${s.name}`}
+                className="npw-chip-btn"
+                title={`Підставити: ${s.name}${SOURCE_LABEL[s.source] ? ' (' + SOURCE_LABEL[s.source] + ')' : ''}`}
+                onClick={() => applyRecipientSuggestion(s)}>
+                {s.name}
+              </button>
+            ))}
+          </>
+        )}
+      </div>
+    );
+  })();
+
+  // Запам'ятати / забути контакт одержувача для цього клієнта
+  const contactAction = isContactChanged() ? (
+    <button type="button" className="npw-link-btn"
+      onClick={handleSaveRecipientContact}
+      title="Зберегти ПІБ і телефон одержувача для цього клієнта">
+      Запам'ятати контакт
+    </button>
+  ) : savedRecipientContact ? (
+    <span className="npw-saved-flag">
+      ✓ Контакт збережено
+      <button type="button" className="npw-link-btn npw-link-btn--danger"
+        onClick={handleDeleteRecipientContact}
+        title="Видалити збережені контактні дані">
+        Забути
+      </button>
+    </span>
+  ) : null;
+
+  const deliveryOptions = [
+    { value: 'warehouse', label: 'Відділення / поштомат' },
+    { value: 'address', label: 'Адресна доставка' },
+  ];
+
   return (
-    <div className="np-overlay">
-      <div className="np-modal" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="np-modal-header">
-          <button className="np-modal-close" onClick={handleClose} aria-label="Закрити">&#x2715;</button>
-        </div>
-        {/* Body */}
-        <div className="np-body">
-          <form onSubmit={handleSubmit}>
-            {/* Відправник */}
-            <div className="np-legend">Відправник</div>
-            <div className="np-fields-row">
-              <div className="np-field" style={{ flex: 1.6 }}>
-                <span className="np-field-label">ПІБ</span>
-                <input className="np-field-input" type="text" name="SenderName"
-                  value={formData.SenderName} onChange={handleChange} required />
-              </div>
-              <div className="np-field">
-                <span className="np-field-label">Телефон</span>
-                <input className="np-field-input" type="text" name="SendersPhone"
-                  value={formData.SendersPhone} onChange={handlePhone} required />
-              </div>
-            </div>
-            {(senderAddresses.length > 0 || savedSenderAddresses.length > 0) && (
-              <div className="np-field" style={{ marginBottom: '0.5rem' }}>
-                <span className="np-field-label">Збережені адреси</span>
-                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                  <select className="np-field-select np-field-select--active"
-                    style={{ flex: 1 }}
-                    value={selectedSavedId || formData.SenderAddress || ''}
-                    onChange={handleSenderAddressChange}>
-                    {savedSenderAddresses.length > 0 && (
-                      <optgroup label="Мої збережені">
-                        {savedSenderAddresses.map(a => {
-                          const displayLabel = a.addressType === 'address'
-                            ? `${a.cityDescription || 'Київ'} — ${a.street || ''}${a.building ? ', ' + a.building : ''}`
-                            : a.shortName
-                              ? `${a.cityDescription || 'Київ'} — ${a.shortName}`
-                              : a.label || `${a.cityDescription} — ${a.description}`;
-                          return (
-                            <option key={`saved-${a.id}`} value={a.id}>
-                              {a.addressType === 'address' ? '🏠 ' : '📦 '}{displayLabel}
-                            </option>
-                          );
-                        })}
-                      </optgroup>
-                    )}
-                    {senderAddresses.length > 0 && (
-                      <optgroup label="З кабінету НП">
-                        {senderAddresses.map(a => (
-                          <option key={a.ref} value={a.ref}>
-                            {a.cityDescription} — {a.description}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-                    <option value="">Інша адреса...</option>
-                  </select>
-                  {canSaveAddress() && !getCurrentSavedAddr() && (
-                    <button type="button" className="np-save-addr-btn"
-                      onClick={handleSaveCurrentAddress}
-                      title="Зберегти поточну адресу">+</button>
-                  )}
-                  {getCurrentSavedAddr() && (
-                    <button type="button" className="np-delete-addr-btn"
-                      onClick={() => {
-                        const addr = getCurrentSavedAddr();
-                        if (addr) handleDeleteSavedAddress(addr.id);
-                      }}
-                      title="Видалити збережену адресу">−</button>
-                  )}
-                </div>
-              </div>
-            )}
-            {!selectedSavedId && (!formData.SenderAddress ||
-              (!senderAddresses.find(a => a.ref === formData.SenderAddress))) && (
-              <>
-                <div className="np-delivery-tabs">
-                  <button type="button"
-                    className={`np-delivery-tab${senderMode === 'warehouse' ? ' np-delivery-tab--active' : ''}`}
-                    onClick={() => handleSenderMode('warehouse')}>
-                    Відділення / Поштомат
-                  </button>
-                  <button type="button"
-                    className={`np-delivery-tab${senderMode === 'address' ? ' np-delivery-tab--active' : ''}`}
-                    onClick={() => handleSenderMode('address')}>
-                    Адресна доставка
-                  </button>
-                </div>
-                {!isSenderDoor && (
-                  <div className="np-department">
-                    <NovaPoshtaButton onDepartmentSelect={handleDepartmentSelect1} />
-                  </div>
-                )}
-                {isSenderDoor && (
-                  <div className="np-department">
-                    <NovaPoshtaAddressButton
-                      onAddressSelect={handleSenderAddressSelect}
-                      cityName={formData.SenderCityName}
-                    />
-                  </div>
-                )}
-              </>
-            )}
-            {/* Кнопка "Зберегти адресу" — видна коли обрано адресу і її ще немає в збережених */}
-            {canSaveAddress() && !getCurrentSavedAddr() && (
-              <button type="button" className="np-save-addr-standalone"
-                onClick={handleSaveCurrentAddress}>
-                + Зберегти адресу відправника
-              </button>
-            )}
+    <div className="npw-overlay">
+      <div className="npw-modal npw-modal--ttn" role="dialog" aria-modal="true"
+        aria-label="Нова Пошта — накладна" onClick={(e) => e.stopPropagation()}>
+        <NpHeader
+          step={1}
+          onStep={handleClose}
+          orderId={thisOrder?.id}
+          clientName={clientName}
+          onClose={handleCloseAll}
+          closeTitle={onCloseAll ? 'Закрити' : 'Назад до посилок'}
+        />
 
-            {/* Одержувач */}
-            <div className="np-legend">
-              Одержувач
-              {(() => {
-                const u = thisOrder?.User;
-                const clientName = u ? ([u.familyName, u.firstName, u.lastName].filter(Boolean).join(' ') || u.username || u.name) : '';
-                return clientName ? (
-                  <span style={{ opacity: 0.6, marginLeft: '0.5rem', textTransform: 'none' }}>
-                    ({clientName}, #{clientId})
-                  </span>
-                ) : null;
-              })()}
-            </div>
-            <div className="np-delivery-tabs">
-              <button type="button"
-                className={`np-delivery-tab${recipientType === 'PrivatePerson' ? ' np-delivery-tab--active' : ''}`}
-                onClick={() => setRecipientType('PrivatePerson')}>
-                Фізична особа
+        {result?.success ? (
+          <div className="npw-body">
+            <div className="npw-done">
+              <span className="npw-done-mark" aria-hidden="true">✓</span>
+              <div className="npw-done-title">Накладну створено</div>
+              <button type="button" className="npw-ttn-num npw-ttn-num--big"
+                onClick={copyTtn} title="Скопіювати номер ТТН">
+                {formatTtn(ttn?.IntDocNumber) || '—'}
+                <span className="npw-ttn-copy">{ttnCopied ? 'скопійовано' : 'копіювати'}</span>
               </button>
-              <button type="button"
-                className={`np-delivery-tab${recipientType === 'Organization' ? ' np-delivery-tab--active' : ''}`}
-                onClick={() => setRecipientType('Organization')}>
-                Організація
-              </button>
-            </div>
-            <div className="np-fields-row">
-              {recipientType === 'Organization' && (
-                <div className="np-field" style={{ flex: 0.85 }}>
-                  <span className="np-field-label">ЄДРПОУ</span>
-                  <input className="np-field-input" type="text" name="RecipientEDRPOU"
-                    value={formData.RecipientEDRPOU || ''} onChange={handleChange} />
+              <dl className="npw-stats npw-stats--center">
+                <div className="npw-stat">
+                  <dt>Доставка</dt>
+                  <dd>{ttn?.CostOnSite ?? '—'} <small>грн</small></dd>
+                </div>
+                {ttn?.EstimatedDeliveryDate && (
+                  <div className="npw-stat">
+                    <dt>Орієнтовно</dt>
+                    <dd>{ttn.EstimatedDeliveryDate}</dd>
+                  </div>
+                )}
+              </dl>
+              <div className="npw-done-actions">
+                {ttn?.Ref && (
+                  <NovaPoshtaThermalButton
+                    waybillRef={ttn.Ref}
+                    intDocNumber={ttn.IntDocNumber}
+                    className="npw-btn npw-btn--primary"
+                    onError={setThermalError}
+                  />
+                )}
+                <button type="button" className="npw-btn" onClick={handleClose}>
+                  До посилок
+                </button>
+              </div>
+              {thermalError && (
+                <div className="npw-done-alert">
+                  <NpAlert error={thermalError} onClose={() => setThermalError(null)} />
                 </div>
               )}
-              <div className="np-field" style={{ flex: 1.6 }}>
-                <span className="np-field-label">{recipientType === 'Organization' ? 'Назва' : 'ПІБ'}</span>
-                <input className="np-field-input" type="text" name="RecipientName"
-                  value={formData.RecipientName} onChange={handleChange} required />
-              </div>
-              <div className="np-field" style={{ flex: 1.15 }}>
-                <span className="np-field-label">Телефон</span>
-                <input className="np-field-input" type="text" name="RecipientsPhone"
-                  value={formData.RecipientsPhone} onChange={handlePhone} required />
-              </div>
-              {/* Кнопка зберегти/видалити контакт */}
-              {isContactChanged() ? (
-                <button type="button" className="np-save-addr-btn"
-                  onClick={handleSaveRecipientContact}
-                  title="Зберегти контактні дані одержувача"
-                  style={{ width: 'auto', padding: '0 0.5rem', fontSize: 'var(--fontsmall, 12px)', fontWeight: 400 }}>Зберегти</button>
-              ) : savedRecipientContact ? (
-                <button type="button" className="np-delete-addr-btn"
-                  onClick={handleDeleteRecipientContact}
-                  title="Видалити збережені контактні дані">−</button>
-              ) : null}
             </div>
-            {/* Підказки ПІБ за номером телефону */}
-            {(() => {
-              const current = (formData.RecipientName || '').trim().toLowerCase();
-              const others = phoneSuggestions.filter(s => (s.name || '').trim().toLowerCase() !== current);
-              if (!phoneLookupLoading && !autoFilledFrom && others.length === 0) return null;
-              return (
-                <div className="np-phone-hint">
-                  {phoneLookupLoading && (
-                    <span className="np-phone-hint-label">Пошук ПІБ за номером…</span>
-                  )}
-                  {!phoneLookupLoading && autoFilledFrom && (
-                    <span className="np-phone-hint-label">
-                      ПІБ підставлено {SOURCE_LABEL[autoFilledFrom] || ''}
-                    </span>
-                  )}
-                  {!phoneLookupLoading && others.length > 0 && (
-                    <>
-                      <span className="np-phone-hint-label">Знайдено за номером:</span>
-                      {others.slice(0, 4).map((s, i) => (
-                        <button type="button" key={`sug-${i}-${s.name}`}
-                          className="np-phone-suggestion"
-                          title={`Підставити: ${s.name}${SOURCE_LABEL[s.source] ? ' (' + SOURCE_LABEL[s.source] + ')' : ''}`}
-                          onClick={() => applyRecipientSuggestion(s)}>
-                          {s.name}
+          </div>
+        ) : (
+          <form className="npw-form" onSubmit={handleSubmit} ref={formRef} noValidate>
+            <div className="npw-body">
+              <div className="npw-cols">
+                {/* ═══════════ ХТО Й КУДИ ═══════════ */}
+                <div className="npw-col">
+                  {/* Відправник */}
+                  <section className="npw-section">
+                    <div className="npw-label-row">
+                      <h2 className="npw-label">Відправник</h2>
+                      {senderReady && (
+                        <button type="button" className="npw-link-btn"
+                          onClick={() => setSenderOpen((v) => !v)}>
+                          {showSenderEditor ? 'Згорнути' : 'Змінити'}
                         </button>
-                      ))}
-                    </>
-                  )}
+                      )}
+                    </div>
+
+                    {!showSenderEditor ? (
+                      <button type="button" className="npw-party"
+                        onClick={() => setSenderOpen(true)} title="Змінити відправника">
+                        <span className="npw-party-line">
+                          <span className="npw-party-name">{formData.SenderName}</span>
+                          <span className="npw-party-phone">{formData.SendersPhone}</span>
+                        </span>
+                        <span className="npw-party-addr">
+                          <span className="npw-party-kind">{senderMode === 'address' ? 'Адреса' : 'Відділення'}</span>
+                          <span className="npw-party-addr-text">
+                            {senderAddrLabel || 'Завантаження адрес…'}
+                          </span>
+                        </span>
+                      </button>
+                    ) : (
+                      <div className="npw-stack">
+                        <div className="npw-grid npw-grid--sender">
+                          <label className="npw-field" data-np-field="SenderName">
+                            <span className="npw-field-label">ПІБ</span>
+                            <input {...npInvalid(fieldErrors, 'SenderName')} type="text" name="SenderName"
+                              value={formData.SenderName} onChange={handleChange} required />
+                            <NpFieldError field="SenderName">{fieldErrors.SenderName}</NpFieldError>
+                          </label>
+                          <label className="npw-field" data-np-field="SendersPhone">
+                            <span className="npw-field-label">Телефон</span>
+                            <input {...npInvalid(fieldErrors, 'SendersPhone', 'npw-input npw-input--mono')} type="tel" name="SendersPhone"
+                              value={formData.SendersPhone} onChange={handlePhone} required />
+                            <NpFieldError field="SendersPhone">{fieldErrors.SendersPhone}</NpFieldError>
+                          </label>
+                        </div>
+
+                        {(senderAddresses.length > 0 || savedSenderAddresses.length > 0) && (
+                          <div className="npw-field">
+                            <span className="npw-field-label">Збережені адреси</span>
+                            <div className="npw-select-row">
+                              <select className="npw-input npw-select"
+                                value={selectedSavedId || formData.SenderAddressRef || formData.SenderAddress || ''}
+                                onChange={handleSenderAddressChange}>
+                                {savedSenderAddresses.length > 0 && (
+                                  <optgroup label="Мої збережені">
+                                    {savedSenderAddresses.map(a => (
+                                      <option key={`saved-${a.id}`} value={a.id}>
+                                        {a.addressType === 'address' ? '🏠 ' : '📦 '}{savedAddrLabel(a)}
+                                      </option>
+                                    ))}
+                                  </optgroup>
+                                )}
+                                {senderAddresses.length > 0 && (
+                                  <optgroup label="З кабінету НП">
+                                    {senderAddresses.map(a => (
+                                      <option key={a.ref} value={a.ref}>
+                                        {a.addressType === 'address' ? '🏠 ' : '📦 '}{a.cityDescription} — {a.description}
+                                      </option>
+                                    ))}
+                                  </optgroup>
+                                )}
+                                <option value="">Інша адреса…</option>
+                              </select>
+                              {canSaveAddress() && !getCurrentSavedAddr() && (
+                                <button type="button" className="npw-icon-btn npw-icon-btn--add"
+                                  onClick={handleSaveCurrentAddress}
+                                  title="Запам'ятати поточну адресу" aria-label="Запам'ятати адресу">+</button>
+                              )}
+                              {getCurrentSavedAddr() && (
+                                <button type="button" className="npw-icon-btn npw-icon-btn--danger"
+                                  onClick={() => {
+                                    const addr = getCurrentSavedAddr();
+                                    if (addr) handleDeleteSavedAddress(addr.id);
+                                  }}
+                                  title="Видалити збережену адресу" aria-label="Видалити збережену адресу">−</button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {!selectedSavedId && !formData.SenderAddressRef && (!formData.SenderAddress ||
+                          (!senderAddresses.find(a => a.ref === formData.SenderAddress))) && (
+                          <>
+                            <NpSegment value={senderMode} onChange={handleSenderMode} options={deliveryOptions} />
+                            <div className={`npw-picker${fieldErrors.senderAddress ? ' is-invalid' : ''}`} data-np-field="senderAddress">
+                              {!isSenderDoor ? (
+                                <NovaPoshtaButton onDepartmentSelect={handleDepartmentSelect1} />
+                              ) : (
+                                <NovaPoshtaAddressButton
+                                  onAddressSelect={handleSenderAddressSelect}
+                                  cityName={formData.SenderCityName}
+                                />
+                              )}
+                            </div>
+                          </>
+                        )}
+                        <NpFieldError field="senderAddress">{fieldErrors.senderAddress}</NpFieldError>
+
+                        {canSaveAddress() && !getCurrentSavedAddr() &&
+                          senderAddresses.length === 0 && savedSenderAddresses.length === 0 && (
+                          <button type="button" className="npw-btn npw-btn--sm npw-btn--ghost npw-save-btn"
+                            onClick={handleSaveCurrentAddress}>
+                            + Запам'ятати адресу відправника
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </section>
+
+                  {/* Одержувач */}
+                  <section className="npw-section">
+                    <div className="npw-label-row">
+                      <h2 className="npw-label">Одержувач</h2>
+                      {clientName && (
+                        <span className="npw-label-aside" title="Клієнт замовлення">
+                          {clientName}{clientId && clientId !== '0' ? ` · #${clientId}` : ''}
+                        </span>
+                      )}
+                    </div>
+                    <div className="npw-stack">
+                      <NpSegment
+                        value={recipientType}
+                        onChange={setRecipientType}
+                        options={[
+                          { value: 'PrivatePerson', label: 'Фізична особа' },
+                          { value: 'Organization', label: 'Організація' },
+                        ]}
+                      />
+                      <div className={`npw-grid ${isOrg ? 'npw-grid--org' : 'npw-grid--contact'}`}>
+                        <label className="npw-field" data-np-field="RecipientsPhone">
+                          <span className="npw-field-label">Телефон</span>
+                          <input {...npInvalid(fieldErrors, 'RecipientsPhone', 'npw-input npw-input--mono')} type="tel" name="RecipientsPhone"
+                            value={formData.RecipientsPhone} onChange={handlePhone} required />
+                          <NpFieldError field="RecipientsPhone">{fieldErrors.RecipientsPhone}</NpFieldError>
+                        </label>
+                        {isOrg && (
+                          <label className="npw-field" data-np-field="RecipientEDRPOU">
+                            <span className="npw-field-label">ЄДРПОУ</span>
+                            <input {...npInvalid(fieldErrors, 'RecipientEDRPOU', 'npw-input npw-input--mono')} type="text" name="RecipientEDRPOU"
+                              inputMode="numeric" value={formData.RecipientEDRPOU || ''} onChange={handleChange} />
+                            <NpFieldError field="RecipientEDRPOU">{fieldErrors.RecipientEDRPOU}</NpFieldError>
+                          </label>
+                        )}
+                        <label className="npw-field npw-field--name" data-np-field="RecipientName">
+                          <span className="npw-field-label">{isOrg ? 'Назва організації' : 'ПІБ'}</span>
+                          <input {...npInvalid(fieldErrors, 'RecipientName')} type="text" name="RecipientName"
+                            value={formData.RecipientName} onChange={handleChange} required />
+                          <NpFieldError field="RecipientName">{fieldErrors.RecipientName}</NpFieldError>
+                        </label>
+                      </div>
+                      {(phoneHint || contactAction) && (
+                        <div className="npw-hint-row">
+                          {phoneHint || <span />}
+                          {contactAction}
+                        </div>
+                      )}
+
+                      {savedRecipientAddresses.length > 0 && (
+                        <div className="npw-field">
+                          <span className="npw-field-label">Збережені адреси клієнта</span>
+                          <div className="npw-select-row">
+                            <select className="npw-input npw-select"
+                              value={selectedRecipientSavedId || ''}
+                              onChange={handleRecipientAddressChange}>
+                              {savedRecipientAddresses.map(a => (
+                                <option key={`rcpt-${a.id}`} value={a.id}>
+                                  {a.addressType === 'address' ? '🏠 ' : '📦 '}{savedAddrLabel(a)}
+                                </option>
+                              ))}
+                              <option value="">Інша адреса…</option>
+                            </select>
+                            {canSaveRecipientAddress() && !getRecipientCurrentSaved() && (
+                              <button type="button" className="npw-icon-btn npw-icon-btn--add"
+                                onClick={handleSaveRecipientAddress}
+                                title="Запам'ятати поточну адресу" aria-label="Запам'ятати адресу">+</button>
+                            )}
+                            {getRecipientCurrentSaved() && (
+                              <button type="button" className="npw-icon-btn npw-icon-btn--danger"
+                                onClick={() => {
+                                  const addr = getRecipientCurrentSaved();
+                                  if (addr) handleDeleteRecipientAddress(addr.id);
+                                }}
+                                title="Видалити збережену адресу" aria-label="Видалити збережену адресу">−</button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {!selectedRecipientSavedId && (
+                        <>
+                          <NpSegment value={recipientMode} onChange={handleRecipientMode} options={deliveryOptions} />
+                          <div className={`npw-picker${fieldErrors.recipientAddress ? ' is-invalid' : ''}`} data-np-field="recipientAddress">
+                            {!isDoorDelivery ? (
+                              <NovaPoshtaButton onDepartmentSelect={handleDepartmentSelect} />
+                            ) : (
+                              <NovaPoshtaAddressButton
+                                onAddressSelect={handleAddressSelect}
+                                cityName={formData.RecipientCityName}
+                              />
+                            )}
+                          </div>
+                        </>
+                      )}
+                      <NpFieldError field="recipientAddress">{fieldErrors.recipientAddress}</NpFieldError>
+
+                      {canSaveRecipientAddress() && !getRecipientCurrentSaved() &&
+                        savedRecipientAddresses.length === 0 && (
+                        <button type="button" className="npw-btn npw-btn--sm npw-btn--ghost npw-save-btn"
+                          onClick={handleSaveRecipientAddress}>
+                          + Запам'ятати адресу для клієнта
+                        </button>
+                      )}
+                    </div>
+                  </section>
+
+                  {/* ═══════════ ОПЛАТА — у лівій колонці під одержувачем ═══════════ */}
+                  <section className="npw-section npw-pay">
+                    <h2 className="npw-label">Оплата доставки</h2>
+                    <div className="npw-pay-row">
+                      <div className="npw-field">
+                        <span className="npw-field-label">Платник</span>
+                        <NpSegment
+                          value={formData.PayerType}
+                          onChange={(v) => setField('PayerType', v)}
+                          options={[
+                            { value: 'Sender', label: 'Відправник' },
+                            { value: 'Recipient', label: 'Одержувач' },
+                            { value: 'ThirdPerson', label: 'Третя особа' },
+                          ]}
+                        />
+                      </div>
+                      <div className="npw-field">
+                        <span className="npw-field-label">Спосіб оплати</span>
+                        <NpSegment
+                          value={formData.PaymentMethod}
+                          onChange={(v) => setField('PaymentMethod', v)}
+                          options={[
+                            { value: 'Cash', label: 'Готівка' },
+                            {
+                              value: 'NonCash',
+                              label: 'Безготівка',
+                              disabled: nonCashForbidden,
+                              title: nonCashForbidden
+                                ? 'Одержувач-фізособа платить лише готівкою'
+                                : undefined,
+                            },
+                          ]}
+                        />
+                      </div>
+                      <div className="npw-field">
+                        <span className="npw-field-label">Додатково</span>
+                        <div className="npw-pay-checks">
+                          <NpCheck
+                            checked={formData.BackwardDelivery}
+                            disabled={codDisabled}
+                            hint={codReason}
+                            onChange={(c) => setFormData(prev => ({
+                              ...prev,
+                              BackwardDelivery: c,
+                              BackwardDeliverySum: c ? prev.Cost : '',
+                            }))}
+                          >
+                            Накладений платіж
+                          </NpCheck>
+                          <NpCheck
+                            checked={formData.IsFragile}
+                            onChange={(c) => setFormData(prev => ({ ...prev, IsFragile: c }))}
+                          >
+                            Крихке
+                          </NpCheck>
+                        </div>
+                      </div>
+                    </div>
+                    <NpFieldError field="payment">{fieldErrors.payment}</NpFieldError>
+                    {formData.BackwardDelivery && (
+                      <div className="npw-grid npw-grid--cod">
+                        <label className="npw-field" data-np-field="BackwardDeliverySum">
+                          <span className="npw-field-label">Сума накладеного платежу, грн</span>
+                          <input {...npInvalid(fieldErrors, 'BackwardDeliverySum', 'npw-input npw-input--num')} type="number" step="0.01"
+                            value={formData.BackwardDeliverySum}
+                            onChange={e => setFormData(prev => ({ ...prev, BackwardDeliverySum: e.target.value }))}
+                            required />
+                          <NpFieldError field="BackwardDeliverySum">{fieldErrors.BackwardDeliverySum}</NpFieldError>
+                        </label>
+                        <div className="npw-field">
+                          <span className="npw-field-label">Повернення коштів оплачує</span>
+                          <NpSegment
+                            value={formData.BackwardDeliveryPayer}
+                            onChange={(v) => setFormData(prev => ({ ...prev, BackwardDeliveryPayer: v }))}
+                            options={[
+                              { value: 'Recipient', label: 'Одержувач' },
+                              { value: 'Sender', label: 'Відправник' },
+                            ]}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </section>
                 </div>
-              );
-            })()}
-            {/* Збережені адреси одержувача */}
-            {savedRecipientAddresses.length > 0 && (
-              <div className="np-field" style={{ marginBottom: '0.5rem' }}>
-                <span className="np-field-label">Збережені</span>
-                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                  <select className="np-field-select np-field-select--active"
-                    style={{ flex: 1 }}
-                    value={selectedRecipientSavedId || ''}
-                    onChange={handleRecipientAddressChange}>
-                    {savedRecipientAddresses.map(a => {
-                      const displayLabel = a.addressType === 'address'
-                        ? `${a.cityDescription || 'Київ'} — ${a.street || ''}${a.building ? ', ' + a.building : ''}`
-                        : a.shortName
-                          ? `${a.cityDescription || 'Київ'} — ${a.shortName}`
-                          : a.label || `${a.cityDescription} — ${a.description}`;
-                      return (
-                        <option key={`rcpt-${a.id}`} value={a.id}>
-                          {a.addressType === 'address' ? '🏠 ' : '📦 '}{displayLabel}
-                        </option>
-                      );
-                    })}
-                    <option value="">Інша адреса...</option>
-                  </select>
-                  {canSaveRecipientAddress() && !getRecipientCurrentSaved() && (
-                    <button type="button" className="np-save-addr-btn"
-                      onClick={handleSaveRecipientAddress}
-                      title="Зберегти поточну адресу">+</button>
-                  )}
-                  {getRecipientCurrentSaved() && (
-                    <button type="button" className="np-delete-addr-btn"
-                      onClick={() => {
-                        const addr = getRecipientCurrentSaved();
-                        if (addr) handleDeleteRecipientAddress(addr.id);
-                      }}
-                      title="Видалити збережену адресу">−</button>
-                  )}
+
+                {/* ═══════════ ЩО Й ЯК ═══════════ */}
+                <div className="npw-col">
+                  <section className="npw-section">
+                    <h2 className="npw-label">Відправлення</h2>
+                    <div className="npw-stack">
+                      <div className="npw-field">
+                        <span className="npw-field-label">Тип</span>
+                        <NpSegment
+                          value={formData.CargoType}
+                          onChange={(v) => setField('CargoType', v)}
+                          options={[
+                            { value: 'Cargo', label: 'Вантаж' },
+                            { value: 'Documents', label: 'Документи' },
+                          ]}
+                        />
+                      </div>
+
+                      {isMultiSeat ? (
+                        <div className="npw-field" data-np-field="seats">
+                          <span className="npw-field-label">Місця · Д × Ш × В, мм · вага, кг</span>
+                          <div className="npw-seats">
+                            {seats.map((s, i) => (
+                              <div className="npw-seat" key={s.id}>
+                                <span className="npw-seat-no">{i + 1}</span>
+                                <div className="npw-dims">
+                                  <input className="npw-input npw-input--num" type="number" min="0" step="any"
+                                    aria-label={`Місце ${i + 1}: довжина, мм`} value={s.Length}
+                                    onChange={(e) => editSeat(s.id, 'Length', e.target.value)} />
+                                  <span className="npw-dims-x">×</span>
+                                  <input className="npw-input npw-input--num" type="number" min="0" step="any"
+                                    aria-label={`Місце ${i + 1}: ширина, мм`} value={s.Width}
+                                    onChange={(e) => editSeat(s.id, 'Width', e.target.value)} />
+                                  <span className="npw-dims-x">×</span>
+                                  <input className="npw-input npw-input--num" type="number" min="0" step="any"
+                                    aria-label={`Місце ${i + 1}: висота, мм`} value={s.Height}
+                                    onChange={(e) => editSeat(s.id, 'Height', e.target.value)} />
+                                </div>
+                                <input className="npw-input npw-input--num npw-seat-weight" type="number" step="0.01" min="0"
+                                  required aria-label={`Місце ${i + 1}: вага, кг`} value={s.Weight}
+                                  onChange={(e) => editSeat(s.id, 'Weight', e.target.value)} />
+                                <button type="button" className="npw-icon-btn npw-icon-btn--danger"
+                                  onClick={() => removeSeat(s.id)}
+                                  title="Прибрати місце" aria-label={`Прибрати місце ${i + 1}`}>
+                                  <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+                                    <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.6" fill="none" />
+                                  </svg>
+                                </button>
+                                <span className="npw-seat-meta">
+                                  {[s.Pack, `об'ємна ${fmtNum(volWeightMm(s.Length, s.Width, s.Height))} кг`].filter(Boolean).join(' · ')}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                          <NpFieldError field="seats">{fieldErrors.seats || fieldErrors.dims || fieldErrors.Weight}</NpFieldError>
+                        </div>
+                      ) : (
+                        <div className="npw-field" data-np-field="dims">
+                          <span className="npw-field-label">Довжина × ширина × висота, мм</span>
+                          <div className="npw-dims">
+                            <input {...npInvalid(fieldErrors, 'dims', 'npw-input npw-input--num')} type="number" name="Length" min="0" step="any"
+                              aria-label="Довжина, мм" value={formData.Length} onChange={handleChange} />
+                            <span className="npw-dims-x">×</span>
+                            <input {...npInvalid(fieldErrors, 'dims', 'npw-input npw-input--num')} type="number" name="Width" min="0" step="any"
+                              aria-label="Ширина, мм" value={formData.Width} onChange={handleChange} />
+                            <span className="npw-dims-x">×</span>
+                            <input {...npInvalid(fieldErrors, 'dims', 'npw-input npw-input--num')} type="number" name="Height" min="0" step="any"
+                              aria-label="Висота, мм" value={formData.Height} onChange={handleChange} />
+                          </div>
+                          <NpFieldError field="dims">{fieldErrors.dims}</NpFieldError>
+                        </div>
+                      )}
+
+                      <div className="npw-grid npw-grid--3">
+                        {isMultiSeat ? (
+                          <div className="npw-field">
+                            <span className="npw-field-label">Загальна вага</span>
+                            <span className="npw-readout">{fmtNum(seatsWeight)} <small>кг</small></span>
+                          </div>
+                        ) : (
+                          <label className="npw-field" data-np-field="Weight">
+                            <span className="npw-field-label">Вага, кг</span>
+                            <input {...npInvalid(fieldErrors, 'Weight', 'npw-input npw-input--num')} type="number" name="Weight" step="0.01" min="0"
+                              value={formData.Weight} onChange={handleChange} required />
+                            <NpFieldError field="Weight">{fieldErrors.Weight}</NpFieldError>
+                          </label>
+                        )}
+                        <div className="npw-field" title="Довжина × ширина × висота (см) / 4000 — НП рахує тариф за більшою з двох ваг">
+                          <span className="npw-field-label">Об'ємна вага</span>
+                          <span className="npw-readout">
+                            {isMultiSeat ? fmtNum(seatsVolWeight) : formData.Volume ? fmtNum(formData.Volume) : '—'} <small>кг</small>
+                          </span>
+                        </div>
+                        <div className="npw-field">
+                          <span className="npw-field-label">Місць</span>
+                          <div className="npw-seat-count">
+                            <span className="npw-readout">{seatsCount}</span>
+                            <button type="button" className="npw-icon-btn npw-icon-btn--add" onClick={addSeat}
+                              title="Додати місце — копію останнього" aria-label="Додати місце">
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <label className="npw-field" data-np-field="Description">
+                        <span className="npw-field-label">
+                          Опис вантажу
+                          <span className={`npw-counter${descTooLong ? ' is-over' : ''}`}>
+                            {descLen}/{NP_DESCRIPTION_MAX}
+                          </span>
+                        </span>
+                        <input {...npInvalid(fieldErrors, 'Description')} type="text" name="Description"
+                          value={formData.Description} onChange={handleChange} />
+                        <NpFieldError field="Description">{fieldErrors.Description}</NpFieldError>
+                      </label>
+                      <div className="npw-chips-row">
+                        <span className={`npw-chips-note${descTooLong ? ' is-over' : ''}`}>
+                          {descTooLong ? `НП обріже після ${NP_DESCRIPTION_MAX} символів:` : 'Коротко:'}
+                        </span>
+                        {DESCRIPTION_PRESETS.map((p) => (
+                          <button type="button" key={p}
+                            className={`npw-chip-btn${formData.Description === p ? ' is-active' : ''}`}
+                            onClick={() => setField('Description', p)}>
+                            {p}
+                          </button>
+                        ))}
+                      </div>
+
+                      <label className="npw-field" data-np-field="Cost">
+                        <span className="npw-field-label">Оголошена вартість, грн</span>
+                        <input {...npInvalid(fieldErrors, 'Cost', 'npw-input npw-input--num')} type="number" step="0.01" name="Cost"
+                          value={formData.Cost} onChange={handleChange} required />
+                        <NpFieldError field="Cost">{fieldErrors.Cost}</NpFieldError>
+                      </label>
+                    </div>
+                  </section>
                 </div>
               </div>
-            )}
-            {!selectedRecipientSavedId && (
-              <>
-                <div className="np-delivery-tabs">
-                  <button type="button"
-                    className={`np-delivery-tab${recipientMode === 'warehouse' ? ' np-delivery-tab--active' : ''}`}
-                    onClick={() => handleRecipientMode('warehouse')}>
-                    Відділення / Поштомат
-                  </button>
-                  <button type="button"
-                    className={`np-delivery-tab${recipientMode === 'address' ? ' np-delivery-tab--active' : ''}`}
-                    onClick={() => handleRecipientMode('address')}>
-                    Адресна доставка
-                  </button>
+            </div>
+
+            <footer className="npw-foot">
+              {(nonCashBlocked || footAlert) && (
+                <div className="npw-foot-notes">
+                  {nonCashBlocked && (
+                    <div className="npw-note npw-note--warn">
+                      Одержувач-фізособа платить лише готівкою. Змініть спосіб оплати на «Готівка», тип одержувача на «Організація» або платника на «Відправник».
+                    </div>
+                  )}
+                  <NpAlert
+                    error={footAlert}
+                    compact={footAlert?.compact}
+                    onRetry={() => formRef.current?.requestSubmit()}
+                    onClose={footAlert?.compact ? undefined : () => setError(null)}
+                  />
                 </div>
-                {!isDoorDelivery && (
-                  <div className="np-department">
-                    <NovaPoshtaButton onDepartmentSelect={handleDepartmentSelect} />
-                  </div>
-                )}
-                {isDoorDelivery && (
-                  <div className="np-department">
-                    <NovaPoshtaAddressButton
-                      onAddressSelect={handleAddressSelect}
-                      cityName={formData.RecipientCityName}
-                    />
-                  </div>
-                )}
-              </>
-            )}
-            {/* Кнопка зберегти адресу одержувача */}
-            {canSaveRecipientAddress() && !getRecipientCurrentSaved() && (
-              <button type="button" className="np-save-addr-standalone"
-                onClick={handleSaveRecipientAddress}>
-                + Зберегти адресу одержувача
-              </button>
-            )}
-
-            {/* Деталі */}
-            <div className="np-legend">Деталі відправлення</div>
-            <div className="np-fields-row">
-              <div className="np-field">
-                <span className="np-field-label">Тип сервісу</span>
-                <select className="np-field-select" name="ServiceType"
-                  value={formData.ServiceType} onChange={handleChange}>
-                  <option value="WarehouseWarehouse">Відділення-Відділення</option>
-                  <option value="WarehouseDoors">Відділення-Адреса</option>
-                  <option value="DoorsWarehouse">Адреса-Відділення</option>
-                  <option value="DoorsDoors">Адреса-Адреса</option>
-                </select>
-              </div>
-              <div className="np-field">
-                <span className="np-field-label">Спосіб оплати</span>
-                <select className="np-field-select np-field-select--active" name="PaymentMethod"
-                  value={formData.PaymentMethod} onChange={handleChange}>
-                  <option value="NonCash">Безготівка</option>
-                  <option value="Cash">Готівка</option>
-                </select>
-              </div>
-              <div className="np-field">
-                <span className="np-field-label">Платник</span>
-                <select className="np-field-select np-field-select--active" name="PayerType"
-                  value={formData.PayerType} onChange={handleChange}>
-                  <option value="Sender">Відправник</option>
-                  <option value="Recipient">Одержувач</option>
-                  <option value="ThirdPerson">Третя особа</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="np-fields-row">
-              <div className="np-field">
-                <span className="np-field-label">Оголошена вартість</span>
-                <input className="np-field-input" type="number" name="Cost"
-                  value={formData.Cost} onChange={handleChange} required />
-              </div>
-              <div className="np-field">
-                <span className="np-field-label">Тип вантажу</span>
-                <select className="np-field-select" name="CargoType"
-                  value={formData.CargoType} onChange={handleChange}>
-                  <option value="Cargo">Вантаж</option>
-                  <option value="Documents">Документи</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="np-fields-row">
-              <div className="np-field">
-                <span className="np-field-label">Вага (кг)</span>
-                <input className="np-field-input" type="number" name="Weight" step="0.01"
-                  value={formData.Weight} onChange={handleChange} required />
-              </div>
-              <div className="np-field" style={{ pointerEvents: 'none' }}>
-                <span className="np-field-label">Кількість місць</span>
-                <input className="np-field-input" type="number" name="SeatsAmount"
-                  value={formData.SeatsAmount} readOnly
-                  style={{ borderBottom: 'none', opacity: 0.5 }} />
-              </div>
-            </div>
-
-            <div className="np-fields-row">
-              <div className="np-field" style={{ flex: 2 }}>
-                <span className="np-field-label">Опис вантажу</span>
-                <input className="np-field-input" type="text" name="Description"
-                  value={formData.Description} onChange={handleChange} />
-              </div>
-            </div>
-
-            <div className="np-dims-row">
-              <div className="np-field">
-                <span className="np-field-label">Довжина (мм)</span>
-                <input className="np-field-input" type="number" name="Length"
-                  value={formData.Length} onChange={handleChange} />
-              </div>
-              <div className="np-field">
-                <span className="np-field-label">Ширина (мм)</span>
-                <input className="np-field-input" type="number" name="Width"
-                  value={formData.Width} onChange={handleChange} />
-              </div>
-              <div className="np-field">
-                <span className="np-field-label">Висота (мм)</span>
-                <input className="np-field-input" type="number" name="Height"
-                  value={formData.Height} onChange={handleChange} />
-              </div>
-              <div className="np-field">
-                <span className="np-field-label">Об'єм (м³)</span>
-                <input className="np-field-input" type="text" name="Volume"
-                  value={formData.Volume} readOnly style={{ opacity: 0.7 }} />
-              </div>
-            </div>
-
-            {/* Додаткові опції */}
-            {(() => {
-              const payStatus = thisOrder?.Payment?.status;
-              const codDisabled = payStatus === 'PAID' || payStatus === 'CREATED';
-              const codReason = payStatus === 'PAID' ? 'Замовлення оплачено' : payStatus === 'CREATED' ? 'Очікується оплата' : '';
-              return (
-            <div className="np-fields-row" style={{ marginTop: '0.5rem' }}>
-              <div className="np-field" style={{ flex: 'none' }}>
-                <label className="np-checkbox-label" style={codDisabled ? { opacity: 0.4, cursor: 'not-allowed' } : {}}>
-                  <input type="checkbox" checked={formData.BackwardDelivery}
-                    disabled={codDisabled}
-                    onChange={e => setFormData(prev => ({
-                      ...prev,
-                      BackwardDelivery: e.target.checked,
-                      BackwardDeliverySum: e.target.checked ? prev.Cost : '',
-                    }))} />
-                  <span>Наложений платіж</span>
-                  {codDisabled && <span style={{ fontSize: 'var(--fontsmall, 12px)', color: 'var(--adminorange)', marginLeft: '0.3rem' }}>({codReason})</span>}
-                </label>
-              </div>
-              {formData.BackwardDelivery && (
-                <>
-                  <div className="np-field">
-                    <span className="np-field-label">Сума (грн)</span>
-                    <input className="np-field-input" type="number" step="0.01"
-                      value={formData.BackwardDeliverySum}
-                      onChange={e => setFormData(prev => ({ ...prev, BackwardDeliverySum: e.target.value }))}
-                      required />
-                  </div>
-                  <div className="np-field">
-                    <span className="np-field-label">Платник зворотної доставки</span>
-                    <select className="np-field-select" value={formData.BackwardDeliveryPayer}
-                      onChange={e => setFormData(prev => ({ ...prev, BackwardDeliveryPayer: e.target.value }))}>
-                      <option value="Recipient">Одержувач</option>
-                      <option value="Sender">Відправник</option>
-                    </select>
-                  </div>
-                </>
               )}
-              <div className="np-field" style={{ flex: 'none' }}>
-                <label className="np-checkbox-label">
-                  <input type="checkbox" checked={formData.IsFragile}
-                    onChange={e => setFormData(prev => ({ ...prev, IsFragile: e.target.checked }))} />
-                  <span>Крихке</span>
-                </label>
-              </div>
-            </div>
-              );
-            })()}
-
-            {formData.PaymentMethod === 'NonCash' && formData.PayerType === 'Recipient' && (
-              <div className="np-warning">
-                Безготівка недоступна для платника «Одержувач». Змініть спосіб оплати на «Готівка» або платника на «Відправник».
-              </div>
-            )}
-
-            {!result?.success && (
-              <button className="np-submit-btn" type="submit"
-                disabled={loading || (formData.PaymentMethod === 'NonCash' && formData.PayerType === 'Recipient')}>
-                <span>{loading ? 'Створення...' : 'Створити накладну'}</span>
+              <dl className="npw-stats">
+                <div className="npw-stat">
+                  <dt>Маршрут</dt>
+                  <dd className="npw-route">
+                    {senderMode === 'address' ? 'Адреса' : 'Відділення'}
+                    <span className="npw-route-arrow" aria-hidden="true">→</span>
+                    {recipientMode === 'address' ? 'Адреса' : 'Відділення'}
+                  </dd>
+                </div>
+                <div className="npw-stat">
+                  <dt>Вага</dt>
+                  <dd>{fmtNum(isMultiSeat ? seatsWeight : formData.Weight)} <small>кг</small></dd>
+                </div>
+                <div className="npw-stat">
+                  <dt>Доставку оплачує</dt>
+                  <dd>
+                    {PAYER_LABEL[formData.PayerType] || '—'}
+                    <small>{formData.PaymentMethod === 'NonCash' ? ' · безготівка' : ' · готівка'}</small>
+                  </dd>
+                </div>
+                <div className="npw-stat">
+                  <dt>Оголошена</dt>
+                  <dd>{fmtNum(formData.Cost)} <small>грн</small></dd>
+                </div>
+              </dl>
+              <button className="npw-btn npw-btn--primary npw-btn--cta" type="submit"
+                disabled={loading || nonCashBlocked}>
+                {loading ? 'Створюю…' : 'Створити накладну'}
+                {!loading && (
+                  <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                    <path d="M3 9h11M10 4.5L14.5 9 10 13.5" stroke="currentColor" strokeWidth="1.7" fill="none" />
+                  </svg>
+                )}
               </button>
-            )}
+            </footer>
           </form>
-
-          {result && result.success && (
-            <div className="np-result">
-              <div className="np-result-title">
-                ТТН створено: {result.data?.[0]?.IntDocNumber || '—'}
-              </div>
-              <div style={{ fontSize: 'var(--fontsmall, 13px)', color: 'var(--admingrey)', marginTop: '0.3rem' }}>
-                Вартість доставки: {result.data?.[0]?.CostOnSite || '—'} грн
-                {result.data?.[0]?.EstimatedDeliveryDate && ` • Орієнтовна доставка: ${result.data[0].EstimatedDeliveryDate}`}
-              </div>
-              {result.data?.[0]?.Ref && (
-                <NovaPoshtaThermalButton
-                  waybillRef={result.data[0].Ref}
-                  intDocNumber={result.data[0].IntDocNumber}
-                  className="np-submit-btn np-print-btn"
-                />
-              )}
-            </div>
-          )}
-          {error && <div className="np-error">Помилка: {error}</div>}
-        </div>
+        )}
       </div>
     </div>
   );

@@ -1,14 +1,27 @@
 import './novaPoshtaButton.css';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import axios from '../../../api/axiosInstance';
+import { NpFieldError } from '../../novaPoshta/NpBrand';
+import { describeNpError } from '../../novaPoshta/npErrors';
 
 const debounce = (fn, ms) => {
     let timer;
     return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
 };
 
+// Чому пошук міста/вулиці нічого не дав: мережа, НП чи справді немає збігів
+const searchFailText = (errOrData) => {
+    const d = describeNpError(errOrData, 'address');
+    if (d.kind === 'network') return "Немає зв'язку з сервером — підказки не завантажились. Перевірте інтернет і спробуйте ще раз.";
+    if (d.kind === 'np-down' || d.kind === 'timeout') return 'Нова Пошта не відповідає — спробуйте за хвилину.';
+    return [d.title, d.items[0]?.text].filter(Boolean).join(': ');
+};
+
 const NovaPoshtaAddressButton = ({ onAddressSelect, cityName }) => {
     const [expanded, setExpanded] = useState(false);
+    // { city, street, building } — тексти помилок під полями форми адреси
+    const [errors, setErrors] = useState({});
+    const setFieldError = (field, text) => setErrors((prev) => ({ ...prev, [field]: text }));
     const [selectedAddressText, setSelectedAddressText] = useState('');
 
     // City search
@@ -57,10 +70,19 @@ const NovaPoshtaAddressButton = ({ onAddressSelect, cityName }) => {
                 calledMethod: 'searchSettlements',
                 methodProperties: { CityName: q, Limit: 10 },
             });
+            if (res.data?.success === false) {
+                setCityResults([]);
+                setFieldError('city', searchFailText(res.data));
+                return;
+            }
             const items = res.data?.data?.[0]?.Addresses || [];
             setCityResults(items);
             setShowCityList(true);
-        } catch { setCityResults([]); }
+            setFieldError('city', items.length ? '' : `Місто «${q}» не знайдено — перевірте назву.`);
+        } catch (e) {
+            setCityResults([]);
+            setFieldError('city', searchFailText(e));
+        }
     }, 300), []);
 
     const searchStreets = useCallback(debounce(async (q, settlementRef) => {
@@ -71,9 +93,19 @@ const NovaPoshtaAddressButton = ({ onAddressSelect, cityName }) => {
                 calledMethod: 'searchSettlementStreets',
                 methodProperties: { StreetName: q, SettlementRef: settlementRef, Limit: 10 },
             });
-            setStreetResults(res.data?.data?.[0]?.Addresses || []);
+            if (res.data?.success === false) {
+                setStreetResults([]);
+                setFieldError('street', searchFailText(res.data));
+                return;
+            }
+            const items = res.data?.data?.[0]?.Addresses || [];
+            setStreetResults(items);
             setShowStreetList(true);
-        } catch { setStreetResults([]); }
+            setFieldError('street', items.length ? '' : `Вулицю «${q}» не знайдено в цьому місті — перевірте назву.`);
+        } catch (e) {
+            setStreetResults([]);
+            setFieldError('street', searchFailText(e));
+        }
     }, 300), []);
 
     const handleCityInput = (e) => {
@@ -82,6 +114,7 @@ const NovaPoshtaAddressButton = ({ onAddressSelect, cityName }) => {
         setSelectedCity(null);
         setSelectedStreet(null);
         setStreetQuery('');
+        setErrors({});
         searchCities(val);
     };
 
@@ -90,12 +123,14 @@ const NovaPoshtaAddressButton = ({ onAddressSelect, cityName }) => {
         setSelectedCity(item);
         setCityResults([]);
         setShowCityList(false);
+        setFieldError('city', '');
     };
 
     const handleStreetInput = (e) => {
         const val = e.target.value;
         setStreetQuery(val);
         setSelectedStreet(null);
+        setFieldError('street', '');
         if (selectedCity) searchStreets(val, selectedCity.Ref);
     };
 
@@ -104,9 +139,21 @@ const NovaPoshtaAddressButton = ({ onAddressSelect, cityName }) => {
         setSelectedStreet(item);
         setStreetResults([]);
         setShowStreetList(false);
+        setFieldError('street', '');
     };
 
     const handleConfirm = () => {
+        // НП знаходить адресу лише за вулицею з її довідника — введена вручну дасть помилку при створенні ТТН
+        const next = {
+            city: selectedCity ? '' : 'Оберіть місто зі списку підказок.',
+            street: !selectedCity ? '' : selectedStreet ? '' : 'Оберіть вулицю зі списку підказок — НП не знайде вулицю, введену вручну.',
+            building: String(building).trim() ? '' : 'Вкажіть номер будинку.',
+        };
+        if (next.city || next.street || next.building) {
+            setErrors(next);
+            return;
+        }
+        setErrors({});
         const city = selectedCity?.MainDescription || cityQuery;
         const street = selectedStreet?.Description || streetQuery;
         const cityRef = selectedCity?.DeliveryCity || selectedCity?.Ref || '';
@@ -124,8 +171,14 @@ const NovaPoshtaAddressButton = ({ onAddressSelect, cityName }) => {
     return (
         <div>
             <div
-                className="novaPoshtaButton-nova-poshta-button novaPoshtaButton-button-horizontal novaPoshtaButton-text-row"
+                className={`novaPoshtaButton-nova-poshta-button novaPoshtaButton-button-horizontal novaPoshtaButton-text-row${selectedAddressText ? ' is-selected' : ''}${expanded ? ' is-open' : ''}`}
                 onClick={() => setExpanded(!expanded)}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded(!expanded); }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-expanded={expanded}
             >
                 <div className="novaPoshtaButton-logo novaPoshtaButton-logo-no-margin">
                     <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -148,7 +201,8 @@ const NovaPoshtaAddressButton = ({ onAddressSelect, cityName }) => {
                 <div className="np-address-form np-address-form--row">
                     <div className="np-address-field" style={{ flex: 1.2 }}>
                         <span className="np-address-label">Місто</span>
-                        <input className="np-address-input" value={cityQuery}
+                        <input className={`np-address-input${errors.city ? ' is-invalid' : ''}`} value={cityQuery}
+                            aria-invalid={!!errors.city || undefined}
                             onChange={handleCityInput}
                             onFocus={() => cityResults.length && setShowCityList(true)}
                             placeholder="Місто..." />
@@ -165,7 +219,8 @@ const NovaPoshtaAddressButton = ({ onAddressSelect, cityName }) => {
                     </div>
                     <div className="np-address-field" style={{ flex: 2 }}>
                         <span className="np-address-label">Вулиця</span>
-                        <input className="np-address-input" value={streetQuery}
+                        <input className={`np-address-input${errors.street ? ' is-invalid' : ''}`} value={streetQuery}
+                            aria-invalid={!!errors.street || undefined}
                             onChange={handleStreetInput}
                             onFocus={() => streetResults.length && setShowStreetList(true)}
                             placeholder={selectedCity ? 'Вулиця...' : 'Оберіть місто'}
@@ -183,8 +238,9 @@ const NovaPoshtaAddressButton = ({ onAddressSelect, cityName }) => {
                     </div>
                     <div className="np-address-field" style={{ flex: 0.5 }}>
                         <span className="np-address-label">Буд.</span>
-                        <input className="np-address-input" value={building}
-                            onChange={(e) => setBuilding(e.target.value)} placeholder="№" />
+                        <input className={`np-address-input${errors.building ? ' is-invalid' : ''}`} value={building}
+                            aria-invalid={!!errors.building || undefined}
+                            onChange={(e) => { setBuilding(e.target.value); setFieldError('building', ''); }} placeholder="№" />
                     </div>
                     <div className="np-address-field" style={{ flex: 0.5 }}>
                         <span className="np-address-label">Кв.</span>
@@ -194,6 +250,13 @@ const NovaPoshtaAddressButton = ({ onAddressSelect, cityName }) => {
                     <button type="button" className="np-address-confirm" onClick={handleConfirm}>
                         OK
                     </button>
+                    {(errors.city || errors.street || errors.building) && (
+                        <div className="np-address-errors">
+                            <NpFieldError>{errors.city}</NpFieldError>
+                            <NpFieldError>{errors.street}</NpFieldError>
+                            <NpFieldError>{errors.building}</NpFieldError>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

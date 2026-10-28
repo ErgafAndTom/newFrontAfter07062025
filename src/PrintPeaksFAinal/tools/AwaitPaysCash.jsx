@@ -98,7 +98,8 @@ const AwaitPaysCash = ({
     }
   }, [showAwaitCashPays]);
 
-  const total = Number(thisOrder?.allPrice ?? 0);
+  // allPrice приходить рядком із «хвостом» обчислень (289.0000001) — до копійок
+  const total = Math.round(Number(thisOrder?.allPrice ?? 0) * 100) / 100;
   const given = Number(clientAmount);
   const hasGiven = clientAmount !== '' && given > 0;
   const change = given - total;
@@ -123,7 +124,7 @@ const AwaitPaysCash = ({
 
             <div className="apc-body">
               <div className="apc-sum">
-                {total}
+                {total.toFixed(2)}
                 <span className="apc-unit">грн</span>
               </div>
 

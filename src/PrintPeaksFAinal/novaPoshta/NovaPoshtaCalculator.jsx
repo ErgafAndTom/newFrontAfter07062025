@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback, useMemo } from "react";
+﻿import React, { useState, useEffect, useCallback, useRef } from "react";
 import axios from "../../api/axiosInstance";
 import {
   parseOrderUnitForShipping,
@@ -8,7 +8,24 @@ import {
 } from "./npWeightUtils";
 import NP from "../userInNewUiArtem/NP";
 import NovaPoshtaThermalButton from "./NovaPoshtaThermalButton";
-import "./NovaPoshtaCalculator.css";
+import {
+  NpHeader,
+  NpMark,
+  NpCheck,
+  NpNumber,
+  NpAlert,
+  NpFieldError,
+  npInvalid,
+  focusNpField,
+  clientDisplayName,
+  fmtNum,
+  formatTtn,
+  NP_DEFAULT_DESCRIPTION,
+  plural,
+  positionsInfo,
+} from "./NpBrand";
+import { describeNpError, unwrapBlobError } from "./npErrors";
+import "./NovaPoshta.css";
 
 // Envelope is flat — thickness is fixed regardless of contents
 const ENVELOPE_THICKNESS_MM = "0.1";
@@ -16,11 +33,80 @@ const ENVELOPE_THICKNESS_MM = "0.1";
 let nextPkgId = 1;
 let nextSplitUid = 1;
 
+// Об'ємна вага НП: Д×Ш×В (см) / 4000
+const volWeight = (wMm, hMm, tMm) =>
+  ((parseFloat(wMm) || 0) / 10) * ((parseFloat(hMm) || 0) / 10) * ((parseFloat(tMm) || 0) / 10) / 4000;
+
+// Помилку повертає наверх: її показує картка ТТН (відповідь-блоб розгортається в JSON)
+const downloadPdf = (url, filename) =>
+  axios
+    .get(url, { responseType: "blob" })
+    .then((res) => {
+      const href = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
+      const a = document.createElement("a");
+      a.href = href;
+      a.download = filename;
+      a.click();
+      window.URL.revokeObjectURL(href);
+    })
+    .catch(async (err) => {
+      throw await unwrapBlobError(err);
+    });
+
+const positive = (v) => (parseFloat(String(v ?? "").replace(",", ".")) || 0) > 0;
+
+/**
+ * Мініатюра пакування: контур конверта в реальних пропорціях і пунктиром —
+ * вміст посилки в тому ж масштабі. Видно, чи влазить, ще до того як читати цифри.
+ */
+function PackGlyph({ env, content, scale, over }) {
+  const base = 38;
+  const mid = 24;
+  const cw = content.w * scale;
+  const ch = content.h * scale;
+  return (
+    <svg className={`npw-glyph${over ? " is-over" : ""}`} viewBox="0 0 48 40" aria-hidden="true">
+      {env ? (
+        (() => {
+          const ew = env.width * scale;
+          const eh = env.height * scale;
+          const x = mid - ew / 2;
+          const y = base - eh;
+          return (
+            <>
+              <rect className="npw-glyph-shell" x={x} y={y} width={ew} height={eh} />
+              <polyline
+                className="npw-glyph-flap"
+                points={`${x},${y} ${mid},${y + Math.min(eh * 0.42, ew * 0.5)} ${x + ew},${y}`}
+              />
+            </>
+          );
+        })()
+      ) : (
+        <>
+          <rect className="npw-glyph-shell" x={mid - cw / 2 - 2} y={base - ch - 2} width={cw + 4} height={ch + 2} />
+          <line className="npw-glyph-flap" x1={mid} y1={base - ch - 2} x2={mid} y2={base - ch * 0.6} />
+        </>
+      )}
+      {cw > 0 && ch > 0 && (
+        <rect className="npw-glyph-content" x={mid - cw / 2} y={base - ch} width={cw} height={ch} />
+      )}
+    </svg>
+  );
+}
+
 export default function NovaPoshtaCalculator({ onClose }) {
   const [order, setOrder] = useState(null);
   const [searchId, setSearchId] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  // error — опис для NpAlert (describeNpError); searchError — текст під полем номера
+  const [error, setError] = useState(null);
+  const [searchError, setSearchError] = useState("");
+  const lastSearchId = useRef(null);
+  // Помилки дій з готовими ТТН (PDF, термодрук): { [waybillId]: опис }
+  const [ttnErrors, setTtnErrors] = useState({});
+  // Після спроби «Створити ТТН» показуємо блок з переліком помилок пакування
+  const [ttnTried, setTtnTried] = useState(false);
 
   // Parsed items: { ...parsedFields, autoWeight, manualWeight }
   const [parsedItems, setParsedItems] = useState([]);
@@ -38,40 +124,41 @@ export default function NovaPoshtaCalculator({ onClose }) {
 
   // Waybills for current order
   const [waybills, setWaybills] = useState([]);
+  const [copiedTtn, setCopiedTtn] = useState(null);
 
-  // Per-package edit mode: { [pkgId]: { weight, width, height, thickness, envelope } }
-  const [editingPkg, setEditingPkg] = useState(null);
+  // Ручні правки пакування: { [pkgId]: { weight, width, height, thickness, envelope } }
   const [pkgOverrides, setPkgOverrides] = useState({});
 
-  // Split mode: { pkgId, selectedItems: Set, splitCounts: { [uid]: number } }
+  // Split mode: { pkgId, selectedItems: Map<uid, splitCount> }
   const [splitMode, setSplitMode] = useState(null);
 
-  // Auto-detect order from URL
-  useEffect(() => {
-    const match = window.location.pathname.match(/\/Orders\/(\d+)/);
-    if (match) {
-      fetchOrder(match[1]);
-    }
+  const loadWaybills = useCallback((orderId) => {
+    if (!orderId) return;
+    axios
+      .get(`/novaposhta/waybills/${orderId}`)
+      .then((r) => setWaybills(r.data || []))
+      .catch(() => setWaybills([]));
   }, []);
 
   const fetchOrder = useCallback(async (id) => {
     if (!id) return;
+    lastSearchId.current = id;
     setLoading(true);
-    setError("");
+    setError(null);
+    setSearchError("");
+    const notFound = () => setSearchError(
+      `Замовлення №${id} не знайдено. Перевірте номер — можливо, в ньому помилка або замовлення видалене.`
+    );
     try {
       const res = await axios.post("/Orders/OneOrder", { id });
       const data = res.data;
       if (!data || !data.id) {
-        setError("Замовлення не знайдено");
+        notFound();
         setLoading(false);
         return;
       }
       setOrder(data);
-
-      // Fetch waybills for this order
-      axios.get(`/novaposhta/waybills/${data.id}`)
-        .then(r => setWaybills(r.data || []))
-        .catch(() => setWaybills([]));
+      loadWaybills(data.id);
 
       // Parse positions
       const units = data.OrderUnits || [];
@@ -89,26 +176,60 @@ export default function NovaPoshtaCalculator({ onClose }) {
         });
 
       setParsedItems(items);
+      setPkgOverrides({});
+      setSplitMode(null);
       // All items in first package
-      setPackages([
-        { id: nextPkgId++, itemIds: items.map((i) => i.uid) },
-      ]);
+      setPackages([{ id: nextPkgId++, itemIds: items.map((i) => i.uid) }]);
     } catch (e) {
-      setError(e.response?.data?.message || e.message || "Помилка завантаження");
+      if (e.response?.status === 404) notFound();
+      else setError(describeNpError(e, "order"));
     }
     setLoading(false);
-  }, []);
+  }, [loadWaybills]);
+
+  // Auto-detect order from URL
+  useEffect(() => {
+    const match = window.location.pathname.match(/\/Orders\/(\d+)/);
+    if (match) fetchOrder(match[1]);
+  }, [fetchOrder]);
+
+  // Esc: спершу скасовує розділення, потім закриває вікно (у формі накладної не діє)
+  useEffect(() => {
+    if (showNP) return undefined;
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      if (splitMode) setSplitMode(null);
+      else if (onClose) onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [showNP, splitMode, onClose]);
 
   const handleSearch = () => {
-    const id = searchId.trim();
-    if (id) fetchOrder(id);
+    const id = searchId.trim().replace(/^№\s*/, "");
+    if (!id) return setSearchError("Вкажіть номер замовлення.");
+    if (!/^\d+$/.test(id)) return setSearchError("Номер замовлення — лише цифри, наприклад 1234.");
+    fetchOrder(id);
+  };
+
+  const setTtnError = (id, described) =>
+    setTtnErrors((prev) => {
+      const next = { ...prev };
+      if (described) next[id] = described;
+      else delete next[id];
+      return next;
+    });
+
+  const pdf = (w, url, filename) => {
+    setTtnError(w.id, null);
+    downloadPdf(url, filename).catch((err) => setTtnError(w.id, describeNpError(err, "print")));
   };
 
   // Weight getter for an item
   const getWeight = (item) =>
     item.manualWeight !== null ? item.manualWeight : item.autoWeight;
 
-  // Update manual weight
+  // Update manual weight ("" — повернути розрахункову)
   const setItemWeight = (uid, value) => {
     setParsedItems((prev) =>
       prev.map((it) =>
@@ -142,6 +263,7 @@ export default function NovaPoshtaCalculator({ onClose }) {
     if (packages.length <= 1) return;
     const pkg = packages.find((p) => p.id === pkgId);
     if (!pkg) return;
+    if (splitMode?.pkgId === pkgId) setSplitMode(null);
     // Move orphaned items to first remaining package
     setPackages((prev) => {
       const remaining = prev.filter((p) => p.id !== pkgId);
@@ -150,65 +272,6 @@ export default function NovaPoshtaCalculator({ onClose }) {
         itemIds: [...remaining[0].itemIds, ...pkg.itemIds],
       };
       return remaining;
-    });
-  };
-
-  // Toggle edit mode for a package
-  const toggleEdit = (pkgId) => {
-    if (editingPkg === pkgId) {
-      setEditingPkg(null);
-    } else {
-      setEditingPkg(pkgId);
-      // Initialize overrides from current calculated values if not set
-      if (!pkgOverrides[pkgId]) {
-        const pkg = packages.find((p) => p.id === pkgId);
-        if (pkg) {
-          const rec = getPackageRecommendation(pkg);
-          const physWeight = getPackageWeight(pkg);
-          const w = rec ? rec.dimensions.width : 0;
-          const h = rec ? rec.dimensions.height : 0;
-          const t = rec ? rec.dimensions.thickness : 10;
-          const vw = (w / 10) * (h / 10) * (t / 10) / 4000;
-          setPkgOverrides((prev) => ({
-            ...prev,
-            [pkgId]: {
-              weight: String(Math.max(physWeight, vw, 0.1).toFixed(2)),
-              width: rec ? String(w) : "",
-              height: rec ? String(h) : "",
-              thickness: rec?.recommended ? ENVELOPE_THICKNESS_MM : rec ? String(t) : "",
-              envelope: rec?.recommended?.name || null,
-            },
-          }));
-        }
-      }
-    }
-  };
-
-  // Update override field; auto-recalculate volumetric weight for box or on dimension change
-  const setOverride = (pkgId, field, value) => {
-    setPkgOverrides((prev) => {
-      const current = prev[pkgId] || {};
-      const updated = { ...current, [field]: value };
-
-      // When switching to a specific envelope — substitute its physical dimensions
-      if (field === 'envelope' && value && value !== 'box') {
-        const envObj = ENVELOPES.find((e) => e.name === value);
-        if (envObj) {
-          updated.width = String(envObj.width);
-          updated.height = String(envObj.height);
-          updated.thickness = ENVELOPE_THICKNESS_MM;
-        }
-      }
-
-      const isBox = updated.envelope === 'box';
-      if (isBox || ['width', 'height', 'thickness'].includes(field)) {
-        const wCm = (parseFloat(updated.width) || 0) / 10;
-        const hCm = (parseFloat(updated.height) || 0) / 10;
-        const tCm = (parseFloat(updated.thickness) || 0) / 10;
-        const vw = wCm * hCm * tCm / 4000;
-        updated.weight = Math.max(0.1, vw).toFixed(2);
-      }
-      return { ...prev, [pkgId]: updated };
     });
   };
 
@@ -281,7 +344,6 @@ export default function NovaPoshtaCalculator({ onClose }) {
           const ratio = splitCount / original.count;
 
           // Reduce original count
-          const originalWeight = getWeight(original);
           updated[idx] = {
             ...original,
             count: remainCount,
@@ -346,6 +408,41 @@ export default function NovaPoshtaCalculator({ onClose }) {
     [parsedItems, marginValue]
   );
 
+  // Те, що показано в полях пакування, поки немає ручних правок
+  const autoSpec = (pkg) => {
+    const rec = getPackageRecommendation(pkg);
+    return {
+      weight: getPackageWeight(pkg).toFixed(2),
+      width: String(rec ? rec.dimensions.width : 0),
+      height: String(rec ? rec.dimensions.height : 0),
+      thickness: String(rec ? rec.dimensions.thickness : 0),
+      envelope: null,
+    };
+  };
+
+  // Пряма правка ваги/габаритів. Зміна габаритів перераховує вагу як більшу
+  // з фактичної та об'ємної — саме за нею НП рахує тариф.
+  const editSpec = (pkg, field, value) => {
+    const physical = getPackageWeight(pkg);
+    setPkgOverrides((prev) => {
+      const current = prev[pkg.id] || autoSpec(pkg);
+      const updated = { ...current, [field]: value };
+      if (["width", "height", "thickness"].includes(field)) {
+        const vw = volWeight(updated.width, updated.height, updated.thickness);
+        updated.weight = Math.max(physical, vw, 0.1).toFixed(2);
+      }
+      return { ...prev, [pkg.id]: updated };
+    });
+  };
+
+  const resetSpec = (pkgId) => {
+    setPkgOverrides((prev) => {
+      const next = { ...prev };
+      delete next[pkgId];
+      return next;
+    });
+  };
+
   // Quick envelope/box selection from card click (no edit mode needed)
   const setEnvelopeQuick = useCallback((pkgId, envName) => {
     setPkgOverrides((prev) => {
@@ -374,7 +471,7 @@ export default function NovaPoshtaCalculator({ onClose }) {
         w = r ? r.dimensions.width : 0;
         h = r ? r.dimensions.height : 0;
         t = r ? r.dimensions.thickness : 10;
-        const vw = (w / 10) * (h / 10) * (t / 10) / 4000;
+        const vw = volWeight(w, h, t);
         weightStr = String(Math.max(pw, vw, 0.1).toFixed(2));
       }
 
@@ -388,19 +485,18 @@ export default function NovaPoshtaCalculator({ onClose }) {
     });
   }, [packages, getPackageRecommendation, getPackageWeight]);
 
-  // Open NP.jsx with prefill for a specific package
-  const openTTN = (pkg) => {
+  const pkgItemsOf = (pkg) =>
+    pkg.itemIds.map((id) => parsedItems.find((it) => it.uid === id)).filter(Boolean);
+
+  // Одне місце ТТН з посилки: вага, Д×Ш×В у мм і тип
+  const seatOf = (pkg) => {
     const rec = getPackageRecommendation(pkg);
     const weight = getPackageWeight(pkg);
-    const items = pkg.itemIds
-      .map((id) => parsedItems.find((it) => it.uid === id))
-      .filter(Boolean);
+    const items = pkgItemsOf(pkg);
 
     const maxW = Math.max(...items.map((i) => Math.min(i.sizeX, i.sizeY)), 0);
     const maxH = Math.max(...items.map((i) => Math.max(i.sizeX, i.sizeY)), 0);
     const margin = 1 + marginValue;
-
-    const description = items.map((i) => `${i.name} x${i.count}`).join(", ");
 
     // Use overrides if set, otherwise auto-calculated values
     const ov = pkgOverrides[pkg.id];
@@ -416,16 +512,77 @@ export default function NovaPoshtaCalculator({ onClose }) {
     } else if (ov?.envelope === "box") {
       isDocuments = false;
     }
+    const pack = ov?.envelope || rec?.recommended?.name || "box";
 
-    setNpPrefill({
+    return {
       Weight: String(Math.max(finalWeight, 0.1)),
       Length: String(Math.round(finalHeight)),
       Width: String(Math.round(finalWidth)),
       Height: String(finalThickness),
-      SeatsAmount: String(packages.length),
       CargoType: isDocuments ? "Documents" : "Cargo",
+      Pack: pack === "box" ? "Коробка" : `Конверт ${pack}`,
+    };
+  };
+
+  // Помилки пакування: вага й габарити кожної непорожньої посилки мають бути > 0.
+  // Ключ — `pkg-<id>-weight` / `pkg-<id>-dims`, той самий, що в data-np-field.
+  const packErrors = (() => {
+    const out = {};
+    packages.forEach((pkg, i) => {
+      if (!pkg.itemIds.length) return;
+      const ov = pkgOverrides[pkg.id];
+      const weight = ov ? ov.weight : getPackageWeight(pkg);
+      if (!positive(weight)) {
+        out[`pkg-${pkg.id}-weight`] = { pkg: i + 1, what: "вага", text: "Вкажіть вагу посилки більше 0 кг." };
+      }
+      if (ov && (!positive(ov.width) || !positive(ov.height) || !positive(ov.thickness))) {
+        out[`pkg-${pkg.id}-dims`] = { pkg: i + 1, what: "габарити", text: "Вкажіть ширину, висоту й товщину більше 0 мм." };
+      }
+    });
+    return out;
+  })();
+  const packErrorList = Object.entries(packErrors);
+  const packAlert = ttnTried && packErrorList.length
+    ? {
+        kind: "validation",
+        title: "Перевірте пакування",
+        items: packErrorList.map(([field, e]) => ({ field, label: `Посилка ${e.pkg}, ${e.what}`, text: e.text })),
+        hint: "Виправте позначені поля — потім можна переходити до накладної.",
+        details: "",
+      }
+    : null;
+
+  // Відкрити форму накладної: кожна непорожня посилка — окреме місце однієї ТТН
+  const openTTN = () => {
+    if (packErrorList.length) {
+      setTtnTried(true);
+      const first = packErrorList[0][0];
+      setTimeout(() => focusNpField(first), 30);
+      return;
+    }
+    setTtnTried(false);
+    const filled = packages.filter((p) => p.itemIds.length > 0);
+    const shipPkgs = filled.length ? filled : packages.slice(0, 1);
+    const seatList = shipPkgs.map(seatOf);
+    const [first] = seatList;
+
+    // Опис — «Поліграфічна продукція», перелік позицій (по місцях) — у додатковій інформації
+    const seatItems = shipPkgs.map(pkgItemsOf);
+    const totalWeight = seatList.reduce((s, x) => s + (parseFloat(x.Weight) || 0), 0);
+
+    setNpPrefill({
+      // Верхні поля — одномісний формат; для кількох посилок вага — сума місць
+      Weight: String(Math.round(totalWeight * 100) / 100),
+      Length: first.Length,
+      Width: first.Width,
+      Height: first.Height,
+      SeatsAmount: String(seatList.length),
+      Seats: seatList.length > 1 ? seatList : null,
+      // Хоч одна коробка — вся накладна йде як вантаж
+      CargoType: seatList.some((s) => s.CargoType === "Cargo") ? "Cargo" : "Documents",
       Cost: String(order?.allPrice || order?.price || "1"),
-      Description: description.substring(0, 200),
+      Description: NP_DEFAULT_DESCRIPTION,
+      AdditionalInformation: positionsInfo(seatItems),
       RecipientsPhone: order?.client?.phoneNumber || order?.User?.phoneNumber || "",
     });
 
@@ -451,13 +608,10 @@ export default function NovaPoshtaCalculator({ onClose }) {
             setNpPrefill(null);
             setNpOrder(null);
             // Refresh waybills after NP modal closes
-            if (order?.id) {
-              axios.get(`/novaposhta/waybills/${order.id}`)
-                .then(r => setWaybills(r.data || []))
-                .catch(() => {});
-            }
+            loadWaybills(order?.id);
           }
         }}
+        onCloseAll={onClose}
         thisOrder={npOrder}
         setThisOrder={() => {}}
         prefillData={npPrefill}
@@ -465,521 +619,542 @@ export default function NovaPoshtaCalculator({ onClose }) {
     );
   }
 
-  return (
-    <div className="npc-overlay">
-      <div className="npc-modal" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="npc-header">
-          <svg className="npc-header-logo" viewBox="0 0 191 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14.29 18.6216H8.01973V14.25C8.01973 13.1023 7.16401 12.2492 6.01295 12.2492H0.5V16.8775H3.00658V29.7508H8.01973V23.3784H14.29V29.7508H19.3031V12.2492H14.29V18.6216Z" fill="#DA291C"/>
-            <path d="M30.844 12C25.5506 12 21.6885 15.7978 21.6885 21C21.6885 26.2022 25.5506 30 30.844 30C36.1373 30 39.9994 26.2022 39.9994 21C39.9994 15.7978 36.1297 12 30.844 12ZM30.844 25.1225C28.4585 25.1225 26.7092 23.3708 26.7092 21C26.7092 18.6292 28.4661 16.8775 30.844 16.8775C33.2294 16.8775 34.9787 18.6292 34.9787 21C34.9787 23.3708 33.2218 25.1225 30.844 25.1225Z" fill="#DA291C"/>
-            <path d="M55.5084 20.4941C56.7503 19.7391 57.5227 18.448 57.5227 16.9002C57.5227 14.1971 55.7658 12.2492 52.2824 12.2492H42.3772V29.7508H52.2824C55.94 29.7508 58.0755 27.6292 58.0755 24.6997C58.0755 22.8196 57.0759 21.302 55.5084 20.4941ZM47.042 16.1451H50.7754C51.9568 16.1451 52.6307 16.719 52.6307 17.693C52.6307 18.6669 51.9568 19.2408 50.7754 19.2408H47.042V16.1451ZM51.1238 25.9002H47.0345V22.6535H51.1238C52.3808 22.6535 53.0775 23.25 53.0775 24.2768C53.0775 25.3037 52.3808 25.9002 51.1238 25.9002Z" fill="#DA291C"/>
-            <path d="M65.7467 12.2492L58.8252 29.7508H64.164L65.2772 26.5268H72.3274L73.4406 29.7508H78.8854L71.9639 12.2492H65.7467ZM66.6327 22.6007L68.6092 16.8775H68.9878L70.9643 22.6007H66.6327Z" fill="#DA291C"/>
-            <path d="M102.861 12.2492H86.0644V16.8775H88.5709V29.7508H93.5841V16.87H99.8543V29.7433H104.867V14.25C104.86 12.974 104.133 12.2492 102.861 12.2492Z" fill="#DA291C"/>
-            <path d="M116.401 12C111.107 12 107.245 15.7978 107.245 21C107.245 26.2022 111.107 30 116.401 30C121.694 30 125.556 26.2022 125.556 21C125.556 15.7978 121.687 12 116.401 12ZM116.401 25.1225C114.015 25.1225 112.266 23.3708 112.266 21C112.266 18.6292 114.023 16.8775 116.401 16.8775C118.779 16.8775 120.535 18.6292 120.535 21C120.535 23.3708 118.779 25.1225 116.401 25.1225Z" fill="#DA291C"/>
-            <path d="M147.494 25.1225H142.731V12.2492H137.71V25.1225H132.947V12.2492H127.934V29.7508H152.508V12.2492H147.494V25.1225Z" fill="#DA291C"/>
-            <path d="M171.939 16.87V12.2492H154.893V16.87H160.906V29.7508H165.919V16.87H171.939Z" fill="#DA291C"/>
-            <path d="M185.055 29.7508H190.5L183.579 12.2492H177.361L170.44 29.7508H175.779L176.892 26.5268H183.942L185.055 29.7508ZM178.247 22.6007L180.224 16.8775H180.602L182.579 22.6007H178.247Z" fill="#DA291C"/>
-          </svg>
-          <button className="npc-close-btn" onClick={onClose} aria-label="Закрити">&#x2715;</button>
+  const hasWaybills = waybills.length > 0;
+  const orderClient = order?.client || order?.User;
+  const filledPackages = packages.filter((p) => p.itemIds.length > 0);
+  const totalPcs = parsedItems.reduce((s, it) => s + (it.count || 1), 0);
+  const totalKg = filledPackages.reduce((s, p) => {
+    const ov = pkgOverrides[p.id];
+    return s + (ov ? parseFloat(ov.weight) || 0 : getPackageWeight(p));
+  }, 0);
+  const showMove = packages.length > 1 && !hasWaybills;
+
+  // Порожнє замовлення: посилку зібрати нема з чого. Доставка й сканування
+  // в посилку не йдуть — якщо є лише вони, кажемо про це окремо.
+  const orderUnits = order?.OrderUnits || [];
+  const emptyOrder = order && !loading && parsedItems.length === 0 && !hasWaybills
+    ? {
+        kind: "validation",
+        title: `У замовленні №${order.id} поки нічого відправляти`,
+        items: [{
+          field: null,
+          label: null,
+          text: orderUnits.length
+            ? "Тут лише доставка чи сканування — у посилку вони не йдуть."
+            : "У замовленні ще немає жодної позиції.",
+        }],
+        hint: "Додайте в замовлення продукцію, яку треба відправити, і відкрийте Нову Пошту знову — вагу й пакування порахуємо автоматично.",
+        details: "",
+        retry: true,
+      }
+    : null;
+
+  const pickAnotherOrder = () => {
+    setOrder(null);
+    setParsedItems([]);
+    setWaybills([]);
+    setSearchId("");
+    setSearchError("");
+    setError(null);
+  };
+
+  const copyTtn = (w) => {
+    const raw = String(w.intDocNumber || "");
+    if (!raw || !navigator.clipboard) return;
+    navigator.clipboard.writeText(raw).then(() => {
+      setCopiedTtn(w.id);
+      setTimeout(() => setCopiedTtn((c) => (c === w.id ? null : c)), 1600);
+    }).catch(() => {});
+  };
+
+  const renderPackage = (pkg, pkgIdx) => {
+    const pkgItems = pkgItemsOf(pkg);
+    const rec = getPackageRecommendation(pkg);
+    const weight = getPackageWeight(pkg);
+    const ov = pkgOverrides[pkg.id];
+    const spec = ov || autoSpec(pkg);
+    const isSplitting = splitMode?.pkgId === pkg.id;
+    const pcs = pkgItems.reduce((sum, it) => sum + (it.count || 1), 0);
+    const canSplit = pkgItems.length > 1 || (pkgItems[0]?.count || 0) > 1;
+
+    // Що зараз обрано: ручний вибір → рекомендований конверт → коробка
+    const activePack = ov?.envelope || rec?.recommended?.name || (rec ? "box" : null);
+    const packName = !rec
+      ? "—"
+      : activePack === "box"
+      ? "Коробка"
+      : `Конверт ${activePack}`;
+    const isDocs = ov?.envelope && ov.envelope !== "box"
+      ? true
+      : ov?.envelope === "box" || rec?.needsParcel
+      ? false
+      : true;
+    const chosenEnv = ov?.envelope && ov.envelope !== "box"
+      ? rec?.allEnvelopes.find((e) => e.name === ov.envelope)
+      : null;
+    const missReason = (env) =>
+      !env.widthOk || !env.heightOk
+        ? "розмір"
+        : !env.thicknessOk
+        ? "товщина"
+        : !env.weightOk
+        ? "вага"
+        : "";
+
+    // спільний масштаб мініатюр: найбільший конверт або вміст, якщо він більший
+    const content = { w: rec ? rec.dimensions.width : 0, h: rec ? rec.dimensions.height : 0 };
+    const glyphScale = Math.min(34 / Math.max(458, content.h), 40 / Math.max(324, content.w));
+
+    return (
+      <section className={`npw-pkg${isSplitting ? " is-splitting" : ""}`} key={pkg.id}>
+        <div className="npw-pkg-head">
+          <span className="npw-pkg-no">{pkgIdx + 1}</span>
+          <h3 className="npw-pkg-title">Посилка</h3>
+          <div className="npw-pkg-chips">
+            <span className="npw-chip npw-chip--num">{fmtNum(ov ? ov.weight : weight)} кг</span>
+            <span className="npw-chip npw-chip--num">{pcs} шт</span>
+            {rec && <span className="npw-chip npw-chip--pack">{packName}</span>}
+          </div>
+          <div className="npw-pkg-tools">
+            {canSplit && !isSplitting && !hasWaybills && (
+              <button type="button" className="npw-btn npw-btn--sm npw-btn--ghost" onClick={() => startSplit(pkg.id)}>
+                Розділити
+              </button>
+            )}
+            {packages.length > 1 && !hasWaybills && (
+              <button
+                type="button"
+                className="npw-icon-btn npw-icon-btn--danger"
+                onClick={() => removePackage(pkg.id)}
+                title="Прибрати посилку — її позиції повернуться в першу"
+                aria-label="Прибрати посилку"
+              >
+                <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.6" fill="none" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Body */}
-        <div className="npc-body">
-          {/* Search if no order */}
-          {!order && !loading && (
-            <div className="npc-search">
-              <input
-                className="npc-search-input"
-                placeholder="ID замовлення..."
-                value={searchId}
-                onChange={(e) => setSearchId(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              />
-              <button className="npc-search-btn" onClick={handleSearch}>
-                Знайти
-              </button>
+        <div className={`npw-table${isSplitting ? " has-check" : ""}${showMove && !isSplitting ? " has-move" : ""}`} role="table">
+          {pkgItems.length > 0 && (
+            <div className="npw-tr npw-tr--head" role="row">
+              {isSplitting && <span className="npw-th" />}
+              <span className="npw-th">Позиція</span>
+              <span className="npw-th npw-th--num">Розмір, мм</span>
+              <span className="npw-th npw-th--num">Кількість</span>
+              <span className="npw-th npw-th--num">Вага, кг</span>
+              {showMove && !isSplitting && <span className="npw-th npw-th--num">У посилку</span>}
             </div>
           )}
 
-          {loading && <div className="npc-loading">Завантаження...</div>}
-          {error && <div className="npc-needs-parcel">{error}</div>}
+          {pkgItems.length === 0 && (
+            <div className="npw-pkg-empty">
+              Порожня посилка — перенесіть сюди позиції кнопками «У посилку»
+            </div>
+          )}
 
-          {/* Positions list */}
-          {parsedItems.length > 0 && (
-            <>
-              <div>
-                <div className="npc-section-title">позиції замовлення</div>
-                <div className="npc-positions">
-                  <div className="npc-pos-header">
-                    <span>Назва</span>
-                    <span style={{ textAlign: "center" }}>Розмір, мм</span>
-                    <span style={{ textAlign: "center" }}>Кіл.</span>
-                    <span style={{ textAlign: "right" }}>Вага, кг</span>
-                    <span></span>
-                  </div>
-                  {parsedItems.map((item) => (
-                    <div className="npc-pos-row" key={item.uid}>
-                      <span className="npc-pos-name" title={item.name}>
-                        {item.name}
-                      </span>
-                      <span className="npc-pos-size">
-                        {Math.round(item.sizeX)}×{Math.round(item.sizeY)}
-                      </span>
-                      <span className="npc-pos-count">{item.count}</span>
-                      <span className="npc-pos-weight">
-                        <input
-                          className="npc-weight-input"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={
-                            item.manualWeight !== null
-                              ? item.manualWeight
-                              : Math.round(item.autoWeight * 100) / 100
-                          }
-                          onChange={(e) =>
-                            setItemWeight(item.uid, e.target.value)
-                          }
-                          title="Вага (кг). Можна скоригувати вручну"
-                        />
-                      </span>
-                      <span className="npc-pos-move" title="Редагується авто-вага">
-                        ⚖
-                      </span>
-                    </div>
-                  ))}
+          {pkgItems.map((item) => {
+            const isSelected = isSplitting && splitMode.selectedItems.has(item.uid);
+            const splitCount = isSelected ? splitMode.selectedItems.get(item.uid) : null;
+            const autoW = Math.round(item.autoWeight * 100) / 100;
+            return (
+              <div
+                key={item.uid}
+                role="row"
+                className={`npw-tr${isSplitting ? " is-pickable" : ""}${isSelected ? " is-selected" : ""}`}
+                onClick={isSplitting ? () => toggleSplitItem(item.uid) : undefined}
+              >
+                {isSplitting && (
+                  <span className="npw-td npw-td--check">
+                    <span className={`npw-tick${isSelected ? " is-on" : ""}`} aria-hidden="true" />
+                  </span>
+                )}
+                <span className="npw-td npw-td--name" title={item.name}>
+                  {item.name.replace(/,\s*$/, "")}
+                </span>
+                <span className="npw-td npw-td--num npw-td--size">
+                  {Math.round(item.sizeX)}×{Math.round(item.sizeY)}
+                </span>
+                <span className="npw-td npw-td--num npw-td--qty">
+                  {isSelected && item.count > 1 ? (
+                    <span className="npw-split-qty" onClick={(e) => e.stopPropagation()}>
+                      <NpNumber
+                        className="npw-input npw-input--num npw-input--xs"
+                        value={splitCount}
+                        min="1"
+                        max={item.count}
+                        step="1"
+                        onCommit={(v) => setSplitCount(item.uid, v)}
+                        title="Скільки штук перенести в нову посилку"
+                      />
+                      <span className="npw-split-of">з {item.count}</span>
+                    </span>
+                  ) : (
+                    item.count
+                  )}
+                </span>
+                <span className="npw-td npw-td--num npw-td--weight">
+                  {isSplitting || hasWaybills ? (
+                    fmtNum(getWeight(item))
+                  ) : (
+                    <span className="npw-weight">
+                      <NpNumber
+                        className="npw-input npw-input--num npw-input--xs"
+                        value={item.manualWeight !== null ? item.manualWeight : autoW}
+                        step="0.01"
+                        min="0"
+                        onCommit={(v) => setItemWeight(item.uid, v)}
+                        title="Вага позиції, кг"
+                      />
+                      {item.manualWeight !== null ? (
+                        <button
+                          type="button"
+                          className="npw-mini-btn"
+                          onClick={() => setItemWeight(item.uid, "")}
+                          title={`Повернути розрахункову вагу (${fmtNum(autoW)} кг)`}
+                          aria-label="Повернути розрахункову вагу"
+                        >
+                          ↺
+                        </button>
+                      ) : (
+                        <span
+                          className="npw-auto-tag"
+                          title="Розраховано з формату, щільності паперу й кількості"
+                        >
+                          авто
+                        </span>
+                      )}
+                    </span>
+                  )}
+                </span>
+                {showMove && !isSplitting && (
+                  <span className="npw-td npw-td--move">
+                    {packages.map((p, i) => (
+                      <button
+                        type="button"
+                        key={p.id}
+                        className={`npw-move-btn${p.id === pkg.id ? " is-active" : ""}`}
+                        disabled={p.id === pkg.id}
+                        onClick={() => moveItem(item.uid, pkg.id, p.id)}
+                        title={p.id === pkg.id ? "Ця посилка" : `Перенести в посилку ${i + 1}`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {isSplitting && (
+          <div className="npw-split-bar">
+            <span className="npw-split-hint">
+              Позначте, що поїде окремою посилкою. Кількість можна зменшити — решта лишиться тут.
+            </span>
+            <button
+              type="button"
+              className="npw-btn npw-btn--sm npw-btn--primary"
+              onClick={confirmSplit}
+              disabled={splitMode.selectedItems.size === 0}
+            >
+              У нову посилку · {splitMode.selectedItems.size}
+            </button>
+            <button type="button" className="npw-btn npw-btn--sm npw-btn--ghost" onClick={() => setSplitMode(null)}>
+              Скасувати
+            </button>
+          </div>
+        )}
+
+        {/* Пакування — після створення ТТН уже не редагується */}
+        {rec && !hasWaybills && (
+          <div className="npw-pack">
+            <div className="npw-pack-tiles" role="radiogroup" aria-label="Пакування">
+              {rec.allEnvelopes.map((env) => {
+                const active = activePack === env.name;
+                const reason = missReason(env);
+                return (
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    key={env.name}
+                    className={`npw-pack-tile${active ? " is-active" : ""}${env.fits ? " is-fit" : " is-miss"}`}
+                    onClick={() => setEnvelopeQuick(pkg.id, env.name)}
+                    title={env.fits
+                      ? `Конверт ${env.name} ${env.width}×${env.height} мм — влазить`
+                      : `Конверт ${env.name} ${env.width}×${env.height} мм — не підходить: ${reason}`}
+                  >
+                    <PackGlyph env={env} content={content} scale={glyphScale} over={!env.fits} />
+                    <span className="npw-pack-name">{env.name}</span>
+                    <span className="npw-pack-size">{env.width}×{env.height}</span>
+                    <span className="npw-pack-note">{env.fits ? `до ${env.fitsSheet}` : `✕ ${reason}`}</span>
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                role="radio"
+                aria-checked={activePack === "box"}
+                className={`npw-pack-tile is-fit${activePack === "box" ? " is-active" : ""}`}
+                onClick={() => setEnvelopeQuick(pkg.id, "box")}
+                title="Коробка — розмір за вмістом, відправляється як вантаж"
+              >
+                <PackGlyph env={null} content={content} scale={glyphScale} />
+                <span className="npw-pack-name">Коробка</span>
+                <span className="npw-pack-size">за вмістом</span>
+                <span className="npw-pack-note">вантаж</span>
+              </button>
+            </div>
+
+            <div className="npw-pack-spec">
+              <label className="npw-field" data-np-field={`pkg-${pkg.id}-weight`}>
+                <span className="npw-field-label">Вага, кг</span>
+                <NpNumber
+                  {...npInvalid(packErrors, `pkg-${pkg.id}-weight`, "npw-input npw-input--num")}
+                  value={spec.weight}
+                  step="0.01"
+                  min="0"
+                  onCommit={(v) => editSpec(pkg, "weight", v)}
+                />
+              </label>
+              <div className="npw-field npw-field--dims" data-np-field={`pkg-${pkg.id}-dims`}>
+                <span className="npw-field-label">Ширина × висота × товщина, мм</span>
+                <div className="npw-dims">
+                  <NpNumber {...npInvalid(packErrors, `pkg-${pkg.id}-dims`, "npw-input npw-input--num")} value={spec.width} step="1" min="0"
+                    aria-label="Ширина, мм" onCommit={(v) => editSpec(pkg, "width", v)} />
+                  <span className="npw-dims-x">×</span>
+                  <NpNumber {...npInvalid(packErrors, `pkg-${pkg.id}-dims`, "npw-input npw-input--num")} value={spec.height} step="1" min="0"
+                    aria-label="Висота, мм" onCommit={(v) => editSpec(pkg, "height", v)} />
+                  <span className="npw-dims-x">×</span>
+                  <NpNumber {...npInvalid(packErrors, `pkg-${pkg.id}-dims`, "npw-input npw-input--num")} value={spec.thickness} step="0.1" min="0"
+                    aria-label="Товщина, мм" onCommit={(v) => editSpec(pkg, "thickness", v)} />
                 </div>
               </div>
-
-              {/* Safety margin */}
-              <label className="npc-margin-toggle">
-                <input
-                  type="checkbox"
-                  checked={safetyMargin}
-                  onChange={(e) => setSafetyMargin(e.target.checked)}
-                />
-                додати +15% запас на пакування
-              </label>
-
-              {/* Packages */}
-              <div className="npc-section-title">
-                {packages.length === 1 && 'одна посилка'}
-                {packages.length === 2 && 'дві посилки'}
-                {packages.length === 3 && 'три посилки'}
-                {packages.length === 4 && 'чотири посилки'}
-                {packages.length >= 5 && `${packages.length} посилок`}
+              <div className="npw-field npw-field--type">
+                <span className="npw-field-label">Тип</span>
+                <span className={`npw-type-tag${isDocs ? "" : " is-cargo"}`}>{isDocs ? "Документи" : "Вантаж"}</span>
               </div>
-              <div className="npc-packages">
-                {packages.map((pkg, pkgIdx) => {
-                  const pkgItems = pkg.itemIds
-                    .map((id) => parsedItems.find((it) => it.uid === id))
-                    .filter(Boolean);
-                  const rec = getPackageRecommendation(pkg);
-                  const weight = getPackageWeight(pkg);
-
-                  const isEditing = editingPkg === pkg.id;
-                  const ov = pkgOverrides[pkg.id];
-                  const isSplitting = splitMode?.pkgId === pkg.id;
-
-                  return (
-                    <div className="npc-package" key={pkg.id}>
-                      <div className="npc-package-header">
-                        <span className="npc-package-title">
-                          Посилка №{pkgIdx + 1}
-                        </span>
-                        <span className="npc-package-info">
-                          {ov ? ov.weight : weight} кг
-                          {` \u00A0·\u00A0 ${pkgItems.reduce((sum, it) => sum + (it.count || 1), 0)} шт`}
-                          {ov?.envelope && ov.envelope !== "box"
-                            ? `   ·  конверт ${ov.envelope}`
-                            : ov?.envelope === "box"
-                            ? "   ·  коробка"
-                            : rec?.recommended
-                            ? `   ·  конверт ${rec.recommended.name}`
-                            : rec
-                            ? "   ·  коробка"
-                            : ""}
-                        </span>
-                        {packages.length > 1 && (
-                          <button
-                            className="npc-package-remove"
-                            onClick={() => removePackage(pkg.id)}
-                            title="Видалити посилку"
-                          >
-                            ✕
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Items in this package */}
-                      <div className="npc-package-items">
-                        {pkgItems.length === 0 && (
-                          <div className="npc-package-empty">
-                            Перемістіть позиції сюди
-                          </div>
-                        )}
-                        {pkgItems.map((item) => {
-                          const isSelected = isSplitting && splitMode.selectedItems.has(item.uid);
-                          const splitCount = isSelected ? splitMode.selectedItems.get(item.uid) : null;
-                          const isPartial = isSelected && splitCount < item.count;
-                          return (
-                          <React.Fragment key={item.uid}>
-                          <div
-                            className={`npc-pos-row npc-pkg-item${
-                              isSplitting ? " npc-split-selectable" : ""
-                            }${isSelected ? " npc-split-selected" : ""}`}
-                            title={
-                              isSplitting
-                                ? "Виберіть для перенесення"
-                                : "Клікніть, щоб перемістити в іншу посилку"
-                            }
-                            onClick={() => {
-                              if (isSplitting) {
-                                toggleSplitItem(item.uid);
-                                return;
-                              }
-                              if (packages.length < 2) return;
-                              const otherPkg = packages.find(
-                                (p) => p.id !== pkg.id
-                              );
-                              if (otherPkg) {
-                                moveItem(item.uid, pkg.id, otherPkg.id);
-                              }
-                            }}
-                          >
-                            <span className="npc-pos-name">{item.name}</span>
-                            <span className="npc-pos-size">
-                              {Math.round(item.sizeX)}×{Math.round(item.sizeY)}
-                            </span>
-                            <span className="npc-pos-count">{item.count}</span>
-                            <span className="npc-pos-weight">
-                              {(Math.round(getWeight(item) * 100) / 100).toFixed(2)}
-                            </span>
-                            <span className="npc-pos-move">
-                              {isSplitting
-                                ? isSelected
-                                  ? "✓"
-                                  : "○"
-                                : "↔"}
-                            </span>
-                          </div>
-                          {isSelected && item.count > 1 && (
-                            <div className="npc-split-qty-row" onClick={(e) => e.stopPropagation()}>
-                              <span className="npc-split-qty-label">Перенести:</span>
-                              <input
-                                className="npc-split-qty-input"
-                                type="number"
-                                min="1"
-                                max={item.count}
-                                value={splitCount}
-                                onChange={(e) => setSplitCount(item.uid, e.target.value)}
-                              />
-                              <span className="npc-split-qty-total">з {item.count} шт</span>
-                              {isPartial && (
-                                <span className="npc-split-qty-remain">
-                                  (залишиться {item.count - splitCount})
-                                </span>
-                              )}
-                            </div>
-                          )}
-                          </React.Fragment>
-                          );
-                        })}
-                      </div>
-
-                      {/* Split mode hint */}
-                      {isSplitting && (
-                        <div className="npc-split-hint">
-                          Виберіть позиції для нової посилки. Можна змінити кількість.
-                        </div>
-                      )}
-
-                      {/* Envelope recommendation — hide when waybills exist */}
-                      {rec && !isEditing && waybills.length === 0 && (() => {
-                        const activeEnvName = ov?.envelope || rec.recommended?.name;
-                        return (
-                        <div className="npc-envelope-row">
-                          <div className="npc-envelopes">
-                            {rec.allEnvelopes.map((env) => (
-                              <div
-                                className={`npc-envelope${
-                                  env.fits ? " npc-envelope-fits" : ""
-                                }${
-                                  activeEnvName === env.name
-                                    ? " npc-envelope-recommended"
-                                    : ""
-                                }`}
-                                key={env.name}
-                                onClick={() => setEnvelopeQuick(pkg.id, env.name)}
-                                style={{ cursor: "pointer" }}
-                              >
-                                <span className="npc-envelope-name">{env.name}</span>
-                                <span className="npc-envelope-size">{env.width}x{env.height}</span>
-                                <span className="npc-envelope-sheet">{env.fitsSheet}</span>
-                              </div>
-                            ))}
-                            <div
-                              className={`npc-envelope npc-envelope-fits${ov?.envelope === "box" ? " npc-envelope-recommended" : ""}`}
-                              onClick={() => setEnvelopeQuick(pkg.id, "box")}
-                              style={{ cursor: "pointer" }}
-                            >
-                              <span className="npc-envelope-name">КОР</span>
-                              <span className="npc-envelope-size">Коробка</span>
-                              <span className="npc-envelope-sheet">Вантаж</span>
-                            </div>
-                          </div>
-                          <div className="npc-envelope-info">
-                            {rec.needsParcel && (
-                              <div className="npc-needs-parcel">
-                                Не влазить у конверт
-                              </div>
-                            )}
-                            <div className="npc-summary">
-                              <div className="npc-summary-item">
-                                <span className="npc-summary-label">Вага</span>
-                                <span className="npc-summary-value">
-                                  {ov ? ov.weight : weight} кг
-                                </span>
-                              </div>
-                              <div className="npc-summary-item">
-                                <span className="npc-summary-label">Розмір</span>
-                                <span className="npc-summary-value">
-                                  {ov ? `${ov.width}×${ov.height}` : `${rec.dimensions.width}×${rec.dimensions.height}`} мм
-                                </span>
-                              </div>
-                              <div className="npc-summary-item">
-                                <span className="npc-summary-label">Товщина</span>
-                                <span className="npc-summary-value">
-                                  {ov ? ov.thickness : rec.dimensions.thickness} мм
-                                </span>
-                              </div>
-                              <div className="npc-summary-item">
-                                <span className="npc-summary-label">Тип</span>
-                                <span className="npc-summary-value">
-                                  {ov?.envelope && ov.envelope !== "box"
-                                    ? "Документи"
-                                    : ov?.envelope === "box" || rec.needsParcel
-                                    ? "Вантаж"
-                                    : "Документи"}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        );
-                      })()}
-
-                      {/* Edit mode — hide when waybills exist */}
-                      {isEditing && ov && waybills.length === 0 && (
-                        <div className="npc-package-edit">
-                          <div className="npc-edit-row">
-                            <span className="npc-edit-label">Вага</span>
-                            <input
-                              className="npc-edit-input"
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              value={ov.weight}
-                              readOnly={ov.envelope === "box"}
-                              style={ov.envelope === "box" ? { opacity: 0.6, cursor: "default" } : {}}
-                              onChange={(e) =>
-                                ov.envelope !== "box" && setOverride(pkg.id, "weight", e.target.value)
-                              }
-                            />
-                            <span className="npc-edit-unit">
-                              кг{ov.envelope === "box" && <span style={{ fontSize: "0.75em", opacity: 0.6, marginLeft: "0.3rem" }}>об'єм</span>}
-                            </span>
-                          </div>
-                          <div className="npc-edit-row">
-                            <span className="npc-edit-label">Ширина</span>
-                            <input
-                              className="npc-edit-input"
-                              type="number"
-                              step="1"
-                              min="0"
-                              value={ov.width}
-                              onChange={(e) =>
-                                setOverride(pkg.id, "width", e.target.value)
-                              }
-                            />
-                            <span className="npc-edit-unit">мм</span>
-                          </div>
-                          <div className="npc-edit-row">
-                            <span className="npc-edit-label">Висота</span>
-                            <input
-                              className="npc-edit-input"
-                              type="number"
-                              step="1"
-                              min="0"
-                              value={ov.height}
-                              onChange={(e) =>
-                                setOverride(pkg.id, "height", e.target.value)
-                              }
-                            />
-                            <span className="npc-edit-unit">мм</span>
-                          </div>
-                          <div className="npc-edit-row">
-                            <span className="npc-edit-label">Товщина</span>
-                            <input
-                              className="npc-edit-input"
-                              type="number"
-                              step="0.1"
-                              min="0"
-                              value={ov.thickness}
-                              onChange={(e) =>
-                                setOverride(pkg.id, "thickness", e.target.value)
-                              }
-                            />
-                            <span className="npc-edit-unit">мм</span>
-                          </div>
-                          <div className="npc-edit-row">
-                            <span className="npc-edit-label">Конверт</span>
-                            <div className="npc-envelope-select">
-                              {ENVELOPES.map((env) => (
-                                <button
-                                  key={env.name}
-                                  className={`npc-envelope-option${
-                                    ov.envelope === env.name
-                                      ? " npc-envelope-option-active"
-                                      : ""
-                                  }`}
-                                  onClick={() =>
-                                    setOverride(
-                                      pkg.id,
-                                      "envelope",
-                                      ov.envelope === env.name ? null : env.name
-                                    )
-                                  }
-                                >
-                                  {env.name}
-                                </button>
-                              ))}
-                              <button
-                                className={`npc-envelope-option${
-                                  ov.envelope === "box"
-                                    ? " npc-envelope-option-active"
-                                    : ""
-                                }`}
-                                onClick={() =>
-                                  setOverride(pkg.id, "envelope", ov.envelope === "box" ? null : "box")
-                                }
-                              >
-                                Коробка
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Action buttons */}
-                      {pkgItems.length > 0 && (
-                        <div className="npc-actions">
-                          {waybills.length > 0 ? (
-                            waybills.map(w => (
-                              <React.Fragment key={w.id}>
-                                <button
-                                  className="npc-btn npc-btn-primary"
-                                  onClick={() => {
-                                    axios.get(`/novaposhta/print/${w.ref}`, { responseType: 'blob' })
-                                      .then(res => {
-                                        const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
-                                        const a = document.createElement('a');
-                                        a.href = url;
-                                        a.download = `TTN_${w.intDocNumber}.pdf`;
-                                        a.click();
-                                        window.URL.revokeObjectURL(url);
-                                      })
-                                      .catch(err => alert('Помилка: ' + err.message));
-                                  }}
-                                >
-                                  <span>{w.intDocNumber}</span>
-                                </button>
-                                <button
-                                  className="npc-btn npc-btn-sticker"
-                                  onClick={() => {
-                                    axios.get(`/novaposhta/print-sticker/${w.ref}`, { responseType: 'blob' })
-                                      .then(res => {
-                                        const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
-                                        const a = document.createElement('a');
-                                        a.href = url;
-                                        a.download = `Sticker_${w.intDocNumber}.pdf`;
-                                        a.click();
-                                        window.URL.revokeObjectURL(url);
-                                      })
-                                      .catch(err => alert('Помилка: ' + err.message));
-                                  }}
-                                >
-                                  <span>НАЛІПКА</span>
-                                </button>
-                                {w.ref && (
-                                  <NovaPoshtaThermalButton
-                                    waybillRef={w.ref}
-                                    intDocNumber={w.intDocNumber}
-                                  />
-                                )}
-                              </React.Fragment>
-                            ))
-                          ) : (
-                            <button
-                              className={`npc-btn ${isEditing ? "npc-btn-secondary" : "npc-btn-outline"}`}
-                              onClick={() => toggleEdit(pkg.id)}
-                            >
-                              <span>{isEditing ? "Готово" : "Редагувати"}</span>
-                            </button>
-                          )}
-                          {pkgItems.length > 1 && !isSplitting && (
-                            <button
-                              className="npc-btn npc-btn-outline"
-                              onClick={() => startSplit(pkg.id)}
-                            >
-                              <span>Розділити</span>
-                            </button>
-                          )}
-                          {isSplitting && (
-                            <>
-                              <button
-                                className="npc-btn npc-btn-primary"
-                                onClick={confirmSplit}
-                                disabled={splitMode.selectedItems.size === 0}
-                              >
-                                <span>Підтвердити ({splitMode.selectedItems.size})</span>
-                              </button>
-                              <button
-                                className="npc-btn npc-btn-danger"
-                                onClick={() => setSplitMode(null)}
-                              >
-                                <span>Скасувати</span>
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Create TTN + Add package buttons */}
-              <div className="npc-actions">
-                {waybills.length === 0 && (
-                  <button
-                    className="npc-btn npc-btn-primary"
-                    onClick={() => openTTN(packages[0])}
-                  >
-                    <span>Створити ТТН</span>
-                  </button>
-                )}
+              {ov && (
                 <button
-                  className="npc-btn npc-btn-outline"
-                  onClick={addPackage}
+                  type="button"
+                  className="npw-btn npw-btn--sm npw-btn--ghost npw-pack-reset"
+                  onClick={() => resetSpec(pkg.id)}
+                  title="Скинути ручні правки й повернутись до розрахунку"
                 >
-                  <span>+ Додати ще одну посилку</span>
+                  ↺ Авто
+                </button>
+              )}
+              {/* тексти — окремим рядком на всю ширину, щоб поля лишались на одній лінії */}
+              {(packErrors[`pkg-${pkg.id}-weight`] || packErrors[`pkg-${pkg.id}-dims`]) && (
+                <div className="npw-pack-errors">
+                  <NpFieldError field={`pkg-${pkg.id}-weight`}>{packErrors[`pkg-${pkg.id}-weight`]?.text}</NpFieldError>
+                  <NpFieldError field={`pkg-${pkg.id}-dims`}>{packErrors[`pkg-${pkg.id}-dims`]?.text}</NpFieldError>
+                </div>
+              )}
+            </div>
+
+            {chosenEnv && !chosenEnv.fits ? (
+              <div className="npw-note npw-note--warn">
+                Вміст не влазить у конверт {chosenEnv.name}: {missReason(chosenEnv)}. Оберіть більший або коробку.
+              </div>
+            ) : rec.needsParcel && !ov?.envelope ? (
+              <div className="npw-note">
+                Не влазить у жоден конверт — пакуємо в коробку й відправляємо як вантаж.
+              </div>
+            ) : null}
+          </div>
+        )}
+      </section>
+    );
+  };
+
+  return (
+    <div className="npw-overlay">
+      <div
+        className="npw-modal npw-modal--calc"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Нова Пошта — пакування"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <NpHeader
+          step={0}
+          orderId={order?.id}
+          clientName={clientDisplayName(orderClient)}
+          onClose={onClose}
+        />
+
+        <div className="npw-body">
+          {!order && !loading && (
+            <div className="npw-search">
+              <NpMark size={44} />
+              <div className="npw-search-title">Відправлення для замовлення</div>
+              <div className="npw-search-row">
+                <input
+                  {...npInvalid(searchError ? { orderId: searchError } : null, "orderId")}
+                  placeholder="Номер замовлення"
+                  inputMode="numeric"
+                  autoFocus
+                  value={searchId}
+                  onChange={(e) => {
+                    setSearchId(e.target.value);
+                    setSearchError("");
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                />
+                <button type="button" className="npw-btn npw-btn--primary" onClick={handleSearch}>
+                  Знайти
                 </button>
               </div>
-            </>
+              <NpFieldError field="orderId">{searchError}</NpFieldError>
+            </div>
+          )}
+
+          {loading && <div className="npw-loading">Завантаження замовлення…</div>}
+          <NpAlert
+            error={error}
+            onRetry={() => lastSearchId.current && fetchOrder(lastSearchId.current)}
+            onClose={() => setError(null)}
+          />
+
+          {emptyOrder && (
+            <div className="npw-empty">
+              <NpAlert error={emptyOrder} onRetry={pickAnotherOrder} retryLabel="Інше замовлення" />
+            </div>
+          )}
+
+          {hasWaybills && (
+            <section className="npw-section">
+              <h2 className="npw-label">{waybills.length > 1 ? "Накладні" : "Накладна"}</h2>
+              <div className="npw-ttns">
+                {waybills.map((w) => (
+                  <div className="npw-ttn" key={w.id} data-has-error={ttnErrors[w.id] ? "" : undefined}>
+                    <div className="npw-ttn-main">
+                      <button
+                        type="button"
+                        className="npw-ttn-num"
+                        onClick={() => copyTtn(w)}
+                        title="Скопіювати номер ТТН"
+                      >
+                        {formatTtn(w.intDocNumber)}
+                        <span className="npw-ttn-copy">{copiedTtn === w.id ? "скопійовано" : "копіювати"}</span>
+                      </button>
+                      <span className="npw-ttn-meta">
+                        {[
+                          w.recipientName,
+                          w.costOnSite ? `доставка ${w.costOnSite} грн` : null,
+                          w.estimatedDeliveryDate ? `орієнтовно ${w.estimatedDeliveryDate}` : null,
+                        ].filter(Boolean).join(" · ")}
+                      </span>
+                    </div>
+                    <div className="npw-ttn-actions">
+                      <button
+                        type="button"
+                        className="npw-btn npw-btn--sm"
+                        onClick={() => pdf(w, `/novaposhta/print/${w.ref}`, `TTN_${w.intDocNumber}.pdf`)}
+                      >
+                        ТТН · PDF
+                      </button>
+                      <button
+                        type="button"
+                        className="npw-btn npw-btn--sm"
+                        onClick={() => pdf(w, `/novaposhta/print-sticker/${w.ref}`, `Sticker_${w.intDocNumber}.pdf`)}
+                      >
+                        Наліпка · PDF
+                      </button>
+                      {w.ref && (
+                        <NovaPoshtaThermalButton
+                          waybillRef={w.ref}
+                          intDocNumber={w.intDocNumber}
+                          className="npw-btn npw-btn--sm npw-btn--primary"
+                          onError={(d) => setTtnError(w.id, d)}
+                        />
+                      )}
+                    </div>
+                    {ttnErrors[w.id] && (
+                      <div className="npw-ttn-alert">
+                        <NpAlert error={ttnErrors[w.id]} onClose={() => setTtnError(w.id, null)} />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {parsedItems.length > 0 && (
+            <section className="npw-section">
+              <div className="npw-toolbar">
+                <h2 className="npw-label">
+                  {packages.length} {plural(packages.length, ["посилка", "посилки", "посилок"])}
+                </h2>
+                {!hasWaybills && (
+                  <NpCheck checked={safetyMargin} onChange={setSafetyMargin}>
+                    +15% на пакування
+                  </NpCheck>
+                )}
+              </div>
+
+              <div className="npw-packages">{packages.map(renderPackage)}</div>
+
+              {!hasWaybills && (
+                <button type="button" className="npw-add-pkg" onClick={addPackage}>
+                  <span aria-hidden="true">+</span> Додати посилку
+                </button>
+              )}
+            </section>
           )}
         </div>
+
+        {parsedItems.length > 0 && (
+          <footer className="npw-foot">
+            {packAlert && (
+              <div className="npw-foot-notes">
+                <NpAlert error={packAlert} compact />
+              </div>
+            )}
+            <dl className="npw-stats">
+              <div className="npw-stat">
+                <dt>Позицій</dt>
+                <dd>{parsedItems.length}</dd>
+              </div>
+              <div className="npw-stat">
+                <dt>Штук</dt>
+                <dd>{totalPcs}</dd>
+              </div>
+              <div className="npw-stat">
+                <dt>Вага</dt>
+                <dd>{fmtNum(totalKg)} <small>кг</small></dd>
+              </div>
+              <div className="npw-stat">
+                <dt>Місць</dt>
+                <dd>{filledPackages.length}</dd>
+              </div>
+            </dl>
+            {hasWaybills ? (
+              <span className="npw-foot-done">
+                <span className="npw-foot-done-mark" aria-hidden="true">✓</span>
+                ТТН створено
+              </span>
+            ) : (
+              <button
+                type="button"
+                className="npw-btn npw-btn--primary npw-btn--cta"
+                disabled={filledPackages.length === 0}
+                onClick={openTTN}
+              >
+                Створити ТТН
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                  <path d="M3 9h11M10 4.5L14.5 9 10 13.5" stroke="currentColor" strokeWidth="1.7" fill="none" />
+                </svg>
+              </button>
+            )}
+          </footer>
+        )}
       </div>
     </div>
   );

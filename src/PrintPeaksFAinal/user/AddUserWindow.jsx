@@ -160,7 +160,8 @@ function AddUserWindow({ show, onHide, onUserAdded, addOrdOrOnlyClient, thisOrde
         .catch(error => {
           setLoading(false);
           if (error.response?.status === 403) navigate('/login');
-          setError(error.response?.data?.message || 'Помилка при додаванні клієнта');
+          // причину відмови (напр. наряд чекає оплату) сервер шле в `error`
+          setError(error.response?.data?.message || error.response?.data?.error || 'Помилка при додаванні клієнта');
         });
     }
   };

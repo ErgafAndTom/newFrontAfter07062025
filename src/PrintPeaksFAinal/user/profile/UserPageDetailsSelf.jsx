@@ -306,6 +306,7 @@ export default function UserPageDetailsSelf({thisUser = null}) {
           <FieldEdit label="Ім’я"         field="firstName"  value={user.firstName}  userId={user.id} setUser={setUser} />
           <FieldEdit label="По-батькові"  field="lastName"   value={user.lastName}   userId={user.id} setUser={setUser} />
           <FieldEdit label="Прізвище"     field="familyName" value={user.familyName} userId={user.id} setUser={setUser} />
+          <FieldEdit label="Псевдонім"    field="nickname"   value={user.nickname}   userId={user.id} setUser={setUser} />
           <FieldEdit label="Тел."         field="phoneNumber" value={user.phoneNumber} userId={user.id} setUser={setUser} />
           <FieldEdit label="E-mail"       field="email"      value={user.email}      userId={user.id} type="email" setUser={setUser} />
           <FieldEdit label="Адреса"       field="address"    value={user.address}    userId={user.id} setUser={setUser} />

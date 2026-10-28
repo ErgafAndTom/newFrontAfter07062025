@@ -58,7 +58,7 @@ export default function NovaPoshtaLabelButton({ waybill, order, className = '' }
 
   return (
     <button
-      className={`npc-btn npc-btn-outline ${className}`}
+      className={`npw-btn npw-btn--sm ${className}`}
       onClick={handlePrint}
       disabled={printing}
       title={error || 'Друк на EZPOS L4-W'}

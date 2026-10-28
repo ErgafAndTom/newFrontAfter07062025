@@ -1,4 +1,4 @@
-import React, {useEffect, useLayoutEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {useLocation} from "react-router-dom";
 import {useSelector} from "react-redux";
 import "./Nav.css";
@@ -13,6 +13,7 @@ import {openDrawer} from "../../telegram/telegramSlice";
 import BarcodeScannerListener from "../../PrintPeaksFAinal/barcode/BarcodeScannerListener";
 import SearchOrderDropdown from "./SearchOrderDropdown";
 import NavOrderHead from "./NavOrderHead";
+import { DEFAULT_NAV_POSITION, isPanelPosition, readNavChoice, saveNavChoice } from "../dock/panelPositions";
 
 /* ──────────────────────────────────────────────────────────────
    Навбар після переїзду керування в панель швидкого доступу
@@ -25,18 +26,17 @@ import NavOrderHead from "./NavOrderHead";
    налаштування й вихід тепер живуть у доку.
    ────────────────────────────────────────────────────────────── */
 
-/* Бік навбару — як і розкладка «Пуску», належить конкретному акаунту:
-   за одним браузером працюють різні люди. */
-const NAV_POSITION_KEY = 'printpeaks_nav_position';
-const navPositionKeyFor = (userId) => (userId ? `${NAV_POSITION_KEY}:${userId}` : NAV_POSITION_KEY);
+/* Бік навбару (рядка наряду) належить акаунту: за замовчуванням знизу,
+   явний вибір їде на сервер разом із розкладкою дока і повертається
+   звідти при вході з будь-якого браузера (див. dock/panelPositions.js). */
+const loadNavPosition = (userId) => readNavChoice(userId) || DEFAULT_NAV_POSITION;
 
-const loadNavPosition = (userId) => {
-  try {
-    return localStorage.getItem(navPositionKeyFor(userId)) === 'bottom' ? 'bottom' : 'top';
-  } catch {
-    return 'top';
-  }
-};
+/* На широкому екрані дзвоник і перемикач «вгору/вниз» живуть у правому
+   куті дока, поруч з іменем користувача (PPDock.jsx), — там зібране все
+   «моє». На вузькому док стискається до іконок, і кут там тісний, тож
+   дзвоник лишається в першому рядку навбару, як і було. Межа та сама,
+   що й у PPDock.jsx (CORNER_BELL_MIN). */
+const WIDE_NAV_QUERY = '(min-width: 1201px)';
 
 const Nav = () => {
   const dispatch = useDispatch();
@@ -45,7 +45,6 @@ const Nav = () => {
   const search = useSelector((state) => state.search.search);
   const navigate = useNavigate();
   const onOrderPage = /^\/Orders\/[^/]+/.test(location.pathname);
-  const [fileSearch, setFileSearch] = useState("");
 
   const handleClick = () => {
     navigate("/login");
@@ -61,11 +60,42 @@ const Nav = () => {
 
   useEffect(() => { setNavPosition(loadNavPosition(userId)); }, [userId]);
 
-  const toggleNavPosition = () => {
-    const next = navPosition === 'bottom' ? 'top' : 'bottom';
-    try { localStorage.setItem(navPositionKeyFor(userId), next); } catch {}
+  const navPositionRef = useRef(navPosition);
+  navPositionRef.current = navPosition;
+
+  /* Перемикання — явний вибір акаунта: кеш у браузері, а на сервер його
+     несе PPDock.jsx (він володіє записом dock_layout, куди кладеться й
+     бік навбару, — один запис замість двох, що затирали б один одного). */
+  const toggleNavPosition = useCallback(() => {
+    const next = navPositionRef.current === 'bottom' ? 'top' : 'bottom';
+    saveNavChoice(userId, next);
     setNavPosition(next);
-  };
+    window.dispatchEvent(new CustomEvent('pp-nav-position-chosen', { detail: { position: next, userId } }));
+  }, [userId]);
+
+  // вибір, збережений на сервері (інший браузер, новий вхід) — приносить PPDock
+  useEffect(() => {
+    const onSet = (e) => {
+      const { position, userId: who } = e.detail || {};
+      if (isPanelPosition(position) && who === userId) setNavPosition(position);
+    };
+    window.addEventListener('pp-set-nav-position', onSet);
+    return () => window.removeEventListener('pp-set-nav-position', onSet);
+  }, [userId]);
+
+  // перемикач у меню користувача (кут дока) шле подію, а не тягне стан
+  useEffect(() => {
+    window.addEventListener('pp-toggle-nav-position', toggleNavPosition);
+    return () => window.removeEventListener('pp-toggle-nav-position', toggleNavPosition);
+  }, [toggleNavPosition]);
+
+  const [wideNav, setWideNav] = useState(() => window.matchMedia(WIDE_NAV_QUERY).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(WIDE_NAV_QUERY);
+    const onChange = () => setWideNav(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   useLayoutEffect(() => {
     const root = document.documentElement;
@@ -110,14 +140,8 @@ const Nav = () => {
   }, [dispatch])
 
   const handleSearchChange = (e) => {
-    const next = e.target.value;
-    if (onOrderPage) {
-      setFileSearch(next);
-      window.__ppFileSearchQuery = next;
-      window.dispatchEvent(new CustomEvent("pp-file-search", { detail: { query: next } }));
-      return;
-    }
-    dispatch(searchChange(next));
+    // і на сторінці наряду це пошук замовлень (номери попередніх) — файли шукають у самій панелі файлів
+    dispatch(searchChange(e.target.value));
   };
 
   if (location.pathname === '/login') return null;
@@ -140,15 +164,14 @@ const Nav = () => {
                панель файлів (ClientFilesPanel), на місце колишнього
                підпису «Файли клієнта №N». ── */}
         <div className="nav-center-group nav-search-slot">
-          {currentUser && onOrderPage ? null : currentUser ? (
+          {currentUser ? (
             <div className="nav-search-wrap">
               <Form.Control
                 className="buttonSkewedSearch buttonSkewedSearchLupa"
                 name="search"
                 type="text"
-                data-barcode-ignore={onOrderPage ? "true" : undefined}
-                placeholder={onOrderPage ? "\u041f\u043e\u0448\u0443\u043a \u0443 \u0444\u0430\u0439\u043b\u0430\u0445" : ""}
-                value={onOrderPage ? fileSearch : search}
+                placeholder={onOrderPage ? "Пошук замовлень" : ""}
+                value={search}
                 style={{borderRadius: '0', height: "100%", zIndex: "0"}}
                 onChange={(e) => { handleSearchChange(e) }}
               />
@@ -160,7 +183,7 @@ const Nav = () => {
                   <path d="M22 22L20 20" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </span>
-              {!onOrderPage && <SearchOrderDropdown />}
+              <SearchOrderDropdown />
             </div>
           ) : (
             <button
@@ -191,8 +214,9 @@ const Nav = () => {
         {currentUser && (
           <>
             {/* Стан касової зміни й підпис «хто залогінений» переїхали в
-                правий кут дока (PPDock.jsx) — тут лишається порожньо. */}
-            {currentUser.role !== 'user' && (
+                правий кут дока (PPDock.jsx), а на широкому екрані — і
+                дзвоник зі стрілкою (див. WIDE_NAV_QUERY). */}
+            {currentUser.role !== 'user' && !wideNav && (
               <div className="nav-right-controls nav-notify-corner">
                 <div className="nav-ctrl-btn-wrap">
                   <PopupLeftNotification/>
@@ -213,6 +237,12 @@ const Nav = () => {
                 </button>
               </div>
             )}
+
+            {/* Кут «моє» (дзвоник, каса, ім'я з меню) — його порталить сюди
+                PPDock.jsx на широкому екрані: рядок наряду тоді читається
+                як звична шапка — з чим працюю ліворуч, хто я праворуч, — а
+                док лишається самою навігацією. На вузькому слот порожній. */}
+            <div className="nav-corner-slot" id="pp-nav-corner-slot" />
           </>
         )}
 

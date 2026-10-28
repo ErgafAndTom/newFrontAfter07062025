@@ -238,26 +238,29 @@ const Materials2NoteBack = ({
       {isBlockOn && (
         <>
 
-          {/* === Сторонність === */}
-          {materialAndDrukBack.drukColor !== "Не потрібно" && (
-            <div style={{ display: "flex", width: "100%" }}>
-              {buttonsArrDruk.map((item, i) => {
-                const isActive = item === materialAndDrukBack.drukSides;
-                return (
-                  <div
-                    className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
-                    key={item + i}
-                    style={{ flex: 1 }}
-                    onClick={() => setMaterialAndDrukBack((prev) => ({ ...prev, drukSides: item }))}
-                  >
-                    <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {item}
-                    </div>
+          {/* === Сторонність ===
+              Рядок видно завжди: без друку блоку на ціну не впливає,
+              але вибір зберігається до моменту, коли друк увімкнуть. */}
+          <div
+            style={{ display: "flex", width: "100%" }}
+            title={materialAndDrukBack.drukColor === "Не потрібно" ? "Сторонність врахується, коли вибрано друк блоку" : undefined}
+          >
+            {buttonsArrDruk.map((item, i) => {
+              const isActive = item === materialAndDrukBack.drukSides;
+              return (
+                <div
+                  className={isActive ? "buttonsArtem buttonsArtemActive" : "buttonsArtem"}
+                  key={item + i}
+                  style={{ flex: 1 }}
+                  onClick={() => setMaterialAndDrukBack((prev) => ({ ...prev, drukSides: item }))}
+                >
+                  <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {item}
                   </div>
-                );
-              })}
-            </div>
-          )}
+                </div>
+              );
+            })}
+          </div>
 
           {/* === Матеріал — кнопки + dropdown в один рядок === */}
           <div className="d-flex align-items-center" style={{ position: "relative" }}>

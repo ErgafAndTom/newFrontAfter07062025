@@ -102,8 +102,13 @@ const NovaPoshtaButton = ({ onDepartmentSelect }) => {
     return (
         <div>
             <div
-                className="novaPoshtaButton-nova-poshta-button novaPoshtaButton-button-horizontal novaPoshtaButton-text-row"
+                className={`novaPoshtaButton-nova-poshta-button novaPoshtaButton-button-horizontal novaPoshtaButton-text-row${selectedDepartmentId ? ' is-selected' : ''}`}
                 onClick={openFrame}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openFrame(); }
+                }}
+                role="button"
+                tabIndex={0}
                 data-selected-department-id={selectedDepartmentId || undefined}
             >
                 <div className="novaPoshtaButton-logo novaPoshtaButton-logo-no-margin">
@@ -120,6 +125,11 @@ const NovaPoshtaButton = ({ onDepartmentSelect }) => {
                     <span className="novaPoshtaButton-text">
                         {selectedPlaceText || 'Обрати відділення або поштомат'}
                     </span>
+                    {selectedPlaceText && (
+                        <span className="novaPoshtaButton-text-description">
+                            {selectedDescriptionText}
+                        </span>
+                    )}
                 </div>
             </div>
 

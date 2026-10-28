@@ -2,10 +2,11 @@ import React, { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../api/axiosInstance';
-import {useDispatch, useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import BellButton from './BellButton';
 import './PopupLeftNotification.css';
-import {fetchTrelloData} from "../../actions/trello_async_actions";
+import { markAllTasksSeen, markTaskSeen, useTaskInbox } from '../../PrintPeaksFAinal/tasks/taskStore';
+import { eventExcerpt, eventTitle, fmtAgo } from '../../PrintPeaksFAinal/tasks/taskMeta';
 
 const METHOD_LABELS = {
   cash: 'готівкою',
@@ -34,10 +35,13 @@ const UKLON_STATUS_LABELS = {
 };
 
 const PopupLeftNotification = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const currentUser = useSelector((state) => state.auth.user);
-  const [taskData, setTaskData] = useState([]);
+  const isStaff = currentUser?.role === 'admin' || currentUser?.role === 'operator';
+  // Завдання — спільне сховище розділу «Завдання» (те саме бачить плитка дока)
+  const taskInbox = useTaskInbox(isStaff);
+  const taskData = taskInbox.items;
+  const taskUnread = taskInbox.counters?.unread || 0;
   const [paymentData, setPaymentData] = useState([]);
   const [uklonNotifs, setUklonNotifs] = useState([]);
   const [show, setShow] = useState(false);
@@ -46,7 +50,7 @@ const PopupLeftNotification = () => {
   const bellWrapRef = useRef(null);
   const prevCountRef = useRef(0);
 
-  const totalCount = taskData.length + paymentData.length + uklonNotifs.length;
+  const totalCount = taskUnread + paymentData.length + uklonNotifs.length;
 
   // Звук сповіщення
   const playShutterSound = () => {
@@ -105,8 +109,17 @@ const PopupLeftNotification = () => {
           : 0;
 
         const rightEdge = window.innerWidth - sideW - 8;
-        const left = Math.max(8, rightEdge - popupWidth);
-        const openUp = document.body.classList.contains('pp-nav-bottom');
+        // у куті дока панель тягнеться від лівого краю «Зміна відкрита» до правого краю
+        const shiftRect = document.querySelector('.ppdock-corner .ppdock-shift')?.getBoundingClientRect();
+        const left = shiftRect && shiftRect.width
+          ? Math.max(8, Math.round(shiftRect.left))
+          : Math.max(8, rightEdge - popupWidth);
+        // Дзвоник живе то в навбарі, то в куті дока, і обидва можуть стояти
+        // і вгорі, і внизу — тож напрям рахуємо з його фактичного місця, а
+        // не з класу навбару: у нижній половині екрана панель іде вгору.
+        const openUp = bellRect
+          ? bellRect.top > window.innerHeight / 2
+          : document.body.classList.contains('pp-nav-bottom');
         const top = bellRect ? bellRect.bottom : 0;
         const bottom = bellRect ? window.innerHeight - bellRect.top : 0;
         setPopupPos({ top, left, bottom, openUp });
@@ -115,15 +128,9 @@ const PopupLeftNotification = () => {
     setShow((prev) => !prev);
   };
 
-  const handleCompleteTask = async (id) => {
-    const response = await axios.put('/trello/updateCardCompleteZadacha', {
-      cardId: id,
-      userId: currentUser.id,
-    });
-    if (response.status === 200) {
-      setTaskData(response.data);
-      dispatch(fetchTrelloData());
-    }
+  const handleTaskClick = (id) => {
+    setShow(false);
+    navigate(`/Tasks?task=${id}`);
   };
 
   const handleDismissPayment = async (id) => {
@@ -141,13 +148,6 @@ const PopupLeftNotification = () => {
     setShow(false);
     navigate(`/Orders/${orderId}`);
   };
-
-  useEffect(() => {
-    if (!currentUser?.id) return;
-    axios.post('/trello/getdataPost', { userId: currentUser.id })
-      .then(res => setTaskData(res.data))
-      .catch(console.error);
-  }, [currentUser?.id]);
 
   useEffect(() => {
     if (!currentUser?.id) return;
@@ -222,11 +222,11 @@ const PopupLeftNotification = () => {
               : popupPos.openUp
                 ? { bottom: popupPos.bottom + 8 }
                 : { top: Math.max(8, popupPos.top - 8), bottom: 0 }),
-            left: 'auto',
+            left: isMobile || !popupPos.left ? 'auto' : popupPos.left,
             right: 0,
-            width: isMobile ? '100vw' : '18vw',
+            width: isMobile ? '100vw' : (popupPos.left ? 'auto' : '18vw'),
             minWidth: isMobile ? '100vw' : '300px',
-            maxWidth: isMobile ? '100vw' : '380px',
+            maxWidth: isMobile ? '100vw' : (popupPos.left ? 'none' : '380px'),
             maxHeight: !isMobile && popupPos.openUp ? '90vh' : 'none',
             zIndex: 9999,
           }}
@@ -305,10 +305,15 @@ const PopupLeftNotification = () => {
                 : isRepeat ? 'Повторна оплата'
                 : 'Оплата';
 
-              const methodSuffix = isIbanPending ? ' на IBAN'
-                : isInvoiceOverdue ? ''
-                : isExpired ? ''
-                : ` ${METHOD_LABELS[notif.method] || notif.method}`;
+              // коротко, щоб сповіщення вміщалось в один рядок
+              const shortLabel = isIbanPending ? 'Чекаємо на IBAN'
+                : isInvoiceOverdue ? 'Рахунок не оплачено'
+                : isExpired ? 'Протерміновано'
+                : isMockup ? 'Макет підтверджено'
+                : isRepeat ? `Повторна ${METHOD_LABELS[notif.method] || notif.method}`
+                : `Оплата ${METHOD_LABELS[notif.method] || notif.method}`;
+              const fullText = isInvoiceOverdue ? 'Рахунок не оплачено' : label;
+
 
               return (
                 <div
@@ -320,20 +325,15 @@ const PopupLeftNotification = () => {
                     cursor: 'pointer',
                   }}
                 >
+                  {/* Один рядок: що сталося · №наряду · сума праворуч; повний текст — у підказці */}
                   <div
-                    className="notification-card__content"
+                    className="notification-card__content nc-line"
                     onClick={() => handlePaymentClick(notif.orderId)}
+                    title={`${fullText} замовлення №${notif.orderId} на суму ${notif.amount} грн`}
                   >
-                    {isInvoiceOverdue ? (
-                      <>Рахунок&nbsp;№{notif.orderId} на суму&nbsp;
-                        <strong>{notif.amount}&nbsp;грн</strong>
-                        &nbsp;ще не оплатили
-                      </>
-                    ) : (
-                      <>{label}{methodSuffix} замовлення&nbsp;№{notif.orderId} на суму&nbsp;
-                        <strong>{notif.amount}&nbsp;грн</strong>
-                      </>
-                    )}
+                    <span className="nc-label">{shortLabel}</span>
+                    <span className="nc-order">№{notif.orderId}</span>
+                    <strong className="nc-sum">{notif.amount}&nbsp;грн</strong>
                   </div>
 
                   {!isExpired && (
@@ -419,48 +419,61 @@ const PopupLeftNotification = () => {
               );
             })}
 
-            {/* Завдання */}
+            {/* Завдання: непрочитані оновлення від колег */}
             {taskData.length > 0 && (
-              <div className="notification-panel__group-label">Завдання</div>
-            )}
-            {taskData.map((card) => (
-              <div
-                key={`task-${card.id}`}
-                className="notification-card notification-card--task"
-                style={{
-                  '--notification-accent': 'var(--adminorange, #f5a623)',
-                  '--notification-soft': 'var(--adminlightorange, #fff3df)',
-                }}
-              >
-                <div className="notification-card__content">
-                  <div>{card.content}</div>
-                  {card.inTrelloPhoto && (
-                    <div className="notification-card__photos">
-                      {card.inTrelloPhoto.map((photo, idx) => (
-                        <img
-                          key={idx}
-                          src={`/images/${photo.photoLink}`}
-                          alt=""
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  className="notification-check-btn"
-                  aria-label="Завершити завдання"
-                  style={{
-                    '--notif-btn-1': '#f7c23b',
-                    '--notif-btn-2': '#f5a623',
-                    '--notif-btn-3': '#e89810',
-                  }}
-                  onClick={() => handleCompleteTask(card.id)}
-                >
-                  <span>&#10003;</span>
+              <div className="notification-panel__group-label notification-panel__group-label--tasks">
+                <span>Завдання</span>
+                <button type="button" className="notification-panel__group-action" onClick={markAllTasksSeen}>
+                  Прочитати всі
                 </button>
               </div>
-            ))}
+            )}
+            {taskData.map((item) => {
+              const urgent = item.overdue || item.priority === 4;
+              const excerpt = eventExcerpt(item);
+              return (
+                <div
+                  key={`task-${item.id}`}
+                  className={`notification-card notification-card--${urgent ? 'danger' : 'task'}`}
+                  style={{
+                    '--notification-accent': urgent ? 'var(--adminred, #ee3c23)' : 'var(--adminorange, #f5a623)',
+                    '--notification-soft': urgent ? 'var(--adminlightred, #fde8e5)' : 'var(--adminlightorange, #fff3df)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div className="notification-card__content" onClick={() => handleTaskClick(item.id)}>
+                    <div className="notification-card__task-head">
+                      <strong>{eventTitle(item, currentUser?.id)}</strong>
+                      {item.overdue && <span className="notification-card__task-flag">прострочено</span>}
+                    </div>
+                    <div className="notification-card__task-title">#{item.id} · {item.title}</div>
+                    {excerpt && <div className="notification-card__task-excerpt">«{excerpt}»</div>}
+                    <div className="notification-card__task-meta">
+                      {item.event?.actor?.name || item.creator?.name || ''}
+                      {item.event?.createdAt ? ` · ${fmtAgo(item.event.createdAt)}` : ''}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="notification-check-btn"
+                    aria-label="Позначити як прочитане"
+                    style={{
+                      '--notif-btn-1': urgent ? '#f25040' : '#f7c23b',
+                      '--notif-btn-2': urgent ? '#ee3c23' : '#f5a623',
+                      '--notif-btn-3': urgent ? '#d42f1a' : '#e89810',
+                    }}
+                    onClick={(e) => { e.stopPropagation(); markTaskSeen(item.id); }}
+                  >
+                    <span>&#10003;</span>
+                  </button>
+                </div>
+              );
+            })}
+            {taskUnread > taskData.length && (
+              <button type="button" className="notification-panel__more" onClick={() => { setShow(false); navigate('/Tasks'); }}>
+                Ще {taskUnread - taskData.length} — відкрити «Завдання»
+              </button>
+            )}
 
             {/* Порожній стан */}
             {totalCount === 0 && (

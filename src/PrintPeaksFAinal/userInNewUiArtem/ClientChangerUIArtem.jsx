@@ -24,6 +24,7 @@ import "./ClientCabinet.css";
 import ClientFilesPanel from "./ClientFilesPanel";
 import PaysInOrderRestored_OrdersLike from "./pays/PaysInOrderRestored_OrdersLike";
 import OrderFilesPanel from "../commentsInOrders/OrderFilesPanel";
+import { clientChangeBlockReason } from "../../utils/clientChangeLock";
 
 const formatPhone = (phone) => {
   if (!phone) return '—';
@@ -113,7 +114,11 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
   };
   const handleCloseAddUser = () => setModalVisible(false);
 
+  // Посилання / рахунок / IBAN виставлено (або вже оплачено) — клієнта не міняємо
+  const clientLockReason = clientChangeBlockReason(thisOrder?.Payment);
+
   const handleShow = () => {
+    if (clientLockReason) return;
     if (currentUser.role === "admin" || currentUser.role === "operator") {
       setSearchQuery("");
       setShowVisible(true);
@@ -516,12 +521,15 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
         discount: companyDiscountNum || 0,
         vchasno: Boolean(thisOrder.client.vchasno),
       } : null,
+      // шапка гасить «Змінити», поки наряд чекає оплату
+      clientLock: clientLockReason || null,
     };
     try { localStorage.setItem('printpeaks_last_order', JSON.stringify(snapshot)); } catch {}
     window.dispatchEvent(new CustomEvent('pp-last-order', { detail: snapshot }));
   }, [thisOrder?.id, thisOrder?.createdAt, thisOrder?.client?.id, thisOrder?.client?.photoLink,
       thisOrder?.client?.Company?.id, thisOrder?.client?.Company?.companyName,
-      thisOrder?.client?.Company?.photoLink, thisOrder?.client?.vchasno, companyDiscountNum]);
+      thisOrder?.client?.Company?.photoLink, thisOrder?.client?.vchasno, companyDiscountNum,
+      clientLockReason]);
 
   return (
     <div className={`nui-client-envelope-shell tone-${progressCounterTone}${hideIdentity ? ' is-identity-ported' : ''}`} >
@@ -577,6 +585,8 @@ const ClientChangerUIArtem = ({ thisOrder, setThisOrder, setSelectedThings2, hid
                     e.stopPropagation();
                     handleShow();
                   }}
+                  disabled={Boolean(clientLockReason)}
+                  title={clientLockReason || undefined}
                 >
                   <span className="nui-client-rect-btn-text">{thisOrder?.client ? "Змінити клієнта" : "Вибрати"}</span>
                 </button>

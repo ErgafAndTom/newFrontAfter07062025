@@ -1,5 +1,5 @@
 // NewCalendar.jsx — модалка-калькулятор календарів
-// 5 типів: Кишеньковий | Будиночок | Настільний | Перекидний | Квартальний
+// 5 типів: Кишеньковий | Настільний (house) | Настільний перекидний (desktop) | Перекидний | Квартальний
 // Спільне між типами — лише поле "кількість". Все інше — індивідуально.
 //
 // Бекенд: type="Calendar", subtype визначає підтип (pocket/house/desktop/wall/quarterly)
@@ -31,8 +31,8 @@ import ExtraSheetsButton from "./shared/ExtraSheetsButton";
    ============================================================ */
 const CAL_TYPES = [
   { key: "pocket",    label: "Кишеньковий" },
-  { key: "house",     label: "Будиночок" },
-  { key: "desktop",   label: "Настільний" },
+  { key: "house",     label: "Настільний" },
+  { key: "desktop",   label: "Настільний перекидний" },
   { key: "wall",      label: "Перекидний" },
   { key: "quarterly", label: "Квартальний" },
 ];
@@ -107,7 +107,7 @@ const DEFAULTS = {
     big: "4",        // 4 згини за замовчуванням
     prokleyka: "1",  // проклейка 1 шт за замовчуванням
   },
-  // DESKTOP — основа (як будиночок) + блок з місяцями + пружина
+  // DESKTOP — основа (як house-календар) + блок з місяцями + пружина
   // Один розмір для обох частин.
   desktop: {
     size: { x: 200, y: 100 },
@@ -654,7 +654,7 @@ const NewCalendar = ({
   );
 
   /* ============================================================
-     RENDER — HOUSE (Будиночок)
+     RENDER — HOUSE (Настільний)
      ============================================================ */
   const renderHouse = () => (
     <>
@@ -739,14 +739,14 @@ const NewCalendar = ({
   );
 
   /* ============================================================
-     RENDER — DESKTOP (Настільний)
+     RENDER — DESKTOP (Настільний перекидний)
      ============================================================ */
   const renderDesktop = () => (
     <>
       {/* Спільний розмір для основи і блоку */}
       {renderSizeRow(SIZE_PRESETS.desktop, dSize, setDSize)}
 
-      <div className="sc-title">Основа (як будиночок)</div>
+      <div className="sc-title">Основа (як настільний)</div>
 
       <ScSides
         value={dBaseColor.sides}
@@ -1166,7 +1166,7 @@ const NewCalendar = ({
             {CAL_TYPES.map((t) => (
               <button
                 key={t.key}
-                className={`v2-tab${calType === t.key ? " active" : ""}`}
+                className={`v2-tab${t.label.includes(" ") ? " v2-tab--wrap" : ""}${calType === t.key ? " active" : ""}`}
                 onClick={() => setCalType(t.key)}
               >
                 {t.label}
