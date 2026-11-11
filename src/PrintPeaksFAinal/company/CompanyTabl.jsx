@@ -1,30 +1,48 @@
 import React, { useEffect, useState } from 'react';
+import '../Orders/OrdersList.css';
 import './CompanyTable.css';
-import '../../PrintPeaksFAinal/userInNewUiArtem/pays/styles.css';
+import '../../PrintPeaksFAinal/userInNewUiArtem/pays/styles.css'; // ModalDeleteOrder
 import axios from '../../api/axiosInstance';
-import { useNavigate } from 'react-router-dom';
-import ModalDeleteOrder from '../Orders/ModalDeleteOrder';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaTelegramPlane } from 'react-icons/fa';
-import { FiPhone, FiFolder, FiShoppingBag } from 'react-icons/fi';
-import Pagination from '../tools/Pagination';
+import {
+  FiArrowUpRight, FiChevronDown, FiFileText, FiFolder, FiMail, FiMapPin,
+  FiPhone, FiSearch, FiSettings, FiShoppingBag, FiTrash2, FiUsers, FiX,
+} from 'react-icons/fi';
+import ModalDeleteOrder from '../Orders/ModalDeleteOrder';
 import PaysInOrderRestored_OrdersLike from "../userInNewUiArtem/pays/PaysInOrderRestored_OrdersLike";
 import Loader from '../../components/calc/Loader';
-import { Settings } from 'lucide-react';
 import { searchChange } from '../../actions/searchAction';
 import CompanyProfileModal from '../userInNewUiArtem/CompanyProfileModal';
 import CompanyFilesPanel from '../userInNewUiArtem/CompanyFilesPanel';
 import CompanyOrdersPanel from './CompanyOrdersPanel';
+import { Avatar, Pager, SortHead, fmtDate, fmtDateTime, discountPct, telHref } from '../tools/ListKit';
+
+/* ==========================================================================
+   Список компаній (/Companys). Стилі — спільні orl- (Orders/OrdersList.css)
+   + колонки цієї сторінки в CompanyTable.css (.orl--companies).
+   ========================================================================== */
+
+const QUICK_SORTS = [
+  ['id', 'Нові'],
+  ['ordersCount', 'Замовлення'],
+  ['usersCount', 'Співробітники'],
+  ['filesCount', 'Файли'],
+  ['companyName', 'Назва'],
+];
+
+const clean = (v) => String(v ?? '').trim();
 
 const CompanyTabl = () => {
-  const [data, setData]           = useState(null);
-  const [error, setError]         = useState(null);
-  const [loading, setLoading]     = useState(false);
+  const [data, setData]       = useState(null);
+  const [error, setError]     = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [thisOrderForDelete, setThisOrderForDelete] = useState(null);
   const [showDeleteOrderModal, setShowDeleteOrderModal] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [limit, setLimit]         = useState(100);
+  const [limit, setLimit]     = useState(50);
   const [cabinetCompanyId, setCabinetCompanyId] = useState(null);
   const [filesCompany, setFilesCompany] = useState(null);   // { id, name }
   const [ordersCompany, setOrdersCompany] = useState(null); // { id, name }
@@ -37,156 +55,328 @@ const CompanyTabl = () => {
   const search      = useSelector((state) => state.search.search);
   const navigate    = useNavigate();
 
-  const toggleRow = (id) => setExpandedId(prev => prev === id ? null : id);
-
-  const handleDelete = (company) => {
-    setShowDeleteOrderModal(true);
-    setThisOrderForDelete(company);
-  };
-
-  const handleSort = (col) => {
-    if (sortColumn === col) {
-      setSortReverse(prev => !prev);
-    } else {
-      setSortColumn(col);
-      setSortReverse(true);
-    }
-    setCurrentPage(1);
-  };
-
-  const SortArrow = ({ col }) => (
-    <span className={`cot-sort-icon${sortColumn === col ? ' cot-sort-icon--active' : ''}`}>
-      {sortColumn === col ? (sortReverse ? ' ↓' : ' ↑') : ' ↕'}
-    </span>
-  );
-
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser) return undefined;
+    const abortCtrl = new AbortController();
     setLoading(true);
     axios.post('/api/company/all', {
       inPageCount: limit,
       currentPage,
       search,
       columnName: { column: sortColumn, reverse: sortReverse },
-    })
-      .then(res => { setData(res.data); setLoading(false); })
+    }, { signal: abortCtrl.signal })
+      .then(res => { setData(res.data); setError(null); setLoading(false); })
       .catch(err => {
+        if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') return;
         if (err.response?.status === 403) navigate('/login');
         setError(err.message);
         setLoading(false);
       });
-  }, [search, currentPage, sortColumn, sortReverse, limit, currentUser?.role]); // eslint-disable-line
+    return () => abortCtrl.abort();
+  }, [search, currentPage, sortColumn, sortReverse, limit, reloadKey, currentUser?.role]); // eslint-disable-line
 
   useEffect(() => { dispatch(searchChange('')); }, []); // eslint-disable-line
+  useEffect(() => { setCurrentPage(1); }, [search, limit]);
 
-  if (error) return <div style={{ color: 'var(--adminred)', padding: '1rem' }}>{error}</div>;
+  const handleSort = (col) => {
+    if (sortColumn === col) setSortReverse(prev => !prev);
+    else { setSortColumn(col); setSortReverse(col !== 'companyName'); }
+    setCurrentPage(1);
+  };
+  const quickSort = (col) => {
+    setSortColumn(col);
+    setSortReverse(col !== 'companyName');
+    setCurrentPage(1);
+  };
+  const sortProps = { sortColumn, sortReverse, onSort: handleSort };
+
+  const handleDelete = (company) => {
+    setThisOrderForDelete(company);
+    setShowDeleteOrderModal(true);
+  };
+
+  const stop = (e) => e.stopPropagation();
+
+  if (!currentUser || (!data && !error)) {
+    return <div className="orl"><div className="orl-loader"><Loader /></div></div>;
+  }
+
+  const sum = data?.summary;
+  const rows = data?.rows || [];
+  const total = data?.count || 0;
 
   return (
-    <div className="cot-wrap">
+    <div className="orl orl--companies">
 
-      {/* Шапка */}
-      <div className="cot-tbl-head">
-        <div className="cot-cell cot-cell--center cot-cell--sortable" onClick={() => handleSort('id')}>
-          ID<SortArrow col="id" />
+      {/* ───────────── шапка ───────────── */}
+      <header className="orl-head">
+        <div className="orl-titlebox">
+          <h1 className="orl-h1">Компанії</h1>
+          <div className="orl-subtitle">
+            <span><b>{total.toLocaleString('uk-UA')}</b> {search ? 'знайдено' : 'у базі'}</span>
+          </div>
         </div>
-        <div className="cot-cell cot-cell--sortable" onClick={() => handleSort('companyName')}>
-          Назва<SortArrow col="companyName" />
+
+        <div className="orl-stats orl-stats--info orl-stats--5">
+          <div className="orl-stat orl-stat--static orl-tone-grey is-on">
+            <span className="orl-stat-label">Компаній</span>
+            <span className="orl-stat-value">{sum ? sum.total.toLocaleString('uk-UA') : '·'}</span>
+            <span className="orl-stat-sum">усього в базі</span>
+          </div>
+          <div className="orl-stat orl-stat--static orl-tone-blue is-on">
+            <span className="orl-stat-label">З ЄДРПОУ</span>
+            <span className="orl-stat-value">{sum ? sum.withEdrpou.toLocaleString('uk-UA') : '·'}</span>
+            <span className="orl-stat-sum">мають реквізити</span>
+          </div>
+          <div className="orl-stat orl-stat--static orl-tone-green is-on">
+            <span className="orl-stat-label">Зі знижкою</span>
+            <span className="orl-stat-value">{sum ? sum.withDiscount.toLocaleString('uk-UA') : '·'}</span>
+            <span className="orl-stat-sum">знижка більше 0</span>
+          </div>
+          <button
+            type="button"
+            className={`orl-stat orl-tone-purple is-on${sortColumn === 'usersCount' ? ' is-picked' : ''}`}
+            title="Найбільші за кількістю співробітників — першими"
+            onClick={() => quickSort('usersCount')}
+          >
+            <span className="orl-stat-label">Співробітників</span>
+            <span className="orl-stat-value">{sum ? sum.employees.toLocaleString('uk-UA') : '·'}</span>
+            <span className="orl-stat-sum">клієнтів у компаніях</span>
+          </button>
+          <button
+            type="button"
+            className={`orl-stat orl-tone-orange is-on${sortColumn === 'ordersCount' ? ' is-picked' : ''}`}
+            title="Компанії з найбільшою кількістю замовлень — першими"
+            onClick={() => quickSort('ordersCount')}
+          >
+            <span className="orl-stat-label">Замовлень</span>
+            <span className="orl-stat-value">{sum ? sum.orders.toLocaleString('uk-UA') : '·'}</span>
+            <span className="orl-stat-sum">від співробітників</span>
+          </button>
         </div>
-        <div className="cot-cell cot-cell--center">ЄДРОПУ</div>
-        <div className="cot-cell cot-cell--center cot-cell--sortable" onClick={() => handleSort('discount')}>
-          Знижка<SortArrow col="discount" />
+      </header>
+
+      {/* ───────────── тулбар ───────────── */}
+      <div className="orl-toolbar">
+        <div className="orl-filter">
+          <span className="orl-filter-label">Спершу</span>
+          <div className="orl-seg">
+            {QUICK_SORTS.map(([col, label]) => (
+              <button key={col} type="button" className="orl-seg-btn" aria-pressed={sortColumn === col} onClick={() => quickSort(col)}>
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="cot-cell">Адреса</div>
-        <div className="cot-cell cot-cell--sortable" onClick={() => handleSort('phoneNumber')}>
-          <FiPhone size={14} /><SortArrow col="phoneNumber" />
+
+        <div className="orl-toolbar-end">
+          {search && (
+            <span className="orl-search-chip" title="Пошук — у нижньому полі біля сповіщень">
+              <FiSearch />
+              <span className="orl-search-text">«{search}»</span>
+              <button type="button" className="orl-icon-btn" title="Очистити пошук" onClick={() => dispatch(searchChange(''))}>
+                <FiX />
+              </button>
+            </span>
+          )}
         </div>
-        <div className="cot-cell cot-cell--center"><FaTelegramPlane size={14} /></div>
-        <div className="cot-cell cot-cell--center cot-cell--sortable" onClick={() => handleSort('usersCount')}>
-          Співробітники<SortArrow col="usersCount" />
-        </div>
-        <div className="cot-cell cot-cell--center cot-cell--sortable" onClick={() => handleSort('filesCount')}>
-          <FiFolder size={14} /><SortArrow col="filesCount" />
-        </div>
-        <div className="cot-cell cot-cell--center cot-cell--sortable" onClick={() => handleSort('ordersCount')}>
-          <FiShoppingBag size={14} /><SortArrow col="ordersCount" />
-        </div>
-        <div className="cot-cell cot-cell--center" title="Рахунки та контрагенти">Рахунки</div>
-        <div className="cot-cell cot-cell--center"><Settings size={14} /></div>
       </div>
 
-      {loading && <div className="cot-loader"><Loader /></div>}
+      {error && (
+        <div className="orl-alert">
+          Не вдалося завантажити компанії: {error}
+          <button type="button" className="orl-text-btn" onClick={() => setReloadKey(k => k + 1)}>Повторити</button>
+        </div>
+      )}
 
-      {data?.rows.map(company => {
-        const isOpen = expandedId === company.id;
-        const usersCount = company.usersCount ?? company.Users?.length ?? '—';
-        return (
-          <div key={company.id}>
-            <div
-              className={`cot-tbl-row${isOpen ? ' cot-tbl-row--open' : ''}`}
-              onClick={() => toggleRow(company.id)}
-            >
-              <div className="cot-cell cot-cell--center">{company.id}</div>
-              <div className="cot-cell">{company.companyName || '—'}</div>
-              <div className="cot-cell cot-cell--center">{company.edrpou || '—'}</div>
-              <div className="cot-cell cot-cell--center">{company.discount || '0'}</div>
-              <div className="cot-cell">{company.address || '—'}</div>
-              <div className="cot-cell">{company.phoneNumber || '—'}</div>
-              <div className="cot-cell cot-cell--center">
-                {company.photoLink
-                  ? <img src={company.photoLink} alt="" className="cot-avatar" />
-                  : '—'}
-              </div>
-              <div className="cot-cell cot-cell--center">{usersCount}</div>
-              <div className="cot-cell cot-cell--center cot-cell--clickable" onClick={e => { e.stopPropagation(); setFilesCompany({ id: company.id, name: company.companyName }); }}>
-                {company.filesCount ?? '—'}
-              </div>
-              <div className="cot-cell cot-cell--center cot-cell--clickable" onClick={e => { e.stopPropagation(); setOrdersCompany({ id: company.id, name: company.companyName }); }}>
-                {company.ordersCount ?? '—'}
-              </div>
-              <div className="cot-cell cot-cell--center" onClick={e => e.stopPropagation()}>
-                <button
-                  className="pays-tbl-btn pays-tbl-btn--bg-element"
-                  onClick={() => setPaysCompany(company)}
-                  title="Рахунки та контрагенти компанії"
-                >
-                  Рахунки
-                </button>
-              </div>
-              <div className="cot-cell cot-cell--actions" onClick={e => e.stopPropagation()}>
-                <button className="cot-settings-btn" onClick={() => setCabinetCompanyId(company.id)}>
-                  <Settings size={16} />
-                </button>
-              </div>
-            </div>
+      {/* ───────────── таблиця ───────────── */}
+      <div className={`orl-table${loading ? ' is-loading' : ''}`}>
+        <div className="orl-progress" />
 
-            {isOpen && (
-              <div className="cot-expanded" onClick={e => e.stopPropagation()}>
-                {[
-                  ['Створено', new Date(company.createdAt).toLocaleString()],
-                  ['Оновлено', company.updatedAt ? new Date(company.updatedAt).toLocaleString() : '—'],
-                  ['E-mail',   company.email],
-                  ['ЄДРОПУ',  company.edrpou],
-                  ['Адреса',  company.address],
-                  ['Нотатки', company.notes],
-                ].map(([k, v]) => (
-                  <div key={k} className="cot-expanded-field">
-                    <span className="cot-expanded-key">{k}:</span>
-                    <span className="cot-expanded-val">{v || '—'}</span>
+        <div className="orl-thead">
+          <SortHead col="companyName" {...sortProps}>Компанія</SortHead>
+          <div className="orl-th orl-col-edrpou">ЄДРПОУ</div>
+          <SortHead col="discount" {...sortProps} align="center">Знижка</SortHead>
+          <div className="orl-th orl-col-address">Адреса</div>
+          <SortHead col="phoneNumber" {...sortProps} className="orl-col-phone">Телефон</SortHead>
+          <SortHead col="usersCount" {...sortProps} align="center" title="Співробітники (клієнти компанії)">Люди</SortHead>
+          <SortHead col="filesCount" {...sortProps} align="center">Файли</SortHead>
+          <SortHead col="ordersCount" {...sortProps} align="center">Замовл.</SortHead>
+          <div className="orl-th orl-th--right">Дії</div>
+        </div>
+
+        {rows.length === 0 && !loading && (
+          <div className="orl-empty">
+            <div className="orl-empty-title">Нічого не знайдено</div>
+            <div className="orl-empty-text">Спробуйте інший пошуковий запит.</div>
+            {search && <button type="button" className="orl-btn" onClick={() => dispatch(searchChange(''))}>Очистити пошук</button>}
+          </div>
+        )}
+
+        {rows.map(company => {
+          const isOpen    = expandedId === company.id;
+          const name      = clean(company.companyName) || 'Без назви';
+          const usersCount = Number(company.usersCount ?? company.Users?.length ?? 0);
+          const files     = Number(company.filesCount) || 0;
+          const orders    = Number(company.ordersCount) || 0;
+          const disc      = discountPct(company.discount);
+          const edrpou    = clean(company.edrpou);
+          const address   = clean(company.address);
+          const phone     = clean(company.phoneNumber);
+          const email     = clean(company.email);
+          const notes     = clean(company.notes);
+          const tone      = orders > 0 ? 'blue' : 'grey';
+
+          return (
+            <div key={company.id} className={`orl-item${isOpen ? ' is-open' : ''}`}>
+              <div
+                className={`orl-row orl-tone-${tone}`}
+                onClick={() => setExpandedId(prev => (prev === company.id ? null : company.id))}
+                onDoubleClick={() => navigate(`/Companys/${company.id}`)}
+                title="Клік — деталі, подвійний клік — сторінка компанії"
+              >
+                <div className="orl-td orl-td--client">
+                  <Avatar photo={clean(company.photoLink) || null} name={name} id={company.id} size={38} square />
+                  <div className="orl-client">
+                    <span className="orl-client-name"><span className="orl-ellipsis" title={name}>{name}</span></span>
+                    <span className="orl-meta orl-ellipsis">
+                      #{company.id}
+                      {company.createdAt ? ` · з ${fmtDate(company.createdAt)}` : ''}
+                    </span>
                   </div>
-                ))}
-                <div className="cot-expanded-actions">
+                </div>
+
+                <div className="orl-td orl-col-edrpou">
+                  {edrpou ? <span className="orl-num">{edrpou}</span> : <span className="orl-dash">—</span>}
+                </div>
+
+                <div className="orl-td orl-td--center">
+                  {disc ? <span className="orl-disc-pill">−{disc}%</span> : <span className="orl-dash">—</span>}
+                </div>
+
+                <div className="orl-td orl-col-address">
+                  {address ? <span className="orl-ellipsis orl-address" title={address}>{address}</span> : <span className="orl-dash">—</span>}
+                </div>
+
+                <div className="orl-td orl-col-phone">
+                  {phone && phone !== '+38'
+                    ? <a className="orl-phone" href={telHref(phone)} onClick={stop}>{phone}</a>
+                    : <span className="orl-dash">—</span>}
+                </div>
+
+                <div className="orl-td orl-td--center">
+                  <span className={`orl-count-btn orl-count-btn--static${usersCount ? '' : ' is-zero'}`} title="Співробітників">
+                    <FiUsers />{usersCount}
+                  </span>
+                </div>
+
+                <div className="orl-td orl-td--center" onClick={stop} onDoubleClick={stop}>
                   <button
-                    className="pays-tbl-btn pays-tbl-btn--red pays-tbl-btn--bg-element"
-                    onClick={() => handleDelete(company)}
+                    type="button"
+                    className={`orl-count-btn${files ? '' : ' is-zero'}`}
+                    title="Файли компанії"
+                    onClick={() => setFilesCompany({ id: company.id, name })}
                   >
-                    Видалити
+                    <FiFolder />{files}
+                  </button>
+                </div>
+
+                <div className="orl-td orl-td--center" onClick={stop} onDoubleClick={stop}>
+                  <button
+                    type="button"
+                    className={`orl-count-btn${orders ? '' : ' is-zero'}`}
+                    title="Замовлення компанії"
+                    onClick={() => setOrdersCompany({ id: company.id, name })}
+                  >
+                    <FiShoppingBag />{orders}
+                  </button>
+                </div>
+
+                <div className="orl-td orl-td--actions" onClick={stop} onDoubleClick={stop}>
+                  <Link to={`/Companys/${company.id}`} className="orl-icon-btn" title="Сторінка компанії">
+                    <FiArrowUpRight />
+                  </Link>
+                  <button type="button" className="orl-icon-btn" title="Рахунки та контрагенти компанії" onClick={() => setPaysCompany(company)}>
+                    <FiFileText />
+                  </button>
+                  <button type="button" className="orl-icon-btn" title="Профіль компанії" onClick={() => setCabinetCompanyId(company.id)}>
+                    <FiSettings />
+                  </button>
+                  <button
+                    type="button"
+                    className={`orl-icon-btn orl-chevron${isOpen ? ' is-open' : ''}`}
+                    title={isOpen ? 'Згорнути' : 'Деталі'}
+                    onClick={() => setExpandedId(prev => (prev === company.id ? null : company.id))}
+                  >
+                    <FiChevronDown />
                   </button>
                 </div>
               </div>
-            )}
-          </div>
-        );
-      })}
+
+              {/* ───────────── деталі ───────────── */}
+              {isOpen && (
+                <div className={`orl-detail orl-tone-${tone}`} onClick={stop}>
+                  <div className="orl-detail-grid">
+                    <section className="orl-card">
+                      <div className="orl-card-title">Реквізити й контакти</div>
+                      <dl className="orl-fields">
+                        <dt>ЄДРПОУ</dt><dd>{edrpou || '—'}</dd>
+                        <dt>Адреса</dt><dd>{address ? <span className="orl-phone"><FiMapPin /> {address}</span> : '—'}</dd>
+                        <dt>Телефон</dt>
+                        <dd>{phone && phone !== '+38' ? <a className="orl-phone" href={telHref(phone)}><FiPhone /> {phone}</a> : '—'}</dd>
+                        <dt>Email</dt>
+                        <dd>{email ? <a className="orl-phone" href={`mailto:${email}`}><FiMail /> {email}</a> : '—'}</dd>
+                        <dt>Знижка</dt><dd>{disc ? `${disc}%` : '—'}</dd>
+                      </dl>
+                    </section>
+
+                    <section className="orl-card">
+                      <div className="orl-card-title">Активність</div>
+                      <div className="orl-money-grid">
+                        <div className="orl-money"><span className="orl-money-label">Співробітників</span><span className="orl-money-value">{usersCount}</span></div>
+                        <div className="orl-money"><span className="orl-money-label">Замовлень</span><span className="orl-money-value">{orders}</span></div>
+                        <div className="orl-money"><span className="orl-money-label">Файлів</span><span className="orl-money-value">{files}</span></div>
+                      </div>
+                      <dl className="orl-fields">
+                        <dt>Створено</dt><dd>{fmtDateTime(company.createdAt)}</dd>
+                        <dt>Оновлено</dt><dd>{fmtDateTime(company.updatedAt)}</dd>
+                      </dl>
+                    </section>
+
+                    <section className="orl-card">
+                      <div className="orl-card-title">Нотатки</div>
+                      {notes ? <p className="orl-notes">{notes}</p> : <div className="orl-muted">Нотаток немає</div>}
+                    </section>
+                  </div>
+
+                  <div className="orl-detail-foot">
+                    <Link to={`/Companys/${company.id}`} className="orl-btn orl-btn--primary">
+                      <FiArrowUpRight /> Сторінка компанії
+                    </Link>
+                    <button type="button" className="orl-btn" onClick={() => setOrdersCompany({ id: company.id, name })}>
+                      <FiShoppingBag /> Замовлення
+                    </button>
+                    <button type="button" className="orl-btn" onClick={() => setFilesCompany({ id: company.id, name })}>
+                      <FiFolder /> Файли
+                    </button>
+                    <button type="button" className="orl-btn" onClick={() => setPaysCompany(company)}>
+                      <FiFileText /> Рахунки
+                    </button>
+                    <button type="button" className="orl-btn" onClick={() => setCabinetCompanyId(company.id)}>
+                      <FiSettings /> Профіль
+                    </button>
+                    <button type="button" className="orl-btn orl-btn--danger" onClick={() => handleDelete(company)}>
+                      <FiTrash2 /> Видалити
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <Pager total={total} page={currentPage} limit={limit} onPage={setCurrentPage} onLimit={setLimit} noun="компаній" />
 
       <ModalDeleteOrder
         showDeleteOrderModal={showDeleteOrderModal}
@@ -200,16 +390,6 @@ const CompanyTabl = () => {
         subLabel={thisOrderForDelete?.companyName || '—'}
         showTotal={false}
       />
-
-      {data && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={Math.ceil((data.count || 1) / limit)}
-          onPageChange={setCurrentPage}
-          onLimitChange={setLimit}
-          limit={limit}
-        />
-      )}
 
       {cabinetCompanyId && (
         <CompanyProfileModal

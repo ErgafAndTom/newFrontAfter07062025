@@ -198,7 +198,13 @@ const
     const rawSelected = thisOrder?.prepayment ?? thisOrder?.discount ?? thisOrder?.effectiveDiscount ?? 0;
     return norm(rawSelected);
   }, [norm, thisOrder?.prepayment, thisOrder?.discount, thisOrder?.effectiveDiscount]);
-  const isDiscountApplied = selectedDiscountNum > 0;
+  /* Попередній перегляд знижки: курсор над пресетом (-5%, -10%…) —
+     сума «до сплати» показується вже з цією знижкою, нічого не зберігаючи. */
+  const [discountPreview, setDiscountPreview] = useState(null);
+  const isDiscountApplied = (discountPreview ?? selectedDiscountNum) > 0;
+  const duePrice = discountPreview == null
+    ? (thisOrder?.allPrice ?? 0)
+    : Math.round((Number(thisOrder?.price) || 0) * (1 - discountPreview / 100) * 100) / 100;
 
   useEffect(() => {
     if (!thisOrder) return;
@@ -710,6 +716,7 @@ return (
                   selectedThings2={selectedThings2}
                   setSelectedThings2={setSelectedThings2}
                   setGlobalError={handleDiscountError}
+                  onPreview={setDiscountPreview}
                 />
               </div>
             )}
@@ -718,7 +725,7 @@ return (
             <div className={`pb-metric pb-metric--due${isDiscountApplied ? ' is-discounted' : ''}`}>
               <span className="pb-metric-label">ДО СПЛАТИ:</span>
               <span className="pb-metric-inline pb-metric-inline--due">
-                <span className="pb-metric-value-main">{formatCompactNumber(thisOrder?.allPrice ?? 0)}</span>
+                <span className="pb-metric-value-main">{formatCompactNumber(duePrice)}</span>
                 <small className="pb-metric-currency">грн</small>
               </span>
             </div>

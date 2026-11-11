@@ -1,5 +1,6 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { saveButtonLabel, withEditTarget } from "./shared/editTarget";
 import axios from "../../api/axiosInstance";
 import NewNoModalLamination from "./newnomodals/NewNoModalLamination";
 import NewNoModalCornerRounding from "./newnomodals/NewNoModalBig";
@@ -13,8 +14,9 @@ import NewNoModalProkleyka from "./newnomodals/NewNoModalProkleyka";
 import useServiceTabs from "../../hooks/useServiceTabs";
 import ServiceSettingsModal from "./shared/ServiceSettingsModal";
 import ImpositionPreview from "./shared/ImpositionPreview";
+import { useRestoreSelectedService } from "./shared/savedServiceName";
 import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
-import { getCalcBleed } from "../../utils/calcBleeds";
+import { getCalcBleed, getPrintMargin } from "../../utils/calcBleeds";
 
 import "./NewSheetCutV2.css";
 
@@ -67,6 +69,7 @@ const DEFAULTS = {
   },
   holes: "Не потрібно",
   holesR: "",
+  figHoles: "Не потрібно",
   prokleyka: "Не потрібно",
   lyuversy: "Не потрібно",
   design: "Не потрібно",
@@ -131,6 +134,7 @@ const NewSheetCutV2 = ({
   const [porizka, setPorizka] = useState({ type: "Не потрібно" });
   const [cuteLocal, setCuteLocal] = useState(DEFAULTS.cuteLocal);
   const [holes, setHoles] = useState("Не потрібно");
+  const [figHoles, setFigHoles] = useState("Не потрібно");
   const [prokleyka, setProkleyka] = useState("Не потрібно");
   const [lyuversy, setLyuversy] = useState("Не потрібно");
   const [design, setDesign] = useState("Не потрібно");
@@ -144,6 +148,7 @@ const NewSheetCutV2 = ({
     lyuversy: emptyPrice,
     cute: emptyPrice,
     holes: emptyPrice,
+    figHoles: emptyPrice,
     design: { pricePerUnit: 0, totalPrice: 0 },
   });
 
@@ -182,6 +187,7 @@ const NewSheetCutV2 = ({
   const [hideZgyn, setHideZgyn] = useState(false);
   const [hideSkrugl, setHideSkrugl] = useState(false);
   const [hideSverdl, setHideSverdl] = useState(false);
+  const [hideFigHoles, setHideFigHoles] = useState(false);
   const [hideProkl, setHideProkl] = useState(false);
   const [hideLyuv, setHideLyuv] = useState(false);
   const [hidePorizka, setHidePorizka] = useState(false);
@@ -194,6 +200,7 @@ const NewSheetCutV2 = ({
     setHideZgyn(p?.hideZgyn === false);
     setHideSkrugl(p?.hideSkrugl === false);
     setHideSverdl(p?.hideSverdl === false);
+    setHideFigHoles(p?.hideFigHoles === false);
     setHideProkl(p?.hideProkl === false);
     setHideLyuv(p?.hideLyuv === false);
     setHidePorizka(p?.hidePorizka === false);
@@ -256,13 +263,17 @@ const NewSheetCutV2 = ({
       });
     }
     if (p.SverdlDefault) { setHoles(Number(p.SverdlCount) || 1); setHolesR(p.SverdlSize || "5 мм"); }
+    if (p.FigHolesDefault) setFigHoles(p.FigHolesCount || "1");
     if (p.ProklDefault) setProkleyka(p.ProklCount || "1");
     if (p.LyuvDefault) setLyuversy(p.LyuvCount || "1");
     if (p.PorizkaDefault) setPorizka((prev) => ({ ...prev, type: "Потрібно" }));
   }, [services, isEdit]);
 
-  const options = parseOptionsJson(editingOrderUnit);
+  const options = useMemo(() => parseOptionsJson(editingOrderUnit), [editingOrderUnit]);
   const skipInitialPricing = useRef(false);
+
+  // назва позиції будується з вибраного товару — при редагуванні відновлюємо його
+  useRestoreSelectedService({ show: showNewSheetCutV2, isEdit, editingOrderUnit, options, services, setSelectedService });
 
   useEffect(() => {
     if (!showNewSheetCutV2) return;
@@ -275,6 +286,7 @@ const NewSheetCutV2 = ({
       setBig(DEFAULTS.big); setCute(DEFAULTS.cute);
       setPorizka(DEFAULTS.porizka); setCuteLocal(DEFAULTS.cuteLocal);
       setHoles(DEFAULTS.holes); setHolesR(DEFAULTS.holesR);
+      setFigHoles(DEFAULTS.figHoles);
       setProkleyka(DEFAULTS.prokleyka); setLyuversy(DEFAULTS.lyuversy);
       setDesign(DEFAULTS.design);
       return;
@@ -295,6 +307,7 @@ const NewSheetCutV2 = ({
     setCuteLocal(opt?.cuteLocal ?? DEFAULTS.cuteLocal);
     setHoles(opt?.holes ?? DEFAULTS.holes);
     setHolesR(opt?.holesR ?? DEFAULTS.holesR);
+    setFigHoles(opt?.figHoles ?? DEFAULTS.figHoles);
     setProkleyka(opt?.prokleyka ?? DEFAULTS.prokleyka);
     setLyuversy(opt?.lyuversy ?? DEFAULTS.lyuversy);
     setDesign(opt?.design ?? DEFAULTS.design);
@@ -316,12 +329,13 @@ const NewSheetCutV2 = ({
         serviceName: selectedService,
         size, material, color, lamination,
         big, cute, cuteLocal, prokleyka, lyuversy, design,
-        holes, holesR, count, porizka,
+        holes, holesR, figHoles, count, porizka,
         bleed: getCalcBleed("digital"),
+        printMargin: getPrintMargin(),
       },
     };
     axios
-      .post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, dataToSend)
+      .post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, withEditTarget(dataToSend, editingOrderUnit))
       .then((response) => {
         setThisOrder(response.data);
         setSelectedThings2(response.data.OrderUnits);
@@ -372,8 +386,9 @@ const NewSheetCutV2 = ({
       type: "SheetCut",
       size, material, color, lamination,
       big, cute, prokleyka, lyuversy, design,
-      cuteLocal, holes, holesR, count, porizka,
+      cuteLocal, holes, holesR, figHoles, count, porizka,
       bleed: getCalcBleed("digital"),
+      printMargin: getPrintMargin(),
     };
     axios
       .post("/calc/pricing", dataToSend)
@@ -383,13 +398,14 @@ const NewSheetCutV2 = ({
           ...prev, ...p,
           big: normalize(p.big), prokleyka: normalize(p.prokleyka),
           lyuversy: normalize(p.lyuversy), cute: normalize(p.cute),
-          holes: normalize(p.holes), design: prev.design,
+          holes: normalize(p.holes), figHoles: normalize(p.figHoles),
+          design: prev.design,
         }));
       })
       .catch((err) => {
         if (err.response?.status === 403) navigate("/login");
       });
-  }, [size, material, color, lamination.materialId, big, cute, cuteLocal, holes, holesR, count, porizka, lyuversy, prokleyka, design, navigate]);
+  }, [size, material, color, lamination.materialId, big, cute, cuteLocal, holes, holesR, figHoles, count, porizka, lyuversy, prokleyka, design, navigate]);
 
   useEffect(() => {
     if (error) setError(null);
@@ -406,6 +422,7 @@ const NewSheetCutV2 = ({
     { label: "Згинання", qty: pricesThis.big?.count || 0, unit: "шт", unitPrice: pricesThis.big?.pricePerUnit || 0, total: pricesThis.big?.totalPrice || 0 },
     { label: "Скруглення", qty: pricesThis.cute?.count || 0, unit: "шт", unitPrice: pricesThis.cute?.pricePerUnit || 0, total: pricesThis.cute?.totalPrice || 0 },
     { label: "Отвори", qty: pricesThis.holes?.count || 0, unit: "шт", unitPrice: pricesThis.holes?.pricePerUnit || 0, total: pricesThis.holes?.totalPrice || 0 },
+    { label: "Фігурні отвори", qty: pricesThis.figHoles?.count || 0, unit: "шт", unitPrice: pricesThis.figHoles?.pricePerUnit || 0, total: pricesThis.figHoles?.totalPrice || 0 },
     { label: "Проклейка", qty: pricesThis.prokleyka?.count || 0, unit: "шт", unitPrice: pricesThis.prokleyka?.pricePerUnit || 0, total: pricesThis.prokleyka?.totalPrice || 0 },
     { label: "Люверси", qty: pricesThis.lyuversy?.count || 0, unit: "шт", unitPrice: pricesThis.lyuversy?.pricePerUnit || 0, total: pricesThis.lyuversy?.totalPrice || 0 },
   ];
@@ -466,6 +483,7 @@ const NewSheetCutV2 = ({
   if (holes !== "Не потрібно") {
     finishing.push(`Отвори ×${holes}${holesR ? ` ${holesR}` : ""}`);
   }
+  if (figHoles !== "Не потрібно") finishing.push(`Фігурні отвори ×${figHoles}`);
   if (prokleyka !== "Не потрібно") finishing.push(`Проклейка ×${prokleyka}`);
   if (lyuversy !== "Не потрібно") finishing.push(`Люверси ×${lyuversy}`);
   if (porizka.type !== "Не потрібно") {
@@ -787,6 +805,30 @@ const NewSheetCutV2 = ({
                 </div>
               )}
 
+              {/* Фігурні отвори */}
+              {!hideFigHoles && (
+                <div className="v2-toggle" style={{ position: "relative", zIndex: 25 }}>
+                  <div className="v2-toggle-left">
+                    <ToggleSwitch
+                      isOn={figHoles !== "Не потрібно"}
+                      onToggle={() => figHoles === "Не потрібно" ? setFigHoles("1") : setFigHoles("Не потрібно")}
+                    />
+                    {figHoles === "Не потрібно" ? (
+                      <span className="v2-toggle-name">Фігурні отвори</span>
+                    ) : (
+                      <div className="v2-toggle-content">
+                        <NewNoModalLyuversy
+                          label="Фігурні отвори"
+                          dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                          lyuversy={figHoles} setLyuversy={setFigHoles}
+                          selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Проклейка */}
               {!hideProkl && (
                 <div className="v2-toggle" style={{ position: "relative", zIndex: 20 }}>
@@ -948,7 +990,7 @@ const NewSheetCutV2 = ({
                 {isEdit ? "✓" : "+"}
               </span>
               <span className="v2-add-btn-label">
-                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+                {saveButtonLabel(editingOrderUnit)}
               </span>
             </button>
           </div>
@@ -995,6 +1037,9 @@ const NewSheetCutV2 = ({
             { key: "hideSverdl", label: "Свердління", defaultKey: "SverdlDefault", params: [
               { key: "SverdlCount", label: "Кількість", options: ["1","2","3","4","5","6","7","8","9"] },
               { key: "SverdlSize", label: "Розмір", options: ["3,5 мм","4 мм","5 мм","6 мм","8 мм"] }
+            ]},
+            { key: "hideFigHoles", label: "Фігурні отвори", defaultKey: "FigHolesDefault", params: [
+              { key: "FigHolesCount", label: "Кількість", options: ["1","2","3","4","5","6","7","8","9"] }
             ]},
             { key: "hideProkl", label: "Проклейка", defaultKey: "ProklDefault", params: [
               { key: "ProklCount", label: "Кількість", options: ["1","2","3","4","5","6","7","8","9"] }

@@ -5,6 +5,7 @@
 // Бекенд: type="Calendar", subtype визначає підтип (pocket/house/desktop/wall/quarterly)
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { saveButtonLabel, withEditTarget } from "./shared/editTarget";
 import { useNavigate } from "react-router-dom";
 import axios from "../../api/axiosInstance";
 
@@ -438,7 +439,7 @@ const NewCalendar = ({
         nameOrderUnit: `${calLabel.toLowerCase()} календар `,
       },
     };
-    axios.post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, dataToSend)
+    axios.post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, withEditTarget(dataToSend, editingOrderUnit))
       .then((response) => {
         setThisOrder(response.data);
         setSelectedThings2(response.data.OrderUnits);
@@ -1234,7 +1235,7 @@ const NewCalendar = ({
             <button className="v2-add-btn" onClick={addNewOrderUnit} disabled={!thisOrder?.id}>
               <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
               <span className="v2-add-btn-label">
-                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+                {saveButtonLabel(editingOrderUnit)}
               </span>
             </button>
           </div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
+import { saveButtonLabel } from "./shared/editTarget";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
@@ -300,7 +301,7 @@ const PerepletMet = ({
             <button className="v2-add-btn" onClick={handleSave} disabled={!thisOrder?.id}>
               <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
               <span className="v2-add-btn-label">
-                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+                {saveButtonLabel(editingOrderUnit)}
               </span>
             </button>
           </div>

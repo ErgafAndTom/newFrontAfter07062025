@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
+import { saveButtonLabel } from "./shared/editTarget";
 import { createPortal } from "react-dom";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +14,7 @@ import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
 /* Та сама розмітка й той самий CSS, що в еталонного цифрового друку
    (NewSheetCutV2): шапка, ліва стрічка виробів, права панель наряду. */
 import "./NewSheetCutV2.css";
+import { MaterialOptionLabel, listHasImages } from "./shared/MaterialThumb";
 
 // ========== DEFAULTS ==========
 const DEFAULT_SIZE = { x: 100, y: 150 };
@@ -568,7 +570,7 @@ const NewPhoto = ({
                           className={`custom-option ${String(item.id) === String(material?.materialId) ? "active" : ""}`}
                           onClick={() => handleMaterialSelect(item)}
                         >
-                          <span className="name">{item.name}</span>
+                          <MaterialOptionLabel imageId={item.imageId} reserve={listHasImages(materials)}>{item.name}</MaterialOptionLabel>
                           <span className="gsm-sub">
                             <sub>{item.thickness} gsm</sub>
                           </span>
@@ -695,7 +697,7 @@ const NewPhoto = ({
             <button className="v2-add-btn" onClick={handleSave} disabled={!thisOrder?.id}>
               <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
               <span className="v2-add-btn-label">
-                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+                {saveButtonLabel(editingOrderUnit)}
               </span>
             </button>
           </div>

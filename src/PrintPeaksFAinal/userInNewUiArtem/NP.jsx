@@ -4,6 +4,7 @@ import { loadSetting, saveSetting } from "../../hooks/useUserSettings";
 import NovaPoshtaButton from "./novaPoshta/NovaPoshtaButton";
 import NovaPoshtaAddressButton from "./novaPoshta/NovaPoshtaAddressButton";
 import NovaPoshtaThermalButton from "../novaPoshta/NovaPoshtaThermalButton";
+import { downloadNpPdf } from "../logistics/npCabinet/npFormat";
 import {
   NpHeader,
   NpCheck,
@@ -123,6 +124,14 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData, onCloseAl
   // Після першої спроби відправити поля перевіряються наживо
   const [submitted, setSubmitted] = useState(false);
   const [thermalError, setThermalError] = useState(null);
+  // 'idle' | 'loading' | 'error' — стан кнопки «Скачати ТТН»
+  const [ttnPdfState, setTtnPdfState] = useState('idle');
+  const downloadTtnPdf = async () => {
+    if (!ttn?.Ref || ttnPdfState === 'loading') return;
+    setTtnPdfState('loading');
+    const ok = await downloadNpPdf(`/novaposhta/print/${ttn.Ref}`, `TTN_${ttn.IntDocNumber || ttn.Ref}.pdf`);
+    setTtnPdfState(ok ? 'idle' : 'error');
+  };
   const formRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [senderAddresses, setSenderAddresses] = useState([]);
@@ -1226,6 +1235,17 @@ function NP({ showNP, setShowNP, thisOrder, setThisOrder, prefillData, onCloseAl
                     className="npw-btn npw-btn--primary"
                     onError={setThermalError}
                   />
+                )}
+                {ttn?.Ref && (
+                  <button
+                    type="button"
+                    className="npw-btn"
+                    onClick={downloadTtnPdf}
+                    disabled={ttnPdfState === 'loading'}
+                    title={ttnPdfState === 'error' ? 'Не вдалося завантажити PDF — спробуйте ще раз' : 'Завантажити ТТН (PDF)'}
+                  >
+                    {ttnPdfState === 'loading' ? 'Завантаження…' : ttnPdfState === 'error' ? 'Повторити ТТН' : 'Скачати ТТН'}
+                  </button>
                 )}
                 <button type="button" className="npw-btn" onClick={handleClose}>
                   До посилок

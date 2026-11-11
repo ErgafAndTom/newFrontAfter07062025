@@ -1,162 +1,59 @@
-/* ═══════════════════════════════════════════
-   UsersOrdersLikeTable — uol-* класи
-   ═══════════════════════════════════════════ */
+/* ==========================================================================
+   Клієнти (/Users) — лише колонки сторінки; решта стилів спільна
+   (orl- у Orders/OrdersList.css).
+   ========================================================================== */
 
-.uol-wrap {
-  background: var(--adminfon, #f7f5ee);
-  color: var(--admingrey, #666666);
-  font-size: var(--font-size-pay);
-  font-weight: 400;
-  padding: 1rem 1rem 0 1rem;
+.orl.orl--clients {
+  /* клієнт · телефон · компанія · знижка · замовл. · нараховано · оплачено · борг · дії */
+  --orl-cols: minmax(230px, 1.6fr) 160px minmax(130px, 1fr) 76px 76px 124px 150px 126px 132px;
 }
 
+.orl--clients .orl-thead,
+.orl--clients .orl-row { padding-left: 16px; }
 
-/* ── Шапка ── */
-.uol-tbl-head {
-  display: grid; width: 100%;
-  grid-template-columns: 3% 4% 1fr 10% 1fr 5% 6% 9% 9% 8% 9% 6rem 9vw 2.5rem;
-  gap: 0; padding: 0.3rem 0.6rem;
-  font-size: var(--font-size-pay);
-  font-weight: 400;
-  color: var(--admingrey, #666666);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
-  background: var(--adminfonelement, #f2f0e9);
+@media (max-width: 1500px) {
+  .orl.orl--clients { --orl-cols: minmax(210px, 1.6fr) minmax(120px, 1fr) 70px 70px 116px 140px 120px 132px; }
+  .orl--clients .orl-col-phone { display: none; }
 }
 
-/* ── Рядок ── */
-.uol-tbl-row {
-  display: grid; width: 100%; box-sizing: border-box;
-  grid-template-columns: 3% 4% 1fr 10% 1fr 5% 6% 9% 9% 8% 9% 6rem 9vw 2.5rem;
-  gap: 0; padding: 0.5rem 0.5rem;
-  border-bottom: 1px solid rgba(0,0,0,0.07);
-  align-items: center; cursor: pointer;
-  overflow: hidden;
-  transition: background 0.15s;
-}
-.uol-tbl-row:hover  { background: rgba(0,0,0,0.025); }
-.uol-tbl-row--open  { background: var(--adminfonelement, #f2f0e9); }
-
-/* ── Клітинка ── */
-.uol-cell {
-  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
-  min-width: 0;
-  font-size: var(--font-size-pay);
-  font-weight: 400;
-  color: var(--admingrey, #666666);
-  padding: 0 0.3rem;
-}
-.uol-cell--center {
-  text-align: center;
-  display: flex; align-items: center; justify-content: center;
-}
-.uol-cell--actions {
-  display: flex; align-items: center; justify-content: center;
-  overflow: visible;
+@media (max-width: 1250px) {
+  .orl.orl--clients { --orl-cols: minmax(200px, 1.6fr) 64px 64px 110px 132px 116px 128px; }
+  .orl--clients .orl-col-company { display: none; }
 }
 
-/* ── Розгорнутий рядок ── */
-.uol-expanded {
-  background: var(--adminfonelement, #f2f0e9);
-  padding: 0.7rem 1rem 0.9rem;
-  border-bottom: 1px solid rgba(0,0,0,0.07);
-  display: flex; flex-wrap: nowrap;
-  gap: 0 1rem;
-  overflow: hidden;
-  align-items: flex-start;
-}
-.uol-expanded-field {
-  display: flex; flex-direction: column; gap: 0.1rem;
-  flex: 1 0 0; min-width: 0;
-}
-.uol-expanded-key {
-  font-size: var(--fontcard);
-  font-weight: 400;
-  color: var(--admingrey, #666);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  opacity: 0.65;
-  white-space: nowrap;
-}
-.uol-expanded-val {
-  font-size: var(--fontcard);
-  font-weight: 400;
-  color: var(--admingrey, #666);
-  word-break: break-word;
-}
-.uol-expanded-actions {
-  flex-shrink: 0;
-  display: flex; align-items: center;
+@media (min-width: 768px) and (max-width: 1050px) {
+  .orl.orl--clients { --orl-cols: minmax(170px, 1fr) 56px 104px 124px 112px 124px; }
+  .orl--clients .orl-thead > :nth-child(4),
+  .orl--clients .orl-row > :nth-child(4) { display: none; }
 }
 
-/* ── Кнопка налаштувань ── */
-.uol-settings-btn {
-  background: none; border: none; cursor: pointer;
-  padding: 0.2rem;
-  color: var(--admingrey, #666666);
-  display: flex; align-items: center; justify-content: center;
-  transition: color 0.15s;
-}
-.uol-settings-btn:hover { color: var(--adminorange, #f5a623); }
+/* телефон: картка — ім'я й борг угорі, гроші рядком нижче */
+@media (max-width: 767px) {
+  .orl--clients .orl-thead { display: none; }
 
-/* ── Сортування ── */
-.uol-cell--sortable {
-  cursor: pointer;
-  user-select: none;
-  transition: color 0.15s;
-}
-.uol-cell--sortable:hover { color: var(--adminorange, #f5a623); }
-
-.uol-sort-icon {
-  opacity: 0.3;
-  font-size: 0.85em;
-  font-style: normal;
-}
-.uol-sort-icon--active {
-  opacity: 1;
-  color: var(--adminorange, #f5a623);
-}
-
-/* ── Лоадер ── */
-.uol-loader {
-  display: flex; justify-content: center; align-items: center;
-  height: 40vh;
-}
-
-/* ── Responsive ── */
-
-/* lg: MacBook 1200-1599px — трохи менші відступи */
-@media (min-width: 1200px) and (max-width: 1599px) {
-  .uol-cell { font-size: var(--font-size-s); }
-  .uol-tbl-head { font-size: var(--font-size-s); }
-}
-
-/* sm + xs: мобільні — горизонтальний скрол таблиці */
-@media (max-width: 768px) {
-  .uol-wrap {
-    padding: 0.5rem;
-    overflow-x: hidden;
+  .orl--clients .orl-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "client  client"
+      "paid    debt"
+      "meta    actions";
+    row-gap: 8px;
+    padding: 10px 8px 10px 12px;
   }
-  .uol-tbl-head,
-  .uol-tbl-row {
-    grid-template-columns: 2.5rem 3rem 1fr 2.5rem !important;
-    min-width: 0 !important;
-    font-size: 0.7rem;
-  }
-  /* Сховати колонки 4-12 (Телефон, Компанія, Знижка, Замовлень, Нараховано, Оплачено, Борг, Баланс, Штрих-код) */
-  .uol-tbl-head > .uol-cell:nth-child(n+4):not(:last-child),
-  .uol-tbl-row > .uol-cell:nth-child(n+4):not(:last-child) {
-    display: none !important;
-  }
-  .uol-cell {
-    font-size: 0.95rem;
-    padding: 0 0.5rem;
-  }
-  .uol-tbl-row {
-    padding: 0.3rem 0.2rem;
-  }
-  .uol-tbl-head {
-    padding: 0.2rem 0.2rem;
-  }
+
+  .orl--clients .orl-td--client { grid-area: client; }
+  .orl--clients .orl-td--paid { grid-area: paid; }
+  .orl--clients .orl-row > :nth-child(8) { grid-area: debt; }
+  .orl--clients .orl-td--actions { grid-area: actions; }
+  .orl--clients .orl-row > :nth-child(5) { grid-area: meta; justify-content: flex-start; }
+  .orl--clients .orl-row > :nth-child(4),
+  .orl--clients .orl-row > :nth-child(6),
+  .orl--clients .orl-col-company,
+  .orl--clients .orl-col-phone { display: none; }
+  .orl--clients .orl-row > :nth-child(5)::before { content: "Замовлень: "; margin-right: 4px; font-size: 12px; opacity: 0.6; }
+
+  .orl--clients .orl-num,
+  .orl--clients .orl-debt { font-size: 13px; }
+  .orl--clients .orl-tag { font-size: 9px; }
+  .orl--clients .orl-money-value { font-size: 14px; }
 }

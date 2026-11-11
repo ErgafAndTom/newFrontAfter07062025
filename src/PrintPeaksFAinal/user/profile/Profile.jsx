@@ -1,13 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import {logout} from '../../../actions/authActions';
-import {Link, useParams} from 'react-router-dom';
-import axios from '../../../api/axiosInstance';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
+import {useSelector} from 'react-redux';
 import ContrAgentsInUserProfile from '../profile/ContrAgentsInUserProfile';
-import TelegramAvatar from "../../Messages/TelegramAvatar";
 import './ProfileNew.css';
+import './ProfileSettings.css';
 import PaysInOrderRestoredForAdmin from "../../userInNewUiArtem/pays/PaysInOrderRestoredForAdmin";
-import UserPageDetails from "../UserPageDetails";
 import UserPageDetailsSelf from "./UserPageDetailsSelf";
 import Cash from "../../checkbox/CashCash/Cash";
 import CodesOffline from "../../checkbox/codesOffline/CodesOffline";
@@ -22,137 +18,177 @@ import UklonSettings from "./UklonSettings";
 import FileSettings from "./FileSettings";
 import "./NiimbotSettings.css";
 
+/* Остання відкрита вкладка — щоб модалка відкривалась там, де її закрили */
+const TAB_STORAGE_KEY = 'printpeaks_profile_settings_tab';
+
+/* Лінійні іконки 24×24, колір — currentColor */
+const ICONS = {
+  design: <><circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="15.5" cy="10" r="1.2"/><path d="M12 21a2.5 2.5 0 0 1 0-5h2a3 3 0 0 0 3-3"/></>,
+  calc: <><rect x="5" y="3" width="14" height="18"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 18h2M12 18h2M16 15v3"/></>,
+  barcode: <><path d="M4 5v14M7 5v14M10 5v14M14 5v14M16 5v14M20 5v14"/></>,
+  parcel: <><path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/></>,
+  car: <><path d="M5 16h14v-4l-2-5H7l-2 5z"/><circle cx="8" cy="17" r="1.6"/><circle cx="16" cy="17" r="1.6"/><path d="M5 12h14"/></>,
+  user: <><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></>,
+  people: <><circle cx="9" cy="9" r="3.2"/><path d="M3 20c.7-3.2 3.2-5 6-5s5.3 1.8 6 5"/><path d="M15.5 6.2a3 3 0 0 1 0 5.6M18 15c1.6.6 2.7 2.2 3 5"/></>,
+  bank: <><path d="M3 9l9-5 9 5"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/></>,
+  register: <><rect x="4" y="9" width="16" height="11"/><path d="M7 9V4h10v5M8 13h2M12 13h2M16 13h0M8 16h8"/></>,
+  receipt: <><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/></>,
+  clock: <><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
+  card: <><rect x="3" y="6" width="18" height="13"/><path d="M3 10h18M7 15h4"/></>,
+  graph: <><circle cx="6" cy="6" r="2.2"/><circle cx="18" cy="7" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M8 7l8 .5M7 8l4 8M17 9l-4 7"/></>,
+  folder: <><path d="M3 6h7l2 2h9v11H3z"/><path d="M3 10h18"/></>,
+};
+
+const Icon = ({name}) => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+       strokeWidth="1.5" strokeLinecap="square" aria-hidden="true">
+    {ICONS[name]}
+  </svg>
+);
+
+/* Розділи модалки. `frame`: card — вміст у рамці-картці (старі таблиці
+   з власною версткою), bleed — на всю площу без відступів (граф бази),
+   за замовчуванням вкладка сама складається з карток. */
+const GROUPS = [
+  {
+    id: 'workspace',
+    title: 'Робоче місце',
+    items: [
+      {id: 'design', label: 'Дизайн', icon: 'design',
+        desc: 'Тема оформлення, кольори інтерфейсу, розміри шрифтів і відкриття папок файлів.',
+        render: () => <DesignSettings/>},
+      {id: 'interface', label: 'Калькулятори', icon: 'calc',
+        desc: 'Порядок матеріалів у списках, бліди між виробами й поля друку — усе, що впливає на розкладку й ціну.',
+        render: () => <InterfaceSettings/>},
+    ],
+  },
+  {
+    id: 'devices',
+    title: 'Пристрої й доставка',
+    items: [
+      {id: 'niimbot', label: 'Штрих-код', icon: 'barcode',
+        desc: 'Принтер етикеток у мережі та BLE-сканер штрих-кодів.',
+        render: () => <NiimbotSettings/>},
+      {id: 'novaposhta', label: 'Нова Пошта', icon: 'parcel',
+        desc: 'Ключ API, збережені адреси відправника й одержувачів, принтер наліпок ТТН.',
+        render: () => <NovaPoshtaSettings/>},
+      {id: 'uklon', label: 'Уклон', icon: 'car',
+        desc: 'API і webhook Uklon, адреса забору та параметри доставки за замовчуванням.',
+        render: () => <UklonSettings/>},
+    ],
+  },
+  {
+    id: 'account',
+    title: 'Акаунт',
+    items: [
+      {id: 'profile', label: 'Основна інформація', icon: 'user',
+        desc: 'Ваші контакти, знижка й компанія, до якої привʼязаний акаунт.',
+        render: (user) => <UserPageDetailsSelf thisUser={user}/>, frame: 'card'},
+      {id: 'counterparties', label: 'Контрагенти', icon: 'people',
+        desc: 'Контрагенти, привʼязані до вашого акаунта.',
+        render: (user) => <ContrAgentsInUserProfile user={user}/>, frame: 'card'},
+      {id: 'counterpartiesAdmin', label: 'Реквізити', icon: 'bank',
+        desc: 'Власні юрособи й ФОП, з яких виставляються рахунки: система оподаткування, ПДВ.',
+        render: (user) => <PaysInOrderRestoredForAdmin user={user}/>, frame: 'card'},
+    ],
+  },
+  {
+    id: 'checkbox',
+    title: 'Checkbox · ПРРО',
+    items: [
+      {id: 'Cashs', label: 'Каси', icon: 'register',
+        desc: 'Каси Checkbox, привʼязані до акаунта.',
+        render: () => <Cash/>, frame: 'card'},
+      {id: 'OfflineCodes', label: 'Офлайн фіск. коди', icon: 'receipt',
+        desc: 'Запас фіскальних кодів для роботи каси без звʼязку з ДПС.',
+        render: () => <CodesOffline/>, frame: 'card'},
+      {id: 'зміни', label: 'Зміни', icon: 'clock', admin: true,
+        desc: 'Касові зміни: відкриття, закриття і Z-звіти.',
+        render: () => <Shifts/>, frame: 'card'},
+    ],
+  },
+  {
+    id: 'admin',
+    title: 'Адміністрування',
+    items: [
+      {id: 'payments', label: 'Оплати', icon: 'card', admin: true,
+        desc: 'Акаунти PrivatBank (Автоклієнт) для автоматичної звірки оплат.',
+        render: () => <PrivatBankAccounts/>, frame: 'card'},
+      {id: 'база', label: 'База', icon: 'graph', admin: true,
+        desc: 'Граф звʼязків між таблицями бази, експорт та імпорт даних.',
+        render: () => <Graph2DForBD/>, frame: 'bleed'},
+      {id: 'files', label: 'Файли', icon: 'folder', admin: true,
+        desc: 'Місця збереження файлів, файли витрат і локальний бекап.',
+        render: () => <FileSettings/>},
+    ],
+  },
+];
+
+function readStoredTab() {
+  try { return localStorage.getItem(TAB_STORAGE_KEY) || 'design'; } catch (e) { return 'design'; }
+}
+
 function ClientUserProfile() {
-  const dispatch = useDispatch();
   const thisUser = useSelector(state => state.auth.user);
-  const {id} = useParams();
-  const [activeTab, setActiveTab] = useState('design');
-  const [editMode, setEditMode] = useState(false);
-  // const [thisUser, setThisUser] = useState(user);
-  const [isLoad, setIsLoad] = useState(false);
-  const [isError, setIsError] = useState(null);
+  const isAdmin = thisUser?.role === 'admin';
+  const [activeTab, setActiveTab] = useState(readStoredTab);
 
-  // Editable fields
-  const [username, setUsername] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('');
-  const [telegram, setTelegram] = useState('');
-  const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [signal, setSignal] = useState('');
-  const [viber, setViber] = useState('');
-  const [whatsapp, setWhatsapp] = useState('');
-  const [discount, setDiscount] = useState('');
-  const [photoLink, setPhotoLink] = useState('');
+  // Групи з розділами, доступними цьому користувачу
+  const groups = useMemo(() => GROUPS
+    .map(g => ({...g, items: g.items.filter(it => !it.admin || isAdmin)}))
+    .filter(g => g.items.length > 0), [isAdmin]);
 
-  // useEffect(() => {
-  //   setIsLoad(true);
-  //   axios.get(`/user/getOneUser/${thisUser.id}`)
-  //     .then(response => {
-  //       setThisUser(response.data);
-  //       setIsError(null);
-  //     })
-  //     .catch(err => setIsError(err.message))
-  //     .finally(() => setIsLoad(false));
-  // }, [id]);
+  const allItems = useMemo(() => groups.flatMap(g => g.items.map(it => ({...it, group: g.title}))), [groups]);
+  const current = allItems.find(it => it.id === activeTab) || allItems[0];
 
-  const initEditFields = () => {
-    setUsername(thisUser.username || '');
-    setPaymentMethod(thisUser.paymentMethod || '');
-    setTelegram(thisUser.telegram || '');
-    setEmail(thisUser.email || '');
-    setPhoneNumber(thisUser.phoneNumber || '');
-    setSignal(thisUser.signal || '');
-    setViber(thisUser.viber || '');
-    setWhatsapp(thisUser.whatsapp || '');
-    setDiscount(thisUser.discount || '');
-    setPhotoLink(thisUser.photoLink || '');
-  };
+  const navRef = useRef(null);
 
-  const handleEditClick = () => {
-    initEditFields();
-    setEditMode(true);
-  };
+  useEffect(() => {
+    try { localStorage.setItem(TAB_STORAGE_KEY, current.id); } catch (e) { /* приватний режим */ }
+    // на вузькому екрані меню — горизонтальна стрічка: активний пункт тримаємо в полі зору
+    const btn = navRef.current?.querySelector('.pps-nav-item.is-active');
+    if (btn && typeof btn.scrollIntoView === 'function') btn.scrollIntoView({block: 'nearest', inline: 'nearest'});
+  }, [current.id]);
 
-  // const handleSave = () => {
-  //   setIsLoad(true);
-  //   axios.put(`/user/update/${id}`, {
-  //     username,
-  //     paymentMethod,
-  //     telegram,
-  //     email,
-  //     phoneNumber,
-  //     signal,
-  //     viber,
-  //     whatsapp,
-  //     discount,
-  //     photoLink
-  //   })
-  //     .then(response => {
-  //       setThisUser(response.data);
-  //       setEditMode(false);
-  //       setIsError(null);
-  //     })
-  //     .catch(err => setIsError(err.message))
-  //     .finally(() => setIsLoad(false));
-  // };
+  if (!thisUser) return <div className="pp-loading">Користувач не знайдений</div>;
 
-  const handleCancel = () => {
-    setEditMode(false);
-    setIsError(null);
-  };
-
-  const handleLogout = () => dispatch(logout());
-
-  if (isLoad) return <div>Завантаження...</div>;
-  if (isError) return <div>Помилка: {isError}</div>;
-  // if (!user) return <div>Користувач не знайдений</div>;
-  if (!thisUser) return <div>Користувач не знайдений</div>;
+  const frame = current.frame || 'plain';
 
   return (
-    <div style={{ margin: 0, padding: 0 }}>
-      {/* Tabs */}
-      <div className="pp-tabs">
-        <button className={`pp-tab-btn${activeTab === 'design'              ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('design')}>Дизайн</button>
-        <button className={`pp-tab-btn${activeTab === 'interface'           ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('interface')}>Калькулятори</button>
-        <button className={`pp-tab-btn${activeTab === 'niimbot'             ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('niimbot')}>Штрих-код</button>
-        <button className={`pp-tab-btn${activeTab === 'novaposhta'          ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('novaposhta')}>Нова Пошта</button>
-        <button className={`pp-tab-btn${activeTab === 'uklon'              ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('uklon')}>Уклон</button>
-        <button className={`pp-tab-btn${activeTab === 'profile'             ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('profile')}>Основна інформація</button>
-        <button className={`pp-tab-btn${activeTab === 'counterparties'      ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('counterparties')}>Контрагенти</button>
-        <button className={`pp-tab-btn${activeTab === 'counterpartiesAdmin' ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('counterpartiesAdmin')}>РЕКВІЗИТИ</button>
-        <button className={`pp-tab-btn${activeTab === 'Cashs'               ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('Cashs')}>Касси(Checkbox)</button>
-        <button className={`pp-tab-btn${activeTab === 'OfflineCodes'        ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('OfflineCodes')}>Офлайн фіск. коди(Checkbox)</button>
-        {thisUser?.role === 'admin' && (
-          <button className={`pp-tab-btn${activeTab === 'payments' ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('payments')}>Оплати</button>
-        )}
-        {thisUser?.role === 'admin' && (
-          <button className={`pp-tab-btn${activeTab === 'база' ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('база')}>База</button>
-        )}
-        {thisUser?.role === 'admin' && (
-          <button className={`pp-tab-btn${activeTab === 'зміни' ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('зміни')}>Зміни</button>
-        )}
-        {thisUser?.role === 'admin' && (
-          <button className={`pp-tab-btn${activeTab === 'files' ? ' pp-tab-btn--active' : ''}`} onClick={() => setActiveTab('files')}>Файли</button>
-        )}
-      </div>
+    <div className="pps">
+      <nav className="pps-nav" aria-label="Розділи налаштувань" ref={navRef}>
+        {groups.map(g => (
+          <div className="pps-nav-group" key={g.id}>
+            <div className="pps-nav-group-title">{g.title}</div>
+            {g.items.map(it => (
+              <button
+                key={it.id}
+                type="button"
+                className={`pps-nav-item${it.id === current.id ? ' is-active' : ''}`}
+                aria-current={it.id === current.id ? 'page' : undefined}
+                onClick={() => setActiveTab(it.id)}
+              >
+                <span className="pps-nav-icon"><Icon name={it.icon}/></span>
+                <span className="pps-nav-label">{it.label}</span>
+              </button>
+            ))}
+          </div>
+        ))}
+      </nav>
 
-      <div className="pp-content">
-        {activeTab === 'design'              && <DesignSettings/>}
-        {activeTab === 'interface'           && <InterfaceSettings/>}
-        {activeTab === 'niimbot'             && <NiimbotSettings/>}
-        {activeTab === 'novaposhta'          && <NovaPoshtaSettings/>}
-        {activeTab === 'uklon'               && <UklonSettings/>}
-        {activeTab === 'profile'             && <UserPageDetailsSelf thisUser={thisUser}/>}
-        {activeTab === 'counterparties'      && <ContrAgentsInUserProfile user={thisUser}/>}
-        {activeTab === 'counterpartiesAdmin' && <div style={{padding:'1rem'}}><PaysInOrderRestoredForAdmin user={thisUser}/></div>}
-        {activeTab === 'cashierAdmin'        && <div style={{padding:'1rem'}}><PaysInOrderRestoredForAdmin user={thisUser}/></div>}
-        {activeTab === 'Cashs'               && <div style={{padding:'1rem'}}><Cash/></div>}
-        {activeTab === 'OfflineCodes'        && <div style={{padding:'1rem'}}><CodesOffline/></div>}
-        {activeTab === 'payments'            && <div style={{padding:'1rem'}}><PrivatBankAccounts/></div>}
-        {activeTab === 'база'                && <Graph2DForBD/>}
-        {activeTab === 'зміни'               && <div style={{padding:'1rem'}}><Shifts/></div>}
-        {activeTab === 'files'               && <FileSettings/>}
-      </div>
+      <main className={`pps-main pps-main--${frame}`}>
+        <header className="pps-head">
+          <div className="pps-head-eyebrow">{current.group}</div>
+          <h2 className="pps-head-title">{current.label}</h2>
+          <p className="pps-head-desc">{current.desc}</p>
+        </header>
+
+        <div className={`pps-body pps-body--${frame}`} key={current.id}>
+          {frame === 'card'
+            ? <div className="pps-card pps-card--legacy">{current.render(thisUser)}</div>
+            : current.render(thisUser)}
+        </div>
+      </main>
     </div>
   );
 }

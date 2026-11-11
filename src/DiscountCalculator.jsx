@@ -30,13 +30,22 @@ const parseDiscountValue = (value) => {
   return Number.isFinite(numeric) ? numeric : 0;
 };
 
-function DiscountCalculator({ thisOrder, setThisOrder, setSelectedThings2, setGlobalError }) {
+function DiscountCalculator({ thisOrder, setThisOrder, setSelectedThings2, setGlobalError, onPreview }) {
   const navigate = useNavigate();
   const currentUser = useSelector((state) => state.auth.user);
   const canEdit = useMemo(() => currentUser?.role === 'admin', [currentUser?.role]);
 
   const [inputValue, setInputValue] = useState(() => normalizeDiscount(thisOrder?.prepayment));
   const [isSaving, setIsSaving] = useState(false);
+  // відсоток пресету під курсором — показуємо його замість збереженого
+  const [hoverPercent, setHoverPercent] = useState(null);
+
+  const previewPercent = (value) => {
+    setHoverPercent(value);
+    if (typeof onPreview === "function") onPreview(value);
+  };
+
+  useEffect(() => () => { if (typeof onPreview === "function") onPreview(null); }, [onPreview]);
 
   const syncError = (message) => {
     if (typeof setGlobalError === 'function') setGlobalError(message);
@@ -66,6 +75,19 @@ function DiscountCalculator({ thisOrder, setThisOrder, setSelectedThings2, setGl
       return;
     }
 
+    // Сума «до сплати» перераховується одразу, не чекаючи сервера.
+    // Це наближення (price × (1 − знижка)); точну цифру — з урахуванням
+    // доставки, яку знижка не чіпає, — підставить відповідь бекенду.
+    const prevOrder = thisOrder;
+    const basePrice = Number(thisOrder?.price);
+    if (Number.isFinite(basePrice) && typeof setThisOrder === 'function') {
+      setThisOrder((prev) => (prev ? {
+        ...prev,
+        prepayment: normalized,
+        allPrice: Math.round(basePrice * (1 - numeric / 100) * 100) / 100,
+      } : prev));
+    }
+
     try {
       syncError(null);
       setIsSaving(true);
@@ -80,6 +102,7 @@ function DiscountCalculator({ thisOrder, setThisOrder, setSelectedThings2, setGl
         setSelectedThings2(data.OrderUnits);
       }
     } catch (err) {
+      if (prevOrder && typeof setThisOrder === 'function') setThisOrder(prevOrder);
       if (err?.response?.status === 403) {
         navigate('/login');
         return;
@@ -100,17 +123,18 @@ function DiscountCalculator({ thisOrder, setThisOrder, setSelectedThings2, setGl
 
   const handlePresetMouseDown = (event, percent) => {
     event.preventDefault();
+    previewPercent(null);
     applyPreset(percent);
   };
 
   return (
-    <div className="dc-shell">
+    <div className={`dc-shell${(hoverPercent ?? parseDiscountValue(inputValue)) > 0 ? '' : ' is-zero'}`}>
       <div className="dc-envelope">
         <div className="dc-input-wrap">
           <span className={`dc-prefix${!canEdit ? ' is-readonly' : ''}`} aria-hidden="true">-</span>
           <input
             type="text"
-            value={inputValue}
+            value={hoverPercent != null ? `${hoverPercent}%` : inputValue}
             className={`dc-input${!canEdit ? ' is-readonly' : ''}${isSaving ? ' is-saving' : ''}`}
             onChange={(e) => {
               const nextValue = e.target.value;
@@ -130,13 +154,14 @@ function DiscountCalculator({ thisOrder, setThisOrder, setSelectedThings2, setGl
         </div>
       </div>
 
-      <div className="dc-presets" role="group" aria-label="Швидка знижка">
+      <div className="dc-presets" role="group" aria-label="Швидка знижка" onMouseLeave={() => previewPercent(null)}>
         {PRESET_DISCOUNTS.map((value) => (
           <button
             key={value}
             type="button"
             className={`dc-preset-btn${normalizeDiscountForSave(inputValue) === `${value}%` ? ' is-active' : ''}${!canEdit ? ' is-readonly' : ''}`}
             onMouseDown={(event) => handlePresetMouseDown(event, value)}
+            onMouseEnter={() => { if (canEdit) previewPercent(value); }}
             disabled={!canEdit}
           >
             {value === 0 ? '0%' : `-${value}%`}

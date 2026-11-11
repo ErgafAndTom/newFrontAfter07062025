@@ -12,7 +12,7 @@ import { Login } from "../../PrintPeaksFAinal/login/Login";
 import Profile from "../../PrintPeaksFAinal/user/profile/Profile";
 import NewUIArtem from "../../PrintPeaksFAinal/NewUIArtem";
 import { TableStorage } from "../../PrintPeaksFAinal/Storage/TableStorage";
-import CustomStorageTable from "../../PrintPeaksFAinal/Storage/CustomStorageTable";
+import StoragePage from "../../PrintPeaksFAinal/Storage/StoragePage";
 import UsersCustomTable from "../../PrintPeaksFAinal/user/UsersCustomTable";
 import CustomOrderTable2 from "../../PrintPeaksFAinal/Orders/CustomOrderTable2";
 import TableManager from "../../PrintPeaksFAinal/dataMenager/TableManager";
@@ -37,6 +37,7 @@ import Payments from "../../PrintPeaksFAinal/user/Payments";
 import Invoices from "../../pages/Invoices";
 import ClientUserProfile from "../../PrintPeaksFAinal/user/client/ClientUserProfile";
 import TasksPage from "../../PrintPeaksFAinal/tasks/TasksPage";
+import ExpensesPage from "../../PrintPeaksFAinal/expenses/ExpensesPage";
 import Graph3D from "../../PrintPeaksFAinal/Graph3D";
 import CompanyTabl from "../../PrintPeaksFAinal/company/CompanyTabl";
 import Graph3D_with_comments from "../../PrintPeaksFAinal/Graph3D_with_comments";
@@ -172,6 +173,7 @@ const AfterNav = () => {
                 <Route path="/dbGraph" element={<Graph3D_with_comments />} />
                 <Route path="/dbGraph2" element={<Graph2DForBD />} />
                 {staffRoute("/Tasks", <TasksPage />)}
+                {staffRoute("/Expenses", <ExpensesPage />)}
                 {/* Стара trello-дошка замінена розділом «Завдання»; старі посилання ведуть туди */}
                 {staffRoute("/Trello", <Navigate to="/Tasks" replace />)}
                 {staffRoute("/Trello2", <LifeHackLikeBoards2 />)}
@@ -202,7 +204,7 @@ const AfterNav = () => {
                 <Route path="/Orders/:id" element={<NewUIArtem />} />
                 {staffRoute("/Logistics", <LogisticsTable />)}
                 {user?.role === 'admin' && <Route path="/uklon-log" element={<UklonEventLog />} />}
-                {staffRoute("/Storage", <CustomStorageTable name={"Склад"} />)}
+                {staffRoute("/Storage", <StoragePage />)}
                 <Route path="/Devices" element={<TableStorage name={"Devices"} />} />
                 {staffRoute("/Desktop", <Desktop />)}
                 {user?.role === 'admin' && <Route path="/Roi" element={<RoiPage />} />}

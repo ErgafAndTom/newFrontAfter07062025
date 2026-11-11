@@ -1,5 +1,6 @@
 import axios from '../../api/axiosInstance';
 import React, { useCallback, useEffect, useState, useMemo, useRef } from "react";
+import { saveButtonLabel, withEditTarget } from "./shared/editTarget";
 import Materials2 from "./newnomodals/Materials2";
 import PerepletPereplet from "./newnomodals/PerepletPereplet";
 
@@ -297,7 +298,7 @@ export default function NewDiplom({
           ...baseExtras,
         },
       };
-      const response = await axios.post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, dataToSend);
+      const response = await axios.post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, withEditTarget(dataToSend, editingOrderUnit));
       setThisOrder(response.data);
       setSelectedThings2(response.data.OrderUnits);
       setEditingOrderUnit(null);
@@ -696,7 +697,7 @@ export default function NewDiplom({
             <button className="v2-add-btn" onClick={addNewOrderUnit} disabled={!thisOrder?.id}>
               <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
               <span className="v2-add-btn-label">
-                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+                {saveButtonLabel(editingOrderUnit)}
               </span>
             </button>
           </div>

@@ -6,6 +6,7 @@ import {
   disconnect as scannerDisconnect,
   onStatusChange as scannerOnStatusChange,
 } from "../../barcode/barcodeScannerService";
+import { Segmented } from "./ProfileSettingsUi";
 
 const LS_KEY = "printpeaks_barcode_printer_settings";
 
@@ -231,25 +232,18 @@ export default function NiimbotSettings() {
         <div className="nbs-row">
           <label className="nbs-label">Розмір</label>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <select
-              className="nbs-select"
+            <Segmented
+              label="Розмір наліпки"
               value={`${settings.labelWidth}x${settings.labelHeight}`}
-              onChange={(e) => {
-                const opt = LABEL_SIZE_OPTIONS.find(
-                  (o) => `${o.w}x${o.h}` === e.target.value
-                );
+              onChange={(v) => {
+                const opt = LABEL_SIZE_OPTIONS.find((o) => `${o.w}x${o.h}` === v);
                 if (opt) {
                   update("labelWidth", opt.w);
                   update("labelHeight", opt.h);
                 }
               }}
-            >
-              {LABEL_SIZE_OPTIONS.map((o) => (
-                <option key={`${o.w}x${o.h}`} value={`${o.w}x${o.h}`}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
+              options={LABEL_SIZE_OPTIONS.map((o) => ({ value: `${o.w}x${o.h}`, label: o.label }))}
+            />
             <SaveBtn field="labelWidth" />
           </div>
         </div>
@@ -283,17 +277,12 @@ export default function NiimbotSettings() {
         <div className="nbs-row">
           <label className="nbs-label">Швидкість</label>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <select
-              className="nbs-select"
-              value={settings.speed}
-              onChange={(e) => update("speed", Number(e.target.value))}
-            >
-              {SPEED_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
+            <Segmented
+              label="Швидкість друку"
+              value={Number(settings.speed)}
+              onChange={(v) => update("speed", v)}
+              options={SPEED_OPTIONS.map((o) => ({ value: o.value, label: o.label.replace(' — ', ' · '), title: o.label }))}
+            />
             <SaveBtn field="speed" />
           </div>
         </div>

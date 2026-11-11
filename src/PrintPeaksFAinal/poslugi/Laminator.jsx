@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { saveButtonLabel } from "./shared/editTarget";
 import ReactDOM from "react-dom";
 import { usePortalDropdown } from "./newnomodals/usePortalDropdown";
 import axios from "../../api/axiosInstance";
@@ -77,6 +78,9 @@ const Laminator = ({
 
   // Lamination sizes from API
   const [thisLaminationSizes, setThisLaminationSizes] = useState([]);
+  // для якого «плівка|формат» прийшов список товщин — щоб «нема плівки»
+  // не блимало, поки запит ще в дорозі
+  const [sizesFor, setSizesFor] = useState(null);
   const { open: thicknessDropdownOpen, setOpen: setThicknessDropdownOpen, style: dropStyleThickness, toggle: toggleThickness, triggerRef: thicknessDropdownRef, portalRef: portalThicknessRef } = usePortalDropdown();
 
   // Pricing hook
@@ -136,6 +140,7 @@ const Laminator = ({
     if (!lamination.material || !showLaminator) return;
 
     const laminTypeUse = Math.max(size?.x || 0, size?.y || 0) <= 297 ? "А4" : "А3";
+    const key = `${lamination.material}|${laminTypeUse}`;
     const data = {
       name: "MaterialsPrices",
       inPageCount: 999999,
@@ -158,6 +163,7 @@ const Laminator = ({
       .then((response) => {
         const rows = response.data.rows || [];
         setThisLaminationSizes(rows);
+        setSizesFor(key);
 
         if (rows.length > 0 && !lamination.materialId) {
           setLamination((prev) => ({
@@ -169,6 +175,7 @@ const Laminator = ({
       })
       .catch((err) => {
         setThisLaminationSizes([]);
+        setSizesFor(null);
         if (err?.response?.status === 403) navigate("/login");
       });
   }, [lamination.material, lamination.type, size, showLaminator, navigate]);
@@ -200,6 +207,10 @@ const Laminator = ({
   };
 
   const handleSave = () => {
+    if (!lamination.materialId) {
+      setError(noFilm ? noFilmText : "Виберіть товщину плівки");
+      return;
+    }
     saveOrderUnit(
       {
         nameOrderUnit: "Ламінація",
@@ -224,7 +235,13 @@ const Laminator = ({
   };
 
   // ========== RENDER HELPERS ==========
-  const thicknessTitle = lamination.size ? `${lamination.size} мкм` : "-";
+  /* Плівки ламінації на складі заведені окремо під кожен формат (А3/А4/…).
+     Якщо для вибраної плівки й формату нічого немає — розрахунку не буде,
+     і бекенд падав з 500. Кажемо про це прямо й не даємо зберегти. */
+  const currentTypeUse = Math.max(size?.x || 0, size?.y || 0) <= 297 ? "А4" : "А3";
+  const noFilm = sizesFor === `${lamination.material}|${currentTypeUse}` && thisLaminationSizes.length === 0;
+  const noFilmText = `На складі немає плівки «${(LABELS[lamination.material] || lamination.material || "").toLowerCase()}» для формату ${currentTypeUse}. Додайте її в розділі «Склад» або виберіть інший формат чи плівку.`;
+  const thicknessTitle = lamination.size ? `${lamination.size} мкм` : (noFilm ? `Немає плівки для ${currentTypeUse}` : "-");
 
   // ========== PRICING DATA ==========
   const pricingLines = pricesThis
@@ -359,6 +376,7 @@ const Laminator = ({
                   )}
                 </div>
               </div>
+              {noFilm && <div className="v2-lam-nofilm">{noFilmText}</div>}
             </div>
           </div>
 
@@ -411,10 +429,15 @@ const Laminator = ({
               </div>
             </div>
 
-            <button className="v2-add-btn" onClick={handleSave} disabled={!thisOrder?.id}>
+            <button
+              className="v2-add-btn"
+              onClick={handleSave}
+              disabled={!thisOrder?.id || noFilm}
+              title={noFilm ? noFilmText : undefined}
+            >
               <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
               <span className="v2-add-btn-label">
-                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+                {saveButtonLabel(editingOrderUnit)}
               </span>
             </button>
           </div>

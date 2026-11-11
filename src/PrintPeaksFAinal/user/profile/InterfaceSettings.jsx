@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useUserSettings } from "../../../hooks/useUserSettings";
 import { DEFAULT_BLEEDS, normalizeBleed } from "../../../utils/calcBleeds";
+import { Segmented, Card, Row } from "./ProfileSettingsUi";
 
 const STORAGE_KEY = "printpeaks_material_sort";
 
 const SORT_OPTIONS = [
-  { column: "id",        label: "ID (порядок створення)" },
+  { column: "id",        label: "ID",             hint: "порядок створення" },
   { column: "article",   label: "Артикул" },
   { column: "name",      label: "Назва" },
   { column: "createdAt", label: "Дата створення" },
@@ -28,81 +29,85 @@ function readSort() {
 }
 
 export default function InterfaceSettings() {
+  return (
+    <>
+      <MaterialSortSettings />
+      <BleedSettings />
+    </>
+  );
+}
+
+function MaterialSortSettings() {
   const [sort, setSort] = useState(readSort);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(sort));
   }, [sort]);
 
-  const handleColumn = (column) => setSort((prev) => ({ ...prev, column }));
-  const toggleDirection = () => setSort((prev) => ({ ...prev, reverse: !prev.reverse }));
-  const reset = () => setSort({ ...DEFAULT_SORT });
+  const isDefault = sort.column === DEFAULT_SORT.column && sort.reverse === DEFAULT_SORT.reverse;
+  const current = SORT_OPTIONS.find((o) => o.column === sort.column);
 
   return (
-    <div style={styles.wrap}>
-      <h3 style={styles.title}>Сортування матеріалів у списках калькуляторів</h3>
-      <p style={styles.hint}>
-        Налаштування застосовується до всіх дропдаунів вибору матеріалу (Black &amp; White,
-        Digital Print, Photo, Wide Photo тощо). Зміни набувають чинності одразу при наступному
-        відкритті калькулятора.
-      </p>
-
-      <div style={styles.row}>
-        <span style={styles.label}>Сортувати за:</span>
-        <div style={styles.btnGroup}>
-          {SORT_OPTIONS.map((opt) => {
-            const active = sort.column === opt.column;
-            return (
-              <button
-                key={opt.column}
-                type="button"
-                onClick={() => handleColumn(opt.column)}
-                style={{ ...styles.btn, ...(active ? styles.btnActive : {}) }}
-              >
-                {opt.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div style={styles.row}>
-        <span style={styles.label}>Напрямок:</span>
-        <div style={styles.btnGroup}>
+    <Card
+      title="Сортування матеріалів"
+      desc="Порядок паперу й інших матеріалів у списках вибору всіх калькуляторів (Black & White, Digital Print, Photo, Wide Photo тощо). Діє з наступного відкриття калькулятора."
+      foot={
+        <>
+          <span className="pps-note">
+            Зараз: {current?.label}{current?.hint ? ` (${current.hint})` : ""}, {sort.reverse ? "за спаданням" : "за зростанням"}
+          </span>
           <button
             type="button"
-            onClick={() => setSort((p) => ({ ...p, reverse: false }))}
-            style={{ ...styles.btn, ...(!sort.reverse ? styles.btnActive : {}) }}
+            className="pps-btn pps-btn--danger pps-btn--sm"
+            onClick={() => setSort({ ...DEFAULT_SORT })}
+            disabled={isDefault}
+            title="Повернути сортування за ID за зростанням"
           >
-            ↑ За зростанням (ASC)
+            <span>Скинути</span>
           </button>
-          <button
-            type="button"
-            onClick={() => setSort((p) => ({ ...p, reverse: true }))}
-            style={{ ...styles.btn, ...(sort.reverse ? styles.btnActive : {}) }}
-          >
-            ↓ За спаданням (DESC)
-          </button>
-        </div>
-      </div>
-
-      <div style={styles.row}>
-        <button type="button" onClick={reset} style={styles.resetBtn}>
-          Скинути до дефолту (ID ↑)
-        </button>
-      </div>
-
-      <BleedSettings />
-    </div>
+        </>
+      }
+    >
+      <Row label="Сортувати за" hint="Поле, за яким упорядковується список">
+        <Segmented
+          label="Сортувати за"
+          value={sort.column}
+          onChange={(column) => setSort((p) => ({ ...p, column }))}
+          options={SORT_OPTIONS.map((o) => ({
+            value: o.column,
+            label: o.label,
+            title: o.hint ? `${o.label} — ${o.hint}` : o.label,
+          }))}
+        />
+      </Row>
+      <Row label="Напрямок" hint="Від меншого до більшого або навпаки">
+        <Segmented
+          label="Напрямок"
+          value={sort.reverse}
+          onChange={(reverse) => setSort((p) => ({ ...p, reverse }))}
+          options={[
+            { value: false, label: "↑ За зростанням" },
+            { value: true,  label: "↓ За спаданням" },
+          ]}
+        />
+      </Row>
+    </Card>
   );
 }
 
 const BLEED_ROWS = [
-  { key: "digital",   label: "У цифровому друці" },
-  { key: "vishichka", label: "У висічці", note: "Плотер: висічка і стікерпаки" },
-  { key: "porizka",   label: "У плотерній порізці", note: "Плотер: порізка окремими виробами" },
+  { key: "digital",      label: "Цифровий друк", note: "Відступ між виробами на аркуші цифрового друку" },
+  { key: "vishichka",    label: "Висічка",       note: "Плотер: висічка і стікерпаки" },
+  { key: "porizka",      label: "Плотерна порізка", note: "Плотер: порізка окремими виробами" },
   { key: "porizkaMarks", label: "Запас під мітки", note: "Плотерна порізка: поле, яке забирають мітки окремо зверху і знизу аркуша" },
 ];
+
+const PRINT_MARGIN_ROWS = [
+  { key: "printMargin", label: "З кожного боку", note: "Незадруковувана рамка машини. Віднімається лише для аркушів від SRA3: 320×450 → 310×440, 330×488 → 320×478" },
+];
+
+const BLEED_KEYS = BLEED_ROWS.map((r) => r.key);
+const MARGIN_KEYS = PRINT_MARGIN_ROWS.map((r) => r.key);
 
 function BleedSettings() {
   const { settings, setSettings } = useUserSettings("calc_bleeds", DEFAULT_BLEEDS);
@@ -117,110 +122,87 @@ function BleedSettings() {
     if (n !== null) setSettings({ ...settings, [key]: n });
   };
 
-  const reset = () => {
+  // скидаємо лише свою групу — бліди не чіпають поля друку і навпаки
+  const resetKeys = (keys) => {
     setDraft(null);
-    setSettings({ ...DEFAULT_BLEEDS });
+    const next = { ...settings };
+    keys.forEach((k) => { next[k] = DEFAULT_BLEEDS[k]; });
+    setSettings(next);
   };
 
-  return (
-    <>
-      <h3 style={{ ...styles.title, marginTop: "1rem" }}>Бліди</h3>
-      <p style={styles.hint}>
-        Відступ між виробами на аркуші при розкладці, мм. Впливає на кількість виробів
-        на аркуші, а отже й на ціну.
-      </p>
+  const isDefault = (keys) => keys.every((k) => Number(settings[k] ?? DEFAULT_BLEEDS[k]) === DEFAULT_BLEEDS[k]);
 
-      {BLEED_ROWS.map((row) => (
-        <div style={styles.row} key={row.key}>
-          <span style={styles.label}>{row.label}:</span>
+  const renderRow = (row) => {
+    const saved = settings[row.key] ?? DEFAULT_BLEEDS[row.key];
+    const changed = Number(saved) !== DEFAULT_BLEEDS[row.key];
+    return (
+      <Row key={row.key} label={row.label} hint={row.note}>
+        <label className="pps-num">
           <input
             type="number"
             min={0}
             max={50}
             step={0.5}
-            value={values[row.key] ?? ""}
+            inputMode="decimal"
+            aria-label={`${row.label}, мм`}
+            value={values[row.key] ?? DEFAULT_BLEEDS[row.key] ?? ""}
             onChange={(e) => handleChange(row.key, e.target.value)}
             onBlur={() => setDraft(null)}
-            style={styles.input}
           />
-          <span style={styles.hint}>мм{row.note ? ` · ${row.note}` : ""}</span>
-        </div>
-      ))}
+          <span className="pps-num-unit">мм</span>
+        </label>
+        <span className={`pps-default${changed ? " is-changed" : ""}`}>
+          {changed ? `змінено · типово ${DEFAULT_BLEEDS[row.key]} мм` : "типове значення"}
+        </span>
+      </Row>
+    );
+  };
 
-      <div style={styles.row}>
-        <button type="button" onClick={reset} style={styles.resetBtn}>
-          Скинути до дефолту ({DEFAULT_BLEEDS.digital} / {DEFAULT_BLEEDS.vishichka} / {DEFAULT_BLEEDS.porizka} / {DEFAULT_BLEEDS.porizkaMarks} мм)
-        </button>
-      </div>
+  const fmt = (keys) => keys.map((k) => DEFAULT_BLEEDS[k]).join(" / ");
+
+  return (
+    <>
+      <Card
+        title="Бліди"
+        desc="Відступ між виробами на аркуші при розкладці. Впливає на кількість виробів на аркуші, а отже й на ціну."
+        foot={
+          <>
+            <span className="pps-note">Зберігається автоматично · від 0 до 50 мм, крок 0,5</span>
+            <button
+              type="button"
+              className="pps-btn pps-btn--danger pps-btn--sm"
+              onClick={() => resetKeys(BLEED_KEYS)}
+              disabled={isDefault(BLEED_KEYS)}
+              title={`Повернути типові бліди: ${fmt(BLEED_KEYS)} мм`}
+            >
+              <span>Скинути бліди ({fmt(BLEED_KEYS)} мм)</span>
+            </button>
+          </>
+        }
+      >
+        {BLEED_ROWS.map(renderRow)}
+      </Card>
+
+      <Card
+        title="Поля друку"
+        desc="Поле по краю аркуша, на якому машина не друкує. Склад веде аркуші у фізичному форматі, а вироби розкладаються лише в друкованій площі всередині полів."
+        foot={
+          <>
+            <span className="pps-note">Зберігається автоматично</span>
+            <button
+              type="button"
+              className="pps-btn pps-btn--danger pps-btn--sm"
+              onClick={() => resetKeys(MARGIN_KEYS)}
+              disabled={isDefault(MARGIN_KEYS)}
+              title={`Повернути типові поля: ${fmt(MARGIN_KEYS)} мм`}
+            >
+              <span>Скинути поля ({fmt(MARGIN_KEYS)} мм)</span>
+            </button>
+          </>
+        }
+      >
+        {PRINT_MARGIN_ROWS.map(renderRow)}
+      </Card>
     </>
   );
 }
-
-const styles = {
-  wrap: {
-    padding: "1.5rem",
-    background: "var(--adminfon)",
-    color: "var(--admingrey)",
-    display: "flex",
-    flexDirection: "column",
-    gap: "1.25rem",
-  },
-  title: {
-    margin: 0,
-    fontSize: "var(--font-size-s)",
-    color: "var(--admingrey)",
-    fontWeight: 600,
-  },
-  hint: {
-    margin: 0,
-    fontSize: "var(--font-size-mid)",
-    color: "var(--admingrey)",
-    opacity: 0.8,
-  },
-  row: {
-    display: "flex",
-    alignItems: "center",
-    gap: "1rem",
-    flexWrap: "wrap",
-  },
-  label: {
-    fontSize: "var(--font-size-mid)",
-    minWidth: "10rem",
-  },
-  btnGroup: {
-    display: "flex",
-    gap: "0.5rem",
-    flexWrap: "wrap",
-  },
-  btn: {
-    padding: "0.5rem 1rem",
-    background: "var(--adminfonelement)",
-    color: "var(--admingrey)",
-    border: "1px solid var(--adminorange)",
-    cursor: "pointer",
-    fontSize: "var(--font-size-mid)",
-    transition: "all 0.15s",
-  },
-  btnActive: {
-    background: "var(--adminlightgreen)",
-    borderColor: "var(--admingreen)",
-    color: "var(--admingreen)",
-    fontWeight: 600,
-  },
-  input: {
-    width: "6rem",
-    padding: "0.5rem",
-    background: "var(--adminfonelement)",
-    color: "var(--admingrey)",
-    border: "1px solid var(--adminorange)",
-    fontSize: "var(--font-size-mid)",
-  },
-  resetBtn: {
-    padding: "0.5rem 1rem",
-    background: "transparent",
-    color: "var(--adminred)",
-    border: "1px solid var(--adminred)",
-    cursor: "pointer",
-    fontSize: "var(--font-size-mid)",
-  },
-};

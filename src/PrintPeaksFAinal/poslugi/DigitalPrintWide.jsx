@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { saveButtonLabel, withEditTarget } from "./shared/editTarget";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
@@ -12,6 +13,7 @@ import useServiceTabs from "../../hooks/useServiceTabs";
 /* Рядок постобробки PRINT V2 — пропси ті самі, що були у ScToggleSection */
 import ScToggleSection from "./shared/V2ToggleSection";
 import ServiceSettingsModal from "./shared/ServiceSettingsModal";
+import { useRestoreSelectedService } from "./shared/savedServiceName";
 import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
 
 import "./NewSheetCutV2.css";
@@ -177,7 +179,10 @@ const DigitalPrintWide = ({
 
   /* ===================== INIT MODAL (NEW/EDIT) ===================== */
 
-  const options = parseOptionsJson(editingOrderUnit);
+  const options = useMemo(() => parseOptionsJson(editingOrderUnit), [editingOrderUnit]);
+
+  // назва позиції будується з вибраного товару — при редагуванні відновлюємо його
+  useRestoreSelectedService({ show: showDigitalPrintWide, isEdit, editingOrderUnit, options, services, setSelectedService });
 
   useEffect(() => {
     if (!showDigitalPrintWide) return;
@@ -243,7 +248,7 @@ const DigitalPrintWide = ({
     };
 
     axios
-      .post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, dataToSend)
+      .post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, withEditTarget(dataToSend, editingOrderUnit))
       .then((response) => {
         setThisOrder?.(response.data);
         setSelectedThings2?.(response.data.OrderUnits);
@@ -661,7 +666,7 @@ const DigitalPrintWide = ({
             <button className="v2-add-btn" onClick={addNewOrderUnit} disabled={!thisOrder?.id}>
               <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
               <span className="v2-add-btn-label">
-                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+                {saveButtonLabel(editingOrderUnit)}
               </span>
             </button>
           </div>

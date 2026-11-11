@@ -1,5 +1,6 @@
 // Vishichka.jsx
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { saveButtonLabel, withEditTarget } from "./shared/editTarget";
 import axios from "../../api/axiosInstance";
 import NewNoModalSize from "./newnomodals/NewNoModalSizeColor";
 import Materials2 from "./newnomodals/Materials2";
@@ -12,10 +13,11 @@ import {columnTranslations as editingOrderUnit} from "../user/translations";
 import ScSides from "./shared/V2Sides";
 import ScToggleSection from "./shared/V2ToggleSection";
 import ServiceSettingsModal from "./shared/ServiceSettingsModal";
+import { useRestoreSelectedService } from "./shared/savedServiceName";
 import ImpositionPreview from "./shared/ImpositionPreview";
 import useServiceTabs from "../../hooks/useServiceTabs";
 import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
-import { getVishichkaBleed, getVishichkaMarks } from "../../utils/calcBleeds";
+import { getVishichkaBleed, getVishichkaMarks, getPrintMargin } from "../../utils/calcBleeds";
 
 import "./NewSheetCutV2.css";
 
@@ -194,6 +196,9 @@ const Vishichka = ({
     "Наліпки", "Стікери", "Стікерпак", "Стікерсет", "Бірки",
     "Листівки", "Коробочки", "Фішки", "Цінник", "Меню",
   ]);
+
+  // назва позиції будується з вибраного товару — при редагуванні відновлюємо його
+  useRestoreSelectedService({ show: showVishichka, isEdit, editingOrderUnit, options, services, setSelectedService });
 
   const DEFAULT_SIZES = [
     { label: "А6", x: 105, y: 148 }, { label: "A5", x: 148, y: 210 },
@@ -460,6 +465,7 @@ const Vishichka = ({
       plivkaMontajna,
       bleed: getVishichkaBleed(vishichka?.typeUse),
       markMargin: getVishichkaMarks(vishichka?.typeUse),
+      printMargin: getPrintMargin(),
     };
 
     axios
@@ -558,11 +564,12 @@ const Vishichka = ({
         plivkaMontajna,
         bleed: getVishichkaBleed(v.typeUse),
         markMargin: getVishichkaMarks(v.typeUse),
+        printMargin: getPrintMargin(),
       },
     };
 
     axios
-      .post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, dataToSend)
+      .post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, withEditTarget(dataToSend, editingOrderUnit))
       .then((response) => {
         setThisOrder(response.data);
         setSelectedThings2(response.data?.OrderUnits || []);
@@ -933,7 +940,7 @@ const Vishichka = ({
             <button className="v2-add-btn" onClick={addNewOrderUnit} disabled={!thisOrder?.id}>
               <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
               <span className="v2-add-btn-label">
-                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+                {saveButtonLabel(editingOrderUnit)}
               </span>
             </button>
           </div>

@@ -4,13 +4,13 @@ import NotificationSettings from "./NotificationSettings";
 
 const styles = {
   container: {
-    padding: "1.5rem 2rem",
+    padding: 0,
   },
   title: {
     fontSize: "1.1rem",
     fontWeight: 600,
     marginBottom: "1rem",
-    color: "#333",
+    color: "var(--admingrey)",
   },
   table: {
     width: "100%",
@@ -21,8 +21,8 @@ const styles = {
   th: {
     textAlign: "left",
     padding: "0.5rem 0.75rem",
-    borderBottom: "2px solid #e0ddd4",
-    color: "#888",
+    borderBottom: "1px solid var(--pp-line-strong)",
+    color: "color-mix(in srgb, var(--admingrey) 62%, transparent)",
     fontWeight: 500,
     fontSize: "0.8rem",
     textTransform: "uppercase",
@@ -30,19 +30,19 @@ const styles = {
   },
   td: {
     padding: "0.5rem 0.75rem",
-    borderBottom: "1px solid #eceae3",
+    borderBottom: "1px solid var(--pp-line-soft)",
     verticalAlign: "middle",
   },
   statusDot: (active) => ({
     display: "inline-block",
     width: 8,
     height: 8,
-    borderRadius: "50%",
-    backgroundColor: active ? "#0e935b" : "#ccc",
+    borderRadius: 0,
+    backgroundColor: active ? "var(--admingreen)" : "var(--pp-line-strong)",
     marginRight: 6,
   }),
   errorText: {
-    color: "#e01729",
+    color: "var(--adminred)",
     fontSize: "0.75rem",
     maxWidth: 220,
     overflow: "hidden",
@@ -50,14 +50,15 @@ const styles = {
     whiteSpace: "nowrap",
   },
   dateText: {
-    color: "#888",
+    color: "color-mix(in srgb, var(--admingrey) 62%, transparent)",
     fontSize: "0.78rem",
   },
   btn: {
     padding: "0.3rem 0.7rem",
-    border: "1px solid #e0ddd4",
-    borderRadius: 4,
-    backgroundColor: "#f2f0e7",
+    border: "1px solid var(--pp-line-strong)",
+    borderRadius: 0,
+    backgroundColor: "var(--adminfon)",
+    color: "var(--admingrey)",
     cursor: "pointer",
     fontSize: "0.8rem",
     marginRight: 4,
@@ -65,20 +66,20 @@ const styles = {
   },
   btnDanger: {
     padding: "0.3rem 0.7rem",
-    border: "1px solid #e01729",
-    borderRadius: 4,
+    border: "1px solid var(--adminred)",
+    borderRadius: 0,
     backgroundColor: "transparent",
-    color: "#e01729",
+    color: "var(--adminred)",
     cursor: "pointer",
     fontSize: "0.8rem",
     transition: "background-color 0.2s",
   },
   btnPrimary: {
     padding: "0.45rem 1.2rem",
-    border: "2px solid #0e935b",
-    borderRadius: 4,
+    border: "1px solid var(--admingreen)",
+    borderRadius: 0,
     backgroundColor: "transparent",
-    color: "#0e935b",
+    color: "var(--admingreen)",
     cursor: "pointer",
     fontSize: "0.85rem",
     fontWeight: 600,
@@ -90,9 +91,9 @@ const styles = {
     alignItems: "flex-end",
     flexWrap: "wrap",
     padding: "1rem",
-    backgroundColor: "#f9f8f4",
-    borderRadius: 6,
-    border: "1px solid #e0ddd4",
+    backgroundColor: "var(--adminfonelement)",
+    borderRadius: 0,
+    border: "1px solid var(--pp-line-strong)",
     marginBottom: "1rem",
   },
   fieldGroup: {
@@ -102,32 +103,33 @@ const styles = {
   },
   label: {
     fontSize: "0.72rem",
-    color: "#888",
+    color: "color-mix(in srgb, var(--admingrey) 62%, transparent)",
     textTransform: "uppercase",
     letterSpacing: "0.03em",
   },
   input: {
     padding: "0.4rem 0.6rem",
-    border: "1px solid #d4d1c8",
-    borderRadius: 4,
+    border: "1px solid var(--pp-line-strong)",
+    borderRadius: 0,
     fontSize: "0.85rem",
-    backgroundColor: "#fff",
+    backgroundColor: "var(--adminfon)",
+    color: "var(--admingrey)",
     outline: "none",
     transition: "border-color 0.2s",
   },
   message: (type) => ({
     padding: "0.5rem 1rem",
     marginBottom: "1rem",
-    borderRadius: 4,
+    borderRadius: 0,
     fontSize: "0.85rem",
-    backgroundColor: type === "error" ? "#fdecea" : "#e8f5e9",
-    color: type === "error" ? "#c62828" : "#2e7d32",
-    border: `1px solid ${type === "error" ? "#f5c6cb" : "#c8e6c9"}`,
+    backgroundColor: type === "error" ? "color-mix(in srgb, var(--adminred) 10%, transparent)" : "var(--adminlightgreen)",
+    color: type === "error" ? "var(--adminred)" : "var(--admingreen)",
+    border: `1px solid ${type === "error" ? "color-mix(in srgb, var(--adminred) 40%, transparent)" : "color-mix(in srgb, var(--admingreen) 40%, transparent)"}`,
   }),
   emptyState: {
     textAlign: "center",
     padding: "2rem",
-    color: "#999",
+    color: "color-mix(in srgb, var(--admingrey) 62%, transparent)",
     fontSize: "0.9rem",
   },
 };
@@ -334,7 +336,7 @@ export default function PrivatBankAccounts() {
                       {acc.lastError}
                     </span>
                   ) : (
-                    <span style={{ color: "#0e935b", fontSize: "0.78rem" }}>OK</span>
+                    <span style={{ color: "var(--admingreen)", fontSize: "0.78rem" }}>OK</span>
                   )}
                 </td>
                 <td style={styles.td}>

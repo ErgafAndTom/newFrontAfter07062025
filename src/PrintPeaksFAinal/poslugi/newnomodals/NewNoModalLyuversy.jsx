@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { usePortalDropdown } from "./usePortalDropdown";
 
-const NewNoModalLyuversy = ({ lyuversy, setLyuversy, selectArr = [], dropdownClassName = "" }) => {
+const NewNoModalLyuversy = ({ lyuversy, setLyuversy, selectArr = [], dropdownClassName = "", label = "Люверси" }) => {
     const { open, setOpen, style: dropStyle, toggle, triggerRef: ref, portalRef } = usePortalDropdown();
 
     const handleSelectChange = (val) => {
@@ -16,7 +16,7 @@ const NewNoModalLyuversy = ({ lyuversy, setLyuversy, selectArr = [], dropdownCla
     <div className="d-flex allArtemElem">
       <div className="sc-pp-wrap">
         <div className="PostpressNames">
-          <span >Люверси:</span>
+          <span >{label}:</span>
 
           {lyuversy !== "Не потрібно" && (
             <div className="sc-pp-wrap">

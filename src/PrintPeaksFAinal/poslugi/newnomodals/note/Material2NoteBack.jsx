@@ -5,6 +5,7 @@ import axios from "../../../../api/axiosInstance";
 import { getMaterialSort } from "../../../../utils/materialSort";
 import { Spinner } from "react-bootstrap";
 import "../../Poslugy.css";
+import { MaterialOptionLabel, listHasImages } from "../../shared/MaterialThumb";
 
 const Materials2NoteBack = ({
   dropdownClassName = "",
@@ -302,7 +303,7 @@ const Materials2NoteBack = ({
                         setOpenPaper(false);
                       }}
                     >
-                      <span className="name">{item.name}</span>
+                      <MaterialOptionLabel imageId={item.imageId} reserve={listHasImages(paper)}>{item.name}</MaterialOptionLabel>
                       <span className="gsm-sub">
                         <sub>{item.thickness} г/м<sub>2</sub></sub>
                       </span>

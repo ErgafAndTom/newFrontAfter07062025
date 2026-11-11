@@ -1,92 +1,78 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactDOM from "react-dom";
-import { useSelector } from "react-redux";
 import axios from "../../api/axiosInstance";
-import { Spinner } from "react-bootstrap";
-import { FiPlus, FiMinus, FiLink, FiTrash2, FiFolder, FiChevronDown, FiChevronUp, FiChevronsUp,
-  FiList, FiGrid, FiImage, FiSearch, FiArrowUp, FiDownload, FiEye, FiRefreshCw, FiX, FiFolderPlus, FiFilePlus, FiUploadCloud, FiCalendar } from "react-icons/fi";
-import { fileTypeMeta, shortName, formatBytes } from "../../utils/fileUtils";
+import {
+  FiPlus, FiMinus, FiLink, FiTrash2, FiFolder, FiArrowUp, FiDownload, FiRefreshCw, FiX,
+  FiFolderPlus, FiFilePlus, FiUploadCloud, FiSearch, FiList, FiGrid, FiImage, FiChevronRight,
+  FiChevronUp, FiChevronDown, FiExternalLink, FiCopy, FiSidebar, FiAlertTriangle,
+} from "react-icons/fi";
+import { formatBytes } from "../../utils/fileUtils";
+import {
+  FileFormatIcon, fileFormat, splitName, canBrowserRender, FORMAT_GROUPS,
+} from "../../utils/printFileFormats";
 import { loadFileSettings } from "../user/profile/DesignSettings";
-import { DOCK_ICONS, DOCK_IMAGES } from "../../components/dock/dockIcons";
 import CompanyFilesPanel from "./CompanyFilesPanel";
 import "./ClientFilesPanel.css";
+import "./FileBrowser.css";
 
-/* ── Провідник: режими перегляду ────────────────────────────────────────
-   table  — колонки (назва/тип/розмір/дата), як було
-   tiles  — середні плитки: іконка + назва + рядок мети
-   icons  — велика сітка з прев'ю зображень
-   Вибір режиму і стан панелі деталей переживають перезавантаження. */
+/* ══ Провідник файлів клієнта ════════════════════════════════════════════
+   Розмітка — префікс pfm- (FileBrowser.css), піктограми форматів —
+   utils/printFileFormats. Обгортка зберігає класи cfp-modal / cfp-modal--jtx:
+   за ними розмір панелі задають модалка й сторінка наряду (jobTicket.css),
+   а старі правила cfp-* усередині більше не працюють — вони лишились для
+   CompanyFilesPanel / OrderFilesPanel.
+
+   Режими перегляду (ідентифікатори збережені — вибір користувача з
+   localStorage не губиться):
+   table — список з колонками, tiles — плитка, icons — великі мініатюри. */
 const VIEW_KEY = "printpeaks_files_view";
 const PREVIEW_KEY = "printpeaks_files_preview";
+const SORT_KEY = "printpeaks_files_sort";
 const VIEWS = [
-  { id: "table", label: "Таблиця", icon: <FiList size={14} /> },
-  { id: "tiles", label: "Плитки", icon: <FiGrid size={14} /> },
-  { id: "icons", label: "Великі іконки", icon: <FiImage size={14} /> },
+  { id: "table", label: "Список", icon: <FiList /> },
+  { id: "tiles", label: "Плитка", icon: <FiGrid /> },
+  { id: "icons", label: "Великі мініатюри", icon: <FiImage /> },
+];
+const SORTS = [
+  { id: "name", label: "Назва" },
+  { id: "date", label: "Дата" },
+  { id: "size", label: "Розмір" },
+  { id: "type", label: "Тип" },
 ];
 
-/* прев'ю тягнемо тим самим download-ендпоінтом (окремого thumbnail на
-   бекенді немає), тому за розміром — лише невеликі зображення, інакше
-   сітка з важкими сканами вбила б і мережу, і пам'ять */
-const FILE_ORDER_EDITORS = [
-  { value: "SheetCutBW", label: "Black & White", icon: "printer", tint: "--adminorange" },
-  { value: "SheetCut", label: "Digital Print", icon: "printer", tint: "--adminorange" },
-  { value: "Photo", label: "Photo", icon: "photo", tint: "--adminorange" },
-  { value: "Wide", label: "Wide Photo", icon: "wideprint", tint: "--adminorange" },
-  { value: "DigitalPrintWide", label: "Digital Print Wide", icon: "wideprint", tint: "--adminorange" },
-  { value: "Vishichka", label: "Plotter Cut", icon: "plotter", tint: "--adminblue" },
-  { value: "Magnets", label: "Magnets", icon: "magnet", tint: "--adminblue" },
-  { value: "Laminator", label: "Lamination", icon: "laminate", tint: "--adminblue" },
-  { value: "PerepletMet", label: "Binding", icon: "binding", tint: "--adminblue" },
-  { value: "BigOvshik", label: "Postpress", icon: "postpress", tint: "--adminblue" },
-  { value: "Calendar", label: "Calendar", icon: "calendar", tint: "--adminrose" },
-  { value: "Diplom", label: "Diplom", icon: "diploma", tint: "--adminrose" },
-  { value: "Cup", label: "Mug", icon: "mug", tint: "--adminrose" },
-  { value: "Note", label: "Note", icon: "note", tint: "--adminrose" },
-  { value: "Booklet", label: "Booklet", icon: "booklet", tint: "--adminrose" },
-  { value: "Folder", label: "Folder", icon: "folder", tint: "--adminrose" },
-  { value: "Scans", label: "Scans", icon: "scan", tint: "--adminpurple" },
-  { value: "Delivery", label: "Delivery", icon: "car", tint: "--adminpurple" },
-  { value: "WideFactory", label: "Wide Factory", icon: "factory", tint: "--adminpurple" },
-  { value: "Ofset", label: "Ofset", icon: "ofset", tint: "--adminpurple" },
-];
+/* Мініатюри плиток. Макети (PDF/AI/EPS/PSD/CDR/TIFF), офісні документи і важкі зображення
+   малює бекенд — /files/:id/thumb віддає WebP на кількасот пікселів і
+   кешує його на диску. Дрібні картинки, GIF (анімація) і SVG браузер
+   тягне повним файлом, як раніше. Якщо бекенд мініатюру не дав (404 —
+   формат без прев'ю), картинка, що влазить у ліміт, береться повністю,
+   решта лишається піктограмою. Перегляд вибраного файла може дозволити
+   собі більше. */
+const THUMB_LIMIT = 8 * 1024 * 1024;
+const DIRECT_IMG_LIMIT = 512 * 1024;
+const SERVER_THUMB_EXT = new Set([
+  "pdf", "ai", "eps", "epsf", "ps", "psd", "psb", "cdr", "tif", "tiff",
+  // офіс: перша сторінка через LibreOffice на сервері (або вбудоване прев'ю)
+  "doc", "docx", "docm", "dot", "dotx", "rtf", "odt",
+  "xls", "xlsx", "xlsm", "ods",
+  "ppt", "pptx", "pptm", "pps", "ppsx", "odp",
+]);
+const SERVER_RASTER_EXT = new Set(["jpg", "jpeg", "jpe", "jfif", "png", "webp", "avif", "bmp"]);
+const PREVIEW_IMG_LIMIT = 40 * 1024 * 1024;
+const PREVIEW_PDF_LIMIT = 60 * 1024 * 1024;
 
-const FILE_EDITOR_LABELS = {
-  SheetCutBW: "\u0427/\u0411 \u0434\u0440\u0443\u043a",
-  SheetCut: "\u0426\u0438\u0444\u0440\u0430",
-  Photo: "\u0424\u043e\u0442\u043e",
-  Wide: "\u0428\u0438\u0440\u0456\u043a",
-  DigitalPrintWide: "XLS",
-  Vishichka: "\u041f\u043b\u043e\u0442\u0435\u0440",
-  Magnets: "\u041c\u0430\u0433\u043d\u0456\u0442\u0438",
-  Laminator: "\u041b\u0430\u043c\u0456\u043d\u0430\u0446\u0456\u044f",
-  PerepletMet: "\u041f\u0435\u0440\u0435\u043f\u043b\u0456\u0442",
-  BigOvshik: "\u041f\u043e\u0441\u0442\u043f\u0440\u0435\u0441",
-  Calendar: "\u041a\u0430\u043b\u0435\u043d\u0434\u0430\u0440\u0456",
-  Diplom: "\u0414\u0438\u043f\u043b\u043e\u043c\u0438",
-  Folder: "\u041f\u0430\u043f\u043a\u0438",
-  Note: "\u0411\u043b\u043e\u043a\u043d\u043e\u0442\u0438",
-  Booklet: "\u0411\u0443\u043a\u043b\u0435\u0442\u0438",
-  Cup: "\u0427\u0430\u0448\u043a\u0438",
-  Scans: "\u0421\u043a\u0430\u043d\u0443\u0432\u0430\u043d\u043d\u044f",
-  Delivery: "\u0414\u043e\u0441\u0442\u0430\u0432\u043a\u0430",
-  WideFactory: "\u0412\u0438\u0440\u043e\u0431\u043d\u0438\u0446\u0442\u0432\u043e",
-  Ofset: "Офсет",
+const nameOf = (f) => f?.originalName || f?.fileName || "";
+const isDirectory = (f) => f?.mimeType === "directory";
+const rowKey = (f) => f.id || f.fileName;
+const canThumb = (f) => !isDirectory(f) && canBrowserRender(nameOf(f)) && (f?.size || 0) <= THUMB_LIMIT;
+/* Чи просити мініатюру в бекенда (а не тягнути файл повністю) */
+const wantsServerThumb = (f) => {
+  if (isDirectory(f) || !f?.id) return false;
+  const ext = fileFormat(nameOf(f)).ext;
+  if (SERVER_THUMB_EXT.has(ext)) return true;
+  return SERVER_RASTER_EXT.has(ext) && (f?.size || 0) > DIRECT_IMG_LIMIT;
 };
-
-const FILE_EDITOR_GROUPS = [
-  { id: "print", label: "\u0414\u0440\u0443\u043a", tint: "--adminorange", values: ["SheetCutBW", "SheetCut", "Photo", "Wide", "DigitalPrintWide"] },
-  { id: "postpress", label: "\u041f\u043e\u0441\u0442\u043f\u0440\u0435\u0441", tint: "--adminblue", values: ["Vishichka", "Magnets", "Laminator", "PerepletMet", "BigOvshik"] },
-  { id: "goods", label: "\u0422\u043e\u0432\u0430\u0440\u0438", tint: "--adminrose", values: ["Calendar", "Diplom", "Folder", "Note", "Booklet", "Cup"] },
-  { id: "services", label: "\u041f\u043e\u0441\u043b\u0443\u0433\u0438", tint: "--adminpurple", values: ["Scans", "Delivery", "WideFactory", "Ofset"] },
-];
-
-FILE_ORDER_EDITORS.forEach((editor) => {
-  editor.label = FILE_EDITOR_LABELS[editor.value];
-});
-
-const THUMB_LIMIT = 6 * 1024 * 1024;
-const isImageFile = (f) => String(f?.mimeType || "").startsWith("image/") && (f?.size || 0) <= THUMB_LIMIT;
-const isPdfFile = (f) => String(f?.mimeType || "") === "application/pdf";
+const canPreviewImg = (f) => !isDirectory(f) && canBrowserRender(nameOf(f)) && (f?.size || 0) <= PREVIEW_IMG_LIMIT;
+const canPreviewPdf = (f) => !isDirectory(f) && fileFormat(nameOf(f)).ext === "pdf" && (f?.size || 0) <= PREVIEW_PDF_LIMIT;
 
 /* Кеш об'єктних URL на весь модуль: та сама картинка не тягнеться вдруге
    ні при зміні режиму, ні при поверненні в папку. */
@@ -100,26 +86,151 @@ const fetchBlobUrl = async (fileId) => {
   return url;
 };
 
-/* Мініатюра однієї плитки: вантажиться, коли плитка з'явилась у вьюпорті —
-   у папці на сотні сканів інакше стартували б сотні запитів одразу. */
-const CfpThumb = ({ file, fallback }) => {
-  const [url, setUrl] = useState(() => blobCache.get(file.id) || null);
+/* Ширина мініатюри з бекенда: плитка ~150–260 px × щільність екрана.
+   Бекенд округлює до своїх кроків (160/240/320/480/640). */
+const thumbWidth = (big) => Math.round((big ? 260 : 180) * Math.min(window.devicePixelRatio || 1, 2));
+
+/* Ключ кешу містить версію файла: замінили файл — нова мініатюра.
+   Файли, для яких бекенд мініатюри не має, запам'ятовуємо, щоб при
+   поверненні в папку не питати знову. */
+const thumbVersion = (f) => `${f.size || 0}-${new Date(f.updatedAt || f.createdAt || 0).getTime() || 0}`;
+const thumbKey = (f, w) => `t:${f.id}:${w}:${thumbVersion(f)}`;
+const thumbMissing = new Set();
+
+const fetchThumbUrl = async (f, w) => {
+  const key = thumbKey(f, w);
+  if (blobCache.has(key)) return blobCache.get(key);
+  if (thumbMissing.has(key)) throw new Error("no thumb");
+  try {
+    const res = await axios.get(`/api/client-files/files/${f.id}/thumb`, {
+      params: { w, v: thumbVersion(f) },
+      responseType: "blob",
+    });
+    const url = URL.createObjectURL(res.data);
+    blobCache.set(key, url);
+    return url;
+  } catch (e) {
+    thumbMissing.add(key);
+    throw e;
+  }
+};
+
+/* Звідки брати мініатюру плитки: з бекенда, а якщо не вийшло — повним
+   файлом (лише формати, які браузер малює сам, і в межах ліміту) */
+const loadTileThumb = async (f, w) => {
+  if (wantsServerThumb(f)) {
+    try {
+      return await fetchThumbUrl(f, w);
+    } catch (e) {
+      if (!canThumb(f)) throw e;
+    }
+  }
+  return fetchBlobUrl(f.id);
+};
+
+const cachedTileThumb = (f, w) => {
+  if (wantsServerThumb(f)) {
+    const hit = blobCache.get(thumbKey(f, w));
+    if (hit) return hit;
+    if (!thumbMissing.has(thumbKey(f, w))) return null;
+  }
+  return canThumb(f) ? blobCache.get(f.id) || null : null;
+};
+
+/* Дата: сьогодні/учора — з часом, решта — повна дата */
+const pad2 = (n) => String(n).padStart(2, "0");
+const fmtDate = (d) => {
+  if (!d) return "";
+  const dt = new Date(d);
+  if (Number.isNaN(dt.getTime())) return "";
+  const now = new Date();
+  const day = (x) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const diff = Math.round((day(now) - day(dt)) / 86400000);
+  const time = `${pad2(dt.getHours())}:${pad2(dt.getMinutes())}`;
+  if (diff === 0) return `Сьогодні ${time}`;
+  if (diff === 1) return `Учора ${time}`;
+  return `${pad2(dt.getDate())}.${pad2(dt.getMonth() + 1)}.${dt.getFullYear()}`;
+};
+const fmtDateFull = (d) => {
+  if (!d) return "—";
+  const dt = new Date(d);
+  if (Number.isNaN(dt.getTime())) return "—";
+  return dt.toLocaleString("uk-UA", {
+    day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
+  });
+};
+
+const plural = (n, one, few, many) => {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return one;
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+  return many;
+};
+
+/* Мініатюра плитки: вантажиться, коли плитка з'явилась у вьюпорті — у
+   папці на сотні сканів інакше стартували б сотні запитів одразу. Якщо
+   браузер не зміг намалювати файл — лишається піктограма формату. */
+const PfmThumb = ({ file, iconSize, big = false }) => {
+  const w = thumbWidth(big);
+  const ver = thumbVersion(file);
+  const [url, setUrl] = useState(() => cachedTileThumb(file, w));
+  const [failed, setFailed] = useState(false);
   const ref = useRef(null);
+  const wanted = wantsServerThumb(file) || canThumb(file);
+
+  // Перемкнули «Плитка» ↔ «Великі мініатюри» — інша ширина, свій кеш
+  useEffect(() => {
+    setUrl(cachedTileThumb(file, w));
+    setFailed(false);
+  }, [file.id, ver, w]); // eslint-disable-line
 
   useEffect(() => {
-    if (url || !isImageFile(file) || !ref.current) return undefined;
+    if (!wanted || url || failed || !ref.current) return undefined;
     let alive = true;
     const io = new IntersectionObserver((entries) => {
       if (!entries.some((en) => en.isIntersecting)) return;
       io.disconnect();
-      fetchBlobUrl(file.id).then((u) => { if (alive) setUrl(u); }).catch(() => {});
+      loadTileThumb(file, w).then((u) => { if (alive) setUrl(u); }).catch(() => { if (alive) setFailed(true); });
     }, { rootMargin: "200px" });
     io.observe(ref.current);
     return () => { alive = false; io.disconnect(); };
-  }, [file, url]);
+  }, [file.id, ver, w, wanted, url, failed]); // eslint-disable-line
 
-  if (url) return <img ref={ref} className="cfp-thumb-img" src={url} alt="" draggable={false} />;
-  return <span ref={ref} className="cfp-thumb-glyph">{fallback}</span>;
+  if (wanted && url && !failed) {
+    const fmt = fileFormat(nameOf(file));
+    return (
+      <>
+        <img
+          ref={ref}
+          className="pfm-thumb-img"
+          src={url}
+          alt=""
+          draggable={false}
+          onError={() => setFailed(true)}
+        />
+        {/* на справжній мініатюрі формат не видно — підписуємо окремо */}
+        <span className="pfm-card-ext" style={{ "--pff-tone": `var(--pff-${fmt.tone})` }}>{fmt.ext}</span>
+      </>
+    );
+  }
+  return (
+    <span ref={ref} className="pfm-thumb-icon">
+      <FileFormatIcon name={nameOf(file)} isDir={isDirectory(file)} size={iconSize} />
+    </span>
+  );
+};
+
+/* Ім'я з тихішим розширенням: «Макет візитки» + «.cdr» */
+const FileName = ({ name, isDir }) => {
+  if (isDir) return <span className="pfm-name-base">{name}</span>;
+  const { base, ext } = splitName(name);
+  return (
+    <>
+      <span className="pfm-name-base">{base}</span>
+      {ext && <span className="pfm-name-ext">.{ext}</span>}
+    </>
+  );
 };
 
 const ClientFilesPanel = ({
@@ -131,56 +242,62 @@ const ClientFilesPanel = ({
   orderId,
   companyId,
   companyName = "",
-  workspaceSwapped = false,
-  onToggleWorkspaceSwap,
-  // inline — панель вбудована в сторінку (колонка клієнта в наряді), а не
+  // inline — панель вбудована в сторінку (колонка файлів наряду), а не
   // відкрита оверлеєм поверх усього: без порталу, без затемнення й без
   // закриття по кліку повз неї.
   inline = false,
+  // hideCatalog лишився в сигнатурі для сумісності: каталог робіт живе
+  // в jobTicket/JobCatalog.jsx, панель файлів його більше не малює.
+  hideCatalog = false,
 }) => {
-  /* Каталог робіт клієнту показуємо не весь: «Виробництво» — це
-     аутсорс-позиція, яку заводить менеджер, а не замовник. */
-  const currentUser = useSelector((state) => state.auth.user);
-  const hiddenEditors = currentUser?.role === 'user' ? ['WideFactory'] : [];
-
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(null); // null | {name, percent}
+  const [uploadProgress, setUploadProgress] = useState(null); // null | {name, percent, index, total}
   const [dragActive, setDragActive] = useState(false);
   const [currentFolder, setCurrentFolder] = useState(""); // підпапка відносно кореня
-  const [sortColumn, setSortColumn] = useState(null); // "name" | "type" | "size" | "date"
-  const [sortDesc, setSortDesc] = useState(true); // true = DESC (більше→менше)
+  const [sort, setSort] = useState(() => {
+    try {
+      const s = JSON.parse(localStorage.getItem(SORT_KEY) || "null");
+      if (s && SORTS.some((x) => x.id === s.col)) return { col: s.col, desc: !!s.desc };
+    } catch { /* без збереженого сортування */ }
+    return { col: "date", desc: true };
+  });
+  const [typeFilter, setTypeFilter] = useState("all");
   const [showCompanyFiles, setShowCompanyFiles] = useState(false);
 
-  /* ── стан провідника ── */
   const [viewMode, setViewMode] = useState(() => {
-    try { return localStorage.getItem(VIEW_KEY) || "table"; } catch { return "table"; }
+    try {
+      const v = localStorage.getItem(VIEW_KEY);
+      return VIEWS.some((x) => x.id === v) ? v : "table";
+    } catch { return "table"; }
   });
   const [showPreview, setShowPreview] = useState(() => {
     try { return localStorage.getItem(PREVIEW_KEY) !== "0"; } catch { return true; }
   });
   /* Виділення множинне: Ctrl/Cmd — додати-зняти по одному, Shift —
      діапазон від попереднього кліку, звичайний клік — лише цей файл.
-     Деталі показують останній вибраний. */
+     Перегляд показує останній вибраний. */
   const [selectedIds, setSelectedIds] = useState([]);
   const anchorRef = useRef(null);
   const [query, setQuery] = useState("");
   const [previewUrl, setPreviewUrl] = useState(null);
   const [previewBusy, setPreviewBusy] = useState(false);
+  const [imgDims, setImgDims] = useState(null); // {w, h} для зображення в перегляді
   const [ctxMenu, setCtxMenu] = useState(null); // {x, y, file}
 
   const dragCounter = useRef(0);
   const inputRef = useRef(null);
   const dirInputRef = useRef(null);   // окремий input із webkitdirectory
+  const contentRef = useRef(null);
 
   useEffect(() => { try { localStorage.setItem(VIEW_KEY, viewMode); } catch {} }, [viewMode]);
   useEffect(() => { try { localStorage.setItem(PREVIEW_KEY, showPreview ? "1" : "0"); } catch {} }, [showPreview]);
+  useEffect(() => { try { localStorage.setItem(SORT_KEY, JSON.stringify(sort)); } catch {} }, [sort]);
 
-  // In the inline order workspace the preview is a permanent part of the layout.
-  useEffect(() => {
-    if (inline) setShowPreview(true);
-  }, [inline]);
+  // На сторінці наряду перегляд — постійна частина розкладки.
+  const previewOn = inline || showPreview;
+
   useEffect(() => {
     if (!inline || !orderId) return undefined;
     const syncFileSearch = (event) => setQuery(String(event.detail?.query ?? ""));
@@ -208,13 +325,12 @@ const ClientFilesPanel = ({
 
   // Автооновлення кожні 5 сек (тихий sync + fetch)
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) return undefined;
     const id = setInterval(() => fetchFiles(true), 5000);
     return () => clearInterval(id);
   }, [userId, fetchFiles]);
 
-
-  const uploadFile = async (file, subfolderOverride) => {
+  const uploadFile = async (file, subfolderOverride, index = 1, total = 1) => {
     if (!userId || !file) return;
     const formData = new FormData();
     formData.append("file", file, file.name);
@@ -223,18 +339,22 @@ const ClientFilesPanel = ({
     const folder = subfolderOverride || currentFolder || "";
     if (folder) formData.append("folder", folder);
 
-    setUploadProgress({ name: file.name, percent: 0 });
+    setUploadProgress({ name: file.name, percent: 0, index, total });
 
     try {
       const res = await axios.post(`/api/client-files/users/${userId}/upload`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (evt) => {
-          const total = evt.total || file.size || 1;
-          const pct = Math.round((evt.loaded * 100) / total);
-          setUploadProgress({ name: file.name, percent: pct });
+          const all = evt.total || file.size || 1;
+          const pct = Math.round((evt.loaded * 100) / all);
+          setUploadProgress({ name: file.name, percent: pct, index, total });
         },
       });
-      setFiles(prev => [res.data, ...prev]);
+      // файл з підпапки в поточному списку не показуємо — він з'явиться
+      // в ній самій
+      if (!subfolderOverride || subfolderOverride === currentFolder) {
+        setFiles((prev) => [res.data, ...prev]);
+      }
     } catch (e) {
       setError(e.message || `Помилка завантаження: ${file.name}`);
     } finally {
@@ -243,30 +363,31 @@ const ClientFilesPanel = ({
   };
 
   const uploadFiles = async (fileList) => {
-    const list = Array.from(fileList);
-    for (const file of list) {
+    const list = Array.from(fileList || []);
+    for (let i = 0; i < list.length; i += 1) {
+      const file = list[i];
       // webkitRelativePath = "FolderName/subfolder/file.ext"
       // Беремо все крім імені файлу як підпапку
       const relPath = file.webkitRelativePath || "";
       const parts = relPath.split("/");
       let subfolder = "";
       if (parts.length > 1) {
-        // "MyFolder/sub/file.pdf" → "MyFolder/sub"
         const dirParts = parts.slice(0, -1);
         subfolder = currentFolder
           ? `${currentFolder}/${dirParts.join("/")}`
           : dirParts.join("/");
       }
-      await uploadFile(file, subfolder || undefined);
+      // eslint-disable-next-line no-await-in-loop
+      await uploadFile(file, subfolder || undefined, i + 1, list.length);
     }
-    // Оновити список після завантаження папки (щоб побачити нові підпапки)
+    // Оновити список після завантаження (щоб побачити нові підпапки)
     fetchFiles();
   };
 
   const deleteFile = async (fileId) => {
     try {
       await axios.delete(`/api/client-files/files/${fileId}`);
-      setFiles(prev => prev.filter(f => f.id !== fileId));
+      setFiles((prev) => prev.filter((f) => f.id !== fileId));
     } catch (e) {
       setError(e.message || "Помилка видалення");
     }
@@ -312,20 +433,19 @@ const ClientFilesPanel = ({
     }
   };
 
-  const downloadFile = (f) =>
-    openFile(f.id, { download: true, name: f.originalName || f.fileName });
+  const downloadFile = (f) => openFile(f.id, { download: true, name: nameOf(f) });
 
   // DnD
   const onDragEnter = (e) => { e.preventDefault(); e.stopPropagation(); dragCounter.current += 1; setDragActive(true); };
   const onDragLeave = (e) => { e.preventDefault(); e.stopPropagation(); dragCounter.current -= 1; if (dragCounter.current <= 0) setDragActive(false); };
   const onDragOver = (e) => { e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "copy"; };
+
   /**
    * Збирає всі файли з перетягнутої папки, зберігаючи структуру підпапок.
    *
    * dataTransfer.files для папки віддає лише саму папку без вмісту, тому
    * читаємо дерево через webkitGetAsEntry: інакше перетягування папки
-   * (єдиний шлях додати її після того, як окрему кнопку «Додати папку»
-   * прибрано) молча нічого не завантажувало б.
+   * мовчки нічого не завантажувало б.
    *
    * @returns {Promise<Array<{file: File, subfolder: string}>>}
    */
@@ -346,16 +466,16 @@ const ClientFilesPanel = ({
       // readEntries віддає вміст порціями — читаємо, поки не порожньо
       const readBatch = () => reader.readEntries(async (batch) => {
         if (!batch.length) {
-          const nested = await Promise.all(all.map(en => collectEntry(en, dirPath)));
+          const nested = await Promise.all(all.map((en) => collectEntry(en, dirPath)));
           return resolve(nested.flat());
         }
         all.push(...batch);
-        readBatch();
+        return readBatch();
       }, () => resolve([]));
       return readBatch();
     }
 
-    resolve([]);
+    return resolve([]);
   });
 
   const onDrop = async (e) => {
@@ -368,16 +488,18 @@ const ClientFilesPanel = ({
     if (hasEntryApi) {
       // знімаємо entry синхронно — після await items уже недоступні
       const entries = Array.from(items)
-        .map(it => (it.kind === "file" ? it.webkitGetAsEntry() : null))
+        .map((it) => (it.kind === "file" ? it.webkitGetAsEntry() : null))
         .filter(Boolean);
 
-      if (entries.some(en => en.isDirectory)) {
-        const collected = (await Promise.all(entries.map(en => collectEntry(en)))).flat();
-        for (const { file, subfolder } of collected) {
+      if (entries.some((en) => en.isDirectory)) {
+        const collected = (await Promise.all(entries.map((en) => collectEntry(en)))).flat();
+        for (let i = 0; i < collected.length; i += 1) {
+          const { file, subfolder } = collected[i];
           const target = subfolder && currentFolder
             ? `${currentFolder}/${subfolder}`
             : (subfolder || currentFolder || "");
-          await uploadFile(file, target || undefined);
+          // eslint-disable-next-line no-await-in-loop
+          await uploadFile(file, target || undefined, i + 1, collected.length);
         }
         fetchFiles();
         return;
@@ -387,29 +509,16 @@ const ClientFilesPanel = ({
     if (e.dataTransfer?.files?.length) uploadFiles(e.dataTransfer.files);
   };
 
-  const getExt = (name) => {
-    if (!name) return "";
-    const dot = name.lastIndexOf(".");
-    return dot > 0 ? name.slice(dot + 1).toLowerCase() : "";
-  };
-
-  const formatDate = (d) => {
-    if (!d) return "";
-    const dt = new Date(d);
-    return dt.toLocaleDateString("uk-UA", { day: "2-digit", month: "2-digit", year: "2-digit" });
-  };
-
-  const linkedOrderIds = (f) => (f.OrderFileLinks || []).map(l => l.orderId);
-  const isLinkedToCurrentOrder = (f) => orderId && linkedOrderIds(f).includes(orderId);
+  const linkedOrderIds = (f) => (f?.OrderFileLinks || []).map((l) => l.orderId);
+  const isLinkedToCurrentOrder = (f) => !!orderId && linkedOrderIds(f).includes(orderId);
 
   const linkToOrder = async (file) => {
     if (!orderId) return;
     try {
-      const isDir = file.mimeType === 'directory';
       let fileId = file.id;
 
       // Папка (FS або DB) — створити/знайти DB-запис через create-folder + лінк атомарно
-      if (isDir) {
+      if (isDirectory(file)) {
         const res = await axios.post(`/api/client-files/users/${userId}/create-folder`, {
           folder: currentFolder,
           name: file.fileName || file.originalName,
@@ -423,7 +532,6 @@ const ClientFilesPanel = ({
         return;
       }
 
-      // Звичайний файл
       if (!fileId) { setError("Файл не має ID"); return; }
       await axios.post(`/api/client-files/orders/${orderId}/link`, { fileId });
       await fetchFiles();
@@ -452,8 +560,8 @@ const ClientFilesPanel = ({
       });
       // Відкриваємо папку на робочому ПК через кастомний протокол ppfolder://
       if (data.folderPath) {
-        const uncPath = data.folderPath.replace(/\//g, '\\');
-        window.open(`ppfolder://${encodeURIComponent(uncPath)}`, '_self');
+        const uncPath = data.folderPath.replace(/\//g, "\\");
+        window.open(`ppfolder://${encodeURIComponent(uncPath)}`, "_self");
       }
     } catch (e) {
       setError("Не вдалось відкрити папку");
@@ -475,84 +583,105 @@ const ClientFilesPanel = ({
   };
 
   const openSubfolder = (folderName) => {
-    setCurrentFolder(prev => prev ? `${prev}/${folderName}` : folderName);
+    setCurrentFolder((prev) => (prev ? `${prev}/${folderName}` : folderName));
   };
 
   const goBack = () => {
-    setCurrentFolder(prev => {
+    setCurrentFolder((prev) => {
       const parts = prev.split("/");
       parts.pop();
       return parts.join("/");
     });
   };
 
+  /* клік по тій самій колонці — міняє напрям; нова колонка — назва йде
+     А→Я, решта (дата, розмір) — від більшого */
   const toggleSort = (col) => {
-    if (sortColumn === col) {
-      setSortDesc(prev => !prev);
-    } else {
-      setSortColumn(col);
-      setSortDesc(col !== "name");
-    }
+    setSort((prev) => (prev.col === col
+      ? { col, desc: !prev.desc }
+      : { col, desc: col !== "name" && col !== "type" }));
   };
 
   // Папки завжди зверху, файли сортуються
-  const sortedFiles = React.useMemo(() => {
-    const dirs = files.filter(f => f.mimeType === "directory");
-    const rest = files.filter(f => f.mimeType !== "directory");
-    if (!sortColumn) return [...dirs, ...rest];
-
+  const sortedFiles = useMemo(() => {
+    const dirs = files.filter(isDirectory)
+      .sort((a, b) => nameOf(a).localeCompare(nameOf(b), "uk"));
+    const rest = files.filter((f) => !isDirectory(f));
+    const { col, desc } = sort;
     const sorted = [...rest].sort((a, b) => {
       let cmp = 0;
-      if (sortColumn === "name") {
-        const na = (a.originalName || a.fileName || "").toLowerCase();
-        const nb = (b.originalName || b.fileName || "").toLowerCase();
-        cmp = na.localeCompare(nb, "uk");
-      } else if (sortColumn === "type") {
-        const ea = getExt(a.originalName || a.fileName);
-        const eb = getExt(b.originalName || b.fileName);
-        cmp = ea.localeCompare(eb, "uk");
-      } else if (sortColumn === "size") {
+      if (col === "name") {
+        cmp = nameOf(a).toLowerCase().localeCompare(nameOf(b).toLowerCase(), "uk", { numeric: true });
+      } else if (col === "type") {
+        cmp = fileFormat(nameOf(a)).ext.localeCompare(fileFormat(nameOf(b)).ext, "uk")
+          || nameOf(a).localeCompare(nameOf(b), "uk", { numeric: true });
+      } else if (col === "size") {
         cmp = (a.size || 0) - (b.size || 0);
-      } else if (sortColumn === "date") {
+      } else {
         cmp = new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
       }
-      return sortDesc ? -cmp : cmp;
+      return desc ? -cmp : cmp;
     });
     return [...dirs, ...sorted];
-  }, [files, sortColumn, sortDesc]);
+  }, [files, sort]);
 
   /* пошук — по видимій назві, у межах поточної папки */
-  const visibleFiles = React.useMemo(() => {
+  const searchedFiles = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return sortedFiles;
-    return sortedFiles.filter((f) =>
-      String(f.originalName || f.fileName || "").toLowerCase().includes(q));
+    return sortedFiles.filter((f) => nameOf(f).toLowerCase().includes(q));
   }, [sortedFiles, query]);
+
+  /* лічильники для фільтра за типом — лише по файлах (папки не рахуємо) */
+  const groupCounts = useMemo(() => {
+    const counts = {};
+    searchedFiles.forEach((f) => {
+      if (isDirectory(f)) return;
+      const g = fileFormat(nameOf(f)).group;
+      counts[g] = (counts[g] || 0) + 1;
+    });
+    return counts;
+  }, [searchedFiles]);
+
+  const fileCount = useMemo(() => searchedFiles.filter((f) => !isDirectory(f)).length, [searchedFiles]);
+  const presentGroups = FORMAT_GROUPS.filter((g) => groupCounts[g.id]);
+
+  // фільтр, що став порожнім (файли видалили / пішли з пошуку), знімаємо
+  useEffect(() => {
+    if (typeFilter !== "all" && !groupCounts[typeFilter]) setTypeFilter("all");
+  }, [groupCounts, typeFilter]);
+
+  /* папки фільтр за типом не ховає — це навігація, а не файли */
+  const visibleFiles = useMemo(() => {
+    if (typeFilter === "all") return searchedFiles;
+    return searchedFiles.filter((f) => isDirectory(f) || fileFormat(nameOf(f)).group === typeFilter);
+  }, [searchedFiles, typeFilter]);
 
   const selectedId = selectedIds.length ? selectedIds[selectedIds.length - 1] : null;
 
-  const selectedFile = React.useMemo(
-    () => visibleFiles.find((f) => (f.id || f.fileName) === selectedId) || null,
+  const selectedFile = useMemo(
+    () => visibleFiles.find((f) => rowKey(f) === selectedId) || null,
     [visibleFiles, selectedId]);
 
-  /* усі виділені файли (без папок) — для гуртового завантаження
-     й прив'язки до наряду */
-  const selectedFiles = React.useMemo(
-    () => visibleFiles.filter((f) => selectedIds.includes(f.id || f.fileName)),
+  /* усі виділені — для гуртових дій */
+  const selectedFiles = useMemo(
+    () => visibleFiles.filter((f) => selectedIds.includes(rowKey(f))),
     [visibleFiles, selectedIds]);
 
-  const downloadableSelection = selectedFiles.filter((f) => f.mimeType !== "directory");
+  const downloadableSelection = selectedFiles.filter((f) => !isDirectory(f));
+  const selectionBytes = downloadableSelection.reduce((s, f) => s + (f.size || 0), 0);
+  const totalBytes = visibleFiles.reduce((s, f) => s + (isDirectory(f) ? 0 : (f.size || 0)), 0);
 
-  // вибір скидається при зміні папки — інакше в деталях висить файл,
+  // вибір скидається при зміні папки — інакше в перегляді висить файл,
   // якого в новому списку вже немає
   useEffect(() => { setSelectedIds([]); anchorRef.current = null; }, [currentFolder]);
 
-  /* Прев'ю вибраного: картинка або перша сторінка PDF (через <object>).
-     Тягнемо лише коли панель деталей відкрита. */
+  /* Перегляд вибраного: картинка або PDF (через <object>). */
   useEffect(() => {
     setPreviewUrl(null);
-    if (!showPreview || !selectedFile || selectedFile.mimeType === "directory") return undefined;
-    if (!isImageFile(selectedFile) && !isPdfFile(selectedFile)) return undefined;
+    setImgDims(null);
+    if (!previewOn || !selectedFile) return undefined;
+    if (!canPreviewImg(selectedFile) && !canPreviewPdf(selectedFile)) return undefined;
     let alive = true;
     setPreviewBusy(true);
     fetchBlobUrl(selectedFile.id)
@@ -560,20 +689,26 @@ const ClientFilesPanel = ({
       .catch(() => {})
       .finally(() => { if (alive) setPreviewBusy(false); });
     return () => { alive = false; };
-  }, [selectedFile, showPreview]);
+  }, [selectedFile, previewOn]);
 
-  // закрити контекстне меню кліком повз нього / по Esc
+  // закрити контекстне меню кліком повз нього / по Esc / прокруткою
   useEffect(() => {
     if (!ctxMenu) return undefined;
     const close = () => setCtxMenu(null);
     const onKey = (e) => { if (e.key === "Escape") setCtxMenu(null); };
     window.addEventListener("click", close);
     window.addEventListener("keydown", onKey);
-    return () => { window.removeEventListener("click", close); window.removeEventListener("keydown", onKey); };
+    window.addEventListener("resize", close);
+    window.addEventListener("scroll", close, true);
+    return () => {
+      window.removeEventListener("click", close);
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", close);
+      window.removeEventListener("scroll", close, true);
+    };
   }, [ctxMenu]);
 
-  const rowKey = (f) => f.id || f.fileName;
-  const isDirectory = (f) => f?.mimeType === "directory";
+  const clearSelection = () => { setSelectedIds([]); anchorRef.current = null; };
 
   /* Клік по файлу з урахуванням модифікаторів. index — позиція у
      visibleFiles, потрібна для діапазону по Shift. */
@@ -615,582 +750,727 @@ const ClientFilesPanel = ({
     }
   };
 
+  /* Гуртове видалення — лише з підтвердженням: одним кліком по кошику
+     в рядку видаляється один файл, а тут може піти пів папки */
+  const deleteSelection = async () => {
+    const list = downloadableSelection;
+    if (!list.length) return;
+    const ok = window.confirm(list.length === 1
+      ? `Видалити файл «${nameOf(list[0])}»?`
+      : `Видалити ${list.length} ${plural(list.length, "файл", "файли", "файлів")}?`);
+    if (!ok) return;
+    for (const f of list) {
+      // eslint-disable-next-line no-await-in-loop
+      await deleteFile(f.id);
+    }
+    clearSelection();
+  };
+
   /* один клік — вибір, подвійний — відкрити (папку зайти, файл відкрити) */
   const activate = (f) => {
     if (isDirectory(f)) openSubfolder(f.fileName);
     else openFile(f.id);
   };
 
-  const breadcrumbs = currentFolder ? currentFolder.split("/") : [];
-  const goToCrumb = (idx) => setCurrentFolder(breadcrumbs.slice(0, idx + 1).join("/"));
-
-  const SortArrow = ({ col }) => {
-    if (sortColumn !== col) return <FiChevronsUp size={11} style={{ opacity: 0.3, marginLeft: 4 }}/>;
-    return sortDesc
-      ? <FiChevronDown size={11} style={{ color: "currentColor", marginLeft: 4 }}/>
-      : <FiChevronUp size={11} style={{ color: "currentColor", marginLeft: 4 }}/>;
+  const copyName = (f) => {
+    try { navigator.clipboard?.writeText(nameOf(f)); } catch { /* буфер недоступний */ }
   };
 
-  const panel = (
-      <div
-        className={`cfp-modal ${inline ? "cfp-modal--inline " : ""}${dragActive ? "cfp-drag-active" : ""}`}
-        onClick={(e) => e.stopPropagation()}
-        onDragEnter={onDragEnter}
-        onDragOver={onDragOver}
-        onDragLeave={onDragLeave}
-        onDrop={onDrop}
-      >
-        {/* ── ПАНЕЛЬ ІНСТРУМЕНТІВ ────────────────────────────────────
-            Навігація (назад/вгору + хлібні крихти), пошук у поточній
-            папці, перемикач режиму перегляду і дії над сховищем. */}
-        <div className="cfp-toolbar">
-          <div className="cfp-toolbar-nav">
+  /* Клавіатура у вмісті: стрілки — рух виділення (у сітці вгору/вниз — на
+     цілий ряд), Enter — відкрити, Esc — зняти, Ctrl+A — усе, Delete —
+     видалити вибране з підтвердженням. */
+  const onContentKeyDown = (e) => {
+    if (e.target !== contentRef.current) return;
+    if (e.key === "Escape") { clearSelection(); return; }
+    if ((e.ctrlKey || e.metaKey) && (e.key === "a" || e.key === "A")) {
+      e.preventDefault();
+      setSelectedIds(visibleFiles.map(rowKey));
+      return;
+    }
+    if (e.key === "Enter" && selectedFile) { e.preventDefault(); activate(selectedFile); return; }
+    if (e.key === "Delete" && downloadableSelection.length) { e.preventDefault(); deleteSelection(); return; }
+    if (e.key === "Backspace" && currentFolder) { e.preventDefault(); goBack(); return; }
+
+    const moves = { ArrowDown: 1, ArrowUp: -1, ArrowRight: 1, ArrowLeft: -1 };
+    if (!(e.key in moves) || !visibleFiles.length) return;
+    if (viewMode === "table" && (e.key === "ArrowLeft" || e.key === "ArrowRight")) return;
+    e.preventDefault();
+    let step = moves[e.key];
+    if (viewMode !== "table" && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+      const grid = contentRef.current?.querySelector(".pfm-grid");
+      const cols = grid ? getComputedStyle(grid).gridTemplateColumns.split(" ").filter(Boolean).length : 1;
+      step *= Math.max(1, cols);
+    }
+    const cur = selectedFile ? visibleFiles.indexOf(selectedFile) : -1;
+    const next = Math.max(0, Math.min(visibleFiles.length - 1, cur < 0 ? 0 : cur + step));
+    const key = rowKey(visibleFiles[next]);
+    anchorRef.current = next;
+    setSelectedIds([key]);
+    const el = contentRef.current?.querySelector(`[data-key="${CSS.escape(String(key))}"]`);
+    el?.scrollIntoView({ block: "nearest" });
+  };
+
+  const breadcrumbs = currentFolder ? currentFolder.split("/") : [];
+  const goToCrumb = (idx) => setCurrentFolder(breadcrumbs.slice(0, idx + 1).join("/"));
+  const rootLabel = (clientName || "").trim()
+    || (companyId ? `Компанія №${companyId}` : `Клієнт №${userId}`);
+
+  /* значки нарядів + «прив'язати до цього наряду» */
+  const orderBadges = (f, withAdd = true) => (
+    <>
+      {linkedOrderIds(f).map((oid) => (
+        <span
+          key={oid}
+          className={`pfm-ord${oid === orderId ? " is-current" : ""}`}
+          title={oid === orderId ? "Прив'язано до цього наряду" : `Прив'язано до замовлення №${oid}`}
+        >
+          <span className="pfm-ord-num">{oid}</span>
+          {f.id && (
             <button
               type="button"
-              className="cfp-tool-btn"
-              onClick={goBack}
-              disabled={!currentFolder}
-              title="На рівень вище"
-            ><FiArrowUp size={15} /></button>
-            <div className="cfp-view-switch cfp-view-switch--left" role="group" aria-label={"\u0420\u0435\u0436\u0438\u043c \u043f\u0435\u0440\u0435\u0433\u043b\u044f\u0434\u0443"}>
-              {VIEWS.map((v) => (
-                <button
-                  key={v.id}
-                  type="button"
-                  className={`cfp-view-btn${viewMode === v.id ? " is-active" : ""}`}
-                  onClick={() => setViewMode(v.id)}
-                  title={v.label}
-                >{v.icon}</button>
-              ))}
-            </div>
+              className="pfm-ord-unlink"
+              onClick={(e) => { e.stopPropagation(); unlinkFromOrder(f.id, oid); }}
+              title={`Відв'язати від замовлення ${oid}`}
+            ><FiMinus /></button>
+          )}
+        </span>
+      ))}
+      {withAdd && orderId && !isLinkedToCurrentOrder(f) && (
+        <button
+          type="button"
+          className="pfm-ord-add"
+          onClick={(e) => { e.stopPropagation(); linkToOrder(f); }}
+          title={`Прив'язати до наряду №${orderId}`}
+        ><FiPlus /></button>
+      )}
+    </>
+  );
 
-            <button
-              type="button"
-              className="cfp-tool-btn cfp-refresh-action cfp-refresh-action--left"
-              onClick={() => fetchFiles()}
-              title={"\u041e\u043d\u043e\u0432\u0438\u0442\u0438"}
-              aria-label={"\u041e\u043d\u043e\u0432\u0438\u0442\u0438 \u0441\u043f\u0438\u0441\u043e\u043a \u0444\u0430\u0439\u043b\u0456\u0432"}
-            ><FiRefreshCw /></button>
-
-            <div className="cfp-crumbs">
-              {/* Замість підпису «Файли клієнта №N» тут стоїть пошук: сам
-                  підпис нічого не додавав (чиї це файли, видно з наряду),
-                  а рядок пошуку називає сховище своїм плейсхолдером.
-                  Повернутись у корінь є чим — стрілка «вгору» ліворуч. */}
-              <label className="cfp-search cfp-search--title">
-                <FiSearch size={13} />
-                <input
-                  type="text"
-                  value={query}
-                  placeholder={companyId
-                    ? `Пошук файлів у компанії №${companyId}`
-                    : `Пошук файлів у клієнта №${userId}`}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
-                {query && (
-                  <button type="button" className="cfp-search-clear" onClick={() => setQuery("")}>
-                    <FiX size={12} />
-                  </button>
-                )}
-              </label>
-              {breadcrumbs.map((part, i) => (
-                <React.Fragment key={`${part}-${i}`}>
-                  <span className="cfp-crumb-sep">/</span>
-                  <button type="button" className="cfp-crumb" onClick={() => goToCrumb(i)}>{part}</button>
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
-
-          <div className="cfp-toolbar-right">
-            {/* Поле пошуку переїхало в центр тулбара (див. .cfp-crumbs
-                вище) — на місце колишнього підпису «Файли клієнта №N». */}
-            <div className="cfp-sort-switch" role="group" aria-label={"\u0421\u043e\u0440\u0442\u0443\u0432\u0430\u043d\u043d\u044f \u0444\u0430\u0439\u043b\u0456\u0432"}>
-              <button
-                type="button"
-                className={`cfp-sort-btn${sortColumn === "name" ? " is-active" : ""}`}
-                onClick={() => toggleSort("name")}
-                title={"\u0421\u043e\u0440\u0442\u0443\u0432\u0430\u0442\u0438 \u0437\u0430 \u043d\u0430\u0437\u0432\u043e\u044e"}
-              >
-                <span className="cfp-sort-letter" aria-hidden="true">{"\u0407"}</span>
-                <SortArrow col="name" />
-              </button>
-              <button
-                type="button"
-                className={`cfp-sort-btn${sortColumn === "date" ? " is-active" : ""}`}
-                onClick={() => toggleSort("date")}
-                title={"\u0421\u043e\u0440\u0442\u0443\u0432\u0430\u0442\u0438 \u0437\u0430 \u0434\u0430\u0442\u043e\u044e"}
-              >
-                <FiCalendar className="cfp-sort-icon" aria-hidden="true" />
-                <SortArrow col="date" />
-              </button>
-            </div>
-
-            <div className="cfp-view-switch" role="group" aria-label="Режим перегляду">
-              {VIEWS.map((v) => (
-                <button
-                  key={v.id}
-                  type="button"
-                  className={`cfp-view-btn${viewMode === v.id ? " is-active" : ""}`}
-                  onClick={() => setViewMode(v.id)}
-                  title={v.label}
-                >{v.icon}</button>
-              ))}
-            </div>
-
-            {downloadableSelection.length > 0 && (
-              <button
-                type="button"
-                className="cfp-tool-btn cfp-tool-btn--wide"
-                onClick={downloadSelection}
-                title={`Завантажити вибране (${downloadableSelection.length})`}
-              >
-                <FiDownload size={14} />
-                <span>{downloadableSelection.length}</span>
-              </button>
-            )}
-
-            {orderId && selectedFiles.length > 1 && (
-              <button
-                type="button"
-                className="cfp-tool-btn cfp-tool-btn--wide"
-                onClick={linkSelection}
-                title={`Прив'язати вибране до наряду ${orderId}`}
-              >
-                <FiPlus size={14} />
-                <span>у наряд</span>
-              </button>
-            )}
-
-            <button
-              type="button"
-              className={`cfp-tool-btn cfp-preview-toggle${showPreview ? " is-active" : ""}`}
-              onClick={() => setShowPreview((v) => !v)}
-              title="Панель перегляду"
-            ><FiEye size={15} /></button>
-
-            <button
-              type="button"
-              className="cfp-tool-btn cfp-refresh-action"
-              onClick={() => fetchFiles()}
-              title="Оновити"
-              aria-label="Оновити список файлів"
-            ><FiRefreshCw /></button>
-
-            <button className="nui-client-rect-btn cfp-toolbar-action" onClick={createFolder} title="Нова папка">
-              <FiFolderPlus aria-hidden="true" />
-              <span className="nui-client-rect-btn-text">Нова папка</span>
-            </button>
-            <button
-              className="nui-client-rect-btn cfp-toolbar-action"
-              onClick={() => inputRef.current?.click()}
-              title="Додати файли — або перетягніть сюди файли чи цілу папку"
-            >
-              <FiFilePlus aria-hidden="true" />
-              <span className="nui-client-rect-btn-text">Додати файли</span>
-            </button>
-            <button
-              className="nui-client-rect-btn cfp-toolbar-action"
-              onClick={() => dirInputRef.current?.click()}
-              title="Додати папку з диска — структура підпапок збережеться"
-            >
-              <FiUploadCloud aria-hidden="true" />
-              <span className="nui-client-rect-btn-text">Додати папку</span>
-            </button>
-          </div>
-
-          <input
-            ref={inputRef}
-            type="file"
-            multiple
-            style={{ display: "none" }}
-            onChange={(e) => uploadFiles(e.target.files)}
-          />
-
-          {/* Вибір цілої папки: webkitdirectory дає файлам
-              webkitRelativePath, з якого uploadFiles відтворює підпапки.
-              Атрибути нестандартні для JSX, тому пишемо їх малими. */}
-          <input
-            ref={dirInputRef}
-            type="file"
-            multiple
-            webkitdirectory=""
-            directory=""
-            style={{ display: "none" }}
-            onChange={(e) => uploadFiles(e.target.files)}
-          />
-        </div>
-
-        {/* Upload progress */}
-        {uploadProgress && (
-          <div className="cfp-upload-progress">
-            {uploadProgress.name} — {uploadProgress.percent}%
-            <div className="cfp-progress-track">
-              <div className="cfp-progress-bar" style={{ width: `${uploadProgress.percent}%` }}/>
-            </div>
-          </div>
+  /* кнопки дій у рядку / на плитці */
+  const rowActions = (f) => {
+    if (isDirectory(f)) return null;
+    return (
+      <>
+        <button
+          type="button"
+          className="pfm-act"
+          onClick={(e) => { e.stopPropagation(); downloadFile(f); }}
+          title="Завантажити"
+        ><FiDownload /></button>
+        {selectMode ? (
+          <button
+            type="button"
+            className="pfm-act"
+            onClick={(e) => { e.stopPropagation(); onSelectFile?.(f.id); }}
+            title="Прив'язати до замовлення"
+          ><FiLink /></button>
+        ) : (
+          <button
+            type="button"
+            className="pfm-act pfm-act--danger"
+            onClick={(e) => { e.stopPropagation(); deleteFile(f.id); }}
+            title="Видалити файл"
+          ><FiTrash2 /></button>
         )}
+      </>
+    );
+  };
 
-        {/* Drag overlay */}
-        {dragActive && (
-          <div className="cfp-drag-overlay">Кинь файли сюди</div>
-        )}
+  const itemProps = (f, index) => {
+    const key = rowKey(f);
+    return {
+      "data-key": key,
+      onClick: (e) => { e.stopPropagation(); selectAt(e, key, index); },
+      onDoubleClick: (e) => { e.stopPropagation(); activate(f); },
+      onContextMenu: (e) => {
+        e.preventDefault(); e.stopPropagation();
+        // правий клік по невиділеному — виділяє лише його, по
+        // виділеному — зберігає поточну групу
+        if (!selectedIds.includes(key)) { anchorRef.current = index; setSelectedIds([key]); }
+        setCtxMenu({ x: e.clientX, y: e.clientY, file: f });
+      },
+      title: nameOf(f),
+    };
+  };
 
-        {loading && (
-          <div style={{ textAlign: "center", padding: 12 }}>
-            <Spinner animation="grow" variant="dark" size="sm"/>
-          </div>
-        )}
-        {error && <div className="alert alert-danger" style={{ margin: "0 16px" }}>{error}</div>}
+  const SortMark = ({ col }) => {
+    if (sort.col !== col) return <FiChevronDown className="pfm-sort-mark is-idle" />;
+    return sort.desc
+      ? <FiChevronDown className="pfm-sort-mark" />
+      : <FiChevronUp className="pfm-sort-mark" />;
+  };
 
-        {/* ── ТІЛО: вміст папки + панель деталей ── */}
-        <div className={`cfp-body${showPreview ? " has-preview" : ""}`}>
+  const ariaSort = (col) => (sort.col !== col ? "none" : (sort.desc ? "descending" : "ascending"));
+
+  /* ── вміст: список ── */
+  const renderTable = () => (
+    <div className="pfm-table" role="grid" aria-multiselectable="true">
+      <div className="pfm-thead" role="row">
+        <span className="pfm-th pfm-c-icon" aria-hidden="true" />
+        <button type="button" role="columnheader" aria-sort={ariaSort("name")} className="pfm-th pfm-c-name" onClick={() => toggleSort("name")}>
+          <span>Назва</span><SortMark col="name" />
+        </button>
+        <button type="button" role="columnheader" aria-sort={ariaSort("type")} className="pfm-th pfm-c-kind" onClick={() => toggleSort("type")}>
+          <span>Тип</span><SortMark col="type" />
+        </button>
+        <button type="button" role="columnheader" aria-sort={ariaSort("size")} className="pfm-th pfm-c-size" onClick={() => toggleSort("size")}>
+          <span>Розмір</span><SortMark col="size" />
+        </button>
+        <button type="button" role="columnheader" aria-sort={ariaSort("date")} className="pfm-th pfm-c-date" onClick={() => toggleSort("date")}>
+          <span>Додано</span><SortMark col="date" />
+        </button>
+        <span className="pfm-th pfm-c-ord" role="columnheader"><span>Наряди</span></span>
+        <span className="pfm-th pfm-c-act" aria-hidden="true" />
+      </div>
+
+      {visibleFiles.map((f, index) => {
+        const isDir = isDirectory(f);
+        const name = nameOf(f);
+        const fmt = isDir ? null : fileFormat(name);
+        const selected = selectedIds.includes(rowKey(f));
+        return (
           <div
-            className={`cfp-content cfp-content--${viewMode}`}
-            onClick={() => { setSelectedIds([]); anchorRef.current = null; }}
+            key={rowKey(f)}
+            role="row"
+            aria-selected={selected}
+            className={`pfm-row${selected ? " is-selected" : ""}${isDir ? " is-dir" : ""}${isLinkedToCurrentOrder(f) ? " is-linked" : ""}`}
+            {...itemProps(f, index)}
           >
-            {!loading && visibleFiles.length === 0 && (
-              <div className="cfp-empty">
-                {query ? "Нічого не знайдено" : "Файлів поки немає"}
-              </div>
-            )}
-
-            {viewMode === "table" && visibleFiles.length > 0 && (
-              <div className="cfp-list-header">
-                <div></div>
-                <div className="cfp-sort-col" onClick={() => toggleSort("name")}>Назва<SortArrow col="name"/></div>
-                <div className="cfp-sort-col" onClick={() => toggleSort("type")}>Тип<SortArrow col="type"/></div>
-                <div className="cfp-sort-col" onClick={() => toggleSort("size")}>Розмір<SortArrow col="size"/></div>
-                <div className="cfp-sort-col" onClick={() => toggleSort("date")}>Дата<SortArrow col="date"/></div>
-                <div>Зам.</div>
-                <div><FiTrash2 size={13}/></div>
-              </div>
-            )}
-
-            {visibleFiles.map((f, index) => {
-              const isDir = isDirectory(f);
-              const name = f.originalName || f.fileName;
-              const meta = isDir
-                ? { icon: <FiFolder size={24}/>, color: "var(--adminorange, #f5a623)" }
-                : fileTypeMeta(name);
-              const key = rowKey(f);
-              const selected = selectedIds.includes(key);
-
-              const common = {
-                onClick: (e) => { e.stopPropagation(); selectAt(e, key, index); },
-                onDoubleClick: (e) => { e.stopPropagation(); activate(f); },
-                onContextMenu: (e) => {
-                  e.preventDefault(); e.stopPropagation();
-                  // правий клік по невиділеному — виділяє лише його, по
-                  // виділеному — зберігає поточну групу
-                  if (!selectedIds.includes(key)) { anchorRef.current = index; setSelectedIds([key]); }
-                  setCtxMenu({ x: e.clientX, y: e.clientY, file: f });
-                },
-                title: name,
-              };
-
-              if (viewMode === "table") {
-                return (
-                  <div
-                    key={key}
-                    className={`cfp-file-row${selected ? " is-selected" : ""}`}
-                    {...common}
-                  >
-                    <div className="cfp-file-icon" style={{ color: meta.color }}>{meta.icon}</div>
-                    <div className="cfp-file-name">{name}</div>
-                    <div className="cfp-file-type">{isDir ? "—" : getExt(name)}</div>
-                    <div className="cfp-file-size">{isDir ? "—" : formatBytes(f.size)}</div>
-                    <div className="cfp-file-date">{isDir ? "" : formatDate(f.createdAt)}</div>
-                    <div className="cfp-file-orders">
-                      {linkedOrderIds(f).map(oid => (
-                        <span key={oid} className={`cfp-order-badge${oid === orderId ? " cfp-order-badge--current" : ""}`}>
-                          {oid}
-                          <button
-                            className="cfp-order-unlink-btn"
-                            onClick={(e) => { e.stopPropagation(); unlinkFromOrder(f.id, oid); }}
-                            title={`Відв'язати від замовлення ${oid}`}
-                          ><FiMinus size={10}/></button>
-                        </span>
-                      ))}
-                      {orderId && (
-                        <button
-                          className={`cfp-order-plus-btn${isLinkedToCurrentOrder(f) ? " cfp-order-plus-btn--muted" : ""}`}
-                          onClick={(e) => { e.stopPropagation(); linkToOrder(f); }}
-                          title={`Прив'язати до замовлення ${orderId}`}
-                          disabled={isLinkedToCurrentOrder(f)}
-                        ><FiPlus size={12}/></button>
-                      )}
-                    </div>
-                    <div className="cfp-file-actions">
-                      {isDir ? null : selectMode ? (
-                        <button
-                          className="cfp-select-btn"
-                          onClick={(e) => { e.stopPropagation(); onSelectFile?.(f.id); }}
-                          title="Прив'язати до замовлення"
-                        ><FiLink size={14}/></button>
-                      ) : (
-                        <button
-                          className="cfp-admin-btn cfp-admin-btn-red"
-                          onClick={(e) => { e.stopPropagation(); deleteFile(f.id); }}
-                          title="Видалити файл"
-                        >
-                          <span className="cfp-btn-inner"><FiTrash2 size={14}/></span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              }
-
-              // плитки й великі іконки — та сама картка, різний масштаб
-              return (
-                <div
-                  key={key}
-                  className={`cfp-card${selected ? " is-selected" : ""}`}
-                  {...common}
-                >
-                  <div className="cfp-card-thumb" style={{ color: meta.color }}>
-                    {isDir || !isImageFile(f)
-                      ? <span className="cfp-thumb-glyph">{meta.icon}</span>
-                      : <CfpThumb file={f} fallback={meta.icon} />}
-                  </div>
-                  <div className="cfp-card-name">{shortName(name, viewMode === "icons" ? 28 : 36)}</div>
-                  <div className="cfp-card-meta">
-                    {isDir ? "папка" : `${getExt(name) || "файл"} · ${formatBytes(f.size)}`}
-                  </div>
-                  <div className="cfp-card-orders">
-                    {linkedOrderIds(f).map(oid => (
-                      <span key={oid} className={`cfp-order-badge${oid === orderId ? " cfp-order-badge--current" : ""}`}>
-                        {oid}
-                        <button
-                          className="cfp-order-unlink-btn"
-                          onClick={(e) => { e.stopPropagation(); unlinkFromOrder(f.id, oid); }}
-                          title={`Відв'язати від замовлення ${oid}`}
-                        ><FiMinus size={10}/></button>
-                      </span>
-                    ))}
-                    {orderId && (
-                      <button
-                        className={`cfp-order-plus-btn${isLinkedToCurrentOrder(f) ? " cfp-order-plus-btn--muted" : ""}`}
-                        onClick={(e) => { e.stopPropagation(); linkToOrder(f); }}
-                        title={`Прив'язати до замовлення ${orderId}`}
-                        disabled={isLinkedToCurrentOrder(f)}
-                      ><FiPlus size={12}/></button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+            <span className="pfm-c-icon"><FileFormatIcon name={name} isDir={isDir} size={26} /></span>
+            <span className="pfm-c-name pfm-name"><FileName name={name} isDir={isDir} /></span>
+            <span className="pfm-c-kind">{isDir ? "Папка" : fmt.kind}</span>
+            <span className="pfm-c-size">{isDir ? "" : formatBytes(f.size)}</span>
+            <span className="pfm-c-date" title={f.createdAt ? fmtDateFull(f.createdAt) : undefined}>{fmtDate(f.createdAt)}</span>
+            <span className="pfm-c-ord">{orderBadges(f)}</span>
+            <span className="pfm-c-act">{rowActions(f)}</span>
           </div>
+        );
+      })}
+    </div>
+  );
 
-          {/* ── ПАНЕЛЬ ПЕРЕГЛЯДУ ── */}
-          {showPreview && (
-            <aside className="cfp-preview">
-              {!selectedFile ? (
-                /* без файлу панель просто порожня — підпис «Виберіть файл»
-                   прибрано на прохання: він нічого не додавав */
-                null
-              ) : (
-                <>
-                  <div className="cfp-preview-stage">
-                    {previewBusy && <Spinner animation="grow" variant="dark" size="sm"/>}
-                    {!previewBusy && previewUrl && isImageFile(selectedFile) && (
-                      <img className="cfp-preview-img" src={previewUrl} alt="" />
-                    )}
-                    {!previewBusy && previewUrl && isPdfFile(selectedFile) && (
-                      <object className="cfp-preview-pdf" data={previewUrl} type="application/pdf">
-                        <span className="cfp-preview-note">PDF не показується — відкрийте файл</span>
-                      </object>
-                    )}
-                    {!previewBusy && !previewUrl && (
-                      <span
-                        className="cfp-preview-glyph"
-                        style={{ color: isDirectory(selectedFile)
-                          ? "var(--adminorange, #f5a623)"
-                          : fileTypeMeta(selectedFile.originalName || selectedFile.fileName).color }}
-                      >
-                        {isDirectory(selectedFile)
-                          ? <FiFolder size={64}/>
-                          : fileTypeMeta(selectedFile.originalName || selectedFile.fileName).icon}
-                      </span>
-                    )}
-                  </div>
+  /* ── вміст: плитка / великі мініатюри ── */
+  const renderGrid = () => {
+    const big = viewMode === "icons";
+    return (
+      <div className={`pfm-grid${big ? " pfm-grid--big" : ""}`} role="grid" aria-multiselectable="true">
+        {visibleFiles.map((f, index) => {
+          const isDir = isDirectory(f);
+          const name = nameOf(f);
+          const fmt = isDir ? null : fileFormat(name);
+          const selected = selectedIds.includes(rowKey(f));
+          return (
+            <div
+              key={rowKey(f)}
+              role="gridcell"
+              aria-selected={selected}
+              className={`pfm-card${selected ? " is-selected" : ""}${isDir ? " is-dir" : ""}${isLinkedToCurrentOrder(f) ? " is-linked" : ""}`}
+              {...itemProps(f, index)}
+            >
+              <div className="pfm-card-media">
+                <PfmThumb file={f} iconSize={big ? 64 : 44} big={big} />
+                <span className="pfm-card-ords">{orderBadges(f)}</span>
+                <span className="pfm-card-acts">{rowActions(f)}</span>
+              </div>
+              <div className="pfm-card-body">
+                <div className="pfm-card-name"><FileName name={name} isDir={isDir} /></div>
+                <div className="pfm-card-meta" title={isDir ? undefined : fmt.kind}>
+                  {isDir ? "Папка" : `${(fmt.ext || "файл").toUpperCase()} · ${formatBytes(f.size)}`}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
-                  <div className="cfp-preview-name">{selectedFile.originalName || selectedFile.fileName}</div>
+  /* ── порожній стан ── */
+  const renderEmpty = () => {
+    if (loading) return null;
+    if (query.trim()) {
+      return (
+        <div className="pfm-empty">
+          <FiSearch className="pfm-empty-icon" />
+          <strong>Нічого не знайдено</strong>
+          <span>За запитом «{query.trim()}» у цій папці файлів немає</span>
+          {!(inline && orderId) && (
+            <button type="button" className="pfm-btn" onClick={() => setQuery("")}><span>Очистити пошук</span></button>
+          )}
+        </div>
+      );
+    }
+    return (
+      <div className="pfm-empty">
+        <FiUploadCloud className="pfm-empty-icon" />
+        <strong>{currentFolder ? "Папка порожня" : "Файлів поки немає"}</strong>
+        <span>Перетягніть сюди файли або цілу папку — структура збережеться</span>
+        <button type="button" className="pfm-btn pfm-btn--primary" onClick={() => inputRef.current?.click()}>
+          <FiFilePlus /><span>Додати файли</span>
+        </button>
+      </div>
+    );
+  };
 
-                  <dl className="cfp-preview-props">
-                    <dt>Тип</dt>
-                    <dd>{isDirectory(selectedFile) ? "папка" : (getExt(selectedFile.originalName || selectedFile.fileName) || "—")}</dd>
-                    <dt>Розмір</dt>
-                    <dd>{isDirectory(selectedFile) ? "—" : formatBytes(selectedFile.size)}</dd>
-                    <dt>Додано</dt>
-                    <dd>{formatDate(selectedFile.createdAt) || "—"}</dd>
-                    <dt>Замовлення</dt>
-                    <dd>
-                      {linkedOrderIds(selectedFile).length
-                        ? linkedOrderIds(selectedFile).join(", ")
-                        : "—"}
-                    </dd>
-                  </dl>
+  /* ── перегляд вибраного ── */
+  const renderPreview = () => {
+    if (!selectedFile) {
+      return inline ? null : (
+        // без файлу панель просто порожня — підпис «Виберіть файл»
+        // колись прибрали на прохання: він нічого не додавав
+        <aside className="pfm-pv is-empty" aria-label="Перегляд" />
+      );
+    }
+    const f = selectedFile;
+    const isDir = isDirectory(f);
+    const name = nameOf(f);
+    const fmt = isDir ? null : fileFormat(name);
+    const isImg = canPreviewImg(f);
+    const isPdf = canPreviewPdf(f);
+    const multi = selectedIds.length > 1;
+    // фізичний розмір друку при 300 dpi — те, що друкарю треба одразу
+    const mm = (px) => Math.round((px / 300) * 25.4);
 
-                  <div className="cfp-preview-actions">
-                    <button className="nui-client-rect-btn" onClick={() => activate(selectedFile)}>
-                      <span className="nui-client-rect-btn-text">
-                        {isDirectory(selectedFile) ? "Відкрити папку" : "Відкрити"}
-                      </span>
-                    </button>
-                    {orderId && (
-                      <button
-                        className="nui-client-rect-btn"
-                        onClick={() => linkToOrder(selectedFile)}
-                        disabled={isLinkedToCurrentOrder(selectedFile)}
-                      >
-                        <span className="nui-client-rect-btn-text">
-                          {isLinkedToCurrentOrder(selectedFile) ? "Вже в наряді" : "У наряд"}
-                        </span>
-                      </button>
-                    )}
-                    {!isDirectory(selectedFile) && (
-                      <button className="nui-client-rect-btn" onClick={() => deleteFile(selectedFile.id)}>
-                        <span className="nui-client-rect-btn-text">Видалити</span>
-                      </button>
-                    )}
-                  </div>
-                </>
-              )}
-              {inline && orderId && (
-                <section className="cfp-order-editors" aria-label="Order services">
-                  <div className="cfp-order-editors-head">
-                    <strong>{"\u0414\u043e\u0434\u0430\u0442\u0438 \u0434\u043e \u0437\u0430\u043c\u043e\u0432\u043b\u0435\u043d\u043d\u044f"}</strong>
-                    <span>{"\u041e\u0431\u0435\u0440\u0456\u0442\u044c \u043f\u043e\u0441\u043b\u0443\u0433\u0443"}</span>
-                  </div>
-                  <div className="cfp-order-editor-groups">
-                    {FILE_EDITOR_GROUPS.map((group) => (
-                      <section
-                        key={group.id}
-                        className={`cfp-order-editor-group is-${group.id}`}
-                        style={{ "--cfp-group-tint": `var(${group.tint}, #666)` }}
-                      >
-                        <h3 className="cfp-order-editor-group-title">{group.label}</h3>
-                        <div className="cfp-order-editors-grid">
-                          {FILE_ORDER_EDITORS
-                            .filter((editor) => group.values.includes(editor.value)
-                              && !hiddenEditors.includes(editor.value))
-                            .map((editor) => {
-                            const image = DOCK_IMAGES[editor.value];
-                            return (
-                              <button
-                                key={editor.value}
-                                type="button"
-                                className="cfp-order-editor-btn"
-                                style={{ "--cfp-editor-tint": `var(${editor.tint}, #666)` }}
-                                onClick={() => window.dispatchEvent(new CustomEvent(
-                                  "pp-open-order-editor",
-                                  { detail: { value: editor.value } }
-                                ))}
-                                title={editor.label}
-                              >
-                                <span className={`cfp-order-editor-icon${image ? " has-img" : ""}`} aria-hidden="true">
-                                  {image ? <img src={image} alt="" draggable={false} /> : DOCK_ICONS[editor.icon]}
-                                </span>
-                                <span className="cfp-order-editor-label">{editor.label}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </section>
-                    ))}
-                  </div>
-                </section>
-              )}
-              {inline && orderId && onToggleWorkspaceSwap && (
-                <button
-                  type="button"
-                  className={`cfp-workspace-swap${workspaceSwapped ? " is-swapped" : ""}`}
-                  onClick={onToggleWorkspaceSwap}
-                  title={workspaceSwapped ? "Повернути блоки на місце" : "Поміняти крайні блоки місцями"}
-                  aria-label={workspaceSwapped ? "Повернути блоки на місце" : "Поміняти крайні блоки місцями"}
-                >
-                  <span className="cfp-workspace-swap-arrow" aria-hidden="true" />
-                </button>
-              )}
-            </aside>
+    return (
+      <aside className="pfm-pv" aria-label="Перегляд">
+        <div className={`pfm-pv-stage${isImg && previewUrl ? " is-image" : ""}`}>
+          {previewBusy && <span className="pfm-spinner" aria-label="Завантаження" />}
+          {!previewBusy && previewUrl && isImg && (
+            <img
+              className="pfm-pv-img"
+              src={previewUrl}
+              alt=""
+              onLoad={(e) => setImgDims({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })}
+              onError={() => setPreviewUrl(null)}
+            />
+          )}
+          {!previewBusy && previewUrl && isPdf && (
+            <object className="pfm-pv-pdf" data={`${previewUrl}#toolbar=0&navpanes=0&view=Fit`} type="application/pdf">
+              <FileFormatIcon name={name} size={72} />
+            </object>
+          )}
+          {!previewBusy && !previewUrl && (
+            <FileFormatIcon name={name} isDir={isDir} size={inline ? 64 : 88} />
           )}
         </div>
 
-        {/* контекстне меню — той самий набір дій, що й у панелі деталей */}
-        {ctxMenu && (
-          <div className="cfp-ctx" style={{ left: ctxMenu.x, top: ctxMenu.y }} onClick={(e) => e.stopPropagation()}>
-            <button type="button" onClick={() => { activate(ctxMenu.file); setCtxMenu(null); }}>
-              {isDirectory(ctxMenu.file) ? "Відкрити папку" : "Відкрити"}
+        <div className="pfm-pv-info">
+          <div className="pfm-pv-head">
+            <div className="pfm-pv-title">
+              <div className="pfm-pv-name" title={name}>{name}</div>
+              <div className="pfm-pv-kind">
+                {isDir ? "Папка" : fmt.kind}
+                {multi && <em> · вибрано {selectedIds.length}</em>}
+              </div>
+            </div>
+            <button type="button" className="pfm-icon-btn" onClick={clearSelection} title="Закрити перегляд">
+              <FiX />
             </button>
-            {!isDirectory(ctxMenu.file) && (
+          </div>
+
+          <dl className="pfm-pv-props">
+            {!isDir && (<><dt>Розмір</dt><dd>{formatBytes(f.size) || "—"}</dd></>)}
+            {imgDims && (
+              <>
+                <dt>Пікселі</dt><dd>{imgDims.w} × {imgDims.h}</dd>
+                <dt>Друк 300 dpi</dt><dd>{mm(imgDims.w)} × {mm(imgDims.h)} мм</dd>
+              </>
+            )}
+            <dt>Додано</dt><dd>{fmtDateFull(f.createdAt)}</dd>
+            {multi && selectionBytes > 0 && (<><dt>Разом</dt><dd>{formatBytes(selectionBytes)}</dd></>)}
+            {/* «у наряд» — кнопкою нижче, тут лише те, що вже прив'язано */}
+            <dt>Наряди</dt>
+            <dd className="pfm-pv-ords">
+              {linkedOrderIds(f).length ? orderBadges(f, false) : "—"}
+            </dd>
+          </dl>
+
+          <div className="pfm-pv-actions">
+            <button type="button" className="pfm-btn pfm-btn--primary" onClick={() => activate(f)}>
+              {isDir ? <FiFolder /> : <FiExternalLink />}
+              <span>{isDir ? "Відкрити папку" : "Відкрити"}</span>
+            </button>
+            {!isDir && (
               <button
                 type="button"
-                onClick={() => {
-                  if (downloadableSelection.length > 1) downloadSelection();
-                  else downloadFile(ctxMenu.file);
-                  setCtxMenu(null);
-                }}
+                className="pfm-btn"
+                onClick={() => (multi && downloadableSelection.length > 1 ? downloadSelection() : downloadFile(f))}
               >
-                <FiDownload size={12}/>
-                {downloadableSelection.length > 1
-                  ? `Завантажити вибране (${downloadableSelection.length})`
-                  : "Завантажити"}
+                <FiDownload />
+                <span>{multi && downloadableSelection.length > 1 ? `Завантажити ${downloadableSelection.length}` : "Завантажити"}</span>
               </button>
             )}
             {orderId && (
               <button
                 type="button"
-                disabled={isLinkedToCurrentOrder(ctxMenu.file)}
-                onClick={() => { linkToOrder(ctxMenu.file); setCtxMenu(null); }}
-              >У наряд {orderId}</button>
-            )}
-            {!isDirectory(ctxMenu.file) && (
-              <button type="button" className="is-danger" onClick={() => { deleteFile(ctxMenu.file.id); setCtxMenu(null); }}>
-                <FiTrash2 size={12}/> Видалити
+                className="pfm-btn"
+                onClick={() => (multi ? linkSelection() : linkToOrder(f))}
+                disabled={!multi && isLinkedToCurrentOrder(f)}
+              >
+                <FiPlus />
+                <span>{!multi && isLinkedToCurrentOrder(f) ? "Вже в наряді" : "У наряд"}</span>
               </button>
             )}
+            {!isDir && !selectMode && (
+              <button
+                type="button"
+                className="pfm-btn pfm-btn--danger pfm-btn--square"
+                onClick={() => (multi ? deleteSelection() : deleteFile(f.id))}
+                title={multi ? "Видалити вибрані" : "Видалити"}
+              ><FiTrash2 /></button>
+            )}
+          </div>
+        </div>
+      </aside>
+    );
+  };
+
+  /* контекстне меню — порталом у body: предок із transform/filter
+     зсунув би position:fixed відносно курсора */
+  const renderCtxMenu = () => {
+    if (!ctxMenu) return null;
+    const f = ctxMenu.file;
+    const isDir = isDirectory(f);
+    const multiDl = downloadableSelection.length > 1;
+    const W = 240;
+    const H = 230;
+    const left = Math.min(ctxMenu.x, window.innerWidth - W - 8);
+    const top = Math.min(ctxMenu.y, window.innerHeight - H - 8);
+    const run = (fn) => () => { fn(); setCtxMenu(null); };
+    return ReactDOM.createPortal(
+      <div className="pfm-ctx" style={{ left, top }} onClick={(e) => e.stopPropagation()} role="menu">
+        <div className="pfm-ctx-head">
+          <FileFormatIcon name={nameOf(f)} isDir={isDir} size={16} />
+          <span>{nameOf(f)}</span>
+        </div>
+        <button type="button" role="menuitem" onClick={run(() => activate(f))}>
+          {isDir ? <FiFolder /> : <FiExternalLink />}
+          <span>{isDir ? "Відкрити папку" : "Відкрити"}</span>
+        </button>
+        {!isDir && (
+          <button type="button" role="menuitem" onClick={run(() => (multiDl ? downloadSelection() : downloadFile(f)))}>
+            <FiDownload />
+            <span>{multiDl ? `Завантажити вибране (${downloadableSelection.length})` : "Завантажити"}</span>
+          </button>
+        )}
+        {orderId && (
+          <button
+            type="button"
+            role="menuitem"
+            disabled={selectedFiles.length <= 1 && isLinkedToCurrentOrder(f)}
+            onClick={run(() => (selectedFiles.length > 1 ? linkSelection() : linkToOrder(f)))}
+          >
+            <FiPlus />
+            <span>{selectedFiles.length > 1 ? `У наряд №${orderId} (${selectedFiles.length})` : `У наряд №${orderId}`}</span>
+          </button>
+        )}
+        <button type="button" role="menuitem" onClick={run(() => copyName(f))}>
+          <FiCopy /><span>Копіювати назву</span>
+        </button>
+        {!isDir && !selectMode && (
+          <>
+            <span className="pfm-ctx-sep" />
+            <button
+              type="button"
+              role="menuitem"
+              className="is-danger"
+              onClick={run(() => (multiDl ? deleteSelection() : deleteFile(f.id)))}
+            >
+              <FiTrash2 />
+              <span>{multiDl ? `Видалити вибране (${downloadableSelection.length})` : "Видалити"}</span>
+            </button>
+          </>
+        )}
+      </div>,
+      document.body
+    );
+  };
+
+  const multiSelected = selectedIds.length > 1;
+
+  const panel = (
+    <div
+      className={`cfp-modal pfm${inline ? " pfm--inline" : " pfm--modal"}${hideCatalog || inline ? " cfp-modal--jtx" : ""}${dragActive ? " is-dragging" : ""}`}
+      onClick={(e) => e.stopPropagation()}
+      onDragEnter={onDragEnter}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+    >
+      {/* ── ПАНЕЛЬ ІНСТРУМЕНТІВ ──────────────────────────────────────── */}
+      <div className="pfm-bar">
+        <button
+          type="button"
+          className="pfm-icon-btn"
+          onClick={goBack}
+          disabled={!currentFolder}
+          title="На рівень вище (Backspace)"
+        ><FiArrowUp /></button>
+
+        <label className="pfm-search">
+          <FiSearch aria-hidden="true" />
+          <input
+            type="text"
+            value={query}
+            placeholder={breadcrumbs.length
+              ? `Пошук у «${breadcrumbs[breadcrumbs.length - 1]}»`
+              : (companyId ? `Пошук файлів компанії №${companyId}` : `Пошук файлів клієнта №${userId}`)}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          {query && (
+            <button type="button" className="pfm-search-clear" onClick={() => setQuery("")} title="Очистити">
+              <FiX />
+            </button>
+          )}
+        </label>
+
+        <div className="pfm-seg" role="group" aria-label="Режим перегляду">
+          {VIEWS.map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              className={`pfm-icon-btn${viewMode === v.id ? " is-active" : ""}`}
+              aria-pressed={viewMode === v.id}
+              onClick={() => setViewMode(v.id)}
+              title={v.label}
+            >{v.icon}</button>
+          ))}
+        </div>
+
+        {!inline && (
+          <button
+            type="button"
+            className={`pfm-icon-btn${showPreview ? " is-active" : ""}`}
+            aria-pressed={showPreview}
+            onClick={() => setShowPreview((v) => !v)}
+            title="Панель перегляду"
+          ><FiSidebar /></button>
+        )}
+
+        <button
+          type="button"
+          className={`pfm-icon-btn${loading ? " is-spinning" : ""}`}
+          onClick={() => fetchFiles()}
+          title="Оновити"
+          aria-label="Оновити список файлів"
+        ><FiRefreshCw /></button>
+
+        <span className="pfm-bar-sep" aria-hidden="true" />
+
+        <div className="pfm-seg" role="group" aria-label="Додати">
+          <button type="button" className="pfm-icon-btn" onClick={createFolder} title="Нова папка">
+            <FiFolderPlus />
+          </button>
+          <button
+            type="button"
+            className="pfm-icon-btn"
+            onClick={() => dirInputRef.current?.click()}
+            title="Завантажити папку з диска — структура підпапок збережеться"
+          ><FiUploadCloud /></button>
+          <button
+            type="button"
+            className="pfm-icon-btn pfm-icon-btn--primary"
+            onClick={() => inputRef.current?.click()}
+            title="Додати файли — або перетягніть файли чи цілу папку в панель"
+          ><FiFilePlus /></button>
+        </div>
+
+        {!inline && onClose && (
+          <button type="button" className="pfm-icon-btn pfm-close" onClick={onClose} title="Закрити">
+            <FiX />
+          </button>
+        )}
+
+        <input
+          ref={inputRef}
+          type="file"
+          multiple
+          hidden
+          onChange={(e) => { uploadFiles(e.target.files); e.target.value = ""; }}
+        />
+        {/* Вибір цілої папки: webkitdirectory дає файлам webkitRelativePath,
+            з якого uploadFiles відтворює підпапки. */}
+        <input
+          ref={dirInputRef}
+          type="file"
+          multiple
+          hidden
+          webkitdirectory=""
+          directory=""
+          onChange={(e) => { uploadFiles(e.target.files); e.target.value = ""; }}
+        />
+      </div>
+
+      {/* ── ДРУГИЙ РЯД: шлях + фільтр за типом + сортування, або дії над
+          кількома вибраними ── */}
+      {multiSelected ? (
+        <div className="pfm-sub pfm-sub--selection">
+          <button type="button" className="pfm-icon-btn pfm-icon-btn--sm" onClick={clearSelection} title="Зняти виділення (Esc)">
+            <FiX />
+          </button>
+          <span className="pfm-sel-count">
+            Вибрано {selectedIds.length}
+            {selectionBytes > 0 && <em> · {formatBytes(selectionBytes)}</em>}
+          </span>
+          <span className="pfm-sub-spacer" />
+          {downloadableSelection.length > 0 && (
+            <button type="button" className="pfm-btn pfm-btn--sm" onClick={downloadSelection}>
+              <FiDownload /><span>Завантажити</span>
+            </button>
+          )}
+          {orderId && (
+            <button type="button" className="pfm-btn pfm-btn--sm" onClick={linkSelection}>
+              <FiPlus /><span>У наряд</span>
+            </button>
+          )}
+          {downloadableSelection.length > 0 && !selectMode && (
+            <button type="button" className="pfm-btn pfm-btn--sm pfm-btn--danger" onClick={deleteSelection}>
+              <FiTrash2 /><span>Видалити</span>
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="pfm-sub">
+          <nav className="pfm-crumbs" aria-label="Шлях">
+            <button
+              type="button"
+              className={`pfm-crumb${breadcrumbs.length ? "" : " is-current"}`}
+              onClick={() => setCurrentFolder("")}
+              title={rootLabel}
+            >
+              <FiFolder /><span>{rootLabel}</span>
+            </button>
+            {breadcrumbs.map((part, i) => (
+              <React.Fragment key={`${part}-${i}`}>
+                <FiChevronRight className="pfm-crumb-sep" aria-hidden="true" />
+                <button
+                  type="button"
+                  className={`pfm-crumb${i === breadcrumbs.length - 1 ? " is-current" : ""}`}
+                  onClick={() => goToCrumb(i)}
+                  title={part}
+                ><span>{part}</span></button>
+              </React.Fragment>
+            ))}
+          </nav>
+
+          {presentGroups.length > 1 && (
+            <div className="pfm-chips" role="group" aria-label="Тип файлів">
+              <button
+                type="button"
+                className={`pfm-chip${typeFilter === "all" ? " is-active" : ""}`}
+                onClick={() => setTypeFilter("all")}
+              ><span>Усі</span><em>{fileCount}</em></button>
+              {presentGroups.map((g) => (
+                <button
+                  key={g.id}
+                  type="button"
+                  className={`pfm-chip${typeFilter === g.id ? " is-active" : ""}`}
+                  onClick={() => setTypeFilter((cur) => (cur === g.id ? "all" : g.id))}
+                ><span>{g.label}</span><em>{groupCounts[g.id]}</em></button>
+              ))}
+            </div>
+          )}
+
+          {viewMode !== "table" && (
+            <div className="pfm-sortbar" role="group" aria-label="Сортування">
+              {SORTS.filter((s) => s.id !== "type").map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  className={`pfm-sortbtn${sort.col === s.id ? " is-active" : ""}`}
+                  onClick={() => toggleSort(s.id)}
+                  title={`Сортувати: ${s.label.toLowerCase()}`}
+                >
+                  <span>{s.label}</span>
+                  {sort.col === s.id && (sort.desc ? <FiChevronDown /> : <FiChevronUp />)}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* смуга стану: завантаження списку / вивантаження файлів / помилка */}
+      {loading && !uploadProgress && <div className="pfm-loadbar" aria-hidden="true" />}
+      {uploadProgress && (
+        <div className="pfm-upload" role="status">
+          <FiUploadCloud />
+          <span className="pfm-upload-name">{uploadProgress.name}</span>
+          {uploadProgress.total > 1 && (
+            <span className="pfm-upload-count">{uploadProgress.index} з {uploadProgress.total}</span>
+          )}
+          <span className="pfm-upload-pct">{uploadProgress.percent}%</span>
+          <span className="pfm-upload-track"><span style={{ width: `${uploadProgress.percent}%` }} /></span>
+        </div>
+      )}
+      {error && (
+        <div className="pfm-error" role="alert">
+          <FiAlertTriangle />
+          <span>{error}</span>
+          <button type="button" className="pfm-icon-btn pfm-icon-btn--sm" onClick={() => setError(null)} title="Сховати">
+            <FiX />
+          </button>
+        </div>
+      )}
+
+      {/* ── ТІЛО: вміст папки + перегляд ── */}
+      <div className={`pfm-body${previewOn ? " has-preview" : ""}${selectedFile ? " has-selection" : ""}`}>
+        <div
+          ref={contentRef}
+          className={`pfm-content pfm-content--${viewMode}`}
+          tabIndex={0}
+          onKeyDown={onContentKeyDown}
+          onClick={clearSelection}
+        >
+          {visibleFiles.length === 0
+            ? renderEmpty()
+            : (viewMode === "table" ? renderTable() : renderGrid())}
+        </div>
+
+        {previewOn && renderPreview()}
+
+        {dragActive && (
+          <div className="pfm-drop">
+            <div className="pfm-drop-box">
+              <FiUploadCloud />
+              <strong>Відпустіть, щоб завантажити</strong>
+              <span>у «{breadcrumbs.length ? breadcrumbs.join(" / ") : rootLabel}»</span>
+            </div>
           </div>
         )}
-
-        {/* ── СТАТУС-РЯДОК ──
-            На сторінці наряду (inline) прибраний на прохання користувача:
-            лічильник об'єктів і «Локальна папка» там лише з'їдали висоту.
-            У модальному провіднику лишається — це єдиний вхід у локальну
-            папку й у файли компанії. */}
-        {!inline && (
-        <div className="cfp-statusbar">
-          <button className="cfp-status-link" onClick={openFolder} title="Відкрити папку на цьому ПК">
-            <FiFolder size={13}/>
-            <span>Локальна папка</span>
-          </button>
-
-          <span className="cfp-statusbar-text">
-            {`Об'єктів: ${visibleFiles.length}`}
-            {query && files.length !== visibleFiles.length && ` з ${files.length}`}
-            {selectedIds.length > 1
-              ? ` · вибрано: ${selectedIds.length}`
-              : selectedFile ? ` · вибрано: ${shortName(selectedFile.originalName || selectedFile.fileName, 30)}` : ""}
-          </span>
-
-          {companyId && !inline ? (
-            <button className="cfp-status-link" onClick={() => setShowCompanyFiles(true)} title="Файли компанії">
-              <FiFolder size={13}/>
-              <span>Файли компанії</span>
-            </button>
-          ) : <span/>}
-        </div>
-        )}
-
-        {showCompanyFiles && companyId && (
-          <CompanyFilesPanel
-            companyId={companyId}
-            companyName={companyName}
-            onClose={() => setShowCompanyFiles(false)}
-          />
-        )}
       </div>
+
+      {/* ── СТАТУС-РЯДОК: лише в модальному провіднику — там це єдиний вхід
+          у локальну папку й у файли компанії. На сторінці наряду він
+          тільки з'їдав би висоту. ── */}
+      {!inline && (
+        <div className="pfm-status">
+          <button type="button" className="pfm-link" onClick={openFolder} title="Відкрити папку на цьому ПК">
+            <FiFolder /><span>Локальна папка</span>
+          </button>
+          <span className="pfm-status-text">
+            {visibleFiles.length} {plural(visibleFiles.length, "об'єкт", "об'єкти", "об'єктів")}
+            {totalBytes > 0 && ` · ${formatBytes(totalBytes)}`}
+            {(query || typeFilter !== "all") && files.length !== visibleFiles.length && ` · з ${files.length}`}
+          </span>
+          {companyId ? (
+            <button type="button" className="pfm-link" onClick={() => setShowCompanyFiles(true)} title="Файли компанії">
+              <FiFolder /><span>Файли компанії</span>
+            </button>
+          ) : <span />}
+        </div>
+      )}
+
+      {renderCtxMenu()}
+
+      {showCompanyFiles && companyId && (
+        <CompanyFilesPanel
+          companyId={companyId}
+          companyName={companyName}
+          onClose={() => setShowCompanyFiles(false)}
+        />
+      )}
+    </div>
   );
 
   if (inline) return panel;

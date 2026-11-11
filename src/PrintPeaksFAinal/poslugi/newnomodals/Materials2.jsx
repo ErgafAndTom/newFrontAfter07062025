@@ -4,6 +4,7 @@ import axios from "../../../api/axiosInstance";
 import {getMaterialSort} from "../../../utils/materialSort";
 import {useNavigate} from "react-router-dom";
 import {Spinner} from "react-bootstrap";
+import {MaterialOptionLabel, listHasImages} from "../shared/MaterialThumb";
 
 /* Кеш списків матеріалів на час життя вкладки.
    Список за однією комбінацією (тип + щільність + розмір + послуга +
@@ -268,7 +269,8 @@ const Materials2 = ({
       el.getBoundingClientRect().width
     );
     if (widths.length > 0) {
-      const maxWidth = Math.ceil(Math.max(...widths)) + 30;
+      // + місце під мініатюру фото (30px і відступ), якщо в списку є фото
+      const maxWidth = Math.ceil(Math.max(...widths)) + 30 + (listHasImages(paper) ? 40 : 0);
       setDropdownWidth(`${maxWidth}px`);
     }
   }, [paper]);
@@ -289,6 +291,8 @@ const Materials2 = ({
       ? material.material
       : "Виберіть матеріал";
   const hasButtons = buttonsArr.length > 0;
+  const withThumbs = listHasImages(paper);
+  const selectedImageId = paper.find((p) => String(p.id) === String(material?.materialId))?.imageId || null;
 
   return (
     <div className={`d-flex flex-row align-items-center w-100 ${hasButtons ? "justify-content-between gap-3" : "justify-content-center"}`} >
@@ -383,7 +387,7 @@ const Materials2 = ({
           }}
           style={disabled ? { pointerEvents: "none", opacity: 0.7 } : undefined}
         >
-          {title}
+          {selectedImageId ? <MaterialOptionLabel imageId={selectedImageId}>{title}</MaterialOptionLabel> : title}
           <span className="gsm-sub" style={{marginRight: "0.8vw"}}>
           <sub style={{marginRight: "0.8vw"}}>
             {material.x && material.y && (
@@ -410,7 +414,7 @@ const Materials2 = ({
                 }`}
                 onClick={() => handleSelect(item)}
               >
-                <span className="name">{item.name}</span>
+                <MaterialOptionLabel imageId={item.imageId} reserve={withThumbs}>{item.name}</MaterialOptionLabel>
                 <span className="gsm-sub">
                 <sub style={{marginRight: "0.8vw"}}>
                   {item.x && item.y && (

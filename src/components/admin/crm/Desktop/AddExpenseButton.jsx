@@ -2,6 +2,7 @@ import React, {useState, useRef, useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import axios from "../../../../api/axiosInstance";
 import '../../../../PrintPeaksFAinal/poslugi/shared/sc-base.css';
+import './AddExpense.css';
 
 const CATEGORIES = ['Матеріали', 'Розхідники', 'Зарплата', 'Оренда', 'Логістика', 'Обладнання', 'Підписки', 'Ремонт', 'Постачальники', 'Особисті', 'Податки', 'Інше'];
 
@@ -54,21 +55,41 @@ const formatFileSize = (bytes) => {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 };
 
+// Дата за локальним часом: toISOString() дає UTC, і після опівночі «сьогодні» було б учора
+const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const todayStr = () => ymd(new Date());
+const yesterdayStr = () => { const d = new Date(); d.setDate(d.getDate() - 1); return ymd(d); };
+
+// Сума вводиться текстом (без стрілок-лічильника, з цифровою клавіатурою на телефоні):
+// кома → крапка, лише цифри й один роздільник, до двох знаків після нього
+const cleanAmount = (raw) => {
+    const s = String(raw || '').replace(/,/g, '.').replace(/[^\d.]/g, '');
+    const [int, ...rest] = s.split('.');
+    return rest.length ? `${int}.${rest.join('').slice(0, 2)}` : int;
+};
+
+const fmtMoney = (v) => {
+    const n = parseFloat(v);
+    return (Number.isFinite(n) ? n : 0).toLocaleString('uk-UA', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+};
+
+const fmtDateShort = (s) => {
+    const [y, m, d] = String(s || '').split('-');
+    return y && m && d ? `${d}.${m}.${y}` : '';
+};
+
 // hideTrigger — рендерити лише модалку, без власної кнопки. Використовує
 // панель швидкого доступу (PPDock): вона малює свою плитку, а відкриває
 // модалку глобальною подією 'pp-open-expense'.
 const AddExpenseButton = ({hideTrigger = false} = {}) => {
     const [showModal, setShowModal] = useState(false);
-    const [form, setForm] = useState({amount: '', description: '', category: '', date: new Date().toISOString().slice(0, 10), paymentMethod: 'invoice'});
+    const [form, setForm] = useState({amount: '', description: '', category: '', date: todayStr(), paymentMethod: 'invoice'});
     const [files, setFiles] = useState([]);
     const [saving, setSaving] = useState(false);
     const [dragOver, setDragOver] = useState(false);
     const [errors, setErrors] = useState({});
-    const [catOpen, setCatOpen] = useState(false);
-    const [catDropStyle, setCatDropStyle] = useState({});
+    const [saveError, setSaveError] = useState('');
     const fileInputRef = useRef(null);
-    const catRef = useRef(null);
-    const catPortalRef = useRef(null);
 
     // Матеріали: назва, кількість, список
     const [materialName, setMaterialName] = useState('');
@@ -153,15 +174,28 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
             .finally(() => setPrintersLoading(false));
     }, [form.category]);
 
-    // Клік поза dropdown категорій
+    // Escape закриває вікно звідусіль, не лише з поля вводу (вкладені вікна — спершу вони)
     useEffect(() => {
-        if (!catOpen) return;
-        const handler = (e) => {
-            if (!catRef.current?.contains(e.target) && !catPortalRef.current?.contains(e.target)) setCatOpen(false);
+        if (!showModal) return undefined;
+        const onKey = (e) => {
+            if (e.key !== 'Escape') return;
+            if (document.querySelector('.aeb-newmat-modal')) return;
+            setShowModal(false);
         };
-        document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler);
-    }, [catOpen]);
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, [showModal]);
+
+    // Вибір категорії кнопкою: блок матеріалів/розхідників попередньої категорії скидаємо
+    const pickCategory = (cat) => {
+        setForm(f => ({...f, category: cat}));
+        setErrors(p => ({...p, category: ''}));
+        if (cat !== 'Матеріали') resetMat();
+        if (!PRINTER_CATEGORIES.includes(cat)) resetPrinterPick();
+        // «Розхідники» й «Ремонт» показують різні списки —
+        // старий вибір після перемикання вже нерелевантний
+        else { setConsumableCart({}); setSelectedConsumableId(null); }
+    };
 
     const resetMat = () => {
         setMaterialName(''); setMaterialId(null);
@@ -254,8 +288,9 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
     };
 
     const handleSave = async () => {
-        if (!validate()) return;
+        if (saving || !validate()) return;
         setSaving(true);
+        setSaveError('');
         try {
             const formData = new FormData();
             formData.append('amount', form.amount);
@@ -301,7 +336,7 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
             if (linkedOrder) formData.append('orderId', linkedOrder.id);
             for (const file of files) formData.append('files', file);
             await axios.post('/expenses/create', formData, {headers: {'Content-Type': 'multipart/form-data'}});
-            setForm({amount: '', description: '', category: '', date: new Date().toISOString().slice(0, 10), paymentMethod: 'invoice'});
+            setForm({amount: '', description: '', category: '', date: todayStr(), paymentMethod: 'invoice'});
             setFiles([]);
             resetMat();
             resetPrinterPick();
@@ -311,6 +346,7 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
             window.dispatchEvent(new Event('expense-added'));
         } catch (e) {
             console.error(e);
+            setSaveError('Не вдалося зберегти витрату — спробуйте ще раз');
         }
         setSaving(false);
     };
@@ -333,10 +369,22 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
     const handleClose = () => {
         setShowModal(false);
         setFiles([]);
-        setForm({amount: '', description: '', category: '', date: new Date().toISOString().slice(0, 10), paymentMethod: 'invoice'});
+        setForm({amount: '', description: '', category: '', date: todayStr(), paymentMethod: 'invoice'});
         resetMat();
         resetPrinterPick();
+        setLinkedOrder(null);
+        setOrderQuery('');
+        setErrors({});
+        setSaveError('');
     };
+
+    // Рядок під сумою внизу вікна: що саме зараз буде збережено
+    const summaryMeta = [
+        form.category || 'категорію не обрано',
+        PAYMENT_METHODS.find(m => m.key === form.paymentMethod)?.label,
+        fmtDateShort(form.date),
+        linkedOrder ? `замовлення №${linkedOrder.id}` : null,
+    ].filter(Boolean).join(' · ');
 
     // Вибір матеріалу зі списку → підтягнути unit
     const selectMaterial = (m) => {
@@ -348,7 +396,7 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
 
     // Модал "Новий матеріал"
     const [showNewMat, setShowNewMat] = useState(false);
-    const [newMat, setNewMat] = useState({name: '', type: '', typeUse: '', unit: 'Шт', thickness: '', cost: '', price1: '', price2: '', price3: '', price4: '', price5: '', x: '315', y: '440'});
+    const [newMat, setNewMat] = useState({name: '', type: '', typeUse: '', unit: 'Шт', thickness: '', cost: '', price1: '', price2: '', price3: '', price4: '', price5: '', x: '320', y: '450'});
     const [allTypes, setAllTypes] = useState([]);
     const [creatingMat, setCreatingMat] = useState(false);
 
@@ -386,7 +434,7 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
                 setForm(f => ({...f, description: f.description || created.name}));
             }
             setShowNewMat(false);
-            setNewMat({name: '', type: '', typeUse: '', unit: 'Шт', thickness: '', cost: '', price1: '', price2: '', price3: '', price4: '', price5: '', x: '315', y: '440'});
+            setNewMat({name: '', type: '', typeUse: '', unit: 'Шт', thickness: '', cost: '', price1: '', price2: '', price3: '', price4: '', price5: '', x: '320', y: '450'});
         } catch (e) {
             console.error(e);
         }
@@ -429,93 +477,71 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
             )}
 
             {showModal && (
-                <div className="aeb-overlay">
+                <div className="aeb-overlay axp-overlay">
                     <div
-                        className="aeb-modal"
+                        className="aeb-modal axp"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Нова витрата"
                         onClick={e => e.stopPropagation()}
-                        onScroll={() => catOpen && setCatOpen(false)}
                     >
-                        <div className="aeb-title">
-                            Нова витрата
-                            <button className="aeb-close-btn" onClick={handleClose} aria-label="Закрити">&#x2715;</button>
+                        <div className="axp-head">
+                            <div className="axp-head-text">
+                                <span className="axp-eyebrow">Каса · витрати</span>
+                                <span className="axp-title">Нова витрата</span>
+                            </div>
+                            <button type="button" className="axp-close" onClick={handleClose} aria-label="Закрити">
+                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                                    <path d="M3 3l12 12M15 3L3 15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square"/>
+                                </svg>
+                            </button>
                         </div>
 
-                        <div className="aeb-row aeb-row-main">
-                            <div className="aeb-field" style={{flex: 1}}>
-                                <label className="aeb-label">Сума (грн)</label>
-                                <input
-                                    type="number"
-                                    className={`aeb-input aeb-input-big${errors.amount ? ' aeb-input-error' : ''}`}
-                                    value={form.amount}
-                                    onChange={e => { setForm({...form, amount: e.target.value}); setErrors(p => ({...p, amount: ''})); }}
-                                    onKeyDown={handleKeyDown}
-                                    autoFocus
-                                    placeholder="0"
-                                />
-                                {errors.amount && <span className="aeb-error">{errors.amount}</span>}
-                            </div>
-                            <div className="aeb-field aeb-cat-field" style={{flex: 1}}>
-                                <label className="aeb-label">Категорія</label>
-                                <div
-                                    ref={catRef}
-                                    className={`custom-select-container selectArtem selectArtemBefore${form.category ? ' sc-has-value' : ''}${errors.category ? ' aeb-cat-error' : ''}`}
-                                    style={{width: '100%', minHeight: '2rem'}}
-                                >
-                                    {!form.category && (
-                                        <div className="sc-hand">
-                                            <div className="sc-hand-finger"/><div className="sc-hand-finger"/>
-                                            <div className="sc-hand-finger"/><div className="sc-hand-finger"/>
-                                            <div className="sc-hand-palm"/><div className="sc-hand-thumb"/>
-                                        </div>
-                                    )}
-                                    <div
-                                        className="custom-select-header"
-                                        onClick={() => {
-                                            if (!catOpen && catRef.current) {
-                                                const rect = catRef.current.getBoundingClientRect();
-                                                const vh = window.innerHeight;
-                                                const margin = 12;
-                                                const spaceBelow = vh - rect.bottom - margin;
-                                                const spaceAbove = rect.top - margin;
-                                                const flipUp = spaceBelow < 200 && spaceAbove > spaceBelow;
-                                                const maxHeight = Math.max(120, flipUp ? spaceAbove : spaceBelow);
-                                                const s = {position: 'fixed', left: rect.left, width: rect.width, maxHeight, overflowY: 'auto', zIndex: 99999};
-                                                if (flipUp) { s.bottom = vh - rect.top + 2; } else { s.top = rect.bottom + 2; }
-                                                setCatDropStyle(s);
-                                            }
-                                            setCatOpen(!catOpen);
-                                        }}
-                                    >
-                                        {form.category || '\u00A0'}
-                                    </div>
-                                    {catOpen && ReactDOM.createPortal(
-                                        <div ref={catPortalRef} className="custom-select-dropdown" style={catDropStyle}>
-                                            {CATEGORIES.map(cat => (
-                                                <div
-                                                    key={cat}
-                                                    className={`custom-option${cat === form.category ? ' active' : ''}`}
-                                                    onClick={() => {
-                                                        setForm(f => ({...f, category: cat}));
-                                                        setErrors(p => ({...p, category: ''}));
-                                                        setCatOpen(false);
-                                                        if (cat !== 'Матеріали') resetMat();
-                                                        if (!PRINTER_CATEGORIES.includes(cat)) resetPrinterPick();
-                                                        // «Розхідники» й «Ремонт» показують різні списки —
-                                                        // старий вибір після перемикання вже нерелевантний
-                                                        else { setConsumableCart({}); setSelectedConsumableId(null); }
-                                                    }}
-                                                >
-                                                    <span className="name">{cat}</span>
-                                                </div>
-                                            ))}
-                                        </div>,
-                                        document.body
-                                    )}
+                        <div className="axp-body">
+                            <div className={`axp-block axp-amount${errors.amount ? ' is-error' : ''}`}>
+                                <label className="axp-label" htmlFor="axp-amount">
+                                    Сума
+                                    {errors.amount && <span className="axp-error">{errors.amount}</span>}
+                                </label>
+                                <div className="axp-amount-box">
+                                    <input
+                                        id="axp-amount"
+                                        type="text"
+                                        inputMode="decimal"
+                                        autoComplete="off"
+                                        className="axp-amount-input"
+                                        value={form.amount}
+                                        onChange={e => { setForm({...form, amount: cleanAmount(e.target.value)}); setErrors(p => ({...p, amount: ''})); }}
+                                        onKeyDown={handleKeyDown}
+                                        autoFocus
+                                        placeholder="0"
+                                    />
+                                    <span className="axp-amount-cur">₴</span>
                                 </div>
-                                {errors.category && <span className="aeb-error">{errors.category}</span>}
                             </div>
-                        </div>
 
+                            <div className="axp-block">
+                                <span className="axp-label">
+                                    Категорія
+                                    {errors.category && <span className="axp-error">{errors.category}</span>}
+                                </span>
+                                <div className={`axp-cats${errors.category ? ' is-error' : ''}`}>
+                                    {CATEGORIES.map(cat => (
+                                        <button
+                                            key={cat}
+                                            type="button"
+                                            className={`axp-cat${cat === form.category ? ' is-active' : ''}`}
+                                            aria-pressed={cat === form.category}
+                                            onClick={() => pickCategory(cat)}
+                                        >
+                                            {cat}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {(form.category === 'Матеріали' || PRINTER_CATEGORIES.includes(form.category)) && (
+                            <div className="axp-extra">
                         {/* Матеріали: пошук + список */}
                         {form.category === 'Матеріали' && (
                             <>
@@ -609,14 +635,26 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
                                 <div className="aeb-row aeb-row-material">
                                     <div className="aeb-field" style={{flex: 1}}>
                                         <label className="aeb-label">Принтер</label>
-                                        <select
-                                            className="aeb-input aeb-select"
-                                            value={selectedPrinterId}
-                                            onChange={e => { setSelectedPrinterId(e.target.value); setSelectedConsumableId(null); }}
-                                        >
-                                            <option value="">— Без прив'язки —</option>
-                                            {printers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                                        </select>
+                                        <div className="axp-chips">
+                                            <button
+                                                type="button"
+                                                className={`axp-chip${!selectedPrinterId ? ' is-active' : ''}`}
+                                                onClick={() => { setSelectedPrinterId(''); setSelectedConsumableId(null); }}
+                                            >
+                                                Без прив'язки
+                                            </button>
+                                            {printers.map(p => (
+                                                <button
+                                                    key={p.id}
+                                                    type="button"
+                                                    className={`axp-chip${String(selectedPrinterId) === String(p.id) ? ' is-active' : ''}`}
+                                                    onClick={() => { setSelectedPrinterId(String(p.id)); setSelectedConsumableId(null); }}
+                                                >
+                                                    {p.name}
+                                                </button>
+                                            ))}
+                                            {printersLoading && <span className="axp-label-hint">Завантаження…</span>}
+                                        </div>
                                     </div>
                                 </div>
 
@@ -767,131 +805,174 @@ const AddExpenseButton = ({hideTrigger = false} = {}) => {
                                 })()}
                             </>
                         )}
-
-                        <div className="aeb-field">
-                            <label className="aeb-label">Опис</label>
-                            <input
-                                type="text"
-                                className="aeb-input"
-                                value={form.description}
-                                onChange={e => setForm({...form, description: e.target.value})}
-                                onKeyDown={handleKeyDown}
-                                placeholder=""
-                            />
-                        </div>
-
-                        {/* Payment method buttons */}
-                        <div className="aeb-field">
-                            <label className="aeb-label">Спосіб оплати</label>
-                            <div className="aeb-pay-methods">
-                                {PAYMENT_METHODS.map(m => (
-                                    <button
-                                        key={m.key}
-                                        type="button"
-                                        className={`aeb-pay-btn${form.paymentMethod === m.key ? ' aeb-pay-btn-active' : ''}`}
-                                        onClick={() => setForm({...form, paymentMethod: form.paymentMethod === m.key ? '' : m.key})}
-                                    >
-                                        {m.label}
-                                    </button>
-                                ))}
                             </div>
-                        </div>
+                            )}
 
-                        <div className="aeb-row">
-                            <div className="aeb-field" style={{flex: 1}}>
-                                <label className="aeb-label">Дата</label>
+                            <div className="axp-block">
+                                <label className="axp-label" htmlFor="axp-desc">Опис</label>
                                 <input
-                                    type="date"
-                                    className="aeb-input"
-                                    value={form.date}
-                                    onChange={e => setForm({...form, date: e.target.value})}
+                                    id="axp-desc"
+                                    type="text"
+                                    className="axp-input"
+                                    value={form.description}
+                                    onChange={e => setForm({...form, description: e.target.value})}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder="За що платимо"
                                 />
                             </div>
-                            <div className="aeb-field" style={{flex: 1}}>
-                                <label className="aeb-label">
-                                    Замовлення <span className="aeb-label-hint">— пряма витрата</span>
-                                </label>
-                                {linkedOrder ? (
-                                    <div className="aeb-order-picked">
-                                        <span className="aeb-order-num">№{linkedOrder.id}</span>
-                                        <span className="aeb-order-name">
-                                            {linkedOrder.client
-                                                ? `${linkedOrder.client.firstName || ''} ${linkedOrder.client.lastName || ''}`.trim()
-                                                : ''}
-                                        </span>
+
+                            <div className="axp-block">
+                                <span className="axp-label">Спосіб оплати</span>
+                                <div className="axp-seg">
+                                    {PAYMENT_METHODS.map(m => (
+                                        <button
+                                            key={m.key}
+                                            type="button"
+                                            className={`axp-seg-btn${form.paymentMethod === m.key ? ' is-active' : ''}`}
+                                            aria-pressed={form.paymentMethod === m.key}
+                                            onClick={() => setForm({...form, paymentMethod: form.paymentMethod === m.key ? '' : m.key})}
+                                        >
+                                            {m.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="axp-grid2">
+                                <div className="axp-block">
+                                    <span className="axp-label">Дата</span>
+                                    <div className="axp-date">
                                         <button
                                             type="button"
-                                            className="aeb-order-clear"
-                                            onClick={() => { setLinkedOrder(null); setOrderQuery(''); }}
-                                            title="Відв'язати"
-                                        >×</button>
-                                    </div>
-                                ) : (
-                                    <div className="aeb-order-search">
+                                            className={`axp-chip${form.date === todayStr() ? ' is-active' : ''}`}
+                                            onClick={() => setForm({...form, date: todayStr()})}
+                                        >
+                                            Сьогодні
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`axp-chip${form.date === yesterdayStr() ? ' is-active' : ''}`}
+                                            onClick={() => setForm({...form, date: yesterdayStr()})}
+                                        >
+                                            Вчора
+                                        </button>
                                         <input
-                                            className="aeb-input"
-                                            placeholder="номер замовлення…"
-                                            value={orderQuery}
-                                            onChange={e => setOrderQuery(e.target.value)}
+                                            type="date"
+                                            className="axp-input axp-date-input"
+                                            aria-label="Дата витрати"
+                                            value={form.date}
+                                            onChange={e => setForm({...form, date: e.target.value || todayStr()})}
                                         />
-                                        {orderResults.length > 0 && (
-                                            <div className="aeb-order-drop">
-                                                {orderResults.map(o => (
-                                                    <div
-                                                        key={o.id}
-                                                        className="aeb-order-opt"
-                                                        onClick={() => { setLinkedOrder(o); setOrderResults([]); }}
-                                                    >
-                                                        <span className="aeb-order-num">№{o.id}</span>
-                                                        <span className="aeb-order-name">
-                                                            {o.client
-                                                                ? `${o.client.firstName || ''} ${o.client.lastName || ''}`.trim()
-                                                                : ''}
-                                                        </span>
-                                                        <span className="aeb-order-sum">{o.allPrice} ₴</span>
-                                                    </div>
-                                                ))}
+                                    </div>
+                                </div>
+
+                                <div className="axp-block">
+                                    <span className="axp-label">
+                                        Замовлення <span className="axp-label-hint">пряма витрата</span>
+                                    </span>
+                                    {linkedOrder ? (
+                                        <div className="aeb-order-picked">
+                                            <span className="aeb-order-num">№{linkedOrder.id}</span>
+                                            <span className="aeb-order-name">
+                                                {linkedOrder.client
+                                                    ? `${linkedOrder.client.firstName || ''} ${linkedOrder.client.lastName || ''}`.trim()
+                                                    : ''}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                className="aeb-order-clear"
+                                                onClick={() => { setLinkedOrder(null); setOrderQuery(''); }}
+                                                title="Відв'язати"
+                                                aria-label="Відв'язати замовлення"
+                                            >×</button>
+                                        </div>
+                                    ) : (
+                                        <div className="aeb-order-search">
+                                            <input
+                                                className="axp-input"
+                                                inputMode="numeric"
+                                                placeholder="Номер замовлення"
+                                                aria-label="Номер замовлення"
+                                                value={orderQuery}
+                                                onChange={e => setOrderQuery(e.target.value)}
+                                            />
+                                            {orderResults.length > 0 && (
+                                                <div className="aeb-order-drop">
+                                                    {orderResults.map(o => (
+                                                        <div
+                                                            key={o.id}
+                                                            className="aeb-order-opt"
+                                                            onClick={() => { setLinkedOrder(o); setOrderResults([]); }}
+                                                        >
+                                                            <span className="aeb-order-num">№{o.id}</span>
+                                                            <span className="aeb-order-name">
+                                                                {o.client
+                                                                    ? `${o.client.firstName || ''} ${o.client.lastName || ''}`.trim()
+                                                                    : ''}
+                                                            </span>
+                                                            <span className="aeb-order-sum">{o.allPrice} ₴</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="axp-block">
+                                <span className="axp-label">
+                                    Файли <span className="axp-label-hint">чек, видаткова тощо</span>
+                                </span>
+                                <div
+                                    className={`axp-drop${dragOver ? ' is-over' : ''}`}
+                                    role="button"
+                                    tabIndex={0}
+                                    onDrop={handleDrop}
+                                    onDragOver={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                    onClick={() => fileInputRef.current?.click()}
+                                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputRef.current?.click(); } }}
+                                >
+                                    <span className="axp-drop-icon">
+                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                            <path d="M10 14V4M10 4L6 8M10 4l4 4M3 16h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square"/>
+                                        </svg>
+                                    </span>
+                                    <span className="axp-drop-text">
+                                        <span className="axp-drop-main is-mouse">Перетягніть файли сюди або натисніть</span>
+                                        <span className="axp-drop-main is-touch">Додати фото або файл</span>
+                                        <span className="axp-drop-sub">До 10 файлів — фото чека, PDF, накладна</span>
+                                    </span>
+                                    <input ref={fileInputRef} type="file" multiple style={{display: 'none'}} onChange={e => { const arr = Array.from(e.target.files || []); if (arr.length > 0) handleFiles(arr); e.target.value = ''; }}/>
+                                </div>
+                                {files.length > 0 && (
+                                    <div className="axp-files">
+                                        {files.map((file, i) => (
+                                            <div key={i} className="axp-file">
+                                                <span className="axp-file-name">{file.name}</span>
+                                                <span className="axp-file-size">{formatFileSize(file.size)}</span>
+                                                <button type="button" className="axp-file-del" onClick={() => removeFile(i)} aria-label="Прибрати файл">&#x2715;</button>
                                             </div>
-                                        )}
+                                        ))}
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        {/* File upload area */}
-                        <div className="aeb-field">
-                            <label className="aeb-label">Файли (чек, видаткова, тощо)</label>
-                            <div
-                                className={`aeb-dropzone${dragOver ? ' aeb-dropzone-active' : ''}`}
-                                onDrop={handleDrop}
-                                onDragOver={handleDragOver}
-                                onDragLeave={handleDragLeave}
-                                onClick={() => fileInputRef.current?.click()}
-                            >
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{opacity: 0.4}}>
-                                    <path d="M12 16V8M12 8L9 11M12 8L15 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M2 12C2 7.286 2 4.929 3.464 3.464C4.93 2 7.286 2 12 2C16.714 2 19.071 2 20.535 3.464C22 4.93 22 7.286 22 12C22 16.714 22 19.071 20.535 20.535C19.072 22 16.714 22 12 22C7.286 22 4.929 22 3.464 20.535C2 19.072 2 16.714 2 12Z" stroke="currentColor" strokeWidth="1.5"/>
-                                </svg>
-                                <span>Перетягніть файли або натисніть для вибору</span>
-                                <input ref={fileInputRef} type="file" multiple style={{display: 'none'}} onChange={e => { const arr = Array.from(e.target.files || []); if (arr.length > 0) handleFiles(arr); e.target.value = ''; }}/>
+                        <div className="axp-foot">
+                            <div className="axp-sum">
+                                <span className="axp-sum-val">{fmtMoney(form.amount)} ₴</span>
+                                {saveError
+                                    ? <span className="axp-sum-meta is-error">{saveError}</span>
+                                    : <span className="axp-sum-meta">{summaryMeta}</span>}
                             </div>
-                        </div>
-
-                        {files.length > 0 && (
-                            <div className="aeb-file-list">
-                                {files.map((file, i) => (
-                                    <div key={i} className="aeb-file-item">
-                                        <span className="aeb-file-name">{file.name}</span>
-                                        <span className="aeb-file-size">{formatFileSize(file.size)}</span>
-                                        <button className="aeb-file-remove" onClick={() => removeFile(i)}>&#x2715;</button>
-                                    </div>
-                                ))}
+                            <div className="axp-foot-btns">
+                                <button type="button" className="axp-btn" onClick={handleClose}>Скасувати</button>
+                                <button type="button" className="axp-btn axp-btn-primary" onClick={handleSave} disabled={saving}>
+                                    {saving ? 'Зберігаю…' : 'Додати витрату'}
+                                </button>
                             </div>
-                        )}
-
-                        <div className="aeb-actions">
-                            <button className="aeb-btn aeb-btn-cancel" onClick={handleClose}>Скасувати</button>
-                            <button className="aeb-btn aeb-btn-save" onClick={handleSave} disabled={saving}>{saving ? '...' : 'Додати'}</button>
                         </div>
                     </div>
                 </div>

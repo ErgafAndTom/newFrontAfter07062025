@@ -60,6 +60,11 @@ export default function BarcodeScannerListener() {
 
     const matMatch = trimmed.match(/^MAT(\d+)$/);
     if (matMatch) {
+      // на складі картку відкриває сама сторінка, з будь-якої іншої — переходимо туди
+      if (window.location.pathname.toLowerCase() !== '/storage') {
+        navigate(`/Storage?m=${matMatch[1]}`);
+        return;
+      }
       window.dispatchEvent(new CustomEvent('open-material-settings', {
         detail: { materialId: Number(matMatch[1]) },
       }));

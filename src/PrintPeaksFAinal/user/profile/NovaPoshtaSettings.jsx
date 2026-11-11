@@ -3,6 +3,7 @@ import axios from "../../../api/axiosInstance";
 import { getSettings, saveSettings } from "../../barcode/qzTrayService";
 import { loadSetting, saveSetting } from "../../../hooks/useUserSettings";
 import "./NovaPoshtaSettings.css";
+import { Segmented } from "./ProfileSettingsUi";
 
 const SPEED_OPTIONS = [
   { value: 1, label: "1 — Повільна" },
@@ -339,19 +340,16 @@ export default function NovaPoshtaSettings() {
         <div className="nps-section-title">Наліпка</div>
         <div className="nps-row">
           <label className="nps-label">Розмір</label>
-          <select
-            className="nps-select"
+          <Segmented
+            label="Розмір наліпки"
             value={`${settings.labelWidth}x${settings.labelHeight}`}
-            onChange={e => {
-              const [w, h] = e.target.value.split('x').map(Number);
+            onChange={v => {
+              const [w, h] = v.split('x').map(Number);
               setSettings(prev => ({ ...prev, labelWidth: w, labelHeight: h }));
               setDirtyFields(prev => new Set(prev).add('labelWidth'));
             }}
-          >
-            {LABEL_SIZE_OPTIONS.map(o => (
-              <option key={`${o.w}x${o.h}`} value={`${o.w}x${o.h}`}>{o.label}</option>
-            ))}
-          </select>
+            options={LABEL_SIZE_OPTIONS.map(o => ({ value: `${o.w}x${o.h}`, label: o.label }))}
+          />
           <SaveBtn field="labelWidth" />
         </div>
         <div className="nps-row">
@@ -374,15 +372,12 @@ export default function NovaPoshtaSettings() {
         <div className="nps-section-title">Якість друку</div>
         <div className="nps-row">
           <label className="nps-label">Швидкість</label>
-          <select
-            className="nps-select"
-            value={settings.speed}
-            onChange={e => update('speed', Number(e.target.value))}
-          >
-            {SPEED_OPTIONS.map(o => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
+          <Segmented
+            label="Швидкість друку"
+            value={Number(settings.speed)}
+            onChange={v => update('speed', v)}
+            options={SPEED_OPTIONS.map(o => ({ value: o.value, label: o.label.replace(' — ', ' · '), title: o.label }))}
+          />
           <SaveBtn field="speed" />
         </div>
         <div className="nps-row">
@@ -403,15 +398,12 @@ export default function NovaPoshtaSettings() {
         </div>
         <div className="nps-row">
           <label className="nps-label">Роздільна здатність</label>
-          <select
-            className="nps-select"
-            value={settings.resolution || 6}
-            onChange={e => update('resolution', Number(e.target.value))}
-          >
-            {RESOLUTION_OPTIONS.map(o => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
+          <Segmented
+            label="Роздільна здатність"
+            value={Number(settings.resolution || 6)}
+            onChange={v => update('resolution', v)}
+            options={RESOLUTION_OPTIONS.map(o => ({ value: o.value, label: o.label.split(' — ')[0] + ' · ' + o.label.split(' — ')[1].split(' (')[0], title: o.label }))}
+          />
           <SaveBtn field="resolution" />
         </div>
       </div>

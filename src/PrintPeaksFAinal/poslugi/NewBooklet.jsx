@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState, useMemo } from "react";
+import { saveButtonLabel } from "./shared/editTarget";
 import { useNavigate } from "react-router-dom";
 
 import ServiceSettingsModal from "./shared/ServiceSettingsModal";
 import { useModalState, useModalPricing, useOrderUnitSave } from "./shared/hooks";
+import { useRestoreSelectedService } from "./shared/savedServiceName";
 import useServiceTabs from "../../hooks/useServiceTabs";
 
 import NewNoModalSizeNote from "./newnomodals/note/NewNoModalSizeNote";
@@ -103,6 +105,9 @@ const NewBooklet = ({
   const [selectedService, setSelectedService] = useState(DEFAULTS.selectedService);
   const { services, addService, removeService, updateService, reorderServices } = useServiceTabs("Booklet", SERVICES_BOOKLET);
   const [showSettings, setShowSettings] = useState(false);
+
+  // назва позиції будується з вибраного товару — при редагуванні відновлюємо його
+  useRestoreSelectedService({ show: showNewBooklet, isEdit, editingOrderUnit, options, services, setSelectedService });
 
   // тема стежить за глобальною темою застосунку (перемикач у Nav)
   const [theme, setTheme] = useState(getStoredAppTheme);
@@ -234,9 +239,6 @@ const NewBooklet = ({
     if (opt?.holes !== undefined) setHoles(opt.holes);
     if (opt?.holesR !== undefined) setHolesR(opt.holesR);
     if (opt?.porizka) setPorizka(opt.porizka);
-
-    const svc = opt?.selectedService || editingOrderUnit?.newField1 || editingOrderUnit?.nameOrderUnit;
-    if (svc) setSelectedService(svc.charAt(0).toUpperCase() + svc.slice(1).trim());
 
     setError(null);
   }, [showNewBooklet, isEdit, options, editingOrderUnit]);
@@ -519,7 +521,7 @@ const NewBooklet = ({
             <button className="v2-add-btn" onClick={handleSave} disabled={!thisOrder?.id}>
               <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
               <span className="v2-add-btn-label">
-                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+                {saveButtonLabel(editingOrderUnit)}
               </span>
             </button>
           </div>

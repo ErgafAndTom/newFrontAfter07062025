@@ -25,6 +25,7 @@ import ServiceSettingsModal from "./shared/ServiceSettingsModal";
 
 import "./Poslugy.css";
 import "./shared/sc-base.css";
+import { printMarginForSheet } from "../../utils/calcBleeds";
 
 const emptyPrice = { pricePerUnit: 0, count: 0, totalPrice: 0 };
 const normalize = (obj = {}) => ({
@@ -86,8 +87,12 @@ function safeNum(v, fallback) {
 }
 
 function calcItemsPerSheet(sheetX, sheetY, itemX, itemY) {
-  const sx = Number(sheetX) || 0;
-  const sy = Number(sheetY) || 0;
+  // поля друку 5 мм з кожного боку — для аркушів від SRA3 (як у back/sheetLayout.js)
+  const rawX = Number(sheetX) || 0;
+  const rawY = Number(sheetY) || 0;
+  const pm = printMarginForSheet(rawX, rawY);
+  const sx = rawX - 2 * pm;
+  const sy = rawY - 2 * pm;
   const ix = Number(itemX) || 0;
   const iy = Number(itemY) || 0;
   if (!sx || !sy || !ix || !iy) return 0;

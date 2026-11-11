@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { saveButtonLabel } from "./shared/editTarget";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
@@ -48,6 +49,7 @@ const DEFAULTS = {
   cute: "Не потрібно",
   holes: "Не потрібно",
   holesR: "",
+  figHoles: "Не потрібно",
   cuteLocal: {
     leftTop: false,
     rightTop: false,
@@ -87,6 +89,7 @@ const BigOvshik = ({
   const [cuteLocal, setCuteLocal] = useState(DEFAULTS.cuteLocal);
   const [holes, setHoles] = useState(DEFAULTS.holes);
   const [holesR, setHolesR] = useState(DEFAULTS.holesR);
+  const [figHoles, setFigHoles] = useState(DEFAULTS.figHoles);
   const [design, setDesign] = useState(DEFAULTS.design);
   const [lamination, setLamination] = useState(DEFAULTS.lamination);
 
@@ -104,6 +107,7 @@ const BigOvshik = ({
     lyuversy: emptyPrice,
     cute: emptyPrice,
     holes: emptyPrice,
+    figHoles: emptyPrice,
     priceLaminationPerSheet: 0,
     sheetCount: 0,
     design: { pricePerUnit: 0, totalPrice: 0 },
@@ -137,6 +141,7 @@ const BigOvshik = ({
     setCuteLocal(DEFAULTS.cuteLocal);
     setHoles(DEFAULTS.holes);
     setHolesR(DEFAULTS.holesR);
+    setFigHoles(DEFAULTS.figHoles);
     setDesign(DEFAULTS.design);
     setLamination(DEFAULTS.lamination);
     setError(null);
@@ -163,6 +168,7 @@ const BigOvshik = ({
     setCuteLocal(options?.cuteLocal ?? DEFAULTS.cuteLocal);
     setHoles(options?.holes ?? DEFAULTS.holes);
     setHolesR(options?.holesR ?? DEFAULTS.holesR);
+    setFigHoles(options?.figHoles ?? DEFAULTS.figHoles);
     setDesign(options?.design ?? DEFAULTS.design);
     setLamination(options?.lamination ?? DEFAULTS.lamination);
     setError(null);
@@ -220,6 +226,7 @@ const BigOvshik = ({
       cuteLocal,
       holes,
       holesR,
+      figHoles,
       count,
       design,
     };
@@ -236,6 +243,7 @@ const BigOvshik = ({
           lyuversy: normalize(p.lyuversy),
           cute: normalize(p.cute),
           holes: normalize(p.holes),
+          figHoles: normalize(p.figHoles),
           priceLaminationPerSheet: Number(p.priceLaminationPerSheet) || 0,
           sheetCount: Number(p.sheetCount) || 0,
           design: prev.design,
@@ -244,7 +252,7 @@ const BigOvshik = ({
       .catch((err) => {
         if (err?.response?.status === 403) navigate("/login");
       });
-  }, [size, material, color, big, lamination, prokleyka, lyuversy, cute, cuteLocal, holes, holesR, count, design, showBigOvshik, navigate]);
+  }, [size, material, color, big, lamination, prokleyka, lyuversy, cute, cuteLocal, holes, holesR, figHoles, count, design, showBigOvshik, navigate]);
 
   // Total price calculation
   const totalPriceFull = useMemo(() => {
@@ -260,6 +268,7 @@ const BigOvshik = ({
       pricesThis.lyuversy.totalPrice +
       pricesThis.cute.totalPrice +
       pricesThis.holes.totalPrice +
+      pricesThis.figHoles.totalPrice +
       pricesThis.design.totalPrice
     );
   }, [pricesThis]);
@@ -276,6 +285,7 @@ const BigOvshik = ({
         big !== "Не потрібно" ? "Згинання" : null,
         cute !== "Не потрібно" ? "Скруглення" : null,
         holes !== "Не потрібно" ? "Свердління" : null,
+        figHoles !== "Не потрібно" ? "Фігурні отвори" : null,
       ]
         .filter(Boolean)
         .join(", ") || "Постпресс";
@@ -294,6 +304,7 @@ const BigOvshik = ({
       cuteLocal,
       holes,
       holesR,
+      figHoles,
       design,
       count,
       window: "наліпки",
@@ -315,6 +326,7 @@ const BigOvshik = ({
     { label: "Люверси", perUnit: pricesThis.lyuversy.pricePerUnit, count: pricesThis.lyuversy.count, total: pricesThis.lyuversy.totalPrice },
     { label: "Скруглення", perUnit: pricesThis.cute.pricePerUnit, count: pricesThis.cute.count, total: pricesThis.cute.totalPrice },
     { label: "Свердління", perUnit: pricesThis.holes.pricePerUnit, count: pricesThis.holes.count, total: pricesThis.holes.totalPrice },
+    { label: "Фігурні отвори", perUnit: pricesThis.figHoles.pricePerUnit, count: pricesThis.figHoles.count, total: pricesThis.figHoles.totalPrice },
   ];
 
   const pricingSimpleLines = design !== "Не потрібно"
@@ -329,6 +341,7 @@ const BigOvshik = ({
     lyuversy !== "Не потрібно" ? "люверси" : null,
     cute !== "Не потрібно" ? "скруглення" : null,
     holes !== "Не потрібно" ? "свердління" : null,
+    figHoles !== "Не потрібно" ? "фігурні отвори" : null,
     design !== "Не потрібно" ? "дизайн" : null,
   ].filter(Boolean);
 
@@ -451,6 +464,22 @@ const BigOvshik = ({
                   />
                 </ScToggleSection>
 
+                {/* Фігурні отвори */}
+                <ScToggleSection
+                  label="Фігурні отвори"
+                  title="Фігурні отвори"
+                  isOn={figHoles !== "Не потрібно"}
+                  onToggle={() => figHoles === "Не потрібно" ? setFigHoles("1") : setFigHoles("Не потрібно")}
+                  style={{ position: "relative", zIndex: 15 }}
+                >
+                  <NewNoModalLyuversy
+                    label="Фігурні отвори"
+                    lyuversy={figHoles} setLyuversy={setFigHoles}
+                    dropdownClassName={`v2-dropdown v2-theme-${theme}`}
+                    selectArr={["", "1", "2", "3", "4", "5", "6", "7", "8", "9"]}
+                  />
+                </ScToggleSection>
+
                 {/* Дизайн */}
                 <ScToggleSection
                   label="Дизайн"
@@ -534,7 +563,7 @@ const BigOvshik = ({
             <button className="v2-add-btn" onClick={handleSave} disabled={!thisOrder?.id}>
               <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
               <span className="v2-add-btn-label">
-                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+                {saveButtonLabel(editingOrderUnit)}
               </span>
             </button>
           </div>

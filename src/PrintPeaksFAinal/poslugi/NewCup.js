@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { saveButtonLabel } from "./shared/editTarget";
 import ReactDOM from "react-dom";
 import { usePortalDropdown } from "./newnomodals/usePortalDropdown";
 import axios from "../../api/axiosInstance";
@@ -11,6 +12,7 @@ import { getStoredAppTheme, onAppThemeChange } from "../../utils/appTheme";
    (NewSheetCutV2) — вузький варіант, без стрічки виробів. */
 import "./NewSheetCutV2.css";
 import ExtraSheetsButton from "./shared/ExtraSheetsButton";
+import { MaterialOptionLabel, listHasImages } from "./shared/MaterialThumb";
 
 // ========== DEFAULTS ==========
 const DEFAULTS = {
@@ -246,7 +248,7 @@ const NewCup = ({
                           className={`custom-option ${String(item.id) === String(material?.materialId) ? "active" : ""}`}
                           onClick={() => handleMaterialSelect(item)}
                         >
-                          <span className="name">{item.name}</span>
+                          <MaterialOptionLabel imageId={item.imageId} reserve={listHasImages(materials)}>{item.name}</MaterialOptionLabel>
                           {item.thickness > 0 && (
                             <span className="gsm-sub">
                               <sub>{item.thickness} мл</sub>
@@ -330,7 +332,7 @@ const NewCup = ({
             <button className="v2-add-btn" onClick={handleSave} disabled={!thisOrder?.id}>
               <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
               <span className="v2-add-btn-label">
-                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+                {saveButtonLabel(editingOrderUnit)}
               </span>
             </button>
           </div>

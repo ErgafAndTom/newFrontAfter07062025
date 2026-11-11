@@ -4,6 +4,7 @@ import { usePortalDropdown } from "../usePortalDropdown";
 import axios from '../../../../api/axiosInstance';
 import {useNavigate} from "react-router-dom";
 import {Spinner} from "react-bootstrap";
+import { MaterialOptionLabel, listHasImages } from "../../shared/MaterialThumb";
 
 const PlivkaMontajna = ({
                           dropdownClassName = "",
@@ -113,7 +114,7 @@ const PlivkaMontajna = ({
               className={`custom-option ${isNone ? "active" : ""}`}
               onClick={() => handleSelect(null)}
             >
-              <span className="name">Без накатки монтажної плівки</span>
+              <MaterialOptionLabel reserve={listHasImages(paper)}>Без накатки монтажної плівки</MaterialOptionLabel>
             </div>
 
             {paper.map((item) => (
@@ -124,7 +125,7 @@ const PlivkaMontajna = ({
                 }`}
                 onClick={() => handleSelect(item)}
               >
-                <span className="name">{item.name}</span>
+                <MaterialOptionLabel imageId={item.imageId} reserve={listHasImages(paper)}>{item.name}</MaterialOptionLabel>
                 {item.x && item.y && (
                   <span className="gsm-sub">
                     <sub style={{marginRight: "0.8vw"}}>

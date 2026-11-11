@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import axios from "../../../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import { withEditTarget } from "../editTarget";
 
 /**
  * Hook for saving order units to /orderUnits/OneOrder/OneOrderUnitInOrder
@@ -40,9 +41,10 @@ export function useOrderUnitSave(
       };
 
       try {
+        // editIdKey — лише в режимі «Редагувати»; «Копіювати» створює нову позицію
         const response = await axios.post(
           `/orderUnits/OneOrder/OneOrderUnitInOrder`,
-          dataToSend
+          withEditTarget(dataToSend, editingOrderUnit)
         );
 
         setThisOrder(response.data);
@@ -64,7 +66,8 @@ export function useOrderUnitSave(
         }
       } catch (error) {
         if (setError) {
-          setError(error?.response?.data?.message || error?.message || "Error saving");
+          // бекенд пише текст помилки в data.error — без нього лишалось «status code 500»
+          setError(error?.response?.data?.error || error?.response?.data?.message || error?.message || "Помилка збереження");
         }
 
         if (error?.response?.status === 403) {

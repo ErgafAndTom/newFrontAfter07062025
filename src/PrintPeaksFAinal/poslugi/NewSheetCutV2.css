@@ -1257,6 +1257,14 @@
   opacity: 0.55;
 }
 
+/* друкована площа: аркуш мінус поля друку (5 мм з кожного боку) */
+.v2-sheet-printarea {
+  fill: none;
+  stroke: var(--admingrey, #666);
+  stroke-opacity: 0.45;
+  stroke-dasharray: 4 3;
+}
+
 /* поле під мітки плотера (плотерна порізка) */
 .v2-sheet-marks-zone {
   fill: var(--admingrey, #666);
@@ -1485,6 +1493,16 @@
   color: var(--adminred, #ee3c23);
   font-size: var(--v2-fs-ctrl);
   border-top: 1px solid var(--adminred, #ee3c23);
+}
+
+/* ламінація: для вибраної плівки й формату немає матеріалу на складі */
+.v2-lam-nofilm {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--adminlightred, #fde8e5);
+  color: var(--adminred, #ee3c23);
+  font-size: var(--v2-fs-ctrl);
+  line-height: 1.35;
 }
 
 /* ============================ АДАПТИВ ============================ */

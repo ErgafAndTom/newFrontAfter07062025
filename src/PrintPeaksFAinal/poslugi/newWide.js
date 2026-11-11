@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { saveButtonLabel, withEditTarget } from "./shared/editTarget";
 import axios from '../../api/axiosInstance';
 import Materials2 from "./newnomodals/Materials2";
 import SliderComponent from "./newnomodals/SlidersComponent";
@@ -253,7 +254,7 @@ const NewWide = ({
     };
 
     setLoad(true);
-    axios.post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, dataToSend)
+    axios.post(`/orderUnits/OneOrder/OneOrderUnitInOrder`, withEditTarget(dataToSend, editingOrderUnit))
       .then((response) => {
         setThisOrder?.(response.data);
         setSelectedThings2?.(response.data.OrderUnits);
@@ -467,7 +468,7 @@ const NewWide = ({
             <button className="v2-add-btn" onClick={saveOrderUnit} disabled={load || !thisOrder?.id}>
               <span className="v2-add-btn-icon" aria-hidden="true">{isEdit ? "✓" : "+"}</span>
               <span className="v2-add-btn-label">
-                {isEdit ? "Зберегти зміни" : "Додати в замовлення"}
+                {saveButtonLabel(editingOrderUnit)}
               </span>
             </button>
           </div>

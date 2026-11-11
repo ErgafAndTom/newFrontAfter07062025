@@ -1,34 +1,22 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { EDIT_MODE, COPY_MODE } from "./poslugi/shared/editTarget";
 import { createPortal } from "react-dom";
 import { useSelector } from "react-redux";
 // import './CPM.css';
 import './adminStylesCrm.css';
 import './NewUIArtem.css';
-import './nuiJobTicket.css';
+import './jobTicket/jobTicketDockStatus.css';
+import './jobTicket/jobTicket.css';
 import { useNavigate, useParams } from "react-router-dom";
 import axios from '../api/axiosInstance';
 
 
 import BarcodeLabel from './barcode/BarcodeLabel';
 import NovaPoshtaThermalButton from './novaPoshta/NovaPoshtaThermalButton';
-import blackWhitePrintIcon from "../components/newUIArtem/printers/ComponentTMP_0-image5.png";
-import colorPrintIcon from "../components/newUIArtem/printers/46.png";
-import plotterCutIcon from "../components/newUIArtem/printers/ComponentTMP_0-image4.png";
-import photoIcon from "../components/newUIArtem/printers/ComponentTMP_0-image3.png";
-import wideIcon from "../components/newUIArtem/printers/ComponentTMP_0-image2.png";
-import digitalPrintWideIcon from "../components/newUIArtem/printers/xerox-versant.png";
-import wideFactoryIcon from "../components/newUIArtem/printers/Без назви-4.png";
-import laminationIcon from "../components/newUIArtem/printers/üÑº ¡áºó¿-1.png";
-import bindingIcon from "../components/newUIArtem/printers/1996 (1).png";
-import noteIcon from "../components/newUIArtem/printers/group-1468.svg";
-import diplomIcon from "./poslugi/newnomodals/diplom.svg";
-import bookletIcon from "./evroscoba.png";
-import deliveryIcon from "../components/newUIArtem/printers/delivery.png";
 
 
-import MUG from "../components/newUIArtem/printers/mug.png";
-import magnets from "./magnetsIcon.png";
 import ClientChangerUIArtem from "../PrintPeaksFAinal/userInNewUiArtem/ClientChangerUIArtem";
+import JobCatalog from "./jobTicket/JobCatalog";
 import ClientFilesPanel from "../PrintPeaksFAinal/userInNewUiArtem/ClientFilesPanel";
 import AddNewOrder from "./Orders/AddNewOrder";
 import AddExpenseButton from "../components/admin/crm/Desktop/AddExpenseButton";
@@ -70,6 +58,10 @@ import NewSheetCutBW from "./poslugi/NewSheetCutBw";
 import QuantumErrorBoundary from "../QuantumErrorBoundary";
 import OrderItemExtraSheets from "./OrderItemExtraSheets";
 import { DEFAULT_EXTRA_SETTINGS, normalizeExtraSettings } from "./poslugi/shared/zapasRules";
+// останнім серед імпортів: має лягти в каскад ПІСЛЯ ClientFilesPanel.css і progressbar_styles.css
+import './jobTicket/jobTicket.css';
+import './jobTicket/jobTicketFiles.css';
+import './jobTicket/jobTicketPay.css';
 
 const NewUIArtem = () => {
   const navigate = useNavigate();
@@ -158,7 +150,7 @@ const NewUIArtem = () => {
      Тому тут висоту не рахуємо (CSS ставить height:auto) і лишаємо
      сторінці звичайний вертикальний скрол.
 
-     1280 — та сама межа, на якій каркас у nuiJobTicket.css уже складає
+     1280 — та сама межа, на якій каркас у jobTicket/jobTicket.css уже складає
      сітку в один стовпчик. Тримати тут менше число не можна: на
      внутрішньому екрані Fold 6 (~1080 CSS-пікселів) сітка вже
      одноколонкова, а висота лишалась би замкненою у вьюпорт. */
@@ -248,6 +240,50 @@ const NewUIArtem = () => {
       root.style.removeProperty('--jt-gridh');
     };
   }, [statusSlotEl, jtNarrow]);
+
+  /* Вузький екран: вкладки наряду липнуть до верху, але на телефоні там
+     уже висить фіксований док (.ppdock-root.is-top). Міряємо його низ і
+     віддаємо в CSS як --jtx-top, щоб вкладки стали під ним, а не за ним. */
+  useEffect(() => {
+    if (!jtNarrow) return undefined;
+    const root = document.documentElement;
+    let last = null;
+    /* Так само знизу: нижня панель (.nav-bar-row), якщо вона фіксована
+       біля низу екрана, — її висоту віддаємо як --jtx-bottom, щоб перегляд
+       файла, що липне до низу, не ховався за нею. */
+    let lastBottom = null;
+    const apply = () => {
+      const top = document.querySelector('.ppdock-root.is-top');
+      const h = top ? Math.max(0, Math.ceil(top.getBoundingClientRect().bottom)) : 0;
+      if (h !== last) {
+        last = h;
+        root.style.setProperty('--jtx-top', `${h}px`);
+      }
+      const bar = document.querySelector('.nav-bar-row');
+      let b = 0;
+      if (bar && getComputedStyle(bar).position === 'fixed') {
+        const r = bar.getBoundingClientRect();
+        if (r.bottom >= window.innerHeight - 2) b = Math.max(0, Math.ceil(window.innerHeight - r.top));
+      }
+      if (b !== lastBottom) {
+        lastBottom = b;
+        root.style.setProperty('--jtx-bottom', `${b}px`);
+      }
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    const dock = document.querySelector('.ppdock-root');
+    if (dock) ro.observe(dock);
+    const navBar = document.querySelector('.nav-bar-row');
+    if (navBar) ro.observe(navBar);
+    window.addEventListener('resize', apply);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', apply);
+      root.style.removeProperty('--jtx-top');
+      root.style.removeProperty('--jtx-bottom');
+    };
+  }, [jtNarrow, statusSlotEl]);
 
   /* Сторінка наряду цілком вміщена у вьюпорт: сітка обмежена --jt-gridh,
      а довгі списки (позиції, файли, каталог) скролять самі себе. Тому
@@ -626,7 +662,9 @@ const NewUIArtem = () => {
 
     return null;
   };
-  const openEditor = (thingOrNull, eOrType) => {
+  /* mode: "edit" — «Зберегти зміни» оновлює цю позицію на місці;
+     "copy" — модалка заповнена з позиції, але зберігання додає нову. */
+  const openEditor = (thingOrNull, eOrType, mode = EDIT_MODE) => {
     if (eOrType?.stopPropagation) eOrType.stopPropagation();
 
     const rawType =
@@ -639,7 +677,7 @@ const NewUIArtem = () => {
     const editor = EDITORS.find((x) => x.value === type);
     if (!editor) return console.warn("No editor for type:", type, thingOrNull);
 
-    setEditingOrderUnitSafe(thingOrNull || null);
+    setEditingOrderUnitSafe(thingOrNull ? { ...thingOrNull, __editMode: mode } : null);
     editor.open();
   };
 
@@ -744,8 +782,20 @@ const NewUIArtem = () => {
   const openEditorForOrderUnit = (thingOrNull, eOrType) => openEditor(thingOrNull, eOrType);
 
 
+  /* Склад позиції закривається з анімацією: поки вона йде, блок ще
+     рендериться з класом is-closing, а через 260 мс зникає з DOM. */
+  const [closingDetailsIndex, setClosingDetailsIndex] = useState(null);
+  const closingDetailsTimer = useRef(null);
+  useEffect(() => () => clearTimeout(closingDetailsTimer.current), []);
+
   const toggleExpandedThing = (index) => {
-    setExpandedThingIndex(prev => (prev === index ? null : index));
+    const prev = expandedThingIndex;
+    if (prev !== null) {
+      clearTimeout(closingDetailsTimer.current);
+      setClosingDetailsIndex(prev);
+      closingDetailsTimer.current = setTimeout(() => setClosingDetailsIndex(null), 260);
+    }
+    setExpandedThingIndex(prev === index ? null : index);
   };
 
   /* Дві дії, що ведуть в один і той самий калькулятор позиції.
@@ -778,9 +828,9 @@ const NewUIArtem = () => {
     }, 400);
   };
 
-  const openThingEditor = (thing, e) => {
+  const openThingEditor = (thing, e, mode = EDIT_MODE) => {
     e.stopPropagation();
-    openEditor(thing);
+    openEditor(thing, undefined, mode);
   };
 
   useEffect(() => () => clearTimeout(collapseTimerRef.current), []);
@@ -966,15 +1016,43 @@ const NewUIArtem = () => {
     if (!isOrderLockedForEdit) setUiLockError(null);
   }, [isOrderLockedForEdit]);
 
+  /* Вузький екран: три панелі не стоять поруч, а перемикаються вкладками.
+     Після того як у наряд лягла нова позиція, повертаємось на вкладку
+     «Наряд» — оператор обрав роботу в каталозі й хоче бачити результат. */
+  const [jtTab, setJtTab] = useState('ticket');
+  const jtItemsCount = Array.isArray(selectedThings2) ? selectedThings2.length : 0;
+  const jtPrevCountRef = useRef(jtItemsCount);
+  useEffect(() => {
+    if (jtItemsCount > jtPrevCountRef.current) setJtTab('ticket');
+    jtPrevCountRef.current = jtItemsCount;
+  }, [jtItemsCount]);
+
+  /* Плитка каталогу: нова позиція (не редагування наявної). Наряд у
+     статусі «отримано»/«видалено» нових робіт не приймає. */
+  const openCatalogEditor = (value) => {
+    if (isOrderLockedForEdit) {
+      showLockedActionError('додавати');
+      setJtTab('ticket');
+      return;
+    }
+    setEditingOrderUnitSafe(null);
+    EDITORS.find((ed) => ed.value === value)?.open?.();
+  };
+
+  const jtTone = orderToneClass.replace('nui-order-tone-', '');
+  const jtCreatedLabel = thisOrder?.createdAt && !Number.isNaN(new Date(thisOrder.createdAt).getTime())
+    ? new Date(thisOrder.createdAt).toLocaleDateString('uk-UA')
+    : '';
+
   if (thisOrder) {
     return (
-      <div className="nui-sheetcut-theme nui-jt">
+      <div className={`nui-sheetcut-theme jtx${jtNarrow ? ' is-narrow' : ''}`}>
         <QuantumErrorBoundary>
 
         <div
           ref={gridRef}
-          className={`d-flex nui-jt-grid ${serviceToneClass}${hasOrders ? "" : " no-orders"}${workspaceSwapped ? " is-workspace-swapped" : ""}`}
-          style={{ background: 'transparent' }}
+          className={`jtx-grid${workspaceSwapped ? ' is-swapped' : ''}`}
+          data-tab={jtTab}
         >
 
           {/* Кнопка статусу замовлення — у доку, ліворуч від плиток
@@ -1008,400 +1086,199 @@ const NewUIArtem = () => {
             statusSlotEl
           )}
 
-          {/* ── КОЛОНКА ФАЙЛІВ — права зона наряду (≈65% ширини). Швидкі дії,
-                 картка замовника і дедлайн прибрані звідси на прохання
-                 користувача: лишились самі файли. ── */}
-          <section className="nui-jt-client nui-jt-files-column">
-            <div className="nui-jt-files">
-              {/* Eyebrow-підпис прибрано: він дублював корінь «хлібних
-                  крихт» у самій панелі (там же й номер компанії/клієнта),
-                  а куди складаються файли, видно з тієї ж крихти. */}
-
-              <div className="nui-jt-files-body">
-                {thisOrder?.client?.id ? (
-                  <ClientFilesPanel
-                    inline
-                    userId={thisOrder.client.id}
-                    clientName={thisOrder.client.firstName ? `${thisOrder.client.firstName} ${thisOrder.client.lastName || ''}` : ''}
-                    companyId={thisOrder.client?.Company?.id}
-                    companyName={thisOrder.client?.Company?.companyName || ''}
-                    orderId={thisOrder?.id}
-                    workspaceSwapped={workspaceSwapped}
-                    onToggleWorkspaceSwap={toggleWorkspaceSwap}
-                  />
-                ) : null}
-              </div>
-            </div>
-
-          </section>
-
-          <div className="nui-services-column">
-            <p className="ppLabel nui-jt-group-label">Друк</p>
-
-            {/* === GRID OF SERVICE TILES === */}
-            <div
-              className={`CardPrintersPoslugi nui-services-grid nui-services-grid-primary`}
-              onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
-
-            >
-
-              {/* 1) BLACK & WHITE */}
-              <p
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditingOrderUnitSafe(null);
-                  setShowNewSheetCutBW(true);
-                }}
+          {/* ── ВКЛАДКИ (лише вузький екран) ── */}
+          <div className="jtx-tabs" role="tablist" aria-label="Розділи наряду">
+            {[
+              { id: 'ticket', label: 'Наряд', badge: jtItemsCount || null },
+              { id: 'catalog', label: 'Каталог' },
+              { id: 'files', label: 'Файли' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={jtTab === tab.id}
+                className={`jtx-tab${jtTab === tab.id ? ' is-active' : ''}`}
+                onClick={() => setJtTab(tab.id)}
               >
-
-
-                <div className="tileContent">
-                  <span className="verticalText">BLACK & WHITE</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={blackWhitePrintIcon} alt="" />
-                </div>
-              </p>
-
-              {/* 2) DIGITAL PRINT — раніше "DIGITAL PRINT CUTING" (legacy NewSheetCut), тепер відкриває V2 */}
-              <p
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditingOrderUnitSafe(null);
-                  setShowNewSheetCutV2(true);
-                }}
-              >
-                <div className="tileContent">
-                  <span className="verticalText">DIGITAL PRINT</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={colorPrintIcon} alt="" />
-                </div>
-              </p>
-
-              {/* 3) PHOTO */}
-              <p onClick={() => openEditorForOrderUnit(null, 'Photo')}>
-                <div className="tileContent">
-                  <span className="verticalText">PHOTO</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={photoIcon} alt="" />
-                </div>
-              </p>
-
-              {/* 4) WIDE PHOTO */}
-              <p onClick={() => openEditorForOrderUnit(null, 'Wide')}>
-                <div className="tileContent">
-                  <span className="verticalText">WIDE PHOTO</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={wideIcon} alt="" />
-                </div>
-              </p>
-
-              {/* 5) DIGITAL PRINT WIDE — широкоформатний цифровий друк 330x660 */}
-              <p
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditingOrderUnitSafe(null);
-                  setShowDigitalPrintWide(true);
-                }}
-              >
-                <div className="tileContent">
-                  <span className="verticalText">DIGITAL PRINT WIDE</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={digitalPrintWideIcon} alt="" />
-                </div>
-              </p>
-
-            </div>
-
-            <p className="ppLabel nui-jt-group-label">Постпрес</p>
-            <div
-              className={`CardPrintersPoslugi nui-services-grid nui-services-grid-middle nui-services-position-middle nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
-              onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
-            >
-              <p
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditingOrderUnitSafe(null);
-                  setShowVishichka(true);
-                }}
-              >
-                <div className="tileContent">
-                  <span className="verticalText">PLOTTER CUT</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={plotterCutIcon} alt="" />
-                </div>
-              </p>
-
-
-              <p onClick={() => setShowNewMagnets(true)}>
-                <div className="tileContent">
-                  <span className="verticalText">MAGNETS</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={magnets} alt="" />
-                </div>
-              </p>
-
-              <p onClick={() => openEditorForOrderUnit(null, 'Lamination')}>
-                <div className="tileContent">
-                  <span className="verticalText">LAMINATION</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={laminationIcon} alt="" />
-                </div>
-              </p>
-
-              <p onClick={() => openEditorForOrderUnit(null, 'Binding')}>
-                <div className="tileContent">
-                  <span className="verticalText">BINDING</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={bindingIcon} alt="" />
-                </div>
-              </p>
-
-              <p onClick={() => { setEditingOrderUnitSafe(null); setShowBigOvshik(true); }}>
-                <div className="tileContent">
-                  <span className="verticalText">POSTPRESS</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
-                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="10" y="14" width="44" height="8" rx="2" />
-                    <rect x="10" y="26" width="44" height="8" rx="2" />
-                    <rect x="10" y="38" width="44" height="8" rx="2" />
-                    <line x1="18" y1="46" x2="18" y2="54" />
-                    <line x1="46" y1="46" x2="46" y2="54" />
-                    <line x1="14" y1="54" x2="50" y2="54" />
-                  </svg>
-                </div>
-              </p>
-            </div>
-
-            {/* Третя група — DIPLOM, NOTE, BOOKLET, MUG (purple) */}
-            <p className="ppLabel nui-jt-group-label">Вироби</p>
-            <div className={`CardPrintersPoslugi nui-services-grid nui-services-grid-tertiary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
-                 onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
-            >
-              <p onClick={() => setShowNewCalendar(true)}>
-                <div className="tileContent">
-                  <span className="verticalText">CALENDAR</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
-                       stroke="#2f2f2f" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="10" y="14" width="44" height="40" rx="3" />
-                    <line x1="10" y1="24" x2="54" y2="24" />
-                    <line x1="20" y1="10" x2="20" y2="18" />
-                    <line x1="44" y1="10" x2="44" y2="18" />
-                    <circle cx="20" cy="34" r="1.5" fill="#2f2f2f" />
-                    <circle cx="32" cy="34" r="1.5" fill="#2f2f2f" />
-                    <circle cx="44" cy="34" r="1.5" fill="#2f2f2f" />
-                    <circle cx="20" cy="44" r="1.5" fill="#2f2f2f" />
-                    <circle cx="32" cy="44" r="1.5" fill="#2f2f2f" />
-                    <circle cx="44" cy="44" r="1.5" fill="#2f2f2f" />
-                  </svg>
-                </div>
-              </p>
-
-              <p onClick={() => setShowNewDiplom(true)}>
-                <div className="tileContent">
-                  <span className="verticalText">DIPLOM</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={diplomIcon} alt="" />
-                </div>
-              </p>
-
-              <p onClick={() => setShowNewFolder(true)}>
-                <div className="tileContent">
-                  <span className="verticalText">FOLDER</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
-                       stroke="#2f2f2f" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M8 18 L26 18 L30 22 L56 22 L56 50 L8 50 Z" />
-                    <line x1="8" y1="28" x2="56" y2="28" />
-                    <path d="M22 34 L42 34" />
-                    <path d="M22 40 L36 40" />
-                  </svg>
-                </div>
-              </p>
-
-              <p onClick={() => setShowNewNote(true)}>
-                <div className="tileContent">
-                  <span className="verticalText">NOTE</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={noteIcon} alt="" />
-                </div>
-              </p>
-
-              <p onClick={() => setShowNewBooklet(true)}>
-                <div className="tileContent">
-                  <span className="verticalText">BOOKLET</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={bookletIcon} alt="" />
-                </div>
-              </p>
-
-              <p onClick={() => setShowNewCup(true)}>
-                <div className="tileContent">
-                  <span className="verticalText">MUG</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={MUG} alt="" />
-                </div>
-              </p>
-
-            </div>
-
-            {/* Четверта група — SCANS, DELIVERY, WIDE FACTORY (rose) */}
-            <p className="ppLabel nui-jt-group-label">Послуги</p>
-            <div className={`CardPrintersPoslugi nui-services-grid nui-services-grid-secondary nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
-                 onClickCapture={(e) => handleLockedZoneClickCapture(e, 'додавати')}
-            >
-              <p onClick={() => setShowNewScans(true)}>
-                <div className="tileContent">
-                  <span className="verticalText">SCANS</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
-                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="14" y="28" width="36" height="12" rx="2" />
-                    <rect x="20" y="18" width="24" height="8" rx="1" />
-                    <line className="draw" pathLength="1" x1="14" y1="40" x2="50" y2="40" />
-                  </svg>
-                </div>
-              </p>
-
-              <p onClick={() => setShowDelivery(true)}>
-                <div className="tileContent">
-                  <span className="verticalText">DELIVERY</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={deliveryIcon} alt="" />
-                </div>
-              </p>
-
-
-              <p onClick={() => openEditorForOrderUnit(null, 'WideFactory')}>
-                <div className="tileContent">
-                  <span className="verticalText">WIDE FACTORY</span>
-                  <img className="icon64 CardPrintersPoslugiImg" src={wideFactoryIcon} alt="" />
-                </div>
-              </p>
-
-              {/* Офсет — друк на аутсорсі в «Глянцю». Іконка: два друкарські
-                  циліндри й аркуш, що виходить із-під них — те, чим офсет
-                  відрізняється від решти плиток, де стоїть готовий виріб. */}
-              <p onClick={() => setShowOfset(true)}>
-                <div className="tileContent">
-                  <span className="verticalText">ОФСЕТ</span>
-                  <svg className="icon64 CardPrintersPoslugiImg" viewBox="0 0 64 64" fill="none"
-                       stroke="#2f2f2f" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="24" cy="24" r="9" />
-                    <circle cx="42" cy="24" r="6" />
-                    <path d="M12 38h40" />
-                    <path d="M18 38l4 8h20l4-8" />
-                    <line className="draw" pathLength="1" x1="16" y1="46" x2="48" y2="46" />
-                  </svg>
-                </div>
-              </p>
-            </div>
-
+                <span className="jtx-tab-label">{tab.label}</span>
+                {tab.badge ? <span className="jtx-tab-badge">{tab.badge}</span> : null}
+              </button>
+            ))}
           </div>
 
-          {/* Бланк лишається на екрані й порожнім — це місце, куди лягають
-              рядки специфікації, а не блок, який зникає разом з ними. */}
-          <div className={`d-flex flex-column nui-orders-column${hasOrders ? "" : " nui-orders-column-empty"}`}>
-            {/* Шапка «Скіко замовлення №… від …» прибрана разом зі своєю
-                лінією на прохання користувача: номер і дата наряду тепер
-                у навбарі (NavOrderHead). */}
-            {hasOrders ? (
-              <div
-                className={`nui-order-list nui-order-list-shell ${orderToneClass} nui-readonly-zone${isOrderLockedForEdit ? ' is-locked' : ''}`}
-              >
-                {selectedThings2.map((thing, index) => {
-                  const editor = getEditorByThing(thing);
-                  const editorLabel = String(editor?.label || thing.newField6 || 'редагувати').toUpperCase();
-                  const editorAccentClass = getEditorAccentClass(thing);
-                  const formattedName = formatThingName(thing.name);
-                  /* Назва стає абзацом, щойно переходить на другий рядок:
-                     у колонку наряду вміщується приблизно 88 символів. */
-                  const isNameParagraph = String(formattedName).length > 88;
-                  const hasDiscount = parseFloat(thing.priceForOneThis).toFixed(2) !== parseFloat(thing.priceForOneThisDiscount).toFixed(2);
-                  const unitPrice = hasDiscount
-                    ? parseFloat(parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2))
-                    : parseFloat(parseFloat(thing.priceForOneThis).toFixed(2));
-                  const _rawTotal = hasDiscount ? thing.priceForThisDiscount : thing.priceForAllThis;
-                  const totalPrice = parseFloat(parseFloat(parseFloat(_rawTotal) || (unitPrice * (thing.amount || 1))).toFixed(2));
+          {/* ── НАРЯД: шапка, позиції, оплата ── */}
+          <section className="jtx-panel jtx-ticket" data-tone={jtTone}>
+            <header className="jtx-panel-head jtx-ticket-head">
+              <div className="jtx-panel-title">
+                <span className="jtx-eyebrow">Наряд</span>
+                <div className="jtx-ticket-numrow">
+                  <strong className="jtx-ticket-num">№{thisOrder.id}</strong>
+                  {jtCreatedLabel && <span className="jtx-ticket-date">від {jtCreatedLabel}</span>}
+                </div>
+              </div>
+              {/* Штрих-код наряду: клік друкує наліпку, після друку наряд
+                  переходить у статус 3. Клієнту код не показуємо —
+                  наліпку друкує виробництво. */}
+              {currentUser?.role !== 'user' && thisOrder?.id && (
+                <div className="jtx-ticket-barcode nui-jt-order-barcode">
+                  <BarcodeLabel type="order" data={thisOrder} variant="full" barWidth={2} onAfterPrint={() => {
+                    axios.put('/orders/OneOrder/statusUpdate', { newStatus: 3, thisOrderId: thisOrder.id })
+                      .then(res => {
+                        const nextOrder = res?.data?.order ?? res?.data;
+                        if (nextOrder && typeof nextOrder === 'object') {
+                          setThisOrder(nextOrder);
+                          if (Array.isArray(nextOrder.OrderUnits)) setSelectedThings2(nextOrder.OrderUnits);
+                        }
+                      })
+                      .catch(err => console.error('Status update error:', err));
+                  }} />
+                </div>
+              )}
+            </header>
 
-                  return (
-                    <div
-                      key={index}
-                      className={`nui-order-row${collapsingThingIndex === index ? " is-collapsing" : ""}${collapsedThings.has(index) ? " is-collapsed" : ""}`}
-                    >
-                    {/* Заголовок НАД позицією: тип роботи тим самим рядком,
-                        що й назви груп у каталозі, і дії в його правому краї. */}
-                    <div className={`nui-item-kind ${editorAccentClass}${collapsedThings.has(index) ? " is-closed" : ""}`}>
-                      <span className="nui-kind-label">{editorLabel}</span>
-                      <span className="nui-kind-rule" />
-                      <div className="nui-item-actions">
-                        <button
-                          type="button"
-                          className="nui-item-btn nui-item-open"
-                          onClick={(e) => openThingEditor(thing, e)}
-                          title={`Відкрити «${editorLabel}»`}
-                        >
-                          <svg viewBox="0 0 16 16" aria-hidden="true">
-                            <path d="M8 3v10M3 8h10" />
-                          </svg>
-                        </button>
-                        <button
-                          type="button"
-                          className="nui-item-btn nui-item-del"
-                          onClick={(e) => handleThingClickDelete2(thing, e)}
-                          title="Видалити позицію"
-                        >✕</button>
-                      </div>
-                    </div>
-                    <div
-                      className={`nui-order-item ${orderToneClass} ${editorAccentClass}${expandedThingIndex === index ? " is-expanded" : ""}`}
-                      onClick={() => toggleExpandedThing(index)}
-                    >
-                      <div className="nui-item-body">
-                      <div className="nui-item-header">
-                        <div className="nui-item-heading">
-                          <div className={`nui-item-name${isNameParagraph ? ' is-paragraph' : ''}`} style={!isCancelledOrder ? { color: 'var(--admingrey)' } : undefined}>
+            <div className="jtx-ticket-scroll">
+              {hasOrders ? (
+                <div className={`jtx-items${isOrderLockedForEdit ? ' is-locked' : ''}`}>
+                  {selectedThings2.map((thing, index) => {
+                    const editor = getEditorByThing(thing);
+                    const editorLabel = String(editor?.label || thing.newField6 || 'редагувати').toUpperCase();
+                    const itemTone = getEditorAccentClass(thing).replace('nui-editor-accent-', '');
+                    const formattedName = formatThingName(thing.name);
+                    const hasDiscount = parseFloat(thing.priceForOneThis).toFixed(2) !== parseFloat(thing.priceForOneThisDiscount).toFixed(2);
+                    const unitPrice = hasDiscount
+                      ? parseFloat(parseFloat(thing.priceForThisDiscount / thing.amount).toFixed(2))
+                      : parseFloat(parseFloat(thing.priceForOneThis).toFixed(2));
+                    const _rawTotal = hasDiscount ? thing.priceForThisDiscount : thing.priceForAllThis;
+                    const totalPrice = parseFloat(parseFloat(parseFloat(_rawTotal) || (unitPrice * (thing.amount || 1))).toFixed(2));
+                    const fullPrice = parseFloat(parseFloat(thing.priceForAllThis).toFixed(2));
+                    const isOpen = expandedThingIndex === index;
+
+                    return (
+                      <article
+                        key={index}
+                        className={`jtx-item${isOpen ? ' is-open' : ''}${isCancelledOrder ? ' is-cancelled' : ''}`}
+                        data-tone={itemTone}
+                        onClick={() => toggleExpandedThing(index)}
+                      >
+                        <span className="jtx-item-idx">{String(index + 1).padStart(2, '0')}</span>
+
+                        <div className="jtx-item-main">
+                          <span className="jtx-item-kind">{editorLabel}</span>
+                          <div className="jtx-item-name">
                             {String(formattedName).split(/(²)/).map((part, i) =>
-                              part === '²' ? <sup key={i} style={{color: 'var(--admingrey)'}}>2</sup> : part
+                              part === '²' ? <sup key={i}>2</sup> : part
                             )}
                           </div>
-                        </div>
-                      </div>
-
-                      <div className="nui-price-row">
-                        <span className="nui-price-left">{thing.amount}<span className="nui-unit-sub">шт</span>{" х "}{unitPrice}<span className="nui-unit-sub">грн</span>{" = "}</span>
-                        <span className={`nui-price-total${hasDiscount ? ' nui-price-total--discount' : ''}`}>{parseFloat(totalPrice)}<span className="nui-price-total-unit">грн</span></span>
-                        {/* «Брак» і «Запас» — внутрішня кухня виробництва,
-                            клієнту в позиції їх не показуємо */}
-                        {currentUser?.role !== 'user' && (
-                          <OrderItemExtraSheets
-                            thing={thing}
-                            settings={extraSettings}
-                            onSaved={handleExtraSheetsSaved}
-                          />
-                        )}
-                      </div>
-
-                      {expandedThingIndex === index && (
-                        <div className="nui-item-details">
-                          <OneProductInOrders
-                            item={thing}
-                            cash={true}
-                            handleAmountChange={handleAmountChange}
-                            index={index}
-                            thisOrder={thisOrder}
-                          />
-                          {/* Підсумки одним рядком: спершу число, далі те,
-                              до чого воно стосується — так рядок читається
-                              як фраза, а не як чотири підписані поля. */}
-                          <div className="nui-details-footer-row">
-                            <span><b className="nui-footer-strong">{thing.newField4} {getPluralForm(thing.newField4, "виріб", "вироби", "виробів")}</b> на аркуші</span>
-                            <span className="nui-sep">|</span>
-                            <span><b className="nui-footer-strong">{thing.newField5} {getPluralForm(thing.newField5, "аркуш", "аркуші", "аркушів")}</b> надруковано</span>
-                            <span className="nui-sep">|</span>
-                            <span><b className="nui-footer-strong">{parseFloat(parseFloat(totalPrice / (thing.newField5 || 1)).toFixed(2))}<span className="nui-footer-price-unit">грн</span></b> за 1 аркуш</span>
-                            <span className="nui-sep">|</span>
-                            <span><b className="nui-footer-strong">{parseFloat(unitPrice)}<span className="nui-footer-price-unit">грн</span></b> за 1 шт</span>
+                          <div className="jtx-item-meta">
+                            <span className="jtx-item-calc">
+                              <b>{thing.amount}</b><small>шт</small>
+                              <span className="jtx-item-x">×</span>
+                              <b>{unitPrice}</b><small>грн</small>
+                            </span>
                           </div>
                         </div>
-                      )}
-                      </div>
-                    </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : null}
 
-            {uiLockError && (
-              <div className="nui-error-bar">
-                {uiLockError}
-              </div>
-            )}
-          </div>
+                        <div className="jtx-item-side">
+                          {/* без знижки сума червона, зі знижкою — зелена */}
+                          <span className={`jtx-item-total${hasDiscount ? ' has-discount' : ''}`}>
+                            {hasDiscount && Number.isFinite(fullPrice) && fullPrice > totalPrice && (
+                              <s className="jtx-item-old">{fullPrice}</s>
+                            )}
+                            <span className="jtx-item-total-now"><b>{totalPrice}</b><small>грн</small></span>
+                          </span>
+                          <div className="jtx-item-actions">
+                            {/* «Брак» і «Запас» — внутрішня кухня виробництва,
+                                клієнту в позиції їх не показуємо */}
+                            {currentUser?.role !== 'user' && (
+                              <OrderItemExtraSheets
+                                thing={thing}
+                                settings={extraSettings}
+                                onSaved={handleExtraSheetsSaved}
+                              />
+                            )}
+                            <button
+                              type="button"
+                              className="jtx-icon-btn jtx-item-copy"
+                              onClick={(e) => openThingEditor(thing, e, COPY_MODE)}
+                              title="Копіювати позицію — відкрити з тими самими параметрами й додати як нову"
+                              aria-label="Копіювати позицію"
+                            >
+                              <svg viewBox="0 0 20 20" aria-hidden="true">
+                                <path d="M7 7h9v9H7zM4 13V4h9" />
+                              </svg>
+                            </button>
+                            <button
+                              type="button"
+                              className="jtx-icon-btn jtx-item-edit"
+                              onClick={(e) => openThingEditor(thing, e, EDIT_MODE)}
+                              title={`Редагувати позицію в «${editorLabel}»`}
+                              aria-label="Редагувати позицію"
+                            >
+                              <svg viewBox="0 0 20 20" aria-hidden="true">
+                                <path d="M4 16h3l8.5-8.5-3-3L4 13v3zM11.5 5.5l3 3" />
+                              </svg>
+                            </button>
+                            <button
+                              type="button"
+                              className="jtx-icon-btn jtx-item-del"
+                              onClick={(e) => handleThingClickDelete2(thing, e)}
+                              title="Видалити позицію"
+                              aria-label="Видалити позицію"
+                            >
+                              <svg viewBox="0 0 20 20" aria-hidden="true">
+                                <path d="M5 5l10 10M15 5L5 15" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+
+                        {(isOpen || closingDetailsIndex === index) && (
+                          <div className={`jtx-item-details${isOpen ? '' : ' is-closing'}`}>
+                            <div className="jtx-item-units">
+                              <OneProductInOrders
+                                item={thing}
+                                cash={true}
+                                handleAmountChange={handleAmountChange}
+                                index={index}
+                                thisOrder={thisOrder}
+                              />
+                            </div>
+                            <dl className="jtx-item-facts">
+                              <div><dt>на аркуші</dt><dd>{thing.newField4} {getPluralForm(thing.newField4, "виріб", "вироби", "виробів")}</dd></div>
+                              <div><dt>надруковано</dt><dd>{thing.newField5} {getPluralForm(thing.newField5, "аркуш", "аркуші", "аркушів")}</dd></div>
+                              <div><dt>за 1 аркуш</dt><dd>{parseFloat(parseFloat(totalPrice / (thing.newField5 || 1)).toFixed(2))} грн</dd></div>
+                              <div><dt>за 1 шт</dt><dd>{parseFloat(unitPrice)} грн</dd></div>
+                            </dl>
+                          </div>
+                        )}
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="jtx-empty">
+                  <span className="jtx-empty-mark" aria-hidden="true">
+                    <svg viewBox="0 0 48 48">
+                      <path d="M12 6h17l7 7v29H12zM29 6v7h7M24 21v12M18 27h12" />
+                    </svg>
+                  </span>
+                  <strong className="jtx-empty-title">Наряд порожній</strong>
+                  <span className="jtx-empty-text">Оберіть роботу в каталозі — вона ляже сюди першою позицією</span>
+                </div>
+              )}
+
+              {/* На телефоні каталог — окрема вкладка: веде туди ця кнопка */}
+              {!isOrderLockedForEdit && (
+                <button type="button" className="jtx-add-btn" onClick={() => setJtTab('catalog')}>
+                  <span className="jtx-add-plus" aria-hidden="true">+</span>
+                  <span>Додати роботу</span>
+                </button>
+              )}
+
+              {uiLockError && (
+                <div className="jtx-error" role="alert">{uiLockError}</div>
+              )}
 
           {/* ── Uklon Map + Tracking (правіше від списку замовлень) ── */}
           {uklonMapData && (() => {
@@ -1743,115 +1620,104 @@ const NewUIArtem = () => {
               </div>
             );
           })()}
-
-          {/* is-client: у клієнта в підвалі немає кнопок оплати, тож
-              мінімальна висота 130px лишала б порожню смугу (див.
-              progressbar_styles.css, .pb-shell--client) */}
-          <div className={`d-flex flex-row nui-bottom-shell${currentUser?.role === 'user' ? ' is-client' : ''}`}>
-            <div className="nui-bottom-pane nui-bottom-pane--progress">
-              {/* Штрих-код наряду (номер + дата) — над блоком оплат. Раніше
-                  порталився в док (#pp-dock-barcode-slot), на прохання
-                  користувача переїхав сюди. Після друку наліпки наряд
-                  переходить у статус 3. Клієнту (role === 'user') код не
-                  показуємо: наліпку друкує виробництво. */}
-              {currentUser?.role !== 'user' && thisOrder?.id && (
-                <div className="nui-jt-order-barcode">
-                  <BarcodeLabel type="order" data={thisOrder} variant="full" barWidth={2.8} onAfterPrint={() => {
-                    axios.put('/orders/OneOrder/statusUpdate', { newStatus: 3, thisOrderId: thisOrder.id })
-                      .then(res => {
-                        const nextOrder = res?.data?.order ?? res?.data;
-                        if (nextOrder && typeof nextOrder === 'object') {
-                          setThisOrder(nextOrder);
-                          if (Array.isArray(nextOrder.OrderUnits)) setSelectedThings2(nextOrder.OrderUnits);
-                        }
-                      })
-                      .catch(err => console.error('Status update error:', err));
-                  }} />
-                  <div className="nui-jt-order-barcode-meta">
-                    <span className="nui-jt-order-barcode-num">№{thisOrder.id}</span>
-                    {thisOrder.createdAt && !Number.isNaN(new Date(thisOrder.createdAt).getTime()) && (
-                      <span className="nui-jt-order-barcode-date">від {new Date(thisOrder.createdAt).toLocaleDateString('uk-UA')}</span>
-                    )}
-                  </div>
-                </div>
-              )}
-              <div className="nui-bottom-main-row">
-                <div className="nui-bottom-finance-inline">
-                  <div className="nui-finance-pb-wrap">
-                  <ProgressBar
-                    thisOrder={thisOrder}
-                    setThisOrder={setThisOrder}
-                    setSelectedThings2={setSelectedThings2}
-                    selectedThings2={selectedThings2}
-                    externalError={uiLockError}
-                    showActionRail={false}
-                    showFinance={true}
-                    showError={false}
-                    onDiscountError={setUiLockError}
-                    /* Штрих-код (+ТТН, якщо є накладна) — правий край
-                       фінансового рядка, у слоті financeAside. Раніше стояв
-                       у самому низу каталогу модалок; там він з'їдав висоту,
-                       якої не вистачало каталогу на Full HD. Сусідом самому
-                       рядку метрик його не поставиш — стрічка кнопок над
-                       ними мусить лишатись на всю ширину картки. */
-                    financeAside={
-                      <div className={`nui-deadline-envelope nui-jt-foot-barcode${isDeadlineOverdue ? ' nui-deadline--overdue' : ''}`}>
-                <div className="nui-barcode-with-ttn">
-                  {thisOrder?.Waybills?.length > 0 && (
-                    <div className="nui-ttn-block">
-                      <span className="nui-ttn-number">{thisOrder.Waybills[0].intDocNumber}</span>
-                      <div className="nui-ttn-buttons">
-                        <button
-                          className="nui-client-rect-btn nui-ttn-rect-btn"
-                          title="Завантажити ТТН (PDF)"
-                          onClick={() => {
-                            axios.get(`/novaposhta/print/${thisOrder.Waybills[0].ref}`, { responseType: 'blob' })
-                              .then(res => {
-                                const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = `TTN_${thisOrder.Waybills[0].intDocNumber}.pdf`;
-                                a.click();
-                                window.URL.revokeObjectURL(url);
-                              })
-                              .catch(err => console.error('[NP] TTN download error:', err));
-                          }}
-                        ><span className="nui-client-rect-btn-text">ТТН</span></button>
-                        <button
-                          className="nui-client-rect-btn nui-ttn-rect-btn"
-                          title="Завантажити наліпку (PDF)"
-                          onClick={() => {
-                            axios.get(`/novaposhta/print-sticker/${thisOrder.Waybills[0].ref}`, { responseType: 'blob' })
-                              .then(res => {
-                                const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = `Sticker_${thisOrder.Waybills[0].intDocNumber}.pdf`;
-                                a.click();
-                                window.URL.revokeObjectURL(url);
-                              })
-                              .catch(err => console.error('[NP] Sticker download error:', err));
-                          }}
-                        ><span className="nui-client-rect-btn-text">НАЛІПКА</span></button>
-                        <NovaPoshtaThermalButton
-                          waybillRef={thisOrder.Waybills[0].ref}
-                          intDocNumber={thisOrder.Waybills[0].intDocNumber}
-                          className="nui-client-rect-btn nui-ttn-rect-btn"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-                </div>
-                    }
-                  />
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
+
+            {/* Оплата. Обгортка навмисно БЕЗ .nui-jt: стилі блоку — у
+                jobTicket/jobTicketPay.css, а старі правила наряду з
+                progressbar_styles.css сюди не дістають. */}
+            <footer className={`jtx-pay${currentUser?.role === 'user' ? ' is-client' : ''}`}>
+              <ProgressBar
+                thisOrder={thisOrder}
+                setThisOrder={setThisOrder}
+                setSelectedThings2={setSelectedThings2}
+                selectedThings2={selectedThings2}
+                externalError={uiLockError}
+                showActionRail={false}
+                showFinance={true}
+                showError={false}
+                onDiscountError={setUiLockError}
+                /* Накладна Нової Пошти (номер + PDF/наліпка) — у слоті
+                   financeAside, під метриками. Без накладної слот порожній. */
+                financeAside={thisOrder?.Waybills?.length > 0 ? (
+                <div className="jtx-ttn">
+                  <span className="jtx-ttn-num">{thisOrder.Waybills[0].intDocNumber}</span>
+                  <div className="jtx-ttn-btns">
+                    <button
+                      className="jtx-btn"
+                      title="Завантажити ТТН (PDF)"
+                      onClick={() => {
+                        axios.get(`/novaposhta/print/${thisOrder.Waybills[0].ref}`, { responseType: 'blob' })
+                          .then(res => {
+                            const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `TTN_${thisOrder.Waybills[0].intDocNumber}.pdf`;
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                          })
+                          .catch(err => console.error('[NP] TTN download error:', err));
+                      }}
+                    ><span className="jtx-btn-text">ТТН</span></button>
+                    <button
+                      className="jtx-btn"
+                      title="Завантажити наліпку (PDF)"
+                      onClick={() => {
+                        axios.get(`/novaposhta/print-sticker/${thisOrder.Waybills[0].ref}`, { responseType: 'blob' })
+                          .then(res => {
+                            const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `Sticker_${thisOrder.Waybills[0].intDocNumber}.pdf`;
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                          })
+                          .catch(err => console.error('[NP] Sticker download error:', err));
+                      }}
+                    ><span className="jtx-btn-text">НАЛІПКА</span></button>
+                    <NovaPoshtaThermalButton
+                      waybillRef={thisOrder.Waybills[0].ref}
+                      intDocNumber={thisOrder.Waybills[0].intDocNumber}
+                      className="jtx-btn"
+                      label="ТЕРМОДРУК"
+                    />
+                  </div>
+                </div>
+                ) : null}
+              />
+            </footer>
+          </section>
+
+          {/* ── ФАЙЛИ КЛІЄНТА / КОМПАНІЇ ── */}
+          <section className="jtx-panel jtx-files">
+            {thisOrder?.client?.id ? (
+              <ClientFilesPanel
+                inline
+                hideCatalog
+                userId={thisOrder.client.id}
+                clientName={thisOrder.client.firstName ? `${thisOrder.client.firstName} ${thisOrder.client.lastName || ''}` : ''}
+                companyId={thisOrder.client?.Company?.id}
+                companyName={thisOrder.client?.Company?.companyName || ''}
+                orderId={thisOrder?.id}
+              />
+            ) : (
+              <div className="jtx-empty jtx-empty--files">
+                <strong className="jtx-empty-title">Клієнта не обрано</strong>
+                <span className="jtx-empty-text">Файли з'являться, щойно до наряду прив'яжуть замовника</span>
+              </div>
+            )}
+          </section>
+
+          {/* ── КАТАЛОГ РОБІТ ── */}
+          <JobCatalog
+            onOpen={openCatalogEditor}
+            hidden={currentUser?.role === 'user' ? ['WideFactory'] : []}
+            locked={isOrderLockedForEdit}
+            swapped={workspaceSwapped}
+            onToggleSwap={toggleWorkspaceSwap}
+          />
 
         </div>
+
 
 
         <ModalDeleteOrderUnit
